@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-CityCommunicationCenter.Worker-0f0c7062-2de1-43c1-bf38-3b859222c760</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CityCommunicationCenter.Application\CityCommunicationCenter.Application.csproj" />
+    <ProjectReference Include="..\CityCommunicationCenter.Infrastructure\CityCommunicationCenter.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

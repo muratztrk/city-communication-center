@@ -61,6 +61,16 @@ services:
       Jwt__Issuer: CityCommunicationCenter
       Jwt__Audience: CityCommunicationCenter
       Cors__AllowedOrigins__0: http://localhost:8080
+      ActiveDirectory__Enabled: ${AD_ENABLED:-false}
+      ActiveDirectory__Host: ${AD_HOST:-}
+      ActiveDirectory__Port: ${AD_PORT:-389}
+      ActiveDirectory__UseSsl: ${AD_USE_SSL:-false}
+      ActiveDirectory__IgnoreCertificateErrors: ${AD_IGNORE_CERT_ERRORS:-false}
+      ActiveDirectory__Domain: ${AD_DOMAIN:-}
+      ActiveDirectory__SearchBase: ${AD_SEARCH_BASE:-}
+      ActiveDirectory__AutoProvisionUsers: ${AD_AUTO_PROVISION_USERS:-false}
+      ActiveDirectory__DefaultRoleCode: ${AD_DEFAULT_ROLE_CODE:-Staff}
+      ActiveDirectory__DefaultDepartmentId: ${AD_DEFAULT_DEPARTMENT_ID:-}
     ports:
       - "5100:8080"
 

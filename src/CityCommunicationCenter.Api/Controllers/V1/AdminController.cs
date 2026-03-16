@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Api.Services;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Infrastructure.Persistence;
 using CityCommunicationCenter.Shared.Contracts;
@@ -22,6 +23,22 @@ public sealed class AdminController : ApiControllerBase
     [HttpGet("tenants/{tenantId:guid}/settings")]
     public async Task<ActionResult<TenantSettingsResponse>> GetTenantSettings(Guid tenantId, CancellationToken cancellationToken)
     {
+        var accessError = EnsureAdminAccess();
+        if (accessError is not null)
+        {
+            return accessError;
+        }
+
+        if (!TryGetTenantId(out var contextTenantId, out var tenantError))
+        {
+            return tenantError;
+        }
+
+        if (contextTenantId.Value != tenantId)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "Tenant yetkisi doğrulanamadı." });
+        }
+
         var settings = await _dbContext.TenantSettings
             .WhereTenant(tenantId)
             .FirstOrDefaultAsync(cancellationToken);
@@ -45,6 +62,22 @@ public sealed class AdminController : ApiControllerBase
         [FromBody] UpdateTenantSettingsRequest request,
         CancellationToken cancellationToken)
     {
+        var accessError = EnsureAdminAccess();
+        if (accessError is not null)
+        {
+            return accessError;
+        }
+
+        if (!TryGetTenantId(out var contextTenantId, out var tenantError))
+        {
+            return tenantError;
+        }
+
+        if (contextTenantId.Value != tenantId)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "Tenant yetkisi doğrulanamadı." });
+        }
+
         var settings = new TenantSetting
         {
             TenantSettingId = Guid.NewGuid(),
@@ -64,6 +97,12 @@ public sealed class AdminController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public IActionResult PublishWorkflow([FromBody] PublishWorkflowRequest request)
     {
+        var accessError = EnsureAdminAccess();
+        if (accessError is not null)
+        {
+            return accessError;
+        }
+
         return Accepted(new
         {
             message = "Workflow publication contract accepted.",
@@ -76,6 +115,12 @@ public sealed class AdminController : ApiControllerBase
     [HttpGet("audit-logs")]
     public async Task<ActionResult<IEnumerable<AuditLogResponse>>> GetAuditLogs(CancellationToken cancellationToken)
     {
+        var accessError = EnsureAdminAccess();
+        if (accessError is not null)
+        {
+            return accessError;
+        }
+
         if (!TryGetTenantId(out var tenantId, out var error))
         {
             return error;
@@ -99,5 +144,86 @@ public sealed class AdminController : ApiControllerBase
             .ToList();
 
         return Ok(response);
+    }
+
+    [HttpGet("tenants/{tenantId:guid}/menu-visibility")]
+    public async Task<ActionResult<MenuVisibilitySettingsResponse>> GetMenuVisibilitySettings(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var accessError = EnsureAdminAccess();
+        if (accessError is not null)
+        {
+            return accessError;
+        }
+
+        if (!TryGetTenantId(out var contextTenantId, out var tenantError))
+        {
+            return tenantError;
+        }
+
+        if (contextTenantId.Value != tenantId)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "Tenant yetkisi doğrulanamadı." });
+        }
+
+        var menuVisibilityRulesJson = await _dbContext.GetMenuVisibilityRulesJsonAsync(tenantId, cancellationToken);
+        var rules = MenuVisibilityPolicy.Deserialize(menuVisibilityRulesJson);
+        return Ok(new MenuVisibilitySettingsResponse(
+            tenantId,
+            rules,
+            MenuVisibilityPolicy.GetSupportedMenuKeys(),
+            MenuVisibilityPolicy.GetSupportedRoleCodes()));
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/menu-visibility")]
+    public async Task<IActionResult> UpdateMenuVisibilitySettings(
+        Guid tenantId,
+        [FromBody] UpdateMenuVisibilitySettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var accessError = EnsureAdminAccess();
+        if (accessError is not null)
+        {
+            return accessError;
+        }
+
+        if (!TryGetTenantId(out var contextTenantId, out var tenantError))
+        {
+            return tenantError;
+        }
+
+        if (contextTenantId.Value != tenantId)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "Tenant yetkisi doğrulanamadı." });
+        }
+
+        var serializedRules = MenuVisibilityPolicy.Serialize(request.Rules);
+        await _dbContext.SetMenuVisibilityRulesJsonAsync(tenantId, serializedRules, CurrentContext.UserId, cancellationToken);
+        return NoContent();
+    }
+
+    private ActionResult? EnsureAdminAccess()
+    {
+        if (!CurrentContext.IsAuthenticated)
+        {
+            return Unauthorized(new { error = "Bu işlem için oturum açmanız gerekiyor." });
+        }
+
+        if (!IsSystemAdminRole(CurrentContext.RoleCode))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "Bu işlem için sistem yöneticisi yetkisi gereklidir." });
+        }
+
+        return null;
+    }
+
+    private static bool IsSystemAdminRole(string? roleCode)
+    {
+        if (string.IsNullOrWhiteSpace(roleCode))
+        {
+            return false;
+        }
+
+        var normalizedRole = new string(roleCode.Where(char.IsLetter).ToArray()).ToLowerInvariant();
+        return normalizedRole == "systemadmin";
     }
 }

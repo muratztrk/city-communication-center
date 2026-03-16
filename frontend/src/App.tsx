@@ -1,6 +1,7 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { getApiUrl } from './config/api';
 import './App.css';
 
 const DashboardPage = lazy(() =>
@@ -28,6 +29,10 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 
 type Page = 'dashboard' | 'departments' | 'users' | 'tasks' | 'social' | 'audit' | 'settings';
 
+interface MenuVisibilityPayload {
+  menuVisibility: Record<string, boolean>;
+}
+
 function LoadingState() {
   const { t } = useTranslation('common');
   return <div className="loading">{t('common.loading')}</div>;
@@ -35,8 +40,9 @@ function LoadingState() {
 
 function AppContent() {
   const { t } = useTranslation('common');
-  const { isAuthenticated, isLoading, user, logout } = useAuth();
+  const { isAuthenticated, isLoading, user, token, logout } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [menuVisibility, setMenuVisibility] = useState<Record<string, boolean>>({});
   const normalizeRole = (value?: string | null) => value?.replace(/[^a-z]/gi, '').toLowerCase() ?? '';
   const getSidebarDisplayName = () => {
     const name = user?.displayName?.trim();
@@ -56,6 +62,48 @@ function AppContent() {
 
     return name;
   };
+
+  useEffect(() => {
+    if (!isAuthenticated || !token || !user?.tenantId) {
+      setMenuVisibility({});
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadMenuVisibility = async () => {
+      try {
+        const response = await fetch(getApiUrl('/me/menu-visibility'), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'X-Tenant-Id': user.tenantId,
+          },
+        });
+
+        if (!response.ok) {
+          if (!isCancelled) {
+            setMenuVisibility({});
+          }
+          return;
+        }
+
+        const payload = (await response.json()) as MenuVisibilityPayload;
+        if (!isCancelled) {
+          setMenuVisibility(payload.menuVisibility ?? {});
+        }
+      } catch {
+        if (!isCancelled) {
+          setMenuVisibility({});
+        }
+      }
+    };
+
+    void loadMenuVisibility();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isAuthenticated, token, user?.tenantId]);
 
   if (isLoading) {
     return (
@@ -80,16 +128,31 @@ function AppContent() {
     { page: 'social', labelKey: 'app.nav.social', icon: '📱' },
     { page: 'departments', labelKey: 'app.nav.departments', icon: '🏢' },
     { page: 'users', labelKey: 'app.nav.users', icon: '👥' },
-    { page: 'audit', labelKey: 'app.nav.audit', icon: '📜' },
+    { page: 'audit', labelKey: 'app.nav.audit', icon: '📜', adminOnly: true },
     { page: 'settings', labelKey: 'app.nav.settings', icon: '⚙️', adminOnly: true },
   ];
+  const isSystemAdmin = normalizeRole(user?.role) === 'systemadmin';
 
-  const visibleNavItems = navItems.filter((item) =>
-    !item.adminOnly || user?.role === 'SystemAdmin',
-  );
+  const isItemVisible = (item: { page: Page; adminOnly?: boolean }) => {
+    if (item.adminOnly && !isSystemAdmin) {
+      return false;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(menuVisibility, item.page)) {
+      return menuVisibility[item.page];
+    }
+
+    return true;
+  };
+
+  const visibleNavItems = navItems.filter(isItemVisible);
+  const fallbackPage = visibleNavItems[0]?.page ?? 'dashboard';
+  const currentPageForView = visibleNavItems.some((item) => item.page === currentPage)
+    ? currentPage
+    : fallbackPage;
 
   const renderPage = () => {
-    switch (currentPage) {
+    switch (currentPageForView) {
       case 'dashboard':
         return <DashboardPage />;
       case 'departments':
@@ -101,9 +164,9 @@ function AppContent() {
       case 'social':
         return <SocialMessagesPage />;
       case 'audit':
-        return <AuditLogsPage />;
+        return isSystemAdmin ? <AuditLogsPage /> : <DashboardPage />;
       case 'settings':
-        return <SettingsPage />;
+        return isSystemAdmin ? <SettingsPage /> : <DashboardPage />;
       default:
         return <DashboardPage />;
     }
@@ -120,7 +183,7 @@ function AppContent() {
           {visibleNavItems.map((item) => (
             <button
               key={item.page}
-              className={`nav-item ${currentPage === item.page ? 'active' : ''}`}
+              className={`nav-item ${currentPageForView === item.page ? 'active' : ''}`}
               onClick={() => setCurrentPage(item.page)}
             >
               <span className="nav-icon">{item.icon}</span>

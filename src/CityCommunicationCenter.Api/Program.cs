@@ -119,6 +119,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.Configure<ActiveDirectoryOptions>(
+    builder.Configuration.GetSection(ActiveDirectoryOptions.SectionName));
+builder.Services.AddScoped<IActiveDirectoryAuthenticationService, ActiveDirectoryAuthenticationService>();
 builder.Services.AddScoped<AuthService>();
 
 builder.Services
@@ -163,6 +166,18 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
+// Idempotent DB migration: ensure all VARCHAR columns are NVARCHAR for Turkish/Unicode support
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<CityCommunicationCenter.Infrastructure.Persistence.CityCommunicationCenterDbContext>();
+    await db.EnsureNVarCharColumnsAsync();
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "NVARCHAR migration skipped (DB may be unavailable)");
+}
+
 app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler(exceptionHandlerApp =>
@@ -182,7 +197,7 @@ app.UseExceptionHandler(exceptionHandlerApp =>
         }
 
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = "application/json; charset=utf-8";
 
         await context.Response.WriteAsJsonAsync(new
         {
@@ -211,7 +226,8 @@ app.Use(async (context, next) =>
     var path = context.Request.Path;
     var isApiRoute = path.StartsWithSegments("/api/v1");
     var isPublicAuthEndpoint = path.StartsWithSegments("/api/v1/auth/login")
-        || path.StartsWithSegments("/api/v1/auth/tenants");
+        || path.StartsWithSegments("/api/v1/auth/tenants")
+        || path.StartsWithSegments("/api/v1/auth/bootstrap");
 
     if (!isApiRoute || isPublicAuthEndpoint)
     {
@@ -223,7 +239,7 @@ app.Use(async (context, next) =>
         || string.IsNullOrWhiteSpace(tenantIdHeader))
     {
         context.Response.StatusCode = StatusCodes.Status400BadRequest;
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = "application/json; charset=utf-8";
         await context.Response.WriteAsJsonAsync(new
         {
             error = "X-Tenant-Id başlığı zorunludur."
@@ -237,7 +253,7 @@ app.Use(async (context, next) =>
         && !string.Equals(tenantClaim, tenantIdHeader.ToString(), StringComparison.OrdinalIgnoreCase))
     {
         context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = "application/json; charset=utf-8";
         await context.Response.WriteAsJsonAsync(new
         {
             error = "Tenant uyuşmazlığı tespit edildi."

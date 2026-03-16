@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { getApiUrl } from '../config/api';
 
@@ -35,11 +36,55 @@ interface Department {
   name: string;
 }
 
+interface MenuVisibilityRule {
+  menuKey: string;
+  isVisible: boolean;
+  allowedRoles: string[];
+  allowedDepartmentIds: string[];
+}
+
+interface MenuVisibilitySettingsResponse {
+  tenantId: string;
+  rules: MenuVisibilityRule[];
+  supportedMenuKeys: string[];
+  supportedRoleCodes: string[];
+}
+
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp';
-type SettingsTab = 'social' | 'routing';
+type SettingsTab = 'social' | 'routing' | 'menuVisibility';
 const REQUEST_TIMEOUT_MS = 15000;
+const DEFAULT_MENU_KEYS = ['dashboard', 'tasks', 'social', 'departments', 'users', 'audit', 'settings'];
+const DEFAULT_ROLE_CODES = ['systemadmin', 'manager', 'operator', 'staff', 'reporter'];
+const ROLE_LABELS: Record<string, string> = {
+  systemadmin: 'Sistem Yöneticisi',
+  manager: 'Yönetici',
+  operator: 'Operatör',
+  staff: 'Personel',
+  reporter: 'Raporlayıcı',
+};
+const MENU_ICON_BY_KEY: Record<string, string> = {
+  dashboard: '📊',
+  tasks: '📋',
+  social: '📱',
+  departments: '🏢',
+  users: '👥',
+  audit: '📜',
+  settings: '⚙️',
+};
+
+const normalizeRoleCode = (value: string) => value.replace(/[^a-z]/gi, '').toLowerCase();
+const normalizeMenuKey = (value: string) => value.trim().toLowerCase();
+
+const createDefaultMenuRules = (menuKeys: string[] = DEFAULT_MENU_KEYS): MenuVisibilityRule[] =>
+  menuKeys.map((menuKey) => ({
+    menuKey,
+    isVisible: true,
+    allowedRoles: [],
+    allowedDepartmentIds: [],
+  }));
 
 export function SettingsPage() {
+  const { t } = useTranslation('common');
   const { token, user } = useAuth();
   const [activeTab, setActiveTab] = useState<SettingsTab>('social');
   const [settings, setSettings] = useState<SocialSettings | null>(null);
@@ -56,6 +101,9 @@ export function SettingsPage() {
   const [ruleForm, setRuleForm] = useState({ ruleName: '', keywords: '', targetDepartmentId: '', priority: 50 });
   const [testContent, setTestContent] = useState('');
   const [testResult, setTestResult] = useState<{ departmentId: string | null; departmentName: string | null } | null>(null);
+  const [menuKeys, setMenuKeys] = useState<string[]>(DEFAULT_MENU_KEYS);
+  const [roleCodes, setRoleCodes] = useState<string[]>(DEFAULT_ROLE_CODES);
+  const [menuRules, setMenuRules] = useState<MenuVisibilityRule[]>(createDefaultMenuRules(DEFAULT_MENU_KEYS));
 
   // Form states for each platform
   const [xForm, setXForm] = useState({ apiKey: '', apiSecret: '', accessToken: '', accessTokenSecret: '', bearerToken: '' });
@@ -133,6 +181,64 @@ export function SettingsPage() {
     }
   };
 
+  const normalizeMenuKeyList = (keys: string[] | null | undefined): string[] => {
+    const normalizedKeys = Array.from(new Set(
+      (keys ?? [])
+        .map(normalizeMenuKey)
+        .filter((key) => key.length > 0),
+    ));
+
+    return normalizedKeys.length > 0 ? normalizedKeys : [...DEFAULT_MENU_KEYS];
+  };
+
+  const normalizeRoleCodeList = (roles: string[] | null | undefined): string[] => {
+    const normalizedRoles = Array.from(new Set(
+      (roles ?? [])
+        .map(normalizeRoleCode)
+        .filter((role) => role.length > 0),
+    ));
+
+    return normalizedRoles.length > 0 ? normalizedRoles : [...DEFAULT_ROLE_CODES];
+  };
+
+  const normalizeMenuRules = (
+    rules: MenuVisibilityRule[] | null | undefined,
+    sourceMenuKeys: string[] = menuKeys,
+  ): MenuVisibilityRule[] => {
+    const keys = normalizeMenuKeyList(sourceMenuKeys);
+    const normalized = new Map<string, MenuVisibilityRule>();
+
+    for (const key of keys) {
+      normalized.set(key, {
+        menuKey: key,
+        isVisible: true,
+        allowedRoles: [],
+        allowedDepartmentIds: [],
+      });
+    }
+
+    for (const rule of rules ?? []) {
+      const menuKey = normalizeMenuKey(rule.menuKey);
+      if (!normalized.has(menuKey)) {
+        continue;
+      }
+
+      normalized.set(menuKey, {
+        menuKey,
+        isVisible: rule.isVisible,
+        allowedRoles: Array.from(new Set((rule.allowedRoles ?? []).map(normalizeRoleCode).filter((role) => role.length > 0))),
+        allowedDepartmentIds: Array.from(new Set(rule.allowedDepartmentIds ?? [])),
+      });
+    }
+
+    return keys.map((key) => normalized.get(key) ?? {
+      menuKey: key,
+      isVisible: true,
+      allowedRoles: [],
+      allowedDepartmentIds: [],
+    });
+  };
+
   const fetchSettings = async () => {
     const data = await apiRequest<SocialSettings>('/admin/social-settings');
     if (data) {
@@ -154,13 +260,27 @@ export function SettingsPage() {
     }
   };
 
+  const fetchMenuVisibility = async () => {
+    if (!user?.tenantId) {
+      return;
+    }
+
+    const data = await apiRequest<MenuVisibilitySettingsResponse>(`/admin/tenants/${user.tenantId}/menu-visibility`);
+    const nextMenuKeys = normalizeMenuKeyList(data?.supportedMenuKeys);
+    const nextRoleCodes = normalizeRoleCodeList(data?.supportedRoleCodes);
+
+    setMenuKeys(nextMenuKeys);
+    setRoleCodes(nextRoleCodes);
+    setMenuRules(normalizeMenuRules(data?.rules, nextMenuKeys));
+  };
+
   useEffect(() => {
     let isCancelled = false;
 
     const loadPage = async () => {
       setLoading(true);
       try {
-        await Promise.all([fetchSettings(), fetchRoutingConfig(), fetchDepartments()]);
+        await Promise.all([fetchSettings(), fetchRoutingConfig(), fetchDepartments(), fetchMenuVisibility()]);
       } catch (error) {
         if (!isCancelled) {
           setMessage({ type: 'error', text: toErrorMessage(error, 'Ayarlar yüklenemedi') });
@@ -254,6 +374,60 @@ export function SettingsPage() {
     setShowNewRule(true);
   };
 
+  const updateMenuRule = (menuKey: string, update: (rule: MenuVisibilityRule) => MenuVisibilityRule) => {
+    const normalizedMenuKey = normalizeMenuKey(menuKey);
+    setMenuRules((previousRules) => {
+      const normalizedRules = normalizeMenuRules(previousRules);
+      return normalizedRules.map((rule) => (rule.menuKey === normalizedMenuKey ? update(rule) : rule));
+    });
+  };
+
+  const toggleMenuRole = (menuKey: string, roleCode: string) => {
+    const normalizedRole = normalizeRoleCode(roleCode);
+    updateMenuRule(menuKey, (rule) => {
+      const exists = rule.allowedRoles.includes(normalizedRole);
+      return {
+        ...rule,
+        allowedRoles: exists
+          ? rule.allowedRoles.filter((role) => role !== normalizedRole)
+          : [...rule.allowedRoles, normalizedRole],
+      };
+    });
+  };
+
+  const toggleMenuDepartment = (menuKey: string, departmentId: string) => {
+    updateMenuRule(menuKey, (rule) => {
+      const exists = rule.allowedDepartmentIds.includes(departmentId);
+      return {
+        ...rule,
+        allowedDepartmentIds: exists
+          ? rule.allowedDepartmentIds.filter((id) => id !== departmentId)
+          : [...rule.allowedDepartmentIds, departmentId],
+      };
+    });
+  };
+
+  const saveMenuVisibility = async () => {
+    if (!user?.tenantId) {
+      setMessage({ type: 'error', text: 'Tenant bilgisi bulunamadı.' });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await apiRequest(`/admin/tenants/${user.tenantId}/menu-visibility`, {
+        method: 'PUT',
+        body: JSON.stringify({ rules: menuRules }),
+      });
+      setMessage({ type: 'success', text: 'Menü görünürlük ayarları kaydedildi.' });
+      await fetchMenuVisibility();
+    } catch (error) {
+      setMessage({ type: 'error', text: toErrorMessage(error, 'Menü görünürlük ayarları kaydedilemedi') });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSave = async (channel: ChannelType, e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -312,6 +486,23 @@ export function SettingsPage() {
     { id: 'whatsapp' as ChannelType, name: 'WhatsApp', icon: '💬', color: '#25D366' }
   ];
 
+  const getRoleLabel = (roleCode: string) => {
+    const normalizedRole = normalizeRoleCode(roleCode);
+    return ROLE_LABELS[normalizedRole] ?? roleCode;
+  };
+
+  const getMenuLabel = (menuKey: string) => {
+    const key = normalizeMenuKey(menuKey);
+    const translationKey = `app.nav.${key}`;
+    const localized = t(translationKey);
+    return localized === translationKey ? key : localized;
+  };
+
+  const getMenuIcon = (menuKey: string) => {
+    const key = normalizeMenuKey(menuKey);
+    return MENU_ICON_BY_KEY[key] ?? '📌';
+  };
+
   if (loading) return <div className="page-loading">Yükleniyor...</div>;
 
   return (
@@ -333,6 +524,12 @@ export function SettingsPage() {
           onClick={() => setActiveTab('routing')}
         >
           🔀 Otomatik Yönlendirme
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'menuVisibility' ? 'active' : ''}`}
+          onClick={() => setActiveTab('menuVisibility')}
+        >
+          🧭 Menü Görünürlüğü
         </button>
       </div>
 
@@ -467,6 +664,110 @@ export function SettingsPage() {
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {activeTab === 'menuVisibility' && (
+        <div className="menu-visibility-section">
+          <div className="menu-visibility-header">
+            <div>
+              <h3>Menü Görünürlük Yetkileri</h3>
+              <p>Menüleri rol ve departmana göre gösterebilir/gizleyebilirsiniz. Boş sütunlar "herkese açık" anlamına gelir.</p>
+            </div>
+            <button className="btn btn-success" onClick={saveMenuVisibility} disabled={saving}>
+              {saving ? 'Kaydediliyor...' : 'Kaydet'}
+            </button>
+          </div>
+
+          <div className="mv-table-wrapper">
+            <table className="mv-table">
+              <thead>
+                <tr>
+                  <th className="mv-col-menu">Menü</th>
+                  <th className="mv-col-toggle">Görünür</th>
+                  {roleCodes.map((rc) => (
+                    <th key={rc} className="mv-col-check" title={getRoleLabel(rc)}>
+                      <span className="mv-col-label">{getRoleLabel(rc)}</span>
+                    </th>
+                  ))}
+                  {departments.map((dept) => (
+                    <th key={dept.departmentId} className="mv-col-check mv-col-dept" title={dept.name}>
+                      <span className="mv-col-label">{dept.name}</span>
+                    </th>
+                  ))}
+                </tr>
+                <tr className="mv-group-row">
+                  <th></th>
+                  <th></th>
+                  <th colSpan={roleCodes.length} className="mv-group-label">Roller</th>
+                  {departments.length > 0 && (
+                    <th colSpan={departments.length} className="mv-group-label mv-group-dept">Departmanlar</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {menuRules.map((rule) => {
+                  const hasAnyRole = rule.allowedRoles.length > 0;
+                  const hasAnyDept = rule.allowedDepartmentIds.length > 0;
+                  return (
+                    <tr key={rule.menuKey} className={rule.isVisible ? '' : 'mv-row-disabled'}>
+                      <td className="mv-col-menu">
+                        <span className="mv-menu-icon">{getMenuIcon(rule.menuKey)}</span>
+                        <span className="mv-menu-name">{getMenuLabel(rule.menuKey)}</span>
+                      </td>
+                      <td className="mv-col-toggle">
+                        <input
+                          type="checkbox"
+                          checked={rule.isVisible}
+                          onChange={(e) =>
+                            updateMenuRule(rule.menuKey, (cur) => ({
+                              ...cur,
+                              isVisible: e.target.checked,
+                            }))
+                          }
+                        />
+                      </td>
+                      {roleCodes.map((rc) => {
+                        const normalizedRc = normalizeRoleCode(rc);
+                        const checked = rule.allowedRoles.includes(normalizedRc);
+                        return (
+                          <td key={rc} className={`mv-col-check ${!hasAnyRole && rule.isVisible ? 'mv-cell-all' : ''}`}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              disabled={!rule.isVisible}
+                              onChange={() => toggleMenuRole(rule.menuKey, rc)}
+                            />
+                          </td>
+                        );
+                      })}
+                      {departments.map((dept) => {
+                        const checked = rule.allowedDepartmentIds.includes(dept.departmentId);
+                        return (
+                          <td key={dept.departmentId} className={`mv-col-check mv-col-dept ${!hasAnyDept && rule.isVisible ? 'mv-cell-all' : ''}`}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              disabled={!rule.isVisible}
+                              onChange={() => toggleMenuDepartment(rule.menuKey, dept.departmentId)}
+                            />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mv-legend">
+            <span className="mv-legend-item"><span className="mv-legend-swatch mv-legend-all"></span> Tümüne açık (hiç seçim yok)</span>
+            <span className="mv-legend-item"><span className="mv-legend-swatch mv-legend-selected"></span> Seçili rol/departmanlara özel</span>
+          </div>
+          <p className="menu-visibility-note">
+            Not: Denetim ve Ayarlar menüleri sistem yöneticisi dışındaki kullanıcılarda her zaman gizlidir.
+          </p>
         </div>
       )}
 
@@ -733,6 +1034,109 @@ export function SettingsPage() {
         .help-card ol { margin: 0; padding-left: 1.25rem; font-size: 0.875rem; }
         .help-card li { margin-bottom: 0.5rem; }
         .help-card a { color: var(--primary); }
+
+        /* Menu visibility matrix styles */
+        .menu-visibility-section {
+          background: white;
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          padding: 1.5rem;
+        }
+        .menu-visibility-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+        .menu-visibility-header h3 { margin: 0 0 0.25rem 0; }
+        .menu-visibility-header p { margin: 0; color: var(--text-muted); font-size: 0.875rem; }
+
+        .mv-table-wrapper {
+          overflow-x: auto;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+        }
+        .mv-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 0.85rem;
+          min-width: 600px;
+        }
+        .mv-table thead { background: #f8fafc; }
+        .mv-table th, .mv-table td {
+          padding: 0.55rem 0.5rem;
+          text-align: center;
+          border-bottom: 1px solid var(--border);
+        }
+        .mv-table th { font-weight: 600; white-space: nowrap; }
+        .mv-col-menu {
+          text-align: left !important;
+          min-width: 150px;
+          padding-left: 0.75rem !important;
+        }
+        .mv-col-toggle { min-width: 60px; }
+        .mv-col-check { min-width: 40px; }
+        .mv-col-label {
+          display: block;
+          max-width: 90px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 0.75rem;
+        }
+        .mv-col-dept .mv-col-label { color: #6366f1; }
+        .mv-group-row th {
+          padding: 0.2rem 0.5rem;
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--text-muted);
+          border-bottom: 2px solid var(--border);
+        }
+        .mv-group-label { background: #f1f5f9; }
+        .mv-group-dept { background: #eef2ff; }
+
+        .mv-table tbody tr:hover { background: #f8fafc; }
+        .mv-row-disabled { opacity: 0.45; }
+        .mv-row-disabled td { background: #fafafa; }
+        .mv-menu-icon { margin-right: 0.4rem; }
+        .mv-menu-name { font-weight: 500; }
+
+        .mv-cell-all { background: #ecfdf5; }
+        .mv-col-dept.mv-cell-all { background: #eef2ff; }
+
+        .mv-table input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+          accent-color: var(--primary, #3b82f6);
+        }
+        .mv-table input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.3; }
+
+        .mv-legend {
+          display: flex;
+          gap: 1.25rem;
+          margin-top: 0.75rem;
+          font-size: 0.78rem;
+          color: var(--text-muted);
+        }
+        .mv-legend-item { display: flex; align-items: center; gap: 0.35rem; }
+        .mv-legend-swatch {
+          display: inline-block;
+          width: 14px;
+          height: 14px;
+          border-radius: 3px;
+          border: 1px solid var(--border);
+        }
+        .mv-legend-all { background: #ecfdf5; }
+        .mv-legend-selected { background: white; }
+
+        .menu-visibility-note {
+          margin-top: 0.75rem;
+          color: var(--text-muted);
+          font-size: 0.8rem;
+        }
 
         /* Routing styles */
         .routing-section { background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); }

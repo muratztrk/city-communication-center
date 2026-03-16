@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.SqlClient;
 using System.Runtime.CompilerServices;
 
@@ -20,6 +21,19 @@ public sealed class SqlDbSet<T> where T : class
         _connectionString = connectionString;
         _tableName = tableName;
         _mapper = mapper;
+    }
+
+    private static void AddParam(SqlCommand cmd, string name, object? value)
+    {
+        if (value is string s)
+        {
+            var p = cmd.Parameters.Add(name, SqlDbType.NVarChar, Math.Max(s.Length * 2, 4000));
+            p.Value = s;
+        }
+        else
+        {
+            cmd.Parameters.AddWithValue(name, value ?? DBNull.Value);
+        }
     }
 
     public SqlDbSet<T> Where(string condition, params (string name, object? value)[] parameters)
@@ -83,7 +97,7 @@ public sealed class SqlDbSet<T> where T : class
         cmd.CommandText = sql;
         
         foreach (var (name, value) in _parameters)
-            cmd.Parameters.AddWithValue(name, value ?? DBNull.Value);
+            AddParam(cmd, name, value);
         
         var result = await cmd.ExecuteScalarAsync(ct);
         return Convert.ToInt32(result) == 1;
@@ -104,7 +118,7 @@ public sealed class SqlDbSet<T> where T : class
         cmd.CommandText = sql;
         
         foreach (var (name, value) in _parameters)
-            cmd.Parameters.AddWithValue(name, value ?? DBNull.Value);
+            AddParam(cmd, name, value);
         
         var result = await cmd.ExecuteScalarAsync(ct);
         return Convert.ToInt32(result);
@@ -121,7 +135,7 @@ public sealed class SqlDbSet<T> where T : class
         cmd.CommandText = sql;
         
         foreach (var (name, value) in _parameters)
-            cmd.Parameters.AddWithValue(name, value ?? DBNull.Value);
+            AddParam(cmd, name, value);
         
         await using var reader = await cmd.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))
@@ -150,7 +164,7 @@ public sealed class SqlDbSet<T> where T : class
         cmd.CommandText = sql;
         
         foreach (var (name, value) in _parameters)
-            cmd.Parameters.AddWithValue(name, value ?? DBNull.Value);
+            AddParam(cmd, name, value);
         
         await using var reader = await cmd.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))

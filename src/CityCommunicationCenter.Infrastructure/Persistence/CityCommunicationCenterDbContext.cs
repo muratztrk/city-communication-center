@@ -8,11 +8,13 @@ namespace CityCommunicationCenter.Infrastructure.Persistence;
 public sealed class CityCommunicationCenterDbContext : IDisposable
 {
     private readonly string _connectionString;
+    private readonly int _commandTimeoutSeconds;
     private readonly List<Func<SqlConnection, Task>> _pendingOperations = new();
 
-    public CityCommunicationCenterDbContext(string connectionString)
+    public CityCommunicationCenterDbContext(string connectionString, int commandTimeoutSeconds = 30)
     {
         _connectionString = connectionString;
+        _commandTimeoutSeconds = commandTimeoutSeconds;
     }
 
     public SqlDbSet<Tenant> Tenants => new(_connectionString, "Tenants", MapTenant);
@@ -48,13 +50,20 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
 
     public void Dispose() => _pendingOperations.Clear();
 
+    private SqlCommand CreateCommand(SqlConnection connection)
+    {
+        var command = connection.CreateCommand();
+        command.CommandTimeout = _commandTimeoutSeconds;
+        return command;
+    }
+
     #region Insert Methods
 
     public async Task InsertAuditLogAsync(AuditLog log, CancellationToken ct = default)
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.AuditLogs (AuditLogId, TenantId, EntityType, EntityId, Action, ActorUserId, EventTimeUtc, Details)
                             VALUES (@Id, @TenantId, @EntityType, @EntityId, @Action, @ActorUserId, @EventTimeUtc, @Details)";
         cmd.Parameters.AddWithValue("@Id", log.AuditLogId);
@@ -72,7 +81,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.Departments (DepartmentId, TenantId, Name, DepartmentType, ParentDepartmentId, ManagerUserId)
                             VALUES (@Id, @TenantId, @Name, @DeptType, @ParentId, @ManagerId)";
         cmd.Parameters.AddWithValue("@Id", dept.DepartmentId);
@@ -88,7 +97,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.Notifications (NotificationId, TenantId, TaskId, UserId, Channel, DeliveryStatus, Message, SentAtUtc)
                             VALUES (@Id, @TenantId, @TaskId, @UserId, @Channel, @DeliveryStatus, @Message, @SentAtUtc)";
         cmd.Parameters.AddWithValue("@Id", n.NotificationId);
@@ -106,7 +115,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.SocialMessages (SocialMessageId, TenantId, Channel, ExternalMessageId, CitizenHandle, Content, Category, Tags, Status, AssignedDepartmentId, TaskId, ReceivedAtUtc)
                             VALUES (@Id, @TenantId, @Channel, @ExtId, @Handle, @Content, @Category, @Tags, @Status, @AssignedDeptId, @TaskId, @ReceivedAt)";
         cmd.Parameters.AddWithValue("@Id", msg.SocialMessageId);
@@ -128,7 +137,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.Tasks (TaskId, TenantId, Title, Description, TaskType, SourceType, SourceRefId, TargetDepartmentId, AssignedDepartmentId, AssignedUserId, CurrentStatus, Priority, DueDateUtc)
                             VALUES (@Id, @TenantId, @Title, @Desc, @TaskType, @SourceType, @SourceRefId, @TargetDeptId, @AssignedDeptId, @AssignedUserId, @Status, @Priority, @DueDate)";
         cmd.Parameters.AddWithValue("@Id", task.TaskId);
@@ -151,7 +160,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.Approvals (ApprovalId, TenantId, TaskId, ApproverUserId, StepOrder, Decision, Comment, DecisionDateUtc)
                             VALUES (@Id, @TenantId, @TaskId, @ApproverUserId, @StepOrder, @Decision, @Comment, @DecisionDate)";
         cmd.Parameters.AddWithValue("@Id", approval.ApprovalId);
@@ -169,7 +178,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.AssignmentHistory (AssignmentId, TenantId, TaskId, FromDepartmentId, ToDepartmentId, FromUserId, ToUserId, ActionType, ActionDateUtc)
                             VALUES (@Id, @TenantId, @TaskId, @FromDeptId, @ToDeptId, @FromUserId, @ToUserId, @ActionType, @ActionDate)";
         cmd.Parameters.AddWithValue("@Id", ah.AssignmentId);
@@ -188,7 +197,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.TenantSettings (TenantSettingId, TenantId, DisplayName, Theme, Domain, DefaultSlaHours)
                             VALUES (@Id, @TenantId, @DisplayName, @Theme, @Domain, @DefaultSlaHours)";
         cmd.Parameters.AddWithValue("@Id", ts.TenantSettingId);
@@ -208,7 +217,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.Tasks SET CurrentStatus = @Status, UpdatedAtUtc = @Now, UpdatedByUserId = @UpdatedBy WHERE TaskId = @Id";
         cmd.Parameters.AddWithValue("@Status", status.ToString());
         cmd.Parameters.AddWithValue("@Now", DateTimeOffset.UtcNow);
@@ -221,7 +230,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.Tasks SET AssignedDepartmentId = @DeptId, AssignedUserId = @UserId, CurrentStatus = 'Assigned', UpdatedAtUtc = @Now, UpdatedByUserId = @UpdatedBy WHERE TaskId = @Id";
         cmd.Parameters.AddWithValue("@DeptId", (object?)deptId ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@UserId", (object?)userId ?? DBNull.Value);
@@ -235,7 +244,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.Tasks SET CurrentStatus = 'Completed', CompletedAtUtc = @Now, UpdatedAtUtc = @Now, UpdatedByUserId = @UpdatedBy WHERE TaskId = @Id";
         cmd.Parameters.AddWithValue("@Now", DateTimeOffset.UtcNow);
         cmd.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
@@ -247,7 +256,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.Tasks SET CurrentStatus = 'Closed', ClosedAtUtc = @Now, UpdatedAtUtc = @Now, UpdatedByUserId = @UpdatedBy WHERE TaskId = @Id";
         cmd.Parameters.AddWithValue("@Now", DateTimeOffset.UtcNow);
         cmd.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
@@ -259,7 +268,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.SocialMessages SET Category = @Category, Tags = @Tags, Status = 'Categorized', UpdatedAtUtc = @Now, UpdatedByUserId = @UpdatedBy WHERE SocialMessageId = @Id";
         cmd.Parameters.AddWithValue("@Category", (object?)category ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@Tags", tags);
@@ -273,7 +282,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.SocialMessages SET AssignedDepartmentId = @DeptId, Status = 'Routed', UpdatedAtUtc = @Now, UpdatedByUserId = @UpdatedBy WHERE SocialMessageId = @Id";
         cmd.Parameters.AddWithValue("@DeptId", (object?)deptId ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@Now", DateTimeOffset.UtcNow);
@@ -286,7 +295,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.SocialMessages SET TaskId = @TaskId, Status = 'ConvertedToTask' WHERE SocialMessageId = @Id";
         cmd.Parameters.AddWithValue("@TaskId", taskId);
         cmd.Parameters.AddWithValue("@Id", msgId);
@@ -299,14 +308,14 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
         await conn.OpenAsync(ct);
         
         // Check if exists
-        await using var checkCmd = conn.CreateCommand();
+        await using var checkCmd = CreateCommand(conn);
         checkCmd.CommandText = "SELECT COUNT(1) FROM dbo.TenantSettings WHERE TenantId = @TenantId";
         checkCmd.Parameters.AddWithValue("@TenantId", ts.TenantId);
         var exists = (int)await checkCmd.ExecuteScalarAsync(ct) > 0;
 
         if (exists)
         {
-            await using var cmd = conn.CreateCommand();
+            await using var cmd = CreateCommand(conn);
             cmd.CommandText = @"UPDATE dbo.TenantSettings SET DisplayName = @DisplayName, Theme = @Theme, Domain = @Domain, DefaultSlaHours = @DefaultSlaHours, UpdatedAtUtc = @Now, UpdatedByUserId = @UpdatedBy WHERE TenantId = @TenantId";
             cmd.Parameters.AddWithValue("@DisplayName", ts.DisplayName);
             cmd.Parameters.AddWithValue("@Theme", (object?)ts.Theme ?? DBNull.Value);
@@ -327,7 +336,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.TenantSettings SET AutoRoutingEnabled = @Enabled, UpdatedAtUtc = @Now WHERE TenantId = @TenantId";
         cmd.Parameters.AddWithValue("@Enabled", enabled);
         cmd.Parameters.AddWithValue("@Now", DateTimeOffset.UtcNow);
@@ -343,7 +352,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"INSERT INTO dbo.RoutingRules (RuleId, TenantId, RuleName, Keywords, TargetDepartmentId, Priority, IsActive, CreatedAtUtc)
                             VALUES (@RuleId, @TenantId, @RuleName, @Keywords, @TargetDepartmentId, @Priority, @IsActive, @CreatedAtUtc)";
         cmd.Parameters.AddWithValue("@RuleId", rule.RuleId);
@@ -361,7 +370,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"UPDATE dbo.RoutingRules SET RuleName = @RuleName, Keywords = @Keywords, TargetDepartmentId = @TargetDepartmentId, Priority = @Priority, IsActive = @IsActive WHERE RuleId = @RuleId";
         cmd.Parameters.AddWithValue("@RuleName", rule.RuleName);
         cmd.Parameters.AddWithValue("@Keywords", rule.Keywords);
@@ -376,7 +385,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"DELETE FROM dbo.RoutingRules WHERE RuleId = @RuleId";
         cmd.Parameters.AddWithValue("@RuleId", ruleId);
         await cmd.ExecuteNonQueryAsync(ct);
@@ -390,7 +399,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         
         var sql = "SELECT COUNT(*) FROM dbo.Tasks WHERE TenantId = @TenantId";
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
@@ -419,7 +428,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         
         var sql = "SELECT COUNT(*) FROM dbo.SocialMessages WHERE TenantId = @TenantId";
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
@@ -438,7 +447,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = "SELECT COUNT(*) FROM dbo.Notifications WHERE TenantId = @TenantId AND DeliveryStatus = 'Failed'";
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
         return (int)await cmd.ExecuteScalarAsync(ct);
@@ -449,7 +458,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
         var today = DateTime.UtcNow.Date;
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = "SELECT COUNT(*) FROM dbo.Tasks WHERE TenantId = @TenantId AND CAST(DueDateUtc AS DATE) = @Today";
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
         cmd.Parameters.AddWithValue("@Today", today);
@@ -460,10 +469,12 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"SELECT TargetDepartmentId, COUNT(*) as Cnt 
                             FROM dbo.Tasks 
-                            WHERE TenantId = @TenantId AND TargetDepartmentId IS NOT NULL AND CurrentStatus <> 'Closed'
+                            WHERE TenantId = @TenantId
+                              AND TargetDepartmentId IS NOT NULL
+                              AND CurrentStatus NOT IN ('Completed', 'Closed', 'Rejected')
                             GROUP BY TargetDepartmentId";
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
         
@@ -480,7 +491,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = @"SELECT Channel, COUNT(*) as Cnt 
                             FROM dbo.SocialMessages 
                             WHERE TenantId = @TenantId
@@ -516,7 +527,7 @@ public sealed class CityCommunicationCenterDbContext : IDisposable
     {
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync(ct);
-        await using var cmd = conn.CreateCommand();
+        await using var cmd = CreateCommand(conn);
         cmd.CommandText = "SELECT COUNT(*) FROM dbo.Approvals WHERE TaskId = @TaskId";
         cmd.Parameters.AddWithValue("@TaskId", taskId);
         return (int)await cmd.ExecuteScalarAsync(ct);

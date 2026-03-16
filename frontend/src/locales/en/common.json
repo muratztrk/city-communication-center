@@ -1,0 +1,24 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "logout": "Logout"
+  },
+  "app": {
+    "defaultTenantName": "CCC",
+    "tenantSuffix": "Communication Center",
+    "roles": {
+      "systemAdmin": "System Administrator"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "tasks": "Tasks",
+      "social": "Social Media",
+      "departments": "Departments",
+      "users": "Users",
+      "audit": "Audit",
+      "settings": "Settings"
+    }
+  }
+}

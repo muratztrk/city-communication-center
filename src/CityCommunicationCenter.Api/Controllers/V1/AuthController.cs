@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using CityCommunicationCenter.Api.Services;
 using CityCommunicationCenter.Infrastructure.Persistence;
 
@@ -20,6 +21,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
@@ -69,6 +71,7 @@ public class AuthController : ControllerBase
 
     [HttpGet("tenants")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> GetTenants()
     {
         var tenants = await _dbContext.Tenants.ToListAsync();

@@ -1,0 +1,81 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ccc-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+      SA_PASSWORD: ${SQL_SA_PASSWORD:-YourStrong!Passw0rd}
+    ports:
+      - "1433:1433"
+    volumes:
+      - ccc-sql-data:/var/opt/mssql
+      - ./docker/sql/backups:/backup:ro
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$${SA_PASSWORD}\" -Q \"SELECT 1\" || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$${SA_PASSWORD}\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  db-init:
+    image: mcr.microsoft.com/mssql-tools
+    container_name: ccc-db-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      SQL_HOST: sqlserver
+      SQL_PORT: 1433
+      SQL_USER: sa
+      SQL_SA_PASSWORD: ${SQL_SA_PASSWORD:-YourStrong!Passw0rd}
+      CCC_DB_NAME: ${CCC_DB_NAME:-CityCommunicationCenter}
+      DB_BACKUP_PATH: /backup/${DB_BACKUP_FILE:-CityCommunicationCenter.bak}
+      DB_INIT_SQL_PATH: /docker/sql/init/${DB_INIT_FILE:-init.sql}
+      FORCE_DB_RESTORE: ${FORCE_DB_RESTORE:-false}
+      SQL_WAIT_RETRIES: ${SQL_WAIT_RETRIES:-60}
+      SQL_WAIT_SECONDS: ${SQL_WAIT_SECONDS:-2}
+    volumes:
+      - ./docker/sql:/docker/sql:ro
+      - ./docker/sql/backups:/backup:ro
+    entrypoint: ["/bin/bash", "/docker/sql/init-db.sh"]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: src/CityCommunicationCenter.Api/Dockerfile
+    container_name: ccc-api
+    restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__CityCommunicationCenter: Server=sqlserver,1433;Database=${CCC_DB_NAME:-CityCommunicationCenter};User Id=sa;Password=${SQL_SA_PASSWORD:-YourStrong!Passw0rd};TrustServerCertificate=True;Encrypt=False
+      Jwt__Key: ${JWT_KEY:-CHANGE_ME_WITH_MINIMUM_32_CHARACTERS}
+      Jwt__Issuer: CityCommunicationCenter
+      Jwt__Audience: CityCommunicationCenter
+      Cors__AllowedOrigins__0: http://localhost:8080
+    ports:
+      - "5100:8080"
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE: /api/v1
+    container_name: ccc-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  ccc-sql-data:

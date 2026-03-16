@@ -1,5 +1,7 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 
 interface ChannelStatus {
   configured: boolean;
@@ -35,6 +37,7 @@ interface Department {
 
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp';
 type SettingsTab = 'social' | 'routing';
+const REQUEST_TIMEOUT_MS = 15000;
 
 export function SettingsPage() {
   const { token, user } = useAuth();
@@ -60,68 +63,133 @@ export function SettingsPage() {
   const [igForm, setIgForm] = useState({ accountId: '', accessToken: '', linkedPageId: '' });
   const [waForm, setWaForm] = useState({ businessAccountId: '', phoneNumberId: '', accessToken: '', webhookVerifyToken: '' });
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-    'X-Tenant-Id': user?.tenantId || ''
+  const headers = useMemo((): Record<string, string> => {
+    const nextHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Tenant-Id': user?.tenantId || '',
+    };
+
+    if (token) {
+      nextHeaders.Authorization = `Bearer ${token}`;
+    }
+
+    return nextHeaders;
+  }, [token, user?.tenantId]);
+
+  const toErrorMessage = (error: unknown, fallback: string) => {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return 'İstek zaman aşımına uğradı. Lütfen tekrar deneyin.';
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return fallback;
   };
 
-  useEffect(() => {
-    fetchSettings();
-    fetchRoutingConfig();
-    fetchDepartments();
-  }, []);
+  const apiRequest = async <T,>(path: string, options: RequestInit = {}): Promise<T | null> => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(getApiUrl(path), {
+        ...options,
+        headers: {
+          ...headers,
+          ...(options.headers ?? {}),
+        },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        let errorMessage = `İstek başarısız (${response.status})`;
+        try {
+          const payload = await response.json();
+          if (payload?.error) {
+            errorMessage = payload.error;
+          } else if (payload?.message) {
+            errorMessage = payload.message;
+          }
+        } catch {
+          // keep generic message when backend does not return JSON
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      if (response.status === 204) {
+        return null;
+      }
+
+      const contentType = response.headers.get('content-type') ?? '';
+      if (!contentType.includes('application/json')) {
+        return null;
+      }
+
+      return (await response.json()) as T;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  };
 
   const fetchSettings = async () => {
-    try {
-      const res = await fetch('http://localhost:5100/api/v1/admin/social-settings', { headers });
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch settings:', err);
-    } finally {
-      setLoading(false);
+    const data = await apiRequest<SocialSettings>('/admin/social-settings');
+    if (data) {
+      setSettings(data);
     }
   };
 
   const fetchRoutingConfig = async () => {
-    try {
-      const res = await fetch('http://localhost:5100/api/v1/admin/routing', { headers });
-      if (res.ok) {
-        const data = await res.json();
-        setRoutingConfig(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch routing config:', err);
+    const data = await apiRequest<RoutingConfig>('/admin/routing');
+    if (data) {
+      setRoutingConfig(data);
     }
   };
 
   const fetchDepartments = async () => {
-    try {
-      const res = await fetch('http://localhost:5100/api/v1/departments', { headers });
-      if (res.ok) {
-        const data = await res.json();
-        setDepartments(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch departments:', err);
+    const data = await apiRequest<Department[]>('/organizations/departments');
+    if (data) {
+      setDepartments(data);
     }
   };
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadPage = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchSettings(), fetchRoutingConfig(), fetchDepartments()]);
+      } catch (error) {
+        if (!isCancelled) {
+          setMessage({ type: 'error', text: toErrorMessage(error, 'Ayarlar yüklenemedi') });
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadPage();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [headers]);
 
   const toggleAutoRouting = async () => {
     if (!routingConfig) return;
     try {
-      await fetch('http://localhost:5100/api/v1/admin/routing/toggle', {
+      await apiRequest('/admin/routing/toggle', {
         method: 'POST',
-        headers,
         body: JSON.stringify({ enabled: !routingConfig.autoRoutingEnabled })
       });
       setRoutingConfig({ ...routingConfig, autoRoutingEnabled: !routingConfig.autoRoutingEnabled });
       setMessage({ type: 'success', text: routingConfig.autoRoutingEnabled ? 'Otomatik yönlendirme kapatıldı' : 'Otomatik yönlendirme açıldı' });
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Ayar değiştirilemedi' });
+    } catch (error) {
+      setMessage({ type: 'error', text: toErrorMessage(error, 'Ayar değiştirilemedi') });
     }
   };
 
@@ -129,27 +197,23 @@ export function SettingsPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const url = editingRule 
-        ? `http://localhost:5100/api/v1/admin/routing/rules/${editingRule}`
-        : 'http://localhost:5100/api/v1/admin/routing/rules';
+      const url = editingRule
+        ? `/admin/routing/rules/${editingRule}`
+        : '/admin/routing/rules';
       const method = editingRule ? 'PUT' : 'POST';
       
       const body = editingRule 
         ? { ...ruleForm, isActive: true }
         : ruleForm;
 
-      const res = await fetch(url, { method, headers, body: JSON.stringify(body) });
-      if (res.ok) {
-        setMessage({ type: 'success', text: editingRule ? 'Kural güncellendi' : 'Kural oluşturuldu' });
-        fetchRoutingConfig();
-        setShowNewRule(false);
-        setEditingRule(null);
-        setRuleForm({ ruleName: '', keywords: '', targetDepartmentId: '', priority: 50 });
-      } else {
-        setMessage({ type: 'error', text: 'Kural kaydedilemedi' });
-      }
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Bağlantı hatası' });
+      await apiRequest(url, { method, body: JSON.stringify(body) });
+      setMessage({ type: 'success', text: editingRule ? 'Kural güncellendi' : 'Kural oluşturuldu' });
+      await fetchRoutingConfig();
+      setShowNewRule(false);
+      setEditingRule(null);
+      setRuleForm({ ruleName: '', keywords: '', targetDepartmentId: '', priority: 50 });
+    } catch (error) {
+      setMessage({ type: 'error', text: toErrorMessage(error, 'Kural kaydedilemedi') });
     } finally {
       setSaving(false);
     }
@@ -158,26 +222,24 @@ export function SettingsPage() {
   const deleteRule = async (ruleId: string) => {
     if (!confirm('Bu kuralı silmek istediğinize emin misiniz?')) return;
     try {
-      await fetch(`http://localhost:5100/api/v1/admin/routing/rules/${ruleId}`, { method: 'DELETE', headers });
+      await apiRequest(`/admin/routing/rules/${ruleId}`, { method: 'DELETE' });
       setMessage({ type: 'success', text: 'Kural silindi' });
-      fetchRoutingConfig();
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Kural silinemedi' });
+      await fetchRoutingConfig();
+    } catch (error) {
+      setMessage({ type: 'error', text: toErrorMessage(error, 'Kural silinemedi') });
     }
   };
 
   const testRouting = async () => {
     if (!testContent.trim()) return;
     try {
-      const res = await fetch('http://localhost:5100/api/v1/admin/routing/test', {
+      const data = await apiRequest<{ targetDepartmentId: string | null; targetDepartmentName: string | null }>('/admin/routing/test', {
         method: 'POST',
-        headers,
         body: JSON.stringify({ messageContent: testContent })
       });
-      const data = await res.json();
-      setTestResult({ departmentId: data.targetDepartmentId, departmentName: data.targetDepartmentName });
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Test başarısız' });
+      setTestResult({ departmentId: data?.targetDepartmentId ?? null, departmentName: data?.targetDepartmentName ?? null });
+    } catch (error) {
+      setMessage({ type: 'error', text: toErrorMessage(error, 'Test başarısız') });
     }
   };
 
@@ -214,22 +276,15 @@ export function SettingsPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:5100/api/v1/admin/social-settings/${channel}`, {
+      await apiRequest(`/admin/social-settings/${channel}`, {
         method: 'POST',
-        headers,
         body: JSON.stringify(body)
       });
-
-      if (res.ok) {
-        setMessage({ type: 'success', text: 'Ayarlar kaydedildi!' });
-        fetchSettings();
-        setActiveChannel(null);
-      } else {
-        const err = await res.json();
-        setMessage({ type: 'error', text: err.error || 'Kaydetme başarısız' });
-      }
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Bağlantı hatası' });
+      setMessage({ type: 'success', text: 'Ayarlar kaydedildi!' });
+      await fetchSettings();
+      setActiveChannel(null);
+    } catch (error) {
+      setMessage({ type: 'error', text: toErrorMessage(error, 'Kaydetme başarısız') });
     } finally {
       setSaving(false);
     }
@@ -238,17 +293,15 @@ export function SettingsPage() {
   const handleTest = async (channel: ChannelType) => {
     setMessage(null);
     try {
-      const res = await fetch(`http://localhost:5100/api/v1/admin/social-settings/${channel}/test`, {
+      const data = await apiRequest<{ connected: boolean; message: string }>(`/admin/social-settings/${channel}/test`, {
         method: 'POST',
-        headers
       });
-      const data = await res.json();
       setMessage({
-        type: data.connected ? 'success' : 'error',
-        text: data.message
+        type: data?.connected ? 'success' : 'error',
+        text: data?.message ?? 'Test yanıtı alınamadı'
       });
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Test başarısız' });
+    } catch (error) {
+      setMessage({ type: 'error', text: toErrorMessage(error, 'Test başarısız') });
     }
   };
 

@@ -261,6 +261,92 @@ tr:hover {
   background: #f8fafc;
 }
 
+.audit-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.audit-group-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.audit-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: #eff6ff;
+}
+
+.audit-group-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.audit-group-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.audit-toggle-btn {
+  border: none;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.audit-toggle-btn:hover {
+  background: #cbd5e1;
+}
+
+.audit-group-details {
+  border-top: 1px solid var(--border);
+}
+
+.audit-details-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.audit-details-table th,
+.audit-details-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.audit-details-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.audit-details-table tr:hover {
+  background: #f8fafc;
+}
+
+.audit-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
 .badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;

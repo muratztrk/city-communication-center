@@ -1,0 +1,24 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "logout": "Çıkış"
+  },
+  "app": {
+    "defaultTenantName": "BİM",
+    "tenantSuffix": "İletişim Merkezi",
+    "roles": {
+      "systemAdmin": "Sistem Yöneticisi"
+    },
+    "nav": {
+      "dashboard": "Kontrol Paneli",
+      "tasks": "Görevler",
+      "social": "Sosyal Medya",
+      "departments": "Departmanlar",
+      "users": "Kullanıcılar",
+      "audit": "Denetim",
+      "settings": "Ayarlar"
+    }
+  }
+}

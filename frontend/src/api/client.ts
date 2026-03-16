@@ -1,6 +1,5 @@
 import type { Dashboard, Department, User, Task, SocialMessage, AuditLog } from '../types';
-
-const API_BASE = 'http://localhost:5100/api/v1';
+import { getApiUrl } from '../config/api';
 
 function getHeaders(): HeadersInit {
   const token = localStorage.getItem('ccc_token');
@@ -21,19 +20,19 @@ function getHeaders(): HeadersInit {
 
 export const api = {
   async getDashboard(): Promise<Dashboard> {
-    const res = await fetch(`${API_BASE}/reports/dashboard`, { headers: getHeaders() });
+    const res = await fetch(getApiUrl('/reports/dashboard'), { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch dashboard');
     return res.json();
   },
 
   async getDepartments(): Promise<Department[]> {
-    const res = await fetch(`${API_BASE}/organizations/departments`, { headers: getHeaders() });
+    const res = await fetch(getApiUrl('/organizations/departments'), { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch departments');
     return res.json();
   },
 
   async createDepartment(name: string, departmentType: string): Promise<Department> {
-    const res = await fetch(`${API_BASE}/organizations/departments`, {
+    const res = await fetch(getApiUrl('/organizations/departments'), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ name, departmentType }),
@@ -43,19 +42,19 @@ export const api = {
   },
 
   async getUsers(): Promise<User[]> {
-    const res = await fetch(`${API_BASE}/users`, { headers: getHeaders() });
+    const res = await fetch(getApiUrl('/users'), { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch users');
     return res.json();
   },
 
   async getTasks(): Promise<Task[]> {
-    const res = await fetch(`${API_BASE}/tasks`, { headers: getHeaders() });
+    const res = await fetch(getApiUrl('/tasks'), { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch tasks');
     return res.json();
   },
 
   async createTask(task: { title: string; description: string; taskType: string; sourceType: string; priority: string; targetDepartmentId?: string }): Promise<Task> {
-    const res = await fetch(`${API_BASE}/tasks`, {
+    const res = await fetch(getApiUrl('/tasks'), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(task),
@@ -65,7 +64,7 @@ export const api = {
   },
 
   async submitTask(taskId: string, note?: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}/submit`, {
+    const res = await fetch(getApiUrl(`/tasks/${taskId}/submit`), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ note }),
@@ -74,7 +73,7 @@ export const api = {
   },
 
   async approveTask(taskId: string, comment?: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}/approve`, {
+    const res = await fetch(getApiUrl(`/tasks/${taskId}/approve`), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ comment }),
@@ -83,7 +82,7 @@ export const api = {
   },
 
   async completeTask(taskId: string, resultNote?: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}/complete`, {
+    const res = await fetch(getApiUrl(`/tasks/${taskId}/complete`), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ resultNote }),
@@ -92,14 +91,14 @@ export const api = {
   },
 
   async getSocialMessages(): Promise<SocialMessage[]> {
-    const res = await fetch(`${API_BASE}/social/messages`, { headers: getHeaders() });
+    const res = await fetch(getApiUrl('/social/messages'), { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch social messages');
     return res.json();
   },
 
   async getAuditLogs(): Promise<AuditLog[]> {
-    const res = await fetch(`${API_BASE}/admin/audit-logs`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch audit logs');
+    const res = await fetch(getApiUrl('/admin/audit-logs'), { headers: getHeaders() });
+    if (!res.ok) throw new Error('Denetim kayıtları alınamadı');
     return res.json();
   },
 };

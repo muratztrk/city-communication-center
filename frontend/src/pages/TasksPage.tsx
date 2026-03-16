@@ -72,6 +72,19 @@ export function TasksPage() {
     return map[status] || 'badge';
   };
 
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      Draft: 'Taslak',
+      PendingApproval: 'Onay Bekliyor',
+      Assigned: 'Atandı',
+      InProgress: 'Devam Ediyor',
+      Completed: 'Tamamlandı',
+      Closed: 'Kapatıldı',
+      Rejected: 'Reddedildi',
+    };
+    return map[status] || status;
+  };
+
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'High': return 'badge danger';
@@ -79,6 +92,26 @@ export function TasksPage() {
       case 'Low': return 'badge success';
       default: return 'badge';
     }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    const map: Record<string, string> = {
+      High: 'Yüksek',
+      Normal: 'Normal',
+      Low: 'Düşük',
+    };
+    return map[priority] || priority;
+  };
+
+  const getTaskTypeLabel = (taskType: string) => {
+    const map: Record<string, string> = {
+      InternalRequest: 'İç Talep',
+      CitizenRequest: 'Vatandaş Talebi',
+      ApprovalTask: 'Onay Görevi',
+      Complaint: 'Şikayet',
+      Suggestion: 'Öneri',
+    };
+    return map[taskType] || taskType;
   };
 
   if (loading) return <div className="loading">Yükleniyor...</div>;
@@ -166,9 +199,9 @@ export function TasksPage() {
                   <strong>{task.title}</strong>
                   {task.description && <div className="text-muted">{task.description.substring(0, 50)}...</div>}
                 </td>
-                <td>{task.taskType}</td>
-                <td><span className={getPriorityBadge(task.priority)}>{task.priority}</span></td>
-                <td><span className={getStatusBadge(task.currentStatus)}>{task.currentStatus}</span></td>
+                <td>{getTaskTypeLabel(task.taskType)}</td>
+                <td><span className={getPriorityBadge(task.priority)}>{getPriorityLabel(task.priority)}</span></td>
+                <td><span className={getStatusBadge(task.currentStatus)}>{getStatusLabel(task.currentStatus)}</span></td>
                 <td className="actions">
                   {task.currentStatus === 'Draft' && (
                     <button className="btn small" onClick={() => handleAction(task.taskId, 'submit')}>Gönder</button>

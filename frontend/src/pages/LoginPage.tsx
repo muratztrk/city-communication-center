@@ -1,5 +1,7 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 import './LoginPage.css';
 
 interface Tenant {
@@ -19,7 +21,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Fetch available tenants
-    fetch('http://localhost:5100/api/v1/auth/tenants')
+    fetch(getApiUrl('/auth/tenants'))
       .then(res => res.json())
       .then(data => {
         setTenants(data);

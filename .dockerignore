@@ -1,0 +1,15 @@
+.git
+.gitignore
+.copilot
+**/bin
+**/obj
+**/node_modules
+frontend/dist
+frontend/coverage
+tests/TestResults
+docker/sql/backups/*
+!docker/sql/backups/.gitkeep
+*.user
+*.suo
+*.mdf
+*.ldf

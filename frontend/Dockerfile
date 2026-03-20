@@ -1,17 +1,15 @@
-FROM node:20-alpine AS build
+FROM node:22-alpine AS builder
 WORKDIR /app
-
-COPY frontend/package*.json ./
+ARG VITE_API_ORIGIN=http://localhost:5000
+ENV VITE_API_ORIGIN=$VITE_API_ORIGIN
+COPY package*.json ./
 RUN npm ci
-
-COPY frontend/ ./
-ARG VITE_API_BASE=/api/v1
-ENV VITE_API_BASE=${VITE_API_BASE}
+COPY . .
 RUN npm run build
 
-FROM nginx:1.27-alpine AS runtime
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
-
+FROM node:22-alpine AS production
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=builder /app/dist ./dist
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "dist", "-l", "80"]

@@ -12,6 +12,7 @@ export function DepartmentsPage() {
 
   const loadDepartments = () => {
     setLoading(true);
+    setError(null);
     api.getDepartments()
       .then(setDepartments)
       .catch(e => setError(e.message))
@@ -19,7 +20,10 @@ export function DepartmentsPage() {
   };
 
   useEffect(() => {
-    loadDepartments();
+    api.getDepartments()
+      .then(setDepartments)
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {

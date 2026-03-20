@@ -1,81 +1,78 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { getApiUrl } from '../config/api';
-
-interface User {
-  userId: string;
-  displayName: string;
-  email: string;
-  role: string;
-  tenantId: string;
-  tenantName: string;
-}
+import {
+  clearAuthSession,
+  getStoredSession,
+  isAccessTokenExpired,
+  loginWithPassword,
+  type AuthUser,
+} from '../api/auth';
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string, tenantId: string) => Promise<void>;
+  login: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing token on mount
-    const storedToken = localStorage.getItem('ccc_token');
-    const storedUser = localStorage.getItem('ccc_user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
-  }, []);
+    let isMounted = true;
 
-  const login = async (username: string, password: string, tenantId: string) => {
-    const response = await fetch(getApiUrl('/auth/login'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password, tenantId }),
-    });
+    const restoreSession = async () => {
+      const storedSession = getStoredSession();
+      if (!storedSession) {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+        return;
+      }
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Giriş başarısız');
-    }
+      const session = isAccessTokenExpired(storedSession)
+        ? null
+        : storedSession;
 
-    const data = await response.json();
-    
-    const userData: User = {
-      userId: data.userId,
-      displayName: data.displayName,
-      email: data.email,
-      role: data.role,
-      tenantId: data.tenantId,
-      tenantName: data.tenantName,
+      if (!session) {
+        clearAuthSession();
+      }
+
+      if (isMounted && session) {
+        setToken(session.accessToken);
+        setUser(session.user);
+      }
+
+      if (isMounted) {
+        setIsLoading(false);
+      }
     };
 
-    setToken(data.token);
-    setUser(userData);
-    
-    localStorage.setItem('ccc_token', data.token);
-    localStorage.setItem('ccc_user', JSON.stringify(userData));
+    void restoreSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const login = async (username: string, password: string, tenantId: string, tenantName: string) => {
+    const session = await loginWithPassword(username, password, tenantId, tenantName);
+
+    setToken(session.accessToken);
+    setUser(session.user);
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('ccc_token');
-    localStorage.removeItem('ccc_user');
+    clearAuthSession();
   };
 
   return (

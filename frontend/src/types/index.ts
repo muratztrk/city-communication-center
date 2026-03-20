@@ -27,7 +27,7 @@ export interface Task {
   priority: string;
   currentStatus: string;
   targetDepartmentId: string | null;
-  assignedDepartmentId?: string | null;
+  assignedDepartmentId: string | null;
   assignedUserId: string | null;
   dueDateUtc: string | null;
 }

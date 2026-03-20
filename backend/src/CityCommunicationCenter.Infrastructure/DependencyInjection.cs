@@ -1,0 +1,46 @@
+using CityCommunicationCenter.Infrastructure.Services;
+using CityCommunicationCenter.Infrastructure.SocialMedia;
+using CityCommunicationCenter.Infrastructure.Tenancy;
+
+namespace CityCommunicationCenter.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<TenantResolutionOptions>(
+            configuration.GetSection(TenantResolutionOptions.SectionName));
+        services.Configure<AuthenticationOptions>(
+            configuration.GetSection(AuthenticationOptions.SectionName));
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ITenantContextAccessor, HttpTenantContextAccessor>();
+        
+        var connectionString = configuration.GetConnectionString("CityCommunicationCenter");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Connection string 'CityCommunicationCenter' must be configured.");
+        }
+
+        services.AddDbContext<CityCommunicationCenterDbContext>(options =>
+            options.UseNpgsql(connectionString));
+        services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<CityCommunicationCenterDbContext>());
+
+        // Social Media Services
+        services.AddHttpClient();
+        services.AddScoped<ISocialMediaSettingsProvider, DatabaseSocialMediaSettingsProvider>();
+        services.AddScoped<ISocialMediaClientFactory, SocialMediaClientFactory>();
+        services.AddScoped<ISocialMediaService, SocialMediaService>();
+
+        // Routing Service
+        services.AddScoped<IRoutingService, RoutingService>();
+        services.AddScoped<ILdapAuthenticationService, LdapAuthenticationService>();
+        services.AddSingleton<ILocalUserPasswordService, LocalUserPasswordService>();
+        services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
+        services.AddScoped<IAuthenticationModeProvider, UserAuthenticationService>();
+
+        return services;
+    }
+}

@@ -1,0 +1,29 @@
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
+
+namespace CityCommunicationCenter.Application.Features.Reports;
+
+public sealed record GetWorkloadReportQuery() : IQuery<IReadOnlyList<WorkloadReportItemResponse>>;
+
+public sealed class GetWorkloadReportQueryHandler : IRequestHandler<GetWorkloadReportQuery, IReadOnlyList<WorkloadReportItemResponse>>
+{
+    private readonly IApplicationDbContext _dbContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
+
+    public GetWorkloadReportQueryHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    {
+        _dbContext = dbContext;
+        _tenantContextAccessor = tenantContextAccessor;
+    }
+
+    public async Task<IReadOnlyList<WorkloadReportItemResponse>> Handle(GetWorkloadReportQuery request, CancellationToken cancellationToken)
+    {
+        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        return await _dbContext.Tasks
+            .Where(entity => entity.TenantId == tenantId
+                && entity.TargetDepartmentId.HasValue
+                && entity.CurrentStatus != WorkflowTaskStatus.Closed)
+            .GroupBy(entity => entity.TargetDepartmentId!.Value)
+            .Select(group => new WorkloadReportItemResponse(group.Key, group.Count()))
+            .ToListAsync(cancellationToken);
+    }
+}

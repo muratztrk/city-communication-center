@@ -3,12 +3,12 @@ services:
     image: postgres:18-alpine
     container_name: ccc-postgres
     environment:
-      POSTGRES_DB: city_communication_center
-      POSTGRES_USER: ccc
+      POSTGRES_DB: ${CCC_DB_NAME:-city_communication_center}
+      POSTGRES_USER: ${CCC_DB_USER:-ccc}
       POSTGRES_PASSWORD: ${CCC_DB_PASSWORD}
       PGDATA: /var/lib/postgresql/18/docker
     ports:
-      - "5432:5432"
+      - "${CCC_DB_HOST_PORT:-15432}:5432"
     volumes:
       - postgres18_data:/var/lib/postgresql
     healthcheck:
@@ -25,7 +25,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__CityCommunicationCenter=Host=postgres;Port=5432;Database=city_communication_center;Username=ccc;Password=${CCC_DB_PASSWORD};Include Error Detail=true
+      - ConnectionStrings__CityCommunicationCenter=Host=${CCC_DB_HOST:-postgres};Port=${CCC_DB_PORT:-5432};Database=${CCC_DB_NAME:-city_communication_center};Username=${CCC_DB_USER:-ccc};Password=${CCC_DB_PASSWORD};Include Error Detail=true
       - Database__ApplyMigrationsOnStartup=true
       - Authentication__Issuer=https://city-communication-center.local
       - Authentication__Audience=city-communication-center-api

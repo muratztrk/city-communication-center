@@ -24,7 +24,7 @@ services:
     container_name: ccc-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://+:${CCC_API_CONTAINER_PORT:-80}
       - ConnectionStrings__CityCommunicationCenter=Host=${CCC_DB_HOST:-postgres};Port=${CCC_DB_PORT:-5432};Database=${CCC_DB_NAME:-city_communication_center};Username=${CCC_DB_USER:-ccc};Password=${CCC_DB_PASSWORD};Include Error Detail=true
       - Database__ApplyMigrationsOnStartup=true
       - Authentication__Issuer=https://city-communication-center.local
@@ -34,7 +34,7 @@ services:
       - Authentication__EnableLocalUsers=true
       - DataProtection__KeysDirectory=/var/lib/city-communication-center/dataprotection
     ports:
-      - "5000:80"
+      - "${CCC_API_HOST_PORT:-15000}:${CCC_API_CONTAINER_PORT:-80}"
     volumes:
       - dataprotection_keys:/var/lib/city-communication-center/dataprotection
     depends_on:
@@ -46,10 +46,10 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_ORIGIN: http://localhost:5000
+        VITE_API_ORIGIN: ${CCC_API_PUBLIC_ORIGIN:-}
     container_name: ccc-frontend
     ports:
-      - "3000:80"
+      - "${CCC_FRONTEND_HOST_PORT:-13000}:80"
     depends_on:
       - api
 

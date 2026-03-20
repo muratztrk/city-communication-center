@@ -1,6 +1,6 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
-ARG VITE_API_ORIGIN=http://localhost:5000
+ARG VITE_API_ORIGIN
 ENV VITE_API_ORIGIN=$VITE_API_ORIGIN
 COPY package*.json ./
 RUN npm ci

@@ -27,11 +27,13 @@ services:
       - ASPNETCORE_URLS=http://+:${CCC_API_CONTAINER_PORT:-80}
       - ConnectionStrings__CityCommunicationCenter=Host=${CCC_DB_HOST:-postgres};Port=${CCC_DB_PORT:-5432};Database=${CCC_DB_NAME:-city_communication_center};Username=${CCC_DB_USER:-ccc};Password=${CCC_DB_PASSWORD};Include Error Detail=true
       - Database__ApplyMigrationsOnStartup=true
-      - Authentication__Issuer=https://city-communication-center.local
-      - Authentication__Audience=city-communication-center-api
+      - Authentication__Issuer=${CCC_AUTH_ISSUER:-https://city-communication-center.local}
+      - Authentication__Audience=${CCC_AUTH_AUDIENCE:-city-communication-center-api}
       - Authentication__SigningKey=${CCC_SIGNING_KEY}
       - Authentication__InitialPassword=${CCC_INITIAL_PASSWORD}
       - Authentication__EnableLocalUsers=true
+      - Cors__AllowedOrigins__0=${CCC_FRONTEND_PUBLIC_ORIGIN:-http://localhost:13000}
+      - Cors__AllowedOrigins__1=http://localhost:5173
       - DataProtection__KeysDirectory=/var/lib/city-communication-center/dataprotection
     ports:
       - "${CCC_API_HOST_PORT:-15000}:${CCC_API_CONTAINER_PORT:-80}"

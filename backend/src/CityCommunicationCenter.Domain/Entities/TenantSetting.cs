@@ -2,7 +2,7 @@ using CityCommunicationCenter.Domain.Common;
 
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class TenantSetting : AuditableTenantEntity
+public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 {
     public Guid TenantSettingId { get; set; }
 
@@ -17,4 +17,15 @@ public sealed class TenantSetting : AuditableTenantEntity
     public bool AutoRoutingEnabled { get; set; } = false;
 
     public string? SocialSettingsJson { get; set; }
+
+    public string? LdapSettingsJson { get; set; }
+
+    public string? AuthPolicyJson { get; set; }
+
+    public string? AppearanceJson { get; set; }
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.Unique(nameof(TenantId), databaseName: "ix_tenantsettings_tenantid_unique"),
+    ];
 }

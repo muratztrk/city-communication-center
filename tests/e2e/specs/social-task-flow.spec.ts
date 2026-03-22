@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, API_BASE_URL, MANAGER_EMAIL, STAFF_EMAIL, apiGetDepartments, apiGetSocialMessages, authenticateApi, getApiHeaders, login, logout, openSocialMessagesPage, openTasksPage, seedSocialMessage } from './helpers';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, API_BASE_URL, MANAGER_EMAIL, STAFF_EMAIL, apiGetDepartments, apiGetSocialMessages, authenticateApi, getApiHeaders, login, logout, openSocialMessagesPage, openTasksPage, seedSocialMessage, selectAutocompleteOption } from './helpers';
 
 // Scenario:
 // 1. Admin routes a new social message to Fen Isleri.
@@ -27,20 +27,20 @@ test('social message can become an approved assigned completed closed task acros
     await expect(socialRow).toBeVisible();
     await socialRow.locator('select').selectOption({ label: 'Fen İşleri Müdürlüğü' });
     await socialRow.getByRole('button', { name: 'Yönlendir' }).click();
-    await expect(socialRow).toContainText('Routed');
+    await expect(socialRow).toContainText('Yönlendirildi');
 
     await socialRow.getByPlaceholder('Görev başlığı').fill(taskTitle);
     await socialRow.getByRole('button', { name: 'Göreve Çevir' }).click();
-    await expect(socialRow).toContainText('Göreve dönüştürüldü');
+    await expect(socialRow).toContainText('Göreve Dönüştürüldü');
   });
 
   await openTasksPage(adminPage);
   const draftTaskRow = adminPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Admin submits the newly created task', async () => {
     await expect(draftTaskRow).toBeVisible();
-    await expect(draftTaskRow).toContainText('Draft');
+    await expect(draftTaskRow).toContainText('Taslak');
     await draftTaskRow.getByRole('button', { name: 'Gönder' }).click();
-    await expect(draftTaskRow).toContainText('PendingApproval');
+    await expect(draftTaskRow).toContainText('Onay Bekliyor');
   });
 
   await logout(adminPage);
@@ -55,10 +55,10 @@ test('social message can become an approved assigned completed closed task acros
   await test.step('Manager approves and assigns the task to staff', async () => {
     await expect(managerTaskRow).toBeVisible();
     await managerTaskRow.getByRole('button', { name: 'Onayla' }).click();
-    await expect(managerTaskRow).toContainText('Assigned');
+    await expect(managerTaskRow).toContainText('Atandı');
 
     await managerTaskRow.getByLabel(`Departman seç ${taskTitle}`).selectOption({ label: 'Fen İşleri Müdürlüğü' });
-    await managerTaskRow.getByLabel(`Kullanıcı seç ${taskTitle}`).selectOption({ label: 'Emre Çelik' });
+    await selectAutocompleteOption(managerTaskRow, `Kullanıcı seç ${taskTitle}`, 'Emre Çelik');
     await managerTaskRow.getByRole('button', { name: 'Ata' }).click();
     await expect(managerTaskRow).toContainText('Emre Çelik');
   });
@@ -75,7 +75,7 @@ test('social message can become an approved assigned completed closed task acros
   await test.step('Assigned staff completes the task', async () => {
     await expect(staffTaskRow).toBeVisible();
     await staffTaskRow.getByRole('button', { name: 'Tamamla' }).click();
-    await expect(staffTaskRow).toContainText('Completed', { timeout: 10_000 });
+    await expect(staffTaskRow).toContainText('Tamamlandı', { timeout: 10_000 });
   });
 
   await logout(staffPage);
@@ -90,7 +90,7 @@ test('social message can become an approved assigned completed closed task acros
   await test.step('Manager closes the completed task', async () => {
     await expect(closeTaskRow).toBeVisible();
     await closeTaskRow.getByRole('button', { name: 'Kapat' }).click();
-    await expect(closeTaskRow).toContainText('Closed');
+    await expect(closeTaskRow).toContainText('Kapatıldı');
   });
 
   await closeContext.close();
@@ -109,10 +109,10 @@ test('social message conversion falls back to citizen handle when title is left 
   await expect(socialRow).toBeVisible();
   await socialRow.locator('select').selectOption({ label: 'Fen İşleri Müdürlüğü' });
   await socialRow.getByRole('button', { name: 'Yönlendir' }).click();
-  await expect(socialRow).toContainText('Routed');
+  await expect(socialRow).toContainText('Yönlendirildi');
 
   await socialRow.getByRole('button', { name: 'Göreve Çevir' }).click();
-  await expect(socialRow).toContainText('Göreve dönüştürüldü');
+  await expect(socialRow).toContainText('Göreve Dönüştürüldü');
 
   await openTasksPage(page);
   await expect(page.locator('tr', { hasText: expectedTaskTitle }).first()).toBeVisible();

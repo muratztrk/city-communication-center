@@ -1,6 +1,10 @@
 ﻿using System.Security.Claims;
+using CityCommunicationCenter.Application.Abstractions.Identity;
 using CityCommunicationCenter.Application.Features.Auth;
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -9,13 +13,23 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [Route("api/v1/[controller]")]
 public sealed class AuthController : ControllerBase
 {
+    private const string ForwardedForHeader = "X-Forwarded-For";
+    private const string PasswordGrantExchangeTicketPrefix = "auth-ticket:";
     private readonly ISender _sender;
     private readonly IConfiguration _configuration;
+    private readonly ITenantAuthenticationPolicyService _tenantAuthenticationPolicyService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public AuthController(ISender sender, IConfiguration configuration)
+    public AuthController(
+        ISender sender,
+        IConfiguration configuration,
+        ITenantAuthenticationPolicyService tenantAuthenticationPolicyService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _sender = sender;
         _configuration = configuration;
+        _tenantAuthenticationPolicyService = tenantAuthenticationPolicyService;
+        _localizer = localizer;
     }
 
     [HttpPost("/connect/token")]
@@ -27,23 +41,29 @@ public sealed class AuthController : ControllerBase
         var request = Microsoft.AspNetCore.OpenIddictServerAspNetCoreHelpers.GetOpenIddictServerRequest(HttpContext);
         if (request is null)
         {
-            return BadRequest(new { error = Errors.InvalidRequest, error_description = "OpenIddict istegi okunamadi." });
+            return BadRequest(new { error = Errors.InvalidRequest, error_description = _localizer["AuthRequestUnreadable"].Value });
         }
 
         if (!string.Equals(request.GrantType, GrantTypes.Password, StringComparison.OrdinalIgnoreCase))
         {
-            return BadRequest(new { error = Errors.UnsupportedGrantType, error_description = "Sadece password grant desteklenmektedir." });
+            return BadRequest(new { error = Errors.UnsupportedGrantType, error_description = _localizer["AuthPasswordGrantOnly"].Value });
         }
 
-        var tenantId = request.GetParameter("tenant_id")?.ToString();
+        var tenantId = await ResolveTenantIdAsync(request.GetParameter("tenant_id")?.ToString(), cancellationToken);
         if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
         {
-            return BadRequest(new { error = Errors.InvalidRequest, error_description = "Kullanıcı adı ve şifre gereklidir." });
+            return BadRequest(new { error = Errors.InvalidRequest, error_description = _localizer["AuthCredentialsRequired"].Value });
         }
 
         if (string.IsNullOrWhiteSpace(tenantId))
         {
-            return BadRequest(new { error = Errors.InvalidRequest, error_description = "Belediye seçimi gereklidir." });
+            return BadRequest(new { error = Errors.InvalidRequest, error_description = _localizer["AuthTenantRequired"].Value });
+        }
+
+        if (Guid.TryParse(tenantId, out var parsedTenantId)
+            && await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+        {
+            return Unauthorized(new { error = Errors.InvalidGrant, error_description = _localizer["AuthSecondFactorRequired"].Value });
         }
 
         var result = await _sender.Send(
@@ -51,7 +71,7 @@ public sealed class AuthController : ControllerBase
             cancellationToken);
         if (result is null)
         {
-            return Unauthorized(new { error = Errors.InvalidGrant, error_description = "Geçersiz kullanıcı adı veya şifre." });
+            return Unauthorized(new { error = Errors.InvalidGrant, error_description = _localizer["AuthInvalidCredentials"].Value });
         }
 
         var principal = CreatePrincipal(result);
@@ -62,22 +82,104 @@ public sealed class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
+        var tenantId = await ResolveTenantIdAsync(request.TenantId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(tenantId))
+        {
+            return BadRequest(new { error = _localizer["AuthTenantRequired"].Value });
+        }
+
+        if (Guid.TryParse(tenantId, out var parsedTenantId)
+            && await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+        {
+            return Unauthorized(new { error = _localizer["AuthSecondFactorRequired"].Value });
+        }
+
         var result = await _sender.Send(
-            new AuthenticateUserCommand(request.Username, request.Password, request.TenantId),
+            new AuthenticateUserCommand(request.Username, request.Password, tenantId),
             cancellationToken);
         if (result is null)
         {
-            return Unauthorized(new { error = "Gecersiz kullanici adi veya sifre." });
+            return Unauthorized(new { error = _localizer["AuthInvalidCredentials"].Value });
         }
 
         return Ok(new LoginResponse(
             result.UserId.ToString(),
+            result.Username,
             result.DisplayName,
-            result.Email,
+            string.IsNullOrWhiteSpace(result.Email) ? null : result.Email,
             result.RoleCode,
             result.TenantId.ToString(),
             result.TenantName,
             result.AuthenticationMode));
+    }
+
+    [HttpPost("interactive/start")]
+    [AllowAnonymous]
+    public async Task<ActionResult<StartInteractiveAuthenticationResponse>> StartInteractiveAuthentication(
+        [FromBody] StartInteractiveAuthenticationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var tenantId = await ResolveTenantIdAsync(request.TenantId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(tenantId))
+        {
+            return BadRequest(new StartInteractiveAuthenticationResponse(
+                "Failed",
+                false,
+                false,
+                null,
+                null,
+                null,
+                null,
+                _localizer["AuthTenantRequired"].Value,
+                null,
+                null,
+                null,
+                false));
+        }
+
+        var response = await _sender.Send(
+            new StartInteractiveAuthenticationCommand(tenantId, request.Username, request.Password),
+            cancellationToken);
+
+        if (response.ChallengeWithNegotiate)
+        {
+            return Challenge(NegotiateDefaults.AuthenticationScheme);
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("interactive/verify")]
+    [AllowAnonymous]
+    public async Task<ActionResult<VerifyInteractiveAuthenticationResponse>> VerifyInteractiveAuthentication(
+        [FromBody] VerifyInteractiveAuthenticationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var tenantId = await ResolveTenantIdAsync(request.TenantId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(tenantId))
+        {
+            return BadRequest(new VerifyInteractiveAuthenticationResponse(
+                "Failed",
+                null,
+                _localizer["AuthTenantRequired"].Value,
+                null,
+                null,
+                null));
+        }
+
+        var response = await _sender.Send(
+            new VerifyInteractiveAuthenticationCommand(tenantId, request.ChallengeId, request.Code),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("tenant-context")]
+    [AllowAnonymous]
+    public async Task<ActionResult<TenantLoginContextResponse>> GetTenantLoginContext(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetTenantLoginContextQuery(GetRequestHost()), cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("me")]
@@ -104,6 +206,8 @@ public sealed class AuthController : ControllerBase
             new BootstrapTenantCommand(
                 request.MunicipalityName,
                 request.DisplayName,
+                request.DeploymentMode,
+                request.AdminUsername,
                 request.AdminDisplayName,
                 request.AdminEmail,
                 request.AdminPassword),
@@ -111,7 +215,7 @@ public sealed class AuthController : ControllerBase
 
         if (response is null)
         {
-            return Conflict(new { error = "Kurulum zaten tamamlandı. Mevcut belediye kaydı kullanılmalıdır." });
+            return Conflict(new { error = _localizer["BootstrapCompleted"].Value });
         }
 
         return Ok(response);
@@ -132,6 +236,10 @@ public sealed class AuthController : ControllerBase
         identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userId));
         identity.AddClaim(new Claim(Claims.Name, payload.DisplayName));
         identity.AddClaim(new Claim("displayName", payload.DisplayName));
+        if (!string.IsNullOrWhiteSpace(payload.Username))
+        {
+            identity.AddClaim(new Claim(Claims.PreferredUsername, payload.Username));
+        }
         identity.AddClaim(new Claim(Claims.Role, payload.RoleCode));
         identity.AddClaim(new Claim("tenant_id", tenantId));
         identity.AddClaim(new Claim("tenantId", tenantId));
@@ -147,12 +255,144 @@ public sealed class AuthController : ControllerBase
         principal.SetAudiences(audience);
         principal.SetDestinations(static claim => claim.Type switch
         {
-            Claims.Name or ClaimTypes.NameIdentifier or Claims.Subject or Claims.Email or Claims.Role or "displayName" or "tenant_id" or "tenantId" or "tenant_name" or "department_id"
+            Claims.Name or ClaimTypes.NameIdentifier or Claims.Subject or Claims.Email or Claims.PreferredUsername or Claims.Role or "displayName" or "tenant_id" or "tenantId" or "tenant_name" or "department_id"
                 => [Destinations.AccessToken],
             _ => []
         });
 
         return principal;
+    }
+
+    private async Task<string?> ResolveTenantIdAsync(string? explicitTenantId, CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(explicitTenantId))
+        {
+            return explicitTenantId.Trim();
+        }
+
+        var response = await _sender.Send(new GetTenantLoginContextQuery(GetRequestHost()), cancellationToken);
+        return response.ResolvedTenant?.TenantId.ToString();
+    }
+
+    private string? GetRequestHost()
+        => HttpContext.Request.Host.HasValue
+            ? HttpContext.Request.Host.Host
+            : null;
+
+    private async Task<bool> RequiresSecondFactorAsync(Guid tenantId, string username, CancellationToken cancellationToken)
+    {
+        if (username.StartsWith(PasswordGrantExchangeTicketPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var policy = await _tenantAuthenticationPolicyService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
+        if (!policy.RequireSecondFactorOutsideTrustedNetwork)
+        {
+            return false;
+        }
+
+        var effectiveClientIp = ResolveEffectiveClientIp(policy.TrustedProxyCidrs);
+        return effectiveClientIp is null || !IsMatch(effectiveClientIp, policy.TrustedNetworkCidrs);
+    }
+
+    private IPAddress? ResolveEffectiveClientIp(IReadOnlyList<string> trustedProxyCidrs)
+    {
+        var remoteIp = HttpContext.Connection.RemoteIpAddress;
+        if (remoteIp is null)
+        {
+            return null;
+        }
+
+        if (!IsMatch(remoteIp, trustedProxyCidrs))
+        {
+            return remoteIp;
+        }
+
+        var forwardedFor = Request.Headers[ForwardedForHeader].ToString();
+        var forwardedIp = forwardedFor
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(value => IPAddress.TryParse(value, out var parsed) ? parsed : null)
+            .FirstOrDefault(parsed => parsed is not null);
+
+        return forwardedIp ?? remoteIp;
+    }
+
+    private static bool IsMatch(IPAddress address, IReadOnlyList<string> cidrs)
+    {
+        return cidrs.Any(cidr => IpCidrRange.TryParse(cidr, out var range) && range.Contains(address));
+    }
+
+    private sealed class IpCidrRange
+    {
+        private readonly byte[] _networkBytes;
+
+        private IpCidrRange(IPAddress networkAddress, int prefixLength)
+        {
+            NetworkAddress = networkAddress;
+            PrefixLength = prefixLength;
+            _networkBytes = networkAddress.GetAddressBytes();
+        }
+
+        public IPAddress NetworkAddress { get; }
+
+        public int PrefixLength { get; }
+
+        public bool Contains(IPAddress address)
+        {
+            var networkAddress = NetworkAddress.IsIPv4MappedToIPv6 ? NetworkAddress.MapToIPv4() : NetworkAddress;
+            var candidateAddress = address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address;
+            var networkBytes = networkAddress.GetAddressBytes();
+            var addressBytes = candidateAddress.GetAddressBytes();
+            if (addressBytes.Length != networkBytes.Length)
+            {
+                return false;
+            }
+
+            var fullBytes = PrefixLength / 8;
+            var remainingBits = PrefixLength % 8;
+
+            for (var index = 0; index < fullBytes; index += 1)
+            {
+                if (networkBytes[index] != addressBytes[index])
+                {
+                    return false;
+                }
+            }
+
+            if (remainingBits == 0)
+            {
+                return true;
+            }
+
+            var mask = (byte)(byte.MaxValue << (8 - remainingBits));
+            return (networkBytes[fullBytes] & mask) == (addressBytes[fullBytes] & mask);
+        }
+
+        public static bool TryParse(string value, out IpCidrRange range)
+        {
+            range = null!;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            var parts = value.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (!IPAddress.TryParse(parts[0], out var networkAddress))
+            {
+                return false;
+            }
+
+            var maxPrefixLength = networkAddress.GetAddressBytes().Length * 8;
+            var prefixLength = maxPrefixLength;
+            if (parts.Length == 2 && (!int.TryParse(parts[1], out prefixLength) || prefixLength < 0 || prefixLength > maxPrefixLength))
+            {
+                return false;
+            }
+
+            range = new IpCidrRange(networkAddress, prefixLength);
+            return true;
+        }
     }
 }
 

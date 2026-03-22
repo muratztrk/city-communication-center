@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import type { AuditLog } from '../types';
+import { getAuditActionLabel, getLocale } from '../utils/localization';
 
 export function AuditLogsPage() {
+  const { t, i18n } = useTranslation();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,36 +26,36 @@ export function AuditLogsPage() {
     return 'badge info';
   };
 
-  if (loading) return <div className="loading">Yükleniyor...</div>;
-  if (error) return <div className="error">Hata: {error}</div>;
+  if (loading) return <div className="loading">{t('common.loading')}</div>;
+  if (error) return <div className="error">{t('common.error')}: {error}</div>;
 
   return (
     <div className="page">
-      <h1>📜 Denetim Kayıtları</h1>
+      <h1>📜 {t('audit.title')}</h1>
       <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th>Tarih</th>
-              <th>Varlık</th>
-              <th>İşlem</th>
-              <th>Detay</th>
+              <th>{t('audit.date')}</th>
+              <th>{t('audit.entity')}</th>
+              <th>{t('audit.action')}</th>
+              <th>{t('audit.detail')}</th>
             </tr>
           </thead>
           <tbody>
             {logs.map(log => (
               <tr key={log.auditLogId}>
-                <td>{new Date(log.eventTimeUtc).toLocaleString('tr-TR')}</td>
+                <td>{new Date(log.eventTimeUtc).toLocaleString(getLocale(i18n.language))}</td>
                 <td>
                   <span className="badge">{log.entityType}</span>
                   <div className="text-muted text-small">{log.entityId.substring(0, 8)}...</div>
                 </td>
-                <td><span className={getActionBadge(log.action)}>{log.action}</span></td>
+                <td><span className={getActionBadge(log.action)}>{getAuditActionLabel(t, log.action)}</span></td>
                 <td>{log.details || '-'}</td>
               </tr>
             ))}
             {logs.length === 0 && (
-              <tr><td colSpan={4} className="text-center">Henüz kayıt bulunmuyor</td></tr>
+              <tr><td colSpan={4} className="text-center">{t('audit.empty')}</td></tr>
             )}
           </tbody>
         </table>

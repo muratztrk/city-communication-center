@@ -29,10 +29,11 @@ internal sealed class InitialPasswordSeeder
             return;
         }
 
-        var seedUserEmails = InitialData.SeedUserEmails;
+        var seedUsernames = InitialData.SeedLocalUsernames;
+        var seedUserIds = seedUsernames.Keys.ToArray();
 
         var users = await _dbContext.Users
-            .Where(user => user.Email != null && seedUserEmails.Contains(user.Email) && string.IsNullOrWhiteSpace(user.PasswordHash))
+            .Where(user => seedUserIds.Contains(user.UserId))
             .ToListAsync(cancellationToken);
 
         if (users.Count == 0)
@@ -40,11 +41,35 @@ internal sealed class InitialPasswordSeeder
             return;
         }
 
+        var hasChanges = false;
+
         foreach (var user in users)
         {
-            user.PasswordHash = _passwordService.HashPassword(user, _authenticationOptions.InitialPassword);
-            user.UpdatedAtUtc = DateTimeOffset.UtcNow;
-            user.UpdatedByUserId = InitialData.AdminUserId;
+            var userChanged = false;
+
+            if (string.IsNullOrWhiteSpace(user.Username) && seedUsernames.TryGetValue(user.UserId, out var username))
+            {
+                user.Username = username;
+                userChanged = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(user.PasswordHash))
+            {
+                user.PasswordHash = _passwordService.HashPassword(user, _authenticationOptions.InitialPassword);
+                userChanged = true;
+            }
+
+            if (userChanged)
+            {
+                user.UpdatedAtUtc = DateTimeOffset.UtcNow;
+                user.UpdatedByUserId = InitialData.AdminUserId;
+                hasChanges = true;
+            }
+        }
+
+        if (!hasChanges)
+        {
+            return;
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import type { Department } from '../types';
+import { getDepartmentTypeLabel } from '../utils/localization';
 
 export function DepartmentsPage() {
+  const { t } = useTranslation();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,39 +42,39 @@ export function DepartmentsPage() {
     }
   };
 
-  if (loading) return <div className="loading">Yükleniyor...</div>;
-  if (error) return <div className="error">Hata: {error}</div>;
+  if (loading) return <div className="loading">{t('common.loading')}</div>;
+  if (error) return <div className="error">{t('common.error')}: {error}</div>;
 
   return (
     <div className="page">
       <div className="page-header">
-        <h1>🏢 Departmanlar</h1>
+        <h1>🏢 {t('departments.title')}</h1>
         <button className="btn primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? 'İptal' : '+ Yeni Departman'}
+          {showForm ? t('common.cancel') : t('departments.new')}
         </button>
       </div>
 
       {showForm && (
         <form className="form-card" onSubmit={handleCreate}>
           <div className="form-group">
-            <label>Departman Adı</label>
+            <label>{t('departments.name')}</label>
             <input
               type="text"
               value={newName}
               onChange={e => setNewName(e.target.value)}
-              placeholder="Departman adı girin"
+              placeholder={t('departments.namePlaceholder')}
               required
             />
           </div>
           <div className="form-group">
-            <label>Tür</label>
+            <label>{t('departments.type')}</label>
             <select value={newType} onChange={e => setNewType(e.target.value)}>
-              <option value="Müdürlük">Müdürlük</option>
-              <option value="Birim">Birim</option>
-              <option value="Daire">Daire Başkanlığı</option>
+              <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
+              <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
+              <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
             </select>
           </div>
-          <button type="submit" className="btn primary">Oluştur</button>
+          <button type="submit" className="btn primary">{t('common.create')}</button>
         </form>
       )}
 
@@ -79,17 +82,20 @@ export function DepartmentsPage() {
         <table>
           <thead>
             <tr>
-              <th>Ad</th>
-              <th>Tür</th>
+              <th>{t('departments.name')}</th>
+              <th>{t('departments.type')}</th>
             </tr>
           </thead>
           <tbody>
             {departments.map(dept => (
               <tr key={dept.departmentId}>
                 <td>{dept.name}</td>
-                <td><span className="badge">{dept.departmentType}</span></td>
+                <td><span className="badge">{getDepartmentTypeLabel(t, dept.departmentType)}</span></td>
               </tr>
             ))}
+            {departments.length === 0 && (
+              <tr><td colSpan={2} className="text-center">{t('departments.empty')}</td></tr>
+            )}
           </tbody>
         </table>
       </div>

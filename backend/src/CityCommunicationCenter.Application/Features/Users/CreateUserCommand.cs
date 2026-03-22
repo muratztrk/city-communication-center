@@ -1,0 +1,220 @@
+using CityCommunicationCenter.Application.Abstractions.Identity;
+using CityCommunicationCenter.Domain.Enums;
+using CityCommunicationCenter.Shared.Contracts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
+
+namespace CityCommunicationCenter.Application.Features.Users;
+
+public sealed record CreateUserCommand(
+    string? Username,
+    string DisplayName,
+    string? Email,
+    string? Password,
+    Guid DepartmentId,
+    string RoleCode,
+    bool IsActive,
+    string SourceType,
+    string? ExternalIdentityId) : ICommand<UserSummaryResponse>;
+
+public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
+{
+    public CreateUserCommandValidator(IStringLocalizer<ApplicationResource> localizer)
+    {
+        RuleFor(command => command.Username)
+            .MaximumLength(100)
+            .When(command => !string.IsNullOrWhiteSpace(command.Username))
+            .WithMessage(localizer["ValidationUsernameTooLong"]);
+
+        RuleFor(command => command.Username)
+            .NotEmpty()
+            .When(command => string.Equals(command.SourceType, UserSource.Manual.ToString(), StringComparison.OrdinalIgnoreCase))
+            .WithMessage(localizer["ValidationUsernameRequired"]);
+
+        RuleFor(command => command.DisplayName)
+            .MaximumLength(200)
+            .When(command => !string.IsNullOrWhiteSpace(command.DisplayName))
+            .WithMessage(localizer["ValidationDisplayNameRequired"]);
+
+        RuleFor(command => command.DisplayName)
+            .NotEmpty()
+            .When(command => string.Equals(command.SourceType, UserSource.Manual.ToString(), StringComparison.OrdinalIgnoreCase))
+            .WithMessage(localizer["ValidationDisplayNameRequired"]);
+
+        RuleFor(command => command.Email)
+            .EmailAddress()
+            .When(command => !string.IsNullOrWhiteSpace(command.Email))
+            .WithMessage(localizer["ValidationEmailRequired"]);
+
+        RuleFor(command => command.Password)
+            .MinimumLength(8)
+            .When(command => !string.IsNullOrWhiteSpace(command.Password))
+            .WithMessage(localizer["ValidationPasswordMinLength"]);
+
+        RuleFor(command => command.Password)
+            .NotEmpty()
+            .When(command => string.Equals(command.SourceType, UserSource.Manual.ToString(), StringComparison.OrdinalIgnoreCase))
+            .WithMessage(localizer["ValidationManualPasswordRequired"]);
+
+        RuleFor(command => command.DepartmentId)
+            .NotEmpty()
+            .WithMessage(localizer["ValidationDepartmentRequired"]);
+
+        RuleFor(command => command.RoleCode)
+            .NotEmpty()
+            .Must(value => Enum.TryParse<RoleCode>(value, true, out _))
+            .WithMessage(localizer["ValidationRoleRequired"]);
+
+        RuleFor(command => command.SourceType)
+            .NotEmpty()
+            .Must(value => Enum.TryParse<UserSource>(value, true, out _))
+            .WithMessage(localizer["ValidationUserSourceRequired"]);
+
+        RuleFor(command => command.ExternalIdentityId)
+            .NotEmpty()
+            .When(command => string.Equals(command.SourceType, UserSource.Ldap.ToString(), StringComparison.OrdinalIgnoreCase))
+            .WithMessage(localizer["ValidationLdapIdentifierRequired"]);
+    }
+}
+
+public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserSummaryResponse>
+{
+    private readonly IApplicationDbContext _dbContext;
+    private readonly ILdapAuthenticationService _ldapAuthenticationService;
+    private readonly ILocalUserPasswordService _localUserPasswordService;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IStringLocalizer<ApplicationResource> _localizer;
+
+    public CreateUserCommandHandler(
+        IApplicationDbContext dbContext,
+        ILdapAuthenticationService ldapAuthenticationService,
+        ILocalUserPasswordService localUserPasswordService,
+        ITenantContextAccessor tenantContextAccessor,
+        IStringLocalizer<ApplicationResource> localizer)
+    {
+        _dbContext = dbContext;
+        _ldapAuthenticationService = ldapAuthenticationService;
+        _localUserPasswordService = localUserPasswordService;
+        _tenantContextAccessor = tenantContextAccessor;
+        _localizer = localizer;
+    }
+
+    public async Task<UserSummaryResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    {
+        var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.TenantId!.Value;
+        var username = string.IsNullOrWhiteSpace(request.Username) ? null : request.Username.Trim();
+        var displayName = request.DisplayName.Trim();
+        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        var sourceType = Enum.Parse<UserSource>(request.SourceType, true);
+        var externalIdentityId = string.IsNullOrWhiteSpace(request.ExternalIdentityId) ? null : request.ExternalIdentityId.Trim();
+
+        if (sourceType == UserSource.Ldap)
+        {
+            var directoryUser = await _ldapAuthenticationService.FindUserByExternalIdentityAsync(tenantId, externalIdentityId!, cancellationToken);
+            if (directoryUser is null)
+            {
+                throw new ValidationException(_localizer["ValidationLdapUserNotFound"]);
+            }
+
+            displayName = string.IsNullOrWhiteSpace(directoryUser.DisplayName)
+                ? directoryUser.Username
+                : directoryUser.DisplayName;
+            email = string.IsNullOrWhiteSpace(directoryUser.Email) ? null : directoryUser.Email.Trim();
+            externalIdentityId = directoryUser.ExternalIdentityId;
+            username = directoryUser.Username.Trim();
+        }
+
+        var department = await _dbContext.Departments
+            .FirstOrDefaultAsync(
+                entity => entity.DepartmentId == request.DepartmentId && entity.TenantId == tenantId,
+                cancellationToken);
+
+        if (department is null)
+        {
+            throw new ValidationException(_localizer["ValidationDepartmentNotFound"]);
+        }
+
+        if (email is not null)
+        {
+            var normalizedEmailUpper = email.ToUpperInvariant();
+            var emailExists = await _dbContext.Users
+                .AnyAsync(
+                    entity => entity.TenantId == tenantId
+                        && entity.Email != null
+                        && entity.Email.ToUpper() == normalizedEmailUpper,
+                    cancellationToken);
+
+            if (emailExists)
+            {
+                throw new ValidationException(_localizer["ValidationUserEmailExists"]);
+            }
+        }
+
+        if (username is not null)
+        {
+            var normalizedUsernameUpper = username.ToUpperInvariant();
+            var usernameExists = await _dbContext.Users
+                .AnyAsync(
+                    entity => entity.TenantId == tenantId
+                        && entity.Username != null
+                        && entity.Username.ToUpper() == normalizedUsernameUpper,
+                    cancellationToken);
+
+            if (usernameExists)
+            {
+                throw new ValidationException(_localizer["ValidationUserUsernameExists"]);
+            }
+        }
+
+        if (externalIdentityId is not null)
+        {
+            var externalIdentityExists = await _dbContext.Users
+                .AnyAsync(
+                    entity => entity.TenantId == tenantId
+                        && entity.ExternalIdentityId != null
+                        && entity.ExternalIdentityId.ToUpper() == externalIdentityId.ToUpper(),
+                    cancellationToken);
+
+            if (externalIdentityExists)
+            {
+                throw new ValidationException(_localizer["ValidationUserExternalIdentityExists"]);
+            }
+        }
+
+        var roleCode = Enum.Parse<RoleCode>(request.RoleCode, true);
+        var user = new ApplicationUser
+        {
+            UserId = Guid.NewGuid(),
+            TenantId = tenantId,
+            DepartmentId = request.DepartmentId,
+            Username = username,
+            DisplayName = displayName,
+            Email = email,
+            ExternalIdentityId = externalIdentityId,
+            RoleCode = roleCode,
+            UserSource = sourceType,
+            IsActive = request.IsActive,
+            CreatedByUserId = context.UserId,
+        };
+
+        if (sourceType == UserSource.Manual)
+        {
+            user.PasswordHash = _localUserPasswordService.HashPassword(user, request.Password!);
+        }
+
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new UserSummaryResponse(
+            user.UserId,
+            user.TenantId,
+            user.DepartmentId,
+            user.Username,
+            user.DisplayName,
+            user.Email,
+            user.RoleCode.ToString(),
+            user.IsActive,
+            sourceType.ToString());
+    }
+}

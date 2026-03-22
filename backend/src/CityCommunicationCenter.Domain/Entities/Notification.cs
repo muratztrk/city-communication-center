@@ -3,7 +3,7 @@ using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class Notification : AuditableTenantEntity
+public sealed class Notification : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 {
     public Guid NotificationId { get; set; }
 
@@ -18,4 +18,10 @@ public sealed class Notification : AuditableTenantEntity
     public string Message { get; set; } = string.Empty;
 
     public DateTimeOffset? SentAtUtc { get; set; }
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(UserId), nameof(DeliveryStatus)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(TaskId)),
+    ];
 }

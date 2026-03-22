@@ -2,7 +2,7 @@ using CityCommunicationCenter.Domain.Common;
 
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class AuditLog : AuditableTenantEntity
+public sealed class AuditLog : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 {
     public Guid AuditLogId { get; set; }
 
@@ -17,4 +17,10 @@ public sealed class AuditLog : AuditableTenantEntity
     public DateTimeOffset EventTimeUtc { get; set; } = DateTimeOffset.UtcNow;
 
     public string? Details { get; set; }
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(EntityType), nameof(EntityId)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(EventTimeUtc)),
+    ];
 }

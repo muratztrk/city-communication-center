@@ -48,6 +48,7 @@ public sealed class AuthenticateUserCommandHandler : IRequestHandler<Authenticat
             user.UserId,
             user.TenantId,
             user.DepartmentId,
+            user.Username,
             user.DisplayName,
             user.Email,
             user.RoleCode,

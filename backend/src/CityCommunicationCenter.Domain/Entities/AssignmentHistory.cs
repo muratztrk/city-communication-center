@@ -2,7 +2,7 @@ using CityCommunicationCenter.Domain.Common;
 
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class AssignmentHistory : AuditableTenantEntity
+public sealed class AssignmentHistory : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 {
     public Guid AssignmentId { get; set; }
 
@@ -21,4 +21,10 @@ public sealed class AssignmentHistory : AuditableTenantEntity
     public DateTimeOffset ActionDateUtc { get; set; } = DateTimeOffset.UtcNow;
 
     public WorkTask Task { get; set; } = null!;
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.NonUnique(nameof(TaskId), nameof(ActionDateUtc)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(ToDepartmentId)),
+    ];
 }

@@ -1,36 +1,46 @@
 using CityCommunicationCenter.Application.Abstractions.Identity;
+using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Auth;
 
 public sealed record BootstrapTenantCommand(
     string MunicipalityName,
     string? DisplayName,
+    string? DeploymentMode,
+    string AdminUsername,
     string AdminDisplayName,
-    string AdminEmail,
+    string? AdminEmail,
     string AdminPassword) : ICommand<BootstrapTenantResponse?>;
 
 public sealed class BootstrapTenantCommandValidator : AbstractValidator<BootstrapTenantCommand>
 {
-    public BootstrapTenantCommandValidator()
+    public BootstrapTenantCommandValidator(IStringLocalizer<ApplicationResource> localizer)
     {
         RuleFor(command => command.MunicipalityName)
             .NotEmpty()
-            .WithMessage("Belediye adi zorunludur.")
+            .WithMessage(localizer["ValidationMunicipalityRequired"])
             .MaximumLength(200);
         RuleFor(command => command.AdminDisplayName)
             .NotEmpty()
-            .WithMessage("Yonetici adi zorunludur.")
+            .WithMessage(localizer["ValidationAdminNameRequired"])
             .MaximumLength(200);
-        RuleFor(command => command.AdminEmail)
+
+        RuleFor(command => command.AdminUsername)
             .NotEmpty()
-            .WithMessage("Yonetici e-posta adresi zorunludur.")
+            .WithMessage(localizer["ValidationAdminUsernameRequired"])
+            .MaximumLength(100);
+
+        RuleFor(command => command.AdminEmail)
             .EmailAddress()
-            .WithMessage("Gecerli bir yonetici e-posta adresi girilmelidir.");
+            .When(command => !string.IsNullOrWhiteSpace(command.AdminEmail))
+            .WithMessage(localizer["ValidationAdminEmailRequired"]);
         RuleFor(command => command.AdminPassword)
             .NotEmpty()
-            .WithMessage("Yonetici sifresi zorunludur.")
             .MinimumLength(8)
-            .WithMessage("Yonetici sifresi en az 8 karakter olmalidir.");
+            .WithMessage(localizer["ValidationAdminPasswordRequired"]);
+        RuleFor(command => command.DeploymentMode)
+            .Must(value => string.IsNullOrWhiteSpace(value) || Enum.TryParse<CityCommunicationCenter.Domain.Enums.DeploymentMode>(value, true, out _))
+            .WithMessage(localizer["ValidationDeploymentModeRequired"]);
     }
 }
 
@@ -54,9 +64,13 @@ public sealed class BootstrapTenantCommandHandler : IRequestHandler<BootstrapTen
     {
         var municipalityName = request.MunicipalityName.Trim();
         var displayName = string.IsNullOrWhiteSpace(request.DisplayName) ? municipalityName : request.DisplayName.Trim();
+        var adminUsername = request.AdminUsername.Trim();
         var adminDisplayName = request.AdminDisplayName.Trim();
-        var adminEmail = request.AdminEmail.Trim();
+        var adminEmail = string.IsNullOrWhiteSpace(request.AdminEmail) ? null : request.AdminEmail.Trim();
         var adminPassword = request.AdminPassword.Trim();
+        var deploymentMode = string.IsNullOrWhiteSpace(request.DeploymentMode)
+            ? CityCommunicationCenter.Domain.Enums.DeploymentMode.DedicatedHosted
+            : Enum.Parse<CityCommunicationCenter.Domain.Enums.DeploymentMode>(request.DeploymentMode, true);
 
         if (await _dbContext.Tenants.AnyAsync(cancellationToken))
         {
@@ -72,7 +86,7 @@ public sealed class BootstrapTenantCommandHandler : IRequestHandler<BootstrapTen
             TenantId = tenantId,
             MunicipalityName = municipalityName,
             DisplayName = displayName,
-            DeploymentMode = DeploymentMode.DedicatedHosted,
+            DeploymentMode = deploymentMode,
             IsActive = true
         };
 
@@ -90,9 +104,11 @@ public sealed class BootstrapTenantCommandHandler : IRequestHandler<BootstrapTen
             UserId = adminUserId,
             TenantId = tenantId,
             DepartmentId = adminDepartmentId,
+            Username = adminUsername,
             DisplayName = adminDisplayName,
             Email = adminEmail,
             RoleCode = RoleCode.SystemAdmin,
+            UserSource = UserSource.Manual,
             IsActive = true,
             CreatedByUserId = adminUserId
         };
@@ -118,6 +134,9 @@ public sealed class BootstrapTenantCommandHandler : IRequestHandler<BootstrapTen
             tenantId.ToString(),
             municipalityName,
             displayName,
+            deploymentMode.ToString(),
+            tenant.Domain,
+            adminUsername,
             adminDisplayName,
             adminEmail,
             _authenticationModeProvider.GetBootstrapAuthMode());

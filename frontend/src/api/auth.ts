@@ -1,6 +1,11 @@
 import { API_ORIGIN } from './config';
+import i18n from '../i18n';
+import type { StartInteractiveAuthenticationResult, TenantLoginContext, VerifyInteractiveAuthenticationResult } from '../types';
 
 const TOKEN_ENDPOINT = `${API_ORIGIN}/connect/token`;
+const TENANT_CONTEXT_ENDPOINT = `${API_ORIGIN}/api/v1/auth/tenant-context`;
+const INTERACTIVE_START_ENDPOINT = `${API_ORIGIN}/api/v1/auth/interactive/start`;
+const INTERACTIVE_VERIFY_ENDPOINT = `${API_ORIGIN}/api/v1/auth/interactive/verify`;
 
 const ACCESS_TOKEN_KEY = 'ccc_token';
 const TOKEN_EXPIRES_AT_KEY = 'ccc_token_expires_at';
@@ -8,6 +13,7 @@ const USER_KEY = 'ccc_user';
 
 export interface AuthUser {
   userId: string;
+  username: string;
   displayName: string;
   email: string;
   role: string;
@@ -19,11 +25,12 @@ interface TokenResponse {
   access_token: string;
   expires_in?: number;
   error?: string;
-  error_description?: string;
+  error_description?: unknown;
 }
 
 interface JwtPayload {
   sub?: string;
+  preferred_username?: string | string[];
   email?: string | string[];
   role?: string | string[];
   tenant_id?: string | string[];
@@ -43,6 +50,29 @@ function readClaimValue(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
+function readErrorMessage(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (value && typeof value === 'object') {
+    const objectValue = value as { value?: unknown; message?: unknown; detail?: unknown };
+    if (typeof objectValue.value === 'string') {
+      return objectValue.value;
+    }
+
+    if (typeof objectValue.message === 'string') {
+      return objectValue.message;
+    }
+
+    if (typeof objectValue.detail === 'string') {
+      return objectValue.detail;
+    }
+  }
+
+  return '';
+}
+
 export interface AuthSession {
   accessToken: string;
   expiresAt: number | null;
@@ -52,7 +82,7 @@ export interface AuthSession {
 function parseJwtPayload(token: string): JwtPayload {
   const [, payload] = token.split('.');
   if (!payload) {
-    throw new Error('Geçersiz access token.');
+    throw new Error(i18n.t('errors.invalidAccessToken'));
   }
 
   const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
@@ -65,6 +95,7 @@ function buildUserFromToken(token: string, tenantNameOverride?: string): AuthUse
 
   return {
     userId: String(payload.sub ?? ''),
+    username: readClaimValue(payload.preferred_username),
     displayName: readClaimValue(payload.displayName ?? payload.name),
     email: readClaimValue(payload.email),
     role: readClaimValue(payload.role),
@@ -134,14 +165,62 @@ async function requestToken(params: URLSearchParams): Promise<TokenResponse> {
 
   if (!response.ok) {
     if (data) {
-      throw new Error(data.error_description ?? data.error ?? 'Kimlik doğrulama başarısız');
+      const errorDescription = readErrorMessage(data.error_description);
+      throw new Error(errorDescription || data.error || i18n.t('errors.authFailed'));
     }
 
-    throw new Error(rawBody || 'Kimlik doğrulama başarısız');
+    throw new Error(rawBody || i18n.t('errors.authFailed'));
   }
 
   if (!data?.access_token) {
-    throw new Error('Kimlik doğrulama yanıtı geçersiz.');
+    throw new Error(i18n.t('errors.invalidAuthResponse'));
+  }
+
+  return data;
+}
+
+async function requestInteractiveResponse<T>(url: string, payload: object): Promise<T> {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const rawBody = await response.text();
+  const data = rawBody ? tryParseJson<T>(rawBody) : null;
+
+  if (response.status === 401 && !data) {
+    throw new Error('NEGOTIATE_CHALLENGE');
+  }
+
+  if (!response.ok) {
+    throw new Error(rawBody || i18n.t('errors.authFailed'));
+  }
+
+  if (!data) {
+    throw new Error(i18n.t('errors.invalidAuthResponse'));
+  }
+
+  return data;
+}
+
+export async function getTenantLoginContext(): Promise<TenantLoginContext> {
+  const response = await fetch(TENANT_CONTEXT_ENDPOINT, {
+    headers: {
+      'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+    },
+    credentials: 'include',
+  });
+
+  const rawBody = await response.text();
+  const data = rawBody ? tryParseJson<TenantLoginContext>(rawBody) : null;
+
+  if (!response.ok || !data) {
+    throw new Error(i18n.t('login.tenantLoadError'));
   }
 
   return data;
@@ -190,6 +269,51 @@ export async function loginWithPassword(
 
   const tokenResponse = await requestToken(params);
   return writeSession(tokenResponse, tenantName);
+}
+
+export async function startInteractiveAuthentication(
+  tenantId: string,
+  username?: string,
+  password?: string,
+): Promise<StartInteractiveAuthenticationResult> {
+  try {
+    return await requestInteractiveResponse<StartInteractiveAuthenticationResult>(INTERACTIVE_START_ENDPOINT, {
+      tenantId,
+      username: username?.trim() || null,
+      password: password || null,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'NEGOTIATE_CHALLENGE') {
+      return {
+        status: 'CredentialsRequired',
+        isTrustedNetwork: true,
+        secondFactorRequiredOnSuccess: false,
+        automaticSignInMode: 'Negotiate',
+        authenticationMode: null,
+        challengeId: null,
+        deliveryDestination: null,
+        message: null,
+        expiresAtUtc: null,
+        grant: null,
+        mockCodePreview: null,
+        challengeWithNegotiate: false,
+      };
+    }
+
+    throw error;
+  }
+}
+
+export async function verifyInteractiveAuthentication(
+  tenantId: string,
+  challengeId: string,
+  code: string,
+): Promise<VerifyInteractiveAuthenticationResult> {
+  return requestInteractiveResponse<VerifyInteractiveAuthenticationResult>(INTERACTIVE_VERIFY_ENDPOINT, {
+    tenantId,
+    challengeId,
+    code,
+  });
 }
 
 export function isAccessTokenExpired(session: AuthSession | null, thresholdMs = 30_000): boolean {

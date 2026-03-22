@@ -3,7 +3,7 @@ using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class Tenant
+public sealed class Tenant : IHasDatabaseIndexDefinitions
 {
     public Guid TenantId { get; set; }
 
@@ -28,4 +28,11 @@ public sealed class Tenant
     public ICollection<SocialMessage> SocialMessages { get; set; } = new List<SocialMessage>();
 
     public ICollection<WorkTask> Tasks { get; set; } = new List<WorkTask>();
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.NonUnique(nameof(MunicipalityName)),
+        DatabaseIndexDefinition.NonUnique(nameof(DisplayName)),
+        DatabaseIndexDefinition.Unique(nameof(Domain), "domain IS NOT NULL", "ix_tenants_domain_unique"),
+    ];
 }

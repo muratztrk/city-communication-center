@@ -223,6 +223,15 @@ dotnet ef migrations add <name> --context SqlServerCityCommunicationCenterDbCont
 - Tenant resolution may still fall back to `X-Tenant-Id`, but auth-issued tenant claims are the preferred source.
 - Anonymous endpoints that inherit from base API controllers must bypass tenant enforcement explicitly.
 
+### Adaptive Tenant Authentication Standards
+- Tenant-scoped adaptive auth settings are stored in `TenantSetting.AuthPolicyJson` and accessed through `ITenantAuthenticationPolicyService`.
+- Internal-network automatic sign-in is tenant-driven and must use `TrustedHeader` or `Negotiate` modes; do not hardcode municipality-specific auth behavior outside this policy surface.
+- Trusted-network detection is CIDR-based and must evaluate tenant-configured trusted proxy ranges before honoring forwarded client IP headers.
+- External-network step-up authentication must use the interactive auth flow (`/api/v1/auth/interactive/start` and `/api/v1/auth/interactive/verify`) and finalize token issuance through the existing password grant with one-time exchange credentials.
+- Do not add new OpenIddict grant types for tenant MFA/custom auth unless the platform intentionally changes the canonical token model.
+- Direct `/connect/token` and legacy login endpoints must enforce tenant step-up rules for non-exchange credentials so external callers cannot bypass second-factor requirements.
+- First on-prem tenant seed (`Tire Belediyesi`) is expected to use trusted-network automatic sign-in plus external-network second-factor validation; future municipalities may choose different combinations through the tenant policy settings.
+
 ## Contract Standards
 
 ### Shared Contracts vs Feature Models

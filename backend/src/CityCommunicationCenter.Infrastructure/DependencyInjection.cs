@@ -16,6 +16,7 @@ public static class DependencyInjection
             configuration.GetSection(AuthenticationOptions.SectionName));
 
         services.AddHttpContextAccessor();
+        services.AddMemoryCache();
         services.AddScoped<ITenantContextAccessor, HttpTenantContextAccessor>();
         
         var connectionString = configuration.GetConnectionString("CityCommunicationCenter");
@@ -36,10 +37,16 @@ public static class DependencyInjection
 
         // Routing Service
         services.AddScoped<IRoutingService, RoutingService>();
+        services.AddScoped<ITenantAppearanceService, TenantAppearanceService>();
+        services.AddScoped<ITenantLdapSettingsService, TenantLdapSettingsService>();
+        services.AddScoped<ITenantAuthenticationPolicyService, TenantAuthenticationPolicyService>();
         services.AddScoped<ILdapAuthenticationService, LdapAuthenticationService>();
+        services.AddScoped<IAuthenticationExchangeTicketService, AuthenticationExchangeTicketService>();
+        services.AddScoped<IInteractiveAuthenticationService, InteractiveAuthenticationService>();
         services.AddSingleton<ILocalUserPasswordService, LocalUserPasswordService>();
         services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
         services.AddScoped<IAuthenticationModeProvider, UserAuthenticationService>();
+        services.AddScoped<IUserManagementConfigurationProvider, UserAuthenticationService>();
 
         return services;
     }

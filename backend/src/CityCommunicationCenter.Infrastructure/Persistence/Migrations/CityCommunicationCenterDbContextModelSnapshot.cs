@@ -83,13 +83,88 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updatedbyuserid");
 
+                    b.Property<string>("UserSource")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("usersource");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
                     b.HasKey("UserId");
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId", "Email");
+
+                    b.HasIndex("TenantId", "RoleCode");
+
+                    b.HasIndex("TenantId", "Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_tenantid_username_unique")
+                        .HasFilter("username IS NOT NULL");
 
                     b.ToTable("users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DepartmentId = new Guid("6d146a0d-611c-48a5-b59e-8c14a22f6a2e"),
+                            DisplayName = "Sistem Yöneticisi",
+                            Email = "admin@tire.bel.tr",
+                            IsActive = true,
+                            RoleCode = "SystemAdmin",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
+                            UserSource = "Manual",
+                            Username = "admin"
+                        },
+                        new
+                        {
+                            UserId = new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            DisplayName = "Zeynep Kara",
+                            Email = "zeynep.kara@tire.bel.tr",
+                            IsActive = true,
+                            RoleCode = "Manager",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
+                            UserSource = "Manual",
+                            Username = "zeynep.kara"
+                        },
+                        new
+                        {
+                            UserId = new Guid("1358d4aa-b1ae-486c-a1db-a757ea18f2c3"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            DisplayName = "Emre Çelik",
+                            Email = "emre.celik@tire.bel.tr",
+                            IsActive = true,
+                            ManagerUserId = new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"),
+                            RoleCode = "Staff",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
+                            UserSource = "Manual",
+                            Username = "emre.celik"
+                        },
+                        new
+                        {
+                            UserId = new Guid("1e96916a-889a-4701-a0e6-71dc6571ac18"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DepartmentId = new Guid("8f7264ff-c1df-48eb-bf39-a6ff42d7e9bc"),
+                            DisplayName = "Ali Yıldız",
+                            Email = "ali.yildiz@tire.bel.tr",
+                            IsActive = true,
+                            RoleCode = "Operator",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
+                            UserSource = "Manual",
+                            Username = "ali.yildiz"
+                        });
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Approval", b =>
@@ -146,7 +221,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("ApprovalId");
 
-                    b.HasIndex("TaskId");
+                    b.HasIndex("TaskId", "StepOrder");
+
+                    b.HasIndex("TenantId", "ApproverUserId");
 
                     b.ToTable("approvals", (string)null);
                 });
@@ -209,7 +286,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("AssignmentId");
 
-                    b.HasIndex("TaskId");
+                    b.HasIndex("TaskId", "ActionDateUtc");
+
+                    b.HasIndex("TenantId", "ToDepartmentId");
 
                     b.ToTable("assignmenthistory", (string)null);
                 });
@@ -270,6 +349,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("AuditLogId");
 
+                    b.HasIndex("TenantId", "EventTimeUtc");
+
+                    b.HasIndex("TenantId", "EntityType", "EntityId");
+
                     b.ToTable("auditlogs", (string)null);
                 });
 
@@ -322,9 +405,42 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ParentDepartmentId");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId", "ManagerUserId");
+
+                    b.HasIndex("TenantId", "Name");
 
                     b.ToTable("departments", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            DepartmentId = new Guid("6d146a0d-611c-48a5-b59e-8c14a22f6a2e"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DepartmentType = "Administration",
+                            ManagerUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            Name = "Sistem Yönetimi",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
+                        },
+                        new
+                        {
+                            DepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DepartmentType = "Müdürlük",
+                            ManagerUserId = new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"),
+                            Name = "Fen İşleri Müdürlüğü",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
+                        },
+                        new
+                        {
+                            DepartmentId = new Guid("8f7264ff-c1df-48eb-bf39-a6ff42d7e9bc"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DepartmentType = "Müdürlük",
+                            Name = "Basın Yayın Müdürlüğü",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
+                        });
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Notification", b =>
@@ -383,6 +499,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("NotificationId");
 
+                    b.HasIndex("TenantId", "TaskId");
+
+                    b.HasIndex("TenantId", "UserId", "DeliveryStatus");
+
                     b.ToTable("notifications", (string)null);
                 });
 
@@ -425,7 +545,24 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("RuleId");
 
+                    b.HasIndex("TenantId", "RuleName");
+
+                    b.HasIndex("TenantId", "IsActive", "Priority");
+
                     b.ToTable("routingrules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RuleId = new Guid("d306cbf0-88ad-48b7-9b16-14bb87e77f5f"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsActive = true,
+                            Keywords = "altyapı,çukur,yol,asfalt",
+                            Priority = 90,
+                            RuleName = "Altyapı Talepleri",
+                            TargetDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
+                        });
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.SocialMessage", b =>
@@ -515,9 +652,31 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId", "Channel", "ExternalMessageId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_socialmessages_tenant_channel_external_unique");
+
+                    b.HasIndex("TenantId", "Status", "ReceivedAtUtc");
 
                     b.ToTable("socialmessages", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            SocialMessageId = new Guid("8e90888d-dc75-4264-a78b-f0a7abc9a9ab"),
+                            AssignedDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            Category = "Altyapı",
+                            Channel = "Instagram",
+                            CitizenHandle = "tire.vatandas",
+                            Content = "Yolda çukur var, ekip yönlendirebilir misiniz?",
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            ExternalMessageId = "demo-instagram-message-1",
+                            ReceivedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 18, 20, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Status = "Routed",
+                            Tags = "",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
+                        });
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Tenant", b =>
@@ -560,7 +719,27 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("TenantId");
 
+                    b.HasIndex("DisplayName");
+
+                    b.HasIndex("Domain")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenants_domain_unique")
+                        .HasFilter("domain IS NOT NULL");
+
+                    b.HasIndex("MunicipalityName");
+
                     b.ToTable("tenants", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DeploymentMode = "DedicatedHosted",
+                            DisplayName = "Tire Belediyesi",
+                            IsActive = true,
+                            MunicipalityName = "Tire Belediyesi"
+                        });
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.TenantSetting", b =>
@@ -569,6 +748,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("tenantsettingid");
+
+                    b.Property<string>("AppearanceJson")
+                        .HasColumnType("text")
+                        .HasColumnName("appearancejson");
+
+                    b.Property<string>("AuthPolicyJson")
+                        .HasColumnType("text")
+                        .HasColumnName("authpolicyjson");
 
                     b.Property<bool>("AutoRoutingEnabled")
                         .HasColumnType("boolean")
@@ -595,6 +782,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("domain");
 
+                    b.Property<string>("LdapSettingsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("ldapsettingsjson");
+
                     b.Property<string>("SocialSettingsJson")
                         .HasColumnType("text")
                         .HasColumnName("socialsettingsjson");
@@ -618,9 +809,25 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.HasKey("TenantSettingId");
 
                     b.HasIndex("TenantId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenantsettings_tenantid_unique");
 
                     b.ToTable("tenantsettings", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TenantSettingId = new Guid("3f3efab4-c18c-4dd2-a227-c28af61d4fd5"),
+                            AppearanceJson = "{\"themePreset\":\"tire-civic\",\"primaryColor\":\"#0F4C81\",\"secondaryColor\":\"#2B6EA6\",\"accentColor\":\"#C6932D\",\"neutralColor\":\"#6A7786\",\"surfaceColor\":\"#FFFFFF\",\"backgroundColor\":\"#EEF3F8\",\"headerGradientFrom\":\"#123B63\",\"headerGradientTo\":\"#356F99\",\"sidebarBackgroundColor\":\"#102F4A\",\"sidebarForegroundColor\":\"#F6F8FB\"}",
+                            AuthPolicyJson = "{\"automaticSignInEnabled\":true,\"automaticSignInMode\":\"TrustedHeader\",\"trustedNetworkCidrs\":[\"127.0.0.1/32\",\"::1/128\",\"10.0.0.0/8\",\"172.16.0.0/12\",\"192.168.0.0/16\"],\"trustedProxyCidrs\":[\"127.0.0.1/32\",\"::1/128\",\"10.0.0.0/8\",\"172.16.0.0/12\",\"192.168.0.0/16\"],\"identityHeaderName\":\"X-Authenticated-User\",\"requireSecondFactorOutsideTrustedNetwork\":true,\"secondFactorProvider\":\"Mock\",\"codeLength\":6,\"codeTtlSeconds\":300,\"allowMockCodePreview\":true}",
+                            AutoRoutingEnabled = true,
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DefaultSlaHours = 48,
+                            DisplayName = "Tire Belediyesi",
+                            LdapSettingsJson = "{\"enabled\":true,\"autoProvisionUsers\":false,\"domain\":\"tire.bel.tr\",\"userAttribute\":\"mail\"}",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
+                        });
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkTask", b =>
@@ -710,9 +917,34 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("TaskId");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId", "AssignedDepartmentId");
+
+                    b.HasIndex("TenantId", "AssignedUserId");
+
+                    b.HasIndex("TenantId", "CurrentStatus");
+
+                    b.HasIndex("TenantId", "DueDateUtc");
 
                     b.ToTable("tasks", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TaskId = new Guid("6de6e0b3-a74e-4f24-bdbc-4d6e0cb6d38c"),
+                            AssignedDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            AssignedUserId = new Guid("1358d4aa-b1ae-486c-a1db-a757ea18f2c3"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            CurrentStatus = "Assigned",
+                            Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek görev.",
+                            DueDateUtc = new DateTimeOffset(new DateTime(2026, 3, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Priority = "Normal",
+                            SourceType = "Manual",
+                            TargetDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            TaskType = "CitizenRequest",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
+                            Title = "Örnek altyapı inceleme görevi"
+                        });
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.ApplicationUser", b =>

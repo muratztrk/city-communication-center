@@ -36,7 +36,8 @@ test('dashboard, departments, and users surfaces render with live data', async (
   await test.step('Users screen renders seeded accounts with department and role badges', async () => {
     await page.getByRole('button', { name: '👥 Kullanıcılar' }).click();
     await expect(page.getByRole('heading', { name: '👥 Kullanıcılar' })).toBeVisible();
-    await expect(page.locator('tr', { hasText: 'Sistem Yöneticisi' }).first()).toContainText('SystemAdmin');
+    await expect(page.locator('tr', { hasText: 'Sistem Yöneticisi' }).first()).toContainText('Yerel');
+    await expect(page.locator('tr', { hasText: 'Zeynep Kara' }).first()).toContainText('Yönetici');
     await expect(page.locator('tr', { hasText: 'Zeynep Kara' }).first()).toContainText('Fen İşleri Müdürlüğü');
     await expect(page.locator('tr', { hasText: 'Emre Çelik' }).first()).toContainText('Aktif');
   });

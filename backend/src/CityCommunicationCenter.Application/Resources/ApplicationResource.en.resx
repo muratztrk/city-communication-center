@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ValidationDisplayNameRequired" xml:space="preserve"><value>Display name is required.</value></data>
+  <data name="ValidationUsernameRequired" xml:space="preserve"><value>Username is required.</value></data>
+  <data name="ValidationUsernameTooLong" xml:space="preserve"><value>Username must not exceed 100 characters.</value></data>
+  <data name="ValidationEmailRequired" xml:space="preserve"><value>A valid email address is required.</value></data>
+  <data name="ValidationPasswordMinLength" xml:space="preserve"><value>Password must be at least 8 characters long.</value></data>
+  <data name="ValidationDepartmentRequired" xml:space="preserve"><value>Department selection is required.</value></data>
+  <data name="ValidationRoleRequired" xml:space="preserve"><value>A valid role must be selected.</value></data>
+  <data name="ValidationDepartmentNotFound" xml:space="preserve"><value>The selected department could not be found.</value></data>
+  <data name="ValidationUserUsernameExists" xml:space="preserve"><value>A user with this username already exists.</value></data>
+  <data name="ValidationUserEmailExists" xml:space="preserve"><value>A user with this email address already exists.</value></data>
+  <data name="ValidationUserExternalIdentityExists" xml:space="preserve"><value>A user linked to this directory identity already exists.</value></data>
+  <data name="ValidationMunicipalityRequired" xml:space="preserve"><value>Municipality name is required.</value></data>
+  <data name="ValidationAdminUsernameRequired" xml:space="preserve"><value>Administrator username is required.</value></data>
+  <data name="ValidationAdminNameRequired" xml:space="preserve"><value>Administrator name is required.</value></data>
+  <data name="ValidationAdminEmailRequired" xml:space="preserve"><value>A valid administrator email address is required.</value></data>
+  <data name="ValidationAdminPasswordRequired" xml:space="preserve"><value>Administrator password must be at least 8 characters long.</value></data>
+  <data name="ValidationDefaultSlaPositive" xml:space="preserve"><value>Default SLA must be greater than zero.</value></data>
+  <data name="ValidationDeploymentModeRequired" xml:space="preserve"><value>A valid deployment mode must be selected.</value></data>
+  <data name="ValidationTenantDomainUnique" xml:space="preserve"><value>This domain is already assigned to another tenant.</value></data>
+  <data name="ValidationAppearanceThemePresetRequired" xml:space="preserve"><value>Theme preset is required.</value></data>
+  <data name="ValidationAppearanceHexColor" xml:space="preserve"><value>Color fields must use the `#RRGGBB` or `#RRGGBBAA` format.</value></data>
+  <data name="ValidationUserSourceRequired" xml:space="preserve"><value>A valid user source must be selected.</value></data>
+  <data name="ValidationLdapIdentifierRequired" xml:space="preserve"><value>A directory identity must be selected for LDAP users.</value></data>
+  <data name="ValidationManualEmailRequired" xml:space="preserve"><value>Email is required for manual users.</value></data>
+  <data name="ValidationManualPasswordRequired" xml:space="preserve"><value>Password is required for manual users.</value></data>
+  <data name="ValidationLdapDisabled" xml:space="preserve"><value>LDAP integration is not enabled for this environment.</value></data>
+  <data name="ValidationLdapSearchUnavailable" xml:space="preserve"><value>LDAP directory search is not available for this tenant.</value></data>
+  <data name="ValidationLdapUserNotFound" xml:space="preserve"><value>The selected LDAP user could not be found in the directory.</value></data>
+  <data name="ValidationAutomaticSignInModeRequired" xml:space="preserve"><value>A valid automatic sign-in mode must be selected.</value></data>
+  <data name="ValidationSecondFactorProviderRequired" xml:space="preserve"><value>A valid second-factor provider must be selected.</value></data>
+  <data name="ValidationTrustedNetworkRequired" xml:space="preserve"><value>At least one trusted network must be configured for automatic sign-in.</value></data>
+  <data name="ValidationIdentityHeaderRequired" xml:space="preserve"><value>An identity header name is required for trusted-header mode.</value></data>
+  <data name="ValidationWebhookUrlRequired" xml:space="preserve"><value>A webhook URL is required for the webhook provider.</value></data>
+  <data name="ValidationCodeLengthRange" xml:space="preserve"><value>The verification code length must be between 4 and 8 digits.</value></data>
+  <data name="ValidationCodeTtlRange" xml:space="preserve"><value>The verification code lifetime must be between 60 and 900 seconds.</value></data>
+  <data name="AuthInteractiveInvalidTenant" xml:space="preserve"><value>Select a valid municipality.</value></data>
+  <data name="AuthInteractiveSecondFactorUnavailable" xml:space="preserve"><value>The second-factor provider is not ready for this tenant.</value></data>
+  <data name="AuthInteractiveChallengeSent" xml:space="preserve"><value>Verification code sent: {0}</value></data>
+  <data name="AuthInteractiveChallengeSentWithoutDestination" xml:space="preserve"><value>Verification code sent.</value></data>
+  <data name="AuthInteractiveSecondFactorWillBeRequired" xml:space="preserve"><value>Second-factor verification is required when signing in from this network.</value></data>
+  <data name="AuthInteractiveFallbackToCredentials" xml:space="preserve"><value>Automatic corporate sign-in could not be completed. Enter your credentials.</value></data>
+  <data name="AuthInvalidCredentials" xml:space="preserve"><value>Invalid username or password.</value></data>
+  <data name="AuthInteractiveChallengeVerified" xml:space="preserve"><value>Second-factor verification completed.</value></data>
+  <data name="AuthInteractiveChallengeExpired" xml:space="preserve"><value>The verification code expired. Start the sign-in flow again.</value></data>
+  <data name="AuthInteractiveInvalidChallengeCode" xml:space="preserve"><value>The verification code is invalid.</value></data>
+  <data name="AuthInteractiveTooManyAttempts" xml:space="preserve"><value>Too many invalid attempts were made. Start the sign-in flow again.</value></data>
+</root>

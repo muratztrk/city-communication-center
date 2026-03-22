@@ -1,11 +1,21 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test';
+﻿import { expect, type APIRequestContext, type Locator, type Page } from '@playwright/test';
 
 export const TIRE_TENANT_ID = 'b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e';
-export const API_BASE_URL = process.env.CCC_API_BASE_URL ?? 'http://localhost:5000';
-export const ADMIN_EMAIL = 'admin@tire.bel.tr';
-export const MANAGER_EMAIL = 'zeynep.kara@tire.bel.tr';
-export const STAFF_EMAIL = 'emre.celik@tire.bel.tr';
-export const ADMIN_PASSWORD = process.env.CCC_INITIAL_PASSWORD ?? '';
+export const API_BASE_URL = process.env.CCC_API_BASE_URL ?? 'http://localhost:15000';
+export const ADMIN_EMAIL = 'admin';
+export const MANAGER_EMAIL = 'zeynep.kara';
+export const STAFF_EMAIL = 'emre.celik';
+
+function readRequiredEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(name + ' must be set before running Playwright tests.');
+  }
+
+  return value;
+}
+
+export const ADMIN_PASSWORD = readRequiredEnv('CCC_INITIAL_PASSWORD');
 
 export interface ApiSession {
   token: string;
@@ -29,6 +39,7 @@ export interface UserSummary {
   email: string | null;
   roleCode: string;
   isActive: boolean;
+  userSource: string;
 }
 
 export interface SocialMessageSummary {
@@ -46,18 +57,53 @@ export function uniqueSuffix(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 }
 
+export async function prepareTurkishUi(page: Page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('ccc_language', 'tr');
+  });
+}
+
+export async function selectTenantIfVisible(page: Page, tenantId = TIRE_TENANT_ID) {
+  const tenantSelect = page.locator('#tenant');
+  if (await tenantSelect.count() === 0) {
+    return;
+  }
+
+  await tenantSelect.selectOption(tenantId);
+}
+
 export async function login(page: Page, username: string, password: string) {
+  await prepareTurkishUi(page);
   await page.goto('/');
-  await page.getByLabel('Belediye').selectOption(TIRE_TENANT_ID);
-  await page.getByLabel('Kullanıcı Adı / E-posta').fill(username);
-  await page.getByLabel('Şifre').fill(password);
-  await page.getByRole('button', { name: 'Giriş Yap' }).click();
-  await expect(page.getByRole('heading', { name: '📊 Kontrol Paneli' })).toBeVisible();
+  await selectTenantIfVisible(page);
+  await page.locator('#username').fill(username);
+  await page.locator('#password').fill(password);
+  await page.getByRole('button', { name: /giriş yap/i }).click();
+
+  const secondFactorHeading = page.getByRole('heading', { name: /doğrulama kodu/i });
+  if (await secondFactorHeading.isVisible().catch(() => false)) {
+    const mockCode = (await page.locator('.mock-code-value').innerText()).trim();
+    await page.getByLabel(/doğrulama kodu/i).fill(mockCode);
+    await page.getByRole('button', { name: /doğrula/i }).click();
+  }
+
+  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page.getByRole('heading', { name: /kontrol paneli/i })).toBeVisible();
+}
+
+export async function selectAutocompleteOption(scope: Page | Locator, label: string, query: string, optionText = query) {
+  const combobox = scope.getByRole('combobox', { name: label });
+  await combobox.click();
+  await combobox.fill(query);
+
+  const option = scope.getByRole('option', { name: new RegExp(optionText, 'i') }).first();
+  await expect(option).toBeVisible();
+  await option.click();
 }
 
 export async function logout(page: Page) {
-  await page.getByRole('button', { name: '🚪 Çıkış' }).click();
-  await expect(page.getByRole('button', { name: 'Giriş Yap' })).toBeVisible();
+  await page.getByRole('button', { name: /çıkış/i }).click();
+  await expect(page.getByRole('button', { name: /giriş yap/i })).toBeVisible();
 }
 
 export async function authenticateApi(request: APIRequestContext, username: string, password: string): Promise<ApiSession> {
@@ -92,7 +138,7 @@ export async function apiCreateTask(request: APIRequestContext, session: ApiSess
     headers: getApiHeaders(session),
     data: {
       title,
-      description: `${title} açıklaması`,
+      description: `${title} aciklamasi`,
       taskType: 'InternalRequest',
       sourceType: 'Manual',
       sourceRefId: null,
@@ -137,6 +183,22 @@ export async function apiGetUsers(request: APIRequestContext, session: ApiSessio
   return response.json() as Promise<UserSummary[]>;
 }
 
+export async function apiSearchDirectoryUsers(request: APIRequestContext, session: ApiSession, query: string) {
+  const response = await request.get(`${API_BASE_URL}/api/v1/users/directory-search?query=${encodeURIComponent(query)}`, {
+    headers: getApiHeaders(session),
+  });
+
+  expect(response.ok()).toBeTruthy();
+  return response.json() as Promise<Array<{
+    externalIdentityId: string;
+    username: string;
+    displayName: string;
+    email: string | null;
+    alreadyLinked: boolean;
+    existingUserId: string | null;
+  }>>;
+}
+
 export async function apiGetSocialMessages(request: APIRequestContext, session: ApiSession) {
   const response = await request.get(`${API_BASE_URL}/api/v1/social/messages`, {
     headers: getApiHeaders(session),
@@ -165,11 +227,13 @@ export async function seedSocialMessage(request: APIRequestContext, citizenHandl
 }
 
 export async function openTasksPage(page: Page) {
-  await page.getByRole('button', { name: '📋 Görevler' }).click();
-  await expect(page.getByRole('heading', { name: '📋 Görevler' })).toBeVisible();
+  await page.goto('/tasks');
+  await expect(page).toHaveURL(/\/tasks/);
+  await expect(page.locator('h1')).toContainText(/revler/i);
 }
 
 export async function openSocialMessagesPage(page: Page) {
-  await page.getByRole('button', { name: '📱 Sosyal Medya' }).click();
-  await expect(page.getByRole('heading', { name: '📱 Sosyal Medya Mesajları' })).toBeVisible();
+  await page.goto('/social');
+  await expect(page).toHaveURL(/\/social/);
+  await expect(page.locator('h1')).toContainText(/sosyal/i);
 }

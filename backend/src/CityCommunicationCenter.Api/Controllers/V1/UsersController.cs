@@ -22,6 +22,60 @@ public sealed class UsersController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("management-context")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<UserManagementContextResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserManagementContextResponse>> GetManagementContext(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetUserManagementContextQuery(), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("search")]
+    [ProducesResponseType<IEnumerable<UserLookupResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<UserLookupResponse>>> Search(
+        [FromQuery] string? query,
+        [FromQuery] Guid? departmentId,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new SearchUsersQuery(query, departmentId), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("directory-search")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<IEnumerable<DirectoryUserLookupResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<DirectoryUserLookupResponse>>> SearchDirectory(
+        [FromQuery] string query,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new SearchDirectoryUsersQuery(query), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpPost("")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<UserSummaryResponse>(StatusCodes.Status201Created)]
+    public async Task<ActionResult<UserSummaryResponse>> Create(
+        [FromBody] CreateUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new CreateUserCommand(
+                request.Username,
+                request.DisplayName,
+                request.Email,
+                request.Password,
+                request.DepartmentId,
+                request.RoleCode,
+                request.IsActive,
+                request.SourceType,
+                request.ExternalIdentityId),
+            cancellationToken);
+
+        return CreatedAtAction(nameof(GetAll), response);
+    }
+
     [HttpPost("sync/ad")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> SyncFromDirectory(CancellationToken cancellationToken)

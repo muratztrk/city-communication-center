@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Common.Tenancy;
+
 namespace CityCommunicationCenter.Application.Features.Auth;
 
 public sealed record GetTenantsQuery() : IQuery<IReadOnlyList<TenantLookupResponse>>;
@@ -15,7 +17,12 @@ public sealed class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, IR
     {
         return await _dbContext.Tenants
             .OrderBy(entity => entity.DisplayName)
-            .Select(entity => new TenantLookupResponse(entity.TenantId, entity.MunicipalityName, entity.DisplayName))
+            .Select(entity => new TenantLookupResponse(
+                entity.TenantId,
+                entity.MunicipalityName,
+                entity.DisplayName,
+                entity.DeploymentMode.ToString(),
+                TenantDomainNormalizer.Normalize(entity.Domain)))
             .ToListAsync(cancellationToken);
     }
 }

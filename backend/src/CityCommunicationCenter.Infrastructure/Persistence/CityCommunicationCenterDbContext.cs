@@ -88,6 +88,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
         ConfigureRoutingRule(modelBuilder.Entity<RoutingRule>());
 
+        modelBuilder.ApplyAutomaticIndexes();
+
         ApplyTenantFilter(modelBuilder.Entity<TenantSetting>());
         ApplyTenantFilter(modelBuilder.Entity<Department>());
         ApplyTenantFilter(modelBuilder.Entity<ApplicationUser>());
@@ -98,6 +100,181 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<Notification>());
         ApplyTenantFilter(modelBuilder.Entity<AuditLog>());
         ApplyTenantFilter(modelBuilder.Entity<RoutingRule>());
+
+        ApplyInstallSeedData(modelBuilder);
+    }
+
+    private static void ApplyInstallSeedData(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Tenant>().HasData(
+            new Tenant
+            {
+                TenantId = InitialData.TenantId,
+                MunicipalityName = "Tire Belediyesi",
+                DisplayName = "Tire Belediyesi",
+                DeploymentMode = DeploymentMode.DedicatedHosted,
+                IsActive = true,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+            });
+
+        modelBuilder.Entity<Department>().HasData(
+            new Department
+            {
+                DepartmentId = InitialData.AdminDepartmentId,
+                TenantId = InitialData.TenantId,
+                Name = "Sistem Yönetimi",
+                DepartmentType = "Administration",
+                ManagerUserId = InitialData.AdminUserId,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            },
+            new Department
+            {
+                DepartmentId = InitialData.PublicWorksDepartmentId,
+                TenantId = InitialData.TenantId,
+                Name = "Fen İşleri Müdürlüğü",
+                DepartmentType = "Müdürlük",
+                ManagerUserId = InitialData.PublicWorksManagerUserId,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            },
+            new Department
+            {
+                DepartmentId = InitialData.CommunicationsDepartmentId,
+                TenantId = InitialData.TenantId,
+                Name = "Basın Yayın Müdürlüğü",
+                DepartmentType = "Müdürlük",
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            });
+
+        modelBuilder.Entity<ApplicationUser>().HasData(
+            new ApplicationUser
+            {
+                UserId = InitialData.AdminUserId,
+                TenantId = InitialData.TenantId,
+                DepartmentId = InitialData.AdminDepartmentId,
+                Username = InitialData.AdminUsername,
+                DisplayName = "Sistem Yöneticisi",
+                Email = "admin@tire.bel.tr",
+                PasswordHash = null,
+                RoleCode = RoleCode.SystemAdmin,
+                UserSource = UserSource.Manual,
+                IsActive = true,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            },
+            new ApplicationUser
+            {
+                UserId = InitialData.PublicWorksManagerUserId,
+                TenantId = InitialData.TenantId,
+                DepartmentId = InitialData.PublicWorksDepartmentId,
+                Username = InitialData.PublicWorksManagerUsername,
+                DisplayName = "Zeynep Kara",
+                Email = "zeynep.kara@tire.bel.tr",
+                PasswordHash = null,
+                RoleCode = RoleCode.Manager,
+                UserSource = UserSource.Manual,
+                IsActive = true,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            },
+            new ApplicationUser
+            {
+                UserId = InitialData.PublicWorksStaffUserId,
+                TenantId = InitialData.TenantId,
+                DepartmentId = InitialData.PublicWorksDepartmentId,
+                Username = InitialData.PublicWorksStaffUsername,
+                DisplayName = "Emre Çelik",
+                Email = "emre.celik@tire.bel.tr",
+                PasswordHash = null,
+                ManagerUserId = InitialData.PublicWorksManagerUserId,
+                RoleCode = RoleCode.Staff,
+                UserSource = UserSource.Manual,
+                IsActive = true,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            },
+            new ApplicationUser
+            {
+                UserId = InitialData.CommunicationsStaffUserId,
+                TenantId = InitialData.TenantId,
+                DepartmentId = InitialData.CommunicationsDepartmentId,
+                Username = InitialData.CommunicationsStaffUsername,
+                DisplayName = "Ali Yıldız",
+                Email = "ali.yildiz@tire.bel.tr",
+                PasswordHash = null,
+                RoleCode = RoleCode.Operator,
+                UserSource = UserSource.Manual,
+                IsActive = true,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            });
+
+        modelBuilder.Entity<TenantSetting>().HasData(
+            new TenantSetting
+            {
+                TenantSettingId = InitialData.TenantSettingId,
+                TenantId = InitialData.TenantId,
+                DisplayName = "Tire Belediyesi",
+                DefaultSlaHours = 48,
+                AutoRoutingEnabled = true,
+                LdapSettingsJson = InitialData.SeedTenantLdapSettingsJson,
+                AuthPolicyJson = InitialData.SeedTenantAuthenticationPolicyJson,
+                AppearanceJson = InitialData.SeedTenantAppearanceJson,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            });
+
+        modelBuilder.Entity<WorkTask>().HasData(
+            new WorkTask
+            {
+                TaskId = InitialData.SampleTaskId,
+                TenantId = InitialData.TenantId,
+                Title = "Örnek altyapı inceleme görevi",
+                Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek görev.",
+                TaskType = TaskType.CitizenRequest,
+                SourceType = SourceType.Manual,
+                TargetDepartmentId = InitialData.PublicWorksDepartmentId,
+                AssignedDepartmentId = InitialData.PublicWorksDepartmentId,
+                AssignedUserId = InitialData.PublicWorksStaffUserId,
+                CurrentStatus = WorkflowTaskStatus.Assigned,
+                Priority = "Normal",
+                DueDateUtc = InitialData.SampleTaskDueDateUtc,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            });
+
+        modelBuilder.Entity<SocialMessage>().HasData(
+            new SocialMessage
+            {
+                SocialMessageId = InitialData.SampleSocialMessageId,
+                TenantId = InitialData.TenantId,
+                Channel = SocialChannel.Instagram,
+                ExternalMessageId = "demo-instagram-message-1",
+                CitizenHandle = "tire.vatandas",
+                Content = "Yolda çukur var, ekip yönlendirebilir misiniz?",
+                Category = "Altyapı",
+                Tags = string.Empty,
+                Status = SocialMessageStatus.Routed,
+                AssignedDepartmentId = InitialData.PublicWorksDepartmentId,
+                ReceivedAtUtc = InitialData.SampleMessageReceivedAtUtc,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            });
+
+        modelBuilder.Entity<RoutingRule>().HasData(
+            new RoutingRule
+            {
+                RuleId = InitialData.SampleRoutingRuleId,
+                TenantId = InitialData.TenantId,
+                RuleName = "Altyapı Talepleri",
+                Keywords = "altyapı,çukur,yol,asfalt",
+                TargetDepartmentId = InitialData.PublicWorksDepartmentId,
+                Priority = 90,
+                IsActive = true,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+            });
     }
 
     private void ApplyTenantFilter<TEntity>(EntityTypeBuilder<TEntity> builder)
@@ -123,8 +300,10 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("tenantsettings");
         builder.HasKey(entity => entity.TenantSettingId);
-        builder.HasIndex(entity => entity.TenantId).IsUnique();
         builder.Property(entity => entity.SocialSettingsJson).HasColumnType("text");
+        builder.Property(entity => entity.LdapSettingsJson).HasColumnType("text");
+        builder.Property(entity => entity.AuthPolicyJson).HasColumnType("text");
+        builder.Property(entity => entity.AppearanceJson).HasColumnType("text");
         ApplyLowerCaseColumnNames(builder);
     }
 
@@ -148,6 +327,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.ToTable("users");
         builder.HasKey(entity => entity.UserId);
         builder.Property(entity => entity.RoleCode).HasConversion<string>();
+        builder.Property(entity => entity.UserSource).HasConversion<string>();
         builder.HasOne(entity => entity.Tenant)
             .WithMany(tenant => tenant.Users)
             .HasForeignKey(entity => entity.TenantId)

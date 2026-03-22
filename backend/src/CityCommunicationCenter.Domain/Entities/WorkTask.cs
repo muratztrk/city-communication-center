@@ -3,7 +3,7 @@ using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class WorkTask : AuditableTenantEntity
+public sealed class WorkTask : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 {
     public Guid TaskId { get; set; }
 
@@ -39,4 +39,12 @@ public sealed class WorkTask : AuditableTenantEntity
     public ICollection<Approval> Approvals { get; set; } = new List<Approval>();
 
     public ICollection<AssignmentHistory> AssignmentHistory { get; set; } = new List<AssignmentHistory>();
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(CurrentStatus)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(AssignedDepartmentId)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(AssignedUserId)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(DueDateUtc)),
+    ];
 }

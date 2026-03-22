@@ -7,28 +7,33 @@ Bu belge her E2E senaryosunun amacini, precondition'larini, step flow'unu ve bek
 Amaç:
 - Admin login calismali.
 - `/connect/token` password grant sozlesmesi bozulmamis olmali.
-- `tenant_id` zorunlulugu korunmali.
+- Tek tenant kurulumlarinda tenant auto-resolution calismali.
+- Custom domain eslesmesi login baglamini dogrudan ilgili tenant'a kilitleyebilmeli.
 - Ana navigasyon ekranlari render edilip temel route akisleri bozulmamis olmali.
 
 Preconditions:
-- Tenant listesi login ekraninda gorunur.
-- Seed kullanicisi `admin@tire.bel.tr / $CCC_INITIAL_PASSWORD` aktiftir.
+- Seed kurulumunda tek aktif tenant vardir.
+- Seed kullanicisi `admin / $CCC_INITIAL_PASSWORD` aktiftir.
 
 Step Flow:
 1. `/connect/token` endpoint'ine `grant_type=password`, `tenant_id`, username ve password ile istek at.
 2. Gecerli access token alindigini dogrula.
 3. Ayni endpoint'e bu kez `tenant_id` olmadan istek at.
-4. `invalid_request` hatasi alindigini dogrula.
-5. Login ekranini ac.
-6. Tire tenant'ini sec.
-7. Admin ile login ol.
-8. Sayfayi yenileyip session'in korundugunu dogrula.
-9. Gorevler, Sosyal Medya, Departmanlar, Kullanicilar ve Denetim ekranlarina tek tek git.
-10. Logout ol ve local storage auth anahtarlarinin temizlendigini dogrula.
+4. Token endpoint'in tek tenant baglaminda yine basarili cevap verdigini dogrula.
+5. Login ekranini ac ve tenant selector'in render edilmedigini dogrula.
+6. Admin endpoint'i ile tenant'a custom domain kaydet.
+7. `Host` header'i custom domain olacak sekilde tenant context endpoint'ini cagir.
+8. Tenant selector'in gizli ve tenant baglaminin dogrudan cozuldugunu dogrula.
+9. Admin ile login ol.
+10. Sayfayi yenileyip session'in korundugunu dogrula.
+11. Gorevler, Sosyal Medya, Departmanlar, Kullanicilar ve Denetim ekranlarina tek tek git.
+12. Logout ol ve local storage auth anahtarlarinin temizlendigini dogrula.
 
 Beklenen Sonuc:
 - Token endpoint `access_token` doner.
-- `tenant_id` olmayan istek `invalid_request` ile reddedilir.
+- `tenant_id` olmayan istek tek tenant kurulumunda da basarili olur.
+- Login ekraninda tek tenant kurulumunda selector gizlenir.
+- Custom domain eslesmesi diger tenantlari gostermeden baglami dogrudan cozer.
 - Her ekranda ilgili baslik gorunur.
 - Navigasyon sirasinda hata mesaji olusmaz.
 - Reload sonrasi oturum korunur, logout sonrasi kalici auth verisi kalmaz.

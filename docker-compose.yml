@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: ccc-postgres
     environment:
       POSTGRES_DB: ${CCC_DB_NAME:-city_communication_center}
       POSTGRES_USER: ${CCC_DB_USER:-ccc}
@@ -21,7 +20,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: ccc-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:${CCC_API_CONTAINER_PORT:-80}
@@ -45,11 +43,10 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./new
       dockerfile: Dockerfile
       args:
         VITE_API_ORIGIN: ${CCC_API_PUBLIC_ORIGIN:-}
-    container_name: ccc-frontend
     ports:
       - "${CCC_FRONTEND_HOST_PORT:-13000}:80"
     depends_on:
@@ -57,4 +54,6 @@ services:
 
 volumes:
   postgres18_data:
+    name: ${CCC_DB_VOLUME_NAME:-city-communication-center-postgres18-data}
   dataprotection_keys:
+    name: ${CCC_DP_KEYS_VOLUME_NAME:-city-communication-center-dataprotection-keys}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ValidationDisplayNameRequired" xml:space="preserve"><value>Görünen ad zorunludur.</value></data>
+  <data name="ValidationUsernameRequired" xml:space="preserve"><value>Kullanıcı adı zorunludur.</value></data>
+  <data name="ValidationUsernameTooLong" xml:space="preserve"><value>Kullanıcı adı en fazla 100 karakter olabilir.</value></data>
+  <data name="ValidationEmailRequired" xml:space="preserve"><value>Geçerli bir e-posta adresi girilmelidir.</value></data>
+  <data name="ValidationPasswordMinLength" xml:space="preserve"><value>Şifre en az 8 karakter olmalıdır.</value></data>
+  <data name="ValidationDepartmentRequired" xml:space="preserve"><value>Departman seçimi zorunludur.</value></data>
+  <data name="ValidationRoleRequired" xml:space="preserve"><value>Geçerli bir rol seçilmelidir.</value></data>
+  <data name="ValidationDepartmentNotFound" xml:space="preserve"><value>Seçilen departman bulunamadı.</value></data>
+  <data name="ValidationUserUsernameExists" xml:space="preserve"><value>Bu kullanıcı adı ile kayıtlı bir kullanıcı zaten mevcut.</value></data>
+  <data name="ValidationUserEmailExists" xml:space="preserve"><value>Bu e-posta adresi ile kayıtlı bir kullanıcı zaten mevcut.</value></data>
+  <data name="ValidationUserExternalIdentityExists" xml:space="preserve"><value>Bu dizin kimliğine bağlı bir kullanıcı zaten mevcut.</value></data>
+  <data name="ValidationMunicipalityRequired" xml:space="preserve"><value>Belediye adı zorunludur.</value></data>
+  <data name="ValidationAdminUsernameRequired" xml:space="preserve"><value>Yönetici kullanıcı adı zorunludur.</value></data>
+  <data name="ValidationAdminNameRequired" xml:space="preserve"><value>Yönetici adı zorunludur.</value></data>
+  <data name="ValidationAdminEmailRequired" xml:space="preserve"><value>Geçerli bir yönetici e-posta adresi girilmelidir.</value></data>
+  <data name="ValidationAdminPasswordRequired" xml:space="preserve"><value>Yönetici şifresi en az 8 karakter olmalıdır.</value></data>
+  <data name="ValidationDefaultSlaPositive" xml:space="preserve"><value>Varsayılan SLA süresi sıfırdan büyük olmalıdır.</value></data>
+  <data name="ValidationDeploymentModeRequired" xml:space="preserve"><value>Geçerli bir kurulum modu seçilmelidir.</value></data>
+  <data name="ValidationTenantDomainUnique" xml:space="preserve"><value>Bu alan adı başka bir tenant tarafından zaten kullanılıyor.</value></data>
+  <data name="ValidationAppearanceThemePresetRequired" xml:space="preserve"><value>Tema ön ayarı zorunludur.</value></data>
+  <data name="ValidationAppearanceHexColor" xml:space="preserve"><value>Renk alanları `#RRGGBB` veya `#RRGGBBAA` biçiminde olmalıdır.</value></data>
+  <data name="ValidationUserSourceRequired" xml:space="preserve"><value>Geçerli bir kullanıcı kaynağı seçilmelidir.</value></data>
+  <data name="ValidationLdapIdentifierRequired" xml:space="preserve"><value>LDAP kullanıcıları için bir dizin kimliği seçilmelidir.</value></data>
+  <data name="ValidationManualEmailRequired" xml:space="preserve"><value>Manuel kullanıcılar için e-posta zorunludur.</value></data>
+  <data name="ValidationManualPasswordRequired" xml:space="preserve"><value>Manuel kullanıcılar için şifre zorunludur.</value></data>
+  <data name="ValidationLdapDisabled" xml:space="preserve"><value>Bu ortam için LDAP entegrasyonu etkin değil.</value></data>
+  <data name="ValidationLdapSearchUnavailable" xml:space="preserve"><value>Bu tenant için LDAP dizin araması kullanılamıyor.</value></data>
+  <data name="ValidationLdapUserNotFound" xml:space="preserve"><value>Seçilen LDAP kullanıcısı dizinde bulunamadı.</value></data>
+  <data name="ValidationAutomaticSignInModeRequired" xml:space="preserve"><value>Geçerli bir otomatik giriş modu seçilmelidir.</value></data>
+  <data name="ValidationSecondFactorProviderRequired" xml:space="preserve"><value>Geçerli bir ikinci doğrulama sağlayıcısı seçilmelidir.</value></data>
+  <data name="ValidationTrustedNetworkRequired" xml:space="preserve"><value>Otomatik giriş için en az bir güvenilen ağ tanımlanmalıdır.</value></data>
+  <data name="ValidationIdentityHeaderRequired" xml:space="preserve"><value>Trusted header modu için kimlik header adı zorunludur.</value></data>
+  <data name="ValidationWebhookUrlRequired" xml:space="preserve"><value>Webhook sağlayıcısı için URL zorunludur.</value></data>
+  <data name="ValidationCodeLengthRange" xml:space="preserve"><value>Doğrulama kodu uzunluğu 4 ile 8 arasında olmalıdır.</value></data>
+  <data name="ValidationCodeTtlRange" xml:space="preserve"><value>Doğrulama kodu süresi 60 ile 900 saniye arasında olmalıdır.</value></data>
+  <data name="AuthInteractiveInvalidTenant" xml:space="preserve"><value>Geçerli bir belediye seçimi yapın.</value></data>
+  <data name="AuthInteractiveSecondFactorUnavailable" xml:space="preserve"><value>Bu tenant için ikinci doğrulama sağlayıcısı hazır değil.</value></data>
+  <data name="AuthInteractiveChallengeSent" xml:space="preserve"><value>Doğrulama kodu gönderildi: {0}</value></data>
+  <data name="AuthInteractiveChallengeSentWithoutDestination" xml:space="preserve"><value>Doğrulama kodu gönderildi.</value></data>
+  <data name="AuthInteractiveSecondFactorWillBeRequired" xml:space="preserve"><value>Bu ağdan giriş yaparken ikinci doğrulama gereklidir.</value></data>
+  <data name="AuthInteractiveFallbackToCredentials" xml:space="preserve"><value>Otomatik kurumsal oturum açılamadı. Kullanıcı bilgilerinizi girin.</value></data>
+  <data name="AuthInvalidCredentials" xml:space="preserve"><value>Geçersiz kullanıcı adı veya şifre.</value></data>
+  <data name="AuthInteractiveChallengeVerified" xml:space="preserve"><value>İkinci doğrulama tamamlandı.</value></data>
+  <data name="AuthInteractiveChallengeExpired" xml:space="preserve"><value>Doğrulama kodunun süresi doldu. Yeniden giriş yapın.</value></data>
+  <data name="AuthInteractiveInvalidChallengeCode" xml:space="preserve"><value>Doğrulama kodu geçersiz.</value></data>
+  <data name="AuthInteractiveTooManyAttempts" xml:space="preserve"><value>Çok fazla hatalı deneme yapıldı. Yeniden giriş yapın.</value></data>
+</root>

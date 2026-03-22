@@ -1,12 +1,11 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends libgssapi-krb5-2 \
-	&& rm -rf /var/lib/apt/lists/*
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+RUN apk add --no-cache icu-libs krb5-libs tzdata
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 COPY ["src/CityCommunicationCenter.Api/CityCommunicationCenter.Api.csproj", "CityCommunicationCenter.Api/"]
 COPY ["src/CityCommunicationCenter.Application/CityCommunicationCenter.Application.csproj", "CityCommunicationCenter.Application/"]

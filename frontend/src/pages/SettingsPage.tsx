@@ -1,742 +1,724 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { getValidAccessToken } from '../api/auth';
-import { API_BASE } from '../api/config';
+import type { Department, RoutingConfig, SocialSettingsStatus, TenantLdapSettings, TenantSettings } from '../types';
+import { getDeploymentModeLabel } from '../utils/localization';
 
-interface ChannelStatus {
-  configured: boolean;
-  [key: string]: boolean;
-}
-
-interface SocialSettings {
-  x: ChannelStatus;
-  facebook: ChannelStatus;
-  instagram: ChannelStatus;
-  whatsApp: ChannelStatus;
-}
-
-interface RoutingRule {
-  ruleId: string;
-  ruleName: string;
-  keywords: string;
-  targetDepartmentId: string;
-  targetDepartmentName: string;
-  priority: number;
-  isActive: boolean;
-}
-
-interface RoutingConfig {
-  autoRoutingEnabled: boolean;
-  rules: RoutingRule[];
-}
-
-interface Department {
-  departmentId: string;
-  name: string;
-}
-
+type SettingsTab = 'tenant' | 'social' | 'routing';
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp';
-type SettingsTab = 'social' | 'routing';
+type ChannelForms = Record<ChannelType, Record<string, string>>;
+type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean };
+
+interface ChannelConfig {
+  id: ChannelType;
+  titleKey: string;
+  descriptionKey: string;
+  icon: string;
+  statusKey: keyof SocialSettingsStatus;
+  fields: { key: string; labelKey: string; secret?: boolean }[];
+}
+
+const CHANNELS: ChannelConfig[] = [
+  {
+    id: 'x',
+    titleKey: 'settings.socialConfig.x',
+    descriptionKey: 'settings.socialConfig.descriptions.x',
+    icon: '𝕏',
+    statusKey: 'x',
+    fields: [
+      { key: 'apiKey', labelKey: 'settings.socialConfig.fields.x.apiKey' },
+      { key: 'apiSecret', labelKey: 'settings.socialConfig.fields.x.apiSecret', secret: true },
+      { key: 'accessToken', labelKey: 'settings.socialConfig.fields.x.accessToken' },
+      { key: 'accessTokenSecret', labelKey: 'settings.socialConfig.fields.x.accessTokenSecret', secret: true },
+      { key: 'bearerToken', labelKey: 'settings.socialConfig.fields.x.bearerToken', secret: true },
+    ],
+  },
+  {
+    id: 'facebook',
+    titleKey: 'settings.socialConfig.facebook',
+    descriptionKey: 'settings.socialConfig.descriptions.facebook',
+    icon: '📘',
+    statusKey: 'facebook',
+    fields: [
+      { key: 'appId', labelKey: 'settings.socialConfig.fields.facebook.appId' },
+      { key: 'appSecret', labelKey: 'settings.socialConfig.fields.facebook.appSecret', secret: true },
+      { key: 'pageAccessToken', labelKey: 'settings.socialConfig.fields.facebook.pageAccessToken', secret: true },
+      { key: 'pageId', labelKey: 'settings.socialConfig.fields.facebook.pageId' },
+      { key: 'webhookVerifyToken', labelKey: 'settings.socialConfig.fields.facebook.webhookVerifyToken' },
+    ],
+  },
+  {
+    id: 'instagram',
+    titleKey: 'settings.socialConfig.instagram',
+    descriptionKey: 'settings.socialConfig.descriptions.instagram',
+    icon: '📷',
+    statusKey: 'instagram',
+    fields: [
+      { key: 'accountId', labelKey: 'settings.socialConfig.fields.instagram.accountId' },
+      { key: 'accessToken', labelKey: 'settings.socialConfig.fields.instagram.accessToken', secret: true },
+      { key: 'linkedPageId', labelKey: 'settings.socialConfig.fields.instagram.linkedPageId' },
+    ],
+  },
+  {
+    id: 'whatsapp',
+    titleKey: 'settings.socialConfig.whatsapp',
+    descriptionKey: 'settings.socialConfig.descriptions.whatsapp',
+    icon: '💬',
+    statusKey: 'whatsApp',
+    fields: [
+      { key: 'businessAccountId', labelKey: 'settings.socialConfig.fields.whatsapp.businessAccountId' },
+      { key: 'phoneNumberId', labelKey: 'settings.socialConfig.fields.whatsapp.phoneNumberId' },
+      { key: 'accessToken', labelKey: 'settings.socialConfig.fields.whatsapp.accessToken', secret: true },
+      { key: 'webhookVerifyToken', labelKey: 'settings.socialConfig.fields.whatsapp.webhookVerifyToken' },
+    ],
+  },
+];
+
+const EMPTY_TENANT_SETTINGS: TenantSettings = {
+  tenantId: '',
+  municipalityName: '',
+  displayName: '',
+  deploymentMode: 'DedicatedHosted',
+  isActive: true,
+  theme: null,
+  domain: null,
+  defaultSlaHours: 48,
+};
+
+const EMPTY_TENANT_LDAP_SETTINGS: TenantLdapFormState = {
+  enabled: false,
+  autoProvisionUsers: false,
+  host: null,
+  port: 389,
+  useSsl: false,
+  ignoreCertificateErrors: false,
+  domain: null,
+  searchBase: null,
+  bindDn: null,
+  hasBindPassword: false,
+  userAttribute: 'mail',
+  canAuthenticate: false,
+  canSearch: false,
+  bindPassword: '',
+  clearBindPassword: false,
+};
+
+const EMPTY_RULE = {
+  ruleName: '',
+  keywords: '',
+  targetDepartmentId: '',
+  priority: 50,
+};
+
+const EMPTY_SOCIAL_FORMS: ChannelForms = {
+  x: { apiKey: '', apiSecret: '', accessToken: '', accessTokenSecret: '', bearerToken: '' },
+  facebook: { appId: '', appSecret: '', pageAccessToken: '', pageId: '', webhookVerifyToken: '' },
+  instagram: { accountId: '', accessToken: '', linkedPageId: '' },
+  whatsapp: { businessAccountId: '', phoneNumberId: '', accessToken: '', webhookVerifyToken: '' },
+};
+
+function readTab(tab: string | null): SettingsTab {
+  return tab === 'social' || tab === 'routing' ? tab : 'tenant';
+}
 
 export function SettingsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('social');
-  const [settings, setSettings] = useState<SocialSettings | null>(null);
-  const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  // Routing state
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = readTab(searchParams.get('tab'));
+  const [tenantSettings, setTenantSettings] = useState<TenantSettings>(EMPTY_TENANT_SETTINGS);
+  const [tenantLdapSettings, setTenantLdapSettings] = useState<TenantLdapFormState>(EMPTY_TENANT_LDAP_SETTINGS);
+  const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null);
   const [routingConfig, setRoutingConfig] = useState<RoutingConfig | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [showNewRule, setShowNewRule] = useState(false);
-  const [editingRule, setEditingRule] = useState<string | null>(null);
-  const [ruleForm, setRuleForm] = useState({ ruleName: '', keywords: '', targetDepartmentId: '', priority: 50 });
+  const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS);
+  const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null);
+  const [showRuleForm, setShowRuleForm] = useState(false);
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
+  const [ruleForm, setRuleForm] = useState(EMPTY_RULE);
   const [testContent, setTestContent] = useState('');
-  const [testResult, setTestResult] = useState<{ departmentId: string | null; departmentName: string | null } | null>(null);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Form states for each platform
-  const [xForm, setXForm] = useState({ apiKey: '', apiSecret: '', accessToken: '', accessTokenSecret: '', bearerToken: '' });
-  const [fbForm, setFbForm] = useState({ appId: '', appSecret: '', pageAccessToken: '', pageId: '', webhookVerifyToken: '' });
-  const [igForm, setIgForm] = useState({ accountId: '', accessToken: '', linkedPageId: '' });
-  const [waForm, setWaForm] = useState({ businessAccountId: '', phoneNumberId: '', accessToken: '', webhookVerifyToken: '' });
-
-  const createHeaders = useCallback(async (): Promise<HeadersInit> => {
-    const token = await getValidAccessToken();
-    if (!token || !user?.tenantId) {
-      throw new Error('Oturum süresi dolmuş. Lütfen tekrar giriş yapın.');
+  useEffect(() => {
+    if (!user?.tenantId) {
+      return;
     }
 
-    return {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      'X-Tenant-Id': user.tenantId,
+    let isActive = true;
+
+    void Promise.all([
+      api.getTenantSettings(user.tenantId),
+      api.getTenantLdapSettings(user.tenantId),
+      api.getSocialSettingsStatus(),
+      api.getRoutingConfig(),
+      api.getDepartments(),
+    ])
+      .then(([tenantResponse, ldapResponse, socialResponse, routingResponse, departmentResponse]) => {
+        if (!isActive) {
+          return;
+        }
+
+        setTenantSettings(tenantResponse);
+        setTenantLdapSettings({
+          ...ldapResponse,
+          bindPassword: '',
+          clearBindPassword: false,
+        });
+        setSocialStatus(socialResponse);
+        setRoutingConfig(routingResponse);
+        setDepartments(departmentResponse);
+      })
+      .catch(fetchError => {
+        if (isActive) {
+          setError((fetchError as Error).message);
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isActive = false;
     };
   }, [user?.tenantId]);
 
-  const fetchSettings = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_BASE}/admin/social-settings`, { headers: await createHeaders() });
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch settings:', error);
+  const setTab = (tab: SettingsTab) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', tab);
+    setSearchParams(next, { replace: true });
+  };
+
+  const deploymentAdvice = useMemo(() => {
+    switch (tenantSettings.deploymentMode) {
+      case 'OnPrem':
+        return t('settings.tenant.deploymentAdvice.onPrem');
+      case 'Hosted':
+        return t('settings.tenant.deploymentAdvice.hosted');
+      default:
+        return t('settings.tenant.deploymentAdvice.dedicatedHosted');
     }
-  }, [createHeaders]);
+  }, [t, tenantSettings.deploymentMode]);
 
-  const fetchRoutingConfig = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_BASE}/admin/routing`, { headers: await createHeaders() });
-      if (res.ok) {
-        const data = await res.json();
-        setRoutingConfig(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch routing config:', error);
+  const refreshRouting = async () => setRoutingConfig(await api.getRoutingConfig());
+  const refreshSocial = async () => setSocialStatus(await api.getSocialSettingsStatus());
+
+  const saveTenant = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!user?.tenantId) {
+      return;
     }
-  }, [createHeaders]);
 
-  const fetchDepartments = useCallback(async () => {
+    setMessage(null);
     try {
-      const res = await fetch(`${API_BASE}/departments`, { headers: await createHeaders() });
-      if (res.ok) {
-        const data = await res.json();
-        setDepartments(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch departments:', error);
-    }
-  }, [createHeaders]);
-
-  useEffect(() => {
-    setLoading(true);
-
-    void Promise.all([
-      fetchSettings(),
-      fetchRoutingConfig(),
-      fetchDepartments(),
-    ]).finally(() => setLoading(false));
-  }, [fetchDepartments, fetchRoutingConfig, fetchSettings]);
-
-  const toggleAutoRouting = async () => {
-    if (!routingConfig) return;
-    try {
-      await fetch(`${API_BASE}/admin/routing/toggle`, {
-        method: 'POST',
-        headers: await createHeaders(),
-        body: JSON.stringify({ enabled: !routingConfig.autoRoutingEnabled })
+      await api.updateTenantSettings(user.tenantId, {
+        displayName: tenantSettings.displayName,
+        deploymentMode: tenantSettings.deploymentMode,
+        theme: tenantSettings.theme,
+        domain: tenantSettings.domain,
+        defaultSlaHours: tenantSettings.defaultSlaHours,
       });
-      setRoutingConfig({ ...routingConfig, autoRoutingEnabled: !routingConfig.autoRoutingEnabled });
-      setMessage({ type: 'success', text: routingConfig.autoRoutingEnabled ? 'Otomatik yönlendirme kapatıldı' : 'Otomatik yönlendirme açıldı' });
-    } catch {
-      setMessage({ type: 'error', text: 'Ayar değiştirilemedi' });
+      setMessage({ type: 'success', text: t('settings.tenant.saveSuccess') });
+    } catch (saveError) {
+      setMessage({ type: 'error', text: (saveError as Error).message || t('settings.tenant.saveFailed') });
     }
   };
 
-  const saveRule = async (e: FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      const url = editingRule 
-        ? `${API_BASE}/admin/routing/rules/${editingRule}`
-        : `${API_BASE}/admin/routing/rules`;
-      const method = editingRule ? 'PUT' : 'POST';
-      
-      const body = editingRule 
-        ? { ...ruleForm, isActive: true }
-        : ruleForm;
+  const saveTenantLdap = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!user?.tenantId) {
+      return;
+    }
 
-      const res = await fetch(url, { method, headers: await createHeaders(), body: JSON.stringify(body) });
-      if (res.ok) {
-        setMessage({ type: 'success', text: editingRule ? 'Kural güncellendi' : 'Kural oluşturuldu' });
-        await fetchRoutingConfig();
-        setShowNewRule(false);
-        setEditingRule(null);
-        setRuleForm({ ruleName: '', keywords: '', targetDepartmentId: '', priority: 50 });
+    setMessage(null);
+    try {
+      await api.updateTenantLdapSettings(user.tenantId, {
+        enabled: tenantLdapSettings.enabled,
+        autoProvisionUsers: tenantLdapSettings.autoProvisionUsers,
+        host: tenantLdapSettings.host,
+        port: tenantLdapSettings.port,
+        useSsl: tenantLdapSettings.useSsl,
+        ignoreCertificateErrors: tenantLdapSettings.ignoreCertificateErrors,
+        domain: tenantLdapSettings.domain,
+        searchBase: tenantLdapSettings.searchBase,
+        bindDn: tenantLdapSettings.bindDn,
+        userAttribute: tenantLdapSettings.userAttribute,
+        bindPassword: tenantLdapSettings.bindPassword || null,
+        clearBindPassword: tenantLdapSettings.clearBindPassword,
+      });
+
+      const refreshedSettings = await api.getTenantLdapSettings(user.tenantId);
+      setTenantLdapSettings({
+        ...refreshedSettings,
+        bindPassword: '',
+        clearBindPassword: false,
+      });
+      setMessage({ type: 'success', text: t('settings.tenant.ldap.saveSuccess') });
+    } catch (saveError) {
+      setMessage({ type: 'error', text: (saveError as Error).message || t('settings.tenant.ldap.saveFailed') });
+    }
+  };
+
+  const toggleRouting = async () => {
+    if (!routingConfig) {
+      return;
+    }
+
+    setMessage(null);
+    try {
+      const nextValue = !routingConfig.autoRoutingEnabled;
+      await api.toggleAutoRouting(nextValue);
+      setRoutingConfig(current => current ? { ...current, autoRoutingEnabled: nextValue } : current);
+      setMessage({ type: 'success', text: nextValue ? t('settings.routing.toggleOn') : t('settings.routing.toggleOff') });
+    } catch (toggleError) {
+      setMessage({ type: 'error', text: (toggleError as Error).message || t('settings.routing.toggleFailed') });
+    }
+  };
+
+  const saveRule = async (event: FormEvent) => {
+    event.preventDefault();
+    setMessage(null);
+
+    try {
+      if (editingRuleId) {
+        await api.updateRoutingRule(editingRuleId, { ...ruleForm, isActive: true });
+        setMessage({ type: 'success', text: t('settings.routing.updated') });
       } else {
-        setMessage({ type: 'error', text: 'Kural kaydedilemedi' });
+        await api.createRoutingRule(ruleForm);
+        setMessage({ type: 'success', text: t('settings.routing.saved') });
       }
-    } catch {
-      setMessage({ type: 'error', text: 'Bağlantı hatası' });
-    } finally {
-      setSaving(false);
+
+      setRuleForm(EMPTY_RULE);
+      setEditingRuleId(null);
+      setShowRuleForm(false);
+      await refreshRouting();
+    } catch (saveError) {
+      setMessage({ type: 'error', text: (saveError as Error).message || t('settings.routing.saveFailed') });
     }
   };
 
-  const deleteRule = async (ruleId: string) => {
-    if (!window.confirm('Bu kuralı silmek istediğinize emin misiniz?')) return;
-    try {
-      await fetch(`${API_BASE}/admin/routing/rules/${ruleId}`, {
-        method: 'DELETE',
-        headers: await createHeaders(),
-      });
-      setMessage({ type: 'success', text: 'Kural silindi' });
-      await fetchRoutingConfig();
-    } catch {
-      setMessage({ type: 'error', text: 'Kural silinemedi' });
-    }
-  };
-
-  const testRouting = async () => {
-    if (!testContent.trim()) return;
-    try {
-      const res = await fetch(`${API_BASE}/admin/routing/test`, {
-        method: 'POST',
-        headers: await createHeaders(),
-        body: JSON.stringify({ messageContent: testContent })
-      });
-      const data = await res.json();
-      setTestResult({ departmentId: data.targetDepartmentId, departmentName: data.targetDepartmentName });
-    } catch {
-      setMessage({ type: 'error', text: 'Test başarısız' });
-    }
-  };
-
-  const startEditRule = (rule: RoutingRule) => {
+  const editRule = (rule: RoutingConfig['rules'][number]) => {
     setRuleForm({
       ruleName: rule.ruleName,
       keywords: rule.keywords,
       targetDepartmentId: rule.targetDepartmentId,
-      priority: rule.priority
+      priority: rule.priority,
     });
-    setEditingRule(rule.ruleId);
-    setShowNewRule(true);
+    setEditingRuleId(rule.ruleId);
+    setShowRuleForm(true);
   };
 
-  const handleSave = async (channel: ChannelType, e: FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setMessage(null);
-
-    let body: object;
-    switch (channel) {
-      case 'x':
-        body = xForm;
-        break;
-      case 'facebook':
-        body = fbForm;
-        break;
-      case 'instagram':
-        body = igForm;
-        break;
-      case 'whatsapp':
-        body = waForm;
-        break;
+  const removeRule = async (ruleId: string) => {
+    if (!window.confirm(t('settings.routing.deleteConfirm'))) {
+      return;
     }
 
-    try {
-      const res = await fetch(`${API_BASE}/admin/social-settings/${channel}`, {
-        method: 'POST',
-        headers: await createHeaders(),
-        body: JSON.stringify(body)
-      });
-
-      if (res.ok) {
-        setMessage({ type: 'success', text: 'Ayarlar kaydedildi!' });
-        await fetchSettings();
-        setActiveChannel(null);
-      } else {
-        const responseBody = await res.json();
-        setMessage({ type: 'error', text: responseBody.error || 'Kaydetme başarısız' });
-      }
-    } catch {
-      setMessage({ type: 'error', text: 'Bağlantı hatası' });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleTest = async (channel: ChannelType) => {
     setMessage(null);
     try {
-      const res = await fetch(`${API_BASE}/admin/social-settings/${channel}/test`, {
-        method: 'POST',
-        headers: await createHeaders()
-      });
-      const data = await res.json();
-      setMessage({
-        type: data.connected ? 'success' : 'error',
-        text: data.message
-      });
-    } catch {
-      setMessage({ type: 'error', text: 'Test başarısız' });
+      await api.deleteRoutingRule(ruleId);
+      setMessage({ type: 'success', text: t('settings.routing.deleted') });
+      await refreshRouting();
+    } catch (deleteError) {
+      setMessage({ type: 'error', text: (deleteError as Error).message || t('settings.routing.deleteFailed') });
     }
   };
 
-  const channels = [
-    { id: 'x' as ChannelType, name: 'X (Twitter)', icon: '𝕏', color: '#000' },
-    { id: 'facebook' as ChannelType, name: 'Facebook', icon: '📘', color: '#1877F2' },
-    { id: 'instagram' as ChannelType, name: 'Instagram', icon: '📷', color: '#E4405F' },
-    { id: 'whatsapp' as ChannelType, name: 'WhatsApp', icon: '💬', color: '#25D366' }
-  ];
+  const testRouting = async () => {
+    if (!testContent.trim()) {
+      return;
+    }
 
-  if (loading) return <div className="page-loading">Yükleniyor...</div>;
+    setMessage(null);
+    try {
+      const result = await api.testRouting(testContent.trim());
+      setTestResult(result.targetDepartmentName ? t('settings.routing.testSuccess', { department: result.targetDepartmentName }) : t('settings.routing.testNoMatch'));
+    } catch (testError) {
+      setMessage({ type: 'error', text: (testError as Error).message || t('settings.routing.testFailed') });
+    }
+  };
+
+  const updateSocialField = (channel: ChannelType, key: string, value: string) => {
+    setSocialForms(current => ({
+      ...current,
+      [channel]: {
+        ...current[channel],
+        [key]: value,
+      },
+    }));
+  };
+
+  const saveChannel = async (channel: ChannelType, event: FormEvent) => {
+    event.preventDefault();
+    setMessage(null);
+
+    try {
+      await api.saveSocialSettings(channel, socialForms[channel]);
+      await refreshSocial();
+      setActiveChannel(null);
+      setMessage({ type: 'success', text: t('settings.socialConfig.saved') });
+    } catch (saveError) {
+      setMessage({ type: 'error', text: (saveError as Error).message || t('settings.socialConfig.saveFailed') });
+    }
+  };
+
+  const testChannel = async (channel: ChannelType) => {
+    setMessage(null);
+    try {
+      const result = await api.testSocialSettings(channel);
+      setMessage({ type: result.connected ? 'success' : 'error', text: result.message });
+    } catch (testError) {
+      setMessage({ type: 'error', text: (testError as Error).message || t('settings.socialConfig.testFailed') });
+    }
+  };
+
+  const deleteChannel = async (channel: ChannelType) => {
+    setMessage(null);
+    try {
+      await api.deleteSocialSettings(channel);
+      await refreshSocial();
+      setMessage({ type: 'success', text: t('settings.socialConfig.deleted') });
+    } catch (deleteError) {
+      setMessage({ type: 'error', text: (deleteError as Error).message || t('errors.socialSettingsDeleteFailed') });
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">{t('common.loading')}</div>;
+  }
+
+  if (error) {
+    return <div className="error">{t('common.error')}: {error}</div>;
+  }
 
   return (
-    <div className="settings-page">
+    <div className="page settings-page">
       <div className="page-header">
-        <h1>⚙️ Ayarlar</h1>
-        <p>Sistem yapılandırmasını buradan yönetebilirsiniz</p>
-      </div>
-
-      <div className="settings-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'social' ? 'active' : ''}`}
-          onClick={() => setActiveTab('social')}
-        >
-          📱 Sosyal Medya
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'routing' ? 'active' : ''}`}
-          onClick={() => setActiveTab('routing')}
-        >
-          🔀 Otomatik Yönlendirme
-        </button>
-      </div>
-
-      {message && (
-        <div className={`alert alert-${message.type}`}>
-          {message.text}
+        <div>
+          <h1>⚙️ {t('settings.title')}</h1>
+          <p className="text-muted">{t('settings.subtitle')}</p>
         </div>
-      )}
+      </div>
 
-      {activeTab === 'routing' && (
-        <div className="routing-section">
-          <div className="routing-toggle">
-            <div className="toggle-info">
-              <h3>Otomatik Yönlendirme</h3>
-              <p>Gelen mesajları anahtar kelimelere göre otomatik olarak departmanlara yönlendir</p>
+      <div className="tab-bar">
+        <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">🏛️ {t('settings.tabs.tenant')}</button>
+        <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">📱 {t('settings.tabs.social')}</button>
+        <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">🔀 {t('settings.tabs.routing')}</button>
+      </div>
+
+      {message ? <div className={message.type === 'success' ? 'badge success' : 'badge danger'}>{message.text}</div> : null}
+
+      {activeTab === 'tenant' ? (
+        <div className="stack">
+          <section className="surface-card">
+            <h2>{t('settings.tenant.overviewTitle')}</h2>
+            <p>{t('settings.tenant.overviewDescription')}</p>
+            <div className="info-grid" style={{ marginTop: '1rem' }}>
+              <div className="info-item"><label>{t('settings.tenant.tenantId')}</label><strong>{tenantSettings.tenantId}</strong></div>
+              <div className="info-item"><label>{t('settings.tenant.municipalityName')}</label><strong>{tenantSettings.municipalityName}</strong></div>
+              <div className="info-item"><label>{t('settings.tenant.deploymentMode')}</label><strong>{getDeploymentModeLabel(t, tenantSettings.deploymentMode)}</strong></div>
+              <div className="info-item"><label>{t('users.status')}</label><strong>{tenantSettings.isActive ? t('common.enabled') : t('common.disabled')}</strong></div>
             </div>
-            <label className="switch">
-              <input 
-                type="checkbox" 
-                checked={routingConfig?.autoRoutingEnabled || false}
-                onChange={toggleAutoRouting}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
+            <div className="muted-callout">
+              <h4>{t('settings.tenant.deploymentAdvice.title')}</h4>
+              <p>{deploymentAdvice}</p>
+            </div>
+          </section>
 
-          {routingConfig?.autoRoutingEnabled && (
-            <>
-              <div className="rules-header">
-                <h3>Yönlendirme Kuralları</h3>
-                <button className="btn btn-primary" onClick={() => { setShowNewRule(true); setEditingRule(null); setRuleForm({ ruleName: '', keywords: '', targetDepartmentId: '', priority: 50 }); }}>
-                  + Yeni Kural
-                </button>
+          <form className="surface-card" onSubmit={saveTenant}>
+            <h2>{t('settings.tenant.formTitle')}</h2>
+            <p>{t('settings.tenant.formDescription')}</p>
+            <div className="form-row" style={{ marginTop: '1rem' }}>
+              <div className="form-group">
+                <label>{t('settings.tenant.displayName')}</label>
+                <input value={tenantSettings.displayName} onChange={event => setTenantSettings(current => ({ ...current, displayName: event.target.value }))} />
               </div>
+              <div className="form-group">
+                <label>{t('settings.tenant.deploymentMode')}</label>
+                <select value={tenantSettings.deploymentMode} onChange={event => setTenantSettings(current => ({ ...current, deploymentMode: event.target.value }))}>
+                  {['OnPrem', 'Hosted', 'DedicatedHosted'].map(mode => (
+                    <option key={mode} value={mode}>{getDeploymentModeLabel(t, mode)}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>{t('settings.tenant.domain')}</label>
+                <input placeholder={t('settings.tenant.domainPlaceholder')} value={tenantSettings.domain ?? ''} onChange={event => setTenantSettings(current => ({ ...current, domain: event.target.value || null }))} />
+              </div>
+              <div className="form-group">
+                <label>{t('settings.tenant.theme')}</label>
+                <input placeholder={t('settings.tenant.themePlaceholder')} value={tenantSettings.theme ?? ''} onChange={event => setTenantSettings(current => ({ ...current, theme: event.target.value || null }))} />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>{t('settings.tenant.defaultSlaHours')}</label>
+              <input min={1} type="number" value={tenantSettings.defaultSlaHours} onChange={event => setTenantSettings(current => ({ ...current, defaultSlaHours: Number(event.target.value) || 1 }))} />
+            </div>
+            <button className="btn primary" type="submit">{t('common.save')}</button>
+          </form>
 
-              {showNewRule && (
-                <form onSubmit={saveRule} className="rule-form">
-                  <h4>{editingRule ? 'Kuralı Düzenle' : 'Yeni Kural'}</h4>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Kural Adı</label>
-                      <input 
-                        type="text" 
-                        value={ruleForm.ruleName}
-                        onChange={e => setRuleForm({...ruleForm, ruleName: e.target.value})}
-                        placeholder="Örn: Park Şikayetleri"
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Hedef Departman</label>
-                      <select 
-                        value={ruleForm.targetDepartmentId}
-                        onChange={e => setRuleForm({...ruleForm, targetDepartmentId: e.target.value})}
-                        required
-                      >
-                        <option value="">Seçiniz...</option>
-                        {departments.map(d => (
-                          <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label>Öncelik</label>
-                      <input 
-                        type="number" 
-                        value={ruleForm.priority}
-                        onChange={e => setRuleForm({...ruleForm, priority: parseInt(e.target.value)})}
-                        min="0" max="1000"
-                      />
-                    </div>
+          <form className="surface-card" onSubmit={saveTenantLdap}>
+            <h2>{t('settings.tenant.ldap.title')}</h2>
+            <p>{t('settings.tenant.ldap.description')}</p>
+
+            <div className="info-grid" style={{ marginTop: '1rem' }}>
+              <div className="info-item"><label>{t('settings.tenant.ldap.canAuthenticate')}</label><strong>{tenantLdapSettings.canAuthenticate ? t('common.enabled') : t('common.disabled')}</strong></div>
+              <div className="info-item"><label>{t('settings.tenant.ldap.canSearch')}</label><strong>{tenantLdapSettings.canSearch ? t('common.enabled') : t('common.disabled')}</strong></div>
+              <div className="info-item"><label>{t('settings.tenant.ldap.hasBindPassword')}</label><strong>{tenantLdapSettings.hasBindPassword ? t('common.enabled') : t('common.disabled')}</strong></div>
+            </div>
+
+            <div className="form-row" style={{ marginTop: '1rem' }}>
+              <div className="form-group checkbox-group">
+                <label>
+                  <input checked={tenantLdapSettings.enabled} onChange={event => setTenantLdapSettings(current => ({ ...current, enabled: event.target.checked }))} type="checkbox" />
+                  {t('settings.tenant.ldap.enabled')}
+                </label>
+              </div>
+              <div className="form-group checkbox-group">
+                <label>
+                  <input checked={tenantLdapSettings.autoProvisionUsers} disabled={!tenantLdapSettings.enabled} onChange={event => setTenantLdapSettings(current => ({ ...current, autoProvisionUsers: event.target.checked }))} type="checkbox" />
+                  {t('settings.tenant.ldap.autoProvisionUsers')}
+                </label>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>{t('settings.tenant.ldap.host')}</label>
+                <input aria-label={t('settings.tenant.ldap.host')} value={tenantLdapSettings.host ?? ''} onChange={event => setTenantLdapSettings(current => ({ ...current, host: event.target.value || null }))} />
+              </div>
+              <div className="form-group">
+                <label>{t('settings.tenant.ldap.port')}</label>
+                <input aria-label={t('settings.tenant.ldap.port')} min={1} type="number" value={tenantLdapSettings.port} onChange={event => setTenantLdapSettings(current => ({ ...current, port: Number(event.target.value) || 389 }))} />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>{t('settings.tenant.ldap.domain')}</label>
+                <input aria-label={t('settings.tenant.ldap.domain')} value={tenantLdapSettings.domain ?? ''} onChange={event => setTenantLdapSettings(current => ({ ...current, domain: event.target.value || null }))} />
+              </div>
+              <div className="form-group">
+                <label>{t('settings.tenant.ldap.userAttribute')}</label>
+                <input aria-label={t('settings.tenant.ldap.userAttribute')} value={tenantLdapSettings.userAttribute} onChange={event => setTenantLdapSettings(current => ({ ...current, userAttribute: event.target.value }))} />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>{t('settings.tenant.ldap.searchBase')}</label>
+                <input aria-label={t('settings.tenant.ldap.searchBase')} value={tenantLdapSettings.searchBase ?? ''} onChange={event => setTenantLdapSettings(current => ({ ...current, searchBase: event.target.value || null }))} />
+              </div>
+              <div className="form-group">
+                <label>{t('settings.tenant.ldap.bindDn')}</label>
+                <input aria-label={t('settings.tenant.ldap.bindDn')} value={tenantLdapSettings.bindDn ?? ''} onChange={event => setTenantLdapSettings(current => ({ ...current, bindDn: event.target.value || null }))} />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>{t('settings.tenant.ldap.bindPassword')}</label>
+                <input aria-label={t('settings.tenant.ldap.bindPassword')} placeholder={t('settings.tenant.ldap.bindPasswordPlaceholder')} type="password" value={tenantLdapSettings.bindPassword} onChange={event => setTenantLdapSettings(current => ({ ...current, bindPassword: event.target.value, clearBindPassword: false }))} />
+                <p className="helper-text">
+                  {tenantLdapSettings.hasBindPassword ? t('settings.tenant.ldap.bindPasswordSaved') : t('settings.tenant.ldap.bindPasswordMissing')}
+                </p>
+              </div>
+              <div className="form-group checkbox-group">
+                <label>
+                  <input
+                    checked={tenantLdapSettings.clearBindPassword}
+                    disabled={!tenantLdapSettings.hasBindPassword}
+                    onChange={event => setTenantLdapSettings(current => ({
+                      ...current,
+                      clearBindPassword: event.target.checked,
+                      bindPassword: event.target.checked ? '' : current.bindPassword,
+                    }))}
+                    type="checkbox"
+                  />
+                  {t('settings.tenant.ldap.clearBindPassword')}
+                </label>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group checkbox-group">
+                <label>
+                  <input checked={tenantLdapSettings.useSsl} onChange={event => setTenantLdapSettings(current => ({ ...current, useSsl: event.target.checked }))} type="checkbox" />
+                  {t('settings.tenant.ldap.useSsl')}
+                </label>
+              </div>
+              <div className="form-group checkbox-group">
+                <label>
+                  <input checked={tenantLdapSettings.ignoreCertificateErrors} onChange={event => setTenantLdapSettings(current => ({ ...current, ignoreCertificateErrors: event.target.checked }))} type="checkbox" />
+                  {t('settings.tenant.ldap.ignoreCertificateErrors')}
+                </label>
+              </div>
+            </div>
+
+            <div className="muted-callout">
+              <h4>{t('settings.tenant.ldap.hintTitle')}</h4>
+              <p>{t('settings.tenant.ldap.hint')}</p>
+            </div>
+
+            <button className="btn primary" type="submit">{t('common.save')}</button>
+          </form>
+        </div>
+      ) : null}
+
+      {activeTab === 'social' && socialStatus ? (
+        <div className="stack">
+          <section className="surface-card">
+            <h2>{t('settings.socialConfig.tenantAwareTitle')}</h2>
+            <p>{t('settings.socialConfig.tenantAwareDescription')}</p>
+          </section>
+          <div className="list-grid">
+            {CHANNELS.map(channel => {
+              const status = socialStatus[channel.statusKey];
+              return (
+                <section className={`channel-card ${status.configured ? 'configured' : ''}`} key={channel.id}>
+                  <div className="channel-card-header">
+                    <h3>{channel.icon} {t(channel.titleKey)}</h3>
+                    <span className={`badge ${status.configured ? 'success' : 'neutral'}`}>
+                      {status.configured ? t('settings.socialConfig.configured') : t('settings.socialConfig.notConfigured')}
+                    </span>
+                  </div>
+                  <p>{t(channel.descriptionKey)}</p>
+                  <div className="button-row">
+                    <button className="btn secondary" onClick={() => setActiveChannel(current => current === channel.id ? null : channel.id)} type="button">{t('settings.socialConfig.configure')}</button>
+                    <button className="btn ghost" onClick={() => void testChannel(channel.id)} type="button">{t('common.test')}</button>
+                    {status.configured ? <button className="btn danger" onClick={() => void deleteChannel(channel.id)} type="button">{t('common.delete')}</button> : null}
+                  </div>
+                  {activeChannel === channel.id ? (
+                    <form className="stack" onSubmit={event => void saveChannel(channel.id, event)}>
+                      {channel.fields.map(field => (
+                        <div className="form-group" key={field.key}>
+                          <label>{t(field.labelKey)}</label>
+                          <input type={field.secret ? 'password' : 'text'} value={socialForms[channel.id][field.key] ?? ''} onChange={event => updateSocialField(channel.id, field.key, event.target.value)} />
+                        </div>
+                      ))}
+                      <button className="btn primary" type="submit">{t('common.save')}</button>
+                    </form>
+                  ) : null}
+                </section>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {activeTab === 'routing' && routingConfig ? (
+        <div className="stack">
+          <section className="surface-card">
+            <div className="section-header">
+              <div>
+                <h2>{t('settings.routing.title')}</h2>
+                <p>{t('settings.routing.description')}</p>
+              </div>
+              <button className="btn secondary" onClick={() => void toggleRouting()} type="button">{routingConfig.autoRoutingEnabled ? t('common.enabled') : t('common.disabled')}</button>
+            </div>
+          </section>
+
+          <section className="surface-card">
+            <div className="section-header">
+              <h2>{t('settings.routing.rules')}</h2>
+              <button
+                className="btn primary"
+                onClick={() => {
+                  setRuleForm(EMPTY_RULE);
+                  setEditingRuleId(null);
+                  setShowRuleForm(current => !current);
+                }}
+                type="button"
+              >
+                {t('settings.routing.newRule')}
+              </button>
+            </div>
+
+            {showRuleForm ? (
+              <form className="stack" onSubmit={event => void saveRule(event)}>
+                <div className="form-group">
+                  <label>{t('settings.routing.ruleName')}</label>
+                  <input placeholder={t('settings.routing.ruleNamePlaceholder')} value={ruleForm.ruleName} onChange={event => setRuleForm(current => ({ ...current, ruleName: event.target.value }))} />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>{t('settings.routing.targetDepartment')}</label>
+                    <select value={ruleForm.targetDepartmentId} onChange={event => setRuleForm(current => ({ ...current, targetDepartmentId: event.target.value }))}>
+                      <option value="">{t('tasks.selectDepartment')}</option>
+                      {departments.map(department => (
+                        <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="form-group">
-                    <label>Anahtar Kelimeler (virgülle ayırın)</label>
-                    <input 
-                      type="text" 
-                      value={ruleForm.keywords}
-                      onChange={e => setRuleForm({...ruleForm, keywords: e.target.value})}
-                      placeholder="park, bahçe, ağaç, yeşil alan"
-                      required
-                    />
+                    <label>{t('settings.routing.priority')}</label>
+                    <input type="number" max={100} min={1} value={ruleForm.priority} onChange={event => setRuleForm(current => ({ ...current, priority: Number(event.target.value) || 1 }))} />
                   </div>
-                  <div className="form-actions">
-                    <button type="submit" className="btn btn-success" disabled={saving}>
-                      {saving ? 'Kaydediliyor...' : 'Kaydet'}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={() => { setShowNewRule(false); setEditingRule(null); }}>
-                      İptal
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              <div className="rules-list">
-                {routingConfig?.rules.map(rule => (
-                  <div key={rule.ruleId} className={`rule-card ${!rule.isActive ? 'inactive' : ''}`}>
-                    <div className="rule-info">
-                      <div className="rule-name">{rule.ruleName}</div>
-                      <div className="rule-target">→ {rule.targetDepartmentName}</div>
-                      <div className="rule-keywords">{rule.keywords}</div>
-                    </div>
-                    <div className="rule-priority">Öncelik: {rule.priority}</div>
-                    <div className="rule-actions">
-                      <button className="btn-icon" onClick={() => startEditRule(rule)} title="Düzenle">✏️</button>
-                      <button className="btn-icon" onClick={() => deleteRule(rule.ruleId)} title="Sil">🗑️</button>
-                    </div>
-                  </div>
-                ))}
-                {routingConfig?.rules.length === 0 && (
-                  <p className="no-rules">Henüz kural tanımlanmamış. Yukarıdaki "Yeni Kural" butonunu kullanarak ekleyin.</p>
-                )}
-              </div>
-
-              <div className="test-section">
-                <h4>🧪 Yönlendirme Testi</h4>
-                <div className="test-input">
-                  <input 
-                    type="text" 
-                    placeholder="Test mesajı yazın..."
-                    value={testContent}
-                    onChange={e => setTestContent(e.target.value)}
-                  />
-                  <button className="btn btn-primary" onClick={testRouting}>Test Et</button>
                 </div>
-                {testResult && (
-                  <div className="test-result">
-                    {testResult.departmentName 
-                      ? `✅ Bu mesaj "${testResult.departmentName}" departmanına yönlendirilir.`
-                      : '❌ Eşleşen kural bulunamadı. Mesaj manuel yönlendirme gerektirir.'}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'social' && (
-        <>
-          <div className="channels-grid">
-            {channels.map(channel => (
-              <div 
-                key={channel.id} 
-                className={`channel-card ${settings?.[channel.id === 'whatsapp' ? 'whatsApp' : channel.id]?.configured ? 'configured' : ''}`}
-              >
-                <div className="channel-header">
-                  <span className="channel-icon" style={{ color: channel.color }}>{channel.icon}</span>
-                  <h3>{channel.name}</h3>
-                  <span className={`status-badge ${settings?.[channel.id === 'whatsapp' ? 'whatsApp' : channel.id]?.configured ? 'active' : 'inactive'}`}>
-                    {settings?.[channel.id === 'whatsapp' ? 'whatsApp' : channel.id]?.configured ? '✓ Aktif' : 'Yapılandırılmamış'}
-                  </span>
+                <div className="form-group">
+                  <label>{t('settings.routing.keywords')}</label>
+                  <input placeholder={t('settings.routing.keywordsPlaceholder')} value={ruleForm.keywords} onChange={event => setRuleForm(current => ({ ...current, keywords: event.target.value }))} />
                 </div>
-            
-            <div className="channel-actions">
-              <button 
-                className="btn btn-primary"
-                onClick={() => setActiveChannel(activeChannel === channel.id ? null : channel.id)}
-              >
-                {activeChannel === channel.id ? 'İptal' : 'Yapılandır'}
-              </button>
-              {settings?.[channel.id === 'whatsapp' ? 'whatsApp' : channel.id]?.configured && (
-                <button 
-                  className="btn btn-secondary"
-                  onClick={() => handleTest(channel.id)}
-                >
-                  Test Et
-                </button>
-              )}
-            </div>
-
-            {activeChannel === channel.id && (
-              <form onSubmit={(e) => handleSave(channel.id, e)} className="channel-form">
-                {channel.id === 'x' && (
-                  <>
-                    <div className="form-group">
-                      <label>API Key (Consumer Key)</label>
-                      <input type="text" value={xForm.apiKey} onChange={e => setXForm({...xForm, apiKey: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>API Secret (Consumer Secret)</label>
-                      <input type="password" value={xForm.apiSecret} onChange={e => setXForm({...xForm, apiSecret: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Access Token</label>
-                      <input type="text" value={xForm.accessToken} onChange={e => setXForm({...xForm, accessToken: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Access Token Secret</label>
-                      <input type="password" value={xForm.accessTokenSecret} onChange={e => setXForm({...xForm, accessTokenSecret: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Bearer Token</label>
-                      <input type="password" value={xForm.bearerToken} onChange={e => setXForm({...xForm, bearerToken: e.target.value})} />
-                    </div>
-                  </>
-                )}
-
-                {channel.id === 'facebook' && (
-                  <>
-                    <div className="form-group">
-                      <label>App ID</label>
-                      <input type="text" value={fbForm.appId} onChange={e => setFbForm({...fbForm, appId: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>App Secret</label>
-                      <input type="password" value={fbForm.appSecret} onChange={e => setFbForm({...fbForm, appSecret: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Page ID</label>
-                      <input type="text" value={fbForm.pageId} onChange={e => setFbForm({...fbForm, pageId: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Page Access Token</label>
-                      <input type="password" value={fbForm.pageAccessToken} onChange={e => setFbForm({...fbForm, pageAccessToken: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Webhook Verify Token</label>
-                      <input type="text" value={fbForm.webhookVerifyToken} onChange={e => setFbForm({...fbForm, webhookVerifyToken: e.target.value})} />
-                    </div>
-                  </>
-                )}
-
-                {channel.id === 'instagram' && (
-                  <>
-                    <div className="form-group">
-                      <label>Business Account ID</label>
-                      <input type="text" value={igForm.accountId} onChange={e => setIgForm({...igForm, accountId: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Access Token</label>
-                      <input type="password" value={igForm.accessToken} onChange={e => setIgForm({...igForm, accessToken: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Linked Facebook Page ID</label>
-                      <input type="text" value={igForm.linkedPageId} onChange={e => setIgForm({...igForm, linkedPageId: e.target.value})} />
-                    </div>
-                  </>
-                )}
-
-                {channel.id === 'whatsapp' && (
-                  <>
-                    <div className="form-group">
-                      <label>Business Account ID</label>
-                      <input type="text" value={waForm.businessAccountId} onChange={e => setWaForm({...waForm, businessAccountId: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Phone Number ID</label>
-                      <input type="text" value={waForm.phoneNumberId} onChange={e => setWaForm({...waForm, phoneNumberId: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Access Token</label>
-                      <input type="password" value={waForm.accessToken} onChange={e => setWaForm({...waForm, accessToken: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Webhook Verify Token</label>
-                      <input type="text" value={waForm.webhookVerifyToken} onChange={e => setWaForm({...waForm, webhookVerifyToken: e.target.value})} />
-                    </div>
-                  </>
-                )}
-
-                <button type="submit" className="btn btn-success" disabled={saving}>
-                  {saving ? 'Kaydediliyor...' : 'Kaydet'}
-                </button>
+                <div className="button-row">
+                  <button className="btn primary" type="submit">{editingRuleId ? t('common.save') : t('common.create')}</button>
+                  <button className="btn ghost" onClick={() => setShowRuleForm(false)} type="button">{t('common.cancel')}</button>
+                </div>
               </form>
+            ) : null}
+
+            {routingConfig.rules.length === 0 ? <p>{t('settings.routing.empty')}</p> : (
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{t('settings.routing.ruleName')}</th>
+                      <th>{t('settings.routing.keywords')}</th>
+                      <th>{t('settings.routing.targetDepartment')}</th>
+                      <th>{t('settings.routing.priority')}</th>
+                      <th>{t('common.actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {routingConfig.rules.map(rule => (
+                      <tr key={rule.ruleId}>
+                        <td>{rule.ruleName}</td>
+                        <td>{rule.keywords}</td>
+                        <td>{rule.targetDepartmentName}</td>
+                        <td>{rule.priority}</td>
+                        <td>
+                          <div className="button-row compact">
+                            <button className="btn ghost" onClick={() => editRule(rule)} type="button">{t('common.edit')}</button>
+                            <button className="btn danger" onClick={() => void removeRule(rule.ruleId)} type="button">{t('common.delete')}</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-          </div>
-        ))}
-      </div>
+          </section>
 
-      <div className="help-section">
-        <h3>📖 Nasıl API Anahtarı Alınır?</h3>
-        <div className="help-cards">
-          <div className="help-card">
-            <h4>𝕏 X (Twitter)</h4>
-            <ol>
-              <li><a href="https://developer.twitter.com/en/portal" target="_blank" rel="noopener">Developer Portal</a>'a gidin</li>
-              <li>Yeni bir proje/uygulama oluşturun</li>
-              <li>Keys & Tokens sekmesinden anahtarları alın</li>
-              <li>Read and Write izinlerini etkinleştirin</li>
-            </ol>
-          </div>
-          <div className="help-card">
-            <h4>📘 Facebook</h4>
-            <ol>
-              <li><a href="https://developers.facebook.com/" target="_blank" rel="noopener">Meta for Developers</a>'a gidin</li>
-              <li>Yeni bir uygulama oluşturun</li>
-              <li>Messenger ve Pages API'yi ekleyin</li>
-              <li>Sayfa erişim token'ı oluşturun</li>
-            </ol>
-          </div>
-          <div className="help-card">
-            <h4>📷 Instagram</h4>
-            <ol>
-              <li>Facebook Business hesabına bağlayın</li>
-              <li>Instagram Basic Display API'yi ekleyin</li>
-              <li>Business Account ID'yi alın</li>
-              <li>Access Token oluşturun</li>
-            </ol>
-          </div>
-          <div className="help-card">
-            <h4>💬 WhatsApp</h4>
-            <ol>
-              <li><a href="https://business.whatsapp.com/" target="_blank" rel="noopener">WhatsApp Business</a>'a kaydolun</li>
-              <li>Meta Business Suite'ten API erişimi alın</li>
-              <li>Phone Number ID'yi not edin</li>
-              <li>Kalıcı Access Token oluşturun</li>
-            </ol>
-          </div>
+          <section className="surface-card">
+            <h2>{t('settings.routing.testTitle')}</h2>
+            <div className="form-group">
+              <textarea placeholder={t('settings.routing.testPlaceholder')} value={testContent} onChange={event => setTestContent(event.target.value)} />
+            </div>
+            <div className="button-row">
+              <button className="btn primary" onClick={() => void testRouting()} type="button">{t('common.test')}</button>
+            </div>
+            {testResult ? <div className="badge neutral">{testResult}</div> : null}
+          </section>
         </div>
-      </div>
-      </>
-      )}
-
-      <style>{`
-        .settings-page { max-width: 1200px; }
-        
-        .page-header { margin-bottom: 1.5rem; }
-        .page-header h1 { margin: 0; }
-        .page-header p { color: var(--text-muted); margin-top: 0.5rem; }
-
-        .settings-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
-        .tab-btn { padding: 0.75rem 1.5rem; border: none; background: transparent; cursor: pointer; font-size: 1rem; font-weight: 500; color: var(--text-muted); border-radius: 6px 6px 0 0; }
-        .tab-btn.active { color: var(--primary); background: var(--primary-light, #e0f2fe); }
-        .tab-btn:hover { background: #f3f4f6; }
-        
-        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-        .alert-success { background: #d1fae5; color: #065f46; }
-        .alert-error { background: #fee2e2; color: #991b1b; }
-        
-        .channels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-        
-        .channel-card {
-          background: white;
-          border: 2px solid var(--border);
-          border-radius: 12px;
-          padding: 1.5rem;
-          transition: all 0.2s;
-        }
-        .channel-card.configured { border-color: var(--success); }
-        
-        .channel-header {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          margin-bottom: 1rem;
-        }
-        .channel-icon { font-size: 1.5rem; }
-        .channel-header h3 { margin: 0; flex: 1; }
-        
-        .status-badge {
-          font-size: 0.75rem;
-          padding: 0.25rem 0.5rem;
-          border-radius: 12px;
-          font-weight: 500;
-        }
-        .status-badge.active { background: #d1fae5; color: #065f46; }
-        .status-badge.inactive { background: #f3f4f6; color: #6b7280; }
-        
-        .channel-actions { display: flex; gap: 0.5rem; }
-        
-        .btn {
-          padding: 0.5rem 1rem;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 0.875rem;
-          font-weight: 500;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: #f3f4f6; color: #374151; }
-        .btn-success { background: var(--success); color: white; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        
-        .channel-form {
-          margin-top: 1.5rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid var(--border);
-        }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; }
-        .form-group input, .form-group select {
-          width: 100%;
-          padding: 0.5rem;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          font-size: 0.875rem;
-        }
-        
-        .help-section { margin-top: 3rem; }
-        .help-section h3 { margin-bottom: 1rem; }
-        .help-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
-        .help-card {
-          background: #f8fafc;
-          border-radius: 8px;
-          padding: 1rem;
-        }
-        .help-card h4 { margin: 0 0 0.75rem 0; }
-        .help-card ol { margin: 0; padding-left: 1.25rem; font-size: 0.875rem; }
-        .help-card li { margin-bottom: 0.5rem; }
-        .help-card a { color: var(--primary); }
-
-        /* Routing styles */
-        .routing-section { background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); }
-        
-        .routing-toggle { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
-        .toggle-info h3 { margin: 0 0 0.25rem 0; }
-        .toggle-info p { margin: 0; color: var(--text-muted); font-size: 0.875rem; }
-        
-        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(26px); }
-        
-        .rules-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .rules-header h3 { margin: 0; }
-        
-        .rule-form { background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
-        .rule-form h4 { margin: 0 0 1rem 0; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr 100px; gap: 1rem; }
-        .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
-        
-        .rules-list { display: flex; flex-direction: column; gap: 0.75rem; }
-        .rule-card { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; }
-        .rule-card.inactive { opacity: 0.6; }
-        .rule-info { flex: 1; }
-        .rule-name { font-weight: 600; margin-bottom: 0.25rem; }
-        .rule-target { color: var(--success); font-size: 0.875rem; }
-        .rule-keywords { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
-        .rule-priority { color: var(--text-muted); font-size: 0.875rem; min-width: 100px; }
-        .rule-actions { display: flex; gap: 0.25rem; }
-        .btn-icon { background: transparent; border: none; cursor: pointer; font-size: 1rem; padding: 0.25rem; }
-        .btn-icon:hover { background: rgba(0,0,0,0.05); border-radius: 4px; }
-        .no-rules { color: var(--text-muted); text-align: center; padding: 2rem; }
-        
-        .test-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
-        .test-section h4 { margin: 0 0 1rem 0; }
-        .test-input { display: flex; gap: 0.5rem; }
-        .test-input input { flex: 1; }
-        .test-result { margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; }
-      `}</style>
+      ) : null}
     </div>
   );
 }

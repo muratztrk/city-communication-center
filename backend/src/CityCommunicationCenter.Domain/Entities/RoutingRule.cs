@@ -1,6 +1,8 @@
+using CityCommunicationCenter.Domain.Common;
+
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class RoutingRule
+public sealed class RoutingRule : IHasDatabaseIndexDefinitions
 {
     public Guid RuleId { get; set; }
 
@@ -30,4 +32,10 @@ public sealed class RoutingRule
     public IEnumerable<string> GetKeywordList() =>
         Keywords.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Select(k => k.ToLowerInvariant());
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(IsActive), nameof(Priority)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(RuleName)),
+    ];
 }

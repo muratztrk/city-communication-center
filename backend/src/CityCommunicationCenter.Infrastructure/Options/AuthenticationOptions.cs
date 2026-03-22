@@ -15,6 +15,10 @@ public sealed class LdapAuthenticationOptions
 {
     public bool Enabled { get; set; }
 
+    public bool AutoProvisionUsers { get; set; }
+
+    public int SearchResultLimit { get; set; } = 20;
+
     public string? Host { get; set; }
 
     public int Port { get; set; } = 389;
@@ -32,4 +36,19 @@ public sealed class LdapAuthenticationOptions
     public string? BindPassword { get; set; }
 
     public string UserAttribute { get; set; } = "mail";
+
+    public List<LdapMockUserOptions> MockUsers { get; set; } = [];
+}
+
+public sealed class LdapMockUserOptions
+{
+    public string ExternalIdentityId { get; set; } = string.Empty;
+
+    public string Username { get; set; } = string.Empty;
+
+    public string DisplayName { get; set; } = string.Empty;
+
+    public string? Email { get; set; }
+
+    public string Password { get; set; } = string.Empty;
 }

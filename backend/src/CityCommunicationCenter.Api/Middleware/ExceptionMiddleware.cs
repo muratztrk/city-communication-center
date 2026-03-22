@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentValidation;
+using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Api.Middleware;
 
@@ -7,11 +8,13 @@ public sealed class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IStringLocalizer<SharedResource> localizer)
     {
         _next = next;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -22,7 +25,7 @@ public sealed class ExceptionMiddleware
         }
         catch (ValidationException exception)
         {
-            await WriteValidationResponseAsync(context, exception);
+            await WriteValidationResponseAsync(context, exception, _localizer);
         }
         catch (Exception exception)
         {
@@ -30,12 +33,12 @@ public sealed class ExceptionMiddleware
             await WriteProblemResponseAsync(
                 context,
                 StatusCodes.Status500InternalServerError,
-                "Beklenmeyen bir hata olustu.",
-                "Istek islenirken beklenmeyen bir hata olustu.");
+                _localizer["UnexpectedErrorTitle"],
+                _localizer["UnexpectedErrorDetail"]);
         }
     }
 
-    private static Task WriteValidationResponseAsync(HttpContext context, ValidationException exception)
+    private static Task WriteValidationResponseAsync(HttpContext context, ValidationException exception, IStringLocalizer<SharedResource> localizer)
     {
         var errors = exception.Errors
             .GroupBy(error => error.PropertyName)
@@ -45,9 +48,9 @@ public sealed class ExceptionMiddleware
 
         var payload = new
         {
-            title = "Dogrulama hatasi.",
+            title = localizer["ValidationTitle"],
             status = StatusCodes.Status400BadRequest,
-            detail = errors.Values.SelectMany(messages => messages).FirstOrDefault() ?? "Gonderilen istek dogrulanamadi.",
+            detail = errors.Values.SelectMany(messages => messages).FirstOrDefault() ?? localizer["ValidationDetail"],
             errors
         };
 

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title>City Communication Center</title>
+  <desc>Municipal civic building emblem.</desc>
+  <defs>
+    <linearGradient id="roof" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#123B63" />
+      <stop offset="100%" stop-color="#356F99" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#EEF3F8" />
+  <path d="M24 44 64 20l40 24v8H24z" fill="url(#roof)" />
+  <path d="M32 48h12v40H32zm20 0h12v40H52zm20 0h12v40H72zm20 0h12v40H92z" fill="#C6932D" />
+  <path d="M20 92h88v16H20z" fill="#102F4A" />
+  <path d="M24 100h80" stroke="#F6F8FB" stroke-width="6" stroke-linecap="round" />
+</svg>

@@ -3,7 +3,7 @@ using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Domain.Entities;
 
-public sealed class SocialMessage : AuditableTenantEntity
+public sealed class SocialMessage : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 {
     public Guid SocialMessageId { get; set; }
 
@@ -38,4 +38,10 @@ public sealed class SocialMessage : AuditableTenantEntity
     public Department? AssignedDepartment { get; set; }
 
     public WorkTask? Task { get; set; }
+
+    public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
+    [
+        DatabaseIndexDefinition.Unique([nameof(TenantId), nameof(Channel), nameof(ExternalMessageId)], databaseName: "ix_socialmessages_tenant_channel_external_unique"),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(Status), nameof(ReceivedAtUtc)),
+    ];
 }

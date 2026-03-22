@@ -4,6 +4,7 @@ public sealed record AuthenticatedTokenPayload(
     Guid UserId,
     Guid TenantId,
     Guid DepartmentId,
+    string? Username,
     string DisplayName,
     string Email,
     string RoleCode,

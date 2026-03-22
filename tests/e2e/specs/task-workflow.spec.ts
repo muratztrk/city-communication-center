@@ -14,6 +14,7 @@ import {
   login,
   logout,
   openTasksPage,
+  selectAutocompleteOption,
   uniqueSuffix,
 } from './helpers';
 
@@ -45,9 +46,9 @@ test('manual task can be created from UI and completed through approval flow', a
   const adminTaskRow = adminPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Admin submits the task for approval', async () => {
     await expect(adminTaskRow).toBeVisible();
-    await expect(adminTaskRow).toContainText('Draft');
+    await expect(adminTaskRow).toContainText('Taslak');
     await adminTaskRow.getByRole('button', { name: 'Gönder' }).click();
-    await expect(adminTaskRow).toContainText('PendingApproval');
+    await expect(adminTaskRow).toContainText('Onay Bekliyor');
   });
 
   await logout(adminPage);
@@ -61,9 +62,9 @@ test('manual task can be created from UI and completed through approval flow', a
   const managerTaskRow = managerPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Manager approves and assigns the task', async () => {
     await managerTaskRow.getByRole('button', { name: 'Onayla' }).click();
-    await expect(managerTaskRow).toContainText('Assigned');
+    await expect(managerTaskRow).toContainText('Atandı');
     await managerTaskRow.getByLabel(`Departman seç ${taskTitle}`).selectOption({ label: 'Fen İşleri Müdürlüğü' });
-    await managerTaskRow.getByLabel(`Kullanıcı seç ${taskTitle}`).selectOption({ label: 'Emre Çelik' });
+    await selectAutocompleteOption(managerTaskRow, `Kullanıcı seç ${taskTitle}`, 'Emre Çelik');
     await managerTaskRow.getByRole('button', { name: 'Ata' }).click();
     await expect(managerTaskRow).toContainText('Emre Çelik');
   });
@@ -79,7 +80,7 @@ test('manual task can be created from UI and completed through approval flow', a
   const staffTaskRow = staffPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Staff completes the approved task', async () => {
     await staffTaskRow.getByRole('button', { name: 'Tamamla' }).click();
-    await expect(staffTaskRow).toContainText('Completed', { timeout: 10_000 });
+    await expect(staffTaskRow).toContainText('Tamamlandı', { timeout: 10_000 });
   });
 
   await logout(staffPage);
@@ -93,7 +94,7 @@ test('manual task can be created from UI and completed through approval flow', a
   const closeTaskRow = closePage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Manager closes the completed manual task', async () => {
     await closeTaskRow.getByRole('button', { name: 'Kapat' }).click();
-    await expect(closeTaskRow).toContainText('Closed');
+    await expect(closeTaskRow).toContainText('Kapatıldı');
   });
 
   await closeContext.close();
@@ -113,7 +114,7 @@ test('manager can reject and close a task that requires approval', async ({ brow
   const adminTaskRow = adminPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Admin submits task for approval', async () => {
     await adminTaskRow.getByRole('button', { name: 'Gönder' }).click();
-    await expect(adminTaskRow).toContainText('PendingApproval');
+    await expect(adminTaskRow).toContainText('Onay Bekliyor');
   });
   await logout(adminPage);
   await adminContext.close();
@@ -126,9 +127,9 @@ test('manager can reject and close a task that requires approval', async ({ brow
   const managerTaskRow = managerPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Manager rejects and closes the task', async () => {
     await managerTaskRow.getByRole('button', { name: 'Reddet' }).click();
-    await expect(managerTaskRow).toContainText('Rejected');
+    await expect(managerTaskRow).toContainText('Reddedildi');
     await managerTaskRow.getByRole('button', { name: 'Kapat' }).click();
-    await expect(managerTaskRow).toContainText('Closed');
+    await expect(managerTaskRow).toContainText('Kapatıldı');
   });
 
   await managerContext.close();
@@ -149,8 +150,8 @@ test('task is directly assigned when target department has no manager', async ({
   const taskRow = adminPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Submit bypasses approval for manager-less department', async () => {
     await taskRow.getByRole('button', { name: 'Gönder' }).click();
-    await expect(taskRow).toContainText('Assigned');
-    await expect(taskRow).not.toContainText('PendingApproval');
+    await expect(taskRow).toContainText('Atandı');
+    await expect(taskRow).not.toContainText('Onay Bekliyor');
   });
 
   await adminContext.close();
@@ -178,18 +179,18 @@ test('assignment requires at least one target and shows validation message', asy
 
   const managerTaskRow = managerPage.locator('tr', { hasText: taskTitle }).first();
   await managerTaskRow.getByRole('button', { name: 'Onayla' }).click();
-  await expect(managerTaskRow).toContainText('Assigned');
+  await expect(managerTaskRow).toContainText('Atandı');
 
   await test.step('Clearing both assignment targets surfaces validation', async () => {
     await managerTaskRow.getByLabel(`Departman seç ${taskTitle}`).selectOption('');
-    await managerTaskRow.getByLabel(`Kullanıcı seç ${taskTitle}`).selectOption('');
+    await managerTaskRow.getByRole('combobox', { name: `Kullanıcı seç ${taskTitle}` }).fill('');
     await managerTaskRow.getByRole('button', { name: 'Ata' }).click();
     await expect(managerPage.getByText('Hata: En az bir atama hedefi gereklidir.')).toBeVisible();
   });
 
   await test.step('Manager can still recover by assigning to valid department and user', async () => {
     await managerTaskRow.getByLabel(`Departman seç ${taskTitle}`).selectOption({ label: 'Fen İşleri Müdürlüğü' });
-    await managerTaskRow.getByLabel(`Kullanıcı seç ${taskTitle}`).selectOption({ label: 'Emre Çelik' });
+    await selectAutocompleteOption(managerTaskRow, `Kullanıcı seç ${taskTitle}`, 'Emre Çelik');
     await managerTaskRow.getByRole('button', { name: 'Ata' }).click();
     await expect(managerTaskRow).toContainText('Emre Çelik');
   });
@@ -220,28 +221,26 @@ test('assignment user options stay filtered to the selected department', async (
 
   const managerTaskRow = managerPage.locator('tr', { hasText: taskTitle }).first();
   await managerTaskRow.getByRole('button', { name: 'Onayla' }).click();
-  await expect(managerTaskRow).toContainText('Assigned');
+  await expect(managerTaskRow).toContainText('Atandı');
 
   const departmentSelect = managerTaskRow.getByLabel(`Departman seç ${taskTitle}`);
-  const userSelect = managerTaskRow.getByLabel(`Kullanıcı seç ${taskTitle}`);
+  const userCombobox = managerTaskRow.getByRole('combobox', { name: `Kullanıcı seç ${taskTitle}` });
 
   await test.step('Fen Isleri secildiginde sadece ayni departmandaki kullanicilar listelenir', async () => {
     await departmentSelect.selectOption({ label: 'Fen İşleri Müdürlüğü' });
-    const options = await userSelect.locator('option').allTextContents();
-
-    expect(options).toContain('Zeynep Kara');
-    expect(options).toContain('Emre Çelik');
-    expect(options).not.toContain('Ali Yıldız');
-    expect(options).not.toContain('Sistem Yöneticisi');
+    await userCombobox.click();
+    await expect(managerTaskRow.getByRole('option', { name: /Zeynep Kara/i })).toBeVisible();
+    await expect(managerTaskRow.getByRole('option', { name: /Emre Çelik/i })).toBeVisible();
+    await expect(managerTaskRow.getByRole('option', { name: /Ali Yıldız/i })).toHaveCount(0);
+    await expect(managerTaskRow.getByRole('option', { name: /Sistem Yöneticisi/i })).toHaveCount(0);
   });
 
   await test.step('Basin Yayin secildiginde liste buna gore yeniden filtrelenir', async () => {
     await departmentSelect.selectOption({ label: 'Basın Yayın Müdürlüğü' });
-    const options = await userSelect.locator('option').allTextContents();
-
-    expect(options).toContain('Ali Yıldız');
-    expect(options).not.toContain('Emre Çelik');
-    expect(options).not.toContain('Zeynep Kara');
+    await userCombobox.click();
+    await expect(managerTaskRow.getByRole('option', { name: /Ali Yıldız/i })).toBeVisible();
+    await expect(managerTaskRow.getByRole('option', { name: /Emre Çelik/i })).toHaveCount(0);
+    await expect(managerTaskRow.getByRole('option', { name: /Zeynep Kara/i })).toHaveCount(0);
   });
 
   await managerContext.close();

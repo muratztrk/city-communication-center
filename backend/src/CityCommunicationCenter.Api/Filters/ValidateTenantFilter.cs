@@ -1,14 +1,17 @@
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Api.Filters;
 
 public sealed class ValidateTenantFilter : IAsyncActionFilter
 {
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ValidateTenantFilter(ITenantContextAccessor tenantContextAccessor)
+    public ValidateTenantFilter(ITenantContextAccessor tenantContextAccessor, IStringLocalizer<SharedResource> localizer)
     {
         _tenantContextAccessor = tenantContextAccessor;
+        _localizer = localizer;
     }
 
     public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -18,8 +21,8 @@ public sealed class ValidateTenantFilter : IAsyncActionFilter
         {
             context.Result = new ObjectResult(new ProblemDetails
             {
-                Title = "Tenant baglami gerekli.",
-                Detail = "Istekte gecerli bir tenant claim'i veya X-Tenant-Id basligi bulunmalidir.",
+                Title = _localizer["TenantContextRequiredTitle"],
+                Detail = _localizer["TenantContextRequiredDetail"],
                 Status = StatusCodes.Status400BadRequest
             })
             {
@@ -35,8 +38,8 @@ public sealed class ValidateTenantFilter : IAsyncActionFilter
         {
             context.Result = new ObjectResult(new ProblemDetails
             {
-                Title = "Tenant uyumsuzlugu algilandi.",
-                Detail = "Rota uzerindeki tenant bilgisi, istek baglamindaki tenant ile ayni olmalidir.",
+                Title = _localizer["TenantMismatchTitle"],
+                Detail = _localizer["TenantMismatchDetail"],
                 Status = StatusCodes.Status403Forbidden
             })
             {

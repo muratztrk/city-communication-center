@@ -24,10 +24,12 @@ public sealed class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IReadO
                 entity.UserId,
                 entity.TenantId,
                 entity.DepartmentId,
+                entity.Username,
                 entity.DisplayName,
                 entity.Email,
                 entity.RoleCode.ToString(),
-                entity.IsActive))
+                entity.IsActive,
+                entity.UserSource.ToString()))
             .ToListAsync(cancellationToken);
     }
 }

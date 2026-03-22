@@ -2,6 +2,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence;
 
 public static class InitialData
 {
+    public static readonly DateTimeOffset CreatedAtUtc = new(2026, 3, 19, 0, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset SampleMessageReceivedAtUtc = new(2026, 3, 18, 20, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset SampleTaskDueDateUtc = new(2026, 3, 21, 0, 0, 0, TimeSpan.Zero);
+
     public static readonly Guid TenantId = Guid.Parse("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e");
     public static readonly Guid TenantSettingId = Guid.Parse("3f3efab4-c18c-4dd2-a227-c28af61d4fd5");
 
@@ -14,15 +18,24 @@ public static class InitialData
     public static readonly Guid PublicWorksStaffUserId = Guid.Parse("1358d4aa-b1ae-486c-a1db-a757ea18f2c3");
     public static readonly Guid CommunicationsStaffUserId = Guid.Parse("1e96916a-889a-4701-a0e6-71dc6571ac18");
 
+    public const string AdminUsername = "admin";
+    public const string PublicWorksManagerUsername = "zeynep.kara";
+    public const string PublicWorksStaffUsername = "emre.celik";
+    public const string CommunicationsStaffUsername = "ali.yildiz";
+
     public static readonly Guid SampleTaskId = Guid.Parse("6de6e0b3-a74e-4f24-bdbc-4d6e0cb6d38c");
     public static readonly Guid SampleSocialMessageId = Guid.Parse("8e90888d-dc75-4264-a78b-f0a7abc9a9ab");
     public static readonly Guid SampleRoutingRuleId = Guid.Parse("d306cbf0-88ad-48b7-9b16-14bb87e77f5f");
 
-    public static readonly string[] SeedUserEmails =
-    [
-        "admin@tire.bel.tr",
-        "zeynep.kara@tire.bel.tr",
-        "emre.celik@tire.bel.tr",
-        "ali.yildiz@tire.bel.tr"
-    ];
+    public const string SeedTenantLdapSettingsJson = "{\"enabled\":true,\"autoProvisionUsers\":false,\"domain\":\"tire.bel.tr\",\"userAttribute\":\"mail\"}";
+    public const string SeedTenantAuthenticationPolicyJson = "{\"automaticSignInEnabled\":true,\"automaticSignInMode\":\"TrustedHeader\",\"trustedNetworkCidrs\":[\"127.0.0.1/32\",\"::1/128\",\"10.0.0.0/8\",\"172.16.0.0/12\",\"192.168.0.0/16\"],\"trustedProxyCidrs\":[\"127.0.0.1/32\",\"::1/128\",\"10.0.0.0/8\",\"172.16.0.0/12\",\"192.168.0.0/16\"],\"identityHeaderName\":\"X-Authenticated-User\",\"requireSecondFactorOutsideTrustedNetwork\":true,\"secondFactorProvider\":\"Mock\",\"codeLength\":6,\"codeTtlSeconds\":300,\"allowMockCodePreview\":true}";
+    public const string SeedTenantAppearanceJson = "{\"themePreset\":\"tire-civic\",\"primaryColor\":\"#0F4C81\",\"secondaryColor\":\"#2B6EA6\",\"accentColor\":\"#C6932D\",\"neutralColor\":\"#6A7786\",\"surfaceColor\":\"#FFFFFF\",\"backgroundColor\":\"#EEF3F8\",\"headerGradientFrom\":\"#123B63\",\"headerGradientTo\":\"#356F99\",\"sidebarBackgroundColor\":\"#102F4A\",\"sidebarForegroundColor\":\"#F6F8FB\"}";
+
+    public static readonly IReadOnlyDictionary<Guid, string> SeedLocalUsernames = new Dictionary<Guid, string>
+    {
+        [AdminUserId] = AdminUsername,
+        [PublicWorksManagerUserId] = PublicWorksManagerUsername,
+        [PublicWorksStaffUserId] = PublicWorksStaffUsername,
+        [CommunicationsStaffUserId] = CommunicationsStaffUsername,
+    };
 }

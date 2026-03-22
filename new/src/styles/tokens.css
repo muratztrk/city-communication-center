@@ -1,0 +1,20 @@
+:root {
+  --font-sans: 'Manrope', sans-serif;
+  --font-display: 'Manrope', sans-serif;
+
+  --color-primary: #0f4c81;
+  --color-secondary: #2b6ea6;
+  --color-accent: #c6932d;
+  --color-neutral: #6a7786;
+  --color-surface: #ffffff;
+  --color-background: #eef3f8;
+  --color-header-from: #123b63;
+  --color-header-to: #356f99;
+  --color-sidebar: #102f4a;
+  --color-sidebar-foreground: #f6f8fb;
+
+  --shadow-soft: 0 22px 48px rgba(16, 47, 74, 0.14);
+  --shadow-edge: 0 12px 30px rgba(12, 31, 49, 0.1);
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+}

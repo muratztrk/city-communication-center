@@ -29,7 +29,6 @@ public sealed class GetTenantLdapSettingsQueryHandler : IRequestHandler<GetTenan
 
         return new TenantLdapSettingsResponse(
             settings.Enabled,
-            settings.AutoProvisionUsers,
             settings.Host,
             settings.Port,
             settings.UseSsl,

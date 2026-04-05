@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Common.Exceptions;
 using FluentValidation;
 using Microsoft.Extensions.Localization;
 
@@ -22,6 +23,16 @@ public sealed class ExceptionMiddleware
         try
         {
             await _next(context);
+        }
+        catch (ForbiddenAccessException exception)
+        {
+            await WriteProblemResponseAsync(
+                context,
+                StatusCodes.Status403Forbidden,
+                _localizer["ForbiddenTitle"],
+                string.IsNullOrWhiteSpace(exception.Message)
+                    ? _localizer["ForbiddenDetail"]
+                    : exception.Message);
         }
         catch (ValidationException exception)
         {

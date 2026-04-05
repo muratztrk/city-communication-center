@@ -16,9 +16,11 @@ public sealed class TasksController : ApiControllerBase
 
     [HttpGet("")]
     [ProducesResponseType<IEnumerable<TaskSummaryResponse>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<TaskSummaryResponse>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<TaskSummaryResponse>>> GetAll(
+        [FromQuery] string? scope,
+        CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetTasksQuery(), cancellationToken);
+        var response = await _sender.Send(new GetTasksQuery(scope), cancellationToken);
         return Ok(response);
     }
 
@@ -97,6 +99,14 @@ public sealed class TasksController : ApiControllerBase
         var updated = await _sender.Send(
             new AssignTaskCommand(taskId, CurrentContext.UserId, request.DepartmentId, request.UserId, request.ActionType),
             cancellationToken);
+        if (!updated) return NotFound();
+        return NoContent();
+    }
+
+    [HttpPost("{taskId:guid}/claim")]
+    public async Task<IActionResult> Claim(Guid taskId, CancellationToken cancellationToken)
+    {
+        var updated = await _sender.Send(new ClaimTaskFromPoolCommand(taskId, CurrentContext.UserId), cancellationToken);
         if (!updated) return NotFound();
         return NoContent();
     }

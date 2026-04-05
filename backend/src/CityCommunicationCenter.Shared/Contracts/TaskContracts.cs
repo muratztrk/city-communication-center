@@ -31,7 +31,11 @@ public sealed record TaskSummaryResponse(
     string Priority,
     string CurrentStatus,
     Guid? TargetDepartmentId,
+    string? TargetDepartmentName,
+    Guid? AssignedDepartmentId,
+    string? AssignedDepartmentName,
     Guid? AssignedUserId,
+    string? AssignedUserDisplayName,
     DateTimeOffset? DueDateUtc);
 
 public sealed record ApprovalStepResponse(

@@ -1,20 +1,92 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { api } from '../api/client';
-import { AutocompleteField } from '../components/AutocompleteField';
-import type { Task, Department, User } from '../types';
-import { getPriorityLabel, getRoleLabel, getTaskStatusLabel, getTaskTypeLabel, getUserSourceLabel } from '../utils/localization';
+﻿import { ClipboardCheck, ClipboardList, CircleCheckBig, Hourglass } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
+import { api } from '../api/client'
+import { AutocompleteField } from '../components/forms/AutocompleteField'
+import { Button } from '../components/ui/button'
+import { StatusPill } from '../components/ui/status-pill'
+import { useAuth } from '../context/AuthContext'
+import type { Department, Task, TaskListScope, User } from '../types/platform'
+import { getPriorityLabel, getRoleLabel, getTaskStatusLabel, getTaskTypeLabel, getUserSourceLabel } from '../utils/localization'
+
+type TaskAction = 'submit' | 'approve' | 'reject' | 'complete' | 'close'
+
+interface TaskScopeOption {
+  value: TaskListScope
+  labelKey: string
+  descriptionKey: string
+}
+
+const TASK_SCOPE_OPTIONS: TaskScopeOption[] = [
+  { value: 'mine', labelKey: 'tasks.scopes.mine', descriptionKey: 'tasks.scopeDescriptions.mine' },
+  { value: 'department-pool', labelKey: 'tasks.scopes.departmentPool', descriptionKey: 'tasks.scopeDescriptions.departmentPool' },
+  { value: 'pending-approval', labelKey: 'tasks.scopes.pendingApproval', descriptionKey: 'tasks.scopeDescriptions.pendingApproval' },
+  { value: 'all', labelKey: 'tasks.scopes.all', descriptionKey: 'tasks.scopeDescriptions.all' },
+]
+
+function getAvailableScopes(role: string | undefined): TaskListScope[] {
+  if (role === 'SystemAdmin' || role === 'Manager') {
+    return ['mine', 'department-pool', 'pending-approval', 'all']
+  }
+
+  if (role === 'Staff' || role === 'Operator') {
+    return ['mine', 'department-pool']
+  }
+
+  return ['mine']
+}
+
+function getDefaultScope(role: string | undefined): TaskListScope {
+  if (role === 'SystemAdmin') {
+    return 'all'
+  }
+
+  if (role === 'Manager') {
+    return 'pending-approval'
+  }
+
+  return 'mine'
+}
+
+function readScope(value: string | null, availableScopes: TaskListScope[], fallbackScope: TaskListScope): TaskListScope {
+  if (value && availableScopes.includes(value as TaskListScope)) {
+    return value as TaskListScope
+  }
+
+  return fallbackScope
+}
+
+function getStatusTone(status: string) {
+  if (status === 'PendingApproval') return 'warning' as const
+  if (status === 'Assigned' || status === 'InProgress') return 'info' as const
+  if (status === 'Completed') return 'success' as const
+  if (status === 'Rejected') return 'danger' as const
+  return 'neutral' as const
+}
+
+function getPriorityTone(priority: string) {
+  if (priority === 'High') return 'danger' as const
+  if (priority === 'Low') return 'success' as const
+  return 'neutral' as const
+}
+
+function fetchTaskPageData(scope: TaskListScope) {
+  return Promise.all([api.getTasks(scope), api.getDepartments(), api.getUsers()])
+}
 
 export function TasksPage() {
-  const { t } = useTranslation();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [assignmentDrafts, setAssignmentDrafts] = useState<Record<string, { departmentId: string; userId: string }>>({});
-  const [assignmentQueries, setAssignmentQueries] = useState<Record<string, string>>({});
+  const { t } = useTranslation()
+  const { user: currentUser } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [showForm, setShowForm] = useState(false)
+  const [assignmentDrafts, setAssignmentDrafts] = useState<Record<string, { departmentId: string; userId: string }>>({})
+  const [assignmentQueries, setAssignmentQueries] = useState<Record<string, string>>({})
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -22,86 +94,157 @@ export function TasksPage() {
     sourceType: 'Manual',
     priority: 'Normal',
     targetDepartmentId: '',
-  });
+  })
 
-  const loadData = () => {
-    setLoading(true);
-    setError(null);
-    Promise.all([api.getTasks(), api.getDepartments(), api.getUsers()])
-      .then(([tasks, depts, users]) => {
-        setTasks(tasks);
-        setDepartments(depts);
-        setUsers(users);
+  const availableScopes = useMemo(() => getAvailableScopes(currentUser?.role), [currentUser?.role])
+  const defaultScope = useMemo(() => {
+    const preferredScope = getDefaultScope(currentUser?.role)
+    return availableScopes.includes(preferredScope) ? preferredScope : availableScopes[0]
+  }, [availableScopes, currentUser?.role])
+  const activeScope = readScope(searchParams.get('scope'), availableScopes, defaultScope)
+
+  const loadData = (scope: TaskListScope) => {
+    setLoading(true)
+    setError('')
+
+    void Promise.all([api.getTasks(scope), api.getDepartments(), api.getUsers()])
+      .then(([taskList, departmentList, userList]) => {
+        setTasks(taskList)
+        setDepartments(departmentList)
+        setUsers(userList)
       })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  };
+      .catch(loadError => setError(loadError instanceof Error ? loadError.message : t('common.error')))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => {
-    Promise.all([api.getTasks(), api.getDepartments(), api.getUsers()])
-      .then(([tasks, depts, users]) => {
-        setTasks(tasks);
-        setDepartments(depts);
-        setUsers(users);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+    if (searchParams.get('scope') !== activeScope) {
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set('scope', activeScope)
+      setSearchParams(nextSearchParams, { replace: true })
+      return
+    }
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTask.title.trim()) return;
-    setError(null);
+    let isActive = true
+
+    void fetchTaskPageData(activeScope)
+      .then(([taskList, departmentList, userList]) => {
+        if (!isActive) {
+          return
+        }
+
+        setTasks(taskList)
+        setDepartments(departmentList)
+        setUsers(userList)
+      })
+      .catch(loadError => {
+        if (isActive) {
+          setError(loadError instanceof Error ? loadError.message : t('common.error'))
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [activeScope, searchParams, setSearchParams, t])
+
+  const currentUserRecord = useMemo(
+    () => users.find(candidate => candidate.userId === currentUser?.userId) ?? null,
+    [currentUser?.userId, users],
+  )
+  const currentDepartmentId = currentUserRecord?.departmentId ?? null
+  const canManageWorkflow = currentUser?.role === 'SystemAdmin' || currentUser?.role === 'Manager'
+
+  const updateScope = (scope: TaskListScope) => {
+    setLoading(true)
+    setError('')
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('scope', scope)
+    setSearchParams(nextSearchParams, { replace: true })
+  }
+
+  const handleCreate = async (event: React.FormEvent) => {
+    event.preventDefault()
+
+    if (!newTask.title.trim()) {
+      return
+    }
+
+    setError('')
     try {
       await api.createTask({
         ...newTask,
         targetDepartmentId: newTask.targetDepartmentId || undefined,
-      });
-      setNewTask({ title: '', description: '', taskType: 'InternalRequest', sourceType: 'Manual', priority: 'Normal', targetDepartmentId: '' });
-      setShowForm(false);
-      loadData();
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  };
+      })
 
-  const handleAction = async (taskId: string, action: 'submit' | 'approve' | 'reject' | 'complete' | 'close') => {
-    setError(null);
-    try {
-      if (action === 'submit') await api.submitTask(taskId);
-      else if (action === 'approve') await api.approveTask(taskId);
-      else if (action === 'reject') await api.rejectTask(taskId);
-      else if (action === 'complete') await api.completeTask(taskId);
-      else if (action === 'close') await api.closeTask(taskId);
-      loadData();
-    } catch (e) {
-      setError((e as Error).message);
+      setNewTask({
+        title: '',
+        description: '',
+        taskType: 'InternalRequest',
+        sourceType: 'Manual',
+        priority: 'Normal',
+        targetDepartmentId: '',
+      })
+      setShowForm(false)
+      loadData(activeScope)
+    } catch (createError) {
+      setError(createError instanceof Error ? createError.message : t('common.error'))
     }
-  };
+  }
+
+  const handleAction = async (taskId: string, action: TaskAction) => {
+    setError('')
+
+    try {
+      if (action === 'submit') await api.submitTask(taskId)
+      if (action === 'approve') await api.approveTask(taskId)
+      if (action === 'reject') await api.rejectTask(taskId)
+      if (action === 'complete') await api.completeTask(taskId)
+      if (action === 'close') await api.closeTask(taskId)
+      loadData(activeScope)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : t('common.error'))
+    }
+  }
 
   const handleAssign = async (taskId: string) => {
-    const draft = assignmentDrafts[taskId];
-    const task = tasks.find(candidate => candidate.taskId === taskId);
+    const draft = assignmentDrafts[taskId]
+    const task = tasks.find(candidate => candidate.taskId === taskId)
     const departmentId = draft
       ? draft.departmentId || undefined
-      : task?.assignedDepartmentId ?? task?.targetDepartmentId ?? undefined;
+      : task?.assignedDepartmentId ?? task?.targetDepartmentId ?? undefined
     const userId = draft
       ? draft.userId || undefined
-      : task?.assignedUserId ?? undefined;
+      : task?.assignedUserId ?? undefined
 
-    setError(null);
+    setError('')
+
     try {
-      await api.assignTask(taskId, departmentId, userId);
-      setAssignmentDrafts(current => ({
-        ...current,
-        [taskId]: { departmentId: '', userId: '' },
-      }));
-      setAssignmentQueries(current => ({ ...current, [taskId]: '' }));
-      loadData();
-    } catch (e) {
-      setError((e as Error).message);
+      await api.assignTask(taskId, departmentId, userId)
+      setAssignmentDrafts(current => ({ ...current, [taskId]: { departmentId: '', userId: '' } }))
+      setAssignmentQueries(current => ({ ...current, [taskId]: '' }))
+      loadData(activeScope)
+    } catch (assignError) {
+      setError(assignError instanceof Error ? assignError.message : t('common.error'))
     }
-  };
+  }
+
+  const handleClaim = async (taskId: string) => {
+    setError('')
+
+    try {
+      await api.claimTask(taskId)
+      loadData(activeScope)
+    } catch (claimError) {
+      setError(claimError instanceof Error ? claimError.message : t('common.error'))
+    }
+  }
 
   const updateAssignmentDraft = (taskId: string, field: 'departmentId' | 'userId', value: string) => {
     setAssignmentDrafts(current => ({
@@ -111,15 +254,15 @@ export function TasksPage() {
         userId: current[taskId]?.userId ?? '',
         [field]: value,
       },
-    }));
-  };
+    }))
+  }
 
   const updateAssignmentDepartment = (taskId: string, departmentId: string) => {
     setAssignmentDrafts(current => {
-      const currentDraft = current[taskId] ?? { departmentId: '', userId: '' };
+      const currentDraft = current[taskId] ?? { departmentId: '', userId: '' }
       const nextUserId = currentDraft.userId && users.find(user => user.userId === currentDraft.userId)?.departmentId === departmentId
         ? currentDraft.userId
-        : '';
+        : ''
 
       return {
         ...current,
@@ -127,234 +270,354 @@ export function TasksPage() {
           departmentId,
           userId: nextUserId,
         },
-      };
-    });
-    setAssignmentQueries(current => ({ ...current, [taskId]: '' }));
-  };
+      }
+    })
+    setAssignmentQueries(current => ({ ...current, [taskId]: '' }))
+  }
 
   const getAssignableUsers = (taskId: string, task: Task) => {
-    const selectedDepartmentId = assignmentDrafts[taskId]?.departmentId
-      ?? task.assignedDepartmentId
-      ?? task.targetDepartmentId
-      ?? '';
+    const selectedDepartmentId = assignmentDrafts[taskId]?.departmentId ?? task.assignedDepartmentId ?? task.targetDepartmentId ?? ''
 
     return selectedDepartmentId
       ? users.filter(user => user.departmentId === selectedDepartmentId && user.isActive)
-      : users.filter(user => user.isActive);
-  };
+      : users.filter(user => user.isActive)
+  }
 
   const getDepartmentName = (departmentId: string | null) => {
-    if (!departmentId) return '-';
-    return departments.find(department => department.departmentId === departmentId)?.name ?? '-';
-  };
+    if (!departmentId) return t('common.none')
+    return departments.find(department => department.departmentId === departmentId)?.name ?? t('common.none')
+  }
 
   const getUserName = (userId: string | null) => {
-    if (!userId) return '-';
-    return users.find(user => user.userId === userId)?.displayName ?? '-';
-  };
+    if (!userId) return t('common.none')
+    return users.find(user => user.userId === userId)?.displayName ?? t('common.none')
+  }
 
   const getSelectedUser = (taskId: string, task: Task) => {
-    const draft = assignmentDrafts[taskId];
-    const selectedUserId = draft ? draft.userId : task.assignedUserId;
-    return users.find(user => user.userId === selectedUserId) ?? null;
-  };
+    const draft = assignmentDrafts[taskId]
+    const selectedUserId = draft ? draft.userId : task.assignedUserId
+    return users.find(user => user.userId === selectedUserId) ?? null
+  }
 
   const getUserSearchValue = (taskId: string, task: Task) => {
     if (Object.prototype.hasOwnProperty.call(assignmentQueries, taskId)) {
-      return assignmentQueries[taskId] ?? '';
+      return assignmentQueries[taskId] ?? ''
     }
 
-    return getSelectedUser(taskId, task)?.displayName ?? '';
-  };
+    return getSelectedUser(taskId, task)?.displayName ?? ''
+  }
 
-  const getStatusBadge = (status: string) => {
-    const map: Record<string, string> = {
-      Draft: 'badge',
-      PendingApproval: 'badge warning',
-      Assigned: 'badge info',
-      InProgress: 'badge info',
-      Completed: 'badge success',
-      Closed: 'badge',
-      Rejected: 'badge danger',
-    };
-    return map[status] || 'badge';
-  };
-
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'badge danger';
-      case 'Normal': return 'badge';
-      case 'Low': return 'badge success';
-      default: return 'badge';
+  const getTargetDepartmentName = (task: Task) => task.targetDepartmentName ?? getDepartmentName(task.targetDepartmentId)
+  const getWorkflowDepartmentName = (task: Task) => task.assignedDepartmentName ?? task.targetDepartmentName ?? getDepartmentName(task.assignedDepartmentId ?? task.targetDepartmentId)
+  const getAssigneeLabel = (task: Task) => {
+    if (task.assignedUserDisplayName) {
+      return task.assignedUserDisplayName
     }
-  };
 
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
+    if (task.assignedUserId) {
+      return getUserName(task.assignedUserId)
+    }
+
+    if (task.assignedDepartmentId) {
+      return t('tasks.departmentPoolAssignee')
+    }
+
+    return t('common.none')
+  }
+
+  const canClaimTask = (task: Task) => {
+    return task.currentStatus === 'Assigned'
+      && !!task.assignedDepartmentId
+      && !task.assignedUserId
+      && !!currentDepartmentId
+      && task.assignedDepartmentId === currentDepartmentId
+  }
+
+  const canCompleteTask = (task: Task) => {
+    if (task.currentStatus !== 'Assigned') {
+      return false
+    }
+
+    if (canManageWorkflow) {
+      return true
+    }
+
+    return !!currentUser?.userId && task.assignedUserId === currentUser.userId
+  }
+
+  const canCloseTask = (task: Task) => {
+    return canManageWorkflow && (task.currentStatus === 'Completed' || task.currentStatus === 'Rejected')
+  }
+
+  const scopeOptions = useMemo(
+    () => TASK_SCOPE_OPTIONS.filter(option => availableScopes.includes(option.value)),
+    [availableScopes],
+  )
+  const activeScopeOption = scopeOptions.find(option => option.value === activeScope) ?? scopeOptions[0]
+
+  const summaryCards = useMemo(() => [
+    { label: t('tasks.summary.total'), value: tasks.length, icon: ClipboardList },
+    { label: t('tasks.summary.pendingApproval'), value: tasks.filter(task => task.currentStatus === 'PendingApproval').length, icon: Hourglass },
+    { label: t('tasks.summary.assigned'), value: tasks.filter(task => task.currentStatus === 'Assigned').length, icon: ClipboardCheck },
+    { label: t('tasks.summary.completed'), value: tasks.filter(task => task.currentStatus === 'Completed').length, icon: CircleCheckBig },
+  ], [tasks, t])
+
+  if (loading) {
+    return <div className="loading">{t('common.loading')}</div>
+  }
 
   return (
-    <div className="page">
-      <div className="page-header">
-        <h1>📋 {t('tasks.title')}</h1>
-        <button className="btn primary" onClick={() => setShowForm(!showForm)}>
+    <div className="page-stack">
+      <header className="page-header-row">
+        <div className="space-y-2">
+          <h1 className="page-title">{t('tasks.title')}</h1>
+          <p className="page-subtitle">{t('tasks.subtitle')}</p>
+        </div>
+        <Button type="button" onClick={() => setShowForm(current => !current)}>
           {showForm ? t('tasks.newCancel') : t('tasks.new')}
-        </button>
-      </div>
+        </Button>
+      </header>
 
-      {error && <div className="error">{t('common.error')}: {error}</div>}
+      <section className="section-card page-stack">
+        <div>
+          <h2 className="text-lg font-extrabold text-slate-950">{t(activeScopeOption.labelKey)}</h2>
+          <p className="helper-copy">{t(activeScopeOption.descriptionKey)}</p>
+        </div>
+        <div className="tab-bar" role="tablist" aria-label={t('tasks.scopeSelector')}>
+          {scopeOptions.map(option => (
+            <button
+              key={option.value}
+              aria-selected={activeScope === option.value}
+              className={`tab-button ${activeScope === option.value ? 'active' : ''}`}
+              role="tab"
+              type="button"
+              onClick={() => updateScope(option.value)}
+            >
+              {t(option.labelKey)}
+            </button>
+          ))}
+        </div>
+      </section>
 
-      {showForm && (
-        <form className="form-card" onSubmit={handleCreate}>
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('tasks.titleLabel')}</label>
+      <section className="metric-grid">
+        {summaryCards.map(item => {
+          const Icon = item.icon
+          return (
+            <div className="section-card" key={item.label}>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-sm font-semibold text-slate-500">{item.label}</div>
+                  <div className="mt-3 text-4xl font-extrabold text-slate-950">{item.value}</div>
+                </div>
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+                  <Icon className="size-5" />
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </section>
+
+      {error ? <div className="error">{t('common.error')}: {error}</div> : null}
+
+      {showForm ? (
+        <form className="form-card page-stack" onSubmit={handleCreate}>
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.newFormTitle')}</h2>
+            <p className="helper-copy">{t('tasks.newFormDescription')}</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('tasks.titleLabel')}</span>
               <input
+                className="field-input"
                 id="task-title"
+                placeholder={t('tasks.titlePlaceholder')}
                 type="text"
                 value={newTask.title}
-                onChange={e => setNewTask({ ...newTask, title: e.target.value })}
-                placeholder={t('tasks.titlePlaceholder')}
-                required
+                onChange={event => setNewTask(current => ({ ...current, title: event.target.value }))}
               />
-            </div>
-            <div className="form-group">
-              <label>{t('tasks.priority')}</label>
-              <select id="task-priority" value={newTask.priority} onChange={e => setNewTask({ ...newTask, priority: e.target.value })}>
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('tasks.priority')}</span>
+              <select
+                className="field-select"
+                id="task-priority"
+                value={newTask.priority}
+                onChange={event => setNewTask(current => ({ ...current, priority: event.target.value }))}
+              >
                 <option value="Low">{getPriorityLabel(t, 'Low')}</option>
                 <option value="Normal">{getPriorityLabel(t, 'Normal')}</option>
                 <option value="High">{getPriorityLabel(t, 'High')}</option>
               </select>
-            </div>
+            </label>
           </div>
-          <div className="form-group">
-            <label>{t('tasks.description')}</label>
+
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>{t('tasks.description')}</span>
             <textarea
+              className="field-textarea"
               id="task-description"
-              value={newTask.description}
-              onChange={e => setNewTask({ ...newTask, description: e.target.value })}
               placeholder={t('tasks.descriptionPlaceholder')}
               rows={3}
+              value={newTask.description}
+              onChange={event => setNewTask(current => ({ ...current, description: event.target.value }))}
             />
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('tasks.type')}</label>
-              <select id="task-type" value={newTask.taskType} onChange={e => setNewTask({ ...newTask, taskType: e.target.value })}>
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('tasks.type')}</span>
+              <select className="field-select" id="task-type" value={newTask.taskType} onChange={event => setNewTask(current => ({ ...current, taskType: event.target.value }))}>
                 <option value="InternalRequest">{getTaskTypeLabel(t, 'InternalRequest')}</option>
                 <option value="CitizenRequest">{getTaskTypeLabel(t, 'CitizenRequest')}</option>
                 <option value="ApprovalTask">{getTaskTypeLabel(t, 'ApprovalTask')}</option>
               </select>
-            </div>
-            <div className="form-group">
-              <label>{t('tasks.targetDepartment')}</label>
-              <select id="task-target-department" value={newTask.targetDepartmentId} onChange={e => setNewTask({ ...newTask, targetDepartmentId: e.target.value })}>
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('tasks.targetDepartment')}</span>
+              <select className="field-select" id="task-target-department" value={newTask.targetDepartmentId} onChange={event => setNewTask(current => ({ ...current, targetDepartmentId: event.target.value }))}>
                 <option value="">{t('tasks.selectDepartment')}</option>
-                {departments.map(d => (
-                  <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
+                {departments.map(department => (
+                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
                 ))}
               </select>
-            </div>
+            </label>
           </div>
-          <button type="submit" className="btn primary">{t('common.create')}</button>
+
+          <div className="inline-actions">
+            <Button type="submit">{t('common.create')}</Button>
+            <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
+          </div>
         </form>
-      )}
+      ) : null}
 
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>{t('tasks.titleLabel')}</th>
-              <th>{t('tasks.type')}</th>
-              <th>{t('tasks.priority')}</th>
-              <th>{t('common.status')}</th>
-              <th>{t('tasks.department')}</th>
-              <th>{t('tasks.assignedTo')}</th>
-              <th>{t('common.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map(task => (
-              <tr key={task.taskId}>
-                <td>
-                  <strong>{task.title}</strong>
-                  {task.description && <div className="text-muted">{task.description.substring(0, 50)}...</div>}
-                </td>
-                <td>{getTaskTypeLabel(t, task.taskType)}</td>
-                <td><span className={getPriorityBadge(task.priority)}>{getPriorityLabel(t, task.priority)}</span></td>
-                <td><span className={getStatusBadge(task.currentStatus)}>{getTaskStatusLabel(t, task.currentStatus)}</span></td>
-                <td>{getDepartmentName(task.assignedDepartmentId ?? task.targetDepartmentId)}</td>
-                <td>{getUserName(task.assignedUserId)}</td>
-                <td className="actions">
-                  {task.currentStatus === 'Draft' && (
-                    <button className="btn small" onClick={() => handleAction(task.taskId, 'submit')}>{t('tasks.submit')}</button>
-                  )}
-                  {task.currentStatus === 'PendingApproval' && (
-                    <>
-                      <button className="btn small success" onClick={() => handleAction(task.taskId, 'approve')}>{t('tasks.approve')}</button>
-                      <button className="btn small danger" onClick={() => handleAction(task.taskId, 'reject')}>{t('tasks.reject')}</button>
-                    </>
-                  )}
-                  {(task.currentStatus === 'Draft' || task.currentStatus === 'Assigned') && (
-                    <div className="table-actions">
-                      <select
-                        aria-label={`Departman seç ${task.title}`}
-                        value={assignmentDrafts[task.taskId]?.departmentId ?? task.assignedDepartmentId ?? task.targetDepartmentId ?? ''}
-                        onChange={e => updateAssignmentDepartment(task.taskId, e.target.value)}
-                      >
-                        <option value="">{t('tasks.draftDepartment')}</option>
-                        {departments.map(department => (
-                          <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                        ))}
-                      </select>
-                      <AutocompleteField
-                        ariaLabel={`Kullanıcı seç ${task.title}`}
-                        emptyMessage={t('tasks.userSearchEmpty')}
-                        loadingMessage={t('common.loading')}
-                        options={getAssignableUsers(task.taskId, task)
-                          .filter(user => {
-                            const currentQuery = getUserSearchValue(task.taskId, task).trim().toLowerCase();
-                            if (!currentQuery) {
-                              return true;
-                            }
-
-                            return user.displayName.toLowerCase().includes(currentQuery) || (user.email?.toLowerCase().includes(currentQuery) ?? false);
-                          })
-                          .map(user => ({
-                            id: user.userId,
-                            label: user.displayName,
-                            description: [user.email, getRoleLabel(t, user.roleCode)].filter(Boolean).join(' • '),
-                            helperText: getUserSourceLabel(t, user.userSource),
-                          }))}
-                        placeholder={t('tasks.userSearchPlaceholder')}
-                        value={getUserSearchValue(task.taskId, task)}
-                        onOptionSelect={option => {
-                          updateAssignmentDraft(task.taskId, 'userId', option.id);
-                          setAssignmentQueries(current => ({ ...current, [task.taskId]: option.label }));
-                        }}
-                        onValueChange={value => {
-                          setAssignmentQueries(current => ({ ...current, [task.taskId]: value }));
-                          if (!value.trim()) {
-                            updateAssignmentDraft(task.taskId, 'userId', '');
-                          }
-                        }}
-                      />
-                      <button className="btn small" onClick={() => handleAssign(task.taskId)}>{t('tasks.assign')}</button>
-                      {task.currentStatus === 'Assigned' && (
-                        <button className="btn small success" onClick={() => handleAction(task.taskId, 'complete')}>{t('tasks.complete')}</button>
-                      )}
-                    </div>
-                  )}
-                  {(task.currentStatus === 'Completed' || task.currentStatus === 'Rejected') && (
-                    <button className="btn small" onClick={() => handleAction(task.taskId, 'close')}>{t('tasks.close')}</button>
-                  )}
-                </td>
+      <section className="section-card">
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('tasks.titleLabel')}</th>
+                <th>{t('tasks.type')}</th>
+                <th>{t('tasks.priority')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('tasks.targetDepartment')}</th>
+                <th>{t('tasks.department')}</th>
+                <th>{t('tasks.assignedTo')}</th>
+                <th>{t('common.actions')}</th>
               </tr>
-            ))}
-            {tasks.length === 0 && (
-              <tr><td colSpan={7} className="text-center">{t('tasks.empty')}</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {tasks.map(task => (
+                <tr key={task.taskId}>
+                  <td>
+                    <div className="space-y-1">
+                      <div className="font-semibold text-slate-950">{task.title}</div>
+                      {task.description ? <div className="text-sm text-slate-500">{task.description}</div> : null}
+                    </div>
+                  </td>
+                  <td>{getTaskTypeLabel(t, task.taskType)}</td>
+                  <td><StatusPill tone={getPriorityTone(task.priority)}>{getPriorityLabel(t, task.priority)}</StatusPill></td>
+                  <td><StatusPill tone={getStatusTone(task.currentStatus)}>{getTaskStatusLabel(t, task.currentStatus)}</StatusPill></td>
+                  <td>{getTargetDepartmentName(task)}</td>
+                  <td>{getWorkflowDepartmentName(task)}</td>
+                  <td>{getAssigneeLabel(task)}</td>
+                  <td>
+                    <div className="table-stack">
+                      {task.currentStatus === 'Draft' ? (
+                        <Button size="sm" type="button" onClick={() => handleAction(task.taskId, 'submit')}>{t('tasks.submit')}</Button>
+                      ) : null}
+
+                      {canManageWorkflow && task.currentStatus === 'PendingApproval' ? (
+                        <div className="inline-actions">
+                          <Button size="sm" type="button" variant="success" onClick={() => handleAction(task.taskId, 'approve')}>{t('tasks.approve')}</Button>
+                          <Button size="sm" type="button" variant="danger" onClick={() => handleAction(task.taskId, 'reject')}>{t('tasks.reject')}</Button>
+                        </div>
+                      ) : null}
+
+                      {canManageWorkflow && (task.currentStatus === 'Draft' || task.currentStatus === 'Assigned') ? (
+                        <>
+                          <select
+                            aria-label={`${t('tasks.departmentSelection')} ${task.title}`}
+                            className="field-select"
+                            value={assignmentDrafts[task.taskId]?.departmentId ?? task.assignedDepartmentId ?? task.targetDepartmentId ?? ''}
+                            onChange={event => updateAssignmentDepartment(task.taskId, event.target.value)}
+                          >
+                            <option value="">{t('tasks.draftDepartment')}</option>
+                            {departments.map(department => (
+                              <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                            ))}
+                          </select>
+                          <AutocompleteField
+                            ariaLabel={`${t('tasks.userSelection')} ${task.title}`}
+                            emptyMessage={t('tasks.userSearchEmpty')}
+                            loadingMessage={t('common.loading')}
+                            options={getAssignableUsers(task.taskId, task)
+                              .filter(user => {
+                                const currentQuery = getUserSearchValue(task.taskId, task).trim().toLowerCase()
+                                if (!currentQuery) {
+                                  return true
+                                }
+
+                                return user.displayName.toLowerCase().includes(currentQuery) || (user.email?.toLowerCase().includes(currentQuery) ?? false)
+                              })
+                              .map(user => ({
+                                id: user.userId,
+                                label: user.displayName,
+                                description: [user.email, getRoleLabel(t, user.roleCode)].filter(Boolean).join(' | '),
+                                helperText: getUserSourceLabel(t, user.userSource),
+                              }))}
+                            placeholder={t('tasks.userSearchPlaceholder')}
+                            value={getUserSearchValue(task.taskId, task)}
+                            onOptionSelect={option => {
+                              updateAssignmentDraft(task.taskId, 'userId', option.id)
+                              setAssignmentQueries(current => ({ ...current, [task.taskId]: option.label }))
+                            }}
+                            onValueChange={value => {
+                              setAssignmentQueries(current => ({ ...current, [task.taskId]: value }))
+                              if (!value.trim()) {
+                                updateAssignmentDraft(task.taskId, 'userId', '')
+                              }
+                            }}
+                          />
+                          <div className="inline-actions">
+                            <Button size="sm" type="button" onClick={() => handleAssign(task.taskId)}>{t('tasks.assign')}</Button>
+                            {canCompleteTask(task) ? (
+                              <Button size="sm" type="button" variant="success" onClick={() => handleAction(task.taskId, 'complete')}>{t('tasks.complete')}</Button>
+                            ) : null}
+                          </div>
+                        </>
+                      ) : null}
+
+                      {!canManageWorkflow && canClaimTask(task) ? (
+                        <Button size="sm" type="button" onClick={() => handleClaim(task.taskId)}>{t('tasks.claim')}</Button>
+                      ) : null}
+
+                      {!canManageWorkflow && !canClaimTask(task) && canCompleteTask(task) ? (
+                        <Button size="sm" type="button" variant="success" onClick={() => handleAction(task.taskId, 'complete')}>{t('tasks.complete')}</Button>
+                      ) : null}
+
+                      {canCloseTask(task) ? (
+                        <Button size="sm" type="button" variant="secondary" onClick={() => handleAction(task.taskId, 'close')}>
+                          {t('tasks.close')}
+                        </Button>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {tasks.length === 0 ? (
+                <tr>
+                  <td colSpan={8}>
+                    <div className="empty-state">{t('tasks.empty')}</div>
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
-  );
+  )
 }

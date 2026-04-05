@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 import { ADMIN_EMAIL, ADMIN_PASSWORD, API_BASE_URL, TIRE_TENANT_ID, prepareTurkishUi, selectTenantIfVisible } from './helpers';
 
 // Scenario:
@@ -16,7 +16,7 @@ test('trusted header sign-in automatically logs in an internal-network user', as
   await page.goto('/');
 
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
-  await expect(page.getByRole('heading', { name: /kontrol paneli/i })).toBeVisible();
+  await expect(page.locator('h1')).toContainText(/kontrol paneli/i);
   await expect(page.getByText('Zeynep Kara')).toBeVisible();
 });
 
@@ -28,21 +28,21 @@ test('external-network login requires second factor and accepts the mock verific
 
   await page.goto('/');
   await selectTenantIfVisible(page, TIRE_TENANT_ID);
-  await expect(page.getByText(/doğrulama kodu ile tamamlanacaktır/i)).toBeVisible();
+  await expect(page.getByText(/dogrulama kodu ile tamamlanacaktir/i)).toBeVisible();
 
-  await page.getByLabel(/kullanıcı adı/i).fill(ADMIN_EMAIL);
-  await page.getByLabel('Şifre').fill(ADMIN_PASSWORD);
-  await page.getByRole('button', { name: 'Giriş Yap' }).click();
+  await page.getByLabel(/kullanici adi/i).fill(ADMIN_EMAIL);
+  await page.getByLabel('Sifre').fill(ADMIN_PASSWORD);
+  await page.getByRole('button', { name: 'Giris Yap' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Doğrulama kodu' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dogrulama Kodu' })).toBeVisible();
   const mockCode = (await page.locator('.mock-code-value').innerText()).trim();
   expect(mockCode).toMatch(/^\d{6}$/);
 
-  await page.getByLabel('Doğrulama Kodu').fill(mockCode);
-  await page.getByRole('button', { name: 'Doğrula' }).click();
+  await page.getByLabel('Dogrulama Kodu').fill(mockCode);
+  await page.getByRole('button', { name: 'Dogrula' }).click();
 
   await expect(page).toHaveURL(/\/dashboard/);
-  await expect(page.getByRole('heading', { name: /kontrol paneli/i })).toBeVisible();
+  await expect(page.locator('h1')).toContainText(/kontrol paneli/i);
 });
 
 test('password grant blocks external-network sign-in until second factor completes', async ({ request }) => {
@@ -62,5 +62,5 @@ test('password grant blocks external-network sign-in until second factor complet
 
   const payload = await response.json() as { error?: string; error_description?: string };
   expect(payload.error).toBe('invalid_grant');
-  expect(payload.error_description).toMatch(/ikinci doğrulama|second-factor/i);
+  expect(payload.error_description).toMatch(/ikinci dogrulama|ikinci doğrulama|second-factor/i);
 });

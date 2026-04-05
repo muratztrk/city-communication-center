@@ -3,6 +3,7 @@
 
 global using CityCommunicationCenter.Application.Abstractions;
 global using CityCommunicationCenter.Application.Abstractions.Identity;
+global using CityCommunicationCenter.Application.Common.Exceptions;
 global using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 global using CityCommunicationCenter.Application.Services;
 global using CityCommunicationCenter.Domain.Entities;

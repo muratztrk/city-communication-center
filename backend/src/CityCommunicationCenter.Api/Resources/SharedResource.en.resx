@@ -21,10 +21,13 @@
   <data name="BootstrapCompleted" xml:space="preserve"><value>Setup is already completed. The existing municipality record should be used.</value></data>
   <data name="UnexpectedErrorTitle" xml:space="preserve"><value>An unexpected error occurred.</value></data>
   <data name="UnexpectedErrorDetail" xml:space="preserve"><value>An unexpected error occurred while processing the request.</value></data>
+  <data name="ForbiddenTitle" xml:space="preserve"><value>You are not authorized to perform this action.</value></data>
+  <data name="ForbiddenDetail" xml:space="preserve"><value>The requested operation is not permitted for the current user.</value></data>
   <data name="ValidationTitle" xml:space="preserve"><value>Validation error.</value></data>
   <data name="ValidationDetail" xml:space="preserve"><value>The submitted request could not be validated.</value></data>
   <data name="TenantContextRequiredTitle" xml:space="preserve"><value>Tenant context is required.</value></data>
   <data name="TenantContextRequiredDetail" xml:space="preserve"><value>The request must include a valid tenant claim or X-Tenant-Id header.</value></data>
+  <data name="TenantClaimRequiredDetail" xml:space="preserve"><value>Authenticated requests must include a valid tenant claim.</value></data>
   <data name="TenantMismatchTitle" xml:space="preserve"><value>Tenant mismatch detected.</value></data>
   <data name="TenantMismatchDetail" xml:space="preserve"><value>The tenant in the route must match the tenant resolved for the current request.</value></data>
 </root>

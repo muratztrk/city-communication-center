@@ -1,4 +1,3 @@
-
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -42,6 +41,12 @@ public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand
         {
             return false;
         }
+
+        await TaskWorkflowAuthorization.EnsureCanAssignAsync(
+            _dbContext,
+            task,
+            request.ActorUserId,
+            cancellationToken);
 
         if (task.CurrentStatus is WorkflowTaskStatus.Closed or WorkflowTaskStatus.Completed)
         {

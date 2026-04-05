@@ -15,8 +15,6 @@ public sealed class LdapAuthenticationOptions
 {
     public bool Enabled { get; set; }
 
-    public bool AutoProvisionUsers { get; set; }
-
     public int SearchResultLimit { get; set; } = 20;
 
     public string? Host { get; set; }

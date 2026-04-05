@@ -25,6 +25,15 @@
 4. Tighten observability for production: request correlation, central log shipping, and alerting.
 5. Add backend unit/integration tests if release confidence needs to go beyond the current browser suite.
 
+## Deployment Model
+
+**Single-tenant frontend**: Each municipality gets its own frontend deployment with `VITE_TENANT_ID` baked in at build time.
+- `VITE_TENANT_ID` is read from `VITE_TENANT_ID` env var in `frontend/src/api/config.ts`.
+- When set, `getTenantLoginContext()` sends `X-Tenant-Id` header → backend resolves to that tenant → `hideTenantSelector: true` → no municipality picker shown.
+- Backend resolution priority: explicit tenant ID (header) > custom domain (Host) > single-tenant fallback > manual selection.
+- For local dev: `frontend/.env.local` sets `VITE_TENANT_ID=b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e` (Tire Belediyesi).
+- For Docker: `.env` has `CCC_TENANT_ID` → docker-compose passes `VITE_TENANT_ID` build arg to frontend image.
+
 ## Release Gate
 
 1. `dotnet build backend/CityCommunicationCenter.sln`

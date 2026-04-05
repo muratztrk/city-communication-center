@@ -46,7 +46,6 @@ public sealed record UpdateTenantAppearanceRequest(
 
 public sealed record TenantLdapSettingsResponse(
     bool Enabled,
-    bool AutoProvisionUsers,
     string? Host,
     int Port,
     bool UseSsl,
@@ -61,7 +60,6 @@ public sealed record TenantLdapSettingsResponse(
 
 public sealed record UpdateTenantLdapSettingsRequest(
     bool Enabled,
-    bool AutoProvisionUsers,
     string? Host,
     int Port,
     bool UseSsl,

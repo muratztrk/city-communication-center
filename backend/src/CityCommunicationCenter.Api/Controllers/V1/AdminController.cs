@@ -105,7 +105,6 @@ public sealed class AdminController : ApiControllerBase
             new UpdateTenantLdapSettingsCommand(
                 tenantId,
                 request.Enabled,
-                request.AutoProvisionUsers,
                 request.Host,
                 request.Port,
                 request.UseSsl,

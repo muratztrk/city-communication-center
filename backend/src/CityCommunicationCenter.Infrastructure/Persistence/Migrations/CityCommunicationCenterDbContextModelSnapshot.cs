@@ -17,7 +17,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -825,7 +825,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
                             DefaultSlaHours = 48,
                             DisplayName = "Tire Belediyesi",
-                            LdapSettingsJson = "{\"enabled\":true,\"autoProvisionUsers\":false,\"domain\":\"tire.bel.tr\",\"userAttribute\":\"mail\"}",
+                            LdapSettingsJson = "{\"enabled\":true,\"domain\":\"tire.bel.tr\",\"userAttribute\":\"mail\"}",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         });
                 });

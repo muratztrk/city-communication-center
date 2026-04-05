@@ -25,6 +25,17 @@ public sealed class RejectTaskCommandHandler : IRequestHandler<RejectTaskCommand
             return false;
         }
 
+        if (task.CurrentStatus != WorkflowTaskStatus.PendingApproval)
+        {
+            throw CreateValidationException(nameof(request.TaskId), "Sadece onay bekleyen gorevler reddedilebilir.");
+        }
+
+        await TaskWorkflowAuthorization.EnsureCanApproveOrRejectAsync(
+            _dbContext,
+            task,
+            request.ActorUserId,
+            cancellationToken);
+
         task.CurrentStatus = WorkflowTaskStatus.Rejected;
         task.UpdatedByUserId = request.ActorUserId;
         task.UpdatedAtUtc = DateTimeOffset.UtcNow;
@@ -56,5 +67,12 @@ public sealed class RejectTaskCommandHandler : IRequestHandler<RejectTaskCommand
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return true;
+    }
+
+    private static ValidationException CreateValidationException(string propertyName, string message)
+    {
+        return new ValidationException([
+            new FluentValidation.Results.ValidationFailure(propertyName, message)
+        ]);
     }
 }

@@ -11,7 +11,6 @@ public interface ITenantLdapSettingsService
 
 public sealed record TenantLdapSettingsDescriptor(
     bool Enabled,
-    bool AutoProvisionUsers,
     string? Host,
     int Port,
     bool UseSsl,
@@ -26,7 +25,6 @@ public sealed record TenantLdapSettingsDescriptor(
 
 public sealed record TenantLdapSettingsUpdate(
     bool Enabled,
-    bool AutoProvisionUsers,
     string? Host,
     int Port,
     bool UseSsl,
@@ -40,7 +38,6 @@ public sealed record TenantLdapSettingsUpdate(
 
 public sealed record TenantLdapRuntimeSettings(
     bool Enabled,
-    bool AutoProvisionUsers,
     string? Host,
     int Port,
     bool UseSsl,

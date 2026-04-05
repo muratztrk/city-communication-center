@@ -34,12 +34,13 @@ public sealed class HttpTenantContextAccessor : ITenantContextAccessor
                 false);
         }
 
-        var tenantId = ParseGuid(
-            GetClaimValue(httpContext.User, "tenant_id")
-            ?? GetClaimValue(httpContext.User, "tenantId")
-            ?? GetClaimValue(httpContext.User, "tenant")
-            ?? httpContext.Request.Headers[_options.HeaderName].FirstOrDefault());
+        var isAuthenticated = httpContext.User.Identity?.IsAuthenticated ?? false;
+        var tenantClaimValue = GetTenantClaimValue(httpContext.User);
+        var tenantHeaderValue = isAuthenticated
+            ? null
+            : httpContext.Request.Headers[_options.HeaderName].FirstOrDefault();
 
+        var tenantId = ParseGuid(tenantClaimValue ?? tenantHeaderValue);
         var userId = ParseGuid(
             GetClaimValue(httpContext.User, ClaimTypes.NameIdentifier)
             ?? GetClaimValue(httpContext.User, "sub"));
@@ -47,11 +48,9 @@ public sealed class HttpTenantContextAccessor : ITenantContextAccessor
             ?? GetClaimValue(httpContext.User, ClaimTypes.Name)
             ?? GetClaimValue(httpContext.User, "displayName");
         var role = GetClaimValue(httpContext.User, ClaimTypes.Role) ?? GetClaimValue(httpContext.User, "role");
-        var resolutionSource = httpContext.User.FindFirst("tenant_id") is not null ||
-            httpContext.User.FindFirst("tenantId") is not null ||
-            httpContext.User.FindFirst("tenant") is not null
+        var resolutionSource = tenantClaimValue is not null
             ? "claims"
-            : httpContext.Request.Headers.ContainsKey(_options.HeaderName)
+            : !isAuthenticated && httpContext.Request.Headers.ContainsKey(_options.HeaderName)
                 ? "header"
                 : null;
 
@@ -60,10 +59,12 @@ public sealed class HttpTenantContextAccessor : ITenantContextAccessor
             userId,
             displayName,
             role,
-            httpContext.User.Identity?.IsAuthenticated ?? false,
+            isAuthenticated,
             resolutionSource,
             tenantId is null
-                ? $"No tenant context was found. Provide a tenant claim or the '{_options.HeaderName}' header."
+                ? isAuthenticated
+                    ? "No tenant claim was found on the authenticated principal."
+                    : $"No tenant context was found. Provide a tenant claim or the '{_options.HeaderName}' header."
                 : null,
             tenantId is not null);
     }
@@ -76,5 +77,12 @@ public sealed class HttpTenantContextAccessor : ITenantContextAccessor
     private static string? GetClaimValue(ClaimsPrincipal principal, string claimType)
     {
         return principal.FindFirst(claimType)?.Value;
+    }
+
+    private static string? GetTenantClaimValue(ClaimsPrincipal principal)
+    {
+        return GetClaimValue(principal, "tenant_id")
+            ?? GetClaimValue(principal, "tenantId")
+            ?? GetClaimValue(principal, "tenant");
     }
 }

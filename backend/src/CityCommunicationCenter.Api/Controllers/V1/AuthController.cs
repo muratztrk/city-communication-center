@@ -178,7 +178,9 @@ public sealed class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<TenantLoginContextResponse>> GetTenantLoginContext(CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetTenantLoginContextQuery(GetRequestHost()), cancellationToken);
+        var tenantIdHeader = Request.Headers["X-Tenant-Id"].FirstOrDefault();
+        Guid? tenantId = Guid.TryParse(tenantIdHeader, out var parsedTenantId) ? parsedTenantId : null;
+        var response = await _sender.Send(new GetTenantLoginContextQuery(GetRequestHost(), tenantId), cancellationToken);
         return Ok(response);
     }
 
@@ -270,7 +272,9 @@ public sealed class AuthController : ControllerBase
             return explicitTenantId.Trim();
         }
 
-        var response = await _sender.Send(new GetTenantLoginContextQuery(GetRequestHost()), cancellationToken);
+        var tenantIdHeader = Request.Headers["X-Tenant-Id"].FirstOrDefault();
+        Guid? tenantId = Guid.TryParse(tenantIdHeader, out var parsedFallback) ? parsedFallback : null;
+        var response = await _sender.Send(new GetTenantLoginContextQuery(GetRequestHost(), tenantId), cancellationToken);
         return response.ResolvedTenant?.TenantId.ToString();
     }
 

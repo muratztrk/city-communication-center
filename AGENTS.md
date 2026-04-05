@@ -60,6 +60,8 @@ docker-compose up -d --build api
 docker-compose up -d --build frontend
 ```
 
+Local docker runtime uses `frontend/` as the active SPA source. `frontend_old/` is archival and should not be used for startup/build work. Default host ports are frontend `13000`, API `15000`, and PostgreSQL `5432`.
+
 ## Testing
 
 Current automated test assets:
@@ -207,7 +209,8 @@ dotnet ef migrations add <name> --context SqlServerCityCommunicationCenterDbCont
 ### Login Source Order
 - `LoginCommand` authenticates local password hashes first.
 - If local verification fails, LDAP bind is attempted.
-- LDAP users can be auto-provisioned into `ApplicationUser` when enabled in `LdapAuthentication` settings.
+- LDAP sign-in only succeeds for already linked application users.
+- Missing LDAP users must be created or linked explicitly through directory search and the admin user-create flow.
 
 ### Required Access-Token Claims
 - `sub`
@@ -248,6 +251,12 @@ dotnet ef migrations add <name> --context SqlServerCityCommunicationCenterDbCont
 - `Tasks` query/detail/create return `TaskSummaryResponse` and `TaskDetailResponse`
 - `SocialMessages` query/detail/convert return `SocialMessageSummaryResponse`, `SocialMessageDetailResponse`, and `TaskSummaryResponse`
 
+## Task Workflow Standards
+
+- Department-pool tasks are represented by `AssignedDepartmentId` set with `AssignedUserId = null`.
+- Task list filtering should extend `GET /api/v1/tasks` via scope-style query parameters instead of adding redundant list endpoints.
+- Staff may claim a task from their own department pool only when the task is already in `Assigned` status; manager/system-admin assign and reassign flows remain canonical for explicit routing.
+
 ## Social Integration Standards
 
 - Social media contracts used by the application layer live in `CityCommunicationCenter.Application.Abstractions`.
@@ -260,7 +269,7 @@ dotnet ef migrations add <name> --context SqlServerCityCommunicationCenterDbCont
 **Build Status**: ✅ `dotnet build backend/CityCommunicationCenter.sln`
 **Frontend Build Status**: ✅ `npm run build`
 **Frontend Lint Status**: ✅ `npm run lint`
-**Docker Validation**: ✅ `docker compose up -d` with API on `5000`, frontend on `3000`, PostgreSQL on `5432`
+**Docker Validation**: ✅ `docker compose up -d` with API on `15000`, frontend on `13000`, PostgreSQL on `5432`
 **Playwright Validation**: ✅ `tests/e2e npm test` with 3 passing scenarios, including multi-user social-task workflow
 **Browser Validation**: ✅ Login, dashboard, tasks, social messages, departments, users, and audit screens verified against Docker runtime
 **Health Check**: ✅ `GET /health` returned `200`
@@ -330,6 +339,15 @@ private static TEnum ParseEnum<TEnum>(string value) where TEnum : struct, Enum
 1. Tenant çözümleme davranışı halen claim + header kombinasyonuna izin veriyor; auth claim tabanlı tek-path sertleştirmesi sonraki sertleştirme işi.
 2. Gorev onaylama, atama ve kapatma yetkileri ek authorization kurallariyla daha da sertlestirilebilir.
 3. EF CLI tool zinciri runtime ile ayni 10.x patch serisine alinabilir; migration uretiminde tool/runtime uyari gurultusu kaldirilir.
+
+## Single-Tenant Frontend Deployment
+
+- Her belediye için ayrı bir frontend build deploy edilir; `VITE_TENANT_ID` build-time env var ile tenant sabitlenir.
+- Frontend `getTenantLoginContext()` call'ında `X-Tenant-Id` header gönderir → backend `TenantId` resolution mode ile tek tenant döndürür → municipality seçim ekranı gösterilmez.
+- Backend resolution priority: `TenantId` (explicit header) > `CustomDomain` (Host header) > `SingleTenant` (tek aktif tenant) > `ManualSelection`.
+- Tire Belediyesi tenant ID: `b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e`.
+- Local dev: `frontend/.env.local` → `VITE_TENANT_ID=b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e`, `VITE_API_ORIGIN=http://localhost:5160`.
+- Docker: `.env` `CCC_TENANT_ID` → `docker-compose.yml` `VITE_TENANT_ID` build arg → `frontend/Dockerfile` `ARG VITE_TENANT_ID`.
 
 ### Build Durumu
 ```

@@ -64,7 +64,7 @@ Bu feature dosyalarinda command/query/validator/handler ayni dosyada tutuldu.
 - `UserAuthenticationService` ile su akisi kuruldu:
   - yerel kullanici icin paylasilan development/local password dogrulamasi
   - LDAP etkinse LDAP bind denemesi
-  - LDAP ile gelen ama sistemde kayitli olmayan kullanici icin otomatik kullanici provision islemi
+  - LDAP ile gelen kullanicinin ancak onceden bagli `ApplicationUser` kaydi varsa login'i tamamlama ve profil sync islemi
 - `LdapAuthenticationService` eklendi.
 - `Authentication` konfigurasyon bolumu eklendi:
   - `EnableLocalUsers`

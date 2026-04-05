@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Tasks;
 using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -52,16 +53,7 @@ public sealed class ConvertSocialMessageToTaskCommandHandler : IRequestHandler<C
             var existingTask = await _dbContext.Tasks.FirstOrDefaultAsync(entity => entity.TaskId == message.TaskId.Value, cancellationToken);
             if (existingTask is not null)
             {
-                return new TaskSummaryResponse(
-                    existingTask.TaskId,
-                    existingTask.TenantId,
-                    existingTask.Title,
-                    existingTask.TaskType.ToString(),
-                    existingTask.Priority,
-                    existingTask.CurrentStatus.ToString(),
-                    existingTask.TargetDepartmentId,
-                    existingTask.AssignedUserId,
-                    existingTask.DueDateUtc);
+                return await TaskSummaryResponseFactory.CreateAsync(_dbContext, existingTask, cancellationToken);
             }
 
             throw new ValidationException([
@@ -93,15 +85,6 @@ public sealed class ConvertSocialMessageToTaskCommandHandler : IRequestHandler<C
         message.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new TaskSummaryResponse(
-            task.TaskId,
-            task.TenantId,
-            task.Title,
-            task.TaskType.ToString(),
-            task.Priority,
-            task.CurrentStatus.ToString(),
-            task.TargetDepartmentId,
-            task.AssignedUserId,
-            task.DueDateUtc);
+        return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);
     }
 }

@@ -19,10 +19,14 @@ public sealed class ValidateTenantFilter : IAsyncActionFilter
         var tenantContext = _tenantContextAccessor.GetCurrent();
         if (!tenantContext.TenantId.HasValue)
         {
+            var detail = tenantContext.IsAuthenticated
+                ? _localizer["TenantClaimRequiredDetail"]
+                : _localizer["TenantContextRequiredDetail"];
+
             context.Result = new ObjectResult(new ProblemDetails
             {
                 Title = _localizer["TenantContextRequiredTitle"],
-                Detail = _localizer["TenantContextRequiredDetail"],
+                Detail = detail,
                 Status = StatusCodes.Status400BadRequest
             })
             {

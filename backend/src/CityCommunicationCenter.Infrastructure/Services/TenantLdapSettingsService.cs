@@ -28,7 +28,6 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
 
         return new TenantLdapSettingsDescriptor(
             settings.Enabled,
-            settings.AutoProvisionUsers,
             settings.Host,
             settings.Port,
             settings.UseSsl,
@@ -60,7 +59,6 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
         var payload = new TenantLdapSettingsPayload
         {
             Enabled = settings.Enabled,
-            AutoProvisionUsers = settings.AutoProvisionUsers,
             Host = Normalize(settings.Host),
             Port = settings.Port > 0 ? settings.Port : Math.Max(_options.Ldap.Port, 389),
             UseSsl = settings.UseSsl,
@@ -155,7 +153,6 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
 
         return new TenantLdapRuntimeSettings(
             enabled,
-            payload.AutoProvisionUsers,
             host,
             payload.Port > 0 ? payload.Port : Math.Max(_options.Ldap.Port, 389),
             payload.UseSsl,
@@ -183,8 +180,6 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
     private sealed class TenantLdapSettingsPayload
     {
         public bool Enabled { get; set; }
-
-        public bool AutoProvisionUsers { get; set; }
 
         public string? Host { get; set; }
 

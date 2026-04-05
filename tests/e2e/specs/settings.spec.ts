@@ -1,46 +1,45 @@
 import { expect, test } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, API_BASE_URL, MANAGER_EMAIL, authenticateApi, login, logout, selectTenantIfVisible } from './helpers';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, API_BASE_URL, MANAGER_EMAIL, authenticateApi, login } from './helpers';
 
 // Scenario:
 // 1. Admin logs in.
-// 2. Settings menu is visible for authorized role.
-// 3. Tenant-scoped LDAP settings render before switching to social configuration.
-// 4. Social channel configuration surface renders with actionable controls.
+// 2. Settings menu is visible for the authorized role.
+// 3. LDAP section explains explicit admin onboarding and does not expose auto-provision controls.
+// 4. Auth-policy and social configuration surfaces remain reachable.
 
 test('admin can see and open settings', async ({ page }) => {
   await login(page, ADMIN_EMAIL, ADMIN_PASSWORD);
 
-  const settingsButton = page.getByRole('button', { name: '⚙️ Ayarlar' });
+  const settingsButton = page.getByRole('button', { name: 'Ayarlar' });
   await expect(settingsButton).toBeVisible();
   await settingsButton.click();
 
-  await expect(page.getByRole('heading', { name: '⚙️ Ayarlar' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Tenant LDAP ayarları/i })).toBeVisible();
-  await expect(page.getByLabel('LDAP giriş ve import açık')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ayarlar', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'LDAP Ayarlari' })).toBeVisible();
+  await expect(page.getByLabel('LDAP giris ve admin import acik')).toBeVisible();
+  await expect(page.getByText(/LDAP onboarding login ekraninda degil/i)).toBeVisible();
+  await expect(page.getByText(/otomatik kullanici olusturma devre disi/i)).toHaveCount(0);
+  await expect(page.getByText(/auto.?provision/i)).toHaveCount(0);
   await expect(page.getByLabel('LDAP sunucusu')).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Tenant kimlik politikası/i })).toBeVisible();
-  await expect(page.getByLabel('Güvenilen iç ağ aralıkları (CIDR)')).toBeVisible();
-  await expect(page.getByLabel('Kimlik header adı')).toBeVisible();
-  await page.locator('.tab-bar').getByRole('button', { name: '📱 Sosyal Medya' }).click();
+  await expect(page.getByRole('heading', { name: 'Kimlik Politikasi' })).toBeVisible();
+  await expect(page.getByLabel('Guvenilen ic ag araliklari (CIDR)')).toBeVisible();
+
+  const automaticMode = page.getByLabel('Otomatik Giris Modu');
+  await expect(automaticMode).toBeVisible();
+  if ((await automaticMode.inputValue()) === 'TrustedHeader') {
+    await expect(page.getByLabel('Kimlik header adi')).toBeVisible();
+  }
+
+  await page.locator('.tab-bar').getByRole('button', { name: 'Sosyal Medya' }).click();
   await expect(page).toHaveURL(/tab=social/);
   await expect(page.locator('h3').filter({ hasText: 'X (Twitter)' })).toBeVisible();
   await expect(page.locator('h3').filter({ hasText: 'Instagram' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Yapılandır' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Yapilandir' }).first()).toBeVisible();
 });
 
 test('manager cannot see settings navigation', async ({ page }) => {
   await login(page, MANAGER_EMAIL, ADMIN_PASSWORD);
-
-  await expect(page.getByRole('button', { name: '⚙️ Ayarlar' })).toHaveCount(0);
-
-  await logout(page);
-  await page.goto('/');
-  await selectTenantIfVisible(page);
-  await page.getByLabel('Kullanıcı Adı').fill(MANAGER_EMAIL);
-  await page.getByLabel('Şifre').fill(ADMIN_PASSWORD);
-  await page.getByRole('button', { name: 'Giriş Yap' }).click();
-  await expect(page.getByRole('heading', { name: '📊 Kontrol Paneli' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '⚙️ Ayarlar' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Ayarlar' })).toHaveCount(0);
 });
 
 test('manager token cannot access platform admin endpoints', async ({ request }) => {

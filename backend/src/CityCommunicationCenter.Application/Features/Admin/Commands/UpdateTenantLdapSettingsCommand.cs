@@ -3,7 +3,6 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 public sealed record UpdateTenantLdapSettingsCommand(
     Guid TenantId,
     bool Enabled,
-    bool AutoProvisionUsers,
     string? Host,
     int Port,
     bool UseSsl,
@@ -34,7 +33,6 @@ public sealed class UpdateTenantLdapSettingsCommandHandler : IRequestHandler<Upd
             request.TenantId,
             new TenantLdapSettingsUpdate(
                 request.Enabled,
-                request.AutoProvisionUsers,
                 request.Host,
                 request.Port,
                 request.UseSsl,

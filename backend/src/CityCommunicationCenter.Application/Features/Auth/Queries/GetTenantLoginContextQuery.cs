@@ -3,7 +3,7 @@ using CityCommunicationCenter.Application.Common.Tenancy;
 
 namespace CityCommunicationCenter.Application.Features.Auth;
 
-public sealed record GetTenantLoginContextQuery(string? Host) : IQuery<TenantLoginContextResponse>;
+public sealed record GetTenantLoginContextQuery(string? Host, Guid? TenantId = null) : IQuery<TenantLoginContextResponse>;
 
 public sealed class GetTenantLoginContextQueryHandler : IRequestHandler<GetTenantLoginContextQuery, TenantLoginContextResponse>
 {
@@ -46,7 +46,18 @@ public sealed class GetTenantLoginContextQueryHandler : IRequestHandler<GetTenan
         var hideTenantSelector = false;
         TenantCandidate? resolvedTenant = null;
 
-        if (!string.IsNullOrWhiteSpace(normalizedHost))
+        if (request.TenantId.HasValue)
+        {
+            var idMatch = candidates.FirstOrDefault(t => t.TenantId == request.TenantId.Value);
+            if (idMatch is not null)
+            {
+                resolvedTenant = idMatch;
+                resolutionMode = "TenantId";
+                hideTenantSelector = true;
+            }
+        }
+
+        if (resolvedTenant is null && !string.IsNullOrWhiteSpace(normalizedHost))
         {
             var hostMatches = candidates
                 .Where(entity => string.Equals(entity.Domain, normalizedHost, StringComparison.OrdinalIgnoreCase))

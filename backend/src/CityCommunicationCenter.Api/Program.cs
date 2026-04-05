@@ -23,7 +23,7 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfig
     .Enrich.FromLogContext());
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:5173", "http://localhost:3000"];
+    ?? ["http://localhost:5173", "http://localhost:13000"];
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 

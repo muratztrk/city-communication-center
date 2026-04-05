@@ -1,4 +1,3 @@
-
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -25,6 +24,17 @@ public sealed class CloseTaskCommandHandler : IRequestHandler<CloseTaskCommand, 
             return false;
         }
 
+        if (task.CurrentStatus == WorkflowTaskStatus.Closed)
+        {
+            throw CreateValidationException(nameof(request.TaskId), "Zaten kapatilmis bir gorev yeniden kapatilamaz.");
+        }
+
+        await TaskWorkflowAuthorization.EnsureCanCloseAsync(
+            _dbContext,
+            task,
+            request.ActorUserId,
+            cancellationToken);
+
         var utcNow = DateTimeOffset.UtcNow;
         task.CurrentStatus = WorkflowTaskStatus.Closed;
         task.ClosedAtUtc = utcNow;
@@ -44,5 +54,12 @@ public sealed class CloseTaskCommandHandler : IRequestHandler<CloseTaskCommand, 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return true;
+    }
+
+    private static ValidationException CreateValidationException(string propertyName, string message)
+    {
+        return new ValidationException([
+            new FluentValidation.Results.ValidationFailure(propertyName, message)
+        ]);
     }
 }

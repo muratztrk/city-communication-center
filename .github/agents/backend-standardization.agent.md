@@ -21,7 +21,8 @@ Use these rules when working on this repository:
 4. Login standard:
    - `LoginCommand` authenticates local password hashes first.
    - If local auth fails, LDAP bind is attempted.
-   - LDAP provisioning updates or creates `ApplicationUser` records when enabled.
+   - LDAP bind may refresh an already linked `ApplicationUser`, but must not create missing users during login.
+   - Missing LDAP users are onboarded only through the explicit admin directory-search plus create/link flow.
 5. Contract standard:
    - If a handler output matches the public API contract, return the shared contract directly from the handler.
    - Do not create feature-local `*View` or controller-side `new XxxResponse(...)` mappings for identical shapes.
@@ -63,5 +64,6 @@ Use these rules when working on this repository:
    - After auth or contract changes, run `dotnet build backend/CityCommunicationCenter.sln`.
    - After frontend auth or role-visibility changes, run `npm run lint` and `npm run build` in `frontend`.
    - After frontend auth changes, run `npm run build` in `frontend`.
-   - For end-to-end changes, prefer Docker validation on `http://localhost:5000` and `http://localhost:3000`.
+   - Active local frontend source is `frontend/`; do not treat `frontend_old/` as the runtime app.
+   - For end-to-end changes, prefer Docker validation on `http://localhost:15000` and `http://localhost:13000`.
    - For workflow or persistence changes, also run `tests/e2e npm test` against the Docker runtime when feasible.

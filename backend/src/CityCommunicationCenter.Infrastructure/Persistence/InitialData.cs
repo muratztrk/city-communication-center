@@ -27,7 +27,7 @@ public static class InitialData
     public static readonly Guid SampleSocialMessageId = Guid.Parse("8e90888d-dc75-4264-a78b-f0a7abc9a9ab");
     public static readonly Guid SampleRoutingRuleId = Guid.Parse("d306cbf0-88ad-48b7-9b16-14bb87e77f5f");
 
-    public const string SeedTenantLdapSettingsJson = "{\"enabled\":true,\"autoProvisionUsers\":false,\"domain\":\"tire.bel.tr\",\"userAttribute\":\"mail\"}";
+    public const string SeedTenantLdapSettingsJson = "{\"enabled\":true,\"domain\":\"tire.bel.tr\",\"userAttribute\":\"mail\"}";
     public const string SeedTenantAuthenticationPolicyJson = "{\"automaticSignInEnabled\":true,\"automaticSignInMode\":\"TrustedHeader\",\"trustedNetworkCidrs\":[\"127.0.0.1/32\",\"::1/128\",\"10.0.0.0/8\",\"172.16.0.0/12\",\"192.168.0.0/16\"],\"trustedProxyCidrs\":[\"127.0.0.1/32\",\"::1/128\",\"10.0.0.0/8\",\"172.16.0.0/12\",\"192.168.0.0/16\"],\"identityHeaderName\":\"X-Authenticated-User\",\"requireSecondFactorOutsideTrustedNetwork\":true,\"secondFactorProvider\":\"Mock\",\"codeLength\":6,\"codeTtlSeconds\":300,\"allowMockCodePreview\":true}";
     public const string SeedTenantAppearanceJson = "{\"themePreset\":\"tire-civic\",\"primaryColor\":\"#0F4C81\",\"secondaryColor\":\"#2B6EA6\",\"accentColor\":\"#C6932D\",\"neutralColor\":\"#6A7786\",\"surfaceColor\":\"#FFFFFF\",\"backgroundColor\":\"#EEF3F8\",\"headerGradientFrom\":\"#123B63\",\"headerGradientTo\":\"#356F99\",\"sidebarBackgroundColor\":\"#102F4A\",\"sidebarForegroundColor\":\"#F6F8FB\"}";
 

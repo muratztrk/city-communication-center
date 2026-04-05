@@ -1,98 +1,71 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useState, type PropsWithChildren } from 'react'
 import {
   clearAuthSession,
+  exchangeInteractiveGrant,
   getStoredSession,
   isAccessTokenExpired,
   loginWithPassword,
-  type AuthUser,
-} from '../api/auth';
+} from '../api/auth'
+import type { AuthSession, AuthUser } from '../types/platform'
 
-interface AuthContextType {
-  user: AuthUser | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>;
-  logout: () => void;
+interface AuthContextValue {
+  isAuthenticated: boolean
+  isLoading: boolean
+  session: AuthSession | null
+  user: AuthUser | null
+  signIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
+  completeInteractiveSignIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
+  logout: () => void
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextValue | null>(null)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function AuthProvider({ children }: PropsWithChildren) {
+  const [session, setSession] = useState<AuthSession | null>(() => {
+    const storedSession = getStoredSession()
+    if (storedSession && !isAccessTokenExpired(storedSession)) {
+      return storedSession
+    }
 
-  useEffect(() => {
-    let isMounted = true;
+    clearAuthSession()
+    return null
+  })
+  const [isLoading] = useState(false)
 
-    const restoreSession = async () => {
-      const storedSession = getStoredSession();
-      if (!storedSession) {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-        return;
-      }
+  const signIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
+    const nextSession = await loginWithPassword(username, password, tenantId, tenantName)
+    setSession(nextSession)
+  }
 
-      const session = isAccessTokenExpired(storedSession)
-        ? null
-        : storedSession;
-
-      if (!session) {
-        clearAuthSession();
-      }
-
-      if (isMounted && session) {
-        setToken(session.accessToken);
-        setUser(session.user);
-      }
-
-      if (isMounted) {
-        setIsLoading(false);
-      }
-    };
-
-    void restoreSession();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const login = async (username: string, password: string, tenantId: string, tenantName: string) => {
-    const session = await loginWithPassword(username, password, tenantId, tenantName);
-
-    setToken(session.accessToken);
-    setUser(session.user);
-  };
+  const completeInteractiveSignIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
+    const nextSession = await exchangeInteractiveGrant(username, password, tenantId, tenantName)
+    setSession(nextSession)
+  }
 
   const logout = () => {
-    setToken(null);
-    setUser(null);
-    clearAuthSession();
-  };
+    clearAuthSession()
+    setSession(null)
+  }
 
-  return (
-    <AuthContext.Provider value={{
-      user,
-      token,
-      isAuthenticated: !!token,
-      isLoading,
-      login,
-      logout,
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: AuthContextValue = {
+    isAuthenticated: !!session,
+    isLoading,
+    session,
+    user: session?.user ?? null,
+    signIn,
+    completeInteractiveSignIn,
+    logout,
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider')
   }
-  return context;
+
+  return context
 }

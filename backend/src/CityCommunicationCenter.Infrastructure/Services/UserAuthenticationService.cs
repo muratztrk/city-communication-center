@@ -69,7 +69,7 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
         var linkedLdapUser = await FindExistingLdapUserAsync(tenantId, username, cancellationToken);
         if (linkedLdapUser is null)
         {
-            return await AuthenticateAndProvisionLdapUserAsync(tenantId, tenant.DisplayName, username, password, cancellationToken);
+            return await AuthenticateLinkedLdapUserAsync(tenantId, tenant.DisplayName, username, password, cancellationToken);
         }
 
         if (!linkedLdapUser.IsActive)
@@ -111,22 +111,7 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
                 : null;
         }
 
-        var ldapSettings = await _tenantLdapSettingsService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
-        if (!ldapSettings.AutoProvisionUsers)
-        {
-            return null;
-        }
-
-        var directoryUser = await _ldapAuthenticationService.FindUserByUsernameAsync(tenantId, username.Trim(), cancellationToken);
-        if (directoryUser is null)
-        {
-            return null;
-        }
-
-        var provisionedUser = await ProvisionLdapUserAsync(tenantId, directoryUser, cancellationToken);
-        return provisionedUser.IsActive
-            ? ToDescriptor(provisionedUser, tenant.DisplayName, authenticationMode)
-            : null;
+        return null;
     }
 
     public string GetBootstrapAuthMode()
@@ -148,11 +133,14 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
             return null;
         }
 
+        var lowered = normalizedUsername.ToLowerInvariant();
+
         return await _dbContext.Users
             .IgnoreQueryFilters()
             .Where(entity => entity.TenantId == tenantId && entity.UserSource == UserSource.Manual)
             .FirstOrDefaultAsync(
-                entity => EF.Functions.ILike(entity.Username ?? string.Empty, normalizedUsername),
+                entity => entity.Username!.ToLower() == lowered
+                       || entity.Email!.ToLower() == lowered,
                 cancellationToken);
     }
 
@@ -226,38 +214,28 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
             : null;
     }
 
-    private async Task<AuthenticatedUserDescriptor?> AuthenticateAndProvisionLdapUserAsync(
+    private async Task<AuthenticatedUserDescriptor?> AuthenticateLinkedLdapUserAsync(
         Guid tenantId,
         string tenantDisplayName,
         string username,
         string password,
         CancellationToken cancellationToken)
     {
-        var ldapSettings = await _tenantLdapSettingsService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
-        if (!ldapSettings.AutoProvisionUsers)
-        {
-            return null;
-        }
-
         var ldapUser = await _ldapAuthenticationService.AuthenticateAsync(tenantId, username, password, cancellationToken);
         if (ldapUser is null)
         {
             return null;
         }
 
-        var existingUser = await FindLinkedLdapUserAsync(tenantId, ldapUser, cancellationToken);
-        var provisionedUser = existingUser ?? await ProvisionLdapUserAsync(
-            tenantId,
-            new LdapDirectoryUser(ldapUser.ExternalIdentityId, ldapUser.Username, ldapUser.DisplayName ?? ldapUser.Username, ldapUser.Email),
-            cancellationToken);
-        if (!provisionedUser.IsActive)
+        var linkedUser = await FindLinkedLdapUserAsync(tenantId, ldapUser, cancellationToken);
+        if (linkedUser is null || !linkedUser.IsActive)
         {
             return null;
         }
 
-        SyncLdapProfile(provisionedUser, ldapUser);
+        SyncLdapProfile(linkedUser, ldapUser);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return ToDescriptor(provisionedUser, tenantDisplayName, "Ldap");
+        return ToDescriptor(linkedUser, tenantDisplayName, "Ldap");
     }
 
     private static bool MatchesLinkedLdapUser(ApplicationUser user, LdapAuthenticatedUser ldapUser)
@@ -293,53 +271,6 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
         {
             user.DisplayName = ldapUser.DisplayName;
         }
-    }
-
-    private async Task<ApplicationUser> ProvisionLdapUserAsync(
-        Guid tenantId,
-        LdapDirectoryUser ldapUser,
-        CancellationToken cancellationToken)
-    {
-        var departmentId = await _dbContext.Departments
-            .IgnoreQueryFilters()
-            .Where(entity => entity.TenantId == tenantId)
-            .Select(entity => entity.DepartmentId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (departmentId == Guid.Empty)
-        {
-            var department = new Department
-            {
-                DepartmentId = Guid.NewGuid(),
-                TenantId = tenantId,
-                Name = "Dizin Kullanicilari",
-                DepartmentType = "Directory",
-                CreatedByUserId = null
-            };
-
-            _dbContext.Departments.Add(department);
-            departmentId = department.DepartmentId;
-        }
-
-        var user = new ApplicationUser
-        {
-            UserId = Guid.NewGuid(),
-            TenantId = tenantId,
-            DepartmentId = departmentId,
-            Username = ldapUser.Username,
-            DisplayName = string.IsNullOrWhiteSpace(ldapUser.DisplayName) ? ldapUser.Username : ldapUser.DisplayName,
-            Email = ldapUser.Email,
-            ExternalIdentityId = ldapUser.ExternalIdentityId,
-            RoleCode = RoleCode.Staff,
-            UserSource = UserSource.Ldap,
-            IsActive = true,
-            CreatedByUserId = null
-        };
-
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return user;
     }
 
     private static AuthenticatedUserDescriptor ToDescriptor(ApplicationUser user, string tenantName, string authenticationMode)

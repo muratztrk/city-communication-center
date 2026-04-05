@@ -97,15 +97,6 @@ public sealed class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand
         });
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new TaskSummaryResponse(
-            task.TaskId,
-            task.TenantId,
-            task.Title,
-            task.TaskType.ToString(),
-            task.Priority,
-            task.CurrentStatus.ToString(),
-            task.TargetDepartmentId,
-            task.AssignedUserId,
-            task.DueDateUtc);
+        return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);
     }
 }

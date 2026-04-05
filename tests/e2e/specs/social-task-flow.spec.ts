@@ -1,8 +1,38 @@
-import { expect, test } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, API_BASE_URL, MANAGER_EMAIL, STAFF_EMAIL, apiGetDepartments, apiGetSocialMessages, authenticateApi, getApiHeaders, login, logout, openSocialMessagesPage, openTasksPage, seedSocialMessage, selectAutocompleteOption } from './helpers';
+import { expect, test, type Locator, type Page } from '@playwright/test';
+import {
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
+  API_BASE_URL,
+  MANAGER_EMAIL,
+  STAFF_EMAIL,
+  apiGetDepartments,
+  apiGetSocialMessages,
+  authenticateApi,
+  getApiHeaders,
+  login,
+  logout,
+  openSocialMessagesPage,
+  openTasksPage,
+  openTaskScope,
+  seedSocialMessage,
+} from './helpers';
+
+const PUBLIC_WORKS_DEPARTMENT_ID = '0e29fb34-64da-429e-b7c0-e6016a0c10a7';
+
+async function selectRowUser(page: Page, row: Locator, query: string, optionPattern: RegExp | string = query) {
+  const combobox = row.getByRole('combobox').last();
+  await combobox.click();
+  await combobox.fill(query);
+
+  const option = page.getByRole('option', {
+    name: optionPattern instanceof RegExp ? optionPattern : new RegExp(optionPattern, 'i'),
+  }).first();
+  await expect(option).toBeVisible();
+  await option.click();
+}
 
 // Scenario:
-// 1. Admin routes a new social message to Fen Isleri.
+// 1. Admin routes a new social message to the Fen Isleri department.
 // 2. Admin converts the message into a draft task and submits it.
 // 3. Department manager approves and assigns the task to staff.
 // 4. Staff completes the task.
@@ -25,13 +55,13 @@ test('social message can become an approved assigned completed closed task acros
   await test.step('Admin routes and converts the social message', async () => {
     const socialRow = adminPage.locator('tr', { hasText: citizenHandle }).first();
     await expect(socialRow).toBeVisible();
-    await socialRow.locator('select').selectOption({ label: 'Fen İşleri Müdürlüğü' });
-    await socialRow.getByRole('button', { name: 'Yönlendir' }).click();
-    await expect(socialRow).toContainText('Yönlendirildi');
+    await socialRow.getByLabel(`${citizenHandle} mesaji icin departman sec`).selectOption(PUBLIC_WORKS_DEPARTMENT_ID);
+    await socialRow.getByRole('button', { name: 'Yonlendir' }).click();
+    await expect(socialRow).toContainText('Yonlendirildi');
 
-    await socialRow.getByPlaceholder('Görev başlığı').fill(taskTitle);
-    await socialRow.getByRole('button', { name: 'Göreve Çevir' }).click();
-    await expect(socialRow).toContainText('Göreve Dönüştürüldü');
+    await socialRow.getByPlaceholder('Gorev basligi').fill(taskTitle);
+    await socialRow.getByRole('button', { name: 'Goreve Cevir' }).click();
+    await expect(socialRow).toContainText('Goreve Donusturuldu');
   });
 
   await openTasksPage(adminPage);
@@ -39,7 +69,7 @@ test('social message can become an approved assigned completed closed task acros
   await test.step('Admin submits the newly created task', async () => {
     await expect(draftTaskRow).toBeVisible();
     await expect(draftTaskRow).toContainText('Taslak');
-    await draftTaskRow.getByRole('button', { name: 'Gönder' }).click();
+    await draftTaskRow.getByRole('button', { name: 'Gonder' }).click();
     await expect(draftTaskRow).toContainText('Onay Bekliyor');
   });
 
@@ -51,16 +81,20 @@ test('social message can become an approved assigned completed closed task acros
 
   await login(managerPage, MANAGER_EMAIL, ADMIN_PASSWORD);
   await openTasksPage(managerPage);
-  const managerTaskRow = managerPage.locator('tr', { hasText: taskTitle }).first();
   await test.step('Manager approves and assigns the task to staff', async () => {
+    await openTaskScope(managerPage, 'Onay Bekleyen');
+    const managerTaskRow = managerPage.locator('tr', { hasText: taskTitle }).first();
     await expect(managerTaskRow).toBeVisible();
     await managerTaskRow.getByRole('button', { name: 'Onayla' }).click();
-    await expect(managerTaskRow).toContainText('Atandı');
+    await openTaskScope(managerPage, 'Tum Gorevler');
 
-    await managerTaskRow.getByLabel(`Departman seç ${taskTitle}`).selectOption({ label: 'Fen İşleri Müdürlüğü' });
-    await selectAutocompleteOption(managerTaskRow, `Kullanıcı seç ${taskTitle}`, 'Emre Çelik');
-    await managerTaskRow.getByRole('button', { name: 'Ata' }).click();
-    await expect(managerTaskRow).toContainText('Emre Çelik');
+    const assignedTaskRow = managerPage.locator('tr', { hasText: taskTitle }).first();
+    await expect(assignedTaskRow).toContainText('Atandi');
+
+    await assignedTaskRow.locator('select.field-select').selectOption(PUBLIC_WORKS_DEPARTMENT_ID);
+    await selectRowUser(managerPage, assignedTaskRow, 'Emre', /Emre/i);
+    await assignedTaskRow.getByRole('button', { name: 'Ata' }).click();
+    await expect(assignedTaskRow).toContainText(/Emre/i);
   });
 
   await logout(managerPage);
@@ -75,7 +109,7 @@ test('social message can become an approved assigned completed closed task acros
   await test.step('Assigned staff completes the task', async () => {
     await expect(staffTaskRow).toBeVisible();
     await staffTaskRow.getByRole('button', { name: 'Tamamla' }).click();
-    await expect(staffTaskRow).toContainText('Tamamlandı', { timeout: 10_000 });
+    await expect(staffTaskRow).toContainText('Tamamlandi', { timeout: 10_000 });
   });
 
   await logout(staffPage);
@@ -90,7 +124,7 @@ test('social message can become an approved assigned completed closed task acros
   await test.step('Manager closes the completed task', async () => {
     await expect(closeTaskRow).toBeVisible();
     await closeTaskRow.getByRole('button', { name: 'Kapat' }).click();
-    await expect(closeTaskRow).toContainText('Kapatıldı');
+    await expect(closeTaskRow).toContainText('Kapatildi');
   });
 
   await closeContext.close();
@@ -107,12 +141,12 @@ test('social message conversion falls back to citizen handle when title is left 
 
   const socialRow = page.locator('tr', { hasText: citizenHandle }).first();
   await expect(socialRow).toBeVisible();
-  await socialRow.locator('select').selectOption({ label: 'Fen İşleri Müdürlüğü' });
-  await socialRow.getByRole('button', { name: 'Yönlendir' }).click();
-  await expect(socialRow).toContainText('Yönlendirildi');
+  await socialRow.getByLabel(`${citizenHandle} mesaji icin departman sec`).selectOption(PUBLIC_WORKS_DEPARTMENT_ID);
+  await socialRow.getByRole('button', { name: 'Yonlendir' }).click();
+  await expect(socialRow).toContainText('Yonlendirildi');
 
-  await socialRow.getByRole('button', { name: 'Göreve Çevir' }).click();
-  await expect(socialRow).toContainText('Göreve Dönüştürüldü');
+  await socialRow.getByRole('button', { name: 'Goreve Cevir' }).click();
+  await expect(socialRow).toContainText('Goreve Donusturuldu');
 
   await openTasksPage(page);
   await expect(page.locator('tr', { hasText: expectedTaskTitle }).first()).toBeVisible();
@@ -126,7 +160,7 @@ test('social message conversion is idempotent for the same message', async ({ re
   await seedSocialMessage(request, citizenHandle);
 
   const departments = await apiGetDepartments(request, adminSession);
-  const publicWorksDepartment = departments.find(department => department.name === 'Fen İşleri Müdürlüğü');
+  const publicWorksDepartment = departments.find(department => department.departmentId === PUBLIC_WORKS_DEPARTMENT_ID);
   expect(publicWorksDepartment).toBeTruthy();
 
   const messages = await apiGetSocialMessages(request, adminSession);
@@ -137,7 +171,6 @@ test('social message conversion is idempotent for the same message', async ({ re
     headers: getApiHeaders(adminSession),
     data: {
       departmentId: publicWorksDepartment!.departmentId,
-      userId: null,
     },
   });
   expect(routeResponse.ok()).toBeTruthy();

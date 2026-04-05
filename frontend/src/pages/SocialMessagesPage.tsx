@@ -1,75 +1,95 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { api } from '../api/client';
-import { AutocompleteField } from '../components/AutocompleteField';
-import type { Department, SocialMessage, User } from '../types';
-import { getLocale, getSocialChannelLabel, getSocialStatusLabel, getUserSourceLabel } from '../utils/localization';
+﻿import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { api } from '../api/client'
+import { Button } from '../components/ui/button'
+import { StatusPill } from '../components/ui/status-pill'
+import type { Department, SocialMessage } from '../types/platform'
+import { getLocale, getSocialChannelLabel, getSocialStatusLabel } from '../utils/localization'
+
+function getStatusTone(status: string) {
+  if (status === 'ConvertedToTask') return 'success' as const
+  if (status === 'Routed') return 'info' as const
+  if (status === 'Closed') return 'neutral' as const
+  return 'warning' as const
+}
 
 export function SocialMessagesPage() {
-  const { t, i18n } = useTranslation();
-  const [messages, setMessages] = useState<SocialMessage[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [routeDrafts, setRouteDrafts] = useState<Record<string, { departmentId: string; userId: string }>>({});
-  const [routeQueries, setRouteQueries] = useState<Record<string, string>>({});
-  const [taskTitles, setTaskTitles] = useState<Record<string, string>>({});
+  const { t, i18n } = useTranslation()
+  const [messages, setMessages] = useState<SocialMessage[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [routeDrafts, setRouteDrafts] = useState<Record<string, { departmentId: string }>>({})
+  const [taskTitles, setTaskTitles] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    Promise.all([api.getSocialMessages(), api.getDepartments(), api.getUsers()])
-      .then(([messages, departments, users]) => {
-        setMessages(messages);
-        setDepartments(departments);
-        setUsers(users);
+    let isActive = true
+
+    void Promise.all([
+      api.getSocialMessages(),
+      api.getDepartments(),
+    ])
+      .then(([messageList, departmentList]) => {
+        if (!isActive) {
+          return
+        }
+
+        setMessages(messageList)
+        setDepartments(departmentList)
       })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(loadError => {
+        if (isActive) {
+          setError(loadError instanceof Error ? loadError.message : t('common.error'))
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [t])
 
   const reload = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError('')
+
     try {
-      const [messages, departments, users] = await Promise.all([api.getSocialMessages(), api.getDepartments(), api.getUsers()]);
-      setMessages(messages);
-      setDepartments(departments);
-      setUsers(users);
-    } catch (e) {
-      setError((e as Error).message);
+      const [messageList, departmentList] = await Promise.all([
+        api.getSocialMessages(),
+        api.getDepartments(),
+      ])
+
+      setMessages(messageList)
+      setDepartments(departmentList)
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : t('common.error'))
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleRoute = async (socialMessageId: string) => {
-    const draft = routeDrafts[socialMessageId];
-    const departmentId = draft?.departmentId || undefined;
-    const userId = draft?.userId || undefined;
+    const draft = routeDrafts[socialMessageId]
+    const departmentId = draft?.departmentId || undefined
 
-    if (!departmentId && !userId) {
-      return;
+    if (!departmentId) {
+      return
     }
 
     try {
-      await api.routeSocialMessage(socialMessageId, departmentId ?? '', userId);
-      await reload();
-    } catch (e) {
-      setError((e as Error).message);
+      await api.routeSocialMessage(socialMessageId, departmentId)
+      await reload()
+    } catch (routeError) {
+      setError(routeError instanceof Error ? routeError.message : t('common.error'))
     }
-  };
-
-  const getAssignableUsers = (socialMessageId: string, assignedDepartmentId: string | null) => {
-    const selectedDepartmentId = routeDrafts[socialMessageId]?.departmentId ?? assignedDepartmentId ?? '';
-    if (!selectedDepartmentId) {
-      return users.filter(user => user.isActive);
-    }
-
-    return users.filter(user => user.departmentId === selectedDepartmentId && user.isActive);
-  };
+  }
 
   const handleConvert = async (socialMessageId: string, citizenHandle: string) => {
-    const title = taskTitles[socialMessageId]?.trim() || t('social.defaultTaskTitle', { handle: citizenHandle });
+    const title = taskTitles[socialMessageId]?.trim() || t('social.defaultTaskTitle', { handle: citizenHandle })
 
     try {
       await api.convertSocialMessageToTask(socialMessageId, {
@@ -77,147 +97,116 @@ export function SocialMessagesPage() {
         description: t('social.defaultTaskDescription', { handle: citizenHandle }),
         priority: 'Normal',
         dueDateUtc: null,
-      });
-      await reload();
-    } catch (e) {
-      setError((e as Error).message);
+      })
+      await reload()
+    } catch (convertError) {
+      setError(convertError instanceof Error ? convertError.message : t('common.error'))
     }
-  };
+  }
 
-  const getChannelIcon = (channel: string) => {
-    switch (channel) {
-      case 'Twitter': return '🐦';
-      case 'Facebook': return '📘';
-      case 'Instagram': return '📷';
-      case 'WhatsApp': return '💬';
-      default: return '📱';
-    }
-  };
+  const summary = {
+    total: messages.length,
+    routed: messages.filter(message => message.status === 'Routed').length,
+    converted: messages.filter(message => message.status === 'ConvertedToTask').length,
+  }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'New': return 'badge info';
-      case 'Categorized': return 'badge';
-      case 'Routed': return 'badge warning';
-      case 'ConvertedToTask': return 'badge success';
-      case 'Closed': return 'badge';
-      default: return 'badge';
-    }
-  };
-
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
-  if (error) return <div className="error">{t('common.error')}: {error}</div>;
+  if (loading) {
+    return <div className="loading">{t('common.loading')}</div>
+  }
 
   return (
-    <div className="page">
-      <h1>📱 {t('social.title')}</h1>
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>{t('social.channel')}</th>
-              <th>{t('social.sender')}</th>
-              <th>{t('social.category')}</th>
-              <th>{t('common.status')}</th>
-              <th>{t('social.date')}</th>
-              <th>{t('common.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {messages.map(msg => (
-              <tr key={msg.socialMessageId}>
-                <td>{getChannelIcon(msg.channel)} {getSocialChannelLabel(t, msg.channel)}</td>
-                <td>@{msg.citizenHandle}</td>
-                <td>{msg.category || '-'}</td>
-                <td><span className={getStatusBadge(msg.status)}>{getSocialStatusLabel(t, msg.status)}</span></td>
-                <td>{new Date(msg.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
-                <td className="actions">
-                  {!msg.taskId && (
-                    <div className="table-actions">
-                      <select
-                        aria-label={`Mesaj departman seç ${msg.citizenHandle}`}
-                        value={routeDrafts[msg.socialMessageId]?.departmentId ?? msg.assignedDepartmentId ?? ''}
-                        onChange={e => {
-                          const departmentId = e.target.value;
-                          setRouteDrafts(current => ({
-                            ...current,
-                            [msg.socialMessageId]: {
-                              departmentId,
-                              userId: current[msg.socialMessageId]?.userId ?? '',
-                            },
-                          }));
-                          setRouteQueries(current => ({ ...current, [msg.socialMessageId]: '' }));
-                        }}
-                      >
-                        <option value="">{t('tasks.draftDepartment')}</option>
-                        {departments.map(department => (
-                          <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                        ))}
-                      </select>
-                      <AutocompleteField
-                        ariaLabel={`Mesaj kullanıcı seç ${msg.citizenHandle}`}
-                        emptyMessage={t('social.userSearchEmpty')}
-                        loadingMessage={t('common.loading')}
-                        options={getAssignableUsers(msg.socialMessageId, msg.assignedDepartmentId)
-                          .filter(user => {
-                            const currentQuery = (routeQueries[msg.socialMessageId] ?? '').trim().toLowerCase();
-                            if (!currentQuery) {
-                              return true;
-                            }
+    <div className="page-stack">
+      <header className="page-header-row">
+        <div className="space-y-2">
+          <h1 className="page-title">{t('social.title')}</h1>
+          <p className="page-subtitle">{t('social.subtitle')}</p>
+        </div>
+        <div className="inline-actions">
+          <StatusPill>{summary.total} {t('social.total')}</StatusPill>
+          <StatusPill tone="info">{summary.routed} {t('social.routedSummary')}</StatusPill>
+          <StatusPill tone="success">{summary.converted} {t('social.convertedSummary')}</StatusPill>
+        </div>
+      </header>
 
-                            return user.displayName.toLowerCase().includes(currentQuery) || (user.email?.toLowerCase().includes(currentQuery) ?? false);
-                          })
-                          .map(user => ({
-                            id: user.userId,
-                            label: user.displayName,
-                            description: [user.email, getUserSourceLabel(t, user.userSource)].filter(Boolean).join(' • '),
-                          }))}
-                        placeholder={t('social.userSearchPlaceholder')}
-                        value={routeQueries[msg.socialMessageId] ?? ''}
-                        onOptionSelect={option => {
-                          setRouteDrafts(current => ({
-                            ...current,
-                            [msg.socialMessageId]: {
-                              departmentId: current[msg.socialMessageId]?.departmentId ?? msg.assignedDepartmentId ?? '',
-                              userId: option.id,
-                            },
-                          }));
-                          setRouteQueries(current => ({ ...current, [msg.socialMessageId]: option.label }));
-                        }}
-                        onValueChange={value => {
-                          setRouteQueries(current => ({ ...current, [msg.socialMessageId]: value }));
-                          if (!value.trim()) {
+      {error ? <div className="error">{t('common.error')}: {error}</div> : null}
+
+      <section className="section-card">
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('social.channel')}</th>
+                <th>{t('social.sender')}</th>
+                <th>{t('social.category')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('social.date')}</th>
+                <th>{t('common.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {messages.map(message => (
+                <tr key={message.socialMessageId}>
+                  <td>{getSocialChannelLabel(t, message.channel)}</td>
+                  <td className="font-semibold">@{message.citizenHandle}</td>
+                  <td>{message.category || t('common.none')}</td>
+                  <td><StatusPill tone={getStatusTone(message.status)}>{getSocialStatusLabel(t, message.status)}</StatusPill></td>
+                  <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
+                  <td>
+                    {!message.taskId ? (
+                      <div className="table-stack">
+                        <select
+                          aria-label={t('social.departmentSelectionAria', { handle: message.citizenHandle })}
+                          className="field-select"
+                          value={routeDrafts[message.socialMessageId]?.departmentId ?? message.assignedDepartmentId ?? ''}
+                          onChange={event => {
+                            const departmentId = event.target.value
                             setRouteDrafts(current => ({
                               ...current,
-                              [msg.socialMessageId]: {
-                                departmentId: current[msg.socialMessageId]?.departmentId ?? msg.assignedDepartmentId ?? '',
-                                userId: '',
+                              [message.socialMessageId]: {
+                                departmentId,
                               },
-                            }));
-                          }
-                        }}
-                      />
-                      <button className="btn small" onClick={() => handleRoute(msg.socialMessageId)}>{t('social.route')}</button>
-                      <input
-                        aria-label={`Görev başlığı ${msg.citizenHandle}`}
-                        type="text"
-                        placeholder={t('social.taskTitlePlaceholder')}
-                        value={taskTitles[msg.socialMessageId] ?? ''}
-                        onChange={e => setTaskTitles(current => ({ ...current, [msg.socialMessageId]: e.target.value }))}
-                      />
-                      <button className="btn small success" onClick={() => handleConvert(msg.socialMessageId, msg.citizenHandle)}>{t('social.convert')}</button>
-                    </div>
-                  )}
-                  {msg.taskId && <span className="badge success">{t('social.converted')}</span>}
-                </td>
-              </tr>
-            ))}
-            {messages.length === 0 && (
-              <tr><td colSpan={6} className="text-center">{t('social.empty')}</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                            }))
+                          }}
+                        >
+                          <option value="">{t('tasks.draftDepartment')}</option>
+                          {departments.map(department => (
+                            <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                          ))}
+                        </select>
+                        <div className="inline-actions">
+                          <Button size="sm" type="button" onClick={() => handleRoute(message.socialMessageId)}>{t('social.route')}</Button>
+                        </div>
+                        <div className="inline-actions">
+                          <input
+                            aria-label={t('social.taskTitleAria', { handle: message.citizenHandle })}
+                            className="field-input"
+                            placeholder={t('social.taskTitlePlaceholder')}
+                            type="text"
+                            value={taskTitles[message.socialMessageId] ?? ''}
+                            onChange={event => setTaskTitles(current => ({ ...current, [message.socialMessageId]: event.target.value }))}
+                          />
+                          <Button size="sm" type="button" variant="success" onClick={() => handleConvert(message.socialMessageId, message.citizenHandle)}>
+                            {t('social.convert')}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <StatusPill tone="success">{t('social.converted')}</StatusPill>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {messages.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>
+                    <div className="empty-state">{t('social.empty')}</div>
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
-  );
+  )
 }

@@ -1,4 +1,3 @@
-
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -25,6 +24,17 @@ public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCom
             return false;
         }
 
+        if (task.CurrentStatus is WorkflowTaskStatus.Closed or WorkflowTaskStatus.Completed)
+        {
+            throw CreateValidationException(nameof(request.TaskId), "Kapali veya tamamlanmis gorev yeniden tamamlanamaz.");
+        }
+
+        await TaskWorkflowAuthorization.EnsureCanCompleteAsync(
+            _dbContext,
+            task,
+            request.ActorUserId,
+            cancellationToken);
+
         var utcNow = DateTimeOffset.UtcNow;
         task.CurrentStatus = WorkflowTaskStatus.Completed;
         task.CompletedAtUtc = utcNow;
@@ -44,5 +54,12 @@ public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCom
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return true;
+    }
+
+    private static ValidationException CreateValidationException(string propertyName, string message)
+    {
+        return new ValidationException([
+            new FluentValidation.Results.ValidationFailure(propertyName, message)
+        ]);
     }
 }

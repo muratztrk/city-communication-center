@@ -85,7 +85,8 @@ function parseJwtPayload(token: string): JwtPayload {
 
   const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
   const padded = normalized.padEnd(normalized.length + ((4 - normalized.length % 4) % 4), '=')
-  return JSON.parse(atob(padded)) as JwtPayload
+  const bytes = Uint8Array.from(atob(padded), c => c.charCodeAt(0))
+  return JSON.parse(new TextDecoder().decode(bytes)) as JwtPayload
 }
 
 function buildUserFromToken(token: string, tenantNameOverride?: string): AuthUser {
@@ -216,13 +217,22 @@ export function getStoredSession(): AuthSession | null {
     return null
   }
 
+  // Always rebuild user from the token so encoding fixes apply immediately.
+  // Keep tenantName from stored user since it may come from a login-time override.
+  let user: AuthUser
+  try {
+    user = buildUserFromToken(accessToken, parsedUser.tenantName)
+  } catch {
+    user = parsedUser
+  }
+
   const expiresAtValue = readStoredValue(TOKEN_EXPIRES_AT_KEY)
   const expiresAt = expiresAtValue ? Number(expiresAtValue) : getTokenExpiry(accessToken)
 
   return {
     accessToken,
     expiresAt: Number.isFinite(expiresAt) ? expiresAt : getTokenExpiry(accessToken),
-    user: parsedUser,
+    user,
   }
 }
 

@@ -11,6 +11,7 @@ import {
   verifyInteractiveAuthentication,
 } from '../api/auth'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
+import { LanguageSwitcher } from '../components/layout/LanguageSwitcher'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
@@ -284,9 +285,14 @@ export function LoginPage() {
 
         <section className="flex items-start justify-center overflow-y-auto bg-[color:var(--color-surface)]/92 px-5 py-5 sm:px-7 lg:px-6">
           <div className="w-full max-w-[25rem] space-y-4">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-extrabold text-slate-950 sm:text-3xl">{t('login.formTitle')}</h2>
-              <p className="text-sm leading-7 text-slate-600">{t('login.formDescription')}</p>
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-extrabold text-slate-950 sm:text-3xl">{t('login.formTitle')}</h2>
+                <p className="text-sm leading-7 text-slate-600">{t('login.formDescription')}</p>
+              </div>
+              <div className="shrink-0 pt-1">
+                <LanguageSwitcher variant="light" />
+              </div>
             </div>
 
             {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{error}</div> : null}

@@ -14,6 +14,7 @@ export function AppShell() {
   const { user, logout } = useAuth()
 
   const institutionName = user?.tenantName || 'Tire Belediyesi'
+  const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
   const navItems = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
@@ -36,7 +37,7 @@ export function AppShell() {
               <MunicipalitySeal alt={`${institutionName} logo`} />
               <div className="space-y-1">
                 <div className="text-[1.65rem] font-extrabold text-white">{institutionName}</div>
-                <p className="text-sm text-white/68">{t('shell.subtitle')}</p>
+                <p className="text-sm text-white/68">{t('shell.subtitle', { municipalityName })}</p>
               </div>
             </div>
           </div>
@@ -45,11 +46,16 @@ export function AppShell() {
 
           <div className="mt-auto space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-4">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/52">{t('shell.liveTenant')}</div>
-            <div className="space-y-1">
-              <div className="text-base font-semibold text-white">{user?.displayName}</div>
-              <div className="text-sm text-white/70">{getRoleLabel(t, user?.role ?? '')}</div>
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-sm font-bold text-white">
+                {user?.displayName?.[0]?.toUpperCase() ?? '?'}
+              </div>
+              <div className="min-w-0 space-y-0.5">
+                <div className="truncate text-sm font-semibold text-white">{user?.displayName}</div>
+                <div className="truncate text-xs text-white/60">{getRoleLabel(t, user?.role ?? '')}</div>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 pt-2">
+            <div className="flex items-center justify-between gap-2 pt-1">
               <LanguageSwitcher />
               <Button
                 variant="secondary"

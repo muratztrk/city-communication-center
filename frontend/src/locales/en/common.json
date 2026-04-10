@@ -2,7 +2,7 @@
   "language": {
     "label": "Language",
     "options": {
-      "tr": "Turkce",
+      "tr": "Turkish",
       "en": "English"
     }
   },
@@ -78,7 +78,7 @@
     "settings": "Settings"
   },
   "shell": {
-    "subtitle": "Communication Center",
+    "subtitle": "{{municipalityName}} Communication Center",
     "liveTenant": "Active User",
     "logout": "Sign Out",
     "language": "Language selector"

@@ -1,4 +1,20 @@
 services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_DB=${CCC_DB_NAME:-city_communication_center}
+      - POSTGRES_USER=${CCC_DB_USER:-ccc}
+      - POSTGRES_PASSWORD=${CCC_DB_PASSWORD:-P@ssw0rd}
+    ports:
+      - "${CCC_DB_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CCC_DB_USER:-ccc} -d ${CCC_DB_NAME:-city_communication_center}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   api:
     build:
       context: ./backend
@@ -20,7 +36,9 @@ services:
       - "${CCC_API_HOST_PORT:-15000}:${CCC_API_CONTAINER_PORT:-80}"
     volumes:
       - dataprotection_keys:/var/lib/city-communication-center/dataprotection
-    depends_on: []
+    depends_on:
+      postgres:
+        condition: service_healthy
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -37,5 +55,7 @@ services:
       - api
 
 volumes:
+  postgres_data:
+    name: ${CCC_DB_VOLUME_NAME:-city-communication-center-postgres18-data}
   dataprotection_keys:
     name: ${CCC_DP_KEYS_VOLUME_NAME:-city-communication-center-dataprotection-keys}

@@ -78,7 +78,7 @@
     "settings": "Ayarlar"
   },
   "shell": {
-    "subtitle": "İletişim Merkezi",
+    "subtitle": "{{municipalityName}} İletişim Merkezi",
     "liveTenant": "Aktif Kullanıcı",
     "logout": "Çıkış",
     "language": "Dil seçici"
@@ -292,6 +292,7 @@
     "organizationName": "Kurum Adı",
     "domain": "Alan Adı",
     "domainNotConfigured": "Tanımlanmadı",
+    "deploymentMode": "Dağıtım Modu",
     "sla": "Varsayılan SLA",
     "hours": "saat",
     "organizationSaveSuccess": "Kurum ayarları kaydedildi.",
@@ -519,6 +520,11 @@
     "userSource": {
       "Manual": "Yerel",
       "Ldap": "LDAP"
+    },
+    "deploymentMode": {
+      "OnPrem": "Şirket İçi",
+      "Hosted": "Barındırılan",
+      "DedicatedHosted": "Özel Barındırılan"
     }
   }
 }

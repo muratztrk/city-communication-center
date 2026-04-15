@@ -301,7 +301,7 @@ export function LoginPage() {
               <MunicipalitySeal compact alt={`${institutionName} logo`} />
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold text-slate-950">{institutionName}</div>
-                <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{t('shell.subtitle')}</div>
+                <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{t('shell.subtitle', { municipalityName: institutionName.replace(/\s+Belediyesi?$/i, '').trim() })}</div>
               </div>
             </div>
 

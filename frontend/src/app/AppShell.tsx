@@ -13,19 +13,17 @@ export function AppShell() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return window.localStorage.getItem('ccc_sidebar_collapsed') === 'true'
+  })
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-
-  useEffect(() => {
-    const storedValue = window.localStorage.getItem('ccc_sidebar_collapsed')
-    setIsSidebarCollapsed(storedValue === 'true')
-  }, [])
 
   useEffect(() => {
     window.localStorage.setItem('ccc_sidebar_collapsed', String(isSidebarCollapsed))
   }, [isSidebarCollapsed])
 
   const institutionName = user?.tenantName || 'Tire Belediyesi'
+  const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
   const navItems = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
@@ -113,7 +111,7 @@ export function AppShell() {
               {!isSidebarCollapsed ? (
                 <div className="min-w-0">
                   <div className="truncate text-sm font-bold text-white">{institutionName}</div>
-                  <div className="truncate text-xs text-white/68">{t('shell.subtitle')}</div>
+                  <div className="truncate text-xs text-white/68">{t('shell.subtitle', { municipalityName })}</div>
                 </div>
               ) : null}
             </div>

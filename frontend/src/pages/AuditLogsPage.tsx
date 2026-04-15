@@ -57,19 +57,21 @@ export function AuditLogsPage() {
   }
 
   return (
-    <div className="page-stack">
-      <header className="page-header-row">
-        <div className="space-y-2">
-          <h1 className="page-title">{t('audit.title')}</h1>
-          <p className="page-subtitle">{t('audit.subtitle')}</p>
+    <div className="page-stack desktop-page-shell">
+      <header className="sticky-page-header">
+        <div className="page-header-row">
+          <div className="space-y-1">
+            <h1 className="page-title">{t('audit.title')}</h1>
+            <p className="page-subtitle">{t('audit.subtitle')}</p>
+          </div>
+          <StatusPill tone="info">{logs.length} {t('audit.recordCount')}</StatusPill>
         </div>
-        <StatusPill tone="info">{logs.length} {t('audit.recordCount')}</StatusPill>
       </header>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
-      <section className="section-card">
-        <div className="table-wrap">
+      <section className="section-card desktop-page-fill">
+        <div className="table-wrap desktop-panel-scroll">
           <table className="data-table">
             <thead>
               <tr>

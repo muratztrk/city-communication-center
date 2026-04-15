@@ -18,9 +18,9 @@ function LoadingScreen() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="surface-panel rounded-[var(--radius-2xl)] px-8 py-8 text-center">
-        <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[color:var(--color-primary)]/20 border-t-[color:var(--color-primary)]" />
-        <p className="mt-4 text-sm font-semibold text-slate-600">{t('common.loading')}</p>
+      <div className="surface-panel rounded-[var(--radius-2xl)] border border-[var(--color-border)] px-6 py-6 text-center shadow-[var(--shadow-soft)]">
+        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[color:var(--color-primary)]/15 border-t-[color:var(--color-primary)]" />
+        <p className="mt-4 text-sm font-semibold text-[color:var(--color-muted-foreground)]">{t('common.loading')}</p>
       </div>
     </div>
   )

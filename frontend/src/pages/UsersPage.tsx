@@ -230,35 +230,37 @@ export function UsersPage() {
   }
 
   return (
-    <div className="page-stack">
-      <header className="page-header-row">
-        <div className="space-y-2">
-          <h1 className="page-title">{t('users.title')}</h1>
-          <p className="page-subtitle">{t('users.subtitle')}</p>
+    <div className="page-stack desktop-page-shell">
+      <header className="sticky-page-header">
+        <div className="page-header-row">
+          <div className="space-y-1">
+            <h1 className="page-title">{t('users.title')}</h1>
+            <p className="page-subtitle">{t('users.subtitle')}</p>
+          </div>
+          {canManageUsers ? (
+            <Button type="button" onClick={showForm ? closeCreateForm : openCreateForm}>
+              {showForm ? t('common.cancel') : t('users.new')}
+            </Button>
+          ) : null}
         </div>
-        {canManageUsers ? (
-          <Button type="button" onClick={showForm ? closeCreateForm : openCreateForm}>
-            {showForm ? t('common.cancel') : t('users.new')}
-          </Button>
-        ) : null}
       </header>
 
       <section className="metric-grid">
         <div className="section-card">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-              <Users className="size-5" />
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+              <Users className="size-4.5" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-slate-500">{t('users.summary.total')}</div>
-              <div className="mt-3 text-4xl font-extrabold text-slate-950">{summary.total}</div>
+              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('users.summary.total')}</div>
+              <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{summary.total}</div>
             </div>
           </div>
         </div>
         <div className="section-card">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-              <ShieldUser className="size-5" />
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-success)]/10 text-[color:var(--color-success)]">
+              <ShieldUser className="size-4.5" />
             </div>
             <div className="inline-actions">
               <StatusPill tone="success">{summary.active} {t('users.summary.active')}</StatusPill>
@@ -438,8 +440,8 @@ export function UsersPage() {
         </form>
       ) : null}
 
-      <section className="section-card">
-        <div className="table-wrap">
+      <section className="section-card desktop-page-fill">
+        <div className="table-wrap desktop-panel-scroll">
           <table className="data-table">
             <thead>
               <tr>

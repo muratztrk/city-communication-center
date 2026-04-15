@@ -10,14 +10,16 @@ interface SidebarNavItem {
 
 interface SidebarNavProps {
   items: SidebarNavItem[]
+  collapsed?: boolean
+  onNavigate?: () => void
 }
 
-export function SidebarNav({ items }: SidebarNavProps) {
+export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavProps) {
   const location = useLocation()
   const navigate = useNavigate()
 
   return (
-    <nav className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
+    <nav className="grid gap-1.5">
       {items.map(item => {
         const isActive = location.pathname.startsWith(item.path)
         const Icon = item.icon
@@ -26,16 +28,21 @@ export function SidebarNav({ items }: SidebarNavProps) {
           <button
             key={item.path}
             type="button"
+            title={collapsed ? item.label : undefined}
             className={cn(
-              'flex w-full min-w-0 items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition',
+              'flex w-full min-w-0 items-center rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-colors duration-150',
+              collapsed ? 'justify-center gap-0 px-0' : 'gap-3',
               isActive
-                ? 'bg-white text-slate-950 shadow-[0_14px_34px_rgba(16,47,74,0.18)]'
-                : 'text-[color:var(--color-sidebar-foreground)]/80 hover:bg-white/10 hover:text-white',
+                ? 'border-white/10 bg-white text-slate-950 shadow-sm'
+                : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',
             )}
-            onClick={() => navigate(item.path)}
+            onClick={() => {
+              navigate(item.path)
+              onNavigate?.()
+            }}
           >
             <Icon className="size-4.5 shrink-0" />
-            <span className="truncate">{item.label}</span>
+            {!collapsed ? <span className="truncate">{item.label}</span> : null}
           </button>
         )
       })}

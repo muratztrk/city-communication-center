@@ -11,7 +11,7 @@
     "refreshing": "Canlı veriler yenileniyor",
     "error": "Bir hata oluştu.",
     "save": "Kaydet",
-    "cancel": "ptal",
+    "cancel": "İptal",
     "create": "Oluştur",
     "close": "Kapat",
     "edit": "Düzenle",
@@ -78,14 +78,14 @@
     "settings": "Ayarlar"
   },
   "shell": {
-    "subtitle": "letişim Merkezi",
+    "subtitle": "İletişim Merkezi",
     "liveTenant": "Aktif Kullanıcı",
     "logout": "Çıkış",
     "language": "Dil seçici"
   },
   "login": {
     "organizationFallback": "Tire Belediyesi",
-    "title": "Belediye letişim Merkezi",
+    "title": "Belediye İletişim Merkezi",
     "subtitle": "Sosyal medya ve görev akışına erişmek için giriş yapın.",
     "heroCardDashboard": "Kontrol Paneli",
     "heroCardTasks": "Görevler",
@@ -307,7 +307,7 @@
     "appearanceDescription": "Giriş ve uygulama kabuğunda kullanılacak renk paletini düzenleyin.",
     "themePreset": "Tema Ön Ayarı",
     "primaryColor": "Ana Renk",
-    "secondaryColor": "kincil Renk",
+    "secondaryColor": "İkincil Renk",
     "accentColor": "Vurgu Rengi",
     "neutralColor": "Nötr Renk",
     "surfaceColor": "Yüzey Rengi",
@@ -465,14 +465,14 @@
     },
     "taskType": {
       "CitizenRequest": "Vatandaş Talebi",
-      "InternalRequest": "ç Talep",
+      "InternalRequest": "İç Talep",
       "ApprovalTask": "Onay Görevi"
     },
     "taskStatus": {
       "Draft": "Taslak",
       "PendingApproval": "Onay Bekliyor",
       "Assigned": "Atandı",
-      "InProgress": "şlemde",
+      "InProgress": "İşlemde",
       "Completed": "Tamamlandı",
       "Closed": "Kapatıldı",
       "Rejected": "Reddedildi"

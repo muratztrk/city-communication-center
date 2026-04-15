@@ -1,4 +1,4 @@
-﻿import { ArrowRight, Building2, ChartBarBig, ClipboardList, MessageSquareMore, UserRound } from 'lucide-react'
+import { ArrowRight, Building2, ChartBarBig, ClipboardList, MessageSquareMore, UserRound } from 'lucide-react'
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -71,45 +71,50 @@ export function DashboardPage() {
   ]
 
   return (
-    <div className="page-stack">
-      <header className="page-header-row">
-        <div className="space-y-2">
-          <h1 className="page-title">{t('dashboard.title')}</h1>
-          <p className="page-subtitle">{t('dashboard.subtitle')}</p>
+    <div className="page-stack desktop-page-shell">
+      <section className="section-card overflow-hidden p-0">
+        <div className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto]" style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}>
+          <div className="space-y-1">
+            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('dashboard.liveSummary')}</div>
+            <h1 className="page-title !text-white">{t('dashboard.title')}</h1>
+            <p className="max-w-3xl text-sm leading-6 text-white/82">{t('dashboard.subtitle')}</p>
+          </div>
+          <div className="flex items-start justify-start lg:justify-end">
+            <StatusPill tone="info" className="bg-white/12 text-white ring-white/15">
+              {dashboardQuery.isFetching || tasksQuery.isFetching || socialQuery.isFetching ? t('common.refreshing') : t('dashboard.liveSummary')}
+            </StatusPill>
+          </div>
         </div>
-        <StatusPill tone="info">
-          {dashboardQuery.isFetching || tasksQuery.isFetching || socialQuery.isFetching ? t('common.refreshing') : t('dashboard.liveSummary')}
-        </StatusPill>
-      </header>
+
+        <div className="grid gap-3 p-3.5 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => {
+            const metric = metrics[index]
+            const Icon = metric?.icon ?? ClipboardList
+
+            return (
+              <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 shadow-[var(--shadow-edge)]" key={metric?.label ?? index}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{metric?.label ?? t('common.loading')}</div>
+                    <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{metric?.value ?? '...'}</div>
+                  </div>
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+                    <Icon className="size-4.5" />
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
 
       {dashboardQuery.isError ? <div className="error">{dashboardQuery.error instanceof Error ? dashboardQuery.error.message : t('common.error')}</div> : null}
 
-      <section className="metric-grid">
-        {Array.from({ length: 4 }).map((_, index) => {
-          const metric = metrics[index]
-          const Icon = metric?.icon ?? ClipboardList
-
-          return (
-            <div className="section-card" key={metric?.label ?? index}>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-sm font-semibold text-slate-500">{metric?.label ?? t('common.loading')}</div>
-                  <div className="mt-3 text-3xl font-extrabold text-slate-950 sm:text-4xl">{metric?.value ?? '...'}</div>
-                </div>
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-                  <Icon className="size-5" />
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+      <section className="grid gap-3.5 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
         <div className="section-card page-stack">
           <div className="page-header-row">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-950">{t('dashboard.recentTasksTitle')}</h2>
+              <h2 className="text-lg font-extrabold text-slate-950">{t('dashboard.recentTasksTitle')}</h2>
               <p className="helper-copy">{t('dashboard.recentTasksBody')}</p>
             </div>
             <Button size="sm" variant="secondary" onClick={() => navigate('/tasks')}>
@@ -120,15 +125,15 @@ export function DashboardPage() {
             {recentTasks.length === 0 ? <div className="empty-state">{t('dashboard.recentTasksEmpty')}</div> : null}
             {recentTasks.map(task => (
               <button
-                className="rounded-[var(--radius-xl)] border border-slate-200 bg-slate-50/72 p-4 text-left transition hover:-translate-y-0.5 hover:bg-white"
+                className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/45 px-3.5 py-3 text-left transition-colors hover:bg-white"
                 key={task.taskId}
                 type="button"
                 onClick={() => navigate('/tasks')}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-semibold text-slate-950">{task.title}</div>
-                    <div className="mt-1 text-sm text-slate-500">{task.description || t('dashboard.noTaskDescription')}</div>
+                    <div className="text-sm font-semibold text-slate-950">{task.title}</div>
+                    <div className="mt-0.5 text-xs text-[color:var(--color-muted-foreground)]">{task.description || t('dashboard.noTaskDescription')}</div>
                   </div>
                   <StatusPill tone={getTaskTone(task.currentStatus)}>{getTaskStatusLabel(t, task.currentStatus)}</StatusPill>
                 </div>
@@ -140,7 +145,7 @@ export function DashboardPage() {
         <div className="section-card page-stack">
           <div className="page-header-row">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-950">{t('dashboard.recentMessagesTitle')}</h2>
+              <h2 className="text-lg font-extrabold text-slate-950">{t('dashboard.recentMessagesTitle')}</h2>
               <p className="helper-copy">{t('dashboard.recentMessagesBody')}</p>
             </div>
             <Button size="sm" variant="secondary" onClick={() => navigate('/social')}>
@@ -151,15 +156,15 @@ export function DashboardPage() {
             {recentMessages.length === 0 ? <div className="empty-state">{t('dashboard.recentMessagesEmpty')}</div> : null}
             {recentMessages.map(message => (
               <button
-                className="rounded-[var(--radius-xl)] border border-slate-200 bg-slate-50/72 p-4 text-left transition hover:-translate-y-0.5 hover:bg-white"
+                className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/45 px-3.5 py-3 text-left transition-colors hover:bg-white"
                 key={message.socialMessageId}
                 type="button"
                 onClick={() => navigate('/social')}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-semibold text-slate-950">@{message.citizenHandle}</div>
-                    <div className="mt-1 text-sm text-slate-500">
+                    <div className="text-sm font-semibold text-slate-950">@{message.citizenHandle}</div>
+                    <div className="mt-0.5 text-xs text-[color:var(--color-muted-foreground)]">
                       {new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}
                     </div>
                   </div>
@@ -173,30 +178,30 @@ export function DashboardPage() {
 
       <section className="page-stack">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-950">{t('dashboard.quickAreasTitle')}</h2>
+          <h2 className="text-lg font-extrabold text-slate-950">{t('dashboard.quickAreasTitle')}</h2>
           <p className="helper-copy">{t('dashboard.quickAreasBody')}</p>
         </div>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-3">
           {quickLinks.map(link => {
             const Icon = link.icon
 
             return (
               <button
-                className="section-card flex items-center justify-between gap-4 text-left transition hover:-translate-y-0.5"
+                className="section-card flex items-center justify-between gap-3 text-left transition-colors hover:bg-white"
                 key={link.title}
                 type="button"
                 onClick={link.onClick}
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-                    <Icon className="size-5" />
+                <div className="flex items-start gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+                    <Icon className="size-4.5" />
                   </div>
                   <div>
-                    <div className="text-base font-extrabold text-slate-950">{link.title}</div>
-                    <div className="mt-1 text-sm text-slate-500">{link.body}</div>
+                    <div className="text-sm font-bold text-slate-950">{link.title}</div>
+                    <div className="mt-0.5 text-xs text-[color:var(--color-muted-foreground)]">{link.body}</div>
                   </div>
                 </div>
-                <ArrowRight className="size-5 text-slate-400" />
+                <ArrowRight className="size-4 text-[color:var(--color-muted-foreground)]" />
               </button>
             )
           })}

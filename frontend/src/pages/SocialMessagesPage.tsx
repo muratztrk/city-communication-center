@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
@@ -115,23 +115,25 @@ export function SocialMessagesPage() {
   }
 
   return (
-    <div className="page-stack">
-      <header className="page-header-row">
-        <div className="space-y-2">
-          <h1 className="page-title">{t('social.title')}</h1>
-          <p className="page-subtitle">{t('social.subtitle')}</p>
-        </div>
-        <div className="inline-actions">
-          <StatusPill>{summary.total} {t('social.total')}</StatusPill>
-          <StatusPill tone="info">{summary.routed} {t('social.routedSummary')}</StatusPill>
-          <StatusPill tone="success">{summary.converted} {t('social.convertedSummary')}</StatusPill>
+    <div className="page-stack desktop-page-shell">
+      <header className="sticky-page-header">
+        <div className="page-header-row">
+          <div className="space-y-1">
+            <h1 className="page-title">{t('social.title')}</h1>
+            <p className="page-subtitle">{t('social.subtitle')}</p>
+          </div>
+          <div className="inline-actions">
+            <StatusPill>{summary.total} {t('social.total')}</StatusPill>
+            <StatusPill tone="info">{summary.routed} {t('social.routedSummary')}</StatusPill>
+            <StatusPill tone="success">{summary.converted} {t('social.convertedSummary')}</StatusPill>
+          </div>
         </div>
       </header>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
-      <section className="section-card">
-        <div className="table-wrap">
+      <section className="section-card desktop-page-fill">
+        <div className="table-wrap desktop-panel-scroll">
           <table className="data-table">
             <thead>
               <tr>

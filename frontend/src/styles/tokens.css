@@ -2,19 +2,27 @@
   --font-sans: 'Manrope', sans-serif;
   --font-display: 'Manrope', sans-serif;
 
-  --color-primary: #0f4c81;
-  --color-secondary: #2b6ea6;
-  --color-accent: #c6932d;
-  --color-neutral: #6a7786;
+  --color-primary: #0b4f7a;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #2c678f;
+  --color-accent: #c59a37;
+  --color-neutral: #5b6775;
+  --color-muted: #eef2f6;
+  --color-muted-foreground: #66758a;
   --color-surface: #ffffff;
-  --color-background: #eef3f8;
-  --color-header-from: #123b63;
-  --color-header-to: #356f99;
-  --color-sidebar: #102f4a;
-  --color-sidebar-foreground: #f6f8fb;
+  --color-background: #f5f7fa;
+  --color-header-from: #103a5b;
+  --color-header-to: #2f658d;
+  --color-sidebar: #0c2d48;
+  --color-sidebar-foreground: #f8fbfd;
+  --color-border: #dbe3ec;
+  --color-ring: #0b4f7a;
+  --color-destructive: #c3382a;
+  --color-success: #16784f;
+  --color-warning: #b7791f;
 
-  --shadow-soft: 0 22px 48px rgba(16, 47, 74, 0.14);
-  --shadow-edge: 0 12px 30px rgba(12, 31, 49, 0.1);
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.75rem;
+  --shadow-soft: 0 14px 32px rgba(10, 32, 51, 0.08);
+  --shadow-edge: 0 6px 18px rgba(10, 32, 51, 0.06);
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
 }

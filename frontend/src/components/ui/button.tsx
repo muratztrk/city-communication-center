@@ -4,20 +4,20 @@ import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]/40 disabled:pointer-events-none disabled:opacity-60 active:translate-y-px',
+  'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-ring)]/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60',
   {
     variants: {
       variant: {
-        primary: 'bg-[var(--color-primary)] text-white shadow-[0_12px_30px_rgba(15,76,129,0.24)] hover:-translate-y-0.5',
-        secondary: 'bg-white/80 text-slate-800 ring-1 ring-slate-200 hover:bg-white',
-        ghost: 'bg-transparent text-slate-700 hover:bg-white/70',
-        success: 'bg-emerald-600 text-white shadow-[0_10px_24px_rgba(5,150,105,0.24)] hover:-translate-y-0.5',
-        danger: 'bg-rose-600 text-white shadow-[0_10px_24px_rgba(225,29,72,0.24)] hover:-translate-y-0.5',
+        primary: 'bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm hover:bg-[var(--color-secondary)]',
+        secondary: 'bg-white text-slate-800 ring-1 ring-[var(--color-border)] hover:bg-slate-50',
+        ghost: 'bg-transparent text-slate-700 hover:bg-slate-100',
+        success: 'bg-[var(--color-success)] text-white shadow-sm hover:brightness-95',
+        danger: 'bg-[var(--color-destructive)] text-white shadow-sm hover:brightness-95',
       },
       size: {
-        default: 'h-11 px-5 text-sm',
-        lg: 'h-13 px-6 text-base',
-        sm: 'h-9 px-4 text-sm',
+        default: 'h-10 px-4 text-sm',
+        lg: 'h-11 px-5 text-sm',
+        sm: 'h-8 px-3 text-xs',
       },
     },
     defaultVariants: {

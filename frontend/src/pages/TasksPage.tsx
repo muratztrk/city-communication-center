@@ -1,4 +1,4 @@
-﻿import { ClipboardCheck, ClipboardList, CircleCheckBig, Hourglass } from 'lucide-react'
+import { ClipboardCheck, ClipboardList, CircleCheckBig, Hourglass } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -367,50 +367,76 @@ export function TasksPage() {
   }
 
   return (
-    <div className="page-stack">
-      <header className="page-header-row">
-        <div className="space-y-2">
-          <h1 className="page-title">{t('tasks.title')}</h1>
-          <p className="page-subtitle">{t('tasks.subtitle')}</p>
+    <div className="page-stack desktop-page-shell min-h-[calc(100dvh-5rem)] lg:min-h-0">
+      <section className="section-card overflow-hidden p-0">
+        <div
+          className="grid gap-4 border-b border-white/10 px-4 py-5 text-white sm:px-5 xl:grid-cols-[minmax(0,1fr)_auto]"
+          style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
+        >
+          <div className="space-y-2">
+            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/68">{t(activeScopeOption.labelKey)}</div>
+            <h1 className="page-title !text-white">{t('tasks.title')}</h1>
+            <p className="max-w-3xl text-sm leading-6 text-white/82">{t('tasks.subtitle')}</p>
+          </div>
+          <div className="flex flex-wrap items-start justify-start gap-2 xl:justify-end">
+            <StatusPill tone="info" className="bg-white/12 text-white ring-white/15">
+              {t('tasks.summary.total')}: {tasks.length}
+            </StatusPill>
+            <Button type="button" onClick={() => setShowForm(current => !current)}>
+              {showForm ? t('tasks.newCancel') : t('tasks.new')}
+            </Button>
+          </div>
         </div>
-        <Button type="button" onClick={() => setShowForm(current => !current)}>
-          {showForm ? t('tasks.newCancel') : t('tasks.new')}
-        </Button>
-      </header>
 
-      <section className="section-card page-stack">
-        <div>
-          <h2 className="text-lg font-extrabold text-slate-950">{t(activeScopeOption.labelKey)}</h2>
-          <p className="helper-copy">{t(activeScopeOption.descriptionKey)}</p>
-        </div>
-        <div className="tab-bar" role="tablist" aria-label={t('tasks.scopeSelector')}>
-          {scopeOptions.map(option => (
-            <button
-              key={option.value}
-              aria-selected={activeScope === option.value}
-              className={`tab-button ${activeScope === option.value ? 'active' : ''}`}
-              role="tab"
-              type="button"
-              onClick={() => updateScope(option.value)}
-            >
-              {t(option.labelKey)}
-            </button>
-          ))}
+        <div className="grid gap-4 px-4 py-4 sm:px-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="space-y-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-950">{t(activeScopeOption.labelKey)}</h2>
+              <p className="helper-copy">{t(activeScopeOption.descriptionKey)}</p>
+            </div>
+            <div className="tab-bar" role="tablist" aria-label={t('tasks.scopeSelector')}>
+              {scopeOptions.map(option => (
+                <button
+                  key={option.value}
+                  aria-selected={activeScope === option.value}
+                  className={`tab-button ${activeScope === option.value ? 'active' : ''}`}
+                  role="tab"
+                  type="button"
+                  onClick={() => updateScope(option.value)}
+                >
+                  {t(option.labelKey)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 p-3">
+              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('tasks.scopeSelector')}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-950">{t(activeScopeOption.labelKey)}</div>
+              <div className="mt-2 text-xs leading-5 text-[color:var(--color-muted-foreground)]">{t(activeScopeOption.descriptionKey)}</div>
+            </div>
+            <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 p-3">
+              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('tasks.summary.total')}</div>
+              <div className="mt-1 text-3xl font-extrabold text-slate-950">{tasks.length}</div>
+              <div className="mt-2 text-xs leading-5 text-[color:var(--color-muted-foreground)]">{getRoleLabel(t, currentUser?.role ?? '')}</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="metric-grid">
+      <section className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
         {summaryCards.map(item => {
           const Icon = item.icon
           return (
-            <div className="section-card" key={item.label}>
-              <div className="flex items-start justify-between gap-4">
+            <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white p-4 shadow-[var(--shadow-edge)]" key={item.label}>
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-slate-500">{item.label}</div>
-                  <div className="mt-3 text-4xl font-extrabold text-slate-950">{item.value}</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{item.label}</div>
+                  <div className="mt-2 text-3xl font-extrabold text-slate-950">{item.value}</div>
                 </div>
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-                  <Icon className="size-5" />
+                <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+                  <Icon className="size-4.5" />
                 </div>
               </div>
             </div>
@@ -421,80 +447,90 @@ export function TasksPage() {
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
       {showForm ? (
-        <form className="form-card page-stack" onSubmit={handleCreate}>
-          <div>
+        <form className="section-card overflow-hidden p-0" onSubmit={handleCreate}>
+          <div className="border-b border-[var(--color-border)] bg-[color:var(--color-muted)]/45 px-4 py-4 sm:px-5">
             <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.newFormTitle')}</h2>
-            <p className="helper-copy">{t('tasks.newFormDescription')}</p>
+            <p className="helper-copy mt-1">{t('tasks.newFormDescription')}</p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
+          <div className="grid gap-4 px-4 py-4 sm:px-5">
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('tasks.titleLabel')}</span>
+                <input
+                  className="field-input"
+                  id="task-title"
+                  placeholder={t('tasks.titlePlaceholder')}
+                  type="text"
+                  value={newTask.title}
+                  onChange={event => setNewTask(current => ({ ...current, title: event.target.value }))}
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('tasks.priority')}</span>
+                <select
+                  className="field-select"
+                  id="task-priority"
+                  value={newTask.priority}
+                  onChange={event => setNewTask(current => ({ ...current, priority: event.target.value }))}
+                >
+                  <option value="Low">{getPriorityLabel(t, 'Low')}</option>
+                  <option value="Normal">{getPriorityLabel(t, 'Normal')}</option>
+                  <option value="High">{getPriorityLabel(t, 'High')}</option>
+                </select>
+              </label>
+            </div>
+
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('tasks.titleLabel')}</span>
-              <input
-                className="field-input"
-                id="task-title"
-                placeholder={t('tasks.titlePlaceholder')}
-                type="text"
-                value={newTask.title}
-                onChange={event => setNewTask(current => ({ ...current, title: event.target.value }))}
+              <span>{t('tasks.description')}</span>
+              <textarea
+                className="field-textarea"
+                id="task-description"
+                placeholder={t('tasks.descriptionPlaceholder')}
+                rows={3}
+                value={newTask.description}
+                onChange={event => setNewTask(current => ({ ...current, description: event.target.value }))}
               />
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('tasks.priority')}</span>
-              <select
-                className="field-select"
-                id="task-priority"
-                value={newTask.priority}
-                onChange={event => setNewTask(current => ({ ...current, priority: event.target.value }))}
-              >
-                <option value="Low">{getPriorityLabel(t, 'Low')}</option>
-                <option value="Normal">{getPriorityLabel(t, 'Normal')}</option>
-                <option value="High">{getPriorityLabel(t, 'High')}</option>
-              </select>
-            </label>
-          </div>
 
-          <label className="grid gap-2 text-sm font-semibold text-slate-700">
-            <span>{t('tasks.description')}</span>
-            <textarea
-              className="field-textarea"
-              id="task-description"
-              placeholder={t('tasks.descriptionPlaceholder')}
-              rows={3}
-              value={newTask.description}
-              onChange={event => setNewTask(current => ({ ...current, description: event.target.value }))}
-            />
-          </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('tasks.type')}</span>
+                <select className="field-select" id="task-type" value={newTask.taskType} onChange={event => setNewTask(current => ({ ...current, taskType: event.target.value }))}>
+                  <option value="InternalRequest">{getTaskTypeLabel(t, 'InternalRequest')}</option>
+                  <option value="CitizenRequest">{getTaskTypeLabel(t, 'CitizenRequest')}</option>
+                  <option value="ApprovalTask">{getTaskTypeLabel(t, 'ApprovalTask')}</option>
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('tasks.targetDepartment')}</span>
+                <select className="field-select" id="task-target-department" value={newTask.targetDepartmentId} onChange={event => setNewTask(current => ({ ...current, targetDepartmentId: event.target.value }))}>
+                  <option value="">{t('tasks.selectDepartment')}</option>
+                  {departments.map(department => (
+                    <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('tasks.type')}</span>
-              <select className="field-select" id="task-type" value={newTask.taskType} onChange={event => setNewTask(current => ({ ...current, taskType: event.target.value }))}>
-                <option value="InternalRequest">{getTaskTypeLabel(t, 'InternalRequest')}</option>
-                <option value="CitizenRequest">{getTaskTypeLabel(t, 'CitizenRequest')}</option>
-                <option value="ApprovalTask">{getTaskTypeLabel(t, 'ApprovalTask')}</option>
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('tasks.targetDepartment')}</span>
-              <select className="field-select" id="task-target-department" value={newTask.targetDepartmentId} onChange={event => setNewTask(current => ({ ...current, targetDepartmentId: event.target.value }))}>
-                <option value="">{t('tasks.selectDepartment')}</option>
-                {departments.map(department => (
-                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="inline-actions">
-            <Button type="submit">{t('common.create')}</Button>
-            <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
+            <div className="inline-actions">
+              <Button type="submit">{t('common.create')}</Button>
+              <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
+            </div>
           </div>
         </form>
       ) : null}
 
-      <section className="section-card">
-        <div className="table-wrap">
+      <section className="section-card overflow-hidden p-0 desktop-page-fill">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] bg-[color:var(--color-muted)]/45 px-4 py-3 sm:px-5">
+          <div>
+            <h2 className="text-base font-bold text-slate-950">{t(activeScopeOption.labelKey)}</h2>
+            <p className="helper-copy">{t(activeScopeOption.descriptionKey)}</p>
+          </div>
+          <StatusPill tone="info">{t('tasks.summary.total')}: {tasks.length}</StatusPill>
+        </div>
+
+        <div className="table-wrap desktop-panel-scroll max-h-[min(68dvh,52rem)] rounded-none border-0 lg:max-h-none">
           <table className="data-table">
             <thead>
               <tr>
@@ -523,7 +559,7 @@ export function TasksPage() {
                   <td>{getTargetDepartmentName(task)}</td>
                   <td>{getWorkflowDepartmentName(task)}</td>
                   <td>{getAssigneeLabel(task)}</td>
-                  <td>
+                  <td className="w-[18rem] min-w-[18rem]">
                     <div className="table-stack">
                       {task.currentStatus === 'Draft' ? (
                         <Button size="sm" type="button" onClick={() => handleAction(task.taskId, 'submit')}>{t('tasks.submit')}</Button>
@@ -537,57 +573,62 @@ export function TasksPage() {
                       ) : null}
 
                       {canManageWorkflow && (task.currentStatus === 'Draft' || task.currentStatus === 'Assigned') ? (
-                        <>
-                          <select
-                            aria-label={`${t('tasks.departmentSelection')} ${task.title}`}
-                            className="field-select"
-                            value={assignmentDrafts[task.taskId]?.departmentId ?? task.assignedDepartmentId ?? task.targetDepartmentId ?? ''}
-                            onChange={event => updateAssignmentDepartment(task.taskId, event.target.value)}
-                          >
-                            <option value="">{t('tasks.draftDepartment')}</option>
-                            {departments.map(department => (
-                              <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                            ))}
-                          </select>
-                          <AutocompleteField
-                            ariaLabel={`${t('tasks.userSelection')} ${task.title}`}
-                            emptyMessage={t('tasks.userSearchEmpty')}
-                            loadingMessage={t('common.loading')}
-                            options={getAssignableUsers(task.taskId, task)
-                              .filter(user => {
-                                const currentQuery = getUserSearchValue(task.taskId, task).trim().toLowerCase()
-                                if (!currentQuery) {
-                                  return true
-                                }
+                        <details className="rounded-lg border border-[var(--color-border)] bg-slate-50/80 p-2">
+                          <summary className="cursor-pointer list-none text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                            {t('common.actions')}
+                          </summary>
+                          <div className="mt-2 table-stack">
+                            <select
+                              aria-label={`${t('tasks.departmentSelection')} ${task.title}`}
+                              className="field-select"
+                              value={assignmentDrafts[task.taskId]?.departmentId ?? task.assignedDepartmentId ?? task.targetDepartmentId ?? ''}
+                              onChange={event => updateAssignmentDepartment(task.taskId, event.target.value)}
+                            >
+                              <option value="">{t('tasks.draftDepartment')}</option>
+                              {departments.map(department => (
+                                <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                              ))}
+                            </select>
+                            <AutocompleteField
+                              ariaLabel={`${t('tasks.userSelection')} ${task.title}`}
+                              emptyMessage={t('tasks.userSearchEmpty')}
+                              loadingMessage={t('common.loading')}
+                              options={getAssignableUsers(task.taskId, task)
+                                .filter(user => {
+                                  const currentQuery = getUserSearchValue(task.taskId, task).trim().toLowerCase()
+                                  if (!currentQuery) {
+                                    return true
+                                  }
 
-                                return user.displayName.toLowerCase().includes(currentQuery) || (user.email?.toLowerCase().includes(currentQuery) ?? false)
-                              })
-                              .map(user => ({
-                                id: user.userId,
-                                label: user.displayName,
-                                description: [user.email, getRoleLabel(t, user.roleCode)].filter(Boolean).join(' | '),
-                                helperText: getUserSourceLabel(t, user.userSource),
-                              }))}
-                            placeholder={t('tasks.userSearchPlaceholder')}
-                            value={getUserSearchValue(task.taskId, task)}
-                            onOptionSelect={option => {
-                              updateAssignmentDraft(task.taskId, 'userId', option.id)
-                              setAssignmentQueries(current => ({ ...current, [task.taskId]: option.label }))
-                            }}
-                            onValueChange={value => {
-                              setAssignmentQueries(current => ({ ...current, [task.taskId]: value }))
-                              if (!value.trim()) {
-                                updateAssignmentDraft(task.taskId, 'userId', '')
-                              }
-                            }}
-                          />
-                          <div className="inline-actions">
-                            <Button size="sm" type="button" onClick={() => handleAssign(task.taskId)}>{t('tasks.assign')}</Button>
-                            {canCompleteTask(task) ? (
-                              <Button size="sm" type="button" variant="success" onClick={() => handleAction(task.taskId, 'complete')}>{t('tasks.complete')}</Button>
-                            ) : null}
+                                  return user.displayName.toLowerCase().includes(currentQuery) || (user.email?.toLowerCase().includes(currentQuery) ?? false)
+                                })
+                                .map(user => ({
+                                  id: user.userId,
+                                  label: user.displayName,
+                                  description: [user.email, getRoleLabel(t, user.roleCode)].filter(Boolean).join(' | '),
+                                  helperText: getUserSourceLabel(t, user.userSource),
+                                }))}
+                              placeholder={t('tasks.userSearchPlaceholder')}
+                              value={getUserSearchValue(task.taskId, task)}
+                              onOptionSelect={option => {
+                                updateAssignmentDraft(task.taskId, 'userId', option.id)
+                                setAssignmentQueries(current => ({ ...current, [task.taskId]: option.label }))
+                              }}
+                              onValueChange={value => {
+                                setAssignmentQueries(current => ({ ...current, [task.taskId]: value }))
+                                if (!value.trim()) {
+                                  updateAssignmentDraft(task.taskId, 'userId', '')
+                                }
+                              }}
+                            />
+                            <div className="inline-actions">
+                              <Button size="sm" type="button" onClick={() => handleAssign(task.taskId)}>{t('tasks.assign')}</Button>
+                              {canCompleteTask(task) ? (
+                                <Button size="sm" type="button" variant="success" onClick={() => handleAction(task.taskId, 'complete')}>{t('tasks.complete')}</Button>
+                              ) : null}
+                            </div>
                           </div>
-                        </>
+                        </details>
                       ) : null}
 
                       {!canManageWorkflow && canClaimTask(task) ? (

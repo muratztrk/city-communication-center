@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Localization;
 using OpenIddict.Validation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+const string OpenCorsPolicy = "OpenCorsPolicy";
 
 Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "logs"));
 
@@ -21,9 +22,6 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfig
     .ReadFrom.Configuration(context.Configuration)
     .ReadFrom.Services(services)
     .Enrich.FromLogContext());
-
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:5173", "http://localhost:13000"];
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -48,9 +46,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy(OpenCorsPolicy, policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(_ => true)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -209,7 +207,7 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Envi
 }
 
 app.UseRouting();
-app.UseCors();
+app.UseCors(OpenCorsPolicy);
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
@@ -282,8 +280,8 @@ app.MapGet("/health", async (IConfiguration configuration, CancellationToken can
     {
         return Results.Problem(ex.Message, statusCode: StatusCodes.Status503ServiceUnavailable, title: "Database connectivity check failed.");
     }
-}).AllowAnonymous();
+}).AllowAnonymous().RequireCors(OpenCorsPolicy);
 
-app.MapControllers();
+app.MapControllers().RequireCors(OpenCorsPolicy);
 
 app.Run();

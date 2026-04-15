@@ -2,14 +2,14 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { HTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
-const statusPillVariants = cva('inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1', {
+const statusPillVariants = cva('inline-flex items-center rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ring-1', {
   variants: {
     tone: {
       neutral: 'bg-slate-100 text-slate-700 ring-slate-200',
-      info: 'bg-sky-50 text-sky-700 ring-sky-200',
-      success: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-      warning: 'bg-amber-50 text-amber-700 ring-amber-200',
-      danger: 'bg-rose-50 text-rose-700 ring-rose-200',
+      info: 'bg-[color:var(--color-primary)]/8 text-[color:var(--color-primary)] ring-[color:var(--color-primary)]/18',
+      success: 'bg-[color:var(--color-success)]/10 text-[color:var(--color-success)] ring-[color:var(--color-success)]/18',
+      warning: 'bg-[color:var(--color-warning)]/10 text-[color:var(--color-warning)] ring-[color:var(--color-warning)]/18',
+      danger: 'bg-[color:var(--color-destructive)]/10 text-[color:var(--color-destructive)] ring-[color:var(--color-destructive)]/18',
     },
   },
   defaultVariants: {

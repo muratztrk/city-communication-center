@@ -1,4 +1,4 @@
-﻿@import 'tailwindcss';
+@import 'tailwindcss';
 @import './tokens.css';
 
 @layer base {
@@ -23,8 +23,8 @@
     margin: 0;
     overflow-x: clip;
     background:
-      radial-gradient(circle at top left, color-mix(in srgb, var(--color-secondary) 10%, transparent) 0, transparent 32%),
-      radial-gradient(circle at bottom right, color-mix(in srgb, var(--color-accent) 12%, transparent) 0, transparent 28%),
+      radial-gradient(circle at top left, color-mix(in srgb, var(--color-secondary) 8%, transparent) 0, transparent 28%),
+      radial-gradient(circle at bottom right, color-mix(in srgb, var(--color-accent) 8%, transparent) 0, transparent 24%),
       linear-gradient(180deg, color-mix(in srgb, var(--color-background) 90%, white) 0%, var(--color-background) 100%);
     color: #102033;
     font-family: var(--font-sans);
@@ -50,14 +50,23 @@
     color: inherit;
     text-decoration: none;
   }
+  @media (min-width: 768px) {
+    html,
+    body,
+    #root {
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+    }
+  }
 }
 
 @layer components {
   .surface-panel {
-    background: color-mix(in srgb, var(--color-surface) 92%, white);
-    border: 1px solid color-mix(in srgb, var(--color-neutral) 16%, white);
+    background: color-mix(in srgb, var(--color-surface) 96%, white);
+    border: 1px solid var(--color-border);
     box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(12px);
   }
 
   .operational-grid {
@@ -68,55 +77,66 @@
 
   .page-stack {
     display: grid;
-    gap: 1.25rem;
+    gap: 1rem;
     min-width: 0;
+  }
+  .desktop-page-shell {
+    min-width: 0;
+  }
+
+  .desktop-page-fill {
+    min-height: 0;
+  }
+
+  .desktop-panel-scroll {
+    min-height: 0;
   }
 
   .page-header-row {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .page-title {
-    font-size: clamp(2rem, 2vw + 1.2rem, 2.8rem);
-    line-height: 1.05;
-    font-weight: 800;
+    font-size: clamp(1.55rem, 1.1vw + 1.1rem, 2rem);
+    line-height: 1.1;
+    font-weight: 700;
     color: #0f172a;
   }
 
   .page-subtitle {
     max-width: 60rem;
-    font-size: 0.98rem;
-    line-height: 1.75;
-    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--color-muted-foreground);
   }
 
   .section-card {
-    background: color-mix(in srgb, var(--color-surface) 94%, white);
-    border: 1px solid color-mix(in srgb, var(--color-neutral) 16%, white);
+    background: color-mix(in srgb, var(--color-surface) 97%, white);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-edge);
     min-width: 0;
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .form-card {
-    background: color-mix(in srgb, var(--color-surface) 94%, white);
-    border: 1px solid color-mix(in srgb, var(--color-neutral) 16%, white);
+    background: color-mix(in srgb, var(--color-surface) 97%, white);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-edge);
     min-width: 0;
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .loading,
   .error {
-    border-radius: 1rem;
-    padding: 0.95rem 1rem;
-    font-size: 0.92rem;
+    border-radius: 0.85rem;
+    padding: 0.85rem 0.95rem;
+    font-size: 0.88rem;
     font-weight: 600;
   }
 
@@ -136,8 +156,8 @@
   .field-select,
   .field-textarea {
     width: 100%;
-    border-radius: 1rem;
-    border: 1px solid #d8e0e8;
+    border-radius: 0.8rem;
+    border: 1px solid var(--color-border);
     background: rgba(255, 255, 255, 0.96);
     color: #0f172a;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
@@ -147,13 +167,13 @@
 
   .field-input,
   .field-select {
-    min-height: 2.85rem;
-    padding: 0.7rem 0.95rem;
+    min-height: 2.6rem;
+    padding: 0.58rem 0.82rem;
   }
 
   .field-textarea {
-    min-height: 7rem;
-    padding: 0.8rem 0.95rem;
+    min-height: 6.4rem;
+    padding: 0.72rem 0.82rem;
     resize: vertical;
   }
 
@@ -161,7 +181,7 @@
   .field-select:focus,
   .field-textarea:focus {
     border-color: color-mix(in srgb, var(--color-primary) 65%, white);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 10%, white);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, white);
   }
 
   .field-checkbox {
@@ -182,14 +202,14 @@
   }
 
   .helper-copy {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     line-height: 1.55;
-    color: #64748b;
+    color: var(--color-muted-foreground);
   }
 
   .metric-grid {
     display: grid;
-    gap: 1rem;
+    gap: 0.85rem;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 
@@ -197,9 +217,11 @@
     max-width: 100%;
     min-width: 0;
     overflow-x: auto;
-    overflow-y: visible;
-    border-radius: 1rem;
-    border: 1px solid #e2e8f0;
+    overflow-y: auto;
+    max-height: min(64dvh, 48rem);
+    scrollbar-gutter: stable;
+    border-radius: 0.9rem;
+    border: 1px solid var(--color-border);
     background: rgba(255, 255, 255, 0.9);
   }
 
@@ -248,21 +270,24 @@
   }
 
   .data-table thead th {
-    background: color-mix(in srgb, var(--color-background) 65%, white);
-    padding: 0.85rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: color-mix(in srgb, var(--color-background) 82%, white);
+    padding: 0.75rem 0.9rem;
     text-align: left;
     font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.16em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #64748b;
   }
 
   .data-table tbody td {
-    padding: 1rem;
+    padding: 0.8rem 0.9rem;
     border-top: 1px solid #edf2f7;
     vertical-align: top;
-    font-size: 0.94rem;
+    font-size: 0.875rem;
     color: #0f172a;
     word-break: break-word;
   }
@@ -274,12 +299,12 @@
   .inline-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .table-stack {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.4rem;
     min-width: 0;
   }
 
@@ -292,8 +317,8 @@
   .info-item label {
     display: block;
     font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.14em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #64748b;
   }
@@ -307,8 +332,8 @@
 
   .empty-state {
     border: 1px dashed #cbd5e1;
-    border-radius: 1rem;
-    padding: 1.2rem;
+    border-radius: 0.85rem;
+    padding: 1rem;
     background: rgba(248, 250, 252, 0.72);
     color: #64748b;
     text-align: center;
@@ -316,18 +341,21 @@
 
   .tab-bar {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
   }
 
   .tab-button {
-    border: 1px solid #d8e0e8;
-    background: rgba(255, 255, 255, 0.88);
+    flex: 0 0 auto;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.95);
     color: #334155;
-    min-height: 2.65rem;
-    border-radius: 0.9rem;
-    padding: 0.65rem 1rem;
-    font-size: 0.9rem;
+    min-height: 2.4rem;
+    border-radius: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.84rem;
     font-weight: 700;
     transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
   }
@@ -346,8 +374,8 @@
     display: inline-flex;
     flex-wrap: wrap;
     gap: 0.35rem;
-    border: 1px solid #d8e0e8;
-    border-radius: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.85rem;
     background: rgba(248, 250, 252, 0.92);
     padding: 0.35rem;
   }
@@ -373,9 +401,109 @@
     display: grid;
     gap: 0.75rem;
   }
+
+  .sidebar-shell {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--color-sidebar) 94%, black) 0%, var(--color-sidebar) 100%);
+    color: var(--color-sidebar-foreground);
+    border-right: 1px solid color-mix(in srgb, var(--color-sidebar-foreground) 10%, transparent);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  .sidebar-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2rem;
+    min-width: 2rem;
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--color-sidebar-foreground) 10%, transparent);
+    background: color-mix(in srgb, white 8%, transparent);
+  }
+
+  .sticky-page-header {
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    display: grid;
+    gap: 0.85rem;
+    padding-bottom: 0.25rem;
+    background: color-mix(in srgb, var(--color-background) 92%, white);
+    backdrop-filter: blur(14px);
+  }
+
+  .theme-preset-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .theme-preset-card {
+    border: 1px solid var(--color-border);
+    border-radius: 0.95rem;
+    background: color-mix(in srgb, white 96%, var(--color-background));
+    padding: 0.85rem;
+    text-align: left;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  }
+
+  .theme-preset-card:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 26%, white);
+    box-shadow: var(--shadow-edge);
+  }
+
+  .theme-preset-card.active {
+    border-color: color-mix(in srgb, var(--color-primary) 55%, white);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 10%, white);
+  }
+
+  .theme-swatch-row {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+
+  .theme-swatch {
+    height: 0.95rem;
+    flex: 1 1 0%;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
 }
 
-@media (max-width: 960px) {
+
+@media (min-width: 768px) {
+  @layer components {
+    .desktop-page-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      overflow: auto;
+      overflow-x: clip;
+      scrollbar-gutter: stable;
+    }
+
+    .desktop-page-fill {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .desktop-panel-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: none;
+    }
+  }
+}@media (max-width: 960px) {
   @layer components {
     .table-container table,
     .data-table {

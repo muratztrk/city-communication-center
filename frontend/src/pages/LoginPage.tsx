@@ -240,27 +240,32 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh px-4 py-4 lg:px-6 lg:py-4">
-      <div className="mx-auto grid min-h-[calc(100dvh-2rem)] max-w-[1320px] overflow-hidden rounded-[calc(var(--radius-2xl)+0.3rem)] border border-white/60 shadow-[var(--shadow-soft)] lg:grid-cols-[minmax(0,1fr)_400px]">
+    <div className="min-h-dvh bg-[color:var(--color-background)] px-3 py-3 sm:px-4 lg:px-5">
+      <div className="mx-auto grid max-w-[1320px] overflow-hidden rounded-[var(--radius-2xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] lg:min-h-[calc(100dvh-2rem)] lg:grid-cols-[minmax(0,1.05fr)_440px]">
         <section
-          className="relative overflow-hidden px-6 py-7 text-white sm:px-8 sm:py-8 lg:px-10 lg:py-9"
+          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10"
           style={{
-            background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))',
+            background: 'linear-gradient(145deg, var(--color-header-from), var(--color-header-to))',
           }}
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(198,147,45,0.22),transparent_30%)]" />
-          <div className="relative flex h-full flex-col justify-between gap-8 lg:gap-6">
-            <div className="space-y-5">
-              <div className="space-y-3">
-                <h1 className="max-w-2xl text-4xl font-extrabold leading-[1.04] text-white sm:text-5xl">
-                  {!isTenantContextLoading ? institutionName : null}
-                </h1>
-                <p className="max-w-xl text-base leading-7 text-white/80">{t('login.subtitle')}</p>
-              </div>
-              <MunicipalitySeal alt={`${institutionName} logo`} />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
+          <div className="relative grid gap-5">
+            <div className="inline-flex w-fit items-center rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/88">
+              {t('login.organizationFallback')}
             </div>
-
-            <div className="grid gap-3 sm:grid-cols-3 xl:max-w-3xl">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3.5">
+                <MunicipalitySeal alt={`${institutionName} logo`} />
+                <div className="min-w-0">
+                  <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('shell.subtitle')}</div>
+                  <h1 className="mt-1 max-w-xl text-3xl font-extrabold leading-[1.08] text-white xl:text-4xl">
+                    {!isTenantContextLoading ? institutionName : t('login.title')}
+                  </h1>
+                </div>
+              </div>
+              <p className="max-w-2xl text-sm leading-7 text-white/84">{t('login.subtitle')}</p>
+            </div>
+            <div className="grid gap-2.5 xl:max-w-[44rem] xl:grid-cols-3">
               {[
                 { icon: LayoutDashboard, title: t('login.heroCardDashboard') },
                 { icon: SquareKanban, title: t('login.heroCardTasks') },
@@ -268,10 +273,10 @@ export function LoginPage() {
               ].map(item => {
                 const Icon = item.icon
                 return (
-                  <div key={item.title} className="rounded-[var(--radius-xl)] border border-white/14 bg-white/8 px-4 py-3 backdrop-blur-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-2xl bg-white/12">
-                        <Icon className="size-4.5" />
+                  <div key={item.title} className="rounded-[var(--radius-xl)] border border-white/12 bg-white/8 px-3.5 py-3 backdrop-blur-sm">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex size-9 items-center justify-center rounded-lg bg-white/10 text-white">
+                        <Icon className="size-4" />
                       </div>
                       <span className="text-sm font-semibold text-white/92">{item.title}</span>
                     </div>
@@ -280,205 +285,205 @@ export function LoginPage() {
               })}
             </div>
           </div>
+
+          <div className="relative grid gap-3 rounded-[var(--radius-xl)] border border-white/12 bg-white/7 p-4 text-white/82">
+            <div className="text-sm font-semibold text-white">{t('login.formDescription')}</div>
+            <div className="flex items-start gap-3 text-sm leading-6">
+              <Shield className="mt-0.5 size-4 shrink-0 text-[color:var(--color-accent)]" />
+              <span>{t('login.secondFactorNotice')}</span>
+            </div>
+          </div>
         </section>
 
-        <section className="flex items-start justify-center overflow-y-auto bg-[color:var(--color-surface)]/92 px-5 py-5 sm:px-7 lg:px-6">
+        <section className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
           <div className="w-full max-w-[25rem] space-y-4">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-extrabold text-slate-950 sm:text-3xl">{t('login.formTitle')}</h2>
-              <p className="text-sm leading-7 text-slate-600">{t('login.formDescription')}</p>
+            <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
+              <MunicipalitySeal compact alt={`${institutionName} logo`} />
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-slate-950">{institutionName}</div>
+                <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{t('shell.subtitle')}</div>
+              </div>
             </div>
 
-            {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{error}</div> : null}
-            {notice ? <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-800">{notice}</div> : null}
-
-            {isTenantContextLoading ? <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-600">{t('login.loadingContext')}</div> : null}
-
-            {!isTenantContextLoading && hideTenantSelector && selectedTenantDetails && tenants.length > 1 ? (
-              <div className="rounded-[var(--radius-xl)] border border-slate-200 bg-slate-50/85 p-4 shadow-sm" data-testid="resolved-tenant-card">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{t('login.organization')}</div>
-                <h3 className="mt-2 text-2xl font-extrabold text-slate-950">{institutionName}</h3>
+            <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white p-5 shadow-[var(--shadow-edge)] sm:p-6">
+              <div className="space-y-1">
+                <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+                  {t('login.organization')}
+                </div>
+                <h2 className="text-2xl font-extrabold text-slate-950 sm:text-[2rem]">{t('login.formTitle')}</h2>
+                <p className="text-sm leading-6 text-[color:var(--color-muted-foreground)]">{t('login.formDescription')}</p>
               </div>
-            ) : null}
 
-            {!isTenantContextLoading && !hideTenantSelector ? (
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('login.organization')}</span>
-                <select
-                  id="tenant"
-                  value={selectedTenant}
-                  className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-slate-900 shadow-sm outline-none transition focus:border-[color:var(--color-primary)] focus:ring-4 focus:ring-[color:var(--color-primary)]/10"
-                  onChange={event => handleTenantChange(event.target.value)}
-                >
-                  <option value="">{t('login.organizationPlaceholder')}</option>
-                  {tenants.map(tenant => (
-                    <option key={tenant.tenantId} value={tenant.tenantId}>{tenant.municipalityName}</option>
-                  ))}
-                </select>
-                {tenantSelectionRequired ? <span className="text-xs font-medium text-slate-500">{t('login.selectTenantHelp')}</span> : null}
-              </label>
-            ) : null}
+              <div className="mt-5 space-y-4">
+                {error ? <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{error}</div> : null}
+                {notice ? <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-800">{notice}</div> : null}
 
-            {!isTenantContextLoading && loginStep === 'credentials' && securityState.secondFactorRequiredOnSuccess ? (
-              <div className="rounded-[var(--radius-xl)] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <Shield className="mt-0.5 size-4 shrink-0 text-[color:var(--color-primary)]" />
-                  <p className="leading-6">{t('login.secondFactorNotice')}</p>
-                </div>
-              </div>
-            ) : null}
+                {isTenantContextLoading ? <div className="rounded-xl border border-[var(--color-border)] bg-[color:var(--color-muted)]/65 px-4 py-4 text-sm font-medium text-[color:var(--color-muted-foreground)]">{t('login.loadingContext')}</div> : null}
 
-            {loginStep === 'credentials' && !isTenantContextLoading ? (
-              <form
-                className="grid gap-3"
-                onSubmit={credentialsForm.handleSubmit(async values => {
-                  setNotice('')
-                  setError('')
-
-                  if (!selectedTenant) {
-                    setError(t('login.tenantRequired'))
-                    return
-                  }
-
-                  const requestId = ++latestInteractiveRequestRef.current
-                  setIsLoading(true)
-                  try {
-                    const response = await startInteractiveAuthentication(selectedTenant, values.username, values.password)
-                    if (requestId !== latestInteractiveRequestRef.current) {
-                      return
-                    }
-
-                    await applyInteractiveResult(response)
-                  } catch (submitError) {
-                    if (requestId !== latestInteractiveRequestRef.current) {
-                      return
-                    }
-
-                    setError(submitError instanceof Error ? submitError.message : t('common.error'))
-                  } finally {
-                    if (requestId === latestInteractiveRequestRef.current) {
-                      setIsLoading(false)
-                    }
-                  }
-                })}
-              >
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('login.username')}</span>
-                  <input
-                    id="username"
-                    className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-slate-900 shadow-sm outline-none transition focus:border-[color:var(--color-primary)] focus:ring-4 focus:ring-[color:var(--color-primary)]/10"
-                    autoComplete="username"
-                    {...credentialsForm.register('username')}
-                  />
-                  {credentialsForm.formState.errors.username ? <span className="text-xs font-medium text-rose-600">{t('login.usernameRequired')}</span> : null}
-                </label>
-
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('login.password')}</span>
-                  <input
-                    id="password"
-                    type="password"
-                    className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-slate-900 shadow-sm outline-none transition focus:border-[color:var(--color-primary)] focus:ring-4 focus:ring-[color:var(--color-primary)]/10"
-                    autoComplete="current-password"
-                    {...credentialsForm.register('password')}
-                  />
-                  {credentialsForm.formState.errors.password ? <span className="text-xs font-medium text-rose-600">{t('login.passwordRequired')}</span> : null}
-                </label>
-
-                <Button type="submit" size="lg" disabled={isLoading || !isTenantReady}>
-                  {isLoading ? t('login.submitting') : t('login.submit')}
-                </Button>
-              </form>
-            ) : null}
-
-            {loginStep === 'secondFactor' && challengeState ? (
-              <form
-                className="grid gap-3"
-                onSubmit={verificationForm.handleSubmit(async values => {
-                  if (!challengeState) {
-                    return
-                  }
-
-                  const requestId = ++latestInteractiveRequestRef.current
-                  setIsLoading(true)
-                  setError('')
-                  try {
-                    const result = await verifyInteractiveAuthentication(selectedTenant, challengeState.challengeId, values.code)
-                    if (requestId !== latestInteractiveRequestRef.current) {
-                      return
-                    }
-
-                    if (result.status !== 'ReadyToExchange' || !result.grant) {
-                      setError(result.message || t('errors.authFailed'))
-                      return
-                    }
-
-                    await completeInteractiveSignIn(result.grant.username, result.grant.password, selectedTenant, getTenantDisplayName())
-                    navigate('/dashboard', { replace: true })
-                  } catch (verifyError) {
-                    if (requestId !== latestInteractiveRequestRef.current) {
-                      return
-                    }
-
-                    setError(verifyError instanceof Error ? verifyError.message : t('common.error'))
-                  } finally {
-                    if (requestId === latestInteractiveRequestRef.current) {
-                      setIsLoading(false)
-                    }
-                  }
-                })}
-              >
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-semibold text-slate-950">{t('login.secondFactorTitle')}</h3>
-                  <p className="text-sm leading-7 text-slate-600">{t('login.secondFactorSubtitle')}</p>
-                </div>
-
-                <div className="grid gap-2 rounded-[var(--radius-xl)] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                  {challengeState.deliveryDestination ? <span>{t('login.deliveryDestination')}: {challengeState.deliveryDestination}</span> : null}
-                  {challengeState.expiresAtUtc ? <span>{t('login.expiresAt')}: {new Date(challengeState.expiresAtUtc).toLocaleTimeString()}</span> : null}
-                </div>
-
-                {challengeState.mockCodePreview ? (
-                  <div className="rounded-[var(--radius-xl)] border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
-                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">{t('login.mockPreviewTitle')}</div>
-                    <div className="mock-code-value mt-3 text-3xl font-semibold tracking-[0.3em]">{challengeState.mockCodePreview}</div>
+                {!isTenantContextLoading && hideTenantSelector && selectedTenantDetails && tenants.length > 1 ? (
+                  <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/6 p-4" data-testid="resolved-tenant-card">
+                    <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('login.organization')}</div>
+                    <h3 className="mt-2 text-xl font-extrabold text-slate-950">{institutionName}</h3>
                   </div>
                 ) : null}
 
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('login.verificationCode')}</span>
-                  <input
-                    className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-slate-900 shadow-sm outline-none transition focus:border-[color:var(--color-primary)] focus:ring-4 focus:ring-[color:var(--color-primary)]/10"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    {...verificationForm.register('code')}
-                  />
-                </label>
+                {!isTenantContextLoading && !hideTenantSelector ? (
+                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                    <span>{t('login.organization')}</span>
+                    <select id="tenant" value={selectedTenant} className="field-select" onChange={event => handleTenantChange(event.target.value)}>
+                      <option value="">{t('login.organizationPlaceholder')}</option>
+                      {tenants.map(tenant => (
+                        <option key={tenant.tenantId} value={tenant.tenantId}>{tenant.municipalityName}</option>
+                      ))}
+                    </select>
+                    {tenantSelectionRequired ? <span className="text-xs font-medium text-[color:var(--color-muted-foreground)]">{t('login.selectTenantHelp')}</span> : null}
+                  </label>
+                ) : null}
 
-                <div className="flex flex-wrap gap-3">
-                  <Button type="submit" size="lg" disabled={isLoading}>{isLoading ? t('login.verifying') : t('login.verify')}</Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                      latestInteractiveRequestRef.current += 1
-                      setChallengeState(null)
-                      verificationForm.reset({ code: '' })
-                      setLoginStep('credentials')
+                {!isTenantContextLoading && loginStep === 'credentials' && securityState.secondFactorRequiredOnSuccess ? (
+                  <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-4 text-sm text-[color:var(--color-muted-foreground)] shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <Shield className="mt-0.5 size-4 shrink-0 text-[color:var(--color-primary)]" />
+                      <p className="leading-6">{t('login.secondFactorNotice')}</p>
+                    </div>
+                  </div>
+                ) : null}
+
+                {loginStep === 'credentials' && !isTenantContextLoading ? (
+                  <form
+                    className="grid gap-3"
+                    onSubmit={credentialsForm.handleSubmit(async values => {
                       setNotice('')
                       setError('')
-                    }}
+
+                      if (!selectedTenant) {
+                        setError(t('login.tenantRequired'))
+                        return
+                      }
+
+                      const requestId = ++latestInteractiveRequestRef.current
+                      setIsLoading(true)
+                      try {
+                        const response = await startInteractiveAuthentication(selectedTenant, values.username, values.password)
+                        if (requestId !== latestInteractiveRequestRef.current) {
+                          return
+                        }
+
+                        await applyInteractiveResult(response)
+                      } catch (submitError) {
+                        if (requestId !== latestInteractiveRequestRef.current) {
+                          return
+                        }
+
+                        setError(submitError instanceof Error ? submitError.message : t('common.error'))
+                      } finally {
+                        if (requestId === latestInteractiveRequestRef.current) {
+                          setIsLoading(false)
+                        }
+                      }
+                    })}
                   >
-                    {t('login.editCredentials')}
-                  </Button>
-                </div>
-              </form>
-            ) : null}
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('login.username')}</span>
+                      <input id="username" className="field-input" autoComplete="username" {...credentialsForm.register('username')} />
+                      {credentialsForm.formState.errors.username ? <span className="text-xs font-medium text-rose-600">{t('login.usernameRequired')}</span> : null}
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('login.password')}</span>
+                      <input id="password" type="password" className="field-input" autoComplete="current-password" {...credentialsForm.register('password')} />
+                      {credentialsForm.formState.errors.password ? <span className="text-xs font-medium text-rose-600">{t('login.passwordRequired')}</span> : null}
+                    </label>
+
+                    <Button type="submit" size="lg" className="mt-1 w-full" disabled={isLoading || !isTenantReady}>
+                      {isLoading ? t('login.submitting') : t('login.submit')}
+                    </Button>
+                  </form>
+                ) : null}
+
+                {loginStep === 'secondFactor' && challengeState ? (
+                  <form
+                    className="grid gap-3"
+                    onSubmit={verificationForm.handleSubmit(async values => {
+                      if (!challengeState) {
+                        return
+                      }
+
+                      const requestId = ++latestInteractiveRequestRef.current
+                      setIsLoading(true)
+                      setError('')
+                      try {
+                        const result = await verifyInteractiveAuthentication(selectedTenant, challengeState.challengeId, values.code)
+                        if (requestId !== latestInteractiveRequestRef.current) {
+                          return
+                        }
+
+                        if (result.status !== 'ReadyToExchange' || !result.grant) {
+                          setError(result.message || t('errors.authFailed'))
+                          return
+                        }
+
+                        await completeInteractiveSignIn(result.grant.username, result.grant.password, selectedTenant, getTenantDisplayName())
+                        navigate('/dashboard', { replace: true })
+                      } catch (verifyError) {
+                        if (requestId !== latestInteractiveRequestRef.current) {
+                          return
+                        }
+
+                        setError(verifyError instanceof Error ? verifyError.message : t('common.error'))
+                      } finally {
+                        if (requestId === latestInteractiveRequestRef.current) {
+                          setIsLoading(false)
+                        }
+                      }
+                    })}
+                  >
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-semibold text-slate-950">{t('login.secondFactorTitle')}</h3>
+                      <p className="text-sm leading-6 text-[color:var(--color-muted-foreground)]">{t('login.secondFactorSubtitle')}</p>
+                    </div>
+
+                    <div className="grid gap-2 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/6 p-4 text-sm text-[color:var(--color-muted-foreground)]">
+                      {challengeState.deliveryDestination ? <span>{t('login.deliveryDestination')}: {challengeState.deliveryDestination}</span> : null}
+                      {challengeState.expiresAtUtc ? <span>{t('login.expiresAt')}: {new Date(challengeState.expiresAtUtc).toLocaleTimeString()}</span> : null}
+                    </div>
+
+                    {challengeState.mockCodePreview ? (
+                      <div className="rounded-[var(--radius-xl)] border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
+                        <div className="text-xs font-semibold uppercase tracking-[0.08em] text-amber-700">{t('login.mockPreviewTitle')}</div>
+                        <div className="mock-code-value mt-3 text-3xl font-semibold tracking-[0.3em]">{challengeState.mockCodePreview}</div>
+                      </div>
+                    ) : null}
+
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('login.verificationCode')}</span>
+                      <input className="field-input" inputMode="numeric" autoComplete="one-time-code" {...verificationForm.register('code')} />
+                    </label>
+
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <Button type="submit" size="lg" disabled={isLoading}>{isLoading ? t('login.verifying') : t('login.verify')}</Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          latestInteractiveRequestRef.current += 1
+                          setChallengeState(null)
+                          verificationForm.reset({ code: '' })
+                          setLoginStep('credentials')
+                          setNotice('')
+                          setError('')
+                        }}
+                      >
+                        {t('login.editCredentials')}
+                      </Button>
+                    </div>
+                  </form>
+                ) : null}
+              </div>
+            </div>
           </div>
         </section>
       </div>
     </div>
   )
 }
-
-

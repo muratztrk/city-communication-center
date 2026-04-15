@@ -1,4 +1,4 @@
-﻿import type { FormEvent } from 'react'
+import type { FormEvent } from 'react'
 import { Paintbrush, Settings2, ShieldCheck, UsersRound } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -524,7 +524,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="page-stack">
+    <div className="page-stack desktop-page-shell">
       <header className="page-header-row">
         <div className="space-y-2">
           <h1 className="page-title">{t('settings.title')}</h1>
@@ -552,7 +552,7 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'tenant' ? (
-        <div className="page-stack">
+        <div className="page-stack desktop-page-shell">
           <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
             <section className="section-card page-stack">
               <div className="page-header-row">
@@ -841,7 +841,7 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'social' && socialStatus ? (
-        <div className="page-stack">
+        <div className="page-stack desktop-page-shell">
           <div>
             <h2 className="text-xl font-extrabold text-slate-950">{t('settings.socialConfig.sectionTitle')}</h2>
             <p className="helper-copy">{t('settings.socialConfig.sectionDescription')}</p>
@@ -886,7 +886,7 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'routing' && routingConfig ? (
-        <div className="page-stack">
+        <div className="page-stack desktop-page-shell">
           <section className="section-card page-stack">
             <div className="page-header-row">
               <div>

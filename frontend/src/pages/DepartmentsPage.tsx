@@ -14,7 +14,7 @@ export function DepartmentsPage() {
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [newName, setNewName] = useState('')
-  const [newType, setNewType] = useState('Müdürlük')
+  const [newType, setNewType] = useState('MÃ¼dÃ¼rlÃ¼k')
 
   const loadDepartments = () => {
     setLoading(true)
@@ -61,7 +61,7 @@ export function DepartmentsPage() {
     try {
       await api.createDepartment(newName.trim(), newType)
       setNewName('')
-      setNewType('Müdürlük')
+      setNewType('MÃ¼dÃ¼rlÃ¼k')
       setShowForm(false)
       loadDepartments()
     } catch (createError) {
@@ -81,36 +81,38 @@ export function DepartmentsPage() {
   }
 
   return (
-    <div className="page-stack">
-      <header className="page-header-row">
-        <div className="space-y-2">
-          <h1 className="page-title">{t('departments.title')}</h1>
-          <p className="page-subtitle">{t('departments.subtitle')}</p>
+    <div className="page-stack desktop-page-shell">
+      <header className="sticky-page-header">
+        <div className="page-header-row">
+          <div className="space-y-1">
+            <h1 className="page-title">{t('departments.title')}</h1>
+            <p className="page-subtitle">{t('departments.subtitle')}</p>
+          </div>
+          <Button type="button" onClick={() => setShowForm(current => !current)}>
+            {showForm ? t('common.cancel') : t('departments.new')}
+          </Button>
         </div>
-        <Button type="button" onClick={() => setShowForm(current => !current)}>
-          {showForm ? t('common.cancel') : t('departments.new')}
-        </Button>
       </header>
 
       <section className="metric-grid">
         <div className="section-card">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-              <Building2 className="size-5" />
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+              <Building2 className="size-4.5" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-slate-500">{t('departments.total')}</div>
-              <div className="text-3xl font-extrabold text-slate-950">{departments.length}</div>
+              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('departments.total')}</div>
+              <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{departments.length}</div>
             </div>
           </div>
         </div>
         <div className="section-card">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-[color:var(--color-accent)]/18 text-[color:var(--color-primary)]">
-              <Layers3 className="size-5" />
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-accent)]/18 text-[color:var(--color-primary)]">
+              <Layers3 className="size-4.5" />
             </div>
-            <div className="space-y-2">
-              <div className="text-sm font-semibold text-slate-500">{t('departments.typeBreakdown')}</div>
+            <div className="space-y-1">
+              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('departments.typeBreakdown')}</div>
               <div className="inline-actions">
                 {Object.entries(typeSummary).map(([type, count]) => (
                   <StatusPill key={type}>{getDepartmentTypeLabel(t, type)}: {count}</StatusPill>
@@ -145,7 +147,7 @@ export function DepartmentsPage() {
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('departments.type')}</span>
               <select className="field-select" value={newType} onChange={event => setNewType(event.target.value)}>
-                <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
+                <option value="MÃ¼dÃ¼rlÃ¼k">{getDepartmentTypeLabel(t, 'MÃ¼dÃ¼rlÃ¼k')}</option>
                 <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
                 <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
               </select>
@@ -158,8 +160,8 @@ export function DepartmentsPage() {
         </form>
       ) : null}
 
-      <section className="section-card">
-        <div className="table-wrap">
+      <section className="section-card desktop-page-fill">
+        <div className="table-wrap desktop-panel-scroll">
           <table className="data-table">
             <thead>
               <tr>

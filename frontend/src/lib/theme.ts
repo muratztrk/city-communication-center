@@ -1,23 +1,94 @@
 import type { TenantAppearance } from '../types/platform'
 
+export interface ThemePresetDefinition {
+  key: string
+  label: string
+  description: string
+  appearance: Omit<TenantAppearance, 'isCustomized'>
+}
+
 export const DEFAULT_TENANT_APPEARANCE: TenantAppearance = {
-  themePreset: 'tire-civic',
-  primaryColor: '#0F4C81',
-  secondaryColor: '#2B6EA6',
-  accentColor: '#C6932D',
-  neutralColor: '#6A7786',
+  themePreset: 'civic-classic',
+  primaryColor: '#0B4F7A',
+  secondaryColor: '#2C678F',
+  accentColor: '#C59A37',
+  neutralColor: '#5B6775',
   surfaceColor: '#FFFFFF',
-  backgroundColor: '#EEF3F8',
-  headerGradientFrom: '#123B63',
-  headerGradientTo: '#356F99',
-  sidebarBackgroundColor: '#102F4A',
-  sidebarForegroundColor: '#F6F8FB',
+  backgroundColor: '#F5F7FA',
+  headerGradientFrom: '#103A5B',
+  headerGradientTo: '#2F658D',
+  sidebarBackgroundColor: '#0C2D48',
+  sidebarForegroundColor: '#F8FBFD',
   isCustomized: false,
 }
 
+export const THEME_PRESETS: ThemePresetDefinition[] = [
+  {
+    key: 'civic-classic',
+    label: 'Kurumsal Mavi',
+    description: 'Resmi belediye ekranları için dengeli ve güven veren ana tema.',
+    appearance: {
+      themePreset: 'civic-classic',
+      primaryColor: '#0B4F7A',
+      secondaryColor: '#2C678F',
+      accentColor: '#C59A37',
+      neutralColor: '#5B6775',
+      surfaceColor: '#FFFFFF',
+      backgroundColor: '#F5F7FA',
+      headerGradientFrom: '#103A5B',
+      headerGradientTo: '#2F658D',
+      sidebarBackgroundColor: '#0C2D48',
+      sidebarForegroundColor: '#F8FBFD',
+    },
+  },
+  {
+    key: 'civic-contrast',
+    label: 'Lacivert Kontrast',
+    description: 'Yoğun veri ekranları için daha yüksek kontrast ve daha ciddi görünüm.',
+    appearance: {
+      themePreset: 'civic-contrast',
+      primaryColor: '#123B63',
+      secondaryColor: '#28587B',
+      accentColor: '#C4932F',
+      neutralColor: '#526170',
+      surfaceColor: '#FFFFFF',
+      backgroundColor: '#F3F6F9',
+      headerGradientFrom: '#0E2F4B',
+      headerGradientTo: '#234F74',
+      sidebarBackgroundColor: '#082338',
+      sidebarForegroundColor: '#F7FAFC',
+    },
+  },
+  {
+    key: 'civic-light',
+    label: 'Açık Servis',
+    description: 'Operatör kullanımında daha açık yüzeyler ve sade kontrast.',
+    appearance: {
+      themePreset: 'civic-light',
+      primaryColor: '#245C86',
+      secondaryColor: '#477C9F',
+      accentColor: '#B68A2A',
+      neutralColor: '#6A7785',
+      surfaceColor: '#FFFFFF',
+      backgroundColor: '#F7F9FB',
+      headerGradientFrom: '#1F557C',
+      headerGradientTo: '#4F83A8',
+      sidebarBackgroundColor: '#143A59',
+      sidebarForegroundColor: '#F7FAFC',
+    },
+  },
+]
+
+function resolvePresetAppearance(themePreset?: string | null) {
+  return THEME_PRESETS.find(preset => preset.key === themePreset)?.appearance ?? DEFAULT_TENANT_APPEARANCE
+}
+
 export function resolveTenantAppearance(appearance?: Partial<TenantAppearance> | null): TenantAppearance {
+  const presetBase = resolvePresetAppearance(appearance?.themePreset)
+
   return {
     ...DEFAULT_TENANT_APPEARANCE,
+    ...presetBase,
     ...appearance,
     isCustomized: appearance?.isCustomized ?? DEFAULT_TENANT_APPEARANCE.isCustomized,
   }

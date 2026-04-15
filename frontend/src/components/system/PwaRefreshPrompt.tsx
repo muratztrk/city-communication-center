@@ -11,7 +11,7 @@ export function PwaRefreshPrompt() {
     updateServiceWorker,
   } = useRegisterSW()
 
-  if (!needRefresh || location.pathname === '/login') {
+  if (import.meta.env.DEV || !needRefresh || location.pathname === '/login') {
     return null
   }
 

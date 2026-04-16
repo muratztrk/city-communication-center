@@ -20,6 +20,10 @@
   --color-destructive: #c3382a;
   --color-success: #16784f;
   --color-warning: #b7791f;
+  --color-accent-orange: #e67e22;
+  --color-accent-amber: #d4a017;
+  --color-accent-coral: #e74c3c;
+  --color-accent-teal: #1abc9c;
 
   --shadow-soft: 0 14px 32px rgba(10, 32, 51, 0.08);
   --shadow-edge: 0 6px 18px rgba(10, 32, 51, 0.06);

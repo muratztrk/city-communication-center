@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { MessageSquareMore, Shield, SquareKanban } from 'lucide-react'
+import { Eye, EyeOff, MessageSquareMore, SquareKanban } from 'lucide-react'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -52,12 +52,13 @@ export function LoginPage() {
   const [loginStep, setLoginStep] = useState<LoginStep>('credentials')
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const [securityState, setSecurityState] = useState<SecurityState>(EMPTY_SECURITY_STATE)
+  const [, setSecurityState] = useState<SecurityState>(EMPTY_SECURITY_STATE)
   const [challengeState, setChallengeState] = useState<ChallengeState | null>(null)
   const [isTenantContextLoading, setIsTenantContextLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const autoProbeTenantRef = useRef<string | null>(null)
   const latestInteractiveRequestRef = useRef(0)
+  const [showPassword, setShowPassword] = useState(false)
 
   const credentialsForm = useForm<z.infer<typeof credentialsSchema>>({
     resolver: zodResolver(credentialsSchema),
@@ -265,7 +266,7 @@ export function LoginPage() {
           <div className="relative grid gap-5">
             <div className="space-y-3">
               <div className="flex items-center gap-3.5">
-                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="h-28 w-28 rounded-[2.25rem]" />
+                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="h-42 w-42 rounded-[2.25rem]" />
                 <div className="min-w-0">
                   <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                     {t('shell.subtitle', { municipalityName })}
@@ -296,17 +297,13 @@ export function LoginPage() {
 
           <div className="relative grid gap-3 rounded-[var(--radius-xl)] border border-white/12 bg-white/7 p-4 text-white/82">
             <div className="text-sm font-semibold text-white">{t('login.formDescription')}</div>
-            <div className="flex items-start gap-3 text-sm leading-6">
-              <Shield className="mt-0.5 size-4 shrink-0 text-[color:var(--color-accent)]" />
-              <span>{t('login.secondFactorNotice')}</span>
-            </div>
           </div>
         </section>
 
         <section className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
           <div className="w-full max-w-[25rem] space-y-4">
             <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
-              <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} className="h-18 w-18 rounded-[1.5rem]" />
+              <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} className="h-24 w-24 rounded-[1.5rem]" />
               <div className="min-w-0">
                 <div className="truncate text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
               </div>
@@ -347,14 +344,6 @@ export function LoginPage() {
                   </label>
                 ) : null}
 
-                {!isTenantContextLoading && loginStep === 'credentials' && securityState.secondFactorRequiredOnSuccess ? (
-                  <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-4 text-sm text-[color:var(--color-muted-foreground)] shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <Shield className="mt-0.5 size-4 shrink-0 text-[color:var(--color-primary)]" />
-                      <p className="leading-6">{t('login.secondFactorNotice')}</p>
-                    </div>
-                  </div>
-                ) : null}
 
                 {loginStep === 'credentials' && !isTenantContextLoading ? (
                   <form
@@ -398,7 +387,12 @@ export function LoginPage() {
 
                     <label className="grid gap-2 text-sm font-semibold text-slate-700">
                       <span>{t('login.password')}</span>
-                      <input id="password" type="password" className="field-input" autoComplete="current-password" aria-invalid={!!credentialsForm.formState.errors.password} aria-describedby={credentialsForm.formState.errors.password ? 'password-error' : undefined} {...credentialsForm.register('password')} />
+                      <div className="relative">
+                        <input id="password" type={showPassword ? 'text' : 'password'} className="field-input pr-10" autoComplete="current-password" aria-invalid={!!credentialsForm.formState.errors.password} aria-describedby={credentialsForm.formState.errors.password ? 'password-error' : undefined} {...credentialsForm.register('password')} />
+                        <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'} tabIndex={-1}>
+                          {showPassword ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
+                        </button>
+                      </div>
                       {credentialsForm.formState.errors.password ? <span id="password-error" className="text-xs font-medium text-rose-600">{t('login.passwordRequired')}</span> : null}
                     </label>
 

@@ -13,6 +13,7 @@ const buttonVariants = cva(
         ghost: 'bg-transparent text-slate-700 hover:bg-slate-100',
         success: 'bg-[var(--color-success)] text-white shadow-sm hover:brightness-95',
         danger: 'bg-[var(--color-destructive)] text-white shadow-sm hover:brightness-95',
+        destructive: 'bg-[var(--color-destructive)] text-white shadow-sm hover:brightness-95',
       },
       size: {
         default: 'h-10 px-4 text-sm',

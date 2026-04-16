@@ -156,6 +156,41 @@ export const api = {
     await ensureOk(response, i18n.t('errors.tenantLdapSettingsSaveFailed'))
   },
 
+  async testLdapConnectivity(
+    tenantId: string,
+    payload: {
+      host: string | null
+      port: number
+      useSsl: boolean
+      ignoreCertificateErrors: boolean
+      domain: string | null
+      searchBase: string | null
+      bindDn: string | null
+      bindPassword: string | null
+    },
+  ): Promise<{ success: boolean; message: string | null }> {
+    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings/test-connectivity`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.tenantLdapSettingsSaveFailed'))
+    return response.json()
+  },
+
+  async testLdapUserCredentials(
+    tenantId: string,
+    payload: { username: string; password: string },
+  ): Promise<{ success: boolean; displayName: string | null; email: string | null; message: string | null }> {
+    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings/test-user-credentials`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.tenantLdapSettingsSaveFailed'))
+    return response.json()
+  },
+
   async getTenantAuthenticationPolicy(tenantId: string): Promise<TenantAuthenticationPolicy> {
     const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/authentication-policy`, {
       headers: await getAuthHeaders(),

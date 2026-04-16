@@ -398,4 +398,63 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
     {
         return _searchResultLimit;
     }
+
+    public Task<LdapConnectivityResult> TestConnectivityAsync(LdapConnectivityTestParameters parameters, CancellationToken cancellationToken = default)
+    {
+        return Task.Run(() => TestConnectivityInternal(parameters), cancellationToken);
+    }
+
+    private LdapConnectivityResult TestConnectivityInternal(LdapConnectivityTestParameters parameters)
+    {
+        if (string.IsNullOrWhiteSpace(parameters.Host))
+        {
+            return new LdapConnectivityResult(false, "Host is required.");
+        }
+
+        var identifier = new LdapDirectoryIdentifier(parameters.Host, parameters.Port);
+        var settings = new TenantLdapRuntimeSettings(
+            true,
+            parameters.Host,
+            parameters.Port,
+            parameters.UseSsl,
+            parameters.IgnoreCertificateErrors,
+            parameters.Domain,
+            parameters.SearchBase,
+            parameters.BindDn,
+            parameters.BindPassword,
+            "sAMAccountName",
+            true,
+            true,
+            []);
+
+        using var connection = CreateConnection(settings, identifier);
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(parameters.BindDn) && !string.IsNullOrWhiteSpace(parameters.BindPassword))
+            {
+                connection.Bind(new NetworkCredential(parameters.BindDn, parameters.BindPassword));
+            }
+            else if (!string.IsNullOrWhiteSpace(parameters.Domain))
+            {
+                connection.Bind(new NetworkCredential(parameters.BindDn ?? string.Empty, parameters.BindPassword ?? string.Empty, parameters.Domain));
+            }
+            else
+            {
+                connection.Bind(new NetworkCredential(parameters.BindDn ?? string.Empty, parameters.BindPassword ?? string.Empty));
+            }
+
+            return new LdapConnectivityResult(true, "Connection successful.");
+        }
+        catch (LdapException ex)
+        {
+            _logger.LogWarning(ex, "LDAP connectivity test failed for host {Host}:{Port}", parameters.Host, parameters.Port);
+            return new LdapConnectivityResult(false, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "LDAP connectivity test encountered an unexpected error for host {Host}:{Port}", parameters.Host, parameters.Port);
+            return new LdapConnectivityResult(false, ex.Message);
+        }
+    }
 }

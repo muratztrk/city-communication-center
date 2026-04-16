@@ -122,6 +122,50 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("tenants/{tenantId:guid}/ldap-settings/test-connectivity")]
+    public async Task<ActionResult<TestLdapConnectivityResponse>> TestLdapConnectivity(
+        Guid tenantId,
+        [FromBody] TestLdapConnectivityRequest request,
+        [FromServices] ILdapAuthenticationService ldapService,
+        CancellationToken cancellationToken)
+    {
+        var parameters = new LdapConnectivityTestParameters(
+            request.Host ?? string.Empty,
+            request.Port,
+            request.UseSsl,
+            request.IgnoreCertificateErrors,
+            request.Domain,
+            request.SearchBase,
+            request.BindDn,
+            request.BindPassword);
+
+        var result = await ldapService.TestConnectivityAsync(parameters, cancellationToken);
+
+        return Ok(new TestLdapConnectivityResponse(result.Success, result.Message));
+    }
+
+    [HttpPost("tenants/{tenantId:guid}/ldap-settings/test-user-credentials")]
+    public async Task<ActionResult<TestLdapUserCredentialsResponse>> TestLdapUserCredentials(
+        Guid tenantId,
+        [FromBody] TestLdapUserCredentialsRequest request,
+        [FromServices] ILdapAuthenticationService ldapService,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return Ok(new TestLdapUserCredentialsResponse(false, null, null, "Username and password are required."));
+        }
+
+        var result = await ldapService.AuthenticateAsync(tenantId, request.Username, request.Password, cancellationToken);
+
+        if (result is null)
+        {
+            return Ok(new TestLdapUserCredentialsResponse(false, null, null, "Authentication failed. Check username and password."));
+        }
+
+        return Ok(new TestLdapUserCredentialsResponse(true, result.DisplayName, result.Email, "Authentication successful."));
+    }
+
     [HttpGet("tenants/{tenantId:guid}/authentication-policy")]
     public async Task<ActionResult<TenantAuthenticationPolicyResponse>> GetTenantAuthenticationPolicy(Guid tenantId, CancellationToken cancellationToken)
     {

@@ -193,6 +193,9 @@ export function SettingsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [ldapTestStatus, setLdapTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
+  const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
+  const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
 
   useEffect(() => {
     if (!user?.tenantId) {
@@ -366,6 +369,48 @@ export function SettingsPage() {
       setMessage({ type: 'success', text: t('settings.ldapSaveSuccess') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const testLdapConnectivity = async () => {
+    if (!user?.tenantId) return
+    setLdapTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
+    try {
+      const result = await api.testLdapConnectivity(user.tenantId, {
+        host: tenantLdapSettings.host,
+        port: tenantLdapSettings.port,
+        useSsl: tenantLdapSettings.useSsl,
+        ignoreCertificateErrors: tenantLdapSettings.ignoreCertificateErrors,
+        domain: tenantLdapSettings.domain,
+        searchBase: tenantLdapSettings.searchBase,
+        bindDn: tenantLdapSettings.bindDn,
+        bindPassword: tenantLdapSettings.bindPassword || null,
+      })
+      setLdapTestStatus({
+        type: result.success ? 'success' : 'error',
+        message: result.success ? t('settings.ldapTestSuccess') : (result.message || t('settings.ldapTestFailed')),
+      })
+    } catch {
+      setLdapTestStatus({ type: 'error', message: t('settings.ldapTestFailed') })
+    }
+  }
+
+  const testLdapUserCredentials = async () => {
+    if (!user?.tenantId || !ldapUserTest.username || !ldapUserTest.password) return
+    setLdapUserTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
+    try {
+      const result = await api.testLdapUserCredentials(user.tenantId, {
+        username: ldapUserTest.username,
+        password: ldapUserTest.password,
+      })
+      setLdapUserTestStatus({
+        type: result.success ? 'success' : 'error',
+        message: result.success
+          ? t('settings.ldapTestUserSuccess', { displayName: result.displayName || ldapUserTest.username })
+          : (result.message || t('settings.ldapTestUserFailed')),
+      })
+    } catch {
+      setLdapUserTestStatus({ type: 'error', message: t('settings.ldapTestUserFailed') })
     }
   }
 
@@ -784,6 +829,48 @@ export function SettingsPage() {
               <div className="inline-actions">
                 <Button type="submit">{t('common.save')}</Button>
               </div>
+
+              {tenantLdapSettings.host ? (
+                <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
+                      {ldapTestStatus.type !== 'idle' ? (
+                        <div className={`mt-1 text-sm font-medium ${ldapTestStatus.type === 'success' ? 'text-emerald-700' : ldapTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                          {ldapTestStatus.type === 'success' ? '✅ ' : ldapTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                          {ldapTestStatus.message}
+                        </div>
+                      ) : null}
+                    </div>
+                    <Button type="button" variant="secondary" size="sm" onClick={testLdapConnectivity} disabled={ldapTestStatus.type === 'testing'}>
+                      {ldapTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
+                    </Button>
+                  </div>
+
+                  <div className="border-t border-slate-200 pt-4">
+                    <div className="text-sm font-semibold text-slate-700 mb-2">{t('settings.ldapTestUserCredentials')}</div>
+                    <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                      <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                        <span>{t('settings.ldapTestUsername')}</span>
+                        <input className="field-input" value={ldapUserTest.username} onChange={e => setLdapUserTest(c => ({ ...c, username: e.target.value }))} />
+                      </label>
+                      <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                        <span>{t('settings.ldapTestPassword')}</span>
+                        <input className="field-input" type="password" value={ldapUserTest.password} onChange={e => setLdapUserTest(c => ({ ...c, password: e.target.value }))} />
+                      </label>
+                      <Button type="button" variant="secondary" size="sm" onClick={testLdapUserCredentials} disabled={ldapUserTestStatus.type === 'testing' || !ldapUserTest.username || !ldapUserTest.password}>
+                        {ldapUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
+                      </Button>
+                    </div>
+                    {ldapUserTestStatus.type !== 'idle' ? (
+                      <div className={`mt-2 text-sm font-medium ${ldapUserTestStatus.type === 'success' ? 'text-emerald-700' : ldapUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                        {ldapUserTestStatus.type === 'success' ? '✅ ' : ldapUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                        {ldapUserTestStatus.message}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
             </form>
 
             <form className="section-card page-stack" onSubmit={saveTenantAuthenticationPolicy}>

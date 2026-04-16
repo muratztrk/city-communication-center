@@ -75,6 +75,30 @@ public sealed record UpdateTenantLdapSettingsRequest(
     bool ClearBindPassword,
     string? UserAttribute);
 
+public sealed record TestLdapConnectivityRequest(
+    string? Host,
+    int Port,
+    bool UseSsl,
+    bool IgnoreCertificateErrors,
+    string? Domain,
+    string? SearchBase,
+    string? BindDn,
+    string? BindPassword);
+
+public sealed record TestLdapConnectivityResponse(
+    bool Success,
+    string? Message);
+
+public sealed record TestLdapUserCredentialsRequest(
+    string Username,
+    string Password);
+
+public sealed record TestLdapUserCredentialsResponse(
+    bool Success,
+    string? DisplayName,
+    string? Email,
+    string? Message);
+
 public sealed record TenantAuthenticationPolicyResponse(
     bool AutomaticSignInEnabled,
     string AutomaticSignInMode,

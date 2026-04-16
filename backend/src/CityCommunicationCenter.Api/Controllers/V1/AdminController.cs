@@ -76,7 +76,9 @@ public sealed class AdminController : ApiControllerBase
                 request.HeaderGradientFrom,
                 request.HeaderGradientTo,
                 request.SidebarBackgroundColor,
-                request.SidebarForegroundColor),
+                request.SidebarForegroundColor,
+                request.LogoUrl,
+                request.LoginBackgroundImageUrl),
             cancellationToken);
 
         return NoContent();

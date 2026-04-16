@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LayoutDashboard, MessageSquareMore, Shield, SquareKanban } from 'lucide-react'
+import { MessageSquareMore, Shield, SquareKanban } from 'lucide-react'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -85,6 +85,19 @@ export function LoginPage() {
     ?? tenantContext?.resolvedTenant?.displayName
     ?? tenantContext?.resolvedTenant?.municipalityName
     ?? t('login.organizationFallback')
+  const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
+  const logoUrl = tenantContext?.appearance?.logoUrl?.trim() || null
+  const loginBackgroundImageUrl = tenantContext?.appearance?.loginBackgroundImageUrl?.trim() || null
+  const loginHeroBackgroundStyle = loginBackgroundImageUrl
+    ? {
+      backgroundImage: `linear-gradient(145deg, var(--color-header-from), var(--color-header-to)), url("${loginBackgroundImageUrl}")`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundBlendMode: 'multiply',
+    } as const
+    : {
+      background: 'linear-gradient(145deg, var(--color-header-from), var(--color-header-to))',
+    } as const
 
   const applyTenantContext = useEffectEvent((data: TenantLoginContext) => {
     const resolvedTenantId = data.resolvedTenant?.tenantId ?? data.tenants[0]?.tenantId ?? ''
@@ -101,6 +114,7 @@ export function LoginPage() {
 
   useEffect(() => {
     let isActive = true
+    document.body.classList.add('login-screen')
 
     const loadTenantContext = async () => {
       setIsTenantContextLoading(true)
@@ -129,6 +143,7 @@ export function LoginPage() {
 
     return () => {
       isActive = false
+      document.body.classList.remove('login-screen')
     }
   }, [])
 
@@ -244,32 +259,25 @@ export function LoginPage() {
       <div className="mx-auto grid max-w-[1320px] overflow-hidden rounded-[var(--radius-2xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] lg:min-h-[calc(100dvh-2rem)] lg:grid-cols-[minmax(0,1.05fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10"
-          style={{
-            background: 'linear-gradient(145deg, var(--color-header-from), var(--color-header-to))',
-          }}
+          style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
           <div className="relative grid gap-5">
-            <div className="inline-flex w-fit items-center rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/88">
-              {t('login.organizationFallback')}
-            </div>
             <div className="space-y-3">
               <div className="flex items-center gap-3.5">
-                <MunicipalitySeal alt={`${institutionName} logo`} />
+                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="h-28 w-28 rounded-[2.25rem]" />
                 <div className="min-w-0">
-                  <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('shell.subtitle')}</div>
-                  <h1 className="mt-1 max-w-xl text-3xl font-extrabold leading-[1.08] text-white xl:text-4xl">
-                    {!isTenantContextLoading ? institutionName : t('login.title')}
+                  <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
+                    {t('shell.subtitle', { municipalityName })}
                   </h1>
                 </div>
               </div>
               <p className="max-w-2xl text-sm leading-7 text-white/84">{t('login.subtitle')}</p>
             </div>
-            <div className="grid gap-2.5 xl:max-w-[44rem] xl:grid-cols-3">
+            <div className="grid gap-2.5 xl:max-w-[44rem] xl:grid-cols-2">
               {[
-                { icon: LayoutDashboard, title: t('login.heroCardDashboard') },
-                { icon: SquareKanban, title: t('login.heroCardTasks') },
-                { icon: MessageSquareMore, title: t('login.heroCardSocial') },
+                { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
+                { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
               ].map(item => {
                 const Icon = item.icon
                 return (
@@ -298,10 +306,9 @@ export function LoginPage() {
         <section className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
           <div className="w-full max-w-[25rem] space-y-4">
             <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
-              <MunicipalitySeal compact alt={`${institutionName} logo`} />
+              <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} className="h-18 w-18 rounded-[1.5rem]" />
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-slate-950">{institutionName}</div>
-                <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{t('shell.subtitle', { municipalityName: institutionName.replace(/\s+Belediyesi?$/i, '').trim() })}</div>
+                <div className="truncate text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             </div>
 

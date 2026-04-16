@@ -19,6 +19,8 @@ public sealed record TenantAppearanceDescriptor(
     string HeaderGradientTo,
     string SidebarBackgroundColor,
     string SidebarForegroundColor,
+    string? LogoUrl,
+    string? LoginBackgroundImageUrl,
     bool IsCustomized);
 
 public sealed record TenantAppearanceUpdate(
@@ -32,4 +34,6 @@ public sealed record TenantAppearanceUpdate(
     string HeaderGradientFrom,
     string HeaderGradientTo,
     string SidebarBackgroundColor,
-    string SidebarForegroundColor);
+    string SidebarForegroundColor,
+    string? LogoUrl,
+    string? LoginBackgroundImageUrl);

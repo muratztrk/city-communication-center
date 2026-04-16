@@ -8,21 +8,39 @@ export interface ThemePresetDefinition {
 }
 
 export const DEFAULT_TENANT_APPEARANCE: TenantAppearance = {
-  themePreset: 'civic-classic',
-  primaryColor: '#0B4F7A',
-  secondaryColor: '#2C678F',
-  accentColor: '#C59A37',
-  neutralColor: '#5B6775',
+  themePreset: 'tire-municipal-green',
+  primaryColor: '#0A8F3E',
+  secondaryColor: '#53B748',
+  accentColor: '#1F2328',
+  neutralColor: '#4F5B54',
   surfaceColor: '#FFFFFF',
-  backgroundColor: '#F5F7FA',
-  headerGradientFrom: '#103A5B',
-  headerGradientTo: '#2F658D',
-  sidebarBackgroundColor: '#0C2D48',
-  sidebarForegroundColor: '#F8FBFD',
+  backgroundColor: '#F3F8F4',
+  headerGradientFrom: '#0B6B36',
+  headerGradientTo: '#1A1E1C',
+  sidebarBackgroundColor: '#171A18',
+  sidebarForegroundColor: '#F4FAF5',
   isCustomized: false,
 }
 
 export const THEME_PRESETS: ThemePresetDefinition[] = [
+  {
+    key: 'tire-municipal-green',
+    label: 'Tire Yeşil',
+    description: 'Tire Belediyesi logosundaki yeşil ve koyu tonlara uyarlanmış tema.',
+    appearance: {
+      themePreset: 'tire-municipal-green',
+      primaryColor: '#0A8F3E',
+      secondaryColor: '#53B748',
+      accentColor: '#1F2328',
+      neutralColor: '#4F5B54',
+      surfaceColor: '#FFFFFF',
+      backgroundColor: '#F3F8F4',
+      headerGradientFrom: '#0B6B36',
+      headerGradientTo: '#1A1E1C',
+      sidebarBackgroundColor: '#171A18',
+      sidebarForegroundColor: '#F4FAF5',
+    },
+  },
   {
     key: 'civic-classic',
     label: 'Kurumsal Mavi',

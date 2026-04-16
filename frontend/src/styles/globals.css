@@ -62,6 +62,11 @@
 }
 
 @layer components {
+  body.login-screen [aria-label='Dil seçici'],
+  body.login-screen [aria-label='Language selector'] {
+    display: none !important;
+  }
+
   .surface-panel {
     background: color-mix(in srgb, var(--color-surface) 96%, white);
     border: 1px solid var(--color-border);
@@ -511,4 +516,3 @@
     }
   }
 }
-

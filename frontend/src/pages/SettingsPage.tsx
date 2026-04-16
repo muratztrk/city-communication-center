@@ -179,6 +179,8 @@ export function SettingsPage() {
     headerGradientTo: DEFAULT_TENANT_APPEARANCE.headerGradientTo,
     sidebarBackgroundColor: DEFAULT_TENANT_APPEARANCE.sidebarBackgroundColor,
     sidebarForegroundColor: DEFAULT_TENANT_APPEARANCE.sidebarForegroundColor,
+    logoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
+    loginBackgroundImageUrl: DEFAULT_TENANT_APPEARANCE.loginBackgroundImageUrl ?? null,
   })
   const [loadedAppearance, setLoadedAppearance] = useState<TenantAppearanceInput>(appearanceForm)
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
@@ -225,6 +227,8 @@ export function SettingsPage() {
           headerGradientTo: appearanceResponse.headerGradientTo,
           sidebarBackgroundColor: appearanceResponse.sidebarBackgroundColor,
           sidebarForegroundColor: appearanceResponse.sidebarForegroundColor,
+          logoUrl: appearanceResponse.logoUrl ?? null,
+          loginBackgroundImageUrl: appearanceResponse.loginBackgroundImageUrl ?? null,
         }
 
         setTenantSettings(tenantResponse)
@@ -318,6 +322,8 @@ export function SettingsPage() {
         headerGradientTo: refreshed.headerGradientTo,
         sidebarBackgroundColor: refreshed.sidebarBackgroundColor,
         sidebarForegroundColor: refreshed.sidebarForegroundColor,
+        logoUrl: refreshed.logoUrl ?? null,
+        loginBackgroundImageUrl: refreshed.loginBackgroundImageUrl ?? null,
       }
 
       setAppearanceForm(nextAppearance)
@@ -615,8 +621,18 @@ export function SettingsPage() {
                 </div>
                 <Paintbrush className="size-5 text-slate-400" />
               </div>
-              <div className="rounded-[var(--radius-xl)] p-6 text-white shadow-[var(--shadow-edge)]" style={{ background: `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo})` }}>
-                <MunicipalitySeal compact />
+              <div
+                className="rounded-[var(--radius-xl)] p-6 text-white shadow-[var(--shadow-edge)]"
+                style={{
+                  backgroundImage: previewAppearance.loginBackgroundImageUrl
+                    ? `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo}), url("${previewAppearance.loginBackgroundImageUrl}")`
+                    : `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundBlendMode: previewAppearance.loginBackgroundImageUrl ? 'multiply' : undefined,
+                }}
+              >
+                <MunicipalitySeal compact src={previewAppearance.logoUrl ?? null} />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
                 <p className="mt-2 max-w-md text-sm leading-6 text-white/78">{t('settings.appearancePreviewBody')}</p>
               </div>
@@ -660,11 +676,27 @@ export function SettingsPage() {
                   ['headerGradientTo', t('settings.headerGradientTo')],
                   ['sidebarBackgroundColor', t('settings.sidebarBackgroundColor')],
                   ['sidebarForegroundColor', t('settings.sidebarForegroundColor')],
+                  ['logoUrl', t('settings.logoUrl')],
+                  ['loginBackgroundImageUrl', t('settings.loginBackgroundImageUrl')],
                 ] as const
               ).map(([field, label]) => (
                 <label className="grid gap-2 text-sm font-semibold text-slate-700" key={field}>
                   <span>{label}</span>
-                  <input className="field-input" value={appearanceForm[field]} onChange={event => setAppearanceForm(current => ({ ...current, [field]: event.target.value }))} />
+                  <input
+                    className="field-input"
+                    placeholder={field === 'logoUrl' || field === 'loginBackgroundImageUrl' ? t('settings.urlPlaceholder') : undefined}
+                    value={appearanceForm[field] ?? ''}
+                    onChange={event => {
+                      const nextValue = event.target.value
+                      setAppearanceForm(current => ({
+                        ...current,
+                        [field]:
+                          field === 'logoUrl' || field === 'loginBackgroundImageUrl'
+                            ? (nextValue || null)
+                            : nextValue,
+                      }))
+                    }}
+                  />
                 </label>
               ))}
             </div>
@@ -996,5 +1028,3 @@ export function SettingsPage() {
     </div>
   )
 }
-
-

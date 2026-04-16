@@ -1,12 +1,22 @@
-﻿import { cn } from '../../lib/cn'
+﻿import { useEffect, useState } from 'react'
+import { cn } from '../../lib/cn'
 
 interface MunicipalitySealProps {
   className?: string
   compact?: boolean
   alt?: string
+  src?: string | null
 }
 
-export function MunicipalitySeal({ className, compact = false, alt = 'Municipality logo' }: MunicipalitySealProps) {
+const FALLBACK_LOGO_SRC = '/favicon.svg'
+
+export function MunicipalitySeal({ className, compact = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
+  const [currentSrc, setCurrentSrc] = useState(src || FALLBACK_LOGO_SRC)
+
+  useEffect(() => {
+    setCurrentSrc(src || FALLBACK_LOGO_SRC)
+  }, [src])
+
   return (
     <div
       className={cn(
@@ -23,7 +33,8 @@ export function MunicipalitySeal({ className, compact = false, alt = 'Municipali
           'absolute inset-0 m-auto object-contain drop-shadow-[0_12px_24px_rgba(15,23,42,0.22)]',
           compact ? 'h-[62%] w-[62%]' : 'h-[68%] w-[68%]',
         )}
-        src="/favicon.svg"
+        src={currentSrc}
+        onError={() => setCurrentSrc(FALLBACK_LOGO_SRC)}
       />
     </div>
   )

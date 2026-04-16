@@ -29,6 +29,8 @@ public sealed record TenantAppearanceResponse(
     string HeaderGradientTo,
     string SidebarBackgroundColor,
     string SidebarForegroundColor,
+    string? LogoUrl,
+    string? LoginBackgroundImageUrl,
     bool IsCustomized);
 
 public sealed record UpdateTenantAppearanceRequest(
@@ -42,7 +44,9 @@ public sealed record UpdateTenantAppearanceRequest(
     string HeaderGradientFrom,
     string HeaderGradientTo,
     string SidebarBackgroundColor,
-    string SidebarForegroundColor);
+    string SidebarForegroundColor,
+    string? LogoUrl,
+    string? LoginBackgroundImageUrl);
 
 public sealed record TenantLdapSettingsResponse(
     bool Enabled,

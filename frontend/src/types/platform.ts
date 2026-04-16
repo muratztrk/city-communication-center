@@ -113,6 +113,8 @@ export interface TenantAppearance {
   headerGradientTo: string;
   sidebarBackgroundColor: string;
   sidebarForegroundColor: string;
+  logoUrl?: string | null;
+  loginBackgroundImageUrl?: string | null;
   isCustomized: boolean;
 }
 

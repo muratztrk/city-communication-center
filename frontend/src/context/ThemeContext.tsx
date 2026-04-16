@@ -2,6 +2,24 @@ import { createContext, useContext, useEffect, useState, type PropsWithChildren 
 import { applyTenantAppearance, DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
 import type { TenantAppearance } from '../types/platform'
 
+const APPEARANCE_STORAGE_KEY = 'ccc_tenant_appearance'
+
+function loadPersistedAppearance(): TenantAppearance {
+  try {
+    const raw = localStorage.getItem(APPEARANCE_STORAGE_KEY)
+    if (raw) {
+      return resolveTenantAppearance(JSON.parse(raw) as Partial<TenantAppearance>)
+    }
+  } catch { /* ignore */ }
+  return DEFAULT_TENANT_APPEARANCE
+}
+
+function persistAppearance(appearance: TenantAppearance): void {
+  try {
+    localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify(appearance))
+  } catch { /* ignore */ }
+}
+
 interface ThemeContextValue {
   appearance: TenantAppearance
   setAppearance: (appearance: Partial<TenantAppearance> | null | undefined) => void
@@ -11,10 +29,11 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({ children }: PropsWithChildren) {
-  const [appearance, setAppearanceState] = useState<TenantAppearance>(DEFAULT_TENANT_APPEARANCE)
+  const [appearance, setAppearanceState] = useState<TenantAppearance>(loadPersistedAppearance)
 
   useEffect(() => {
     applyTenantAppearance(appearance)
+    persistAppearance(appearance)
   }, [appearance])
 
   const value: ThemeContextValue = {

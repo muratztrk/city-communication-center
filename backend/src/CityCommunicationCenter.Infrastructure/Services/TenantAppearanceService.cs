@@ -5,17 +5,19 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
     public static readonly TenantAppearanceDescriptor DefaultAppearance = new(
-        "tire-civic",
-        "#0F4C81",
-        "#2B6EA6",
-        "#C6932D",
-        "#6A7786",
+        "tire-municipal-green",
+        "#0A8F3E",
+        "#53B748",
+        "#1F2328",
+        "#4F5B54",
         "#FFFFFF",
-        "#EEF3F8",
-        "#123B63",
-        "#356F99",
-        "#102F4A",
-        "#F6F8FB",
+        "#F3F8F4",
+        "#0B6B36",
+        "#1A1E1C",
+        "#171A18",
+        "#F4FAF5",
+        null,
+        null,
         false);
 
     private readonly IApplicationDbContext _dbContext;
@@ -66,6 +68,8 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             HeaderGradientTo = Normalize(settings.HeaderGradientTo) ?? DefaultAppearance.HeaderGradientTo,
             SidebarBackgroundColor = Normalize(settings.SidebarBackgroundColor) ?? DefaultAppearance.SidebarBackgroundColor,
             SidebarForegroundColor = Normalize(settings.SidebarForegroundColor) ?? DefaultAppearance.SidebarForegroundColor,
+            LogoUrl = Normalize(settings.LogoUrl),
+            LoginBackgroundImageUrl = Normalize(settings.LoginBackgroundImageUrl),
         };
 
         if (tenantSetting is null)
@@ -104,6 +108,8 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             Normalize(payload.HeaderGradientTo) ?? DefaultAppearance.HeaderGradientTo,
             Normalize(payload.SidebarBackgroundColor) ?? DefaultAppearance.SidebarBackgroundColor,
             Normalize(payload.SidebarForegroundColor) ?? DefaultAppearance.SidebarForegroundColor,
+            Normalize(payload.LogoUrl),
+            Normalize(payload.LoginBackgroundImageUrl),
             isCustomized);
 
     private static string? Normalize(string? value)
@@ -132,5 +138,9 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
         public string? SidebarBackgroundColor { get; set; }
 
         public string? SidebarForegroundColor { get; set; }
+
+        public string? LogoUrl { get; set; }
+
+        public string? LoginBackgroundImageUrl { get; set; }
     }
 }

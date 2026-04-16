@@ -15,9 +15,9 @@ export default defineConfig({
       },
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'City Communication Center',
-        short_name: 'CCC',
-        description: 'Tenant-aware municipal communication operations platform.',
+        name: 'Tire İletişim Merkezi',
+        short_name: 'Tire İletişim',
+        description: 'Vatandaş talepleri ve kurum içi iş takibi için belediye iletişim merkezi.',
         theme_color: '#123B63',
         background_color: '#EEF3F8',
         display: 'standalone',

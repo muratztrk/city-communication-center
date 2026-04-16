@@ -344,12 +344,11 @@ internal sealed class InteractiveAuthenticationService : IInteractiveAuthenticat
         switch (policy.SecondFactorProvider)
         {
             case SecondFactorProviderType.Mock:
-                _logger.LogInformation(
-                    "Mock second factor dispatched for tenant {TenantId}, user {UserId}, challenge {ChallengeId}, code {Code}",
+                _logger.LogDebug(
+                    "Mock second factor dispatched for tenant {TenantId}, user {UserId}, challenge {ChallengeId}",
                     authenticatedUser.TenantId,
                     authenticatedUser.UserId,
-                    challengeId,
-                    code);
+                    challengeId);
                 return true;
 
             case SecondFactorProviderType.Webhook when !string.IsNullOrWhiteSpace(policy.WebhookUrl):

@@ -162,7 +162,7 @@ public class XClient : ISocialMediaClient
             var response = await GetWithBearerAsync($"{ApiBaseV2}/users/me", ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (HttpRequestException)
         {
             return false;
         }

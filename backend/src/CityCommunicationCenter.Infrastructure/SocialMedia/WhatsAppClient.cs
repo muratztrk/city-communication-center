@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -105,11 +106,13 @@ public class WhatsAppClient : ISocialMediaClient
     {
         try
         {
-            var url = $"{ApiBase}/{_settings.PhoneNumberId}?access_token={_settings.AccessToken}";
-            var response = await _httpClient.GetAsync(url, ct);
+            var url = $"{ApiBase}/{_settings.PhoneNumberId}";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.AccessToken);
+            var response = await _httpClient.SendAsync(request, ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (HttpRequestException)
         {
             return false;
         }

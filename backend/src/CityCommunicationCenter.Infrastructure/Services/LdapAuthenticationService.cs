@@ -1,17 +1,20 @@
 using System.DirectoryServices.Protocols;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 
 internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 {
     private readonly ITenantLdapSettingsService _tenantLdapSettingsService;
+    private readonly ILogger<LdapAuthenticationService> _logger;
     private readonly int _searchResultLimit;
 
-    public LdapAuthenticationService(ITenantLdapSettingsService tenantLdapSettingsService, IOptions<AuthenticationOptions> options)
+    public LdapAuthenticationService(ITenantLdapSettingsService tenantLdapSettingsService, IOptions<AuthenticationOptions> options, ILogger<LdapAuthenticationService> logger)
     {
         _tenantLdapSettingsService = tenantLdapSettingsService;
+        _logger = logger;
         _searchResultLimit = Math.Clamp(options.Value.Ldap.SearchResultLimit, 1, 50);
     }
 
@@ -127,8 +130,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         {
             connection.Bind(new NetworkCredential(userDn, password));
         }
-        catch (LdapException)
+        catch (LdapException ex)
         {
+            _logger.LogWarning(ex, "LDAP bind failed during authentication for user {Username}", username);
             return null;
         }
 
@@ -175,8 +179,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 .Take(GetSearchResultLimit())
                 .ToArray();
         }
-        catch (LdapException)
+        catch (LdapException ex)
         {
+            _logger.LogWarning(ex, "LDAP search failed for query '{Query}'", query);
             return [];
         }
     }
@@ -218,8 +223,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? externalIdentityId,
                 GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"));
         }
-        catch (LdapException)
+        catch (LdapException ex)
         {
+            _logger.LogWarning(ex, "LDAP lookup failed for external identity {ExternalIdentityId}", externalIdentityId);
             return null;
         }
     }
@@ -262,8 +268,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? username,
                 GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"));
         }
-        catch (LdapException)
+        catch (LdapException ex)
         {
+            _logger.LogWarning(ex, "LDAP lookup failed for username {Username}", username);
             return null;
         }
     }
@@ -318,8 +325,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             var response = (SearchResponse)connection.SendRequest(request);
             return response.Entries.Count > 0 ? response.Entries[0].DistinguishedName : null;
         }
-        catch (LdapException)
+        catch (LdapException ex)
         {
+            _logger.LogWarning(ex, "LDAP DN search failed for username {Username}", username);
             return null;
         }
     }
@@ -357,8 +365,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 GetAttribute(entry, "displayName") ?? username,
                 GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName") ?? NormalizeEmail(username));
         }
-        catch (LdapException)
+        catch (LdapException ex)
         {
+            _logger.LogWarning(ex, "LDAP profile search failed for username");
             return null;
         }
     }

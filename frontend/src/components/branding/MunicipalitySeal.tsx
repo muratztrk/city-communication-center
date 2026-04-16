@@ -34,6 +34,8 @@ export function MunicipalitySeal({ className, compact = false, alt = 'Municipali
           compact ? 'h-[62%] w-[62%]' : 'h-[68%] w-[68%]',
         )}
         src={currentSrc}
+        loading="lazy"
+        decoding="async"
         onError={() => setCurrentSrc(FALLBACK_LOGO_SRC)}
       />
     </div>

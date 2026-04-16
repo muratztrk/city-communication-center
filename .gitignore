@@ -6,6 +6,12 @@
 # dotenv files
 .env
 
+# Data protection keys (contain unencrypted master key material)
+.keys/
+
+# Development settings with local credentials
+**/appsettings.Development.json
+
 # User-specific files
 *.rsuser
 *.suo

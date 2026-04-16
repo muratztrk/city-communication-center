@@ -47,6 +47,9 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-[color:var(--color-background)] md:h-dvh md:overflow-hidden lg:flex">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg">
+        Skip to content
+      </a>
       <div className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-white/94 px-3 py-2.5 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -54,7 +57,7 @@ export function AppShell() {
               type="button"
               className="sidebar-chip text-slate-700"
               onClick={() => setIsMobileNavOpen(true)}
-              aria-label={t('nav.settings')}
+              aria-label={t('nav.openMenu', 'Open menu')}
             >
               <Menu className="size-4.5" />
             </button>
@@ -71,7 +74,8 @@ export function AppShell() {
       </div>
 
       {isMobileNavOpen ? (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label={t('nav.navigation', 'Navigation')}
+          onKeyDown={(e) => { if (e.key === 'Escape') setIsMobileNavOpen(false) }}>
           <button type="button" className="absolute inset-0 bg-slate-950/40" onClick={() => setIsMobileNavOpen(false)} aria-label="Close navigation" />
           <aside className="sidebar-shell relative z-10 flex h-full w-[88vw] max-w-[320px] flex-col p-3 shadow-2xl">
             <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
@@ -155,7 +159,7 @@ export function AppShell() {
       </aside>
 
       <div className="min-w-0 flex-1 overflow-x-clip md:min-h-0 md:overflow-hidden">
-        <main className="flex min-h-[calc(100dvh-3.6rem)] w-full max-w-none flex-col px-3 py-3 sm:px-4 md:h-[calc(100dvh-3.6rem)] md:min-h-0 md:overflow-hidden lg:h-dvh lg:px-6 lg:py-4 xl:px-7 2xl:px-8">
+        <main id="main-content" className="flex min-h-[calc(100dvh-3.6rem)] w-full max-w-none flex-col px-3 py-3 sm:px-4 md:h-[calc(100dvh-3.6rem)] md:min-h-0 md:overflow-hidden lg:h-dvh lg:px-6 lg:py-4 xl:px-7 2xl:px-8">
           <Outlet />
         </main>
       </div>

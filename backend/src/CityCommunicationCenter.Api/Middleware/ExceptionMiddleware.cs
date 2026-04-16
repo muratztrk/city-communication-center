@@ -38,6 +38,10 @@ public sealed class ExceptionMiddleware
         {
             await WriteValidationResponseAsync(context, exception, _localizer);
         }
+        catch (OperationCanceledException)
+        {
+            context.Response.StatusCode = 499; // Client Closed Request
+        }
         catch (Exception exception)
         {
             _logger.LogError(exception, "Unhandled exception occured while processing request.");

@@ -1,6 +1,7 @@
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Domain.Enums;
 using CityCommunicationCenter.Infrastructure.Persistence;
+using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Infrastructure.SocialMedia;
 
@@ -40,13 +41,16 @@ public class SocialMediaService : ISocialMediaService
 {
     private readonly ISocialMediaClientFactory _clientFactory;
     private readonly CityCommunicationCenterDbContext _dbContext;
+    private readonly ILogger<SocialMediaService> _logger;
 
     public SocialMediaService(
         ISocialMediaClientFactory clientFactory,
-        CityCommunicationCenterDbContext dbContext)
+        CityCommunicationCenterDbContext dbContext,
+        ILogger<SocialMediaService> logger)
     {
         _clientFactory = clientFactory;
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     public async Task<SocialMediaResult> SendReplyAsync(
@@ -117,8 +121,7 @@ public class SocialMediaService : ISocialMediaService
             }
             catch (Exception ex)
             {
-                // Log error but continue with other channels
-                Console.WriteLine($"Error fetching from {client.Platform}: {ex.Message}");
+                _logger.LogWarning(ex, "Error fetching messages from {Platform}", client.Platform);
             }
         }
 
@@ -178,8 +181,9 @@ public class SocialMediaService : ISocialMediaService
             {
                 status[channel] = await client.ValidateConnectionAsync(ct);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to validate connection for {Channel}", channel);
                 status[channel] = false;
             }
         }

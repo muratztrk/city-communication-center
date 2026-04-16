@@ -392,14 +392,14 @@ export function LoginPage() {
                   >
                     <label className="grid gap-2 text-sm font-semibold text-slate-700">
                       <span>{t('login.username')}</span>
-                      <input id="username" className="field-input" autoComplete="username" {...credentialsForm.register('username')} />
-                      {credentialsForm.formState.errors.username ? <span className="text-xs font-medium text-rose-600">{t('login.usernameRequired')}</span> : null}
+                      <input id="username" className="field-input" autoComplete="username" aria-invalid={!!credentialsForm.formState.errors.username} aria-describedby={credentialsForm.formState.errors.username ? 'username-error' : undefined} {...credentialsForm.register('username')} />
+                      {credentialsForm.formState.errors.username ? <span id="username-error" className="text-xs font-medium text-rose-600">{t('login.usernameRequired')}</span> : null}
                     </label>
 
                     <label className="grid gap-2 text-sm font-semibold text-slate-700">
                       <span>{t('login.password')}</span>
-                      <input id="password" type="password" className="field-input" autoComplete="current-password" {...credentialsForm.register('password')} />
-                      {credentialsForm.formState.errors.password ? <span className="text-xs font-medium text-rose-600">{t('login.passwordRequired')}</span> : null}
+                      <input id="password" type="password" className="field-input" autoComplete="current-password" aria-invalid={!!credentialsForm.formState.errors.password} aria-describedby={credentialsForm.formState.errors.password ? 'password-error' : undefined} {...credentialsForm.register('password')} />
+                      {credentialsForm.formState.errors.password ? <span id="password-error" className="text-xs font-medium text-rose-600">{t('login.passwordRequired')}</span> : null}
                     </label>
 
                     <Button type="submit" size="lg" className="mt-1 w-full" disabled={isLoading || !isTenantReady}>

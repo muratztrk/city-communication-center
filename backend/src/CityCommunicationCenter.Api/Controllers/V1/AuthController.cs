@@ -202,8 +202,16 @@ public sealed class AuthController : ControllerBase
 
     [HttpPost("bootstrap")]
     [AllowAnonymous]
-    public async Task<IActionResult> Bootstrap([FromBody] BootstrapTenantRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Bootstrap(
+        [FromBody] BootstrapTenantRequest request,
+        [FromServices] IWebHostEnvironment environment,
+        CancellationToken cancellationToken)
     {
+        if (!environment.IsDevelopment())
+        {
+            return NotFound();
+        }
+
         var response = await _sender.Send(
             new BootstrapTenantCommand(
                 request.MunicipalityName,

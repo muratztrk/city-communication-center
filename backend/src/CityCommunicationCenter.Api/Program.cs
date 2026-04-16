@@ -48,8 +48,17 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(OpenCorsPolicy, policy =>
     {
-        policy.SetIsOriginAllowed(_ => true)
-              .AllowAnyHeader()
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+        if (allowedOrigins is { Length: > 0 })
+        {
+            policy.WithOrigins(allowedOrigins);
+        }
+        else if (builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(_ => true);
+        }
+
+        policy.AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
@@ -207,12 +216,15 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Envi
 }
 
 app.UseRouting();
-app.UseCors(OpenCorsPolicy);
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+app.UseCors(OpenCorsPolicy);
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseRateLimiter();
 app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
@@ -244,10 +256,6 @@ app.UseSerilogRequestLogging(options =>
         diagnosticContext.Set("TraceIdentifier", httpContext.TraceIdentifier);
     };
 });
-app.UseRateLimiter();
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.MapGet("/", () => Results.Ok(new
 {
     product = "City Communication Center",
@@ -278,7 +286,8 @@ app.MapGet("/health", async (IConfiguration configuration, CancellationToken can
     }
     catch (Exception ex)
     {
-        return Results.Problem(ex.Message, statusCode: StatusCodes.Status503ServiceUnavailable, title: "Database connectivity check failed.");
+        app.Logger.LogError(ex, "Health check failed: database unreachable.");
+        return Results.Problem("Database connectivity check failed.", statusCode: StatusCodes.Status503ServiceUnavailable, title: "Unhealthy");
     }
 }).AllowAnonymous().RequireCors(OpenCorsPolicy);
 

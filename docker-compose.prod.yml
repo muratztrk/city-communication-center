@@ -1,0 +1,35 @@
+# Production overrides for docker-compose.yml
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# This file removes the exposed Postgres port and adds production log volume.
+# Set environment variables in your server .env file:
+#   CCC_ASPNETCORE_ENVIRONMENT=Production
+#   CCC_DB_INCLUDE_ERROR_DETAIL=false
+#   CCC_DB_PASSWORD=<strong-password>
+#   CCC_SIGNING_KEY=<generate-with: openssl rand -base64 48>
+
+services:
+  postgres:
+    # Remove host port exposure — DB is only accessible within Docker network
+    ports: !reset []
+
+  api:
+    volumes:
+      - dataprotection_keys:/var/lib/city-communication-center/dataprotection
+      - api_logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  frontend:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  api_logs:
+    name: ${CCC_API_LOGS_VOLUME_NAME:-city-communication-center-api-logs}

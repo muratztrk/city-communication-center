@@ -30,6 +30,7 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
     public async Task<TenantAppearanceDescriptor> GetSettingsAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var payload = await _dbContext.TenantSettings
+            .AsNoTracking()
             .IgnoreQueryFilters()
             .Where(entity => entity.TenantId == tenantId)
             .Select(entity => entity.AppearanceJson)

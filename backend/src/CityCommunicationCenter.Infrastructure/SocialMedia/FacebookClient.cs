@@ -21,6 +21,8 @@ public class FacebookClient : ISocialMediaClient
     {
         _httpClient = httpClient;
         _settings = settings;
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", settings.PageAccessToken);
     }
 
     public async Task<SocialMediaResult> SendMessageAsync(SendMessageRequest request, CancellationToken ct = default)
@@ -33,7 +35,7 @@ public class FacebookClient : ISocialMediaClient
             messaging_type = "RESPONSE"
         };
 
-        var url = $"{GraphApiBase}/me/messages?access_token={_settings.PageAccessToken}";
+        var url = $"{GraphApiBase}/me/messages";
         var response = await PostJsonAsync(url, payload, ct);
 
         if (response.IsSuccessStatusCode)
@@ -53,8 +55,7 @@ public class FacebookClient : ISocialMediaClient
         // Post to Facebook Page
         var payload = new Dictionary<string, string>
         {
-            ["message"] = request.Content,
-            ["access_token"] = _settings.PageAccessToken ?? ""
+            ["message"] = request.Content
         };
 
         // Add media if provided
@@ -83,8 +84,7 @@ public class FacebookClient : ISocialMediaClient
         // Reply to a comment on Facebook
         var payload = new Dictionary<string, string>
         {
-            ["message"] = request.Content,
-            ["access_token"] = _settings.PageAccessToken ?? ""
+            ["message"] = request.Content
         };
 
         var url = $"{GraphApiBase}/{request.OriginalMessageId}/comments";
@@ -105,7 +105,7 @@ public class FacebookClient : ISocialMediaClient
     public async Task<IReadOnlyList<IncomingMessage>> FetchMessagesAsync(FetchMessagesRequest request, CancellationToken ct = default)
     {
         // Fetch Page conversations
-        var url = $"{GraphApiBase}/{_settings.PageId}/conversations?fields=participants,messages{{message,from,created_time}}&access_token={_settings.PageAccessToken}";
+        var url = $"{GraphApiBase}/{_settings.PageId}/conversations?fields=participants,messages{{message,from,created_time}}";
 
         var response = await _httpClient.GetAsync(url, ct);
         
@@ -148,7 +148,7 @@ public class FacebookClient : ISocialMediaClient
 
     public async Task<UserProfile?> GetUserProfileAsync(string userId, CancellationToken ct = default)
     {
-        var url = $"{GraphApiBase}/{userId}?fields=id,name,picture&access_token={_settings.PageAccessToken}";
+        var url = $"{GraphApiBase}/{userId}?fields=id,name,picture";
         var response = await _httpClient.GetAsync(url, ct);
 
         if (!response.IsSuccessStatusCode)
@@ -170,11 +170,11 @@ public class FacebookClient : ISocialMediaClient
     {
         try
         {
-            var url = $"{GraphApiBase}/me?access_token={_settings.PageAccessToken}";
+            var url = $"{GraphApiBase}/me";
             var response = await _httpClient.GetAsync(url, ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (HttpRequestException)
         {
             return false;
         }

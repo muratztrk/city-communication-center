@@ -21,6 +21,7 @@ public sealed class RoutingService : IRoutingService
 
         // Get all active routing rules for tenant, ordered by priority (highest first)
         var rules = await _dbContext.RoutingRules
+            .AsNoTracking()
             .WhereTenant(tenantId)
             .Where(rule => rule.IsActive)
             .ToListAsync(cancellationToken);
@@ -44,6 +45,7 @@ public sealed class RoutingService : IRoutingService
     public async Task<bool> IsAutoRoutingEnabledAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var settings = await _dbContext.TenantSettings
+            .AsNoTracking()
             .WhereTenant(tenantId)
             .FirstOrDefaultAsync(cancellationToken);
 

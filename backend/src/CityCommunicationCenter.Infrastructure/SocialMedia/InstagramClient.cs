@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -21,6 +22,8 @@ public class InstagramClient : ISocialMediaClient
     {
         _httpClient = httpClient;
         _settings = settings;
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", settings.AccessToken);
     }
 
     public async Task<SocialMediaResult> SendMessageAsync(SendMessageRequest request, CancellationToken ct = default)
@@ -32,7 +35,7 @@ public class InstagramClient : ISocialMediaClient
             message = new { text = request.Message }
         };
 
-        var url = $"{GraphApiBase}/me/messages?access_token={_settings.AccessToken}";
+        var url = $"{GraphApiBase}/me/messages";
         var response = await PostJsonAsync(url, payload, ct);
 
         if (response.IsSuccessStatusCode)
@@ -59,8 +62,7 @@ public class InstagramClient : ISocialMediaClient
         var containerPayload = new Dictionary<string, string>
         {
             ["image_url"] = request.MediaUrls[0],
-            ["caption"] = request.Content,
-            ["access_token"] = _settings.AccessToken ?? ""
+            ["caption"] = request.Content
         };
 
         var containerUrl = $"{GraphApiBase}/{_settings.AccountId}/media";
@@ -78,8 +80,7 @@ public class InstagramClient : ISocialMediaClient
         // Step 2: Publish media container
         var publishPayload = new Dictionary<string, string>
         {
-            ["creation_id"] = containerId!,
-            ["access_token"] = _settings.AccessToken ?? ""
+            ["creation_id"] = containerId!
         };
 
         var publishUrl = $"{GraphApiBase}/{_settings.AccountId}/media_publish";
@@ -102,8 +103,7 @@ public class InstagramClient : ISocialMediaClient
         // Reply to a comment on Instagram
         var payload = new Dictionary<string, string>
         {
-            ["message"] = request.Content,
-            ["access_token"] = _settings.AccessToken ?? ""
+            ["message"] = request.Content
         };
 
         var url = $"{GraphApiBase}/{request.OriginalMessageId}/replies";
@@ -124,7 +124,7 @@ public class InstagramClient : ISocialMediaClient
     public async Task<IReadOnlyList<IncomingMessage>> FetchMessagesAsync(FetchMessagesRequest request, CancellationToken ct = default)
     {
         // Fetch Instagram comments on recent media
-        var mediaUrl = $"{GraphApiBase}/{_settings.AccountId}/media?fields=id,caption,comments{{id,text,from,timestamp}}&access_token={_settings.AccessToken}";
+        var mediaUrl = $"{GraphApiBase}/{_settings.AccountId}/media?fields=id,caption,comments{{id,text,from,timestamp}}";
 
         var response = await _httpClient.GetAsync(mediaUrl, ct);
         
@@ -167,7 +167,7 @@ public class InstagramClient : ISocialMediaClient
 
     public async Task<UserProfile?> GetUserProfileAsync(string userId, CancellationToken ct = default)
     {
-        var url = $"{GraphApiBase}/{userId}?fields=id,username,name,profile_picture_url,followers_count&access_token={_settings.AccessToken}";
+        var url = $"{GraphApiBase}/{userId}?fields=id,username,name,profile_picture_url,followers_count";
         var response = await _httpClient.GetAsync(url, ct);
 
         if (!response.IsSuccessStatusCode)
@@ -190,11 +190,11 @@ public class InstagramClient : ISocialMediaClient
     {
         try
         {
-            var url = $"{GraphApiBase}/{_settings.AccountId}?fields=id,username&access_token={_settings.AccessToken}";
+            var url = $"{GraphApiBase}/{_settings.AccountId}?fields=id,username";
             var response = await _httpClient.GetAsync(url, ct);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (HttpRequestException)
         {
             return false;
         }

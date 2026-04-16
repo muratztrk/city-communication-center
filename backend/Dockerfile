@@ -22,5 +22,8 @@ RUN dotnet publish "CityCommunicationCenter.Api.csproj" -c Release -o /app/publi
 
 FROM base AS final
 WORKDIR /app
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=publish /app/publish .
+RUN mkdir -p /app/logs && chown -R appuser:appgroup /app/logs
+USER appuser
 ENTRYPOINT ["dotnet", "CityCommunicationCenter.Api.dll"]

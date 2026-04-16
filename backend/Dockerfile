@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-RUN apk add --no-cache icu-libs krb5-libs tzdata
+RUN apk add --no-cache icu-libs krb5-libs tzdata libldap
 EXPOSE 80
 EXPOSE 443
 
@@ -22,8 +22,14 @@ RUN dotnet publish "CityCommunicationCenter.Api.csproj" -c Release -o /app/publi
 
 FROM base AS final
 WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN apk add --no-cache su-exec && \
+    addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=publish /app/publish .
-RUN mkdir -p /app/logs && chown -R appuser:appgroup /app/logs
-USER appuser
-ENTRYPOINT ["dotnet", "CityCommunicationCenter.Api.dll"]
+RUN mkdir -p /app/logs /var/lib/city-communication-center/dataprotection && \
+    chown -R appuser:appgroup /app/logs /var/lib/city-communication-center/dataprotection
+COPY --chmod=755 <<'EOF' /app/entrypoint.sh
+#!/bin/sh
+chown -R appuser:appgroup /var/lib/city-communication-center/dataprotection /app/logs 2>/dev/null || true
+exec su-exec appuser dotnet CityCommunicationCenter.Api.dll
+EOF
+ENTRYPOINT ["/app/entrypoint.sh"]

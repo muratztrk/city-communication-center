@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { ShieldUser, Users } from 'lucide-react'
+import { Pencil, ShieldUser, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -55,6 +55,8 @@ export function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [newUser, setNewUser] = useState(DEFAULT_USER_FORM)
+  const [editingUserId, setEditingUserId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ departmentId: '', roleCode: '', isActive: true })
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
   const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
@@ -194,11 +196,12 @@ export function UsersPage() {
         displayName: newUser.displayName,
         email: newUser.email || null,
         password: createMode === 'manual' ? newUser.password : null,
-        departmentId: newUser.departmentId,
+        departmentId: newUser.departmentId || null,
         roleCode: newUser.roleCode,
         isActive: newUser.isActive,
         sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
         externalIdentityId: createMode === 'ldap' ? newUser.externalIdentityId : null,
+        ldapDepartmentName: createMode === 'ldap' ? selectedDirectoryUser?.department ?? null : null,
       })
 
       closeCreateForm()
@@ -208,10 +211,44 @@ export function UsersPage() {
     }
   }
 
+  const startEditing = (user: User) => {
+    setEditingUserId(user.userId)
+    setEditForm({ departmentId: user.departmentId, roleCode: user.roleCode, isActive: user.isActive })
+  }
+
+  const cancelEditing = () => {
+    setEditingUserId(null)
+  }
+
+  const handleUpdateUser = async (userId: string) => {
+    setError('')
+    try {
+      await api.updateUser(userId, editForm)
+      setEditingUserId(null)
+      loadData()
+    } catch (updateError) {
+      setError(updateError instanceof Error ? updateError.message : t('common.error'))
+    }
+  }
+
+  const handleDeleteUser = async (user: User) => {
+    if (!window.confirm(t('users.deleteConfirm', { name: user.displayName }))) {
+      return
+    }
+
+    setError('')
+    try {
+      await api.deleteUser(user.userId)
+      loadData()
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
+    }
+  }
+
   const directoryOptions = useMemo(() => directoryResults.map(result => ({
     id: result.externalIdentityId,
     label: result.displayName,
-    description: [result.username, result.email].filter(Boolean).join(' • '),
+    description: [result.username, result.email, result.department].filter(Boolean).join(' • '),
     helperText: result.alreadyLinked ? t('users.alreadyLinked') : undefined,
     badgeText: result.alreadyLinked ? t('users.alreadyLinkedBadge') : 'LDAP',
     disabled: result.alreadyLinked,
@@ -316,14 +353,39 @@ export function UsersPage() {
                   const selected = directoryResults.find(result => result.externalIdentityId === option.id) ?? null
                   setSelectedDirectoryUser(selected)
                   setDirectoryQuery(option.label)
-                  setNewUser(current => ({
-                    ...current,
-                    username: selected?.username ?? current.username,
-                    displayName: selected?.displayName ?? current.displayName,
-                    email: selected?.email ?? current.email,
-                    password: '',
-                    externalIdentityId: selected?.externalIdentityId ?? null,
-                  }))
+
+                  // Auto-match or auto-create department from LDAP
+                  const resolveDepartment = async () => {
+                    let matchedDepartmentId = ''
+                    if (selected?.department) {
+                      const normalizedLdap = selected.department.toLocaleLowerCase('tr')
+                      const existing = departments.find(d => d.name.toLocaleLowerCase('tr') === normalizedLdap)
+                      if (existing) {
+                        matchedDepartmentId = existing.departmentId
+                      } else {
+                        try {
+                          const created = await api.createDepartment(selected.department, 'Müdürlük')
+                          const refreshed = await api.getDepartments()
+                          setDepartments(refreshed)
+                          matchedDepartmentId = created.departmentId
+                        } catch {
+                          // Silently fall back — user can pick manually
+                        }
+                      }
+                    }
+
+                    setNewUser(current => ({
+                      ...current,
+                      username: selected?.username ?? current.username,
+                      displayName: selected?.displayName ?? current.displayName,
+                      email: selected?.email ?? current.email,
+                      password: '',
+                      externalIdentityId: selected?.externalIdentityId ?? null,
+                      departmentId: matchedDepartmentId || current.departmentId,
+                    }))
+                  }
+
+                  void resolveDepartment()
                 }}
                 onValueChange={value => {
                   setDirectoryQuery(value)
@@ -342,6 +404,14 @@ export function UsersPage() {
                   <div className="mt-1 text-sm text-slate-500">
                     {selectedDirectoryUser.username}{selectedDirectoryUser.email ? ` • ${selectedDirectoryUser.email}` : ''}
                   </div>
+                  {selectedDirectoryUser.department ? (
+                    <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-[color:var(--color-primary)]/10 px-2.5 py-1 text-xs font-semibold text-[color:var(--color-primary)]">
+                      🏢 {selectedDirectoryUser.department}
+                      {departments.some(d => d.name.toLocaleLowerCase('tr') === selectedDirectoryUser.department!.toLocaleLowerCase('tr'))
+                        ? ' ✓'
+                        : ` (${t('users.departmentWillBeCreated')})`}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -452,27 +522,80 @@ export function UsersPage() {
                 <th>{t('users.role')}</th>
                 <th>{t('users.source')}</th>
                 <th>{t('users.status')}</th>
+                {canManageUsers ? <th /> : null}
               </tr>
             </thead>
             <tbody>
               {users.map(user => (
-                <tr key={user.userId}>
-                  <td>{user.username || t('common.none')}</td>
-                  <td className="font-semibold">{user.displayName}</td>
-                  <td>{user.email || t('common.none')}</td>
-                  <td>{getDepartmentName(user.departmentId)}</td>
-                  <td><StatusPill tone={user.roleCode === 'SystemAdmin' ? 'danger' : user.roleCode === 'Manager' ? 'warning' : 'info'}>{getRoleLabel(t, user.roleCode)}</StatusPill></td>
-                  <td><StatusPill tone="info">{getUserSourceLabel(t, user.userSource)}</StatusPill></td>
-                  <td>
-                    <StatusPill tone={user.isActive ? 'success' : 'danger'}>
-                      {user.isActive ? t('users.active') : t('users.inactive')}
-                    </StatusPill>
-                  </td>
-                </tr>
+                editingUserId === user.userId ? (
+                  <tr key={user.userId} className="bg-slate-50">
+                    <td>{user.username || t('common.none')}</td>
+                    <td className="font-semibold">{user.displayName}</td>
+                    <td>{user.email || t('common.none')}</td>
+                    <td>
+                      <select className="field-select text-sm" value={editForm.departmentId} onChange={e => setEditForm(c => ({ ...c, departmentId: e.target.value }))}>
+                        <option value="">{t('tasks.selectDepartment')}</option>
+                        {departments.map(department => (
+                          <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select className="field-select text-sm" value={editForm.roleCode} onChange={e => setEditForm(c => ({ ...c, roleCode: e.target.value }))}>
+                        {['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter'].map(roleCode => (
+                          <option key={roleCode} value={roleCode}>{getRoleLabel(t, roleCode)}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td><StatusPill tone="info">{getUserSourceLabel(t, user.userSource)}</StatusPill></td>
+                    <td>
+                      <label className="inline-flex items-center gap-2 text-sm">
+                        <input className="field-checkbox" checked={editForm.isActive} type="checkbox" onChange={e => setEditForm(c => ({ ...c, isActive: e.target.checked }))} />
+                        {editForm.isActive ? t('users.active') : t('users.inactive')}
+                      </label>
+                    </td>
+                    <td>
+                      <div className="inline-flex gap-1.5">
+                        <Button size="sm" type="button" onClick={() => handleUpdateUser(user.userId)}>{t('common.save')}</Button>
+                        <Button size="sm" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={user.userId}>
+                    <td>{user.username || t('common.none')}</td>
+                    <td className="font-semibold">{user.displayName}</td>
+                    <td>{user.email || t('common.none')}</td>
+                    <td>{getDepartmentName(user.departmentId)}</td>
+                    <td><StatusPill tone={user.roleCode === 'SystemAdmin' ? 'danger' : user.roleCode === 'Manager' ? 'warning' : 'info'}>{getRoleLabel(t, user.roleCode)}</StatusPill></td>
+                    <td><StatusPill tone="info">{getUserSourceLabel(t, user.userSource)}</StatusPill></td>
+                    <td>
+                      <StatusPill tone={user.isActive ? 'success' : 'danger'}>
+                        {user.isActive ? t('users.active') : t('users.inactive')}
+                      </StatusPill>
+                    </td>
+                    {canManageUsers ? (
+                      <td>
+                        <div className="inline-flex gap-2">
+                          <button className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-900" type="button" onClick={() => startEditing(user)}>
+                            <Pencil className="size-3.5" />
+                            {t('common.edit')}
+                          </button>
+                          {user.userId !== currentUser?.userId ? (
+                            <button className="inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700" type="button" onClick={() => handleDeleteUser(user)}>
+                              <Trash2 className="size-3.5" />
+                              {t('common.delete')}
+                            </button>
+                          ) : null}
+                        </div>
+                      </td>
+                    ) : null}
+                  </tr>
+                )
               ))}
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={canManageUsers ? 8 : 7}>
                     <div className="empty-state">{t('users.empty')}</div>
                   </td>
                 </tr>

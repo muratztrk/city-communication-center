@@ -1,4 +1,4 @@
-import { Building, ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Menu, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, X } from 'lucide-react'
+import { Building, ChevronLeft, ChevronRight, Home, LayoutDashboard, LogOut, Menu, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -54,6 +54,25 @@ export function AppShell() {
     users: t('nav.users'),
     audit: t('nav.audit'),
     settings: t('nav.settings'),
+  }
+
+  const breadcrumbParent: Record<string, string> = {
+    tasks: t('nav.groupTasks'),
+    social: t('nav.groupSocial'),
+    departments: t('nav.groupAdmin'),
+    users: t('nav.groupAdmin'),
+    audit: t('nav.groupAdmin'),
+    settings: t('nav.groupAdmin'),
+  }
+
+  const breadcrumbIcon: Record<string, typeof LayoutDashboard> = {
+    dashboard: LayoutDashboard,
+    tasks: SquareKanban,
+    social: MessageSquareMore,
+    departments: Building,
+    users: Users,
+    audit: ScrollText,
+    settings: Settings2,
   }
 
   return (
@@ -165,17 +184,27 @@ export function AppShell() {
       <div className="min-w-0 flex-1 overflow-x-clip md:min-h-0 md:overflow-hidden">
         <div className="hidden items-center justify-between border-b border-[var(--color-border)] bg-white/94 px-6 py-2.5 backdrop-blur lg:flex">
           <nav className="flex items-center gap-1.5 text-sm text-[color:var(--color-muted-foreground)]" aria-label="Breadcrumb">
-            {breadcrumbSegments.map((segment, index) => {
+            <button type="button" className="flex items-center gap-1 hover:text-slate-700" onClick={() => navigate('/dashboard')}>
+              <Home className="size-4" />
+              <span>{t('nav.home')}</span>
+            </button>
+            {breadcrumbSegments.map((segment) => {
               const label = breadcrumbLabels[segment] || segment
-              const isLast = index === breadcrumbSegments.length - 1
+              const parent = breadcrumbParent[segment]
+              const Icon = breadcrumbIcon[segment]
               return (
                 <span key={segment} className="flex items-center gap-1.5">
-                  {index > 0 ? <span className="text-slate-300">/</span> : null}
-                  {isLast ? (
-                    <span className="font-medium text-slate-900">{label}</span>
-                  ) : (
-                    <button type="button" className="hover:text-slate-700" onClick={() => navigate('/' + breadcrumbSegments.slice(0, index + 1).join('/'))}>{label}</button>
-                  )}
+                  {parent ? (
+                    <>
+                      <ChevronRight className="size-3.5 text-slate-300" />
+                      <span>{parent}</span>
+                    </>
+                  ) : null}
+                  <ChevronRight className="size-3.5 text-slate-300" />
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-[color:var(--color-primary)]/10 px-2 py-0.5 font-medium text-[color:var(--color-primary)]">
+                    {Icon ? <Icon className="size-3.5" /> : null}
+                    {label}
+                  </span>
                 </span>
               )
             })}

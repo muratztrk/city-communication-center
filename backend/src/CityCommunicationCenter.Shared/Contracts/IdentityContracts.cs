@@ -24,11 +24,17 @@ public sealed record CreateUserRequest(
     string DisplayName,
     string? Email,
     string? Password,
-    Guid DepartmentId,
+    Guid? DepartmentId,
     string RoleCode,
     bool IsActive,
     string SourceType,
-    string? ExternalIdentityId);
+    string? ExternalIdentityId,
+    string? LdapDepartmentName);
+
+public sealed record UpdateUserRequest(
+    Guid DepartmentId,
+    string RoleCode,
+    bool IsActive);
 
 public sealed record UserLookupResponse(
     Guid UserId,
@@ -45,6 +51,7 @@ public sealed record DirectoryUserLookupResponse(
     string Username,
     string DisplayName,
     string? Email,
+    string? Department,
     bool AlreadyLinked,
     Guid? ExistingUserId);
 

@@ -66,11 +66,12 @@ public sealed class UsersController : ApiControllerBase
                 request.DisplayName,
                 request.Email,
                 request.Password,
-                request.DepartmentId,
+                request.DepartmentId ?? Guid.Empty,
                 request.RoleCode,
                 request.IsActive,
                 request.SourceType,
-                request.ExternalIdentityId),
+                request.ExternalIdentityId,
+                request.LdapDepartmentName),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetAll), response);
@@ -82,5 +83,29 @@ public sealed class UsersController : ApiControllerBase
     {
         var message = await _sender.Send(new SyncDirectoryCommand(), cancellationToken);
         return Accepted(new { message });
+    }
+
+    [HttpPut("{userId:guid}")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<UserSummaryResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserSummaryResponse>> Update(
+        Guid userId,
+        [FromBody] UpdateUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new UpdateUserCommand(userId, request.DepartmentId, request.RoleCode, request.IsActive),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpDelete("{userId:guid}")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(Guid userId, CancellationToken cancellationToken)
+    {
+        await _sender.Send(new DeleteUserCommand(userId), cancellationToken);
+        return NoContent();
     }
 }

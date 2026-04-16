@@ -49,6 +49,26 @@ export const api = {
     return response.json() as Promise<Department>
   },
 
+  async updateDepartment(departmentId: string, name: string, departmentType: string): Promise<Department> {
+    const response = await fetch(`${API_BASE}/departments/${departmentId}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ name, departmentType }),
+    })
+
+    await ensureOk(response, i18n.t('errors.departmentUpdateFailed'))
+    return response.json() as Promise<Department>
+  },
+
+  async deleteDepartment(departmentId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/departments/${departmentId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+
+    await ensureOk(response, i18n.t('errors.departmentDeleteFailed'))
+  },
+
   async getUsers(): Promise<User[]> {
     const response = await fetch(`${API_BASE}/users`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.usersLoadFailed'))
@@ -90,11 +110,12 @@ export const api = {
     displayName: string
     email: string | null
     password: string | null
-    departmentId: string
+    departmentId: string | null
     roleCode: string
     isActive: boolean
     sourceType: string
     externalIdentityId: string | null
+    ldapDepartmentName: string | null
   }): Promise<User> {
     const response = await fetch(`${API_BASE}/users`, {
       method: 'POST',
@@ -104,6 +125,30 @@ export const api = {
 
     await ensureOk(response, i18n.t('errors.userCreateFailed'))
     return response.json() as Promise<User>
+  },
+
+  async updateUser(userId: string, payload: {
+    departmentId: string
+    roleCode: string
+    isActive: boolean
+  }): Promise<User> {
+    const response = await fetch(`${API_BASE}/users/${userId}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+
+    await ensureOk(response, i18n.t('errors.userUpdateFailed'))
+    return response.json() as Promise<User>
+  },
+
+  async deleteUser(userId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/users/${userId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+
+    await ensureOk(response, i18n.t('errors.userDeleteFailed'))
   },
 
   async getTenantSettings(tenantId: string): Promise<TenantSettings> {

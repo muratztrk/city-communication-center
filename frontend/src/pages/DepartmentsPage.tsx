@@ -1,4 +1,4 @@
-import { Building2, Layers3 } from 'lucide-react'
+import { Building2, Check, Layers3, Pencil, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
@@ -14,7 +14,12 @@ export function DepartmentsPage() {
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [newName, setNewName] = useState('')
-  const [newType, setNewType] = useState('MÃ¼dÃ¼rlÃ¼k')
+  const [newType, setNewType] = useState('Müdürlük')
+
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editType, setEditType] = useState('')
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const loadDepartments = () => {
     setLoading(true)
@@ -61,11 +66,48 @@ export function DepartmentsPage() {
     try {
       await api.createDepartment(newName.trim(), newType)
       setNewName('')
-      setNewType('MÃ¼dÃ¼rlÃ¼k')
+      setNewType('Müdürlük')
       setShowForm(false)
       loadDepartments()
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
+    }
+  }
+
+  const startEdit = (department: Department) => {
+    setEditId(department.departmentId)
+    setEditName(department.name)
+    setEditType(department.departmentType)
+    setDeleteConfirmId(null)
+  }
+
+  const cancelEdit = () => {
+    setEditId(null)
+    setEditName('')
+    setEditType('')
+  }
+
+  const handleUpdate = async (departmentId: string) => {
+    if (!editName.trim()) {
+      return
+    }
+
+    try {
+      await api.updateDepartment(departmentId, editName.trim(), editType)
+      cancelEdit()
+      loadDepartments()
+    } catch (updateError) {
+      setError(updateError instanceof Error ? updateError.message : t('common.error'))
+    }
+  }
+
+  const handleDelete = async (departmentId: string) => {
+    try {
+      await api.deleteDepartment(departmentId)
+      setDeleteConfirmId(null)
+      loadDepartments()
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
     }
   }
 
@@ -147,7 +189,7 @@ export function DepartmentsPage() {
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('departments.type')}</span>
               <select className="field-select" value={newType} onChange={event => setNewType(event.target.value)}>
-                <option value="MÃ¼dÃ¼rlÃ¼k">{getDepartmentTypeLabel(t, 'MÃ¼dÃ¼rlÃ¼k')}</option>
+                <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
                 <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
                 <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
               </select>
@@ -167,18 +209,79 @@ export function DepartmentsPage() {
               <tr>
                 <th>{t('departments.name')}</th>
                 <th>{t('departments.type')}</th>
+                <th className="w-28">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {departments.map(department => (
                 <tr key={department.departmentId}>
-                  <td className="font-semibold">{department.name}</td>
-                  <td><StatusPill>{getDepartmentTypeLabel(t, department.departmentType)}</StatusPill></td>
+                  {editId === department.departmentId ? (
+                    <>
+                      <td>
+                        <input
+                          className="field-input"
+                          type="text"
+                          value={editName}
+                          onChange={event => setEditName(event.target.value)}
+                          onKeyDown={event => {
+                            if (event.key === 'Enter') { event.preventDefault(); void handleUpdate(department.departmentId) }
+                            if (event.key === 'Escape') cancelEdit()
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <select className="field-select" value={editType} onChange={event => setEditType(event.target.value)}>
+                          <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
+                          <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
+                          <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
+                        </select>
+                      </td>
+                      <td>
+                        <div className="inline-actions">
+                          <button className="icon-btn text-green-600" title={t('common.save')} type="button" onClick={() => void handleUpdate(department.departmentId)}>
+                            <Check className="size-4" />
+                          </button>
+                          <button className="icon-btn text-slate-400" title={t('common.cancel')} type="button" onClick={cancelEdit}>
+                            <X className="size-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="font-semibold">{department.name}</td>
+                      <td><StatusPill>{getDepartmentTypeLabel(t, department.departmentType)}</StatusPill></td>
+                      <td>
+                        {deleteConfirmId === department.departmentId ? (
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-red-600">{t('departments.deleteConfirm', { name: department.name })}</span>
+                            <div className="inline-actions">
+                              <Button size="sm" variant="destructive" onClick={() => void handleDelete(department.departmentId)}>
+                                {t('common.delete')}
+                              </Button>
+                              <Button size="sm" variant="secondary" onClick={() => setDeleteConfirmId(null)}>
+                                {t('common.cancel')}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="inline-actions">
+                            <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>
+                              <Pencil className="size-4" />
+                            </button>
+                            <button className="icon-btn text-slate-400 hover:text-red-600" title={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null) }}>
+                              <Trash2 className="size-4" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
               {departments.length === 0 ? (
                 <tr>
-                  <td colSpan={2}>
+                  <td colSpan={3}>
                     <div className="empty-state">{t('departments.empty')}</div>
                   </td>
                 </tr>

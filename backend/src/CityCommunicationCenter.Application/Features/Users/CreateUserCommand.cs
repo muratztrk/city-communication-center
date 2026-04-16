@@ -15,7 +15,8 @@ public sealed record CreateUserCommand(
     string RoleCode,
     bool IsActive,
     string SourceType,
-    string? ExternalIdentityId) : ICommand<UserSummaryResponse>;
+    string? ExternalIdentityId,
+    string? LdapDepartmentName) : ICommand<UserSummaryResponse>;
 
 public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
@@ -58,6 +59,7 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
 
         RuleFor(command => command.DepartmentId)
             .NotEmpty()
+            .When(command => string.IsNullOrWhiteSpace(command.LdapDepartmentName))
             .WithMessage(localizer["ValidationDepartmentRequired"]);
 
         RuleFor(command => command.RoleCode)
@@ -125,10 +127,46 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
             username = directoryUser.Username.Trim();
         }
 
-        var department = await _dbContext.Departments
-            .FirstOrDefaultAsync(
-                entity => entity.DepartmentId == request.DepartmentId && entity.TenantId == tenantId,
-                cancellationToken);
+        var departmentId = request.DepartmentId;
+        var ldapDepartmentName = request.LdapDepartmentName?.Trim();
+        Department? department = null;
+
+        // Auto-resolve department from LDAP department name
+        if (departmentId == Guid.Empty && !string.IsNullOrWhiteSpace(ldapDepartmentName))
+        {
+            var normalizedName = ldapDepartmentName.ToUpperInvariant();
+            var existingDepartment = await _dbContext.Departments
+                .FirstOrDefaultAsync(
+                    entity => entity.TenantId == tenantId && entity.Name.ToUpper() == normalizedName,
+                    cancellationToken);
+
+            if (existingDepartment is not null)
+            {
+                department = existingDepartment;
+                departmentId = existingDepartment.DepartmentId;
+            }
+            else
+            {
+                var newDepartment = new Department
+                {
+                    DepartmentId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    Name = ldapDepartmentName,
+                    DepartmentType = "Müdürlük",
+                    CreatedByUserId = context.UserId,
+                };
+                _dbContext.Departments.Add(newDepartment);
+                department = newDepartment;
+                departmentId = newDepartment.DepartmentId;
+            }
+        }
+        else
+        {
+            department = await _dbContext.Departments
+                .FirstOrDefaultAsync(
+                    entity => entity.DepartmentId == departmentId && entity.TenantId == tenantId,
+                    cancellationToken);
+        }
 
         if (department is null)
         {
@@ -187,7 +225,7 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         {
             UserId = Guid.NewGuid(),
             TenantId = tenantId,
-            DepartmentId = request.DepartmentId,
+            DepartmentId = departmentId,
             Username = username,
             DisplayName = displayName,
             Email = email,

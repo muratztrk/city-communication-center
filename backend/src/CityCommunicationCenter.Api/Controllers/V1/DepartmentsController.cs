@@ -42,4 +42,29 @@ public sealed class DepartmentsController : ApiControllerBase
 
         return CreatedAtAction(nameof(GetAll), response);
     }
+
+    [HttpPut("{departmentId:guid}")]
+    [ProducesResponseType<DepartmentResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<DepartmentResponse>> Update(
+        Guid departmentId,
+        [FromBody] UpdateDepartmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new UpdateDepartmentCommand(departmentId, request.Name, request.DepartmentType),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpDelete("{departmentId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(new DeleteDepartmentCommand(departmentId), cancellationToken);
+
+        return NoContent();
+    }
 }

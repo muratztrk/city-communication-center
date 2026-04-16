@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using CityCommunicationCenter.Application.Common.Exceptions;
 using FluentValidation;
@@ -7,6 +8,11 @@ namespace CityCommunicationCenter.Api.Middleware;
 
 public sealed class ExceptionMiddleware
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
@@ -71,7 +77,7 @@ public sealed class ExceptionMiddleware
 
         context.Response.StatusCode = StatusCodes.Status400BadRequest;
         context.Response.ContentType = "application/json";
-        return context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+        return context.Response.WriteAsync(JsonSerializer.Serialize(payload, JsonOptions));
     }
 
     private static Task WriteProblemResponseAsync(HttpContext context, int statusCode, string title, string detail)
@@ -85,6 +91,6 @@ public sealed class ExceptionMiddleware
 
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
-        return context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+        return context.Response.WriteAsync(JsonSerializer.Serialize(payload, JsonOptions));
     }
 }

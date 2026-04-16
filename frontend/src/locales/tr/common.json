@@ -32,11 +32,15 @@
     "dashboardLoadFailed": "Kontrol paneli verileri alınamadı.",
     "departmentsLoadFailed": "Müdürlükler alınamadı.",
     "departmentCreateFailed": "Müdürlük oluşturulamadı.",
+    "departmentUpdateFailed": "Müdürlük güncellenemedi.",
+    "departmentDeleteFailed": "Müdürlük silinemedi.",
     "usersLoadFailed": "Kullanıcılar alınamadı.",
     "userManagementContextLoadFailed": "Kullanıcı yönetimi yetkileri alınamadı.",
     "userSearchFailed": "Kullanıcı araması yapılamadı.",
     "directorySearchFailed": "Dizin kullanıcıları aranamadı.",
     "userCreateFailed": "Kullanıcı oluşturulamadı.",
+    "userUpdateFailed": "Kullanıcı güncellenemedi.",
+    "userDeleteFailed": "Kullanıcı silinemedi.",
     "tenantSettingsLoadFailed": "Kurum ayarları alınamadı.",
     "tenantSettingsSaveFailed": "Kurum ayarları kaydedilemedi.",
     "tenantLdapSettingsLoadFailed": "LDAP ayarları alınamadı.",
@@ -75,7 +79,11 @@
     "departments": "Müdürlükler",
     "users": "Kullanıcılar",
     "audit": "Log",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "home": "Ana Sayfa",
+    "groupTasks": "İş Yönetimi",
+    "groupSocial": "Vatandaş İlişkileri",
+    "groupAdmin": "Yönetim"
   },
   "shell": {
     "subtitle": "{{municipalityName}} İletişim Merkezi",
@@ -154,7 +162,10 @@
     "name": "Müdürlük Adı",
     "namePlaceholder": "Müdürlük adı girin",
     "type": "Tür",
-    "empty": "Henüz müdürlük bulunmuyor"
+    "empty": "Henüz müdürlük bulunmuyor",
+    "editFormTitle": "Müdürlüğü Düzenle",
+    "deleteConfirm": "\"{{name}}\" müdürlüğünü silmek istediğinize emin misiniz?",
+    "deleteHasUsers": "Bu müdürlüğe atanmış kullanıcılar var."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -196,7 +207,9 @@
     "active": "Aktif",
     "inactive": "Pasif",
     "status": "Durum",
-    "empty": "Henüz kullanıcı bulunmuyor"
+    "empty": "Henüz kullanıcı bulunmuyor",
+    "deleteConfirm": "\"{{name}}\" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+    "departmentWillBeCreated": "yeni oluşturulacak"
   },
   "tasks": {
     "title": "İşler",

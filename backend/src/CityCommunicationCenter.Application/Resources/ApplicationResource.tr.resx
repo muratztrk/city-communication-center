@@ -58,4 +58,10 @@
   <data name="AuthInteractiveChallengeExpired" xml:space="preserve"><value>Doğrulama kodunun süresi doldu. Yeniden giriş yapın.</value></data>
   <data name="AuthInteractiveInvalidChallengeCode" xml:space="preserve"><value>Doğrulama kodu geçersiz.</value></data>
   <data name="AuthInteractiveTooManyAttempts" xml:space="preserve"><value>Çok fazla hatalı deneme yapıldı. Yeniden giriş yapın.</value></data>
+  <data name="ValidationUserIdRequired" xml:space="preserve"><value>Kullanıcı kimliği zorunludur.</value></data>
+  <data name="ValidationUserNotFound" xml:space="preserve"><value>Kullanıcı bulunamadı.</value></data>
+  <data name="ValidationCannotDeleteSelf" xml:space="preserve"><value>Kendi hesabınızı silemezsiniz.</value></data>
+  <data name="ValidationDepartmentIdRequired" xml:space="preserve"><value>Müdürlük kimliği zorunludur.</value></data>
+  <data name="ValidationDepartmentNameRequired" xml:space="preserve"><value>Müdürlük adı zorunludur.</value></data>
+  <data name="ValidationDepartmentHasUsers" xml:space="preserve"><value>Bu müdürlüğe atanmış kullanıcılar var. Önce kullanıcıları başka müdürlüğe taşıyın.</value></data>
 </root>

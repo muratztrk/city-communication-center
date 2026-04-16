@@ -32,11 +32,15 @@
     "dashboardLoadFailed": "Failed to load dashboard data.",
     "departmentsLoadFailed": "Failed to load departments.",
     "departmentCreateFailed": "Failed to create department.",
+    "departmentUpdateFailed": "Failed to update department.",
+    "departmentDeleteFailed": "Failed to delete department.",
     "usersLoadFailed": "Failed to load users.",
     "userManagementContextLoadFailed": "Failed to load user management capabilities.",
     "userSearchFailed": "Failed to search users.",
     "directorySearchFailed": "Failed to search directory users.",
     "userCreateFailed": "Failed to create user.",
+    "userUpdateFailed": "Failed to update user.",
+    "userDeleteFailed": "Failed to delete user.",
     "tenantSettingsLoadFailed": "Failed to load organization settings.",
     "tenantSettingsSaveFailed": "Failed to save organization settings.",
     "tenantLdapSettingsLoadFailed": "Failed to load LDAP settings.",
@@ -75,7 +79,11 @@
     "departments": "Departments",
     "users": "Users",
     "audit": "Audit",
-    "settings": "Settings"
+    "settings": "Settings",
+    "home": "Home",
+    "groupTasks": "Work Management",
+    "groupSocial": "Citizen Relations",
+    "groupAdmin": "Administration"
   },
   "shell": {
     "subtitle": "{{municipalityName}} Communication Center",
@@ -154,7 +162,10 @@
     "name": "Department Name",
     "namePlaceholder": "Enter department name",
     "type": "Type",
-    "empty": "No departments found yet"
+    "empty": "No departments found yet",
+    "editFormTitle": "Edit Department",
+    "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
+    "deleteHasUsers": "This department has assigned users."
   },
   "users": {
     "title": "Users",
@@ -196,7 +207,9 @@
     "active": "Active",
     "inactive": "Inactive",
     "status": "Status",
-    "empty": "No users found yet"
+    "empty": "No users found yet",
+    "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "departmentWillBeCreated": "will be created"
   },
   "tasks": {
     "title": "Tasks",

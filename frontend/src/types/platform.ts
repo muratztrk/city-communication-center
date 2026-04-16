@@ -42,6 +42,7 @@ export interface DirectoryUserLookup {
   username: string;
   displayName: string;
   email: string | null;
+  department: string | null;
   alreadyLinked: boolean;
   existingUserId: string | null;
 }

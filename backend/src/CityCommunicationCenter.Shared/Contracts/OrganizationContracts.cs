@@ -6,6 +6,10 @@ public sealed record CreateDepartmentRequest(
     Guid? ParentDepartmentId,
     Guid? ManagerUserId);
 
+public sealed record UpdateDepartmentRequest(
+    string Name,
+    string DepartmentType);
+
 public sealed record DepartmentResponse(
     Guid DepartmentId,
     Guid TenantId,

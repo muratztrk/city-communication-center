@@ -15,7 +15,7 @@ public interface ILdapAuthenticationService
 
 public sealed record LdapAuthenticatedUser(string ExternalIdentityId, string Username, string? DisplayName, string? Email);
 
-public sealed record LdapDirectoryUser(string ExternalIdentityId, string Username, string DisplayName, string? Email);
+public sealed record LdapDirectoryUser(string ExternalIdentityId, string Username, string DisplayName, string? Email, string? Department);
 
 public sealed record LdapConnectivityTestParameters(
     string Host,

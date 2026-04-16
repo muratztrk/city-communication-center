@@ -79,6 +79,7 @@ public sealed class SearchDirectoryUsersQueryHandler : IRequestHandler<SearchDir
                     candidate.Username,
                     candidate.DisplayName,
                     candidate.Email,
+                    candidate.Department,
                     existing is not null,
                     existing?.UserId);
             })

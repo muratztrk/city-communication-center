@@ -216,10 +216,6 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Envi
 }
 
 app.UseRouting();
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
 app.UseCors(OpenCorsPolicy);
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();

@@ -62,9 +62,12 @@
     html,
     body,
     #root {
-      height: 100dvh;
       min-height: 100dvh;
-      overflow: hidden;
+      height: auto;
+    }
+
+    body {
+      overflow-y: auto;
     }
   }
 }
@@ -520,11 +523,8 @@
     .desktop-page-shell {
       display: flex;
       flex-direction: column;
-      height: 100%;
       min-height: 0;
-      overflow: auto;
-      overflow-x: clip;
-      scrollbar-gutter: stable;
+      overflow: visible;
     }
 
     .desktop-page-fill {

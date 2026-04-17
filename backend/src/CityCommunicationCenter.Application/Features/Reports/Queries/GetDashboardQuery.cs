@@ -27,14 +27,17 @@ public sealed class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery
         var openSocialMessages = await _dbContext.SocialMessages.CountAsync(
             entity => entity.TenantId == tenantId && entity.Status != SocialMessageStatus.Closed,
             cancellationToken);
-        var failedNotifications = await _dbContext.Notifications.CountAsync(
-            entity => entity.TenantId == tenantId && entity.DeliveryStatus == NotificationDeliveryStatus.Failed,
+        var unassignedItems = await _dbContext.Tasks.CountAsync(
+            entity => entity.TenantId == tenantId 
+                && entity.AssignedDepartmentId == null
+                && entity.CurrentStatus != WorkflowTaskStatus.Closed
+                && entity.CurrentStatus != WorkflowTaskStatus.Rejected,
             cancellationToken);
 
         return new DashboardResponse(
             activeTasks,
             pendingApprovals,
             openSocialMessages,
-            failedNotifications);
+            unassignedItems);
     }
 }

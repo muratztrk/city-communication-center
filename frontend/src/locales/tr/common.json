@@ -70,7 +70,13 @@
     "routingDeleteFailed": "Yönlendirme kuralı silinemedi.",
     "routingToggleFailed": "Otomatik yönlendirme ayarı değiştirilemedi.",
     "routingTestFailed": "Yönlendirme testi başarısız oldu.",
-    "auditLoadFailed": "Denetim kayıtları alınamadı."
+    "auditLoadFailed": "Denetim kayıtları alınamadı.",
+    "projectsLoadFailed": "Projeler alınamadı.",
+    "projectLoadFailed": "Proje alınamadı.",
+    "projectCreateFailed": "Proje oluşturulamadı.",
+    "projectApproveFailed": "Proje onaylanamadı.",
+    "projectRejectFailed": "Proje reddedilemedi.",
+    "projectUpdateFailed": "Proje güncellenemedi."
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
@@ -83,13 +89,80 @@
     "home": "Ana Sayfa",
     "groupTasks": "İş Yönetimi",
     "groupSocial": "Vatandaş İlişkileri",
-    "groupAdmin": "Yönetim"
+    "groupAdmin": "Yönetim",
+    "directorateProjects": "Müdürlük Projesi",
+    "coordinatedProjects": "Koordineli Proje",
+    "groupProjects": "Projeler"
   },
   "shell": {
     "subtitle": "{{municipalityName}} İletişim Merkezi",
     "liveTenant": "Aktif Kullanıcı",
     "logout": "Çıkış",
     "language": "Dil seçici"
+  },
+  "notifications": {
+    "bell": "Bildirimler",
+    "title": "Bildirimler",
+    "empty": "Yeni bildirim yok",
+    "unreadCount": "okunmamış bildirim",
+    "permissionPrompt": "Bildirimlere izin ver",
+    "permissionGranted": "Bildirimler aktif",
+    "permissionDenied": "Bildirimler engellendi"
+  },
+  "projects": {
+    "title": "Projeler",
+    "directorate": {
+      "title": "Müdürlük Projeleri",
+      "create": "Yeni Müdürlük Projesi",
+      "titleField": "Proje Başlığı",
+      "descriptionField": "Açıklama",
+      "department": "Müdürlük",
+      "stages": "Aşamalar",
+      "addStage": "Aşama Ekle",
+      "stageTitle": "Aşama Başlığı",
+      "stageDescription": "Aşama Açıklaması",
+      "approve": "Onayla",
+      "reject": "Reddet",
+      "pendingApproval": "Onay Bekliyor",
+      "approved": "Onaylandı",
+      "noProjects": "Henüz müdürlük projesi bulunmuyor"
+    },
+    "coordinated": {
+      "title": "Koordineli Projeler",
+      "create": "Yeni Koordineli Proje",
+      "titleField": "Proje Başlığı",
+      "descriptionField": "Açıklama",
+      "coordinatorDepartment": "Koordinatör Müdürlük",
+      "departments": "Dahil Olan Müdürlükler",
+      "selectDepartments": "En az 2 müdürlük seçin",
+      "stages": "Aşamalar",
+      "addStage": "Aşama Ekle",
+      "stageTitle": "Aşama Başlığı",
+      "stageDescription": "Aşama Açıklaması",
+      "responsibleDepartment": "Sorumlu Müdürlük",
+      "approveJoin": "Katılımı Onayla",
+      "rejectJoin": "Katılımı Reddet",
+      "members": "Üyeler",
+      "addMember": "Üye Ekle",
+      "noProjects": "Henüz koordineli proje bulunmuyor"
+    },
+    "status": {
+      "Planned": "Planlandı",
+      "InProgress": "Yapılıyor",
+      "Completed": "Tamamlandı"
+    },
+    "approvalStatus": {
+      "Pending": "Bekliyor",
+      "Approved": "Onaylandı",
+      "Rejected": "Reddedildi"
+    },
+    "fields": {
+      "creator": "Oluşturan",
+      "createdAt": "Oluşturulma Tarihi",
+      "stageCount": "Aşama Sayısı",
+      "departmentCount": "Müdürlük Sayısı",
+      "memberCount": "Üye Sayısı"
+    }
   },
   "login": {
     "organizationFallback": "Tire Belediyesi",
@@ -130,7 +203,7 @@
       "openTasks": "Açık İş",
       "pendingApprovals": "Onay Bekleyen",
       "activeMessages": "Vatandaş Talebi",
-      "failedNotifications": "Başarısız Bildirim"
+      "unassignedItems": "Birim Sorumluluğunda Olmayan"
     },
     "recentTasksTitle": "Son İşler",
     "recentTasksBody": "Son hareketler ve işlem bekleyen kayıtlar.",

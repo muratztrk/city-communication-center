@@ -1,8 +1,10 @@
 using System.Threading.RateLimiting;
 using System.Globalization;
 using CityCommunicationCenter.Application;
+using CityCommunicationCenter.Api.Hubs;
 using CityCommunicationCenter.Api.Services;
 using CityCommunicationCenter.Api.Security;
+using CityCommunicationCenter.Application.Abstractions;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -192,6 +194,9 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationPushService, SignalRNotificationPushService>();
+
 var app = builder.Build();
 
 var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
@@ -288,5 +293,6 @@ app.MapGet("/health", async (IConfiguration configuration, CancellationToken can
 }).AllowAnonymous().RequireCors(OpenCorsPolicy);
 
 app.MapControllers().RequireCors(OpenCorsPolicy);
+app.MapHub<NotificationHub>("/hubs/notifications").RequireCors(OpenCorsPolicy);
 
 app.Run();

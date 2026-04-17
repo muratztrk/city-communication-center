@@ -2,7 +2,7 @@ export interface DashboardSnapshot {
   openTaskCount: number;
   pendingApprovalCount: number;
   activeSocialMessageCount: number;
-  failedNotificationCount: number;
+  unassignedItemCount: number;
 }
 
 export interface Department {
@@ -260,4 +260,59 @@ export interface RoutingConfig {
 export interface RoutingTestResult {
   targetDepartmentId: string | null;
   targetDepartmentName: string | null;
+}
+
+export interface ProjectSummary {
+  projectId: string;
+  tenantId: string;
+  title: string;
+  description: string;
+  projectType: 'Directorate' | 'Coordinated';
+  status: 'Planned' | 'InProgress' | 'Completed';
+  ownerDepartmentId: string;
+  ownerDepartmentName: string | null;
+  requiresApproval: boolean;
+  isApproved: boolean;
+  stageCount: number;
+  departmentCount: number;
+  memberCount: number;
+  createdAtUtc: string;
+  createdByUserName: string | null;
+}
+
+export interface ProjectStage {
+  stageId: string;
+  title: string;
+  description: string;
+  displayOrder: number;
+  status: 'Planned' | 'InProgress' | 'Completed';
+  responsibleDepartmentId: string | null;
+  responsibleDepartmentName: string | null;
+}
+
+export interface ProjectDepartment {
+  projectDepartmentId: string;
+  departmentId: string;
+  departmentName: string;
+  approvalStatus: 'Pending' | 'Approved' | 'Rejected';
+  approvedByUserId: string | null;
+  approvedByUserName: string | null;
+  approvalDateUtc: string | null;
+}
+
+export interface ProjectMember {
+  projectMemberId: string;
+  userId: string;
+  userDisplayName: string;
+  departmentId: string;
+  departmentName: string;
+}
+
+export interface ProjectDetail extends Omit<ProjectSummary, 'stageCount' | 'departmentCount' | 'memberCount'> {
+  approvedByUserId: string | null;
+  approvedAtUtc: string | null;
+  createdByUserId: string | null;
+  stages: ProjectStage[];
+  departments: ProjectDepartment[];
+  members: ProjectMember[];
 }

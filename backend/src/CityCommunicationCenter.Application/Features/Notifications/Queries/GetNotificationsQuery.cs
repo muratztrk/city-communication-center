@@ -21,7 +21,10 @@ public sealed class GetNotificationsQueryHandler : IRequestHandler<GetNotificati
                 entity.UserId,
                 entity.Channel.ToString(),
                 entity.DeliveryStatus.ToString(),
+                entity.Title,
                 entity.Message,
+                entity.IsRead,
+                entity.ActionUrl,
                 entity.SentAtUtc))
             .ToListAsync(cancellationToken);
     }

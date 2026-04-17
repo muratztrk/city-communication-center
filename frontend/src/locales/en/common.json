@@ -70,7 +70,13 @@
     "routingDeleteFailed": "Failed to delete routing rule.",
     "routingToggleFailed": "Failed to update auto-routing setting.",
     "routingTestFailed": "Failed to test routing.",
-    "auditLoadFailed": "Failed to load audit logs."
+    "auditLoadFailed": "Failed to load audit logs.",
+    "projectsLoadFailed": "Failed to load projects.",
+    "projectLoadFailed": "Failed to load project.",
+    "projectCreateFailed": "Failed to create project.",
+    "projectApproveFailed": "Failed to approve project.",
+    "projectRejectFailed": "Failed to reject project.",
+    "projectUpdateFailed": "Failed to update project."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -83,13 +89,80 @@
     "home": "Home",
     "groupTasks": "Work Management",
     "groupSocial": "Citizen Relations",
-    "groupAdmin": "Administration"
+    "groupAdmin": "Administration",
+    "directorateProjects": "Directorate Projects",
+    "coordinatedProjects": "Coordinated Projects",
+    "groupProjects": "Projects"
   },
   "shell": {
     "subtitle": "{{municipalityName}} Communication Center",
     "liveTenant": "Active User",
     "logout": "Sign Out",
     "language": "Language selector"
+  },
+  "notifications": {
+    "bell": "Notifications",
+    "title": "Notifications",
+    "empty": "No new notifications",
+    "unreadCount": "unread notifications",
+    "permissionPrompt": "Allow notifications",
+    "permissionGranted": "Notifications enabled",
+    "permissionDenied": "Notifications blocked"
+  },
+  "projects": {
+    "title": "Projects",
+    "directorate": {
+      "title": "Directorate Projects",
+      "create": "New Directorate Project",
+      "titleField": "Project Title",
+      "descriptionField": "Description",
+      "department": "Department",
+      "stages": "Stages",
+      "addStage": "Add Stage",
+      "stageTitle": "Stage Title",
+      "stageDescription": "Stage Description",
+      "approve": "Approve",
+      "reject": "Reject",
+      "pendingApproval": "Pending Approval",
+      "approved": "Approved",
+      "noProjects": "No directorate projects found"
+    },
+    "coordinated": {
+      "title": "Coordinated Projects",
+      "create": "New Coordinated Project",
+      "titleField": "Project Title",
+      "descriptionField": "Description",
+      "coordinatorDepartment": "Coordinator Department",
+      "departments": "Participating Departments",
+      "selectDepartments": "Select at least 2 departments",
+      "stages": "Stages",
+      "addStage": "Add Stage",
+      "stageTitle": "Stage Title",
+      "stageDescription": "Stage Description",
+      "responsibleDepartment": "Responsible Department",
+      "approveJoin": "Approve Join",
+      "rejectJoin": "Reject Join",
+      "members": "Members",
+      "addMember": "Add Member",
+      "noProjects": "No coordinated projects found"
+    },
+    "status": {
+      "Planned": "Planned",
+      "InProgress": "In Progress",
+      "Completed": "Completed"
+    },
+    "approvalStatus": {
+      "Pending": "Pending",
+      "Approved": "Approved",
+      "Rejected": "Rejected"
+    },
+    "fields": {
+      "creator": "Creator",
+      "createdAt": "Created At",
+      "stageCount": "Stages",
+      "departmentCount": "Departments",
+      "memberCount": "Members"
+    }
   },
   "login": {
     "organizationFallback": "Tire Municipality",
@@ -130,7 +203,7 @@
       "openTasks": "Open Tasks",
       "pendingApprovals": "Pending Approvals",
       "activeMessages": "Social Messages",
-      "failedNotifications": "Failed Notifications"
+      "unassignedItems": "Unassigned Items"
     },
     "recentTasksTitle": "Recent Tasks",
     "recentTasksBody": "Latest activity and tasks waiting for action.",

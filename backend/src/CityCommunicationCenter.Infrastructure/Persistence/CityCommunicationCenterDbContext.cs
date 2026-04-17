@@ -37,6 +37,11 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<RoutingRule> RoutingRules => Set<RoutingRule>();
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectStage> ProjectStages => Set<ProjectStage>();
+    public DbSet<ProjectDepartment> ProjectDepartments => Set<ProjectDepartment>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+    public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -87,6 +92,11 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureNotification(modelBuilder.Entity<Notification>());
         ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
         ConfigureRoutingRule(modelBuilder.Entity<RoutingRule>());
+        ConfigureProject(modelBuilder.Entity<Project>());
+        ConfigureProjectStage(modelBuilder.Entity<ProjectStage>());
+        ConfigureProjectDepartment(modelBuilder.Entity<ProjectDepartment>());
+        ConfigureProjectMember(modelBuilder.Entity<ProjectMember>());
+        ConfigurePushSubscription(modelBuilder.Entity<PushSubscription>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -100,6 +110,11 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<Notification>());
         ApplyTenantFilter(modelBuilder.Entity<AuditLog>());
         ApplyTenantFilter(modelBuilder.Entity<RoutingRule>());
+        ApplyTenantFilter(modelBuilder.Entity<Project>());
+        ApplyTenantFilter(modelBuilder.Entity<ProjectStage>());
+        ApplyTenantFilter(modelBuilder.Entity<ProjectDepartment>());
+        ApplyTenantFilter(modelBuilder.Entity<ProjectMember>());
+        ApplyTenantFilter(modelBuilder.Entity<PushSubscription>());
 
         ApplyInstallSeedData(modelBuilder);
     }
@@ -417,6 +432,61 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("routingrules");
         builder.HasKey(entity => entity.RuleId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureProject(EntityTypeBuilder<Project> builder)
+    {
+        builder.ToTable("projects");
+        builder.HasKey(entity => entity.ProjectId);
+        builder.Property(entity => entity.ProjectType).HasConversion<string>();
+        builder.Property(entity => entity.Status).HasConversion<string>();
+        builder.HasOne(entity => entity.Tenant)
+            .WithMany()
+            .HasForeignKey(entity => entity.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(entity => entity.Stages)
+            .WithOne(entity => entity.Project)
+            .HasForeignKey(entity => entity.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(entity => entity.Departments)
+            .WithOne(entity => entity.Project)
+            .HasForeignKey(entity => entity.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(entity => entity.Members)
+            .WithOne(entity => entity.Project)
+            .HasForeignKey(entity => entity.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureProjectStage(EntityTypeBuilder<ProjectStage> builder)
+    {
+        builder.ToTable("projectstages");
+        builder.HasKey(entity => entity.StageId);
+        builder.Property(entity => entity.Status).HasConversion<string>();
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureProjectDepartment(EntityTypeBuilder<ProjectDepartment> builder)
+    {
+        builder.ToTable("projectdepartments");
+        builder.HasKey(entity => entity.ProjectDepartmentId);
+        builder.Property(entity => entity.ApprovalStatus).HasConversion<string>();
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureProjectMember(EntityTypeBuilder<ProjectMember> builder)
+    {
+        builder.ToTable("projectmembers");
+        builder.HasKey(entity => entity.ProjectMemberId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigurePushSubscription(EntityTypeBuilder<PushSubscription> builder)
+    {
+        builder.ToTable("pushsubscriptions");
+        builder.HasKey(entity => entity.PushSubscriptionId);
         ApplyLowerCaseColumnNames(builder);
     }
 

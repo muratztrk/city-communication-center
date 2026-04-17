@@ -15,6 +15,11 @@ public interface IApplicationDbContext
     DbSet<Notification> Notifications { get; }
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<RoutingRule> RoutingRules { get; }
+    DbSet<Project> Projects { get; }
+    DbSet<ProjectStage> ProjectStages { get; }
+    DbSet<ProjectDepartment> ProjectDepartments { get; }
+    DbSet<ProjectMember> ProjectMembers { get; }
+    DbSet<PushSubscription> PushSubscriptions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

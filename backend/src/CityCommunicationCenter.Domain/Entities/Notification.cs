@@ -15,6 +15,12 @@ public sealed class Notification : AuditableTenantEntity, IHasDatabaseIndexDefin
 
     public NotificationDeliveryStatus DeliveryStatus { get; set; } = NotificationDeliveryStatus.Pending;
 
+    public string Title { get; set; } = string.Empty;
+
+    public bool IsRead { get; set; }
+
+    public string? ActionUrl { get; set; }
+
     public string Message { get; set; } = string.Empty;
 
     public DateTimeOffset? SentAtUtc { get; set; }

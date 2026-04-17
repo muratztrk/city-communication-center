@@ -16,9 +16,20 @@ public sealed record NotificationResponse(
     Guid UserId,
     string Channel,
     string DeliveryStatus,
+    string Title,
     string Message,
+    bool IsRead,
+    string? ActionUrl,
     DateTimeOffset? SentAtUtc);
 
 public sealed record TestNotificationResponse(
     Guid NotificationId,
     string Recipient);
+
+public sealed record PushSubscriptionRequest(
+    string Endpoint,
+    string P256dhKey,
+    string AuthKey,
+    string? UserAgent);
+
+public sealed record PushUnsubscribeRequest(string Endpoint);

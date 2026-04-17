@@ -45,4 +45,44 @@ public sealed class NotificationsController : ApiControllerBase
             request.InAppEnabled
         });
     }
+
+    [HttpPost("push/subscribe")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> SubscribePush(
+        [FromBody] PushSubscriptionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var subscriptionId = await _sender.Send(
+            new SubscribePushCommand(CurrentContext.UserId, request.Endpoint, request.P256dhKey, request.AuthKey, request.UserAgent),
+            cancellationToken);
+        return Ok(new { subscriptionId });
+    }
+
+    [HttpPost("push/unsubscribe")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UnsubscribePush(
+        [FromBody] PushUnsubscribeRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(new UnsubscribePushCommand(request.Endpoint), cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("{notificationId:guid}/read")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> MarkRead(Guid notificationId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new MarkNotificationReadCommand(notificationId), cancellationToken);
+        return result ? NoContent() : NotFound();
+    }
+
+    [HttpGet("unread-count")]
+    [ProducesResponseType<int>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetUnreadCount(CancellationToken cancellationToken)
+    {
+        var count = await _sender.Send(
+            new GetUnreadNotificationCountQuery(CurrentContext.UserId!.Value), cancellationToken);
+        return Ok(count);
+    }
 }

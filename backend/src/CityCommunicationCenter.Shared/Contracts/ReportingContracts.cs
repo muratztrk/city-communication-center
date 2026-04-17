@@ -4,7 +4,7 @@ public sealed record DashboardResponse(
     int OpenTaskCount,
     int PendingApprovalCount,
     int ActiveSocialMessageCount,
-    int FailedNotificationCount);
+    int UnassignedItemCount);
 
 public sealed record SlaReportResponse(
     int OverdueTaskCount,

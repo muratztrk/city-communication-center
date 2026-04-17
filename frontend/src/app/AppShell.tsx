@@ -1,8 +1,9 @@
-import { Building, ChevronLeft, ChevronRight, Home, LayoutDashboard, LogOut, Menu, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, X } from 'lucide-react'
+import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, LogOut, Menu, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
+import { NotificationBell } from '../components/layout/NotificationBell'
 import { SidebarNav } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
@@ -30,6 +31,8 @@ export function AppShell() {
   const navItems = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
+    { path: '/projects/directorate', label: t('nav.directorateProjects'), icon: FolderKanban },
+    { path: '/projects/coordinated', label: t('nav.coordinatedProjects'), icon: Workflow },
     { path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { path: '/departments', label: t('nav.departments'), icon: Building },
     { path: '/users', label: t('nav.users'), icon: Users },
@@ -49,6 +52,8 @@ export function AppShell() {
   const breadcrumbLabels: Record<string, string> = {
     dashboard: t('nav.dashboard'),
     tasks: t('nav.tasks'),
+    directorate: t('nav.directorateProjects'),
+    coordinated: t('nav.coordinatedProjects'),
     social: t('nav.social'),
     departments: t('nav.departments'),
     users: t('nav.users'),
@@ -58,6 +63,8 @@ export function AppShell() {
 
   const breadcrumbParent: Record<string, string> = {
     tasks: t('nav.groupTasks'),
+    directorate: t('nav.groupProjects'),
+    coordinated: t('nav.groupProjects'),
     social: t('nav.groupSocial'),
     departments: t('nav.groupAdmin'),
     users: t('nav.groupAdmin'),
@@ -65,9 +72,13 @@ export function AppShell() {
     settings: t('nav.groupAdmin'),
   }
 
+  const breadcrumbSkipSegments = new Set(['projects'])
+
   const breadcrumbIcon: Record<string, typeof LayoutDashboard> = {
     dashboard: LayoutDashboard,
     tasks: SquareKanban,
+    directorate: FolderKanban,
+    coordinated: Workflow,
     social: MessageSquareMore,
     departments: Building,
     users: Users,
@@ -76,7 +87,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-dvh bg-[color:var(--color-background)] md:h-dvh md:overflow-hidden lg:flex">
+    <div className="min-h-dvh bg-[color:var(--color-background)] lg:flex">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg">
         Skip to content
       </a>
@@ -181,14 +192,14 @@ export function AppShell() {
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1 overflow-x-clip md:min-h-0 md:overflow-hidden">
+      <div className="min-w-0 flex-1 overflow-x-clip md:flex md:min-h-0 md:flex-col md:overflow-visible">
         <div className="hidden items-center justify-between border-b border-[var(--color-border)] bg-white/94 px-6 py-2.5 backdrop-blur lg:flex">
           <nav className="flex items-center gap-1.5 text-sm text-[color:var(--color-muted-foreground)]" aria-label="Breadcrumb">
             <button type="button" className="flex items-center gap-1 hover:text-slate-700" onClick={() => navigate('/dashboard')}>
               <Home className="size-4" />
               <span>{t('nav.home')}</span>
             </button>
-            {breadcrumbSegments.map((segment) => {
+            {breadcrumbSegments.filter(s => !breadcrumbSkipSegments.has(s)).map((segment) => {
               const label = breadcrumbLabels[segment] || segment
               const parent = breadcrumbParent[segment]
               const Icon = breadcrumbIcon[segment]
@@ -210,6 +221,7 @@ export function AppShell() {
             })}
           </nav>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <span className="text-sm text-[color:var(--color-muted-foreground)]">{user?.displayName}</span>
             <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
               <LogOut className="size-3.5" />
@@ -217,7 +229,7 @@ export function AppShell() {
             </Button>
           </div>
         </div>
-        <main id="main-content" className="flex min-h-[calc(100dvh-3.6rem)] w-full max-w-none flex-col px-3 py-3 sm:px-4 md:h-[calc(100dvh-3.6rem)] md:min-h-0 md:overflow-hidden lg:h-[calc(100dvh-3.25rem)] lg:px-6 lg:py-4 xl:px-7 2xl:px-8">
+        <main id="main-content" className="flex min-h-[calc(100dvh-3.6rem)] w-full max-w-none flex-col px-3 py-3 sm:px-4 md:min-h-0 md:flex-1 md:overflow-y-auto lg:px-6 lg:py-4 xl:px-7 2xl:px-8">
           {breadcrumbSegments.length > 0 && location.pathname !== '/dashboard' ? (
             <div className="mb-2">
               <button type="button" className="inline-flex items-center gap-1.5 text-sm font-medium text-[color:var(--color-muted-foreground)] hover:text-slate-900" onClick={() => navigate(-1)}>

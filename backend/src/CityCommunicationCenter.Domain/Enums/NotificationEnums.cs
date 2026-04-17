@@ -4,12 +4,14 @@ public enum NotificationChannel
 {
     InApp,
     Email,
-    Sms
+    Sms,
+    WebPush
 }
 
 public enum NotificationDeliveryStatus
 {
     Pending,
     Sent,
-    Failed
+    Failed,
+    Read
 }

@@ -12,6 +12,8 @@ const SettingsPage = lazy(() => import('../pages/SettingsPage').then(module => (
 const SocialMessagesPage = lazy(() => import('../pages/SocialMessagesPage').then(module => ({ default: module.SocialMessagesPage })))
 const TasksPage = lazy(() => import('../pages/TasksPage').then(module => ({ default: module.TasksPage })))
 const UsersPage = lazy(() => import('../pages/UsersPage').then(module => ({ default: module.UsersPage })))
+const DirectorateProjectsPage = lazy(() => import('../pages/DirectorateProjectsPage').then(module => ({ default: module.DirectorateProjectsPage })))
+const CoordinatedProjectsPage = lazy(() => import('../pages/CoordinatedProjectsPage').then(module => ({ default: module.CoordinatedProjectsPage })))
 
 function LoadingScreen() {
   const { t } = useTranslation()
@@ -52,6 +54,8 @@ export default function App() {
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/projects/directorate" element={<DirectorateProjectsPage />} />
+          <Route path="/projects/coordinated" element={<CoordinatedProjectsPage />} />
           <Route path="/social" element={<SocialMessagesPage />} />
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="/users" element={<UsersPage />} />

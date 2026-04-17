@@ -21,6 +21,8 @@ import type {
   User,
   UserLookup,
   UserManagementContext,
+  ProjectSummary,
+  ProjectDetail,
 } from '../types/platform'
 import { API_BASE } from './config'
 import { ensureOk, getAuthHeaders } from './http'
@@ -525,5 +527,130 @@ export const api = {
 
     await ensureOk(response, i18n.t('errors.routingTestFailed'))
     return response.json() as Promise<RoutingTestResult>
+  },
+
+  async getProjects(projectType?: 'Directorate' | 'Coordinated'): Promise<ProjectSummary[]> {
+    const params = projectType ? `?projectType=${projectType}` : ''
+    const response = await fetch(`${API_BASE}/projects${params}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.projectsLoadFailed', 'Failed to load projects'))
+    return response.json() as Promise<ProjectSummary[]>
+  },
+
+  async getProjectById(projectId: string): Promise<ProjectDetail> {
+    const response = await fetch(`${API_BASE}/projects/${projectId}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.projectLoadFailed', 'Failed to load project'))
+    return response.json() as Promise<ProjectDetail>
+  },
+
+  async createDirectorateProject(payload: {
+    title: string; description: string; ownerDepartmentId: string;
+    stages: { title: string; description?: string; displayOrder: number; responsibleDepartmentId?: string }[]
+  }): Promise<ProjectSummary> {
+    const response = await fetch(`${API_BASE}/projects/directorate`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ ...payload, projectType: 'Directorate' }),
+    })
+    await ensureOk(response, i18n.t('errors.projectCreateFailed', 'Failed to create project'))
+    return response.json() as Promise<ProjectSummary>
+  },
+
+  async createCoordinatedProject(payload: {
+    title: string; description: string; ownerDepartmentId: string; departmentIds: string[];
+    stages: { title: string; description?: string; displayOrder: number; responsibleDepartmentId?: string }[]
+  }): Promise<ProjectSummary> {
+    const response = await fetch(`${API_BASE}/projects/coordinated`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ ...payload, projectType: 'Coordinated' }),
+    })
+    await ensureOk(response, i18n.t('errors.projectCreateFailed', 'Failed to create project'))
+    return response.json() as Promise<ProjectSummary>
+  },
+
+  async approveProject(projectId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/approve`, {
+      method: 'POST', headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.projectApproveFailed', 'Failed to approve project'))
+  },
+
+  async rejectProject(projectId: string, comment?: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/reject`, {
+      method: 'POST', headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment }),
+    })
+    await ensureOk(response, i18n.t('errors.projectRejectFailed', 'Failed to reject project'))
+  },
+
+  async updateProjectStatus(projectId: string, status: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/status`, {
+      method: 'PUT', headers: await getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    })
+    await ensureOk(response, i18n.t('errors.projectUpdateFailed', 'Failed to update project'))
+  },
+
+  async updateStageStatus(stageId: string, status: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/projects/stages/${stageId}/status`, {
+      method: 'PUT', headers: await getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    })
+    await ensureOk(response, i18n.t('errors.projectUpdateFailed', 'Failed to update stage'))
+  },
+
+  async addProjectMember(projectId: string, userId: string, departmentId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/projects/${projectId}/members`, {
+      method: 'POST', headers: await getAuthHeaders(),
+      body: JSON.stringify({ userId, departmentId }),
+    })
+    await ensureOk(response, i18n.t('errors.projectUpdateFailed', 'Failed to add member'))
+  },
+
+  async approveDepartmentJoin(projectDepartmentId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/projects/departments/${projectDepartmentId}/approve`, {
+      method: 'POST', headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.projectApproveFailed', 'Failed to approve department'))
+  },
+
+  async rejectDepartmentJoin(projectDepartmentId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/projects/departments/${projectDepartmentId}/reject`, {
+      method: 'POST', headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.projectRejectFailed', 'Failed to reject department'))
+  },
+
+  async getUnreadNotificationCount(): Promise<number> {
+    const response = await fetch(`${API_BASE}/notifications/unread-count`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.notificationsLoadFailed', 'Failed to load notifications'))
+    return response.json() as Promise<number>
+  },
+
+  async subscribePush(subscription: { endpoint: string; p256dhKey: string; authKey: string; userAgent?: string }): Promise<{ subscriptionId: string }> {
+    const response = await fetch(`${API_BASE}/notifications/push/subscribe`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(subscription),
+    })
+    await ensureOk(response, 'Failed to subscribe to push notifications')
+    return response.json()
+  },
+
+  async unsubscribePush(endpoint: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/notifications/push/unsubscribe`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ endpoint }),
+    })
+    await ensureOk(response, 'Failed to unsubscribe from push notifications')
+  },
+
+  async markNotificationRead(notificationId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/notifications/${notificationId}/read`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, 'Failed to mark notification as read')
   },
 }

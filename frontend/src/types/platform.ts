@@ -5,6 +5,17 @@ export interface DashboardSnapshot {
   unassignedItemCount: number;
 }
 
+export interface DashboardChartSlice {
+  label: string;
+  value: number;
+  colorHint: string;
+}
+
+export interface DashboardChartResponse {
+  titleKey: string;
+  slices: DashboardChartSlice[];
+}
+
 export interface Department {
   departmentId: string;
   tenantId: string;

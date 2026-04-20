@@ -275,24 +275,20 @@ export function LoginPage() {
               </div>
               <p className="max-w-2xl text-sm leading-7 text-white/84">{t('login.subtitle')}</p>
             </div>
-            <div className="grid gap-2.5 xl:max-w-[44rem] xl:grid-cols-2">
+            <ul className="space-y-2.5">
               {[
                 { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
                 { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
               ].map(item => {
                 const Icon = item.icon
                 return (
-                  <div key={item.title} className="rounded-[var(--radius-xl)] border border-white/12 bg-white/8 px-3.5 py-3 backdrop-blur-sm">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex size-9 items-center justify-center rounded-lg bg-white/10 text-white">
-                        <Icon className="size-4" />
-                      </div>
-                      <span className="text-sm font-semibold text-white/92">{item.title}</span>
-                    </div>
-                  </div>
+                  <li key={item.title} className="flex items-center gap-3">
+                    <Icon className="size-5 shrink-0 text-white/70" />
+                    <span className="text-sm font-medium text-white/84">{item.title}</span>
+                  </li>
                 )
               })}
-            </div>
+            </ul>
           </div>
 
           <div className="relative grid gap-3 rounded-[var(--radius-xl)] border border-white/12 bg-white/7 p-4 text-white/82">

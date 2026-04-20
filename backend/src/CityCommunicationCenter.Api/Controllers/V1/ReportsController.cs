@@ -21,6 +21,13 @@ public sealed class ReportsController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("dashboard-chart")]
+    public async Task<ActionResult<DashboardChartResponse>> GetDashboardChart(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetDashboardChartQuery(), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpGet("sla")]
     public async Task<ActionResult<SlaReportResponse>> GetSla(CancellationToken cancellationToken)
     {

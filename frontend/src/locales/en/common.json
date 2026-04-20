@@ -200,10 +200,22 @@
     "subtitle": "Track open workload, recent tasks, and incoming messages on one screen.",
     "liveSummary": "Live Summary",
     "cards": {
-      "openTasks": "Open Tasks",
+      "openTasks": "Pending Tasks",
       "pendingApprovals": "Pending Approvals",
-      "activeMessages": "Social Messages",
-      "unassignedItems": "Unassigned Items"
+      "activeMessages": "Citizen Requests"
+    },
+    "chart": {
+      "titleDept": "Task Distribution by Department",
+      "titleManager": "Department Task Distribution",
+      "titleStaff": "Workload Summary",
+      "myCompleted": "My Completed",
+      "myPending": "My Pending",
+      "deptCompleted": "Dept Completed",
+      "deptPending": "Dept Pending",
+      "deptTotalPending": "Dept Total Pending",
+      "completed": "Completed",
+      "pending": "Pending",
+      "noData": "No data to display yet."
     },
     "recentTasksTitle": "Recent Tasks",
     "recentTasksBody": "Latest activity and tasks waiting for action.",

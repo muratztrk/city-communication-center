@@ -36,7 +36,8 @@ public sealed record TaskSummaryResponse(
     string? AssignedDepartmentName,
     Guid? AssignedUserId,
     string? AssignedUserDisplayName,
-    DateTimeOffset? DueDateUtc);
+    DateTimeOffset? DueDateUtc,
+    string SourceType);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

@@ -26,7 +26,8 @@ internal static class TaskSummaryResponseFactory
             assignedDepartmentName,
             task.AssignedUserId,
             assignedUserDisplayName,
-            task.DueDateUtc);
+            task.DueDateUtc,
+            task.SourceType.ToString());
     }
 
     private static Task<string?> GetDepartmentNameAsync(

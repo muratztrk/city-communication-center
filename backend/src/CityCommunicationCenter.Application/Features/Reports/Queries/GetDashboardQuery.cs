@@ -17,27 +17,26 @@ public sealed class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery
 
     public async Task<DashboardResponse> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.TenantId!.Value;
+        var canSeePendingApprovals = context.RoleCode is "Manager" or "SystemAdmin";
+
         var activeTasks = await _dbContext.Tasks.CountAsync(
             entity => entity.TenantId == tenantId && entity.CurrentStatus != WorkflowTaskStatus.Closed,
             cancellationToken);
-        var pendingApprovals = await _dbContext.Tasks.CountAsync(
-            entity => entity.TenantId == tenantId && entity.CurrentStatus == WorkflowTaskStatus.PendingApproval,
-            cancellationToken);
+        var pendingApprovals = canSeePendingApprovals
+            ? await _dbContext.Tasks.CountAsync(
+                entity => entity.TenantId == tenantId && entity.CurrentStatus == WorkflowTaskStatus.PendingApproval,
+                cancellationToken)
+            : 0;
         var openSocialMessages = await _dbContext.SocialMessages.CountAsync(
             entity => entity.TenantId == tenantId && entity.Status != SocialMessageStatus.Closed,
-            cancellationToken);
-        var unassignedItems = await _dbContext.Tasks.CountAsync(
-            entity => entity.TenantId == tenantId 
-                && entity.AssignedDepartmentId == null
-                && entity.CurrentStatus != WorkflowTaskStatus.Closed
-                && entity.CurrentStatus != WorkflowTaskStatus.Rejected,
             cancellationToken);
 
         return new DashboardResponse(
             activeTasks,
             pendingApprovals,
             openSocialMessages,
-            unassignedItems);
+            0);
     }
 }

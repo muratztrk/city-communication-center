@@ -6,6 +6,15 @@ public sealed record DashboardResponse(
     int ActiveSocialMessageCount,
     int UnassignedItemCount);
 
+public sealed record DashboardChartResponse(
+    string TitleKey,
+    IReadOnlyList<DashboardChartSlice> Slices);
+
+public sealed record DashboardChartSlice(
+    string Label,
+    int Value,
+    string ColorHint);
+
 public sealed record SlaReportResponse(
     int OverdueTaskCount,
     int DueTodayTaskCount);

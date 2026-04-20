@@ -31,9 +31,9 @@ export function AppShell() {
   const navItems = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
+    { path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { path: '/projects/directorate', label: t('nav.directorateProjects'), icon: FolderKanban },
     { path: '/projects/coordinated', label: t('nav.coordinatedProjects'), icon: Workflow },
-    { path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { path: '/departments', label: t('nav.departments'), icon: Building },
     { path: '/users', label: t('nav.users'), icon: Users },
     { path: '/audit', label: t('nav.audit'), icon: ScrollText },

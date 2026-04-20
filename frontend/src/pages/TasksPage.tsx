@@ -1,4 +1,4 @@
-import { ClipboardCheck, ClipboardList, CircleCheckBig, Hourglass } from 'lucide-react'
+import { ClipboardCheck, ClipboardList, CircleCheckBig, Hourglass, MessageCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -549,7 +549,12 @@ export function TasksPage() {
                 <tr key={task.taskId}>
                   <td>
                     <div className="space-y-1">
-                      <div className="font-semibold text-slate-950">{task.title}</div>
+                      <div className="flex items-center gap-1.5 font-semibold text-slate-950">
+                        {task.sourceType === 'SocialMessage' && (
+                          <MessageCircle className="size-3.5 shrink-0 text-green-500" />
+                        )}
+                        {task.title}
+                      </div>
                       {task.description ? <div className="text-sm text-slate-500">{task.description}</div> : null}
                     </div>
                   </td>

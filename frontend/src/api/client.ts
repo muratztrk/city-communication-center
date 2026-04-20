@@ -2,6 +2,7 @@ import i18n from '../i18n'
 import type {
   AuditLog,
   DashboardSnapshot,
+  DashboardChartResponse,
   Department,
   DirectoryUserLookup,
   RoutingConfig,
@@ -32,6 +33,12 @@ export const api = {
     const response = await fetch(`${API_BASE}/reports/dashboard`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardSnapshot>
+  },
+
+  async getDashboardChart(): Promise<DashboardChartResponse> {
+    const response = await fetch(`${API_BASE}/reports/dashboard-chart`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
+    return response.json() as Promise<DashboardChartResponse>
   },
 
   async getDepartments(): Promise<Department[]> {

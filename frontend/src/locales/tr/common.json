@@ -167,7 +167,7 @@
   "login": {
     "organizationFallback": "Tire Belediyesi",
     "title": "Belediye İletişim Merkezi",
-    "subtitle": "Tire İletişim Merkezi'ne hoş geldiniz. Vatandaşlardan gelen talepler ve kurum içi iş takibi süreçleri için lütfen giriş yapınız.",
+    "subtitle": "Tire İletişim Merkezi'ne hoş geldiniz. Vatandaşlardan gelen talepler ve kurum içi iş takibi süreçlerini bu platformdan yönetebilirsiniz.",
     "heroCardCitizenRequests": "Vatandaştan Gelen Talepler",
     "heroCardInternalTracking": "Kurum İçi İş Takip",
     "formTitle": "Personel Girişi",
@@ -200,10 +200,22 @@
     "subtitle": "Açık iş yükünü, son işleri ve gelen mesajları tek ekranda izleyin.",
     "liveSummary": "Canlı Özet",
     "cards": {
-      "openTasks": "Açık İş",
+      "openTasks": "Bekleyen İş",
       "pendingApprovals": "Onay Bekleyen",
-      "activeMessages": "Vatandaş Talebi",
-      "unassignedItems": "Birim Sorumluluğunda Olmayan"
+      "activeMessages": "Vatandaş Talebi"
+    },
+    "chart": {
+      "titleDept": "Birimlere Göre İş Dağılımı",
+      "titleManager": "Müdürlük İş Dağılımı",
+      "titleStaff": "İş Yükü Özeti",
+      "myCompleted": "Benim Tamamladıklarım",
+      "myPending": "Bekleyen İşlerim",
+      "deptCompleted": "Birim Tamamladı",
+      "deptPending": "Birimde Bekleyen",
+      "deptTotalPending": "Müdürlükte Bekleyen",
+      "completed": "Tamamlanan",
+      "pending": "Bekleyen",
+      "noData": "Henüz gösterilecek veri yok."
     },
     "recentTasksTitle": "Son İşler",
     "recentTasksBody": "Son hareketler ve işlem bekleyen kayıtlar.",

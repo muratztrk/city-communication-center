@@ -87,7 +87,8 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
                 assignedDepartment != null ? assignedDepartment.Name : null,
                 task.AssignedUserId,
                 assignedUser != null ? assignedUser.DisplayName : null,
-                task.DueDateUtc))
+                task.DueDateUtc,
+                task.SourceType.ToString()))
             .ToListAsync(cancellationToken);
     }
 

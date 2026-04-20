@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CityCommunicationCenterDbContext))]
-    [Migration("20260405171637_InitialPostgreSql")]
-    partial class InitialPostgreSql
+    [Migration("20260420205414_InitialPostgreSql_V2")]
+    partial class InitialPostgreSql_V2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,67 +168,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             UserSource = "Manual",
                             Username = "ali.yildiz"
                         });
-                });
-
-            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Approval", b =>
-                {
-                    b.Property<Guid>("ApprovalId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("approvalid");
-
-                    b.Property<Guid>("ApproverUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("approveruserid");
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("text")
-                        .HasColumnName("comment");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("createdatutc");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("createdbyuserid");
-
-                    b.Property<string>("Decision")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("decision");
-
-                    b.Property<DateTimeOffset?>("DecisionDateUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("decisiondateutc");
-
-                    b.Property<int>("StepOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("steporder");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("taskid");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenantid");
-
-                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updatedatutc");
-
-                    b.Property<Guid?>("UpdatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updatedbyuserid");
-
-                    b.HasKey("ApprovalId");
-
-                    b.HasIndex("TaskId", "StepOrder");
-
-                    b.HasIndex("TenantId", "ApproverUserId");
-
-                    b.ToTable("approvals", (string)null);
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.AssignmentHistory", b =>
@@ -446,12 +385,229 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Job", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("jobid");
+
+                    b.Property<string>("CancelReason")
+                        .HasColumnType("text")
+                        .HasColumnName("cancelreason");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completedatutc");
+
+                    b.Property<int?>("CompletionPercentage")
+                        .HasColumnType("integer")
+                        .HasColumnName("completionpercentage");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<DateTimeOffset?>("DueDateUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("duedateutc");
+
+                    b.Property<bool>("IsCoordinated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("iscoordinated");
+
+                    b.Property<Guid>("OwnerDepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ownerdepartmentid");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("priority");
+
+                    b.Property<Guid?>("SourceRefId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sourcerefid");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sourcetype");
+
+                    b.Property<DateTimeOffset?>("StartDateUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("startdateutc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.HasKey("JobId");
+
+                    b.HasIndex("OwnerDepartmentId");
+
+                    b.HasIndex("TenantId", "DueDateUtc");
+
+                    b.HasIndex("TenantId", "OwnerDepartmentId");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.ToTable("jobs", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            JobId = new Guid("9a5b3f2e-6c1a-4b0d-8e7f-2d3c4b5a6987"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek iş.",
+                            DueDateUtc = new DateTimeOffset(new DateTime(2026, 3, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsCoordinated = false,
+                            OwnerDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            Priority = "Normal",
+                            SourceType = "Manual",
+                            Status = "Active",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
+                            Title = "Örnek altyapı inceleme işi"
+                        });
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.JobDepartment", b =>
+                {
+                    b.Property<Guid>("JobDepartmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("jobdepartmentid");
+
+                    b.Property<string>("ApprovalStatus")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("approvalstatus");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approvedbyuserid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<DateTimeOffset?>("DecidedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decidedatutc");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("departmentid");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("jobid");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("RejectReason")
+                        .HasColumnType("text")
+                        .HasColumnName("rejectreason");
+
+                    b.Property<DateTimeOffset?>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requestedatutc");
+
+                    b.Property<Guid?>("RequestedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requestedbyuserid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.HasKey("JobDepartmentId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("TenantId", "JobId");
+
+                    b.HasIndex("TenantId", "DepartmentId", "ApprovalStatus");
+
+                    b.ToTable("jobdepartments", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            JobDepartmentId = new Guid("7c2d4e1f-5b8a-4d3c-9e6f-1a2b3c4d5e62"),
+                            ApprovalStatus = "Approved",
+                            ApprovedByUserId = new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            DecidedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
+                            JobId = new Guid("9a5b3f2e-6c1a-4b0d-8e7f-2d3c4b5a6987"),
+                            RequestedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            RequestedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
+                            Role = "Owner",
+                            TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
+                        });
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Notification", b =>
                 {
                     b.Property<Guid>("NotificationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("notificationid");
+
+                    b.Property<string>("ActionUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("actionurl");
 
                     b.Property<string>("Channel")
                         .IsRequired()
@@ -471,6 +627,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("deliverystatus");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isread");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("text")
@@ -487,6 +647,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenantid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
 
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -507,6 +672,71 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "UserId", "DeliveryStatus");
 
                     b.ToTable("notifications", (string)null);
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.PushSubscription", b =>
+                {
+                    b.Property<Guid>("PushSubscriptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("pushsubscriptionid");
+
+                    b.Property<string>("AuthKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("authkey");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("endpoint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isactive");
+
+                    b.Property<string>("P256dhKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("p256dhkey");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("text")
+                        .HasColumnName("useragent");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("userid");
+
+                    b.HasKey("PushSubscriptionId");
+
+                    b.HasIndex("Endpoint")
+                        .IsUnique()
+                        .HasDatabaseName("ix_pushsubscriptions_endpoint_unique");
+
+                    b.HasIndex("TenantId", "UserId");
+
+                    b.ToTable("pushsubscriptions", (string)null);
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.RoutingRule", b =>
@@ -611,6 +841,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("externalmessageid");
 
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("jobid");
+
                     b.Property<DateTimeOffset>("ReceivedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("receivedatutc");
@@ -633,10 +867,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("tags");
 
-                    b.Property<Guid?>("TaskId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("taskid");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenantid");
@@ -653,7 +883,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AssignedDepartmentId");
 
-                    b.HasIndex("TaskId");
+                    b.HasIndex("JobId");
 
                     b.HasIndex("TenantId", "Channel", "ExternalMessageId")
                         .IsUnique()
@@ -840,6 +1070,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("taskid");
 
+                    b.Property<decimal?>("ActualHours")
+                        .HasColumnType("numeric(9,2)")
+                        .HasColumnName("actualhours");
+
                     b.Property<Guid?>("AssignedDepartmentId")
                         .HasColumnType("uuid")
                         .HasColumnName("assigneddepartmentid");
@@ -848,13 +1082,17 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("assigneduserid");
 
-                    b.Property<DateTimeOffset?>("ClosedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("closedatutc");
+                    b.Property<Guid?>("AssigningManagerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigningmanagerid");
 
                     b.Property<DateTimeOffset?>("CompletedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completedatutc");
+
+                    b.Property<int?>("CompletionPercentage")
+                        .HasColumnType("integer")
+                        .HasColumnName("completionpercentage");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -878,28 +1116,30 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("duedateutc");
 
+                    b.Property<decimal?>("EstimatedHours")
+                        .HasColumnType("numeric(9,2)")
+                        .HasColumnName("estimatedhours");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("jobid");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
+
                     b.Property<string>("Priority")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("priority");
 
-                    b.Property<Guid?>("SourceRefId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("sourcerefid");
-
-                    b.Property<string>("SourceType")
-                        .IsRequired()
+                    b.Property<string>("RevisionReason")
                         .HasColumnType("text")
-                        .HasColumnName("sourcetype");
+                        .HasColumnName("revisionreason");
 
-                    b.Property<Guid?>("TargetDepartmentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("targetdepartmentid");
-
-                    b.Property<string>("TaskType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tasktype");
+                    b.Property<DateTimeOffset?>("StartDateUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("startdateutc");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -920,6 +1160,8 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasKey("TaskId");
 
+                    b.HasIndex("JobId");
+
                     b.HasIndex("TenantId", "AssignedDepartmentId");
 
                     b.HasIndex("TenantId", "AssignedUserId");
@@ -927,6 +1169,8 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId", "CurrentStatus");
 
                     b.HasIndex("TenantId", "DueDateUtc");
+
+                    b.HasIndex("TenantId", "JobId");
 
                     b.ToTable("tasks", (string)null);
 
@@ -936,18 +1180,83 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             TaskId = new Guid("6de6e0b3-a74e-4f24-bdbc-4d6e0cb6d38c"),
                             AssignedDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
                             AssignedUserId = new Guid("1358d4aa-b1ae-486c-a1db-a757ea18f2c3"),
+                            AssigningManagerId = new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"),
                             CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
                             CurrentStatus = "Assigned",
                             Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek görev.",
                             DueDateUtc = new DateTimeOffset(new DateTime(2026, 3, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            JobId = new Guid("9a5b3f2e-6c1a-4b0d-8e7f-2d3c4b5a6987"),
                             Priority = "Normal",
-                            SourceType = "Manual",
-                            TargetDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
-                            TaskType = "CitizenRequest",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),
                             Title = "Örnek altyapı inceleme görevi"
                         });
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkflowApproval", b =>
+                {
+                    b.Property<Guid>("ApprovalId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("approvalid");
+
+                    b.Property<Guid>("ApproverUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approveruserid");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<string>("Decision")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("decision");
+
+                    b.Property<DateTimeOffset?>("DecisionDateUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decisiondateutc");
+
+                    b.Property<int>("StepOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("steporder");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subjectid");
+
+                    b.Property<string>("SubjectType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("subjecttype");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.HasKey("ApprovalId");
+
+                    b.HasIndex("TenantId", "ApproverUserId", "Decision");
+
+                    b.HasIndex("TenantId", "SubjectType", "SubjectId", "StepOrder");
+
+                    b.ToTable("approvals", (string)null);
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.ApplicationUser", b =>
@@ -967,17 +1276,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Approval", b =>
-                {
-                    b.HasOne("CityCommunicationCenter.Domain.Entities.WorkTask", "Task")
-                        .WithMany("Approvals")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.AssignmentHistory", b =>
@@ -1009,6 +1307,44 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Job", b =>
+                {
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Department", "OwnerDepartment")
+                        .WithMany()
+                        .HasForeignKey("OwnerDepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OwnerDepartment");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.JobDepartment", b =>
+                {
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Job", "Job")
+                        .WithMany("Departments")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Job");
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.SocialMessage", b =>
                 {
                     b.HasOne("CityCommunicationCenter.Domain.Entities.Department", "AssignedDepartment")
@@ -1016,9 +1352,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasForeignKey("AssignedDepartmentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("CityCommunicationCenter.Domain.Entities.WorkTask", "Task")
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Job", "Job")
                         .WithMany()
-                        .HasForeignKey("TaskId")
+                        .HasForeignKey("JobId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("CityCommunicationCenter.Domain.Entities.Tenant", "Tenant")
@@ -1029,18 +1365,26 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.Navigation("AssignedDepartment");
 
-                    b.Navigation("Task");
+                    b.Navigation("Job");
 
                     b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkTask", b =>
                 {
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Job", "Job")
+                        .WithMany("Tasks")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CityCommunicationCenter.Domain.Entities.Tenant", "Tenant")
                         .WithMany("Tasks")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Job");
 
                     b.Navigation("Tenant");
                 });
@@ -1048,6 +1392,13 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Department", b =>
                 {
                     b.Navigation("ChildDepartments");
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Job", b =>
+                {
+                    b.Navigation("Departments");
+
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Tenant", b =>
@@ -1063,8 +1414,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkTask", b =>
                 {
-                    b.Navigation("Approvals");
-
                     b.Navigation("AssignmentHistory");
                 });
 #pragma warning restore 612, 618

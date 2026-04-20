@@ -8,11 +8,34 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPostgreSql : Migration
+    public partial class InitialPostgreSql_V2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "approvals",
+                columns: table => new
+                {
+                    approvalid = table.Column<Guid>(type: "uuid", nullable: false),
+                    subjecttype = table.Column<string>(type: "text", nullable: false),
+                    subjectid = table.Column<Guid>(type: "uuid", nullable: false),
+                    steporder = table.Column<int>(type: "integer", nullable: false),
+                    approveruserid = table.Column<Guid>(type: "uuid", nullable: false),
+                    decision = table.Column<string>(type: "text", nullable: false),
+                    comment = table.Column<string>(type: "text", nullable: true),
+                    decisiondateutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    tenantid = table.Column<Guid>(type: "uuid", nullable: false),
+                    createdatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    createdbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
+                    updatedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    updatedbyuserid = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_approvals", x => x.approvalid);
+                });
+
             migrationBuilder.CreateTable(
                 name: "auditlogs",
                 columns: table => new
@@ -44,6 +67,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     userid = table.Column<Guid>(type: "uuid", nullable: false),
                     channel = table.Column<string>(type: "text", nullable: false),
                     deliverystatus = table.Column<string>(type: "text", nullable: false),
+                    title = table.Column<string>(type: "text", nullable: false),
+                    isread = table.Column<bool>(type: "boolean", nullable: false),
+                    actionurl = table.Column<string>(type: "text", nullable: true),
                     message = table.Column<string>(type: "text", nullable: false),
                     sentatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     tenantid = table.Column<Guid>(type: "uuid", nullable: false),
@@ -55,6 +81,28 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_notifications", x => x.notificationid);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "pushsubscriptions",
+                columns: table => new
+                {
+                    pushsubscriptionid = table.Column<Guid>(type: "uuid", nullable: false),
+                    userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    endpoint = table.Column<string>(type: "text", nullable: false),
+                    p256dhkey = table.Column<string>(type: "text", nullable: false),
+                    authkey = table.Column<string>(type: "text", nullable: false),
+                    useragent = table.Column<string>(type: "text", nullable: true),
+                    isactive = table.Column<bool>(type: "boolean", nullable: false),
+                    tenantid = table.Column<Guid>(type: "uuid", nullable: false),
+                    createdatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    createdbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
+                    updatedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    updatedbyuserid = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_pushsubscriptions", x => x.pushsubscriptionid);
                 });
 
             migrationBuilder.CreateTable(
@@ -151,23 +199,23 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tasks",
+                name: "jobs",
                 columns: table => new
                 {
-                    taskid = table.Column<Guid>(type: "uuid", nullable: false),
+                    jobid = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
-                    tasktype = table.Column<string>(type: "text", nullable: false),
-                    sourcetype = table.Column<string>(type: "text", nullable: false),
-                    sourcerefid = table.Column<Guid>(type: "uuid", nullable: true),
-                    targetdepartmentid = table.Column<Guid>(type: "uuid", nullable: true),
-                    assigneddepartmentid = table.Column<Guid>(type: "uuid", nullable: true),
-                    assigneduserid = table.Column<Guid>(type: "uuid", nullable: true),
-                    currentstatus = table.Column<string>(type: "text", nullable: false),
+                    ownerdepartmentid = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false),
                     priority = table.Column<string>(type: "text", nullable: false),
+                    startdateutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     duedateutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     completedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    closedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    sourcetype = table.Column<string>(type: "text", nullable: false),
+                    sourcerefid = table.Column<Guid>(type: "uuid", nullable: true),
+                    cancelreason = table.Column<string>(type: "text", nullable: true),
+                    completionpercentage = table.Column<int>(type: "integer", nullable: true),
+                    iscoordinated = table.Column<bool>(type: "boolean", nullable: false),
                     tenantid = table.Column<Guid>(type: "uuid", nullable: false),
                     createdatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     createdbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
@@ -176,9 +224,15 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tasks", x => x.taskid);
+                    table.PrimaryKey("PK_jobs", x => x.jobid);
                     table.ForeignKey(
-                        name: "FK_tasks_tenants_tenantid",
+                        name: "FK_jobs_departments_ownerdepartmentid",
+                        column: x => x.ownerdepartmentid,
+                        principalTable: "departments",
+                        principalColumn: "departmentid",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_jobs_tenants_tenantid",
                         column: x => x.tenantid,
                         principalTable: "tenants",
                         principalColumn: "tenantid",
@@ -224,16 +278,20 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "approvals",
+                name: "jobdepartments",
                 columns: table => new
                 {
-                    approvalid = table.Column<Guid>(type: "uuid", nullable: false),
-                    taskid = table.Column<Guid>(type: "uuid", nullable: false),
-                    approveruserid = table.Column<Guid>(type: "uuid", nullable: false),
-                    steporder = table.Column<int>(type: "integer", nullable: false),
-                    decision = table.Column<string>(type: "text", nullable: false),
-                    comment = table.Column<string>(type: "text", nullable: true),
-                    decisiondateutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    jobdepartmentid = table.Column<Guid>(type: "uuid", nullable: false),
+                    jobid = table.Column<Guid>(type: "uuid", nullable: false),
+                    departmentid = table.Column<Guid>(type: "uuid", nullable: false),
+                    role = table.Column<string>(type: "text", nullable: false),
+                    approvalstatus = table.Column<string>(type: "text", nullable: false),
+                    requestedbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
+                    requestedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    approvedbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
+                    decidedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    rejectreason = table.Column<string>(type: "text", nullable: true),
+                    notes = table.Column<string>(type: "text", nullable: true),
                     tenantid = table.Column<Guid>(type: "uuid", nullable: false),
                     createdatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     createdbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
@@ -242,12 +300,108 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_approvals", x => x.approvalid);
+                    table.PrimaryKey("PK_jobdepartments", x => x.jobdepartmentid);
                     table.ForeignKey(
-                        name: "FK_approvals_tasks_taskid",
-                        column: x => x.taskid,
-                        principalTable: "tasks",
-                        principalColumn: "taskid",
+                        name: "FK_jobdepartments_departments_departmentid",
+                        column: x => x.departmentid,
+                        principalTable: "departments",
+                        principalColumn: "departmentid",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_jobdepartments_jobs_jobid",
+                        column: x => x.jobid,
+                        principalTable: "jobs",
+                        principalColumn: "jobid",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "socialmessages",
+                columns: table => new
+                {
+                    socialmessageid = table.Column<Guid>(type: "uuid", nullable: false),
+                    channel = table.Column<string>(type: "text", nullable: false),
+                    externalmessageid = table.Column<string>(type: "text", nullable: false),
+                    citizenhandle = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    category = table.Column<string>(type: "text", nullable: true),
+                    tags = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    assigneddepartmentid = table.Column<Guid>(type: "uuid", nullable: true),
+                    jobid = table.Column<Guid>(type: "uuid", nullable: true),
+                    receivedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    responsecontent = table.Column<string>(type: "text", nullable: true),
+                    respondedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    tenantid = table.Column<Guid>(type: "uuid", nullable: false),
+                    createdatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    createdbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
+                    updatedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    updatedbyuserid = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_socialmessages", x => x.socialmessageid);
+                    table.ForeignKey(
+                        name: "FK_socialmessages_departments_assigneddepartmentid",
+                        column: x => x.assigneddepartmentid,
+                        principalTable: "departments",
+                        principalColumn: "departmentid",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_socialmessages_jobs_jobid",
+                        column: x => x.jobid,
+                        principalTable: "jobs",
+                        principalColumn: "jobid",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_socialmessages_tenants_tenantid",
+                        column: x => x.tenantid,
+                        principalTable: "tenants",
+                        principalColumn: "tenantid",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "tasks",
+                columns: table => new
+                {
+                    taskid = table.Column<Guid>(type: "uuid", nullable: false),
+                    jobid = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    assigneddepartmentid = table.Column<Guid>(type: "uuid", nullable: true),
+                    assigneduserid = table.Column<Guid>(type: "uuid", nullable: true),
+                    assigningmanagerid = table.Column<Guid>(type: "uuid", nullable: true),
+                    currentstatus = table.Column<string>(type: "text", nullable: false),
+                    priority = table.Column<string>(type: "text", nullable: false),
+                    startdateutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    duedateutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    completedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    estimatedhours = table.Column<decimal>(type: "numeric(9,2)", nullable: true),
+                    actualhours = table.Column<decimal>(type: "numeric(9,2)", nullable: true),
+                    completionpercentage = table.Column<int>(type: "integer", nullable: true),
+                    notes = table.Column<string>(type: "text", nullable: true),
+                    revisionreason = table.Column<string>(type: "text", nullable: true),
+                    tenantid = table.Column<Guid>(type: "uuid", nullable: false),
+                    createdatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    createdbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
+                    updatedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    updatedbyuserid = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tasks", x => x.taskid);
+                    table.ForeignKey(
+                        name: "FK_tasks_jobs_jobid",
+                        column: x => x.jobid,
+                        principalTable: "jobs",
+                        principalColumn: "jobid",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_tasks_tenants_tenantid",
+                        column: x => x.tenantid,
+                        principalTable: "tenants",
+                        principalColumn: "tenantid",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -280,52 +434,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "socialmessages",
-                columns: table => new
-                {
-                    socialmessageid = table.Column<Guid>(type: "uuid", nullable: false),
-                    channel = table.Column<string>(type: "text", nullable: false),
-                    externalmessageid = table.Column<string>(type: "text", nullable: false),
-                    citizenhandle = table.Column<string>(type: "text", nullable: false),
-                    content = table.Column<string>(type: "text", nullable: false),
-                    category = table.Column<string>(type: "text", nullable: true),
-                    tags = table.Column<string>(type: "text", nullable: false),
-                    status = table.Column<string>(type: "text", nullable: false),
-                    assigneddepartmentid = table.Column<Guid>(type: "uuid", nullable: true),
-                    taskid = table.Column<Guid>(type: "uuid", nullable: true),
-                    receivedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    responsecontent = table.Column<string>(type: "text", nullable: true),
-                    respondedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    tenantid = table.Column<Guid>(type: "uuid", nullable: false),
-                    createdatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    createdbyuserid = table.Column<Guid>(type: "uuid", nullable: true),
-                    updatedatutc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    updatedbyuserid = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_socialmessages", x => x.socialmessageid);
-                    table.ForeignKey(
-                        name: "FK_socialmessages_departments_assigneddepartmentid",
-                        column: x => x.assigneddepartmentid,
-                        principalTable: "departments",
-                        principalColumn: "departmentid",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_socialmessages_tasks_taskid",
-                        column: x => x.taskid,
-                        principalTable: "tasks",
-                        principalColumn: "taskid",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_socialmessages_tenants_tenantid",
-                        column: x => x.tenantid,
-                        principalTable: "tenants",
-                        principalColumn: "tenantid",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.InsertData(
                 table: "routingrules",
                 columns: new[] { "ruleid", "createdatutc", "isactive", "keywords", "priority", "rulename", "targetdepartmentid", "tenantid" },
@@ -352,14 +460,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "tasks",
-                columns: new[] { "taskid", "assigneddepartmentid", "assigneduserid", "closedatutc", "completedatutc", "createdatutc", "createdbyuserid", "currentstatus", "description", "duedateutc", "priority", "sourcerefid", "sourcetype", "targetdepartmentid", "tasktype", "tenantid", "title", "updatedatutc", "updatedbyuserid" },
-                values: new object[] { new Guid("6de6e0b3-a74e-4f24-bdbc-4d6e0cb6d38c"), new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), new Guid("1358d4aa-b1ae-486c-a1db-a757ea18f2c3"), null, null, new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), "Assigned", "İlk kurulum sonrası arayüz kontrolü için eklenen örnek görev.", new DateTimeOffset(new DateTime(2026, 3, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Normal", null, "Manual", new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), "CitizenRequest", new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"), "Örnek altyapı inceleme görevi", null, null });
+                table: "jobs",
+                columns: new[] { "jobid", "cancelreason", "completedatutc", "completionpercentage", "createdatutc", "createdbyuserid", "description", "duedateutc", "iscoordinated", "ownerdepartmentid", "priority", "sourcerefid", "sourcetype", "startdateutc", "status", "tenantid", "title", "updatedatutc", "updatedbyuserid" },
+                values: new object[] { new Guid("9a5b3f2e-6c1a-4b0d-8e7f-2d3c4b5a6987"), null, null, null, new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), "İlk kurulum sonrası arayüz kontrolü için eklenen örnek iş.", new DateTimeOffset(new DateTime(2026, 3, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), false, new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), "Normal", null, "Manual", null, "Active", new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"), "Örnek altyapı inceleme işi", null, null });
 
             migrationBuilder.InsertData(
                 table: "socialmessages",
-                columns: new[] { "socialmessageid", "assigneddepartmentid", "category", "channel", "citizenhandle", "content", "createdatutc", "createdbyuserid", "externalmessageid", "receivedatutc", "respondedatutc", "responsecontent", "status", "tags", "taskid", "tenantid", "updatedatutc", "updatedbyuserid" },
-                values: new object[] { new Guid("8e90888d-dc75-4264-a78b-f0a7abc9a9ab"), new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), "Altyapı", "Instagram", "tire.vatandas", "Yolda çukur var, ekip yönlendirebilir misiniz?", new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), "demo-instagram-message-1", new DateTimeOffset(new DateTime(2026, 3, 18, 20, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, null, "Routed", "", null, new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"), null, null });
+                columns: new[] { "socialmessageid", "assigneddepartmentid", "category", "channel", "citizenhandle", "content", "createdatutc", "createdbyuserid", "externalmessageid", "jobid", "receivedatutc", "respondedatutc", "responsecontent", "status", "tags", "tenantid", "updatedatutc", "updatedbyuserid" },
+                values: new object[] { new Guid("8e90888d-dc75-4264-a78b-f0a7abc9a9ab"), new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), "Altyapı", "Instagram", "tire.vatandas", "Yolda çukur var, ekip yönlendirebilir misiniz?", new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), "demo-instagram-message-1", null, new DateTimeOffset(new DateTime(2026, 3, 18, 20, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, null, "Routed", "", new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"), null, null });
 
             migrationBuilder.InsertData(
                 table: "users",
@@ -372,15 +480,25 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     { new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"), new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), "Zeynep Kara", "zeynep.kara@tire.bel.tr", null, true, null, null, "Manager", new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"), null, null, "Manual", "zeynep.kara" }
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_approvals_taskid_steporder",
-                table: "approvals",
-                columns: new[] { "taskid", "steporder" });
+            migrationBuilder.InsertData(
+                table: "jobdepartments",
+                columns: new[] { "jobdepartmentid", "approvalstatus", "approvedbyuserid", "createdatutc", "createdbyuserid", "decidedatutc", "departmentid", "jobid", "notes", "rejectreason", "requestedatutc", "requestedbyuserid", "role", "tenantid", "updatedatutc", "updatedbyuserid" },
+                values: new object[] { new Guid("7c2d4e1f-5b8a-4d3c-9e6f-1a2b3c4d5e62"), "Approved", new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"), new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), new Guid("9a5b3f2e-6c1a-4b0d-8e7f-2d3c4b5a6987"), null, null, new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), "Owner", new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"), null, null });
+
+            migrationBuilder.InsertData(
+                table: "tasks",
+                columns: new[] { "taskid", "actualhours", "assigneddepartmentid", "assigneduserid", "assigningmanagerid", "completedatutc", "completionpercentage", "createdatutc", "createdbyuserid", "currentstatus", "description", "duedateutc", "estimatedhours", "jobid", "notes", "priority", "revisionreason", "startdateutc", "tenantid", "title", "updatedatutc", "updatedbyuserid" },
+                values: new object[] { new Guid("6de6e0b3-a74e-4f24-bdbc-4d6e0cb6d38c"), null, new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"), new Guid("1358d4aa-b1ae-486c-a1db-a757ea18f2c3"), new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"), null, null, new DateTimeOffset(new DateTime(2026, 3, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"), "Assigned", "İlk kurulum sonrası arayüz kontrolü için eklenen örnek görev.", new DateTimeOffset(new DateTime(2026, 3, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, new Guid("9a5b3f2e-6c1a-4b0d-8e7f-2d3c4b5a6987"), null, "Normal", null, null, new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"), "Örnek altyapı inceleme görevi", null, null });
 
             migrationBuilder.CreateIndex(
-                name: "IX_approvals_tenantid_approveruserid",
+                name: "IX_approvals_tenantid_approveruserid_decision",
                 table: "approvals",
-                columns: new[] { "tenantid", "approveruserid" });
+                columns: new[] { "tenantid", "approveruserid", "decision" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_approvals_tenantid_subjecttype_subjectid_steporder",
+                table: "approvals",
+                columns: new[] { "tenantid", "subjecttype", "subjectid", "steporder" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_assignmenthistory_taskid_actiondateutc",
@@ -418,6 +536,46 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 columns: new[] { "tenantid", "name" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_jobdepartments_departmentid",
+                table: "jobdepartments",
+                column: "departmentid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_jobdepartments_jobid",
+                table: "jobdepartments",
+                column: "jobid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_jobdepartments_tenantid_departmentid_approvalstatus",
+                table: "jobdepartments",
+                columns: new[] { "tenantid", "departmentid", "approvalstatus" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_jobdepartments_tenantid_jobid",
+                table: "jobdepartments",
+                columns: new[] { "tenantid", "jobid" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_jobs_ownerdepartmentid",
+                table: "jobs",
+                column: "ownerdepartmentid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_jobs_tenantid_duedateutc",
+                table: "jobs",
+                columns: new[] { "tenantid", "duedateutc" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_jobs_tenantid_ownerdepartmentid",
+                table: "jobs",
+                columns: new[] { "tenantid", "ownerdepartmentid" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_jobs_tenantid_status",
+                table: "jobs",
+                columns: new[] { "tenantid", "status" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_notifications_tenantid_taskid",
                 table: "notifications",
                 columns: new[] { "tenantid", "taskid" });
@@ -426,6 +584,17 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 name: "IX_notifications_tenantid_userid_deliverystatus",
                 table: "notifications",
                 columns: new[] { "tenantid", "userid", "deliverystatus" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_pushsubscriptions_endpoint_unique",
+                table: "pushsubscriptions",
+                column: "endpoint",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_pushsubscriptions_tenantid_userid",
+                table: "pushsubscriptions",
+                columns: new[] { "tenantid", "userid" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_routingrules_tenantid_isactive_priority",
@@ -443,9 +612,15 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 column: "assigneddepartmentid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_socialmessages_taskid",
+                name: "IX_socialmessages_jobid",
                 table: "socialmessages",
-                column: "taskid");
+                column: "jobid");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_socialmessages_tenant_channel_external_unique",
+                table: "socialmessages",
+                columns: new[] { "tenantid", "channel", "externalmessageid" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_socialmessages_tenantid_status_receivedatutc",
@@ -453,10 +628,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 columns: new[] { "tenantid", "status", "receivedatutc" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_socialmessages_tenant_channel_external_unique",
-                table: "socialmessages",
-                columns: new[] { "tenantid", "channel", "externalmessageid" },
-                unique: true);
+                name: "IX_tasks_jobid",
+                table: "tasks",
+                column: "jobid");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tasks_tenantid_assigneddepartmentid",
@@ -479,14 +653,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 columns: new[] { "tenantid", "duedateutc" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_tasks_tenantid_jobid",
+                table: "tasks",
+                columns: new[] { "tenantid", "jobid" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_tenants_displayname",
                 table: "tenants",
                 column: "displayname");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_tenants_municipalityname",
-                table: "tenants",
-                column: "municipalityname");
 
             migrationBuilder.CreateIndex(
                 name: "ix_tenants_domain_unique",
@@ -494,6 +668,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 column: "domain",
                 unique: true,
                 filter: "domain IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_tenants_municipalityname",
+                table: "tenants",
+                column: "municipalityname");
 
             migrationBuilder.CreateIndex(
                 name: "ix_tenantsettings_tenantid_unique",
@@ -537,7 +716,13 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 name: "auditlogs");
 
             migrationBuilder.DropTable(
+                name: "jobdepartments");
+
+            migrationBuilder.DropTable(
                 name: "notifications");
+
+            migrationBuilder.DropTable(
+                name: "pushsubscriptions");
 
             migrationBuilder.DropTable(
                 name: "routingrules");
@@ -553,6 +738,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "tasks");
+
+            migrationBuilder.DropTable(
+                name: "jobs");
 
             migrationBuilder.DropTable(
                 name: "departments");

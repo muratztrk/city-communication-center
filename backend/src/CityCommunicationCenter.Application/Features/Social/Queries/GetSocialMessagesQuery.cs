@@ -23,7 +23,7 @@ public sealed class GetSocialMessagesQueryHandler : IRequestHandler<GetSocialMes
                 entity.Category,
                 entity.Status.ToString(),
                 entity.AssignedDepartmentId,
-                entity.TaskId,
+                entity.JobId,
                 entity.ReceivedAtUtc))
             .ToListAsync(cancellationToken);
     }

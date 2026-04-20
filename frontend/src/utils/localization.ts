@@ -4,10 +4,6 @@ export function getRoleLabel(t: TFunction, roleCode: string): string {
   return t(`enum.role.${roleCode}`, { defaultValue: roleCode })
 }
 
-export function getTaskTypeLabel(t: TFunction, taskType: string): string {
-  return t(`enum.taskType.${taskType}`, { defaultValue: taskType })
-}
-
 export function getTaskStatusLabel(t: TFunction, taskStatus: string): string {
   return t(`enum.taskStatus.${taskStatus}`, { defaultValue: taskStatus })
 }

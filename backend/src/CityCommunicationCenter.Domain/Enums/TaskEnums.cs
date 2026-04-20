@@ -1,28 +1,23 @@
 namespace CityCommunicationCenter.Domain.Enums;
 
-public enum TaskType
-{
-    CitizenRequest,
-    InternalRequest,
-    ApprovalTask
-}
-
-public enum SourceType
+public enum JobSourceType
 {
     Manual,
     SocialMessage,
+    CitizenRequest,
     Integration
 }
 
 public enum TaskStatus
 {
-    Draft,
-    PendingApproval,
+    Waiting,
     Assigned,
     InProgress,
+    PendingCloseApproval,
     Completed,
-    Closed,
-    Rejected
+    Cancelled,
+    Rejected,
+    RevisionRequested
 }
 
 public enum ApprovalDecision

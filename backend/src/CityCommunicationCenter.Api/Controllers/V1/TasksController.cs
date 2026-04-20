@@ -9,127 +9,98 @@ public sealed class TasksController : ApiControllerBase
 {
     private readonly ISender _sender;
 
-    public TasksController(ISender sender)
-    {
-        _sender = sender;
-    }
+    public TasksController(ISender sender) { _sender = sender; }
 
     [HttpGet("")]
-    [ProducesResponseType<IEnumerable<TaskSummaryResponse>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<TaskSummaryResponse>>> GetAll(
-        [FromQuery] string? scope,
-        CancellationToken cancellationToken)
-    {
-        var response = await _sender.Send(new GetTasksQuery(scope), cancellationToken);
-        return Ok(response);
-    }
+    public async Task<ActionResult<IEnumerable<TaskSummaryResponse>>> GetAll([FromQuery] string? scope, CancellationToken cancellationToken)
+        => Ok(await _sender.Send(new GetTasksQuery(scope), cancellationToken));
 
-    [HttpGet("{taskId:guid}", Name = nameof(GetById))]
-    [ProducesResponseType<TaskDetailResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet("{taskId:guid}", Name = "GetTaskById")]
     public async Task<ActionResult<TaskDetailResponse>> GetById(Guid taskId, CancellationToken cancellationToken)
     {
         var response = await _sender.Send(new GetTaskByIdQuery(taskId), cancellationToken);
-        if (response is null)
-        {
-            return NotFound();
-        }
-
+        if (response is null) return NotFound();
         return Ok(response);
     }
 
     [HttpPost("")]
-    [ProducesResponseType<TaskSummaryResponse>(StatusCodes.Status201Created)]
-    public async Task<ActionResult<TaskSummaryResponse>> Create(
-        [FromBody] CreateTaskRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<TaskSummaryResponse>> Create([FromBody] CreateTaskRequest request, CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(
-            new CreateTaskCommand(
-                CurrentContext.UserId,
-                request.Title,
-                request.Description,
-                request.TaskType,
-                request.SourceType,
-                request.SourceRefId,
-                request.TargetDepartmentId,
-                request.Priority,
-                request.DueDateUtc),
-            cancellationToken);
-
-        return CreatedAtRoute(nameof(GetById), new { taskId = response.TaskId }, response);
-    }
-
-    [HttpPost("{taskId:guid}/submit")]
-    public async Task<IActionResult> Submit(Guid taskId, [FromBody] SubmitTaskRequest request, CancellationToken cancellationToken)
-    {
-        var updated = await _sender.Send(new SubmitTaskCommand(taskId, CurrentContext.UserId, request.Note), cancellationToken);
-        if (!updated) return NotFound();
-        return NoContent();
-    }
-
-    [HttpPost("{taskId:guid}/approve")]
-    public async Task<IActionResult> Approve(
-        Guid taskId,
-        [FromBody] ApprovalActionRequest request,
-        CancellationToken cancellationToken)
-    {
-        var updated = await _sender.Send(new ApproveTaskCommand(taskId, CurrentContext.UserId, request.Comment), cancellationToken);
-        if (!updated) return NotFound();
-        return NoContent();
-    }
-
-    [HttpPost("{taskId:guid}/reject")]
-    public async Task<IActionResult> Reject(
-        Guid taskId,
-        [FromBody] ApprovalActionRequest request,
-        CancellationToken cancellationToken)
-    {
-        var updated = await _sender.Send(new RejectTaskCommand(taskId, CurrentContext.UserId, request.Comment), cancellationToken);
-        if (!updated) return NotFound();
-        return NoContent();
+        var response = await _sender.Send(new CreateTaskCommand(
+            CurrentContext.UserId,
+            request.JobId,
+            request.Title,
+            request.Description,
+            request.Priority,
+            request.StartDateUtc,
+            request.DueDateUtc,
+            request.EstimatedHours,
+            request.Notes,
+            request.AssignedDepartmentId,
+            request.AssignedUserId), cancellationToken);
+        return CreatedAtRoute("GetTaskById", new { taskId = response.TaskId }, response);
     }
 
     [HttpPost("{taskId:guid}/assign")]
-    public async Task<IActionResult> Assign(
-        Guid taskId,
-        [FromBody] AssignTaskRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Assign(Guid taskId, [FromBody] AssignTaskRequest request, CancellationToken cancellationToken)
     {
-        var updated = await _sender.Send(
-            new AssignTaskCommand(taskId, CurrentContext.UserId, request.DepartmentId, request.UserId, request.ActionType),
-            cancellationToken);
-        if (!updated) return NotFound();
-        return NoContent();
+        var ok = await _sender.Send(new AssignTaskCommand(taskId, CurrentContext.UserId, request.DepartmentId, request.UserId), cancellationToken);
+        return ok ? NoContent() : NotFound();
     }
 
     [HttpPost("{taskId:guid}/claim")]
     public async Task<IActionResult> Claim(Guid taskId, CancellationToken cancellationToken)
     {
-        var updated = await _sender.Send(new ClaimTaskFromPoolCommand(taskId, CurrentContext.UserId), cancellationToken);
-        if (!updated) return NotFound();
-        return NoContent();
+        var ok = await _sender.Send(new ClaimTaskFromPoolCommand(taskId, CurrentContext.UserId), cancellationToken);
+        return ok ? NoContent() : NotFound();
     }
 
     [HttpPost("{taskId:guid}/complete")]
-    public async Task<IActionResult> Complete(
-        Guid taskId,
-        [FromBody] CompleteTaskRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Complete(Guid taskId, [FromBody] CompleteTaskRequest request, CancellationToken cancellationToken)
     {
-        var updated = await _sender.Send(new CompleteTaskCommand(taskId, CurrentContext.UserId, request.ResultNote), cancellationToken);
-        if (!updated) return NotFound();
-        return NoContent();
+        var ok = await _sender.Send(new CompleteTaskCommand(taskId, CurrentContext.UserId, request.ResultNote, request.ActualHours), cancellationToken);
+        return ok ? NoContent() : NotFound();
     }
 
-    [HttpPost("{taskId:guid}/close")]
-    public async Task<IActionResult> Close(
-        Guid taskId,
-        [FromBody] CloseTaskRequest request,
-        CancellationToken cancellationToken)
+    [HttpPost("{taskId:guid}/approve-close")]
+    public async Task<IActionResult> ApproveClose(Guid taskId, [FromBody] ApprovalActionRequest request, CancellationToken cancellationToken)
     {
-        var updated = await _sender.Send(new CloseTaskCommand(taskId, CurrentContext.UserId, request.ClosureNote), cancellationToken);
-        if (!updated) return NotFound();
-        return NoContent();
+        var ok = await _sender.Send(new ApproveTaskCloseCommand(taskId, CurrentContext.UserId, request.Comment), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{taskId:guid}/reject-close")]
+    public async Task<IActionResult> RejectClose(Guid taskId, [FromBody] ApprovalActionRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new RejectTaskCloseCommand(taskId, CurrentContext.UserId, request.Comment), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{taskId:guid}/request-revision")]
+    public async Task<IActionResult> RequestRevision(Guid taskId, [FromBody] RequestTaskRevisionRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new RequestTaskRevisionCommand(taskId, CurrentContext.UserId, request.Reason, request.ProposedDueDateUtc), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{taskId:guid}/approve-revision")]
+    public async Task<IActionResult> ApproveRevision(Guid taskId, [FromBody] RequestTaskRevisionRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new ApproveTaskRevisionCommand(taskId, CurrentContext.UserId, request.Reason, request.ProposedDueDateUtc), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{taskId:guid}/reject-revision")]
+    public async Task<IActionResult> RejectRevision(Guid taskId, [FromBody] ApprovalActionRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new RejectTaskRevisionCommand(taskId, CurrentContext.UserId, request.Comment), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{taskId:guid}/progress")]
+    public async Task<IActionResult> UpdateProgress(Guid taskId, [FromBody] UpdateTaskProgressRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new UpdateTaskProgressCommand(taskId, CurrentContext.UserId, request.CompletionPercentage, request.ActualHours, request.Notes), cancellationToken);
+        return ok ? NoContent() : NotFound();
     }
 }

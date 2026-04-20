@@ -1,5 +1,3 @@
-
-using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -43,20 +41,18 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
                 : tasks.Where(entity =>
                     entity.AssignedDepartmentId == actor.DepartmentId &&
                     entity.AssignedUserId == null &&
-                    entity.CurrentStatus != WorkflowTaskStatus.Completed &&
-                    entity.CurrentStatus != WorkflowTaskStatus.Closed &&
-                    entity.CurrentStatus != WorkflowTaskStatus.Rejected),
-            TaskQueryScope.PendingApproval => actor is null
+                    entity.CurrentStatus == WorkflowTaskStatus.Waiting),
+            TaskQueryScope.PendingCloseApproval => actor is null
                 ? tasks.Where(_ => false)
                 : actor.RoleCode switch
                 {
-                    RoleCode.SystemAdmin => tasks.Where(entity => entity.CurrentStatus == WorkflowTaskStatus.PendingApproval),
+                    RoleCode.SystemAdmin => tasks.Where(entity => entity.CurrentStatus == WorkflowTaskStatus.PendingCloseApproval),
                     RoleCode.Manager => managedDepartmentIds.Length == 0
                         ? tasks.Where(_ => false)
                         : tasks.Where(entity =>
-                            entity.CurrentStatus == WorkflowTaskStatus.PendingApproval &&
-                            (entity.AssignedDepartmentId ?? entity.TargetDepartmentId).HasValue &&
-                            managedDepartmentIds.Contains((entity.AssignedDepartmentId ?? entity.TargetDepartmentId)!.Value)),
+                            entity.CurrentStatus == WorkflowTaskStatus.PendingCloseApproval &&
+                            entity.AssignedDepartmentId.HasValue &&
+                            managedDepartmentIds.Contains(entity.AssignedDepartmentId!.Value)),
                     _ => tasks.Where(_ => false)
                 },
             _ => tasks
@@ -64,9 +60,9 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
 
         return await (
             from task in tasks
-            join targetDepartment in _dbContext.Departments.AsNoTracking()
-                on task.TargetDepartmentId equals targetDepartment.DepartmentId into targetDepartments
-            from targetDepartment in targetDepartments.DefaultIfEmpty()
+            join job in _dbContext.Jobs.AsNoTracking()
+                on task.JobId equals job.JobId into jobs
+            from job in jobs.DefaultIfEmpty()
             join assignedDepartment in _dbContext.Departments.AsNoTracking()
                 on task.AssignedDepartmentId equals assignedDepartment.DepartmentId into assignedDepartments
             from assignedDepartment in assignedDepartments.DefaultIfEmpty()
@@ -77,18 +73,19 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
             select new TaskSummaryResponse(
                 task.TaskId,
                 task.TenantId,
+                task.JobId,
+                job != null ? job.Title : null,
                 task.Title,
-                task.TaskType.ToString(),
                 task.Priority,
                 task.CurrentStatus.ToString(),
-                task.TargetDepartmentId,
-                targetDepartment != null ? targetDepartment.Name : null,
                 task.AssignedDepartmentId,
                 assignedDepartment != null ? assignedDepartment.Name : null,
                 task.AssignedUserId,
                 assignedUser != null ? assignedUser.DisplayName : null,
                 task.DueDateUtc,
-                task.SourceType.ToString()))
+                task.CompletionPercentage,
+                task.EstimatedHours,
+                task.ActualHours))
             .ToListAsync(cancellationToken);
     }
 
@@ -113,7 +110,7 @@ internal enum TaskQueryScope
     All,
     Mine,
     DepartmentPool,
-    PendingApproval
+    PendingCloseApproval
 }
 
 internal static class TaskQueryScopeParser
@@ -130,15 +127,10 @@ internal static class TaskQueryScopeParser
             "all" => TaskQueryScope.All,
             "mine" => TaskQueryScope.Mine,
             "department-pool" => TaskQueryScope.DepartmentPool,
-            "pending-approval" => TaskQueryScope.PendingApproval,
-            _ => throw CreateValidationException(nameof(scope), "Gecersiz gorev scope degeri.")
+            "pending-close-approval" => TaskQueryScope.PendingCloseApproval,
+            _ => throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(scope), "Gecersiz gorev scope degeri.")
+            ])
         };
-    }
-
-    private static ValidationException CreateValidationException(string propertyName, string message)
-    {
-        return new ValidationException([
-            new FluentValidation.Results.ValidationFailure(propertyName, message)
-        ]);
     }
 }

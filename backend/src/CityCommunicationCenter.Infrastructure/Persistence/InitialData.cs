@@ -23,6 +23,8 @@ public static class InitialData
     public const string PublicWorksStaffUsername = "emre.celik";
     public const string CommunicationsStaffUsername = "ali.yildiz";
 
+    public static readonly Guid SampleJobId = Guid.Parse("9a5b3f2e-6c1a-4b0d-8e7f-2d3c4b5a6987");
+    public static readonly Guid SampleJobOwnerDepartmentId = Guid.Parse("7c2d4e1f-5b8a-4d3c-9e6f-1a2b3c4d5e62");
     public static readonly Guid SampleTaskId = Guid.Parse("6de6e0b3-a74e-4f24-bdbc-4d6e0cb6d38c");
     public static readonly Guid SampleSocialMessageId = Guid.Parse("8e90888d-dc75-4264-a78b-f0a7abc9a9ab");
     public static readonly Guid SampleRoutingRuleId = Guid.Parse("d306cbf0-88ad-48b7-9b16-14bb87e77f5f");

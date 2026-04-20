@@ -4,84 +4,87 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 internal static class TaskWorkflowAuthorization
 {
-    public static async Task EnsureCanApproveOrRejectAsync(
+    public static async Task<ApplicationUser> RequireActiveActorAsync(
         IApplicationDbContext dbContext,
-        WorkTask task,
         Guid? actorUserId,
         CancellationToken cancellationToken)
     {
-        var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
-        if (IsSystemAdmin(actor))
+        if (!actorUserId.HasValue)
         {
-            return;
+            throw new ForbiddenAccessException("Islemi gerceklestiren kullanici dogrulanamadi.");
         }
 
-        await EnsureDepartmentManagerAccessAsync(
-            dbContext,
-            actor,
-            GetWorkflowDepartmentId(task),
-            "Bu gorev icin onay yetkiniz yok.",
-            cancellationToken);
+        var actor = await dbContext.Users
+            .FirstOrDefaultAsync(entity => entity.UserId == actorUserId.Value, cancellationToken);
+        if (actor is null || !actor.IsActive)
+        {
+            throw new ForbiddenAccessException("Islemi gerceklestiren kullanici bulunamadi veya aktif degil.");
+        }
+
+        return actor;
+    }
+
+    public static bool IsSystemAdmin(ApplicationUser actor) => actor.RoleCode == RoleCode.SystemAdmin;
+
+    public static async Task<bool> IsManagerOfAsync(
+        IApplicationDbContext dbContext,
+        ApplicationUser actor,
+        Guid? departmentId,
+        CancellationToken cancellationToken)
+    {
+        if (actor.RoleCode != RoleCode.Manager || !departmentId.HasValue)
+        {
+            return false;
+        }
+
+        var department = await dbContext.Departments
+            .FirstOrDefaultAsync(entity => entity.DepartmentId == departmentId.Value, cancellationToken);
+        return department?.ManagerUserId == actor.UserId;
     }
 
     public static async Task EnsureCanAssignAsync(
         IApplicationDbContext dbContext,
         WorkTask task,
+        Job job,
         Guid? actorUserId,
         CancellationToken cancellationToken)
     {
         var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
-        if (IsSystemAdmin(actor))
-        {
-            return;
-        }
+        if (IsSystemAdmin(actor)) return;
 
-        await EnsureDepartmentManagerAccessAsync(
-            dbContext,
-            actor,
-            GetWorkflowDepartmentId(task),
-            "Bu gorevi atama veya yeniden yonlendirme yetkiniz yok.",
-            cancellationToken);
+        if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
+        if (await IsManagerOfAsync(dbContext, actor, job.OwnerDepartmentId, cancellationToken)) return;
+
+        throw new ForbiddenAccessException("Bu gorevi atama yetkiniz yok.");
     }
 
-    public static async Task EnsureCanCompleteAsync(
+    public static async Task EnsureCanApproveTaskCloseAsync(
+        IApplicationDbContext dbContext,
+        WorkTask task,
+        Job job,
+        Guid? actorUserId,
+        CancellationToken cancellationToken)
+    {
+        var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
+        if (IsSystemAdmin(actor)) return;
+
+        if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
+        if (await IsManagerOfAsync(dbContext, actor, job.OwnerDepartmentId, cancellationToken)) return;
+
+        throw new ForbiddenAccessException("Bu gorevi onaylama yetkiniz yok.");
+    }
+
+    public static async Task EnsureCanActAsAssigneeAsync(
         IApplicationDbContext dbContext,
         WorkTask task,
         Guid? actorUserId,
         CancellationToken cancellationToken)
     {
         var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
-        if (IsSystemAdmin(actor) || task.AssignedUserId == actor.UserId)
-        {
-            return;
-        }
+        if (IsSystemAdmin(actor)) return;
+        if (task.AssignedUserId == actor.UserId) return;
 
-        await EnsureDepartmentManagerAccessAsync(
-            dbContext,
-            actor,
-            GetWorkflowDepartmentId(task),
-            "Bu gorevi tamamlama yetkiniz yok.",
-            cancellationToken);
-    }
-
-    public static async Task EnsureCanCloseAsync(
-        IApplicationDbContext dbContext,
-        WorkTask task,
-        Guid? actorUserId,
-        CancellationToken cancellationToken)
-    {
-        var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
-        if (IsSystemAdmin(actor))
-        {
-            return;
-        }
-
-        await EnsureDepartmentManagerAccessAsync(
-            dbContext,
-            actor,
-            GetWorkflowDepartmentId(task),
-            "Bu gorevi kapatma yetkiniz yok.",
-            cancellationToken);
+        throw new ForbiddenAccessException("Bu islem icin gorev atamasinin sizin uzerinizde olmasi gerekir.");
     }
 
     public static async Task<ApplicationUser> EnsureCanClaimFromPoolAsync(
@@ -103,56 +106,35 @@ internal static class TaskWorkflowAuthorization
     {
         return task.AssignedDepartmentId.HasValue
             && !task.AssignedUserId.HasValue
-            && task.CurrentStatus == WorkflowTaskStatus.Assigned;
+            && task.CurrentStatus == WorkflowTaskStatus.Waiting;
     }
 
-    private static async Task<ApplicationUser> RequireActiveActorAsync(
+    public static async Task RecomputeJobCompletionAsync(
         IApplicationDbContext dbContext,
-        Guid? actorUserId,
+        Guid jobId,
         CancellationToken cancellationToken)
     {
-        if (!actorUserId.HasValue)
+        var job = await dbContext.Jobs.FirstOrDefaultAsync(entity => entity.JobId == jobId, cancellationToken);
+        if (job is null) return;
+
+        var tasks = await dbContext.Tasks
+            .Where(entity => entity.JobId == jobId)
+            .Select(entity => new { entity.CurrentStatus, entity.CompletionPercentage })
+            .ToListAsync(cancellationToken);
+        if (tasks.Count == 0)
         {
-            throw new ForbiddenAccessException("Islemi gerceklestiren kullanici dogrulanamadi.");
+            job.CompletionPercentage = 0;
+            return;
         }
 
-        var actor = await dbContext.Users
-            .FirstOrDefaultAsync(entity => entity.UserId == actorUserId.Value, cancellationToken);
-        if (actor is null || !actor.IsActive)
+        var total = tasks.Sum(t =>
+            t.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (t.CompletionPercentage ?? 0));
+        job.CompletionPercentage = total / tasks.Count;
+
+        if (tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Completed))
         {
-            throw new ForbiddenAccessException("Islemi gerceklestiren kullanici bulunamadi veya aktif degil.");
+            job.Status = Domain.Enums.JobStatus.Completed;
+            job.CompletedAtUtc = DateTimeOffset.UtcNow;
         }
-
-        return actor;
-    }
-
-    private static async Task EnsureDepartmentManagerAccessAsync(
-        IApplicationDbContext dbContext,
-        ApplicationUser actor,
-        Guid? departmentId,
-        string forbiddenMessage,
-        CancellationToken cancellationToken)
-    {
-        if (!departmentId.HasValue)
-        {
-            throw new ForbiddenAccessException(forbiddenMessage);
-        }
-
-        var department = await dbContext.Departments
-            .FirstOrDefaultAsync(entity => entity.DepartmentId == departmentId.Value, cancellationToken);
-        if (department?.ManagerUserId != actor.UserId || actor.RoleCode != RoleCode.Manager)
-        {
-            throw new ForbiddenAccessException(forbiddenMessage);
-        }
-    }
-
-    private static Guid? GetWorkflowDepartmentId(WorkTask task)
-    {
-        return task.AssignedDepartmentId ?? task.TargetDepartmentId;
-    }
-
-    private static bool IsSystemAdmin(ApplicationUser actor)
-    {
-        return actor.RoleCode == RoleCode.SystemAdmin;
     }
 }

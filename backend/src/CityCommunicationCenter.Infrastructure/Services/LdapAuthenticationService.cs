@@ -124,21 +124,61 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
     {
         var identifier = new LdapDirectoryIdentifier(settings.Host, settings.Port);
 
-        var userDn = FindUserDistinguishedName(settings, identifier, username) ?? BuildBindUsername(settings, username);
-        using var connection = CreateConnection(settings, identifier);
-
-        try
+        var userDn = FindUserDistinguishedName(settings, identifier, username);
+        if (userDn is not null)
         {
-            connection.Bind(new NetworkCredential(userDn, password));
-        }
-        catch (LdapException ex)
-        {
-            _logger.LogWarning(ex, "LDAP bind failed during authentication for user {Username}", username);
-            return null;
+            // Found full DN via search — bind directly with it
+            using var conn = CreateConnection(settings, identifier);
+            try
+            {
+                conn.Bind(new NetworkCredential(userDn, password));
+                var profile = FindUserProfile(settings, identifier, username) ?? new LdapAuthenticatedUser(userDn, username, username, NormalizeEmail(username));
+                return profile with { ExternalIdentityId = string.IsNullOrWhiteSpace(profile.ExternalIdentityId) ? userDn : profile.ExternalIdentityId };
+            }
+            catch (LdapException ex)
+            {
+                _logger.LogWarning(ex, "LDAP bind failed (DN path) for user {Username}", username);
+                return null;
+            }
         }
 
-        var profile = FindUserProfile(settings, identifier, username) ?? new LdapAuthenticatedUser(username, username, username, NormalizeEmail(username));
-        return profile with { ExternalIdentityId = string.IsNullOrWhiteSpace(profile.ExternalIdentityId) ? username : profile.ExternalIdentityId };
+        // No search base or search failed — try both username@domain and DOMAIN\username formats
+        var candidates = BuildBindUsernameCandidates(settings, username);
+        foreach (var candidate in candidates)
+        {
+            using var conn = CreateConnection(settings, identifier);
+            try
+            {
+                conn.Bind(new NetworkCredential(candidate, password));
+                _logger.LogInformation("LDAP bind succeeded with candidate format for user {Username}", username);
+                return new LdapAuthenticatedUser(candidate, username, username, NormalizeEmail(username));
+            }
+            catch (LdapException ex)
+            {
+                _logger.LogDebug(ex, "LDAP bind failed with candidate '{Candidate}' for user {Username}", candidate, username);
+            }
+        }
+
+        _logger.LogWarning("LDAP authentication failed for user {Username} — all formats exhausted", username);
+        return null;
+    }
+
+    private IEnumerable<string> BuildBindUsernameCandidates(TenantLdapRuntimeSettings settings, string username)
+    {
+        // If already has @ or \ — use as-is first, then no extra candidates
+        if (username.Contains('@', StringComparison.Ordinal) || username.Contains('\\', StringComparison.Ordinal))
+        {
+            yield return username;
+            yield break;
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.Domain))
+        {
+            yield return $"{username}@{settings.Domain}";   // UPN: user@domain
+            yield return $"{settings.Domain}\\{username}";  // NTLM: DOMAIN\user
+        }
+
+        yield return username; // bare fallback
     }
 
     private IReadOnlyList<LdapDirectoryUser> SearchUsersInternal(TenantLdapRuntimeSettings settings, string query)
@@ -298,16 +338,6 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         }
 
         return connection;
-    }
-
-    private string BuildBindUsername(TenantLdapRuntimeSettings settings, string username)
-    {
-        if (!string.IsNullOrWhiteSpace(settings.Domain) && !username.Contains('@', StringComparison.Ordinal))
-        {
-            return $"{username}@{settings.Domain}";
-        }
-
-        return username;
     }
 
     private string? FindUserDistinguishedName(TenantLdapRuntimeSettings settings, LdapDirectoryIdentifier identifier, string username)

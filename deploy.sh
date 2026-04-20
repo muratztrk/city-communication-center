@@ -48,8 +48,20 @@ info "Deploying on server..."
 ssh "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
   set -euo pipefail
   cd /opt/city-communication-center
+  echo "  Preserving .env / .keys from current deployment..."
+  BACKUP_DIR="\$(mktemp -d)"
+  if [ -d city-communication-center ]; then
+    [ -f city-communication-center/.env ] && cp city-communication-center/.env "\$BACKUP_DIR/.env" || true
+    [ -d city-communication-center/.keys ] && cp -R city-communication-center/.keys "\$BACKUP_DIR/.keys" || true
+    echo "  Removing previous source tree (volumes untouched)..."
+    rm -rf city-communication-center
+  fi
   echo "  Extracting archive..."
   tar xzf /tmp/${ARCHIVE_NAME} --strip-components=0
+  echo "  Restoring .env / .keys..."
+  [ -f "\$BACKUP_DIR/.env" ] && cp "\$BACKUP_DIR/.env" city-communication-center/.env || true
+  [ -d "\$BACKUP_DIR/.keys" ] && cp -R "\$BACKUP_DIR/.keys" city-communication-center/.keys || true
+  rm -rf "\$BACKUP_DIR"
   cd city-communication-center
   echo "  Building and starting containers..."
   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build

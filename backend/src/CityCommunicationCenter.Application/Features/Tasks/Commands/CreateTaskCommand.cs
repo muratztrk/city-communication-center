@@ -4,34 +4,25 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record CreateTaskCommand(
     Guid? ActorUserId,
+    Guid JobId,
     string Title,
     string Description,
-    string TaskType,
-    string SourceType,
-    Guid? SourceRefId,
-    Guid? TargetDepartmentId,
     string Priority,
-    DateTimeOffset? DueDateUtc) : ICommand<TaskSummaryResponse>;
+    DateTimeOffset? StartDateUtc,
+    DateTimeOffset? DueDateUtc,
+    decimal? EstimatedHours,
+    string? Notes,
+    Guid? AssignedDepartmentId,
+    Guid? AssignedUserId) : ICommand<TaskSummaryResponse>;
 
 public sealed class CreateTaskCommandValidator : AbstractValidator<CreateTaskCommand>
 {
     public CreateTaskCommandValidator()
     {
-        RuleFor(command => command.Title)
-            .NotEmpty()
-            .WithMessage("Gorev basligi zorunludur.");
-        RuleFor(command => command.Description)
-            .NotEmpty()
-            .WithMessage("Gorev aciklamasi zorunludur.");
-        RuleFor(command => command.TaskType)
-            .NotEmpty()
-            .WithMessage("Gorev tipi zorunludur.");
-        RuleFor(command => command.SourceType)
-            .NotEmpty()
-            .WithMessage("Kaynak tipi zorunludur.");
-        RuleFor(command => command.Priority)
-            .NotEmpty()
-            .WithMessage("Oncelik alani zorunludur.");
+        RuleFor(c => c.JobId).NotEmpty().WithMessage("Gorev icin is (Job) zorunludur.");
+        RuleFor(c => c.Title).NotEmpty().WithMessage("Gorev basligi zorunludur.");
+        RuleFor(c => c.Description).NotEmpty().WithMessage("Gorev aciklamasi zorunludur.");
+        RuleFor(c => c.Priority).NotEmpty().WithMessage("Oncelik alani zorunludur.");
     }
 }
 
@@ -49,54 +40,106 @@ public sealed class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand
     public async Task<TaskSummaryResponse> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        Guid? assignedUserId = null;
-        Guid? assignedDepartmentId = null;
-        var initialStatus = WorkflowTaskStatus.Draft;
+        var tenantId = context.TenantId!.Value;
 
-        if (context.UserId.HasValue)
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(entity => entity.JobId == request.JobId, cancellationToken)
+            ?? throw Validation(nameof(request.JobId), "Is bulunamadi.");
+
+        if (job.TenantId != tenantId)
         {
-            var currentUser = await _dbContext.Users
-                .FirstOrDefaultAsync(entity => entity.UserId == context.UserId.Value, cancellationToken);
+            throw Validation(nameof(request.JobId), "Is farkli bir kiracilifa ait.");
+        }
 
-            if (currentUser?.ManagerUserId != null)
+        if (job.Status != Domain.Enums.JobStatus.Active)
+        {
+            throw Validation(nameof(request.JobId), "Sadece aktif islere gorev eklenebilir.");
+        }
+
+        var actor = await TaskWorkflowAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var isSystemAdmin = TaskWorkflowAuthorization.IsSystemAdmin(actor);
+
+        var assignedUserId = request.AssignedUserId;
+        var assignedDepartmentId = request.AssignedDepartmentId;
+        Guid? assigningManagerId = null;
+
+        if (!isSystemAdmin)
+        {
+            if (actor.RoleCode == RoleCode.Staff)
             {
-                assignedUserId = currentUser.ManagerUserId;
-                assignedDepartmentId = currentUser.DepartmentId;
-                initialStatus = WorkflowTaskStatus.PendingApproval;
+                if (assignedUserId.HasValue && assignedUserId.Value != actor.UserId)
+                {
+                    throw Validation(nameof(request.AssignedUserId), "Personel sadece kendisine gorev atayabilir.");
+                }
+
+                assignedUserId = actor.UserId;
+                assignedDepartmentId ??= actor.DepartmentId;
+            }
+            else if (actor.RoleCode == RoleCode.Manager)
+            {
+                var managerDept = assignedDepartmentId ?? job.OwnerDepartmentId;
+                var isManagerDept = await TaskWorkflowAuthorization.IsManagerOfAsync(_dbContext, actor, managerDept, cancellationToken);
+                if (!isManagerDept)
+                {
+                    throw new ForbiddenAccessException("Bu departman icin gorev olusturma yetkiniz yok.");
+                }
+
+                assignedDepartmentId = managerDept;
+                assigningManagerId = actor.UserId;
+            }
+            else
+            {
+                throw new ForbiddenAccessException("Bu rol gorev olusturamaz.");
             }
         }
+
+        if (assignedUserId.HasValue)
+        {
+            var target = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == assignedUserId.Value, cancellationToken);
+            if (target is null || !target.IsActive)
+            {
+                throw Validation(nameof(request.AssignedUserId), "Secilen kullanici bulunamadi veya aktif degil.");
+            }
+            assignedDepartmentId ??= target.DepartmentId;
+        }
+
+        var initialStatus = assignedUserId.HasValue ? WorkflowTaskStatus.Assigned : WorkflowTaskStatus.Waiting;
 
         var task = new WorkTask
         {
             TaskId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
+            JobId = request.JobId,
             Title = request.Title.Trim(),
             Description = request.Description.Trim(),
-            TaskType = Enum.Parse<TaskType>(request.TaskType, true),
-            SourceType = Enum.Parse<SourceType>(request.SourceType, true),
-            SourceRefId = request.SourceRefId,
-            TargetDepartmentId = request.TargetDepartmentId ?? assignedDepartmentId,
             AssignedDepartmentId = assignedDepartmentId,
             AssignedUserId = assignedUserId,
+            AssigningManagerId = assigningManagerId,
             CurrentStatus = initialStatus,
             Priority = request.Priority.Trim(),
+            StartDateUtc = request.StartDateUtc,
             DueDateUtc = request.DueDateUtc,
+            EstimatedHours = request.EstimatedHours,
+            Notes = request.Notes,
             CreatedByUserId = context.UserId
         };
 
         _dbContext.Tasks.Add(task);
+
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskCreated",
             ActorUserId = context.UserId,
-            Details = assignedUserId.HasValue ? $"Manager auto-assignment: {assignedUserId}" : null
+            Details = assignedUserId.HasValue ? $"Assigned to user {assignedUserId}" : "Unassigned (pool)"
         });
-        await _dbContext.SaveChangesAsync(cancellationToken);
 
+        await _dbContext.SaveChangesAsync(cancellationToken);
         return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);
     }
+
+    private static ValidationException Validation(string property, string message) =>
+        new([new FluentValidation.Results.ValidationFailure(property, message)]);
 }

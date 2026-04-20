@@ -24,7 +24,8 @@ public sealed class GetSlaReportQueryHandler : IRequestHandler<GetSlaReportQuery
 
         var overdueTasks = await _dbContext.Tasks.CountAsync(
             entity => entity.TenantId == tenantId
-                && entity.CurrentStatus != WorkflowTaskStatus.Closed
+                && entity.CurrentStatus != WorkflowTaskStatus.Completed
+                && entity.CurrentStatus != WorkflowTaskStatus.Cancelled
                 && entity.DueDateUtc.HasValue
                 && entity.DueDateUtc.Value < utcNow,
             cancellationToken);
@@ -35,8 +36,6 @@ public sealed class GetSlaReportQueryHandler : IRequestHandler<GetSlaReportQuery
                 && entity.DueDateUtc.Value < endOfDay,
             cancellationToken);
 
-        return new SlaReportResponse(
-            overdueTasks,
-            tasksDueToday);
+        return new SlaReportResponse(overdueTasks, tasksDueToday);
     }
 }

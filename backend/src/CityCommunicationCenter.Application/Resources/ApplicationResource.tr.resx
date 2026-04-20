@@ -64,4 +64,5 @@
   <data name="ValidationDepartmentIdRequired" xml:space="preserve"><value>Müdürlük kimliği zorunludur.</value></data>
   <data name="ValidationDepartmentNameRequired" xml:space="preserve"><value>Müdürlük adı zorunludur.</value></data>
   <data name="ValidationDepartmentHasUsers" xml:space="preserve"><value>Bu müdürlüğe atanmış kullanıcılar var. Önce kullanıcıları başka müdürlüğe taşıyın.</value></data>
+  <data name="ValidationDepartmentHasJobs" xml:space="preserve"><value>Bu müdürlüğe ait aktif işler var. Önce işleri tamamlayın veya başka müdürlüğe aktarın.</value></data>
 </root>

@@ -20,9 +20,10 @@ public sealed class GetWorkloadReportQueryHandler : IRequestHandler<GetWorkloadR
         var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
         return await _dbContext.Tasks
             .Where(entity => entity.TenantId == tenantId
-                && entity.TargetDepartmentId.HasValue
-                && entity.CurrentStatus != WorkflowTaskStatus.Closed)
-            .GroupBy(entity => entity.TargetDepartmentId!.Value)
+                && entity.AssignedDepartmentId.HasValue
+                && entity.CurrentStatus != WorkflowTaskStatus.Completed
+                && entity.CurrentStatus != WorkflowTaskStatus.Cancelled)
+            .GroupBy(entity => entity.AssignedDepartmentId!.Value)
             .Select(group => new WorkloadReportItemResponse(group.Key, group.Count()))
             .ToListAsync(cancellationToken);
     }

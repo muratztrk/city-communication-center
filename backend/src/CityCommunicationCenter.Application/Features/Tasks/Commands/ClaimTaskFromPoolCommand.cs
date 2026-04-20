@@ -18,21 +18,15 @@ public sealed class ClaimTaskFromPoolCommandHandler : IRequestHandler<ClaimTaskF
     public async Task<bool> Handle(ClaimTaskFromPoolCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(entity => entity.TaskId == request.TaskId, cancellationToken);
-        if (task is null)
-        {
-            return false;
-        }
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        if (task is null) return false;
 
-        var actor = await TaskWorkflowAuthorization.EnsureCanClaimFromPoolAsync(
-            _dbContext,
-            task,
-            request.ActorUserId,
-            cancellationToken);
-
+        var actor = await TaskWorkflowAuthorization.EnsureCanClaimFromPoolAsync(_dbContext, task, request.ActorUserId, cancellationToken);
         if (!TaskWorkflowAuthorization.IsClaimableFromDepartmentPool(task))
         {
-            throw CreateValidationException(nameof(request.TaskId), "Bu gorev departman havuzundan sahiplenilemez.");
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.TaskId), "Bu gorev departman havuzundan sahiplenilemez.")
+            ]);
         }
 
         task.AssignedUserId = actor.UserId;
@@ -60,18 +54,10 @@ public sealed class ClaimTaskFromPoolCommandHandler : IRequestHandler<ClaimTaskF
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskClaimedFromPool",
-            ActorUserId = actor.UserId,
-            Details = task.AssignedDepartmentId?.ToString()
+            ActorUserId = actor.UserId
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
-    }
-
-    private static ValidationException CreateValidationException(string propertyName, string message)
-    {
-        return new ValidationException([
-            new FluentValidation.Results.ValidationFailure(propertyName, message)
-        ]);
     }
 }

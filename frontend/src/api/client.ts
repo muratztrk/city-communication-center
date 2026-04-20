@@ -14,6 +14,9 @@ import type {
   SocialSettingsStatus,
   Task,
   TaskListScope,
+  JobSummary,
+  JobDetail,
+  JobListScope,
   TenantAppearance,
   TenantAppearanceInput,
   TenantAuthenticationPolicy,
@@ -22,8 +25,6 @@ import type {
   User,
   UserLookup,
   UserManagementContext,
-  ProjectSummary,
-  ProjectDetail,
 } from '../types/platform'
 import { API_BASE } from './config'
 import { ensureOk, getAuthHeaders } from './http'
@@ -308,12 +309,16 @@ export const api = {
   },
 
   async createTask(task: {
+    jobId: string
     title: string
     description: string
-    taskType: string
-    sourceType: string
     priority: string
-    targetDepartmentId?: string
+    startDateUtc?: string | null
+    dueDateUtc?: string | null
+    estimatedHours?: number | null
+    notes?: string | null
+    assignedDepartmentId?: string | null
+    assignedUserId?: string | null
   }): Promise<Task> {
     const response = await fetch(`${API_BASE}/tasks`, {
       method: 'POST',
@@ -325,47 +330,12 @@ export const api = {
     return response.json() as Promise<Task>
   },
 
-  async submitTask(taskId: string, note?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/submit`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ note }),
-    })
-
-    await ensureOk(response, i18n.t('errors.taskSubmitFailed'))
-  },
-
-  async approveTask(taskId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/approve`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ comment }),
-    })
-
-    await ensureOk(response, i18n.t('errors.taskApproveFailed'))
-  },
-
-  async rejectTask(taskId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/reject`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ comment }),
-    })
-
-    await ensureOk(response, i18n.t('errors.taskRejectFailed'))
-  },
-
-  async assignTask(taskId: string, departmentId?: string, userId?: string): Promise<void> {
+  async assignTask(taskId: string, departmentId?: string | null, userId?: string | null): Promise<void> {
     const response = await fetch(`${API_BASE}/tasks/${taskId}/assign`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({
-        departmentId: departmentId || null,
-        userId: userId || null,
-        actionType: 'Assign',
-      }),
+      body: JSON.stringify({ departmentId: departmentId ?? null, userId: userId ?? null }),
     })
-
     await ensureOk(response, i18n.t('errors.taskAssignFailed'))
   },
 
@@ -374,28 +344,171 @@ export const api = {
       method: 'POST',
       headers: await getAuthHeaders(),
     })
-
     await ensureOk(response, i18n.t('errors.taskClaimFailed'))
   },
 
-  async completeTask(taskId: string, resultNote?: string): Promise<void> {
+  async completeTask(taskId: string, resultNote?: string, actualHours?: number | null): Promise<void> {
     const response = await fetch(`${API_BASE}/tasks/${taskId}/complete`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ resultNote }),
+      body: JSON.stringify({ resultNote, actualHours: actualHours ?? null }),
     })
-
     await ensureOk(response, i18n.t('errors.taskCompleteFailed'))
   },
 
-  async closeTask(taskId: string, closureNote?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/close`, {
+  async approveTaskClose(taskId: string, comment?: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/approve-close`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ closureNote }),
+      body: JSON.stringify({ comment }),
     })
+    await ensureOk(response, i18n.t('errors.taskApproveFailed'))
+  },
 
-    await ensureOk(response, i18n.t('errors.taskCloseFailed'))
+  async rejectTaskClose(taskId: string, comment?: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/reject-close`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment }),
+    })
+    await ensureOk(response, i18n.t('errors.taskRejectFailed'))
+  },
+
+  async requestTaskRevision(taskId: string, reason: string, proposedDueDateUtc?: string | null): Promise<void> {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/request-revision`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason, proposedDueDateUtc: proposedDueDateUtc ?? null }),
+    })
+    await ensureOk(response, i18n.t('errors.taskSubmitFailed'))
+  },
+
+  async approveTaskRevision(taskId: string, reason?: string, proposedDueDateUtc?: string | null): Promise<void> {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/approve-revision`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason: reason ?? '', proposedDueDateUtc: proposedDueDateUtc ?? null }),
+    })
+    await ensureOk(response, i18n.t('errors.taskApproveFailed'))
+  },
+
+  async rejectTaskRevision(taskId: string, comment?: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/reject-revision`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment }),
+    })
+    await ensureOk(response, i18n.t('errors.taskRejectFailed'))
+  },
+
+  async updateTaskProgress(
+    taskId: string,
+    payload: { completionPercentage?: number | null; actualHours?: number | null; notes?: string | null },
+  ): Promise<void> {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/progress`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.taskCompleteFailed'))
+  },
+
+  // Jobs
+  async getJobs(scope?: JobListScope): Promise<JobSummary[]> {
+    const params = new URLSearchParams()
+    if (scope) params.set('scope', scope)
+    const suffix = params.toString()
+    const response = await fetch(`${API_BASE}/jobs${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.jobsLoadFailed', 'Failed to load jobs'))
+    return response.json() as Promise<JobSummary[]>
+  },
+
+  async getJobById(jobId: string): Promise<JobDetail> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.jobLoadFailed', 'Failed to load job'))
+    return response.json() as Promise<JobDetail>
+  },
+
+  async createJob(payload: {
+    title: string
+    description: string
+    ownerDepartmentId: string
+    priority: string
+    startDateUtc?: string | null
+    dueDateUtc?: string | null
+    targetDepartmentIds?: string[]
+    sourceType?: string
+    sourceRefId?: string | null
+  }): Promise<JobSummary> {
+    const response = await fetch(`${API_BASE}/jobs`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.jobCreateFailed', 'Failed to create job'))
+    return response.json() as Promise<JobSummary>
+  },
+
+  async approveJobOwner(jobId: string, comment?: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}/approve-owner`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment }),
+    })
+    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
+  },
+
+  async rejectJobOwner(jobId: string, reason: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}/reject-owner`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    })
+    await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
+  },
+
+  async approveJobTarget(jobId: string, departmentId: string, comment?: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}/approve-target/${departmentId}`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment }),
+    })
+    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
+  },
+
+  async rejectJobTarget(jobId: string, departmentId: string, reason: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}/reject-target/${departmentId}`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    })
+    await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
+  },
+
+  async addSupportDepartment(jobId: string, departmentId: string, notes?: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}/support`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ departmentId, notes }),
+    })
+    await ensureOk(response, i18n.t('errors.jobSupportFailed', 'Failed to add support department'))
+  },
+
+  async cancelJob(jobId: string, reason: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}/cancel`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    })
+    await ensureOk(response, i18n.t('errors.jobCancelFailed', 'Failed to cancel job'))
+  },
+
+  async deleteJob(jobId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/jobs/${jobId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.jobDeleteFailed', 'Failed to delete job'))
   },
 
   async getSocialMessages(): Promise<SocialMessage[]> {
@@ -414,10 +527,16 @@ export const api = {
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
 
-  async convertSocialMessageToTask(
+  async convertSocialMessageToJob(
     socialMessageId: string,
-    payload: { title: string; description: string; priority: string; dueDateUtc?: string | null },
-  ): Promise<Task> {
+    payload: {
+      title: string
+      description: string
+      ownerDepartmentId: string
+      priority: string
+      dueDateUtc?: string | null
+    },
+  ): Promise<JobSummary> {
     const response = await fetch(`${API_BASE}/social/messages/${socialMessageId}/convert`, {
       method: 'POST',
       headers: await getAuthHeaders(),
@@ -425,7 +544,15 @@ export const api = {
     })
 
     await ensureOk(response, i18n.t('errors.socialConvertFailed'))
-    return response.json() as Promise<Task>
+    return response.json() as Promise<JobSummary>
+  },
+
+  async deleteSocialMessage(socialMessageId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/social/messages/${socialMessageId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.socialDeleteFailed'))
   },
 
   async getAuditLogs(): Promise<AuditLog[]> {
@@ -534,98 +661,6 @@ export const api = {
 
     await ensureOk(response, i18n.t('errors.routingTestFailed'))
     return response.json() as Promise<RoutingTestResult>
-  },
-
-  async getProjects(projectType?: 'Directorate' | 'Coordinated'): Promise<ProjectSummary[]> {
-    const params = projectType ? `?projectType=${projectType}` : ''
-    const response = await fetch(`${API_BASE}/projects${params}`, { headers: await getAuthHeaders() })
-    await ensureOk(response, i18n.t('errors.projectsLoadFailed', 'Failed to load projects'))
-    return response.json() as Promise<ProjectSummary[]>
-  },
-
-  async getProjectById(projectId: string): Promise<ProjectDetail> {
-    const response = await fetch(`${API_BASE}/projects/${projectId}`, { headers: await getAuthHeaders() })
-    await ensureOk(response, i18n.t('errors.projectLoadFailed', 'Failed to load project'))
-    return response.json() as Promise<ProjectDetail>
-  },
-
-  async createDirectorateProject(payload: {
-    title: string; description: string; ownerDepartmentId: string;
-    stages: { title: string; description?: string; displayOrder: number; responsibleDepartmentId?: string }[]
-  }): Promise<ProjectSummary> {
-    const response = await fetch(`${API_BASE}/projects/directorate`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ ...payload, projectType: 'Directorate' }),
-    })
-    await ensureOk(response, i18n.t('errors.projectCreateFailed', 'Failed to create project'))
-    return response.json() as Promise<ProjectSummary>
-  },
-
-  async createCoordinatedProject(payload: {
-    title: string; description: string; ownerDepartmentId: string; departmentIds: string[];
-    stages: { title: string; description?: string; displayOrder: number; responsibleDepartmentId?: string }[]
-  }): Promise<ProjectSummary> {
-    const response = await fetch(`${API_BASE}/projects/coordinated`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ ...payload, projectType: 'Coordinated' }),
-    })
-    await ensureOk(response, i18n.t('errors.projectCreateFailed', 'Failed to create project'))
-    return response.json() as Promise<ProjectSummary>
-  },
-
-  async approveProject(projectId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/projects/${projectId}/approve`, {
-      method: 'POST', headers: await getAuthHeaders(),
-    })
-    await ensureOk(response, i18n.t('errors.projectApproveFailed', 'Failed to approve project'))
-  },
-
-  async rejectProject(projectId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/projects/${projectId}/reject`, {
-      method: 'POST', headers: await getAuthHeaders(),
-      body: JSON.stringify({ comment }),
-    })
-    await ensureOk(response, i18n.t('errors.projectRejectFailed', 'Failed to reject project'))
-  },
-
-  async updateProjectStatus(projectId: string, status: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/projects/${projectId}/status`, {
-      method: 'PUT', headers: await getAuthHeaders(),
-      body: JSON.stringify({ status }),
-    })
-    await ensureOk(response, i18n.t('errors.projectUpdateFailed', 'Failed to update project'))
-  },
-
-  async updateStageStatus(stageId: string, status: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/projects/stages/${stageId}/status`, {
-      method: 'PUT', headers: await getAuthHeaders(),
-      body: JSON.stringify({ status }),
-    })
-    await ensureOk(response, i18n.t('errors.projectUpdateFailed', 'Failed to update stage'))
-  },
-
-  async addProjectMember(projectId: string, userId: string, departmentId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/projects/${projectId}/members`, {
-      method: 'POST', headers: await getAuthHeaders(),
-      body: JSON.stringify({ userId, departmentId }),
-    })
-    await ensureOk(response, i18n.t('errors.projectUpdateFailed', 'Failed to add member'))
-  },
-
-  async approveDepartmentJoin(projectDepartmentId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/projects/departments/${projectDepartmentId}/approve`, {
-      method: 'POST', headers: await getAuthHeaders(),
-    })
-    await ensureOk(response, i18n.t('errors.projectApproveFailed', 'Failed to approve department'))
-  },
-
-  async rejectDepartmentJoin(projectDepartmentId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/projects/departments/${projectDepartmentId}/reject`, {
-      method: 'POST', headers: await getAuthHeaders(),
-    })
-    await ensureOk(response, i18n.t('errors.projectRejectFailed', 'Failed to reject department'))
   },
 
   async getUnreadNotificationCount(): Promise<number> {

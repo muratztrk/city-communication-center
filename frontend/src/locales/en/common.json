@@ -61,6 +61,14 @@
     "socialMessagesLoadFailed": "Failed to load social messages.",
     "socialRouteFailed": "Failed to route social message.",
     "socialConvertFailed": "Failed to convert social message to a task.",
+    "jobCreateFailed": "Failed to create job.",
+    "jobLoadFailed": "Failed to load job detail.",
+    "jobApproveFailed": "Failed to approve job.",
+    "jobRejectFailed": "Failed to reject job.",
+    "jobCancelFailed": "Failed to cancel job.",
+    "jobDeleteFailed": "Failed to delete job.",
+    "jobSupportFailed": "Failed to add support department.",
+    "socialDeleteFailed": "Failed to delete social message.",
     "socialSettingsLoadFailed": "Failed to load social settings.",
     "socialSettingsSaveFailed": "Failed to save social settings.",
     "socialSettingsDeleteFailed": "Failed to delete social settings.",
@@ -92,7 +100,9 @@
     "groupAdmin": "Administration",
     "directorateProjects": "Directorate Projects",
     "coordinatedProjects": "Coordinated Projects",
-    "groupProjects": "Projects"
+    "groupProjects": "Projects",
+    "jobs": "Jobs",
+    "groupJobs": "Jobs"
   },
   "shell": {
     "subtitle": "{{municipalityName}} Communication Center",
@@ -310,7 +320,8 @@
       "mine": "My Tasks",
       "departmentPool": "Department Pool",
       "pendingApproval": "Pending Approvals",
-      "all": "All Tasks"
+      "all": "All",
+      "pendingCloseApproval": "Pending Close Approval"
     },
     "scopeDescriptions": {
       "mine": "Track tasks assigned to you or otherwise relevant to your day-to-day work.",
@@ -362,11 +373,14 @@
     "departmentSelectionAria": "Select department for {{handle}} message",
     "convert": "Convert To Task",
     "converted": "Converted to task",
+    "viewJob": "View Job",
     "taskTitleAria": "Task title for {{handle}}",
     "taskTitlePlaceholder": "Task title",
     "defaultTaskTitle": "{{handle}} request",
     "defaultTaskDescription": "Social media message received from {{handle}}",
-    "empty": "No messages found yet"
+    "empty": "No messages found yet",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this message?"
   },
   "audit": {
     "title": "Audit",
@@ -576,7 +590,11 @@
       "InProgress": "In Progress",
       "Completed": "Completed",
       "Closed": "Closed",
-      "Rejected": "Rejected"
+      "Rejected": "Rejected",
+      "Waiting": "Waiting",
+      "PendingCloseApproval": "Pending Close Approval",
+      "Cancelled": "Cancelled",
+      "RevisionRequested": "Revision Requested"
     },
     "priority": {
       "Low": "Low",
@@ -625,6 +643,92 @@
     "userSource": {
       "Manual": "Local",
       "Ldap": "LDAP"
+    },
+    "jobStatus": {
+      "Draft": "Draft",
+      "PendingOwnerApproval": "Pending Owner Approval",
+      "PendingExternalApproval": "Pending External Approval",
+      "Active": "Active",
+      "Completed": "Completed",
+      "Rejected": "Rejected",
+      "Cancelled": "Cancelled"
+    }
+  },
+  "jobs": {
+    "empty": "No jobs",
+    "scopes": {
+      "mine": "Created by me",
+      "myDepartment": "My Department",
+      "pendingOwnerApproval": "Pending Owner Approval",
+      "pendingExternalApproval": "Pending External Approval",
+      "active": "Active",
+      "all": "All"
+    },
+    "columns": {
+      "title": "Title",
+      "ownerDepartment": "Owner",
+      "status": "Status",
+      "priority": "Priority",
+      "progress": "Progress",
+      "taskCount": "Tasks",
+      "dueDate": "Due",
+      "actions": "Actions"
+    },
+    "actions": {
+      "approveOwner": "Approve",
+      "rejectOwner": "Reject",
+      "approveTarget": "Approve Target",
+      "rejectTarget": "Reject Target",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "rejectReason": "Reason:",
+      "cancelReason": "Cancel reason:",
+      "new": "New Job",
+      "details": "Details",
+      "addSupport": "Add Support Dept",
+      "addSupportPrompt": "Pick support department",
+      "save": "Save",
+      "close": "Close"
+    },
+    "form": {
+      "title": "Job Title",
+      "titlePlaceholder": "e.g. Park maintenance",
+      "description": "Description",
+      "descriptionPlaceholder": "Details...",
+      "ownerDepartment": "Owner Department",
+      "priority": "Priority",
+      "startDate": "Start Date",
+      "dueDate": "Due Date",
+      "targetDepartments": "Target Departments (optional)",
+      "targetDepartmentsHelp": "Hold Cmd/Ctrl to select multiple.",
+      "sectionMain": "Basics",
+      "sectionSchedule": "Schedule",
+      "sectionTargets": "Coordination"
+    },
+    "detail": {
+      "title": "Job Detail",
+      "departments": "Departments",
+      "tasks": "Tasks",
+      "approvals": "Approval History",
+      "noTasks": "No tasks under this job",
+      "noApprovals": "No approval records",
+      "role": "Role",
+      "approvalStatus": "Approval",
+      "decidedAt": "Decided",
+      "notes": "Notes",
+      "rejectReason": "Reject reason"
+    },
+    "roles": {
+      "Owner": "Owner",
+      "Target": "Target",
+      "Support": "Support",
+      "Coordinating": "Coordinating"
+    },
+    "approvalStatuses": {
+      "Pending": "Pending",
+      "Approved": "Approved",
+      "Rejected": "Rejected",
+      "NotRequired": "Not Required"
     }
   }
 }

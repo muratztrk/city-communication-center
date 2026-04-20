@@ -59,28 +59,40 @@ public sealed class SocialMessagesController : ApiControllerBase
     }
 
     [HttpPost("{messageId:guid}/convert")]
-    [HttpPost("{messageId:guid}/convert-to-task")]
-    [ProducesResponseType<TaskSummaryResponse>(StatusCodes.Status201Created)]
-    public async Task<ActionResult<TaskSummaryResponse>> ConvertToTask(
+    [HttpPost("{messageId:guid}/convert-to-job")]
+    public async Task<ActionResult<JobSummaryResponse>> ConvertToJob(
         Guid messageId,
-        [FromBody] ConvertSocialMessageToTaskRequest request,
+        [FromBody] ConvertSocialMessageToJobRequest request,
         CancellationToken cancellationToken)
     {
-        var task = await _sender.Send(
-            new ConvertSocialMessageToTaskCommand(
+        var job = await _sender.Send(
+            new ConvertSocialMessageToJobCommand(
                 messageId,
                 CurrentContext.UserId,
                 request.Title,
                 request.Description,
+                request.OwnerDepartmentId,
                 request.Priority,
                 request.DueDateUtc),
             cancellationToken);
-        if (task is null) return NotFound();
+        if (job is null) return NotFound();
 
         return CreatedAtAction(
-            nameof(TasksController.GetById),
-            "Tasks",
-            new { taskId = task.TaskId },
-            task);
+            nameof(JobsController.GetById),
+            "Jobs",
+            new { jobId = job.JobId },
+            job);
+    }
+
+    [HttpDelete("{messageId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(Guid messageId, CancellationToken cancellationToken)
+    {
+        var deleted = await _sender.Send(
+            new DeleteSocialMessageCommand(messageId, CurrentContext.TenantId!.Value),
+            cancellationToken);
+        if (!deleted) return NotFound();
+        return NoContent();
     }
 }

@@ -30,7 +30,7 @@ public sealed class GetSocialMessageByIdQueryHandler : IRequestHandler<GetSocial
             message.Category,
             message.Status.ToString(),
             message.AssignedDepartmentId,
-            message.TaskId,
+            message.JobId,
             message.ReceivedAtUtc,
             string.IsNullOrWhiteSpace(message.Tags)
                 ? Array.Empty<string>()

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { StatusPill } from '../components/ui/status-pill'
@@ -15,6 +17,8 @@ function getStatusTone(status: string) {
 
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(true)
@@ -83,6 +87,7 @@ export function SocialMessagesPage() {
     try {
       await api.routeSocialMessage(socialMessageId, departmentId)
       await reload()
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     } catch (routeError) {
       setError(routeError instanceof Error ? routeError.message : t('common.error'))
     }
@@ -90,17 +95,39 @@ export function SocialMessagesPage() {
 
   const handleConvert = async (socialMessageId: string, citizenHandle: string) => {
     const title = taskTitles[socialMessageId]?.trim() || t('social.defaultTaskTitle', { handle: citizenHandle })
+    const message = messages.find(m => m.socialMessageId === socialMessageId)
+    const ownerDepartmentId =
+      routeDrafts[socialMessageId]?.departmentId ||
+      message?.assignedDepartmentId ||
+      ''
+    if (!ownerDepartmentId) {
+      setError(t('social.ownerDepartmentRequired', 'Önce bir müdürlük seçin.'))
+      return
+    }
 
     try {
-      await api.convertSocialMessageToTask(socialMessageId, {
+      await api.convertSocialMessageToJob(socialMessageId, {
         title,
         description: t('social.defaultTaskDescription', { handle: citizenHandle }),
+        ownerDepartmentId,
         priority: 'Normal',
         dueDateUtc: null,
       })
       await reload()
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     } catch (convertError) {
       setError(convertError instanceof Error ? convertError.message : t('common.error'))
+    }
+  }
+
+  const handleDelete = async (socialMessageId: string) => {
+    if (!window.confirm(t('social.deleteConfirm'))) return
+    try {
+      await api.deleteSocialMessage(socialMessageId)
+      setMessages(current => current.filter(m => m.socialMessageId !== socialMessageId))
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
     }
   }
 
@@ -153,8 +180,8 @@ export function SocialMessagesPage() {
                   <td>{message.category || t('common.none')}</td>
                   <td><StatusPill tone={getStatusTone(message.status)}>{getSocialStatusLabel(t, message.status)}</StatusPill></td>
                   <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
-                  <td>
-                    {!message.taskId ? (
+                   <td>
+                    {!message.jobId ? (
                       <div className="table-stack">
                         <select
                           aria-label={t('social.departmentSelectionAria', { handle: message.citizenHandle })}
@@ -177,6 +204,7 @@ export function SocialMessagesPage() {
                         </select>
                         <div className="inline-actions">
                           <Button size="sm" type="button" onClick={() => handleRoute(message.socialMessageId)}>{t('social.route')}</Button>
+                          <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>
                         </div>
                         <div className="inline-actions">
                           <input
@@ -193,7 +221,16 @@ export function SocialMessagesPage() {
                         </div>
                       </div>
                     ) : (
-                      <StatusPill tone="success">{t('social.converted')}</StatusPill>
+                      <div className="inline-actions">
+                        <StatusPill tone="success">{t('social.converted')}</StatusPill>
+                        {message.jobId && (
+                          <Button size="sm" type="button" variant="secondary"
+                            onClick={() => navigate(`/jobs?scope=all&jobId=${message.jobId}`)}>
+                            {t('social.viewJob', 'İşi Görüntüle')}
+                          </Button>
+                        )}
+                        <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>
+                      </div>
                     )}
                   </td>
                 </tr>

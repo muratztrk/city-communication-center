@@ -64,4 +64,5 @@
   <data name="ValidationDepartmentIdRequired" xml:space="preserve"><value>Department ID is required.</value></data>
   <data name="ValidationDepartmentNameRequired" xml:space="preserve"><value>Department name is required.</value></data>
   <data name="ValidationDepartmentHasUsers" xml:space="preserve"><value>This department has assigned users. Move them to another department first.</value></data>
+  <data name="ValidationDepartmentHasJobs" xml:space="preserve"><value>This department owns active jobs. Reassign or complete them first.</value></data>
 </root>

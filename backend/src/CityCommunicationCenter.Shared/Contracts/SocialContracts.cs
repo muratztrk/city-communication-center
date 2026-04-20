@@ -8,9 +8,10 @@ public sealed record RouteSocialMessageRequest(
     Guid? DepartmentId,
     Guid? UserId);
 
-public sealed record ConvertSocialMessageToTaskRequest(
+public sealed record ConvertSocialMessageToJobRequest(
     string Title,
     string Description,
+    Guid OwnerDepartmentId,
     string Priority,
     DateTimeOffset? DueDateUtc);
 
@@ -28,7 +29,7 @@ public sealed record SocialMessageSummaryResponse(
     string? Category,
     string Status,
     Guid? AssignedDepartmentId,
-    Guid? TaskId,
+    Guid? JobId,
     DateTimeOffset ReceivedAtUtc);
 
 public sealed record SocialMessageDetailResponse(
@@ -41,7 +42,7 @@ public sealed record SocialMessageDetailResponse(
     string? Category,
     string Status,
     Guid? AssignedDepartmentId,
-    Guid? TaskId,
+    Guid? JobId,
     DateTimeOffset ReceivedAtUtc,
     IReadOnlyCollection<string> Tags);
 

@@ -31,16 +31,14 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
     public DbSet<SocialMessage> SocialMessages => Set<SocialMessage>();
+    public DbSet<Job> Jobs => Set<Job>();
+    public DbSet<JobDepartment> JobDepartments => Set<JobDepartment>();
     public DbSet<WorkTask> Tasks => Set<WorkTask>();
-    public DbSet<Approval> Approvals => Set<Approval>();
+    public DbSet<WorkflowApproval> Approvals => Set<WorkflowApproval>();
     public DbSet<AssignmentHistory> AssignmentHistories => Set<AssignmentHistory>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<RoutingRule> RoutingRules => Set<RoutingRule>();
-    public DbSet<Project> Projects => Set<Project>();
-    public DbSet<ProjectStage> ProjectStages => Set<ProjectStage>();
-    public DbSet<ProjectDepartment> ProjectDepartments => Set<ProjectDepartment>();
-    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -86,16 +84,14 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureDepartment(modelBuilder.Entity<Department>());
         ConfigureApplicationUser(modelBuilder.Entity<ApplicationUser>());
         ConfigureSocialMessage(modelBuilder.Entity<SocialMessage>());
+        ConfigureJob(modelBuilder.Entity<Job>());
+        ConfigureJobDepartment(modelBuilder.Entity<JobDepartment>());
         ConfigureTask(modelBuilder.Entity<WorkTask>());
-        ConfigureApproval(modelBuilder.Entity<Approval>());
+        ConfigureWorkflowApproval(modelBuilder.Entity<WorkflowApproval>());
         ConfigureAssignmentHistory(modelBuilder.Entity<AssignmentHistory>());
         ConfigureNotification(modelBuilder.Entity<Notification>());
         ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
         ConfigureRoutingRule(modelBuilder.Entity<RoutingRule>());
-        ConfigureProject(modelBuilder.Entity<Project>());
-        ConfigureProjectStage(modelBuilder.Entity<ProjectStage>());
-        ConfigureProjectDepartment(modelBuilder.Entity<ProjectDepartment>());
-        ConfigureProjectMember(modelBuilder.Entity<ProjectMember>());
         ConfigurePushSubscription(modelBuilder.Entity<PushSubscription>());
 
         modelBuilder.ApplyAutomaticIndexes();
@@ -104,16 +100,14 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<Department>());
         ApplyTenantFilter(modelBuilder.Entity<ApplicationUser>());
         ApplyTenantFilter(modelBuilder.Entity<SocialMessage>());
+        ApplyTenantFilter(modelBuilder.Entity<Job>());
+        ApplyTenantFilter(modelBuilder.Entity<JobDepartment>());
         ApplyTenantFilter(modelBuilder.Entity<WorkTask>());
-        ApplyTenantFilter(modelBuilder.Entity<Approval>());
+        ApplyTenantFilter(modelBuilder.Entity<WorkflowApproval>());
         ApplyTenantFilter(modelBuilder.Entity<AssignmentHistory>());
         ApplyTenantFilter(modelBuilder.Entity<Notification>());
         ApplyTenantFilter(modelBuilder.Entity<AuditLog>());
         ApplyTenantFilter(modelBuilder.Entity<RoutingRule>());
-        ApplyTenantFilter(modelBuilder.Entity<Project>());
-        ApplyTenantFilter(modelBuilder.Entity<ProjectStage>());
-        ApplyTenantFilter(modelBuilder.Entity<ProjectDepartment>());
-        ApplyTenantFilter(modelBuilder.Entity<ProjectMember>());
         ApplyTenantFilter(modelBuilder.Entity<PushSubscription>());
 
         ApplyInstallSeedData(modelBuilder);
@@ -241,18 +235,51 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
                 CreatedByUserId = InitialData.AdminUserId,
             });
 
+        modelBuilder.Entity<Job>().HasData(
+            new Job
+            {
+                JobId = InitialData.SampleJobId,
+                TenantId = InitialData.TenantId,
+                Title = "Örnek altyapı inceleme işi",
+                Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek iş.",
+                OwnerDepartmentId = InitialData.PublicWorksDepartmentId,
+                Status = JobStatus.Active,
+                Priority = "Normal",
+                DueDateUtc = InitialData.SampleTaskDueDateUtc,
+                SourceType = JobSourceType.Manual,
+                IsCoordinated = false,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            });
+
+        modelBuilder.Entity<JobDepartment>().HasData(
+            new JobDepartment
+            {
+                JobDepartmentId = InitialData.SampleJobOwnerDepartmentId,
+                TenantId = InitialData.TenantId,
+                JobId = InitialData.SampleJobId,
+                DepartmentId = InitialData.PublicWorksDepartmentId,
+                Role = JobDepartmentRole.Owner,
+                ApprovalStatus = JobApprovalStatus.Approved,
+                RequestedByUserId = InitialData.AdminUserId,
+                RequestedAtUtc = InitialData.CreatedAtUtc,
+                ApprovedByUserId = InitialData.PublicWorksManagerUserId,
+                DecidedAtUtc = InitialData.CreatedAtUtc,
+                CreatedAtUtc = InitialData.CreatedAtUtc,
+                CreatedByUserId = InitialData.AdminUserId,
+            });
+
         modelBuilder.Entity<WorkTask>().HasData(
             new WorkTask
             {
                 TaskId = InitialData.SampleTaskId,
                 TenantId = InitialData.TenantId,
+                JobId = InitialData.SampleJobId,
                 Title = "Örnek altyapı inceleme görevi",
                 Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek görev.",
-                TaskType = TaskType.CitizenRequest,
-                SourceType = SourceType.Manual,
-                TargetDepartmentId = InitialData.PublicWorksDepartmentId,
                 AssignedDepartmentId = InitialData.PublicWorksDepartmentId,
                 AssignedUserId = InitialData.PublicWorksStaffUserId,
+                AssigningManagerId = InitialData.PublicWorksManagerUserId,
                 CurrentStatus = WorkflowTaskStatus.Assigned,
                 Priority = "Normal",
                 DueDateUtc = InitialData.SampleTaskDueDateUtc,
@@ -368,10 +395,48 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
             .WithMany()
             .HasForeignKey(entity => entity.AssignedDepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(entity => entity.Task)
+        builder.HasOne(entity => entity.Job)
             .WithMany()
-            .HasForeignKey(entity => entity.TaskId)
+            .HasForeignKey(entity => entity.JobId)
             .OnDelete(DeleteBehavior.SetNull);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureJob(EntityTypeBuilder<Job> builder)
+    {
+        builder.ToTable("jobs");
+        builder.HasKey(entity => entity.JobId);
+        builder.Property(entity => entity.Status).HasConversion<string>();
+        builder.Property(entity => entity.SourceType).HasConversion<string>();
+        builder.HasOne(entity => entity.Tenant)
+            .WithMany()
+            .HasForeignKey(entity => entity.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(entity => entity.OwnerDepartment)
+            .WithMany()
+            .HasForeignKey(entity => entity.OwnerDepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(entity => entity.Departments)
+            .WithOne(entity => entity.Job)
+            .HasForeignKey(entity => entity.JobId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(entity => entity.Tasks)
+            .WithOne(entity => entity.Job)
+            .HasForeignKey(entity => entity.JobId)
+            .OnDelete(DeleteBehavior.Cascade);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureJobDepartment(EntityTypeBuilder<JobDepartment> builder)
+    {
+        builder.ToTable("jobdepartments");
+        builder.HasKey(entity => entity.JobDepartmentId);
+        builder.Property(entity => entity.Role).HasConversion<string>();
+        builder.Property(entity => entity.ApprovalStatus).HasConversion<string>();
+        builder.HasOne(entity => entity.Department)
+            .WithMany()
+            .HasForeignKey(entity => entity.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
         ApplyLowerCaseColumnNames(builder);
     }
 
@@ -379,16 +444,12 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("tasks");
         builder.HasKey(entity => entity.TaskId);
-        builder.Property(entity => entity.TaskType).HasConversion<string>();
-        builder.Property(entity => entity.SourceType).HasConversion<string>();
         builder.Property(entity => entity.CurrentStatus).HasConversion<string>();
+        builder.Property(entity => entity.EstimatedHours).HasColumnType("numeric(9,2)");
+        builder.Property(entity => entity.ActualHours).HasColumnType("numeric(9,2)");
         builder.HasOne(entity => entity.Tenant)
             .WithMany(tenant => tenant.Tasks)
             .HasForeignKey(entity => entity.TenantId)
-            .OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(entity => entity.Approvals)
-            .WithOne(entity => entity.Task)
-            .HasForeignKey(entity => entity.TaskId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(entity => entity.AssignmentHistory)
             .WithOne(entity => entity.Task)
@@ -397,10 +458,11 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyLowerCaseColumnNames(builder);
     }
 
-    private static void ConfigureApproval(EntityTypeBuilder<Approval> builder)
+    private static void ConfigureWorkflowApproval(EntityTypeBuilder<WorkflowApproval> builder)
     {
         builder.ToTable("approvals");
         builder.HasKey(entity => entity.ApprovalId);
+        builder.Property(entity => entity.SubjectType).HasConversion<string>();
         builder.Property(entity => entity.Decision).HasConversion<string>();
         ApplyLowerCaseColumnNames(builder);
     }
@@ -432,54 +494,6 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("routingrules");
         builder.HasKey(entity => entity.RuleId);
-        ApplyLowerCaseColumnNames(builder);
-    }
-
-    private static void ConfigureProject(EntityTypeBuilder<Project> builder)
-    {
-        builder.ToTable("projects");
-        builder.HasKey(entity => entity.ProjectId);
-        builder.Property(entity => entity.ProjectType).HasConversion<string>();
-        builder.Property(entity => entity.Status).HasConversion<string>();
-        builder.HasOne(entity => entity.Tenant)
-            .WithMany()
-            .HasForeignKey(entity => entity.TenantId)
-            .OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(entity => entity.Stages)
-            .WithOne(entity => entity.Project)
-            .HasForeignKey(entity => entity.ProjectId)
-            .OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(entity => entity.Departments)
-            .WithOne(entity => entity.Project)
-            .HasForeignKey(entity => entity.ProjectId)
-            .OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(entity => entity.Members)
-            .WithOne(entity => entity.Project)
-            .HasForeignKey(entity => entity.ProjectId)
-            .OnDelete(DeleteBehavior.Cascade);
-        ApplyLowerCaseColumnNames(builder);
-    }
-
-    private static void ConfigureProjectStage(EntityTypeBuilder<ProjectStage> builder)
-    {
-        builder.ToTable("projectstages");
-        builder.HasKey(entity => entity.StageId);
-        builder.Property(entity => entity.Status).HasConversion<string>();
-        ApplyLowerCaseColumnNames(builder);
-    }
-
-    private static void ConfigureProjectDepartment(EntityTypeBuilder<ProjectDepartment> builder)
-    {
-        builder.ToTable("projectdepartments");
-        builder.HasKey(entity => entity.ProjectDepartmentId);
-        builder.Property(entity => entity.ApprovalStatus).HasConversion<string>();
-        ApplyLowerCaseColumnNames(builder);
-    }
-
-    private static void ConfigureProjectMember(EntityTypeBuilder<ProjectMember> builder)
-    {
-        builder.ToTable("projectmembers");
-        builder.HasKey(entity => entity.ProjectMemberId);
         ApplyLowerCaseColumnNames(builder);
     }
 

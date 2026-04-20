@@ -32,8 +32,7 @@ export function AppShell() {
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
     { path: '/social', label: t('nav.social'), icon: MessageSquareMore },
-    { path: '/projects/directorate', label: t('nav.directorateProjects'), icon: FolderKanban },
-    { path: '/projects/coordinated', label: t('nav.coordinatedProjects'), icon: Workflow },
+    { path: '/jobs', label: t('nav.jobs'), icon: FolderKanban },
     { path: '/departments', label: t('nav.departments'), icon: Building },
     { path: '/users', label: t('nav.users'), icon: Users },
     { path: '/audit', label: t('nav.audit'), icon: ScrollText },
@@ -52,8 +51,9 @@ export function AppShell() {
   const breadcrumbLabels: Record<string, string> = {
     dashboard: t('nav.dashboard'),
     tasks: t('nav.tasks'),
-    directorate: t('nav.directorateProjects'),
-    coordinated: t('nav.coordinatedProjects'),
+    directorate: t('nav.jobs'),
+    coordinated: t('nav.jobs'),
+    jobs: t('nav.jobs'),
     social: t('nav.social'),
     departments: t('nav.departments'),
     users: t('nav.users'),
@@ -63,8 +63,9 @@ export function AppShell() {
 
   const breadcrumbParent: Record<string, string> = {
     tasks: t('nav.groupTasks'),
-    directorate: t('nav.groupProjects'),
-    coordinated: t('nav.groupProjects'),
+    directorate: t('nav.groupJobs'),
+    coordinated: t('nav.groupJobs'),
+    jobs: t('nav.groupJobs'),
     social: t('nav.groupSocial'),
     departments: t('nav.groupAdmin'),
     users: t('nav.groupAdmin'),
@@ -79,6 +80,7 @@ export function AppShell() {
     tasks: SquareKanban,
     directorate: FolderKanban,
     coordinated: Workflow,
+    jobs: FolderKanban,
     social: MessageSquareMore,
     departments: Building,
     users: Users,
@@ -104,7 +106,7 @@ export function AppShell() {
             </button>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold text-slate-950">{institutionName}</div>
-              <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{getRoleLabel(t, user?.role ?? '')}</div>
+              <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{user?.displayName}</div>
             </div>
           </div>
           <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
@@ -130,14 +132,17 @@ export function AppShell() {
                 <X className="size-4" />
               </button>
             </div>
-            <div className="mt-3 flex-1 overflow-y-auto">
+            <div className="mt-3 flex-1 overflow-y-auto scrollbar-none">
               <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} />
             </div>
             <div className="mt-3 space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
               <div>
                 <div className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-white/55">{t('shell.liveTenant')}</div>
                 <div className="mt-1 text-sm font-semibold text-white">{user?.displayName}</div>
-                <div className="text-xs text-white/70">{getRoleLabel(t, user?.role ?? '')}</div>
+                <div className="text-xs text-white/70">
+                  <span className="rounded bg-white/10 px-1 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60 mr-1">{t('shell.roleLabel', 'Rol')}</span>
+                  {getRoleLabel(t, user?.role ?? '')}
+                </div>
               </div>
             </div>
           </aside>
@@ -180,7 +185,10 @@ export function AppShell() {
                 <div className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-white/55">{t('shell.liveTenant')}</div>
                 <div className="space-y-1">
                   <div className="text-sm font-semibold text-white">{user?.displayName}</div>
-                  <div className="text-xs text-white/70">{getRoleLabel(t, user?.role ?? '')}</div>
+                  <div className="text-xs text-white/70">
+                    <span className="rounded bg-white/10 px-1 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60 mr-1">{t('shell.roleLabel', 'Rol')}</span>
+                    {getRoleLabel(t, user?.role ?? '')}
+                  </div>
                 </div>
               </>
             ) : (
@@ -222,7 +230,6 @@ export function AppShell() {
           </nav>
           <div className="flex items-center gap-3">
             <NotificationBell />
-            <span className="text-sm text-[color:var(--color-muted-foreground)]">{user?.displayName}</span>
             <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
               <LogOut className="size-3.5" />
               {t('shell.logout')}

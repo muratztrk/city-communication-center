@@ -7,27 +7,29 @@ internal static class TaskSummaryResponseFactory
         WorkTask task,
         CancellationToken cancellationToken)
     {
-        var targetDepartmentName = await GetDepartmentNameAsync(dbContext, task.TargetDepartmentId, cancellationToken);
-        var assignedDepartmentName = task.AssignedDepartmentId == task.TargetDepartmentId
-            ? targetDepartmentName
-            : await GetDepartmentNameAsync(dbContext, task.AssignedDepartmentId, cancellationToken);
+        var jobTitle = await dbContext.Jobs
+            .Where(entity => entity.JobId == task.JobId)
+            .Select(entity => entity.Title)
+            .FirstOrDefaultAsync(cancellationToken);
+        var assignedDepartmentName = await GetDepartmentNameAsync(dbContext, task.AssignedDepartmentId, cancellationToken);
         var assignedUserDisplayName = await GetUserDisplayNameAsync(dbContext, task.AssignedUserId, cancellationToken);
 
         return new TaskSummaryResponse(
             task.TaskId,
             task.TenantId,
+            task.JobId,
+            jobTitle,
             task.Title,
-            task.TaskType.ToString(),
             task.Priority,
             task.CurrentStatus.ToString(),
-            task.TargetDepartmentId,
-            targetDepartmentName,
             task.AssignedDepartmentId,
             assignedDepartmentName,
             task.AssignedUserId,
             assignedUserDisplayName,
             task.DueDateUtc,
-            task.SourceType.ToString());
+            task.CompletionPercentage,
+            task.EstimatedHours,
+            task.ActualHours);
     }
 
     private static Task<string?> GetDepartmentNameAsync(

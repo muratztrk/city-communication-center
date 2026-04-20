@@ -63,24 +63,123 @@ export interface UserManagementContext {
   ldapEnabled: boolean;
 }
 
-export type TaskListScope = 'all' | 'mine' | 'department-pool' | 'pending-approval';
+export type TaskListScope = 'all' | 'mine' | 'department-pool' | 'pending-close-approval';
+
+export type TaskCurrentStatus =
+  | 'Waiting'
+  | 'Assigned'
+  | 'InProgress'
+  | 'PendingCloseApproval'
+  | 'Completed'
+  | 'Cancelled'
+  | 'Rejected'
+  | 'RevisionRequested';
 
 export interface Task {
   taskId: string;
   tenantId: string;
+  jobId: string;
+  jobTitle: string | null;
   title: string;
   description?: string;
-  taskType: string;
-  sourceType?: string;
   priority: string;
-  currentStatus: string;
-  targetDepartmentId: string | null;
-  targetDepartmentName?: string | null;
+  currentStatus: TaskCurrentStatus;
   assignedDepartmentId: string | null;
   assignedDepartmentName?: string | null;
   assignedUserId: string | null;
   assignedUserDisplayName?: string | null;
   dueDateUtc: string | null;
+  startDateUtc?: string | null;
+  completedAtUtc?: string | null;
+  completionPercentage?: number | null;
+  estimatedHours?: number | null;
+  actualHours?: number | null;
+  notes?: string | null;
+  revisionReason?: string | null;
+}
+
+export type JobStatus =
+  | 'Draft'
+  | 'PendingOwnerApproval'
+  | 'PendingExternalApproval'
+  | 'Active'
+  | 'Completed'
+  | 'Rejected'
+  | 'Cancelled';
+
+export type JobDepartmentRole = 'Owner' | 'Target' | 'Support' | 'Coordinating';
+export type JobApprovalStatus = 'Pending' | 'Approved' | 'Rejected' | 'NotRequired';
+
+export type JobListScope =
+  | 'all'
+  | 'mine'
+  | 'my-department'
+  | 'pending-owner-approval'
+  | 'pending-external-approval'
+  | 'active';
+
+export interface JobSummary {
+  jobId: string;
+  tenantId: string;
+  title: string;
+  status: JobStatus;
+  priority: string;
+  ownerDepartmentId: string;
+  ownerDepartmentName: string | null;
+  startDateUtc: string | null;
+  dueDateUtc: string | null;
+  completedAtUtc: string | null;
+  completionPercentage: number | null;
+  isCoordinated: boolean;
+  sourceType: string;
+  taskCount: number;
+}
+
+export interface JobDepartmentInfo {
+  jobDepartmentId: string;
+  departmentId: string;
+  departmentName: string | null;
+  role: JobDepartmentRole;
+  approvalStatus: JobApprovalStatus;
+  requestedByUserId: string | null;
+  approvedByUserId: string | null;
+  requestedAtUtc: string | null;
+  decidedAtUtc: string | null;
+  rejectReason: string | null;
+  notes: string | null;
+}
+
+export interface JobApprovalStep {
+  approvalId: string;
+  subjectType: string;
+  subjectId: string;
+  approverUserId: string;
+  stepOrder: number;
+  decision: string;
+  decisionDateUtc: string | null;
+  comment: string | null;
+}
+
+export interface JobDetail {
+  jobId: string;
+  tenantId: string;
+  title: string;
+  description: string;
+  status: JobStatus;
+  priority: string;
+  ownerDepartmentId: string;
+  ownerDepartmentName: string | null;
+  startDateUtc: string | null;
+  dueDateUtc: string | null;
+  completedAtUtc: string | null;
+  completionPercentage: number | null;
+  isCoordinated: boolean;
+  sourceType: string;
+  sourceRefId: string | null;
+  cancelReason: string | null;
+  departments: JobDepartmentInfo[];
+  tasks: Task[];
+  approvals: JobApprovalStep[];
 }
 
 export interface SocialMessage {
@@ -90,7 +189,7 @@ export interface SocialMessage {
   category: string | null;
   status: string;
   assignedDepartmentId: string | null;
-  taskId: string | null;
+  jobId: string | null;
   receivedAtUtc: string;
 }
 
@@ -273,57 +372,3 @@ export interface RoutingTestResult {
   targetDepartmentName: string | null;
 }
 
-export interface ProjectSummary {
-  projectId: string;
-  tenantId: string;
-  title: string;
-  description: string;
-  projectType: 'Directorate' | 'Coordinated';
-  status: 'Planned' | 'InProgress' | 'Completed';
-  ownerDepartmentId: string;
-  ownerDepartmentName: string | null;
-  requiresApproval: boolean;
-  isApproved: boolean;
-  stageCount: number;
-  departmentCount: number;
-  memberCount: number;
-  createdAtUtc: string;
-  createdByUserName: string | null;
-}
-
-export interface ProjectStage {
-  stageId: string;
-  title: string;
-  description: string;
-  displayOrder: number;
-  status: 'Planned' | 'InProgress' | 'Completed';
-  responsibleDepartmentId: string | null;
-  responsibleDepartmentName: string | null;
-}
-
-export interface ProjectDepartment {
-  projectDepartmentId: string;
-  departmentId: string;
-  departmentName: string;
-  approvalStatus: 'Pending' | 'Approved' | 'Rejected';
-  approvedByUserId: string | null;
-  approvedByUserName: string | null;
-  approvalDateUtc: string | null;
-}
-
-export interface ProjectMember {
-  projectMemberId: string;
-  userId: string;
-  userDisplayName: string;
-  departmentId: string;
-  departmentName: string;
-}
-
-export interface ProjectDetail extends Omit<ProjectSummary, 'stageCount' | 'departmentCount' | 'memberCount'> {
-  approvedByUserId: string | null;
-  approvedAtUtc: string | null;
-  createdByUserId: string | null;
-  stages: ProjectStage[];
-  departments: ProjectDepartment[];
-  members: ProjectMember[];
-}

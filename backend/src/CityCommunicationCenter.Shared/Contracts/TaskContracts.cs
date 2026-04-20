@@ -1,46 +1,50 @@
 namespace CityCommunicationCenter.Shared.Contracts;
 
 public sealed record CreateTaskRequest(
+    Guid JobId,
     string Title,
     string Description,
-    string TaskType,
-    string SourceType,
-    Guid? SourceRefId,
-    Guid? TargetDepartmentId,
     string Priority,
-    DateTimeOffset? DueDateUtc);
-
-public sealed record SubmitTaskRequest(string? Note);
-
-public sealed record ApprovalActionRequest(string? Comment);
+    DateTimeOffset? StartDateUtc,
+    DateTimeOffset? DueDateUtc,
+    decimal? EstimatedHours,
+    string? Notes,
+    Guid? AssignedDepartmentId,
+    Guid? AssignedUserId);
 
 public sealed record AssignTaskRequest(
     Guid? DepartmentId,
-    Guid? UserId,
-    string ActionType);
+    Guid? UserId);
 
-public sealed record CompleteTaskRequest(string? ResultNote);
+public sealed record CompleteTaskRequest(string? ResultNote, decimal? ActualHours);
 
-public sealed record CloseTaskRequest(string? ClosureNote);
+public sealed record RequestTaskRevisionRequest(string Reason, DateTimeOffset? ProposedDueDateUtc);
+
+public sealed record ApprovalActionRequest(string? Comment);
+
+public sealed record UpdateTaskProgressRequest(int? CompletionPercentage, decimal? ActualHours, string? Notes);
 
 public sealed record TaskSummaryResponse(
     Guid TaskId,
     Guid TenantId,
+    Guid JobId,
+    string? JobTitle,
     string Title,
-    string TaskType,
     string Priority,
     string CurrentStatus,
-    Guid? TargetDepartmentId,
-    string? TargetDepartmentName,
     Guid? AssignedDepartmentId,
     string? AssignedDepartmentName,
     Guid? AssignedUserId,
     string? AssignedUserDisplayName,
     DateTimeOffset? DueDateUtc,
-    string SourceType);
+    int? CompletionPercentage,
+    decimal? EstimatedHours,
+    decimal? ActualHours);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,
+    string SubjectType,
+    Guid SubjectId,
     Guid ApproverUserId,
     int StepOrder,
     string Decision,
@@ -59,16 +63,21 @@ public sealed record AssignmentHistoryResponse(
 public sealed record TaskDetailResponse(
     Guid TaskId,
     Guid TenantId,
+    Guid JobId,
+    string? JobTitle,
     string Title,
     string Description,
-    string TaskType,
-    string SourceType,
     string Priority,
     string CurrentStatus,
-    Guid? SourceRefId,
-    Guid? TargetDepartmentId,
     Guid? AssignedDepartmentId,
     Guid? AssignedUserId,
+    DateTimeOffset? StartDateUtc,
     DateTimeOffset? DueDateUtc,
+    DateTimeOffset? CompletedAtUtc,
+    int? CompletionPercentage,
+    decimal? EstimatedHours,
+    decimal? ActualHours,
+    string? Notes,
+    string? RevisionReason,
     IReadOnlyCollection<ApprovalStepResponse> Approvals,
     IReadOnlyCollection<AssignmentHistoryResponse> AssignmentHistory);

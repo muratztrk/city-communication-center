@@ -58,12 +58,6 @@ public sealed class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepar
 
         // Nullify references in tasks
         await _dbContext.Tasks
-            .Where(t => t.TenantId == tenantId && t.TargetDepartmentId == request.DepartmentId)
-            .ExecuteUpdateAsync(
-                s => s.SetProperty(t => t.TargetDepartmentId, (Guid?)null),
-                cancellationToken);
-
-        await _dbContext.Tasks
             .Where(t => t.TenantId == tenantId && t.AssignedDepartmentId == request.DepartmentId)
             .ExecuteUpdateAsync(
                 s => s.SetProperty(t => t.AssignedDepartmentId, (Guid?)null),
@@ -93,6 +87,21 @@ public sealed class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepar
             .ExecuteUpdateAsync(
                 s => s.SetProperty(h => h.ToDepartmentId, (Guid?)null),
                 cancellationToken);
+
+        // Remove job_department entries for this department (Restrict FK on jobdepartments)
+        await _dbContext.JobDepartments
+            .Where(jd => jd.DepartmentId == request.DepartmentId)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        // Block deletion if department owns any jobs
+        var hasJobs = await _dbContext.Jobs
+            .AnyAsync(j => j.TenantId == tenantId && j.OwnerDepartmentId == request.DepartmentId,
+                cancellationToken);
+
+        if (hasJobs)
+        {
+            throw new ValidationException(_localizer["ValidationDepartmentHasJobs"]);
+        }
 
         // Nullify child department parent references
         await _dbContext.Departments

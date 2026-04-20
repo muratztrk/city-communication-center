@@ -6,19 +6,15 @@ public sealed record AssignTaskCommand(
     Guid TaskId,
     Guid? ActorUserId,
     Guid? DepartmentId,
-    Guid? UserId,
-    string ActionType) : ICommand<bool>;
+    Guid? UserId) : ICommand<bool>;
 
 public sealed class AssignTaskCommandValidator : AbstractValidator<AssignTaskCommand>
 {
     public AssignTaskCommandValidator()
     {
-        RuleFor(command => command)
-            .Must(command => command.DepartmentId.HasValue || command.UserId.HasValue)
+        RuleFor(c => c)
+            .Must(c => c.DepartmentId.HasValue || c.UserId.HasValue)
             .WithMessage("En az bir atama hedefi gereklidir.");
-        RuleFor(command => command.ActionType)
-            .NotEmpty()
-            .WithMessage("Atama aksiyonu zorunludur.");
     }
 }
 
@@ -36,65 +32,59 @@ public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand
     public async Task<bool> Handle(AssignTaskCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(entity => entity.TaskId == request.TaskId, cancellationToken);
-        if (task is null)
-        {
-            return false;
-        }
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        if (task is null) return false;
 
-        await TaskWorkflowAuthorization.EnsureCanAssignAsync(
-            _dbContext,
-            task,
-            request.ActorUserId,
-            cancellationToken);
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId, cancellationToken)
+            ?? throw Validation(nameof(request.TaskId), "Gorev icin is bulunamadi.");
 
-        if (task.CurrentStatus is WorkflowTaskStatus.Closed or WorkflowTaskStatus.Completed)
+        await TaskWorkflowAuthorization.EnsureCanAssignAsync(_dbContext, task, job, request.ActorUserId, cancellationToken);
+
+        if (task.CurrentStatus is WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled)
         {
-            throw CreateValidationException(nameof(request.TaskId), "Kapali veya tamamlanmis gorev yeniden atanamaz.");
+            throw Validation(nameof(request.TaskId), "Tamamlanmis veya iptal edilmis gorev yeniden atanamaz.");
         }
 
         Department? targetDepartment = null;
         if (request.DepartmentId.HasValue)
         {
-            targetDepartment = await _dbContext.Departments
-                .FirstOrDefaultAsync(entity => entity.DepartmentId == request.DepartmentId.Value, cancellationToken);
-
+            targetDepartment = await _dbContext.Departments.FirstOrDefaultAsync(
+                e => e.DepartmentId == request.DepartmentId.Value, cancellationToken);
             if (targetDepartment is null)
             {
-                throw CreateValidationException(nameof(request.DepartmentId), "Secilen departman bulunamadi.");
+                throw Validation(nameof(request.DepartmentId), "Secilen departman bulunamadi.");
             }
         }
 
         ApplicationUser? targetUser = null;
         if (request.UserId.HasValue)
         {
-            targetUser = await _dbContext.Users
-                .FirstOrDefaultAsync(entity => entity.UserId == request.UserId.Value, cancellationToken);
-
+            targetUser = await _dbContext.Users.FirstOrDefaultAsync(e => e.UserId == request.UserId.Value, cancellationToken);
             if (targetUser is null || !targetUser.IsActive)
             {
-                throw CreateValidationException(nameof(request.UserId), "Secilen kullanici bulunamadi veya aktif degil.");
+                throw Validation(nameof(request.UserId), "Secilen kullanici bulunamadi veya aktif degil.");
             }
 
             if (targetDepartment is not null && targetUser.DepartmentId != targetDepartment.DepartmentId)
             {
-                throw CreateValidationException(nameof(request.UserId), "Secilen kullanici secilen departmana ait degil.");
+                throw Validation(nameof(request.UserId), "Secilen kullanici secilen departmana ait degil.");
             }
 
-            targetDepartment ??= await _dbContext.Departments
-                .FirstOrDefaultAsync(entity => entity.DepartmentId == targetUser.DepartmentId, cancellationToken);
+            targetDepartment ??= await _dbContext.Departments.FirstOrDefaultAsync(
+                e => e.DepartmentId == targetUser.DepartmentId, cancellationToken);
         }
 
         if (request.UserId.HasValue && targetDepartment is null)
         {
-            throw CreateValidationException(nameof(request.DepartmentId), "Kullanici icin gecerli bir departman bulunamadi.");
+            throw Validation(nameof(request.DepartmentId), "Kullanici icin gecerli bir departman bulunamadi.");
         }
 
-        var previousDepartmentId = task.AssignedDepartmentId ?? task.TargetDepartmentId;
+        var previousDepartmentId = task.AssignedDepartmentId;
         var previousUserId = task.AssignedUserId;
 
         task.AssignedDepartmentId = targetDepartment?.DepartmentId;
         task.AssignedUserId = targetUser?.UserId;
+        task.AssigningManagerId = request.ActorUserId;
         task.CurrentStatus = WorkflowTaskStatus.Assigned;
         task.UpdatedByUserId = request.ActorUserId;
         task.UpdatedAtUtc = DateTimeOffset.UtcNow;
@@ -108,7 +98,7 @@ public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand
             ToDepartmentId = targetDepartment?.DepartmentId,
             FromUserId = previousUserId,
             ToUserId = targetUser?.UserId,
-            ActionType = request.ActionType,
+            ActionType = "Assign",
             CreatedByUserId = request.ActorUserId
         });
 
@@ -119,18 +109,13 @@ public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand
             EntityType = nameof(WorkTask),
             EntityId = request.TaskId.ToString(),
             Action = "TaskAssigned",
-            ActorUserId = request.ActorUserId,
-            Details = request.ActionType
+            ActorUserId = request.ActorUserId
         });
-        await _dbContext.SaveChangesAsync(cancellationToken);
 
+        await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    private static ValidationException CreateValidationException(string propertyName, string message)
-    {
-        return new ValidationException([
-            new FluentValidation.Results.ValidationFailure(propertyName, message)
-        ]);
-    }
+    private static ValidationException Validation(string p, string m) =>
+        new([new FluentValidation.Results.ValidationFailure(p, m)]);
 }

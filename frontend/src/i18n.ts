@@ -15,8 +15,7 @@ function getInitialLanguage(): 'tr' | 'en' {
     return storedLanguage
   }
 
-  const browserLanguage = window.navigator.language.toLowerCase()
-  return browserLanguage.startsWith('en') ? 'en' : 'tr'
+  return 'tr'
 }
 
 void i18n.use(initReactI18next).init({

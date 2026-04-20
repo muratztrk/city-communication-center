@@ -1,4 +1,3 @@
-
 namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record GetTaskByIdQuery(Guid TaskId) : IQuery<TaskDetailResponse?>;
@@ -19,13 +18,19 @@ public sealed class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, 
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.TenantId ?? throw new InvalidOperationException("Tenant context is required.");
         var task = await _dbContext.Tasks.FirstOrDefaultAsync(entity => entity.TaskId == request.TaskId, cancellationToken);
-        if (task is null)
-        {
-            return null;
-        }
+        if (task is null) return null;
+
+        var jobTitle = await _dbContext.Jobs
+            .Where(entity => entity.JobId == task.JobId)
+            .Select(entity => entity.Title)
+            .FirstOrDefaultAsync(cancellationToken);
 
         var approvals = await _dbContext.Approvals
-            .Where(entity => entity.TenantId == tenantId && entity.TaskId == request.TaskId)
+            .Where(entity => entity.TenantId == tenantId
+                && (
+                    (entity.SubjectType == ApprovalSubjectType.Task && entity.SubjectId == request.TaskId)
+                    || (entity.SubjectType == ApprovalSubjectType.TaskClose && entity.SubjectId == request.TaskId)
+                    || (entity.SubjectType == ApprovalSubjectType.TaskRevision && entity.SubjectId == request.TaskId)))
             .OrderBy(entity => entity.StepOrder)
             .ToListAsync(cancellationToken);
         var assignmentHistory = await _dbContext.AssignmentHistories
@@ -36,21 +41,28 @@ public sealed class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, 
         return new TaskDetailResponse(
             task.TaskId,
             task.TenantId,
+            task.JobId,
+            jobTitle,
             task.Title,
             task.Description,
-            task.TaskType.ToString(),
-            task.SourceType.ToString(),
             task.Priority,
             task.CurrentStatus.ToString(),
-            task.SourceRefId,
-            task.TargetDepartmentId,
             task.AssignedDepartmentId,
             task.AssignedUserId,
+            task.StartDateUtc,
             task.DueDateUtc,
+            task.CompletedAtUtc,
+            task.CompletionPercentage,
+            task.EstimatedHours,
+            task.ActualHours,
+            task.Notes,
+            task.RevisionReason,
             approvals
                 .OrderBy(entity => entity.StepOrder)
                 .Select(entity => new ApprovalStepResponse(
                     entity.ApprovalId,
+                    entity.SubjectType.ToString(),
+                    entity.SubjectId,
                     entity.ApproverUserId,
                     entity.StepOrder,
                     entity.Decision.ToString(),

@@ -23,7 +23,7 @@ public sealed class SocialMessage : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public Guid? AssignedDepartmentId { get; set; }
 
-    public Guid? TaskId { get; set; }
+    public Guid? JobId { get; set; }
 
     public DateTimeOffset ReceivedAtUtc { get; set; } = DateTimeOffset.UtcNow;
 
@@ -37,7 +37,7 @@ public sealed class SocialMessage : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public Department? AssignedDepartment { get; set; }
 
-    public WorkTask? Task { get; set; }
+    public Job? Job { get; set; }
 
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
     [

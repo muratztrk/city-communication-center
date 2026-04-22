@@ -36,14 +36,6 @@ public sealed class GetJobsQueryHandler : IRequestHandler<GetJobsQuery, IReadOnl
                 j.OwnerDepartmentId == actor.DepartmentId ||
                 _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId && jd.DepartmentId == actor.DepartmentId));
         }
-        else if (scope == "pending-owner-approval")
-        {
-            q = q.Where(j => j.Status == JobStatus.PendingOwnerApproval);
-        }
-        else if (scope == "pending-external-approval")
-        {
-            q = q.Where(j => j.Status == JobStatus.PendingExternalApproval);
-        }
         else if (scope == "active")
         {
             q = q.Where(j => j.Status == JobStatus.Active);
@@ -112,6 +104,13 @@ public sealed class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Jo
             .Select(d => d.Name)
             .FirstOrDefaultAsync(cancellationToken);
 
+        var createdByName = job.CreatedByUserId.HasValue
+            ? await _dbContext.Users.AsNoTracking()
+                .Where(u => u.UserId == job.CreatedByUserId.Value)
+                .Select(u => u.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         var depts = await (
             from jd in _dbContext.JobDepartments.AsNoTracking().Where(e => e.JobId == job.JobId)
             join d in _dbContext.Departments.AsNoTracking() on jd.DepartmentId equals d.DepartmentId into dd
@@ -135,12 +134,18 @@ public sealed class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Jo
             from dep in dd.DefaultIfEmpty()
             join u in _dbContext.Users.AsNoTracking() on t.AssignedUserId equals u.UserId into uu
             from u in uu.DefaultIfEmpty()
+            join cu in _dbContext.Users.AsNoTracking() on t.CreatedByUserId equals cu.UserId into cuu
+            from cu in cuu.DefaultIfEmpty()
+            join ou in _dbContext.Users.AsNoTracking() on t.OwnerUserId equals ou.UserId into ouu
+            from ou in ouu.DefaultIfEmpty()
             select new TaskSummaryResponse(
                 t.TaskId, t.TenantId, t.JobId, job.Title,
                 t.Title, t.Priority, t.CurrentStatus.ToString(),
                 t.AssignedDepartmentId, dep != null ? dep.Name : null,
                 t.AssignedUserId, u != null ? u.DisplayName : null,
-                t.DueDateUtc, t.CompletionPercentage, t.EstimatedHours, t.ActualHours))
+                t.DueDateUtc, t.CompletionPercentage, t.EstimatedHours, t.ActualHours,
+                cu != null ? cu.DisplayName : null, t.CreatedAtUtc,
+                ou != null ? ou.DisplayName : null))
             .ToListAsync(cancellationToken);
 
         var approvals = await _dbContext.Approvals.AsNoTracking()
@@ -159,6 +164,7 @@ public sealed class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Jo
             job.StartDateUtc, job.DueDateUtc, job.CompletedAtUtc,
             job.CompletionPercentage, job.IsCoordinated,
             job.SourceType.ToString(), job.SourceRefId, job.CancelReason,
+            createdByName, job.CreatedAtUtc,
             depts, tasks, approvals);
     }
 }

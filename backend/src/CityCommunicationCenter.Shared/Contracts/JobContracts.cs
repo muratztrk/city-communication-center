@@ -61,6 +61,8 @@ public sealed record JobDetailResponse(
     string SourceType,
     Guid? SourceRefId,
     string? CancelReason,
+    string? CreatedByDisplayName,
+    DateTimeOffset CreatedAtUtc,
     IReadOnlyCollection<JobDepartmentResponse> Departments,
     IReadOnlyCollection<TaskSummaryResponse> Tasks,
     IReadOnlyCollection<ApprovalStepResponse> Approvals);

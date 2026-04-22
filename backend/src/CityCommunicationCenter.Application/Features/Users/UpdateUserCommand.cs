@@ -87,6 +87,8 @@ public sealed class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand
             user.Email,
             user.RoleCode.ToString(),
             user.IsActive,
-            user.UserSource.ToString());
+            user.UserSource.ToString(),
+            user.Title,
+            user.Phone);
     }
 }

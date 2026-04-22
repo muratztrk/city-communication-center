@@ -25,6 +25,20 @@ public sealed class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, 
             .Select(entity => entity.Title)
             .FirstOrDefaultAsync(cancellationToken);
 
+        var createdByName = task.CreatedByUserId.HasValue
+            ? await _dbContext.Users.AsNoTracking()
+                .Where(u => u.UserId == task.CreatedByUserId.Value)
+                .Select(u => u.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
+        var ownerDisplayName = task.OwnerUserId.HasValue
+            ? await _dbContext.Users.AsNoTracking()
+                .Where(u => u.UserId == task.OwnerUserId.Value)
+                .Select(u => u.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         var approvals = await _dbContext.Approvals
             .Where(entity => entity.TenantId == tenantId
                 && (
@@ -57,6 +71,8 @@ public sealed class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, 
             task.ActualHours,
             task.Notes,
             task.RevisionReason,
+            createdByName,
+            task.CreatedAtUtc,
             approvals
                 .OrderBy(entity => entity.StepOrder)
                 .Select(entity => new ApprovalStepResponse(
@@ -79,6 +95,7 @@ public sealed class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, 
                     entity.ToUserId,
                     entity.ActionType,
                     entity.ActionDateUtc))
-                .ToArray());
+                .ToArray(),
+            ownerDisplayName);
     }
 }

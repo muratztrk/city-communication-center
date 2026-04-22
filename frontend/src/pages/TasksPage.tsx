@@ -21,6 +21,8 @@ function availableScopes(role?: string): TaskListScope[] {
   return ['mine']
 }
 
+const EMPTY_FORM = { title: '', description: '', priority: 'Normal', dueDateUtc: '' }
+
 export function TasksPage() {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -28,6 +30,10 @@ export function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState(EMPTY_FORM)
+  const [formSaving, setFormSaving] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   const scopes = useMemo(() => availableScopes(user?.role), [user?.role])
   const scopeParam = (searchParams.get('scope') as TaskListScope | null) ?? scopes[0]
@@ -92,24 +98,128 @@ export function TasksPage() {
     await reload()
   }
 
+  const handleSubmitForm = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!user?.departmentId) {
+      setFormError(t('tasks.newRequest.noDepartment', 'Departman bilgisi bulunamadı.'))
+      return
+    }
+    setFormError(null)
+    setFormSaving(true)
+    try {
+      const job = await api.createJob({
+        title: form.title,
+        description: form.description,
+        ownerDepartmentId: user.departmentId,
+        priority: form.priority,
+        dueDateUtc: form.dueDateUtc || null,
+        sourceType: 'InternalRequest',
+      })
+      await api.createTask({
+        jobId: job.jobId,
+        title: form.title,
+        description: form.description,
+        priority: form.priority,
+        dueDateUtc: form.dueDateUtc || null,
+      })
+      setForm(EMPTY_FORM)
+      setShowForm(false)
+      await reload()
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setFormSaving(false)
+    }
+  }
+
   const isAssignee = (task: Task) => task.assignedUserId === user?.userId
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
 
   return (
     <div className="page">
       <header className="page-header">
-        <h1>{t('nav.tasks')}</h1>
+        <div className="page-header-row">
+          <h1>{t('nav.tasks')}</h1>
+          <Button onClick={() => setShowForm(v => !v)}>
+            {t('tasks.newRequest.button', 'Yeni Talep')}
+          </Button>
+        </div>
       </header>
 
-      <nav className="tab-row">
+      {showForm && (
+        <section className="section-card page-stack">
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.newRequest.sectionTitle', 'Yeni Kurum İçi Talep')}</h2>
+            <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Dahili iş akışı başlatmak için talep oluşturun.')}</p>
+          </div>
+          {formError && <div className="alert alert-error">{formError}</div>}
+          <form className="page-stack" onSubmit={event => void handleSubmitForm(event)}>
+            <div className="job-field">
+              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')}</span>
+              <input
+                className="field-input"
+                placeholder={t('tasks.newRequest.titlePlaceholder', 'Talebin kısa başlığı')}
+                required
+                value={form.title}
+                onChange={e => setForm(cur => ({ ...cur, title: e.target.value }))}
+              />
+            </div>
+            <div className="job-field">
+              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')}</span>
+              <textarea
+                className="field-textarea"
+                placeholder={t('tasks.newRequest.descriptionPlaceholder', 'Talebin detaylı açıklaması...')}
+                required
+                rows={4}
+                value={form.description}
+                onChange={e => setForm(cur => ({ ...cur, description: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="job-field">
+                <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
+                <select
+                  className="field-select"
+                  value={form.priority}
+                  onChange={e => setForm(cur => ({ ...cur, priority: e.target.value }))}
+                >
+                  <option value="High">{t('jobs.priorities.High', 'Yüksek')}</option>
+                  <option value="Normal">{t('jobs.priorities.Normal', 'Normal')}</option>
+                  <option value="Low">{t('jobs.priorities.Low', 'Düşük')}</option>
+                </select>
+              </div>
+              <div className="job-field">
+                <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (isteğe bağlı)')}</span>
+                <input
+                  type="date"
+                  className="field-input"
+                  value={form.dueDateUtc}
+                  onChange={e => setForm(cur => ({ ...cur, dueDateUtc: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="inline-actions">
+              <Button type="submit" disabled={formSaving}>
+                {t('tasks.newRequest.submit', 'Talep Oluştur')}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setForm(EMPTY_FORM); setFormError(null) }}>
+                {t('common.cancel', 'İptal')}
+              </Button>
+            </div>
+          </form>
+        </section>
+      )}
+
+      <nav className="scope-chips">
         {scopes.map(scope => (
-          <Button
+          <button
             key={scope}
-            variant={scope === currentScope ? 'primary' : 'secondary'}
+            type="button"
+            className={`scope-chip${scope === currentScope ? ' active' : ''}`}
             onClick={() => setSearchParams({ scope })}
           >
             {t(SCOPES.find(s => s.value === scope)!.labelKey)}
-          </Button>
+          </button>
         ))}
       </nav>
 
@@ -127,6 +237,8 @@ export function TasksPage() {
               <th>{t('tasks.columns.status', 'Status')}</th>
               <th>{t('tasks.columns.priority', 'Priority')}</th>
               <th>{t('tasks.columns.assignedTo', 'Assigned')}</th>
+              <th>{t('tasks.columns.owner', 'Sahip')}</th>
+              <th>{t('tasks.columns.createdBy', 'Created By')}</th>
               <th>{t('tasks.columns.progress', 'Progress')}</th>
               <th>{t('tasks.columns.dueDate', 'Due')}</th>
               <th>{t('tasks.columns.actions', 'Actions')}</th>
@@ -140,6 +252,8 @@ export function TasksPage() {
                 <td><StatusPill>{getTaskStatusLabel(t, task.currentStatus)}</StatusPill></td>
                 <td>{getPriorityLabel(t, task.priority)}</td>
                 <td>{task.assignedUserDisplayName ?? task.assignedDepartmentName ?? '—'}</td>
+                <td>{task.ownerDisplayName ?? '—'}</td>
+                <td>{task.createdByDisplayName ?? '—'}</td>
                 <td>{task.completionPercentage ?? 0}%</td>
                 <td>{task.dueDateUtc ? new Date(task.dueDateUtc).toLocaleDateString() : '—'}</td>
                 <td className="actions-cell">

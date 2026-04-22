@@ -34,6 +34,7 @@ interface JwtPayload {
   tenant_name?: string | string[]
   name?: string | string[]
   displayName?: string | string[]
+  department_id?: string | string[]
   exp?: number
   [key: string]: unknown
 }
@@ -100,6 +101,7 @@ function buildUserFromToken(token: string, tenantNameOverride?: string): AuthUse
     role: readClaimValue(payload.role),
     tenantId: readClaimValue(payload.tenant_id ?? payload.tenantId),
     tenantName: tenantNameOverride ?? readClaimValue(payload.tenant_name),
+    departmentId: readClaimValue(payload.department_id),
   }
 }
 

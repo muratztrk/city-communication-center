@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\CityCommunicationCenter.Application\CityCommunicationCenter.Application.csproj" />
-    <ProjectReference Include="..\CityCommunicationCenter.Domain\CityCommunicationCenter.Domain.csproj" />
-    <ProjectReference Include="..\CityCommunicationCenter.Shared\CityCommunicationCenter.Shared.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Application/CityCommunicationCenter.Application.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Domain/CityCommunicationCenter.Domain.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Shared/CityCommunicationCenter.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +24,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
 
 </Project>

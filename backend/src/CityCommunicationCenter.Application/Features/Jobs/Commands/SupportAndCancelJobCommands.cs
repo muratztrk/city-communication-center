@@ -47,7 +47,7 @@ public sealed class AddSupportDepartmentCommandHandler : IRequestHandler<AddSupp
             JobId = job.JobId,
             DepartmentId = request.DepartmentId,
             Role = JobDepartmentRole.Support,
-            ApprovalStatus = JobApprovalStatus.Pending,
+            ApprovalStatus = JobApprovalStatus.NotRequired,
             RequestedByUserId = actor.UserId,
             RequestedAtUtc = utcNow,
             Notes = request.Notes,

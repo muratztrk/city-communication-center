@@ -271,6 +271,16 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
         {
             user.DisplayName = ldapUser.DisplayName;
         }
+
+        if (!string.IsNullOrWhiteSpace(ldapUser.Title))
+        {
+            user.Title = ldapUser.Title;
+        }
+
+        if (!string.IsNullOrWhiteSpace(ldapUser.Phone))
+        {
+            user.Phone = ldapUser.Phone;
+        }
     }
 
     private static AuthenticatedUserDescriptor ToDescriptor(ApplicationUser user, string tenantName, string authenticationMode)

@@ -17,7 +17,9 @@ public sealed record UserSummaryResponse(
     string? Email,
     string RoleCode,
     bool IsActive,
-    string UserSource);
+    string UserSource,
+    string? Title = null,
+    string? Phone = null);
 
 public sealed record CreateUserRequest(
     string? Username,
@@ -53,7 +55,9 @@ public sealed record DirectoryUserLookupResponse(
     string? Email,
     string? Department,
     bool AlreadyLinked,
-    Guid? ExistingUserId);
+    Guid? ExistingUserId,
+    string? Title = null,
+    string? Phone = null);
 
 public sealed record UserManagementContextResponse(
     bool LocalUsersEnabled,

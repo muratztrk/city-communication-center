@@ -5,7 +5,8 @@ namespace CityCommunicationCenter.Application.Features.Departments;
 public sealed record UpdateDepartmentCommand(
     Guid DepartmentId,
     string Name,
-    string DepartmentType) : ICommand<DepartmentResponse>;
+    string DepartmentType,
+    Guid? ManagerUserId) : ICommand<DepartmentResponse>;
 
 public sealed class UpdateDepartmentCommandValidator : AbstractValidator<UpdateDepartmentCommand>
 {
@@ -60,6 +61,7 @@ public sealed class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepar
         var oldName = entity.Name;
         entity.Name = request.Name.Trim();
         entity.DepartmentType = request.DepartmentType.Trim();
+        entity.ManagerUserId = request.ManagerUserId;
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
         entity.UpdatedByUserId = context.UserId;
 

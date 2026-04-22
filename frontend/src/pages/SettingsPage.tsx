@@ -18,10 +18,11 @@ import type {
   TenantAuthenticationPolicy,
   TenantLdapSettings,
   TenantSettings,
+  User,
 } from '../types/platform'
 import { getDeploymentModeLabel } from '../utils/localization'
 
-type SettingsTab = 'tenant' | 'social' | 'routing'
+type SettingsTab = 'tenant' | 'social' | 'routing' | 'citizen'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
@@ -145,7 +146,7 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
 }
 
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'social' || tab === 'routing' ? tab : 'tenant'
+  return tab === 'social' || tab === 'routing' || tab === 'citizen' ? tab : 'tenant'
 }
 
 function splitLines(value: string): string[] {
@@ -167,6 +168,8 @@ export function SettingsPage() {
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
   const [routingConfig, setRoutingConfig] = useState<RoutingConfig | null>(null)
   const [departments, setDepartments] = useState<Department[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [deptManagerEditing, setDeptManagerEditing] = useState<string | null>(null)
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
     primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
@@ -190,6 +193,8 @@ export function SettingsPage() {
   const [ruleForm, setRuleForm] = useState(EMPTY_RULE)
   const [testContent, setTestContent] = useState('')
   const [testResult, setTestResult] = useState<string | null>(null)
+  const [citizenForm, setCitizenForm] = useState({ channel: 'Other', citizenHandle: '', content: '', category: '' })
+  const [citizenFormSaving, setCitizenFormSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -212,8 +217,9 @@ export function SettingsPage() {
       api.getSocialSettingsStatus(),
       api.getRoutingConfig(),
       api.getDepartments(),
+      api.getUsers(),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, usersResponse]) => {
         if (!isActive) {
           return
         }
@@ -246,6 +252,7 @@ export function SettingsPage() {
         setSocialStatus(socialResponse)
         setRoutingConfig(routingResponse)
         setDepartments(departmentResponse)
+        setUsers(usersResponse)
       })
       .catch(loadError => {
         if (isActive) {
@@ -521,6 +528,37 @@ export function SettingsPage() {
     }
   }
 
+  const submitCitizenForm = async (event: FormEvent) => {
+    event.preventDefault()
+    setMessage(null)
+    setCitizenFormSaving(true)
+    try {
+      await api.createSocialMessage({
+        channel: citizenForm.channel,
+        citizenHandle: citizenForm.citizenHandle.trim(),
+        content: citizenForm.content.trim(),
+        category: citizenForm.category.trim() || undefined,
+      })
+      setMessage({ type: 'success', text: t('settings.citizen.successMessage') })
+      setCitizenForm({ channel: 'Other', citizenHandle: '', content: '', category: '' })
+    } catch (submitError) {
+      setMessage({ type: 'error', text: submitError instanceof Error ? submitError.message : t('common.error') })
+    } finally {
+      setCitizenFormSaving(false)
+    }
+  }
+
+  const assignDepartmentManager = async (dept: Department, managerId: string | null) => {
+    try {
+      const updated = await api.updateDepartment(dept.departmentId, dept.name, dept.departmentType, managerId)
+      setDepartments(current => current.map(d => d.departmentId === updated.departmentId ? updated : d))
+      setDeptManagerEditing(null)
+      setMessage({ type: 'success', text: t('settings.departments.managerSaved', 'Müdür güncellendi.') })
+    } catch (err) {
+      setMessage({ type: 'error', text: err instanceof Error ? err.message : t('common.error') })
+    }
+  }
+
   const updateSocialField = (channel: ChannelType, key: string, value: string) => {
     setSocialForms(current => ({
       ...current,
@@ -593,6 +631,9 @@ export function SettingsPage() {
         </button>
         <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
           {t('settings.tabs.routing')}
+        </button>
+        <button className={`tab-button ${activeTab === 'citizen' ? 'active' : ''}`} onClick={() => setTab('citizen')} type="button">
+          {t('settings.tabs.citizen')}
         </button>
       </div>
 
@@ -956,6 +997,67 @@ export function SettingsPage() {
               </div>
             </form>
           </div>
+
+          <section className="section-card page-stack">
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.departments.sectionTitle', 'Birimler')}</h2>
+                <p className="helper-copy">{t('settings.departments.sectionDescription', 'Her birimin müdürünü buradan atayın.')}</p>
+              </div>
+            </div>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{t('settings.departments.name', 'Birim Adı')}</th>
+                  <th>{t('settings.departments.type', 'Tür')}</th>
+                  <th>{t('settings.departments.manager', 'Müdür')}</th>
+                  <th>{t('settings.departments.actions', 'İşlem')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {departments.map(dept => {
+                  const currentManager = users.find(u => u.userId === dept.managerUserId)
+                  const isEditing = deptManagerEditing === dept.departmentId
+                  return (
+                    <tr key={dept.departmentId}>
+                      <td>{dept.name}</td>
+                      <td>{dept.departmentType}</td>
+                      <td>
+                        {isEditing ? (
+                          <select
+                            className="field-select"
+                            defaultValue={dept.managerUserId ?? ''}
+                            onChange={async e => {
+                              const val = e.target.value || null
+                              await assignDepartmentManager(dept, val)
+                            }}
+                          >
+                            <option value="">{t('settings.departments.noManager', '— Müdür Yok —')}</option>
+                            {users.filter(u => u.isActive).map(u => (
+                              <option key={u.userId} value={u.userId}>{u.displayName}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span>{currentManager?.displayName ?? '—'}</span>
+                        )}
+                      </td>
+                      <td className="actions-cell">
+                        {isEditing ? (
+                          <Button size="sm" variant="secondary" onClick={() => setDeptManagerEditing(null)}>
+                            {t('common.cancel', 'İptal')}
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="secondary" onClick={() => setDeptManagerEditing(dept.departmentId)}>
+                            {t('settings.departments.assignManager', 'Müdür Ata')}
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </section>
         </div>
       ) : null}
 
@@ -1111,6 +1213,69 @@ export function SettingsPage() {
             {testResult ? <StatusPill tone="info">{testResult}</StatusPill> : null}
           </section>
         </div>
+      ) : null}
+      {activeTab === 'citizen' ? (
+        <form className="section-card page-stack" onSubmit={event => void submitCitizenForm(event)}>
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-950">{t('settings.citizen.sectionTitle')}</h2>
+            <p className="helper-copy">{t('settings.citizen.sectionDescription')}</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('settings.citizen.channel')}</span>
+              <select
+                className="field-select"
+                required
+                value={citizenForm.channel}
+                onChange={event => setCitizenForm(current => ({ ...current, channel: event.target.value }))}
+              >
+                {(['Facebook', 'Instagram', 'X', 'Email', 'WebForm', 'WhatsApp', 'Other'] as const).map(ch => (
+                  <option key={ch} value={ch}>{t(`settings.citizen.channels.${ch}`)}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('settings.citizen.citizenHandle')}</span>
+              <input
+                className="field-input"
+                placeholder={t('settings.citizen.citizenHandlePlaceholder')}
+                required
+                value={citizenForm.citizenHandle}
+                onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
+              />
+            </label>
+          </div>
+
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>{t('settings.citizen.content')}</span>
+            <textarea
+              className="field-textarea"
+              placeholder={t('settings.citizen.contentPlaceholder')}
+              required
+              rows={4}
+              value={citizenForm.content}
+              onChange={event => setCitizenForm(current => ({ ...current, content: event.target.value }))}
+            />
+          </label>
+
+          <label className="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>{t('settings.citizen.category')}</span>
+            <input
+              className="field-input"
+              placeholder={t('settings.citizen.categoryPlaceholder')}
+              value={citizenForm.category}
+              onChange={event => setCitizenForm(current => ({ ...current, category: event.target.value }))}
+            />
+          </label>
+
+          <div className="inline-actions">
+            <Button disabled={citizenFormSaving} type="submit">
+              {t('settings.citizen.submit')}
+            </Button>
+          </div>
+        </form>
       ) : null}
     </div>
   )

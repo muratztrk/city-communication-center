@@ -84,7 +84,8 @@
     "projectCreateFailed": "Proje oluşturulamadı.",
     "projectApproveFailed": "Proje onaylanamadı.",
     "projectRejectFailed": "Proje reddedilemedi.",
-    "projectUpdateFailed": "Proje güncellenemedi."
+    "projectUpdateFailed": "Proje güncellenemedi.",
+    "socialCreateFailed": "Vatandaş talebi oluşturulamadı."
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
@@ -398,7 +399,8 @@
     "tabs": {
       "organization": "Kurum",
       "social": "Sosyal Medya",
-      "routing": "Otomatik Yönlendirme"
+      "routing": "Otomatik Yönlendirme",
+      "citizen": "Vatandaş Talepleri"
     },
     "organizationName": "Kurum Adı",
     "domain": "Alan Adı",
@@ -564,6 +566,29 @@
       "updated": "Kural güncellendi",
       "deleted": "Kural silindi",
       "deleteConfirm": "Bu kuralı silmek istediğinize emin misiniz?"
+    },
+    "citizen": {
+      "sectionTitle": "Vatandaş Talebi Oluştur",
+      "sectionDescription": "Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.",
+      "channel": "Kanal",
+      "channelPlaceholder": "Kanal seçin",
+      "citizenHandle": "Vatandaş / Gönderen",
+      "citizenHandlePlaceholder": "ör. @kullaniciad veya tam ad",
+      "content": "Talep İçeriği",
+      "contentPlaceholder": "Vatandaş talebinin içeriğini girin...",
+      "category": "Kategori (isteğe bağlı)",
+      "categoryPlaceholder": "ör. Altyapı, Çevre",
+      "submit": "Talep Oluştur",
+      "successMessage": "Vatandaş talebi başarıyla oluşturuldu.",
+      "channels": {
+        "Facebook": "Facebook",
+        "Instagram": "Instagram",
+        "X": "X (Twitter)",
+        "Email": "E-Posta",
+        "WebForm": "Web Formu",
+        "WhatsApp": "WhatsApp",
+        "Other": "Diğer"
+      }
     }
   },
   "pwa": {

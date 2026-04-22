@@ -12,8 +12,6 @@ import { getPriorityLabel } from '../utils/localization'
 const SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'mine', labelKey: 'jobs.scopes.mine' },
   { value: 'my-department', labelKey: 'jobs.scopes.myDepartment' },
-  { value: 'pending-owner-approval', labelKey: 'jobs.scopes.pendingOwnerApproval' },
-  { value: 'pending-external-approval', labelKey: 'jobs.scopes.pendingExternalApproval' },
   { value: 'active', labelKey: 'jobs.scopes.active' },
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
@@ -22,12 +20,6 @@ function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
 }
 
-function getApprovalStatusTone(status: string): 'success' | 'warning' | 'danger' | 'neutral' {
-  if (status === 'Approved') return 'success'
-  if (status === 'Rejected') return 'danger'
-  if (status === 'NotRequired') return 'neutral'
-  return 'warning'
-}
 
 interface CreateFormState {
   title: string
@@ -180,22 +172,6 @@ export function JobsPage() {
     await reload()
   }
 
-  const handleApproveOwner = async (jobId: string) => { await api.approveJobOwner(jobId); await refreshDetail(); await reload() }
-  const handleRejectOwner = async (jobId: string) => {
-    const reason = window.prompt(t('jobs.actions.rejectReason'))
-    if (!reason) return
-    await api.rejectJobOwner(jobId, reason)
-    await refreshDetail()
-    await reload()
-  }
-  const handleApproveTarget = async (jobId: string, deptId: string) => { await api.approveJobTarget(jobId, deptId); await refreshDetail(); await reload() }
-  const handleRejectTarget = async (jobId: string, deptId: string) => {
-    const reason = window.prompt(t('jobs.actions.rejectReason'))
-    if (!reason) return
-    await api.rejectJobTarget(jobId, deptId, reason)
-    await refreshDetail()
-    await reload()
-  }
   const handleCancel = async (jobId: string) => {
     const reason = window.prompt(t('jobs.actions.cancelReason'))
     if (!reason) return
@@ -256,29 +232,35 @@ export function JobsPage() {
         </div>
       </header>
 
-      <nav className="tab-row">
+      <nav className="scope-chips">
         {SCOPES.map(s => (
-          <Button
+          <button
             key={s.value}
-            variant={s.value === scope ? 'primary' : 'secondary'}
+            type="button"
+            className={`scope-chip${s.value === scope ? ' active' : ''}`}
             onClick={() => setSearchParams({ scope: s.value })}
           >
             {t(s.labelKey, s.value)}
-          </Button>
+          </button>
         ))}
       </nav>
 
       {error && <div className="error">{error}</div>}
 
       {showForm && (
-        <form className="form-card page-stack" onSubmit={handleCreate}>
+        <form className="section-card page-stack" onSubmit={handleCreate}>
           <div className="page-header-row">
             <h2 className="text-xl font-extrabold text-slate-950">{t('jobs.actions.new')}</h2>
+            <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-              <span>{t('jobs.form.title')}</span>
+
+          <hr className="border-slate-100" />
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="job-field sm:col-span-2">
+              <label className="job-field-label" htmlFor="job-title">{t('jobs.form.title')} <span className="text-red-500">*</span></label>
               <input
+                id="job-title"
                 className="field-input"
                 placeholder={t('jobs.form.titlePlaceholder')}
                 type="text"
@@ -286,21 +268,25 @@ export function JobsPage() {
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 required
               />
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-              <span>{t('jobs.form.description')}</span>
+            </div>
+
+            <div className="job-field sm:col-span-2">
+              <label className="job-field-label" htmlFor="job-description">{t('jobs.form.description')} <span className="text-red-500">*</span></label>
               <textarea
-                className="field-input"
+                id="job-description"
+                className="field-textarea"
                 rows={3}
                 placeholder={t('jobs.form.descriptionPlaceholder')}
                 value={form.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                 required
               />
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('jobs.form.ownerDepartment')}</span>
+            </div>
+
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="job-owner-dept">{t('jobs.form.ownerDepartment')} <span className="text-red-500">*</span></label>
               <select
+                id="job-owner-dept"
                 className="field-select"
                 value={form.ownerDepartmentId}
                 onChange={e => setForm(f => ({ ...f, ownerDepartmentId: e.target.value }))}
@@ -311,10 +297,12 @@ export function JobsPage() {
                   <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
                 ))}
               </select>
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('jobs.form.priority')}</span>
+            </div>
+
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="job-priority">{t('jobs.form.priority')}</label>
               <select
+                id="job-priority"
                 className="field-select"
                 value={form.priority}
                 onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
@@ -323,28 +311,34 @@ export function JobsPage() {
                 <option value="Normal">{getPriorityLabel(t, 'Normal')}</option>
                 <option value="High">{getPriorityLabel(t, 'High')}</option>
               </select>
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('jobs.form.startDate')}</span>
+            </div>
+
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="job-start-date">{t('jobs.form.startDate')}</label>
               <input
+                id="job-start-date"
                 className="field-input"
                 type="date"
                 value={form.startDateUtc}
                 onChange={e => setForm(f => ({ ...f, startDateUtc: e.target.value }))}
               />
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('jobs.form.dueDate')}</span>
+            </div>
+
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="job-due-date">{t('jobs.form.dueDate')}</label>
               <input
+                id="job-due-date"
                 className="field-input"
                 type="date"
                 value={form.dueDateUtc}
                 onChange={e => setForm(f => ({ ...f, dueDateUtc: e.target.value }))}
               />
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-              <span>{t('jobs.form.targetDepartments')}</span>
+            </div>
+
+            <div className="job-field sm:col-span-2">
+              <label className="job-field-label" htmlFor="job-target-depts">{t('jobs.form.targetDepartments')}</label>
               <select
+                id="job-target-depts"
                 className="field-select"
                 multiple
                 size={Math.min(6, Math.max(3, departments.length))}
@@ -360,9 +354,10 @@ export function JobsPage() {
                     <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
                   ))}
               </select>
-              <span className="helper-copy">{t('jobs.form.targetDepartmentsHelp')}</span>
-            </label>
+              <p className="helper-copy mt-1">{t('jobs.form.targetDepartmentsHelp')}</p>
+            </div>
           </div>
+
           <div className="inline-actions">
             <Button type="submit" disabled={submitting}>{submitting ? t('common.loading') : t('common.create')}</Button>
             <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
@@ -403,13 +398,7 @@ export function JobsPage() {
                     <td>
                       <div className="inline-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
-                        {isManagerLike && job.status === 'PendingOwnerApproval' && (
-                          <>
-                            <Button size="sm" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
-                            <Button size="sm" variant="secondary" onClick={() => handleRejectOwner(job.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
-                          </>
-                        )}
-                        {isManagerLike && (job.status === 'Active' || job.status === 'PendingExternalApproval') && (
+                        {isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
                         )}
                         {user?.role === 'SystemAdmin' && (
@@ -445,11 +434,19 @@ export function JobsPage() {
                   <StatusPill tone="info">{getPriorityLabel(t, detail.priority)}</StatusPill>
                   <StatusPill>{detail.completionPercentage ?? 0}%</StatusPill>
                 </div>
+                {detail.createdByDisplayName && (
+                  <p className="text-xs text-[color:var(--color-muted-foreground)] pt-1">
+                    {t('common.createdBy', 'Oluşturan')}: <span className="font-semibold text-slate-700">{detail.createdByDisplayName}</span>
+                    {' · '}{new Date(detail.createdAtUtc).toLocaleDateString()}
+                  </p>
+                )}
               </div>
-              <Button type="button" variant="secondary" onClick={() => setDetail(null)}>{t('jobs.actions.close')}</Button>
-              {user?.role === 'SystemAdmin' && (
-                <Button type="button" variant="destructive" onClick={() => handleDelete(detail.jobId)}>{t('jobs.actions.delete')}</Button>
-              )}
+              <div className="inline-actions ml-auto">
+                {user?.role === 'SystemAdmin' && (
+                  <Button type="button" variant="destructive" onClick={() => handleDelete(detail.jobId)}>{t('jobs.actions.delete')}</Button>
+                )}
+                <Button type="button" variant="secondary" onClick={() => setDetail(null)}>{t('jobs.actions.close')}</Button>
+              </div>
             </div>
 
             {detailLoading && <div className="loading">{t('common.loading')}</div>}
@@ -461,9 +458,6 @@ export function JobsPage() {
                   <tr>
                     <th>{t('departments.name', 'Müdürlük')}</th>
                     <th>{t('jobs.detail.role')}</th>
-                    <th>{t('jobs.detail.approvalStatus')}</th>
-                    <th>{t('jobs.detail.decidedAt')}</th>
-                    <th>{t('common.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -471,25 +465,6 @@ export function JobsPage() {
                     <tr key={d.jobDepartmentId}>
                       <td>{d.departmentName ?? '—'}</td>
                       <td>{t(`jobs.roles.${d.role}`, d.role)}</td>
-                      <td>
-                        <StatusPill tone={getApprovalStatusTone(d.approvalStatus)}>
-                          {t(`jobs.approvalStatuses.${d.approvalStatus}`, d.approvalStatus)}
-                        </StatusPill>
-                        {d.rejectReason && <div className="text-xs text-rose-600 mt-1">{d.rejectReason}</div>}
-                      </td>
-                      <td>{d.decidedAtUtc ? new Date(d.decidedAtUtc).toLocaleString() : '—'}</td>
-                      <td>
-                        {isManagerLike && d.approvalStatus === 'Pending' && (d.role === 'Target' || d.role === 'Support') && (
-                          <div className="inline-actions">
-                            <Button size="sm" onClick={() => handleApproveTarget(detail.jobId, d.departmentId)}>
-                              {t('jobs.actions.approveTarget')}
-                            </Button>
-                            <Button size="sm" variant="secondary" onClick={() => handleRejectTarget(detail.jobId, d.departmentId)}>
-                              {t('jobs.actions.rejectTarget')}
-                            </Button>
-                          </div>
-                        )}
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -591,34 +566,6 @@ export function JobsPage() {
                         <td><StatusPill>{t(`enum.taskStatus.${tk.currentStatus}`, tk.currentStatus)}</StatusPill></td>
                         <td>{tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—'}</td>
                         <td>{tk.completionPercentage ?? 0}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </section>
-
-            <section>
-              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.approvals')}</h3>
-              {detail.approvals.length === 0 ? (
-                <div className="empty-state">{t('jobs.detail.noApprovals')}</div>
-              ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>{t('common.status')}</th>
-                      <th>{t('jobs.detail.decidedAt')}</th>
-                      <th>{t('jobs.detail.notes')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detail.approvals.map(a => (
-                      <tr key={a.approvalId}>
-                        <td>{a.stepOrder}</td>
-                        <td>{a.decision}</td>
-                        <td>{a.decisionDateUtc ? new Date(a.decisionDateUtc).toLocaleString() : '—'}</td>
-                        <td>{a.comment ?? '—'}</td>
                       </tr>
                     ))}
                   </tbody>

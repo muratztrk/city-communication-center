@@ -13,6 +13,8 @@ internal static class TaskSummaryResponseFactory
             .FirstOrDefaultAsync(cancellationToken);
         var assignedDepartmentName = await GetDepartmentNameAsync(dbContext, task.AssignedDepartmentId, cancellationToken);
         var assignedUserDisplayName = await GetUserDisplayNameAsync(dbContext, task.AssignedUserId, cancellationToken);
+        var createdByDisplayName = await GetUserDisplayNameAsync(dbContext, task.CreatedByUserId, cancellationToken);
+        var ownerDisplayName = await GetUserDisplayNameAsync(dbContext, task.OwnerUserId, cancellationToken);
 
         return new TaskSummaryResponse(
             task.TaskId,
@@ -29,7 +31,10 @@ internal static class TaskSummaryResponseFactory
             task.DueDateUtc,
             task.CompletionPercentage,
             task.EstimatedHours,
-            task.ActualHours);
+            task.ActualHours,
+            createdByDisplayName,
+            task.CreatedAtUtc,
+            ownerDisplayName);
     }
 
     private static Task<string?> GetDepartmentNameAsync(

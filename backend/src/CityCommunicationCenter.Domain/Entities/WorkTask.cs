@@ -13,6 +13,8 @@ public sealed class WorkTask : AuditableTenantEntity, IHasDatabaseIndexDefinitio
 
     public string Description { get; set; } = string.Empty;
 
+    public Guid? OwnerUserId { get; set; }
+
     public Guid? AssignedDepartmentId { get; set; }
 
     public Guid? AssignedUserId { get; set; }

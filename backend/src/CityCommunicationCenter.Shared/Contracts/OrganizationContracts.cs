@@ -8,7 +8,8 @@ public sealed record CreateDepartmentRequest(
 
 public sealed record UpdateDepartmentRequest(
     string Name,
-    string DepartmentType);
+    string DepartmentType,
+    Guid? ManagerUserId);
 
 public sealed record DepartmentResponse(
     Guid DepartmentId,

@@ -40,52 +40,10 @@ public sealed class JobsController : ApiControllerBase
         return CreatedAtRoute("GetJobById", new { jobId = response.JobId }, response);
     }
 
-    [HttpPost("{jobId:guid}/approve-owner")]
-    public async Task<IActionResult> ApproveOwner(Guid jobId, [FromBody] ApprovalActionRequest request, CancellationToken cancellationToken)
-    {
-        var ok = await _sender.Send(new ApproveJobOwnerCommand(jobId, CurrentContext.UserId, request.Comment), cancellationToken);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpPost("{jobId:guid}/reject-owner")]
-    public async Task<IActionResult> RejectOwner(Guid jobId, [FromBody] CancelJobRequest request, CancellationToken cancellationToken)
-    {
-        var ok = await _sender.Send(new RejectJobOwnerCommand(jobId, CurrentContext.UserId, request.Reason), cancellationToken);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpPost("{jobId:guid}/approve-target/{departmentId:guid}")]
-    public async Task<IActionResult> ApproveTarget(Guid jobId, Guid departmentId, [FromBody] ApprovalActionRequest request, CancellationToken cancellationToken)
-    {
-        var ok = await _sender.Send(new ApproveJobTargetCommand(jobId, departmentId, CurrentContext.UserId, request.Comment), cancellationToken);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpPost("{jobId:guid}/reject-target/{departmentId:guid}")]
-    public async Task<IActionResult> RejectTarget(Guid jobId, Guid departmentId, [FromBody] CancelJobRequest request, CancellationToken cancellationToken)
-    {
-        var ok = await _sender.Send(new RejectJobTargetCommand(jobId, departmentId, CurrentContext.UserId, request.Reason), cancellationToken);
-        return ok ? NoContent() : NotFound();
-    }
-
     [HttpPost("{jobId:guid}/support")]
     public async Task<IActionResult> AddSupport(Guid jobId, [FromBody] AddSupportDepartmentRequest request, CancellationToken cancellationToken)
     {
         var ok = await _sender.Send(new AddSupportDepartmentCommand(jobId, request.DepartmentId, CurrentContext.UserId, request.Notes), cancellationToken);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpPost("{jobId:guid}/approve-support/{departmentId:guid}")]
-    public async Task<IActionResult> ApproveSupport(Guid jobId, Guid departmentId, [FromBody] ApprovalActionRequest request, CancellationToken cancellationToken)
-    {
-        var ok = await _sender.Send(new ApproveJobTargetCommand(jobId, departmentId, CurrentContext.UserId, request.Comment), cancellationToken);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpPost("{jobId:guid}/reject-support/{departmentId:guid}")]
-    public async Task<IActionResult> RejectSupport(Guid jobId, Guid departmentId, [FromBody] CancelJobRequest request, CancellationToken cancellationToken)
-    {
-        var ok = await _sender.Send(new RejectJobTargetCommand(jobId, departmentId, CurrentContext.UserId, request.Reason), cancellationToken);
         return ok ? NoContent() : NotFound();
     }
 

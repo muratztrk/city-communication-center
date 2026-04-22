@@ -41,10 +41,9 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
         var utcNow = DateTimeOffset.UtcNow;
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, cancellationToken);
-        var isAdmin = JobWorkflowAuthorization.IsSystemAdmin(actor);
 
         // Auth: Staff can only create for own dept, Manager for managed dept, Admin for any
-        if (!isAdmin)
+        if (!JobWorkflowAuthorization.IsSystemAdmin(actor))
         {
             if (actor.RoleCode == RoleCode.Staff && actor.DepartmentId != request.OwnerDepartmentId)
             {
@@ -55,7 +54,7 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
             {
                 throw new ForbiddenAccessException("Mudur sadece yonettigi mudurluk icin is olusturabilir.");
             }
-            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager && !isAdmin)
+            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager)
             {
                 throw new ForbiddenAccessException("Bu rol is olusturamaz.");
             }
@@ -70,33 +69,6 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
             .Distinct()
             .ToArray() ?? [];
 
-        var hasTargets = targets.Length > 0;
-        var isManagerOrAdmin = isAdmin || (actor.RoleCode == RoleCode.Manager
-            && await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, request.OwnerDepartmentId, cancellationToken));
-
-        JobStatus status;
-        JobApprovalStatus ownerApproval;
-        JobApprovalStatus targetApprovalInitial;
-
-        if (!hasTargets)
-        {
-            status = isManagerOrAdmin ? JobStatus.Active : JobStatus.PendingOwnerApproval;
-            ownerApproval = isManagerOrAdmin ? JobApprovalStatus.Approved : JobApprovalStatus.Pending;
-            targetApprovalInitial = JobApprovalStatus.NotRequired;
-        }
-        else if (isManagerOrAdmin)
-        {
-            status = JobStatus.PendingExternalApproval;
-            ownerApproval = JobApprovalStatus.Approved;
-            targetApprovalInitial = JobApprovalStatus.Pending;
-        }
-        else
-        {
-            status = JobStatus.PendingOwnerApproval;
-            ownerApproval = JobApprovalStatus.Pending;
-            targetApprovalInitial = JobApprovalStatus.NotRequired;
-        }
-
         var sourceType = Enum.TryParse<JobSourceType>(request.SourceType, true, out var st) ? st : JobSourceType.Manual;
 
         var job = new Job
@@ -106,13 +78,13 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
             Title = request.Title.Trim(),
             Description = request.Description.Trim(),
             OwnerDepartmentId = request.OwnerDepartmentId,
-            Status = status,
+            Status = JobStatus.Active,
             Priority = request.Priority.Trim(),
             StartDateUtc = request.StartDateUtc,
             DueDateUtc = request.DueDateUtc,
             SourceType = sourceType,
             SourceRefId = request.SourceRefId,
-            IsCoordinated = hasTargets,
+            IsCoordinated = targets.Length > 0,
             CreatedByUserId = context.UserId
         };
 
@@ -125,11 +97,11 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
             JobId = job.JobId,
             DepartmentId = request.OwnerDepartmentId,
             Role = JobDepartmentRole.Owner,
-            ApprovalStatus = ownerApproval,
+            ApprovalStatus = JobApprovalStatus.Approved,
             RequestedByUserId = actor.UserId,
             RequestedAtUtc = utcNow,
-            ApprovedByUserId = ownerApproval == JobApprovalStatus.Approved ? actor.UserId : null,
-            DecidedAtUtc = ownerApproval == JobApprovalStatus.Approved ? utcNow : null,
+            ApprovedByUserId = actor.UserId,
+            DecidedAtUtc = utcNow,
             CreatedByUserId = context.UserId
         });
 
@@ -142,7 +114,7 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
                 JobId = job.JobId,
                 DepartmentId = targetDeptId,
                 Role = JobDepartmentRole.Target,
-                ApprovalStatus = targetApprovalInitial,
+                ApprovalStatus = JobApprovalStatus.NotRequired,
                 RequestedByUserId = actor.UserId,
                 RequestedAtUtc = utcNow,
                 CreatedByUserId = context.UserId
@@ -157,7 +129,7 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
             EntityId = job.JobId.ToString(),
             Action = "JobCreated",
             ActorUserId = context.UserId,
-            Details = $"Status={status}, Targets={targets.Length}"
+            Details = $"Status=Active, Targets={targets.Length}"
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

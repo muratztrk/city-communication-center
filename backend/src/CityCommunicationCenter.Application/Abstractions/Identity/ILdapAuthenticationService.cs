@@ -13,9 +13,9 @@ public interface ILdapAuthenticationService
     Task<LdapConnectivityResult> TestConnectivityAsync(LdapConnectivityTestParameters parameters, CancellationToken cancellationToken = default);
 }
 
-public sealed record LdapAuthenticatedUser(string ExternalIdentityId, string Username, string? DisplayName, string? Email);
+public sealed record LdapAuthenticatedUser(string ExternalIdentityId, string Username, string? DisplayName, string? Email, string? Title = null, string? Phone = null);
 
-public sealed record LdapDirectoryUser(string ExternalIdentityId, string Username, string DisplayName, string? Email, string? Department);
+public sealed record LdapDirectoryUser(string ExternalIdentityId, string Username, string DisplayName, string? Email, string? Department, string? Title = null, string? Phone = null);
 
 public sealed record LdapConnectivityTestParameters(
     string Host,

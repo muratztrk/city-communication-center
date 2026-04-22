@@ -35,6 +35,8 @@ export interface User {
   roleCode: string;
   isActive: boolean;
   userSource: string;
+  title: string | null;
+  phone: string | null;
 }
 
 export interface UserLookup {
@@ -56,6 +58,8 @@ export interface DirectoryUserLookup {
   department: string | null;
   alreadyLinked: boolean;
   existingUserId: string | null;
+  title: string | null;
+  phone: string | null;
 }
 
 export interface UserManagementContext {
@@ -96,6 +100,9 @@ export interface Task {
   actualHours?: number | null;
   notes?: string | null;
   revisionReason?: string | null;
+  createdByDisplayName?: string | null;
+  createdAtUtc?: string;
+  ownerDisplayName?: string | null;
 }
 
 export type JobStatus =
@@ -114,8 +121,6 @@ export type JobListScope =
   | 'all'
   | 'mine'
   | 'my-department'
-  | 'pending-owner-approval'
-  | 'pending-external-approval'
   | 'active';
 
 export interface JobSummary {
@@ -177,6 +182,8 @@ export interface JobDetail {
   sourceType: string;
   sourceRefId: string | null;
   cancelReason: string | null;
+  createdByDisplayName: string | null;
+  createdAtUtc: string;
   departments: JobDepartmentInfo[];
   tasks: Task[];
   approvals: JobApprovalStep[];
@@ -309,6 +316,7 @@ export interface AuthUser {
   role: string;
   tenantId: string;
   tenantName: string;
+  departmentId: string;
 }
 
 export interface AuthSession {

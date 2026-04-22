@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CityCommunicationCenter.Application\CityCommunicationCenter.Application.csproj" />
-    <ProjectReference Include="..\CityCommunicationCenter.Infrastructure\CityCommunicationCenter.Infrastructure.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Application/CityCommunicationCenter.Application.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Infrastructure/CityCommunicationCenter.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

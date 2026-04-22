@@ -38,6 +38,12 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
+[Bb]in\\[Dd]ebug/
+[Oo]bj\\[Dd]ebug/
+**/[Bb]in/
+**/[Oo]bj/
+[Dd]ebug/**/*.dll
+[Dd]ebug/**/*.pdb
 [Ll]og/
 [Ll]ogs/
 

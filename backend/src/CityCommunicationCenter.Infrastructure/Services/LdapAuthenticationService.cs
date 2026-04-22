@@ -199,7 +199,8 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 settings.SearchBase,
                 $"(|({settings.UserAttribute}=*{escapedQuery}*)(sAMAccountName=*{escapedQuery}*)(userPrincipalName=*{escapedQuery}*)(displayName=*{escapedQuery}*))",
                 SearchScope.Subtree,
-                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName", "department"]);
+                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
+                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
             var response = (SearchResponse)connection.SendRequest(request);
             return response.Entries
                 .Cast<SearchResultEntry>()
@@ -214,7 +215,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                         ?? GetAttribute(entry, "userPrincipalName")
                         ?? string.Empty,
                     GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
-                    ResolveDepartment(entry)))
+                    ResolveDepartment(entry),
+                    GetAttribute(entry, "description"),
+                    GetAttribute(entry, "telephoneNumber")))
                 .Where(entry => !string.IsNullOrWhiteSpace(entry.ExternalIdentityId))
                 .DistinctBy(entry => entry.ExternalIdentityId, StringComparer.OrdinalIgnoreCase)
                 .OrderBy(entry => entry.DisplayName)
@@ -245,7 +248,8 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 settings.SearchBase,
                 $"(distinguishedName={Escape(externalIdentityId.Trim())})",
                 SearchScope.Subtree,
-                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName", "department"]);
+                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
+                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
             var response = (SearchResponse)connection.SendRequest(request);
             if (response.Entries.Count == 0)
             {
@@ -264,7 +268,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? GetAttribute(entry, "userPrincipalName")
                     ?? externalIdentityId,
                 GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
-                ResolveDepartment(entry));
+                ResolveDepartment(entry),
+                GetAttribute(entry, "description"),
+                GetAttribute(entry, "telephoneNumber"));
         }
         catch (LdapException ex)
         {
@@ -291,7 +297,8 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 settings.SearchBase,
                 $"(|({settings.UserAttribute}={escapedUsername})(sAMAccountName={escapedUsername})(userPrincipalName={escapedUsername})(mail={escapedUsername}))",
                 SearchScope.Subtree,
-                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName", "department"]);
+                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
+                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
             var response = (SearchResponse)connection.SendRequest(request);
             if (response.Entries.Count == 0)
             {
@@ -310,7 +317,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? GetAttribute(entry, "userPrincipalName")
                     ?? username,
                 GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
-                ResolveDepartment(entry));
+                ResolveDepartment(entry),
+                GetAttribute(entry, "description"),
+                GetAttribute(entry, "telephoneNumber"));
         }
         catch (LdapException ex)
         {
@@ -383,7 +392,8 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 settings.SearchBase,
                 $"(|({settings.UserAttribute}={Escape(username)})(sAMAccountName={Escape(username)})(userPrincipalName={Escape(username)}))",
                 SearchScope.Subtree,
-                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName"]);
+                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
+                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
             var response = (SearchResponse)connection.SendRequest(request);
             if (response.Entries.Count == 0)
             {
@@ -398,7 +408,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? GetAttribute(entry, "mail")
                     ?? username,
                 GetAttribute(entry, "displayName") ?? username,
-                GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName") ?? NormalizeEmail(username));
+                GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName") ?? NormalizeEmail(username),
+                GetAttribute(entry, "description"),
+                GetAttribute(entry, "telephoneNumber"));
         }
         catch (LdapException ex)
         {
@@ -464,7 +476,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
     private static string? ResolveDepartment(SearchResultEntry entry)
     {
-        return GetAttribute(entry, "department") ?? ExtractDepartmentFromDn(GetAttribute(entry, "distinguishedName"));
+        return GetAttribute(entry, "physicalDeliveryOfficeName")
+            ?? GetAttribute(entry, "department")
+            ?? ExtractDepartmentFromDn(GetAttribute(entry, "distinguishedName"));
     }
 
     private int GetSearchResultLimit()

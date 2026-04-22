@@ -59,11 +59,11 @@ export const api = {
     return response.json() as Promise<Department>
   },
 
-  async updateDepartment(departmentId: string, name: string, departmentType: string): Promise<Department> {
+  async updateDepartment(departmentId: string, name: string, departmentType: string, managerUserId?: string | null): Promise<Department> {
     const response = await fetch(`${API_BASE}/departments/${departmentId}`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ name, departmentType }),
+      body: JSON.stringify({ name, departmentType, managerUserId: managerUserId ?? null }),
     })
 
     await ensureOk(response, i18n.t('errors.departmentUpdateFailed'))
@@ -449,42 +449,6 @@ export const api = {
     return response.json() as Promise<JobSummary>
   },
 
-  async approveJobOwner(jobId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}/approve-owner`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ comment }),
-    })
-    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
-  },
-
-  async rejectJobOwner(jobId: string, reason: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}/reject-owner`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ reason }),
-    })
-    await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
-  },
-
-  async approveJobTarget(jobId: string, departmentId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}/approve-target/${departmentId}`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ comment }),
-    })
-    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
-  },
-
-  async rejectJobTarget(jobId: string, departmentId: string, reason: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}/reject-target/${departmentId}`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ reason }),
-    })
-    await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
-  },
-
   async addSupportDepartment(jobId: string, departmentId: string, notes?: string): Promise<void> {
     const response = await fetch(`${API_BASE}/jobs/${jobId}/support`, {
       method: 'POST',
@@ -515,6 +479,20 @@ export const api = {
     const response = await fetch(`${API_BASE}/social/messages`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.socialMessagesLoadFailed'))
     return response.json() as Promise<SocialMessage[]>
+  },
+
+  async createSocialMessage(payload: {
+    channel: string
+    citizenHandle: string
+    content: string
+    category?: string
+  }): Promise<void> {
+    const response = await fetch(`${API_BASE}/social/messages`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.socialCreateFailed'))
   },
 
   async routeSocialMessage(socialMessageId: string, departmentId?: string): Promise<void> {

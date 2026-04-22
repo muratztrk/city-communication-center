@@ -58,6 +58,9 @@ public sealed class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand
         var actor = await TaskWorkflowAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, cancellationToken);
         var isSystemAdmin = TaskWorkflowAuthorization.IsSystemAdmin(actor);
 
+        var actorDept = await _dbContext.Departments.FirstOrDefaultAsync(d => d.TenantId == tenantId && d.DepartmentId == actor.DepartmentId, cancellationToken);
+        var ownerUserId = actorDept?.ManagerUserId;
+
         var assignedUserId = request.AssignedUserId;
         var assignedDepartmentId = request.AssignedDepartmentId;
         Guid? assigningManagerId = null;
@@ -114,6 +117,7 @@ public sealed class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand
             AssignedDepartmentId = assignedDepartmentId,
             AssignedUserId = assignedUserId,
             AssigningManagerId = assigningManagerId,
+            OwnerUserId = ownerUserId,
             CurrentStatus = initialStatus,
             Priority = request.Priority.Trim(),
             StartDateUtc = request.StartDateUtc,

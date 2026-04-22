@@ -110,6 +110,8 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
         var sourceType = Enum.Parse<UserSource>(request.SourceType, true);
         var externalIdentityId = string.IsNullOrWhiteSpace(request.ExternalIdentityId) ? null : request.ExternalIdentityId.Trim();
+        string? ldapTitle = null;
+        string? ldapPhone = null;
 
         if (sourceType == UserSource.Ldap)
         {
@@ -125,6 +127,8 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
             email = string.IsNullOrWhiteSpace(directoryUser.Email) ? null : directoryUser.Email.Trim();
             externalIdentityId = directoryUser.ExternalIdentityId;
             username = directoryUser.Username.Trim();
+            ldapTitle = string.IsNullOrWhiteSpace(directoryUser.Title) ? null : directoryUser.Title.Trim();
+            ldapPhone = string.IsNullOrWhiteSpace(directoryUser.Phone) ? null : directoryUser.Phone.Trim();
         }
 
         var departmentId = request.DepartmentId;
@@ -233,6 +237,8 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
             RoleCode = roleCode,
             UserSource = sourceType,
             IsActive = request.IsActive,
+            Title = ldapTitle,
+            Phone = ldapPhone,
             CreatedByUserId = context.UserId,
         };
 
@@ -253,6 +259,8 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
             user.Email,
             user.RoleCode.ToString(),
             user.IsActive,
-            sourceType.ToString());
+            sourceType.ToString(),
+            user.Title,
+            user.Phone);
     }
 }

@@ -14,6 +14,7 @@ COPY ["src/CityCommunicationCenter.Domain/CityCommunicationCenter.Domain.csproj"
 COPY ["src/CityCommunicationCenter.Shared/CityCommunicationCenter.Shared.csproj", "CityCommunicationCenter.Shared/"]
 RUN dotnet restore "CityCommunicationCenter.Api/CityCommunicationCenter.Api.csproj"
 COPY src/ .
+RUN find /src -type d -name '*\\*' -prune -exec rm -rf {} +
 WORKDIR "/src/CityCommunicationCenter.Api"
 RUN dotnet build "CityCommunicationCenter.Api.csproj" -c Release -o /app/build
 

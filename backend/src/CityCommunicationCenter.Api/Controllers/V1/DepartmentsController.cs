@@ -51,7 +51,7 @@ public sealed class DepartmentsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var response = await _sender.Send(
-            new UpdateDepartmentCommand(departmentId, request.Name, request.DepartmentType),
+            new UpdateDepartmentCommand(departmentId, request.Name, request.DepartmentType, request.ManagerUserId),
             cancellationToken);
 
         return Ok(response);

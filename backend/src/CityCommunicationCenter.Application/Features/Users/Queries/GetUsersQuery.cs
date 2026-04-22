@@ -29,7 +29,9 @@ public sealed class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IReadO
                 entity.Email,
                 entity.RoleCode.ToString(),
                 entity.IsActive,
-                entity.UserSource.ToString()))
+                entity.UserSource.ToString(),
+                entity.Title,
+                entity.Phone))
             .ToListAsync(cancellationToken);
     }
 }

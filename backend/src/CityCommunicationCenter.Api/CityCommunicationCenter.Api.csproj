@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CityCommunicationCenter.Application\CityCommunicationCenter.Application.csproj" />
-    <ProjectReference Include="..\CityCommunicationCenter.Infrastructure\CityCommunicationCenter.Infrastructure.csproj" />
-    <ProjectReference Include="..\CityCommunicationCenter.Shared\CityCommunicationCenter.Shared.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Application/CityCommunicationCenter.Application.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Infrastructure/CityCommunicationCenter.Infrastructure.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Shared/CityCommunicationCenter.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

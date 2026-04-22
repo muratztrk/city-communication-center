@@ -39,7 +39,10 @@ public sealed record TaskSummaryResponse(
     DateTimeOffset? DueDateUtc,
     int? CompletionPercentage,
     decimal? EstimatedHours,
-    decimal? ActualHours);
+    decimal? ActualHours,
+    string? CreatedByDisplayName,
+    DateTimeOffset CreatedAtUtc,
+    string? OwnerDisplayName);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,
@@ -79,5 +82,8 @@ public sealed record TaskDetailResponse(
     decimal? ActualHours,
     string? Notes,
     string? RevisionReason,
+    string? CreatedByDisplayName,
+    DateTimeOffset CreatedAtUtc,
     IReadOnlyCollection<ApprovalStepResponse> Approvals,
-    IReadOnlyCollection<AssignmentHistoryResponse> AssignmentHistory);
+    IReadOnlyCollection<AssignmentHistoryResponse> AssignmentHistory,
+    string? OwnerDisplayName);

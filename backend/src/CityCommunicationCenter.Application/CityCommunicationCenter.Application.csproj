@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\CityCommunicationCenter.Domain\CityCommunicationCenter.Domain.csproj" />
-    <ProjectReference Include="..\CityCommunicationCenter.Shared\CityCommunicationCenter.Shared.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Domain/CityCommunicationCenter.Domain.csproj" />
+    <ProjectReference Include="../CityCommunicationCenter.Shared/CityCommunicationCenter.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

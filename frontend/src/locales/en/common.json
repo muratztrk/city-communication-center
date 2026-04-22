@@ -84,7 +84,8 @@
     "projectCreateFailed": "Failed to create project.",
     "projectApproveFailed": "Failed to approve project.",
     "projectRejectFailed": "Failed to reject project.",
-    "projectUpdateFailed": "Failed to update project."
+    "projectUpdateFailed": "Failed to update project.",
+    "socialCreateFailed": "Failed to create citizen request."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -398,7 +399,8 @@
     "tabs": {
       "organization": "Organization",
       "social": "Social Media",
-      "routing": "Auto Routing"
+      "routing": "Auto Routing",
+      "citizen": "Citizen Requests"
     },
     "organizationName": "Organization Name",
     "domain": "Domain",
@@ -554,6 +556,29 @@
       "updated": "Rule updated",
       "deleted": "Rule deleted",
       "deleteConfirm": "Are you sure you want to delete this rule?"
+    },
+    "citizen": {
+      "sectionTitle": "Create Citizen Request",
+      "sectionDescription": "Manually create a citizen request record. This is intended for requests received outside of social media integrations.",
+      "channel": "Channel",
+      "channelPlaceholder": "Select channel",
+      "citizenHandle": "Citizen / Sender",
+      "citizenHandlePlaceholder": "e.g. @username or full name",
+      "content": "Request Content",
+      "contentPlaceholder": "Enter the content of the citizen request...",
+      "category": "Category (optional)",
+      "categoryPlaceholder": "e.g. Infrastructure, Environment",
+      "submit": "Create Request",
+      "successMessage": "Citizen request created successfully.",
+      "channels": {
+        "Facebook": "Facebook",
+        "Instagram": "Instagram",
+        "X": "X (Twitter)",
+        "Email": "E-Mail",
+        "WebForm": "Web Form",
+        "WhatsApp": "WhatsApp",
+        "Other": "Other"
+      }
     }
   },
   "pwa": {

@@ -69,6 +69,12 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
             join assignedUser in _dbContext.Users.AsNoTracking()
                 on task.AssignedUserId equals assignedUser.UserId into assignedUsers
             from assignedUser in assignedUsers.DefaultIfEmpty()
+            join createdByUser in _dbContext.Users.AsNoTracking()
+                on task.CreatedByUserId equals createdByUser.UserId into createdByUsers
+            from createdByUser in createdByUsers.DefaultIfEmpty()
+            join ownerUser in _dbContext.Users.AsNoTracking()
+                on task.OwnerUserId equals ownerUser.UserId into ownerUsers
+            from ownerUser in ownerUsers.DefaultIfEmpty()
             orderby task.CreatedAtUtc descending
             select new TaskSummaryResponse(
                 task.TaskId,
@@ -85,7 +91,10 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
                 task.DueDateUtc,
                 task.CompletionPercentage,
                 task.EstimatedHours,
-                task.ActualHours))
+                task.ActualHours,
+                createdByUser != null ? createdByUser.DisplayName : null,
+                task.CreatedAtUtc,
+                ownerUser != null ? ownerUser.DisplayName : null))
             .ToListAsync(cancellationToken);
     }
 

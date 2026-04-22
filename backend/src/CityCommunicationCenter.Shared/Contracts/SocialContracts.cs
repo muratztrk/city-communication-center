@@ -15,6 +15,12 @@ public sealed record ConvertSocialMessageToJobRequest(
     string Priority,
     DateTimeOffset? DueDateUtc);
 
+public sealed record CreateSocialMessageRequest(
+    string Channel,
+    string CitizenHandle,
+    string Content,
+    string? Category);
+
 public sealed record SocialWebhookRequest(
     string ExternalMessageId,
     string CitizenHandle,

@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Social;
+using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
@@ -20,6 +21,28 @@ public sealed class SocialMessagesController : ApiControllerBase
     {
         var response = await _sender.Send(new GetSocialMessagesQuery(), cancellationToken);
         return Ok(response);
+    }
+
+    [HttpPost("")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateSocialMessageRequest request,
+        CancellationToken cancellationToken)
+    {
+        var channel = Enum.TryParse<SocialChannel>(request.Channel, ignoreCase: true, out var parsed)
+            ? parsed
+            : SocialChannel.Other;
+
+        var messageId = await _sender.Send(
+            new CreateSocialMessageCommand(
+                CurrentContext.UserId ?? Guid.Empty,
+                channel,
+                request.CitizenHandle,
+                request.Content,
+                request.Category),
+            cancellationToken);
+
+        return CreatedAtAction(nameof(GetById), new { messageId }, new { socialMessageId = messageId });
     }
 
     [HttpGet("{messageId:guid}")]

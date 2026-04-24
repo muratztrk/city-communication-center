@@ -517,6 +517,7 @@ export function UsersPage() {
               <tr>
                 <th>{t('users.username')}</th>
                 <th>{t('users.displayName')}</th>
+                <th>{t('users.jobTitle')}</th>
                 <th>{t('users.email')}</th>
                 <th>{t('users.department')}</th>
                 <th>{t('users.role')}</th>
@@ -531,6 +532,7 @@ export function UsersPage() {
                   <tr key={user.userId} className="bg-slate-50">
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
+                    <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
                     <td>{user.email || t('common.none')}</td>
                     <td>
                       <select className="field-select text-sm" value={editForm.departmentId} onChange={e => setEditForm(c => ({ ...c, departmentId: e.target.value }))}>
@@ -565,6 +567,7 @@ export function UsersPage() {
                   <tr key={user.userId}>
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
+                    <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
                     <td>{user.email || t('common.none')}</td>
                     <td>{getDepartmentName(user.departmentId)}</td>
                     <td><StatusPill tone={user.roleCode === 'SystemAdmin' ? 'danger' : user.roleCode === 'Manager' ? 'warning' : 'info'}>{getRoleLabel(t, user.roleCode)}</StatusPill></td>

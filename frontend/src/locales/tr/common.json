@@ -276,6 +276,7 @@
     "username": "Kullanıcı Adı",
     "usernamePlaceholder": "ornek.kullanici",
     "displayName": "Ad Soyad",
+    "jobTitle": "Ünvan",
     "displayNamePlaceholder": "Kullanıcı adı soyadı",
     "email": "E-posta",
     "emailPlaceholder": "ornek@belediye.gov.tr",

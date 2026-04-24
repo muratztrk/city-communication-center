@@ -276,6 +276,7 @@
     "username": "Username",
     "usernamePlaceholder": "example.user",
     "displayName": "Full Name",
+    "jobTitle": "Job Title",
     "displayNamePlaceholder": "User full name",
     "email": "Email",
     "emailPlaceholder": "example@municipality.gov.tr",

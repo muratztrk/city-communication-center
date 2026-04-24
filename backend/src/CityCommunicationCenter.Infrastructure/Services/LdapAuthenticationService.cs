@@ -58,11 +58,13 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         if (settings.MockUsers.Count > 0 && string.IsNullOrWhiteSpace(settings.Host))
         {
             var normalizedQuery = query.Trim();
+            var searchTerms = ExpandSearchTerms(normalizedQuery);
             IReadOnlyList<LdapDirectoryUser> results = settings.MockUsers
                 .Where(candidate =>
-                    candidate.Username.Contains(normalizedQuery, StringComparison.OrdinalIgnoreCase) ||
-                    candidate.DisplayName.Contains(normalizedQuery, StringComparison.OrdinalIgnoreCase) ||
-                    (candidate.Email?.Contains(normalizedQuery, StringComparison.OrdinalIgnoreCase) ?? false))
+                    searchTerms.Any(searchTerm =>
+                        candidate.Username.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        candidate.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        (candidate.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)))
                 .OrderBy(candidate => candidate.DisplayName)
                 .Take(GetSearchResultLimit())
                 .Select(candidate => new LdapDirectoryUser(
@@ -165,20 +167,72 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
     private IEnumerable<string> BuildBindUsernameCandidates(TenantLdapRuntimeSettings settings, string username)
     {
-        // If already has @ or \ — use as-is first, then no extra candidates
-        if (username.Contains('@', StringComparison.Ordinal) || username.Contains('\\', StringComparison.Ordinal))
+        var normalizedUsername = username.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedUsername))
         {
-            yield return username;
+            yield break;
+        }
+
+        // If already a DN/UPN/DOMAIN\username — use as-is first, then no extra candidates
+        if (LooksLikeDistinguishedName(normalizedUsername)
+            || normalizedUsername.Contains('@', StringComparison.Ordinal)
+            || normalizedUsername.Contains('\\', StringComparison.Ordinal))
+        {
+            yield return normalizedUsername;
             yield break;
         }
 
         if (!string.IsNullOrWhiteSpace(settings.Domain))
         {
-            yield return $"{username}@{settings.Domain}";   // UPN: user@domain
-            yield return $"{settings.Domain}\\{username}";  // NTLM: DOMAIN\user
+            yield return $"{normalizedUsername}@{settings.Domain}";   // UPN: user@domain
+            yield return $"{settings.Domain}\\{normalizedUsername}";  // NTLM: DOMAIN\user
         }
 
-        yield return username; // bare fallback
+        yield return normalizedUsername; // bare fallback
+    }
+
+    private static bool LooksLikeDistinguishedName(string value)
+    {
+        return value.Contains('=', StringComparison.Ordinal) && value.Contains(',', StringComparison.Ordinal);
+    }
+
+    private void BindWithServiceAccount(LdapConnection connection, TenantLdapRuntimeSettings settings, string logContext)
+    {
+        BindWithCandidateIdentities(connection, settings, settings.BindDn ?? string.Empty, settings.BindPassword, logContext);
+    }
+
+    private void BindWithCandidateIdentities(
+        LdapConnection connection,
+        TenantLdapRuntimeSettings settings,
+        string identity,
+        string? password,
+        string logContext)
+    {
+        LdapException? lastException = null;
+        var candidates = BuildBindUsernameCandidates(settings, identity)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        foreach (var candidate in candidates)
+        {
+            try
+            {
+                connection.Bind(new NetworkCredential(candidate, password));
+                return;
+            }
+            catch (LdapException ex)
+            {
+                lastException = ex;
+                _logger.LogDebug(ex, "LDAP bind failed with candidate '{Candidate}' ({Context})", candidate, logContext);
+            }
+        }
+
+        if (lastException is not null)
+        {
+            throw lastException;
+        }
+
+        throw new LdapException("No LDAP bind candidate available.");
     }
 
     private IReadOnlyList<LdapDirectoryUser> SearchUsersInternal(TenantLdapRuntimeSettings settings, string query)
@@ -193,19 +247,19 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
         try
         {
-            connection.Bind(new NetworkCredential(settings.BindDn, settings.BindPassword));
-            var escapedQuery = Escape(query.Trim());
+            BindWithServiceAccount(connection, settings, "directory search");
+            var searchTerms = ExpandSearchTerms(query.Trim());
             var request = new SearchRequest(
                 settings.SearchBase,
-                $"(|({settings.UserAttribute}=*{escapedQuery}*)(sAMAccountName=*{escapedQuery}*)(userPrincipalName=*{escapedQuery}*)(displayName=*{escapedQuery}*))",
+                BuildDirectorySearchFilter(settings.UserAttribute, searchTerms),
                 SearchScope.Subtree,
                 ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
-                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
+                 "cn", "givenName", "sn", "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
             var response = (SearchResponse)connection.SendRequest(request);
             return response.Entries
                 .Cast<SearchResultEntry>()
                 .Select(entry => new LdapDirectoryUser(
-                    GetAttribute(entry, "distinguishedName") ?? string.Empty,
+                    GetDistinguishedName(entry) ?? string.Empty,
                     GetAttribute(entry, "sAMAccountName")
                         ?? GetAttribute(entry, "userPrincipalName")
                         ?? GetAttribute(entry, "mail")
@@ -243,7 +297,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
         try
         {
-            connection.Bind(new NetworkCredential(settings.BindDn, settings.BindPassword));
+            BindWithServiceAccount(connection, settings, "find user by external identity");
             var request = new SearchRequest(
                 settings.SearchBase,
                 $"(distinguishedName={Escape(externalIdentityId.Trim())})",
@@ -258,7 +312,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
             var entry = response.Entries[0];
             return new LdapDirectoryUser(
-                GetAttribute(entry, "distinguishedName") ?? externalIdentityId,
+                GetDistinguishedName(entry) ?? externalIdentityId,
                 GetAttribute(entry, "sAMAccountName")
                     ?? GetAttribute(entry, "userPrincipalName")
                     ?? GetAttribute(entry, "mail")
@@ -291,7 +345,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
         try
         {
-            connection.Bind(new NetworkCredential(settings.BindDn, settings.BindPassword));
+            BindWithServiceAccount(connection, settings, "find user by username");
             var escapedUsername = Escape(username.Trim());
             var request = new SearchRequest(
                 settings.SearchBase,
@@ -307,7 +361,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
             var entry = response.Entries[0];
             return new LdapDirectoryUser(
-                GetAttribute(entry, "distinguishedName") ?? username,
+                GetDistinguishedName(entry) ?? username,
                 GetAttribute(entry, "sAMAccountName")
                     ?? GetAttribute(entry, "userPrincipalName")
                     ?? GetAttribute(entry, "mail")
@@ -360,7 +414,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
         try
         {
-            connection.Bind(new NetworkCredential(settings.BindDn, settings.BindPassword));
+            BindWithServiceAccount(connection, settings, "resolve user distinguished name");
             var request = new SearchRequest(
                 settings.SearchBase,
                 $"(|({settings.UserAttribute}={Escape(username)})(sAMAccountName={Escape(username)})(userPrincipalName={Escape(username)}))",
@@ -387,7 +441,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
         try
         {
-            connection.Bind(new NetworkCredential(settings.BindDn, settings.BindPassword));
+            BindWithServiceAccount(connection, settings, "resolve user profile");
             var request = new SearchRequest(
                 settings.SearchBase,
                 $"(|({settings.UserAttribute}={Escape(username)})(sAMAccountName={Escape(username)})(userPrincipalName={Escape(username)}))",
@@ -402,7 +456,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
             var entry = response.Entries[0];
             return new LdapAuthenticatedUser(
-                GetAttribute(entry, "distinguishedName") ?? username,
+                GetDistinguishedName(entry) ?? username,
                 GetAttribute(entry, "sAMAccountName")
                     ?? GetAttribute(entry, "userPrincipalName")
                     ?? GetAttribute(entry, "mail")
@@ -417,6 +471,136 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             _logger.LogWarning(ex, "LDAP profile search failed for username");
             return null;
         }
+    }
+
+    private static string BuildDirectorySearchFilter(string userAttribute, IReadOnlyList<string> searchTerms)
+    {
+        if (searchTerms.Count == 0)
+        {
+            return "(objectClass=user)";
+        }
+
+        return $"(|{string.Concat(searchTerms.Select(BuildFilterForTerm))})";
+
+        string BuildFilterForTerm(string term)
+        {
+            var escaped = Escape(term);
+            return $"(|({userAttribute}=*{escaped}*)(sAMAccountName=*{escaped}*)(userPrincipalName=*{escaped}*)(displayName=*{escaped}*)(cn=*{escaped}*)(givenName=*{escaped}*)(sn=*{escaped}*)(mail=*{escaped}*))";
+        }
+    }
+
+    private static IReadOnlyList<string> ExpandSearchTerms(string query)
+    {
+        const int maxVariants = 16;
+
+        var terms = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        void AddTerm(string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value) && seen.Add(value))
+            {
+                terms.Add(value);
+            }
+        }
+
+        AddTerm(query);
+
+        var variants = new List<string> { string.Empty };
+        foreach (var character in query)
+        {
+            var alternatives = GetSearchCharacterAlternatives(character);
+            var next = new List<string>(Math.Min(maxVariants, variants.Count * alternatives.Length));
+
+            foreach (var prefix in variants)
+            {
+                foreach (var alternative in alternatives)
+                {
+                    if (next.Count >= maxVariants)
+                    {
+                        break;
+                    }
+
+                    next.Add($"{prefix}{alternative}");
+                }
+
+                if (next.Count >= maxVariants)
+                {
+                    break;
+                }
+            }
+
+            variants = next;
+            if (variants.Count == 0)
+            {
+                break;
+            }
+        }
+
+        foreach (var variant in variants)
+        {
+            AddTerm(variant);
+        }
+
+        AddTerm(NormalizeTurkishCharacters(query));
+        return terms;
+    }
+
+    private static char[] GetSearchCharacterAlternatives(char character)
+    {
+        return character switch
+        {
+            'c' => ['c', 'ç'],
+            'ç' => ['ç', 'c'],
+            'C' => ['C', 'Ç'],
+            'Ç' => ['Ç', 'C'],
+            'g' => ['g', 'ğ'],
+            'ğ' => ['ğ', 'g'],
+            'G' => ['G', 'Ğ'],
+            'Ğ' => ['Ğ', 'G'],
+            'i' => ['i', 'ı'],
+            'ı' => ['ı', 'i'],
+            'I' => ['I', 'İ'],
+            'İ' => ['İ', 'I'],
+            'o' => ['o', 'ö'],
+            'ö' => ['ö', 'o'],
+            'O' => ['O', 'Ö'],
+            'Ö' => ['Ö', 'O'],
+            's' => ['s', 'ş'],
+            'ş' => ['ş', 's'],
+            'S' => ['S', 'Ş'],
+            'Ş' => ['Ş', 'S'],
+            'u' => ['u', 'ü'],
+            'ü' => ['ü', 'u'],
+            'U' => ['U', 'Ü'],
+            'Ü' => ['Ü', 'U'],
+            _ => [character],
+        };
+    }
+
+    private static string NormalizeTurkishCharacters(string value)
+    {
+        return new string(value.Select(MapTurkishCharacter).ToArray());
+    }
+
+    private static char MapTurkishCharacter(char character)
+    {
+        return character switch
+        {
+            'ç' => 'c',
+            'Ç' => 'C',
+            'ğ' => 'g',
+            'Ğ' => 'G',
+            'ı' => 'i',
+            'İ' => 'I',
+            'ö' => 'o',
+            'Ö' => 'O',
+            'ş' => 's',
+            'Ş' => 'S',
+            'ü' => 'u',
+            'Ü' => 'U',
+            _ => character,
+        };
     }
 
     private static string Escape(string value)
@@ -434,6 +618,13 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         return entry.Attributes.Contains(name) && entry.Attributes[name]?.Count > 0
             ? entry.Attributes[name]?[0]?.ToString()
             : null;
+    }
+
+    private static string? GetDistinguishedName(SearchResultEntry entry)
+    {
+        return !string.IsNullOrWhiteSpace(entry.DistinguishedName)
+            ? entry.DistinguishedName
+            : GetAttribute(entry, "distinguishedName");
     }
 
     private static string? NormalizeEmail(string username)
@@ -478,7 +669,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
     {
         return GetAttribute(entry, "physicalDeliveryOfficeName")
             ?? GetAttribute(entry, "department")
-            ?? ExtractDepartmentFromDn(GetAttribute(entry, "distinguishedName"));
+            ?? ExtractDepartmentFromDn(GetDistinguishedName(entry));
     }
 
     private int GetSearchResultLimit()
@@ -518,17 +709,18 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
             using var connection = CreateConnection(settings, identifier);
 
-            if (!string.IsNullOrWhiteSpace(parameters.BindDn) && !string.IsNullOrWhiteSpace(parameters.BindPassword))
+            if (!string.IsNullOrWhiteSpace(parameters.BindDn) || !string.IsNullOrWhiteSpace(parameters.BindPassword))
             {
-                connection.Bind(new NetworkCredential(parameters.BindDn, parameters.BindPassword));
-            }
-            else if (!string.IsNullOrWhiteSpace(parameters.Domain))
-            {
-                connection.Bind(new NetworkCredential(parameters.BindDn ?? string.Empty, parameters.BindPassword ?? string.Empty, parameters.Domain));
+                BindWithCandidateIdentities(
+                    connection,
+                    settings,
+                    parameters.BindDn ?? string.Empty,
+                    parameters.BindPassword,
+                    "connectivity test");
             }
             else
             {
-                connection.Bind(new NetworkCredential(parameters.BindDn ?? string.Empty, parameters.BindPassword ?? string.Empty));
+                connection.Bind();
             }
 
             return new LdapConnectivityResult(true, "Connection successful.");

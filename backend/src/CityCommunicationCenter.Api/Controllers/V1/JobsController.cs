@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Jobs;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -7,9 +6,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [TenantRequired]
 public sealed class JobsController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public JobsController(ISender sender) { _sender = sender; }
+    public JobsController(IMediator sender) { _sender = sender; }
 
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<JobSummaryResponse>>> GetAll([FromQuery] string? scope, CancellationToken cancellationToken)

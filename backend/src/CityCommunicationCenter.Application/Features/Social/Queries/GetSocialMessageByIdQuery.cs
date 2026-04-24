@@ -3,18 +3,25 @@ namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record GetSocialMessageByIdQuery(Guid MessageId) : IQuery<SocialMessageDetailResponse?>;
 
-public sealed class GetSocialMessageByIdQueryHandler : IRequestHandler<GetSocialMessageByIdQuery, SocialMessageDetailResponse?>
+public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMessageByIdQuery, SocialMessageDetailResponse?>
 {
     private readonly IApplicationDbContext _dbContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
 
-    public GetSocialMessageByIdQueryHandler(IApplicationDbContext dbContext)
+    public GetSocialMessageByIdQueryHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
     {
         _dbContext = dbContext;
+        _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<SocialMessageDetailResponse?> Handle(GetSocialMessageByIdQuery request, CancellationToken cancellationToken)
+    public async ValueTask<SocialMessageDetailResponse?> Handle(GetSocialMessageByIdQuery request, CancellationToken cancellationToken)
     {
-        var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(entity => entity.SocialMessageId == request.MessageId, cancellationToken);
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var message = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                entity => entity.SocialMessageId == request.MessageId && entity.TenantId == tenantId,
+                cancellationToken);
         if (message is null)
         {
             return null;

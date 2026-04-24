@@ -19,11 +19,11 @@ public sealed class PublishWorkflowCommandValidator : AbstractValidator<PublishW
     }
 }
 
-public sealed class PublishWorkflowCommandHandler : IRequestHandler<PublishWorkflowCommand, PublishWorkflowAcceptedResponse>
+public sealed class PublishWorkflowCommandHandler : ICommandHandler<PublishWorkflowCommand, PublishWorkflowAcceptedResponse>
 {
-    public Task<PublishWorkflowAcceptedResponse> Handle(PublishWorkflowCommand request, CancellationToken cancellationToken)
+    public ValueTask<PublishWorkflowAcceptedResponse> Handle(PublishWorkflowCommand request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(new PublishWorkflowAcceptedResponse(
+        return ValueTask.FromResult(new PublishWorkflowAcceptedResponse(
             "Workflow yayinlama istegi kabul edildi.",
             request.WorkflowName.Trim(),
             request.Version,

@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Reports;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -7,9 +6,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [TenantRequired]
 public sealed class ReportsController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public ReportsController(ISender sender)
+    public ReportsController(IMediator sender)
     {
         _sender = sender;
     }

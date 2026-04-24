@@ -18,7 +18,7 @@ public sealed class UpdateRoutingRuleCommandValidator : AbstractValidator<Update
     }
 }
 
-public sealed class UpdateRoutingRuleCommandHandler : IRequestHandler<UpdateRoutingRuleCommand, bool>
+public sealed class UpdateRoutingRuleCommandHandler : ICommandHandler<UpdateRoutingRuleCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -27,7 +27,7 @@ public sealed class UpdateRoutingRuleCommandHandler : IRequestHandler<UpdateRout
         _dbContext = dbContext;
     }
 
-    public async Task<bool> Handle(UpdateRoutingRuleCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(UpdateRoutingRuleCommand request, CancellationToken cancellationToken)
     {
         var existing = await _dbContext.RoutingRules.FirstOrDefaultAsync(entity => entity.RuleId == request.RuleId, cancellationToken);
         if (existing is null)

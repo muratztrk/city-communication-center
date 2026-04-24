@@ -4,9 +4,9 @@ namespace CityCommunicationCenter.Application.Features.Auth;
 
 public sealed record GetAuthenticatedUserProfileQuery(ClaimsPrincipal Principal) : IQuery<AuthenticatedUserProfileResponse>;
 
-public sealed class GetAuthenticatedUserProfileQueryHandler : IRequestHandler<GetAuthenticatedUserProfileQuery, AuthenticatedUserProfileResponse>
+public sealed class GetAuthenticatedUserProfileQueryHandler : IQueryHandler<GetAuthenticatedUserProfileQuery, AuthenticatedUserProfileResponse>
 {
-    public Task<AuthenticatedUserProfileResponse> Handle(GetAuthenticatedUserProfileQuery request, CancellationToken cancellationToken)
+    public ValueTask<AuthenticatedUserProfileResponse> Handle(GetAuthenticatedUserProfileQuery request, CancellationToken cancellationToken)
     {
         var principal = request.Principal;
         var response = new AuthenticatedUserProfileResponse(
@@ -17,6 +17,6 @@ public sealed class GetAuthenticatedUserProfileQueryHandler : IRequestHandler<Ge
             principal.FindFirst("tenant_id")?.Value,
             principal.FindFirst("department_id")?.Value);
 
-        return Task.FromResult(response);
+        return ValueTask.FromResult(response);
     }
 }

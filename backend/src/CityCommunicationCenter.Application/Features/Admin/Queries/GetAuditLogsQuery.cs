@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 
 public sealed record GetAuditLogsQuery(Guid TenantId) : IQuery<IReadOnlyList<AuditLogResponse>>;
 
-public sealed class GetAuditLogsQueryHandler : IRequestHandler<GetAuditLogsQuery, IReadOnlyList<AuditLogResponse>>
+public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, IReadOnlyList<AuditLogResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -11,7 +11,7 @@ public sealed class GetAuditLogsQueryHandler : IRequestHandler<GetAuditLogsQuery
         _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<AuditLogResponse>> Handle(GetAuditLogsQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<AuditLogResponse>> Handle(GetAuditLogsQuery request, CancellationToken cancellationToken)
     {
         return await _dbContext.AuditLogs
             .OrderByDescending(entity => entity.EventTimeUtc)

@@ -1,10 +1,8 @@
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
-
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record GetSocialSettingsStatusQuery() : IQuery<SocialSettingsStatusResponse>;
 
-public sealed class GetSocialSettingsStatusQueryHandler : IRequestHandler<GetSocialSettingsStatusQuery, SocialSettingsStatusResponse>
+public sealed class GetSocialSettingsStatusQueryHandler : IQueryHandler<GetSocialSettingsStatusQuery, SocialSettingsStatusResponse>
 {
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,12 +13,12 @@ public sealed class GetSocialSettingsStatusQueryHandler : IRequestHandler<GetSoc
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public Task<SocialSettingsStatusResponse> Handle(GetSocialSettingsStatusQuery request, CancellationToken cancellationToken)
+    public ValueTask<SocialSettingsStatusResponse> Handle(GetSocialSettingsStatusQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var settings = _settingsProvider.GetSettings(tenantId);
 
-        return Task.FromResult(new SocialSettingsStatusResponse(
+        return ValueTask.FromResult(new SocialSettingsStatusResponse(
             new SocialChannelStatusResponse(
                 !string.IsNullOrEmpty(settings?.X?.BearerToken),
                 !string.IsNullOrEmpty(settings?.X?.ApiKey),

@@ -6,7 +6,7 @@ global using CityCommunicationCenter.Api.Security;
 global using CityCommunicationCenter.Application.Abstractions;
 global using CityCommunicationCenter.Application.Abstractions.Identity;
 global using CityCommunicationCenter.Shared.Contracts;
-global using MediatR;
+global using Mediator;
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;

@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record UpdateTaskProgressCommand(Guid TaskId, Guid? ActorUserId, int? CompletionPercentage, decimal? ActualHours, string? Notes) : ICommand<bool>;
 
-public sealed class UpdateTaskProgressCommandHandler : IRequestHandler<UpdateTaskProgressCommand, bool>
+public sealed class UpdateTaskProgressCommandHandler : ICommandHandler<UpdateTaskProgressCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,13 +15,14 @@ public sealed class UpdateTaskProgressCommandHandler : IRequestHandler<UpdateTas
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(UpdateTaskProgressCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(UpdateTaskProgressCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
-        await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
 
         if (task.CurrentStatus is WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled)
         {
@@ -49,7 +50,7 @@ public sealed class UpdateTaskProgressCommandHandler : IRequestHandler<UpdateTas
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskProgressUpdated",

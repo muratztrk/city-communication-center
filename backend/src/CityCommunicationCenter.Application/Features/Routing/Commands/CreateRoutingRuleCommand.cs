@@ -18,7 +18,7 @@ public sealed class CreateRoutingRuleCommandValidator : AbstractValidator<Create
     }
 }
 
-public sealed class CreateRoutingRuleCommandHandler : IRequestHandler<CreateRoutingRuleCommand, RoutingRuleResponse>
+public sealed class CreateRoutingRuleCommandHandler : ICommandHandler<CreateRoutingRuleCommand, RoutingRuleResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -29,9 +29,9 @@ public sealed class CreateRoutingRuleCommandHandler : IRequestHandler<CreateRout
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<RoutingRuleResponse> Handle(CreateRoutingRuleCommand request, CancellationToken cancellationToken)
+    public async ValueTask<RoutingRuleResponse> Handle(CreateRoutingRuleCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var rule = new RoutingRule
         {
             RuleId = Guid.NewGuid(),

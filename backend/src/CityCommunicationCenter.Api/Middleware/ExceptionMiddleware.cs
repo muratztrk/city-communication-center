@@ -1,5 +1,4 @@
 using System.Text.Encodings.Web;
-using System.Text.Json;
 using CityCommunicationCenter.Application.Common.Exceptions;
 using FluentValidation;
 using Microsoft.Extensions.Localization;

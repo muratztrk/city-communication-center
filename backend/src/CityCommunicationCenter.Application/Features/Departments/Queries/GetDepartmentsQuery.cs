@@ -2,21 +2,26 @@
 
 namespace CityCommunicationCenter.Application.Features.Departments;
 
-public sealed record GetDepartmentsQuery(Guid TenantId) : IQuery<IReadOnlyList<DepartmentResponse>>;
+public sealed record GetDepartmentsQuery() : IQuery<IReadOnlyList<DepartmentResponse>>;
 
-public sealed class GetDepartmentsQueryHandler : IRequestHandler<GetDepartmentsQuery, IReadOnlyList<DepartmentResponse>>
+public sealed class GetDepartmentsQueryHandler : IQueryHandler<GetDepartmentsQuery, IReadOnlyList<DepartmentResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
 
-    public GetDepartmentsQueryHandler(IApplicationDbContext dbContext)
+    public GetDepartmentsQueryHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
     {
         _dbContext = dbContext;
+        _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<IReadOnlyList<DepartmentResponse>> Handle(GetDepartmentsQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<DepartmentResponse>> Handle(GetDepartmentsQuery request, CancellationToken cancellationToken)
     {
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+
         return await _dbContext.Departments
-            .Where(department => department.TenantId == request.TenantId)
+            .AsNoTracking()
+            .Where(department => department.TenantId == tenantId)
             .OrderBy(department => department.Name)
             .Select(department => new DepartmentResponse(
                 department.DepartmentId,

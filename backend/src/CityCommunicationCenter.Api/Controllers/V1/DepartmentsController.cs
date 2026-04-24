@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Departments;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -8,9 +7,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [TenantRequired]
 public sealed class DepartmentsController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public DepartmentsController(ISender sender)
+    public DepartmentsController(IMediator sender)
     {
         _sender = sender;
     }
@@ -19,7 +18,7 @@ public sealed class DepartmentsController : ApiControllerBase
     [ProducesResponseType<IEnumerable<DepartmentResponse>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<DepartmentResponse>>> GetAll(CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetDepartmentsQuery(RequiredTenantId), cancellationToken);
+        var response = await _sender.Send(new GetDepartmentsQuery(), cancellationToken);
 
         return Ok(response);
     }

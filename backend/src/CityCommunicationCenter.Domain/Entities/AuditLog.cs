@@ -1,5 +1,3 @@
-using CityCommunicationCenter.Domain.Common;
-
 namespace CityCommunicationCenter.Domain.Entities;
 
 public sealed class AuditLog : AuditableTenantEntity, IHasDatabaseIndexDefinitions

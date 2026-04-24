@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Users;
 
 public sealed record SearchUsersQuery(string? Query, Guid? DepartmentId) : IQuery<IReadOnlyList<UserLookupResponse>>;
 
-public sealed class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, IReadOnlyList<UserLookupResponse>>
+public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IReadOnlyList<UserLookupResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -13,9 +13,9 @@ public sealed class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, 
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<IReadOnlyList<UserLookupResponse>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<UserLookupResponse>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var normalizedQuery = request.Query?.Trim();
         var normalizedQueryUpper = normalizedQuery?.ToUpperInvariant();
 

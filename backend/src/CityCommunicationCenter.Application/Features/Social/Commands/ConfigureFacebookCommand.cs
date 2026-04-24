@@ -1,10 +1,8 @@
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
-
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record ConfigureFacebookCommand(FacebookSettingsRequest Request) : ICommand<SocialSettingsSaveResponse>;
 
-public sealed class ConfigureFacebookCommandHandler : IRequestHandler<ConfigureFacebookCommand, SocialSettingsSaveResponse>
+public sealed class ConfigureFacebookCommandHandler : ICommandHandler<ConfigureFacebookCommand, SocialSettingsSaveResponse>
 {
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,9 +13,9 @@ public sealed class ConfigureFacebookCommandHandler : IRequestHandler<ConfigureF
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<SocialSettingsSaveResponse> Handle(ConfigureFacebookCommand request, CancellationToken cancellationToken)
+    public async ValueTask<SocialSettingsSaveResponse> Handle(ConfigureFacebookCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var settings = _settingsProvider.GetSettings(tenantId) ?? new SocialMediaSettings();
         settings.Facebook = new FacebookSettings
         {

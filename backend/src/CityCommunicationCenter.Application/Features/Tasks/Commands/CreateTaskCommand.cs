@@ -26,7 +26,7 @@ public sealed class CreateTaskCommandValidator : AbstractValidator<CreateTaskCom
     }
 }
 
-public sealed class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskSummaryResponse>
+public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand, TaskSummaryResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -37,25 +37,22 @@ public sealed class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<TaskSummaryResponse> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
+    public async ValueTask<TaskSummaryResponse> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
 
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(entity => entity.JobId == request.JobId, cancellationToken)
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(
+                entity => entity.JobId == request.JobId && entity.TenantId == tenantId,
+                cancellationToken)
             ?? throw Validation(nameof(request.JobId), "Is bulunamadi.");
-
-        if (job.TenantId != tenantId)
-        {
-            throw Validation(nameof(request.JobId), "Is farkli bir kiracilifa ait.");
-        }
 
         if (job.Status != Domain.Enums.JobStatus.Active)
         {
             throw Validation(nameof(request.JobId), "Sadece aktif islere gorev eklenebilir.");
         }
 
-        var actor = await TaskWorkflowAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var actor = await TaskWorkflowAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         var isSystemAdmin = TaskWorkflowAuthorization.IsSystemAdmin(actor);
 
         var actorDept = await _dbContext.Departments.FirstOrDefaultAsync(d => d.TenantId == tenantId && d.DepartmentId == actor.DepartmentId, cancellationToken);

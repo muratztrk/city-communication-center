@@ -13,18 +13,24 @@ public sealed class CategorizeSocialMessageCommandValidator : AbstractValidator<
     }
 }
 
-public sealed class CategorizeSocialMessageCommandHandler : IRequestHandler<CategorizeSocialMessageCommand, bool>
+public sealed class CategorizeSocialMessageCommandHandler : ICommandHandler<CategorizeSocialMessageCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
 
-    public CategorizeSocialMessageCommandHandler(IApplicationDbContext dbContext)
+    public CategorizeSocialMessageCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
     {
         _dbContext = dbContext;
+        _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(CategorizeSocialMessageCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(CategorizeSocialMessageCommand request, CancellationToken cancellationToken)
     {
-        var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(entity => entity.SocialMessageId == request.MessageId, cancellationToken);
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var actor = await ActorAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
+        var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(
+            entity => entity.SocialMessageId == request.MessageId && entity.TenantId == tenantId,
+            cancellationToken);
         if (message is null)
         {
             return false;
@@ -33,7 +39,7 @@ public sealed class CategorizeSocialMessageCommandHandler : IRequestHandler<Cate
         message.Category = request.Category.Trim();
         message.Tags = string.Join(';', request.Tags);
         message.Status = SocialMessageStatus.Categorized;
-        message.UpdatedByUserId = request.ActorUserId;
+        message.UpdatedByUserId = actor.UserId;
         message.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record GetTasksQuery(string? Scope) : IQuery<IReadOnlyList<TaskSummaryResponse>>;
 
-public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadOnlyList<TaskSummaryResponse>>
+public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnlyList<TaskSummaryResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,20 +15,23 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<IReadOnlyList<TaskSummaryResponse>> Handle(GetTasksQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<TaskSummaryResponse>> Handle(GetTasksQuery request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
         var scope = TaskQueryScopeParser.Parse(request.Scope);
-        var actor = await ResolveActorAsync(scope, context.UserId, cancellationToken);
+        var actor = await ResolveActorAsync(scope, tenantId, context.UserId, cancellationToken);
         var managedDepartmentIds = actor?.RoleCode == RoleCode.Manager
             ? await _dbContext.Departments
                 .AsNoTracking()
-                .Where(entity => entity.ManagerUserId == actor.UserId)
+                .Where(entity => entity.TenantId == tenantId && entity.ManagerUserId == actor.UserId)
                 .Select(entity => entity.DepartmentId)
                 .ToArrayAsync(cancellationToken)
             : [];
 
-        IQueryable<WorkTask> tasks = _dbContext.Tasks.AsNoTracking();
+        IQueryable<WorkTask> tasks = _dbContext.Tasks
+            .AsNoTracking()
+            .Where(entity => entity.TenantId == tenantId);
 
         tasks = scope switch
         {
@@ -58,48 +61,53 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
             _ => tasks
         };
 
-        return await (
-            from task in tasks
-            join job in _dbContext.Jobs.AsNoTracking()
-                on task.JobId equals job.JobId into jobs
-            from job in jobs.DefaultIfEmpty()
-            join assignedDepartment in _dbContext.Departments.AsNoTracking()
-                on task.AssignedDepartmentId equals assignedDepartment.DepartmentId into assignedDepartments
-            from assignedDepartment in assignedDepartments.DefaultIfEmpty()
-            join assignedUser in _dbContext.Users.AsNoTracking()
-                on task.AssignedUserId equals assignedUser.UserId into assignedUsers
-            from assignedUser in assignedUsers.DefaultIfEmpty()
-            join createdByUser in _dbContext.Users.AsNoTracking()
-                on task.CreatedByUserId equals createdByUser.UserId into createdByUsers
-            from createdByUser in createdByUsers.DefaultIfEmpty()
-            join ownerUser in _dbContext.Users.AsNoTracking()
-                on task.OwnerUserId equals ownerUser.UserId into ownerUsers
-            from ownerUser in ownerUsers.DefaultIfEmpty()
-            orderby task.CreatedAtUtc descending
-            select new TaskSummaryResponse(
+        return await tasks
+            .OrderByDescending(task => task.CreatedAtUtc)
+            .Select(task => new TaskSummaryResponse(
                 task.TaskId,
                 task.TenantId,
                 task.JobId,
-                job != null ? job.Title : null,
+                _dbContext.Jobs
+                    .AsNoTracking()
+                    .Where(job => job.JobId == task.JobId)
+                    .Select(job => (string?)job.Title)
+                    .FirstOrDefault(),
                 task.Title,
                 task.Priority,
                 task.CurrentStatus.ToString(),
                 task.AssignedDepartmentId,
-                assignedDepartment != null ? assignedDepartment.Name : null,
+                _dbContext.Departments
+                    .AsNoTracking()
+                    .Where(assignedDepartment => assignedDepartment.DepartmentId == task.AssignedDepartmentId)
+                    .Select(assignedDepartment => (string?)assignedDepartment.Name)
+                    .FirstOrDefault(),
                 task.AssignedUserId,
-                assignedUser != null ? assignedUser.DisplayName : null,
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(assignedUser => assignedUser.UserId == task.AssignedUserId)
+                    .Select(assignedUser => (string?)assignedUser.DisplayName)
+                    .FirstOrDefault(),
                 task.DueDateUtc,
                 task.CompletionPercentage,
                 task.EstimatedHours,
                 task.ActualHours,
-                createdByUser != null ? createdByUser.DisplayName : null,
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(createdByUser => createdByUser.UserId == task.CreatedByUserId)
+                    .Select(createdByUser => (string?)createdByUser.DisplayName)
+                    .FirstOrDefault(),
                 task.CreatedAtUtc,
-                ownerUser != null ? ownerUser.DisplayName : null))
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(ownerUser => ownerUser.UserId == task.OwnerUserId)
+                    .Select(ownerUser => (string?)ownerUser.DisplayName)
+                    .FirstOrDefault()))
             .ToListAsync(cancellationToken);
     }
 
     private async Task<ApplicationUser?> ResolveActorAsync(
         TaskQueryScope scope,
+        Guid tenantId,
         Guid? actorUserId,
         CancellationToken cancellationToken)
     {
@@ -110,7 +118,9 @@ public sealed class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadO
 
         return await _dbContext.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(entity => entity.UserId == actorUserId.Value && entity.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(
+                entity => entity.UserId == actorUserId.Value && entity.TenantId == tenantId && entity.IsActive,
+                cancellationToken);
     }
 }
 

@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record GetJobsQuery(string? Scope) : IQuery<IReadOnlyList<JobSummaryResponse>>;
 
-public sealed class GetJobsQueryHandler : IRequestHandler<GetJobsQuery, IReadOnlyList<JobSummaryResponse>>
+public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyList<JobSummaryResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -13,10 +13,10 @@ public sealed class GetJobsQueryHandler : IRequestHandler<GetJobsQuery, IReadOnl
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<IReadOnlyList<JobSummaryResponse>> Handle(GetJobsQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<JobSummaryResponse>> Handle(GetJobsQuery request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
         var userId = context.UserId;
 
         var scope = (request.Scope ?? "all").Trim().ToLowerInvariant();
@@ -24,7 +24,9 @@ public sealed class GetJobsQueryHandler : IRequestHandler<GetJobsQuery, IReadOnl
             ? await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userId.Value, cancellationToken)
             : null;
 
-        IQueryable<Job> q = _dbContext.Jobs.AsNoTracking();
+        IQueryable<Job> q = _dbContext.Jobs
+            .AsNoTracking()
+            .Where(j => j.TenantId == tenantId);
 
         if (scope == "mine" && userId.HasValue)
         {
@@ -41,16 +43,18 @@ public sealed class GetJobsQueryHandler : IRequestHandler<GetJobsQuery, IReadOnl
             q = q.Where(j => j.Status == JobStatus.Active);
         }
 
-        var rows = await (
-            from j in q
-            join d in _dbContext.Departments.AsNoTracking() on j.OwnerDepartmentId equals d.DepartmentId into dd
-            from d in dd.DefaultIfEmpty()
-            orderby j.CreatedAtUtc descending
-            select new
+        var rows = await q
+            .OrderByDescending(j => j.CreatedAtUtc)
+            .Select(j => new
             {
                 Job = j,
-                OwnerName = d != null ? d.Name : null,
-            }).ToListAsync(cancellationToken);
+                OwnerName = _dbContext.Departments
+                    .AsNoTracking()
+                    .Where(d => d.DepartmentId == j.OwnerDepartmentId)
+                    .Select(d => (string?)d.Name)
+                    .FirstOrDefault(),
+            })
+            .ToListAsync(cancellationToken);
 
         var jobIds = rows.Select(r => r.Job.JobId).ToArray();
         var counts = await _dbContext.Tasks
@@ -81,7 +85,7 @@ public sealed class GetJobsQueryHandler : IRequestHandler<GetJobsQuery, IReadOnl
 
 public sealed record GetJobByIdQuery(Guid JobId) : IQuery<JobDetailResponse?>;
 
-public sealed class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, JobDetailResponse?>
+public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobDetailResponse?>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -92,11 +96,13 @@ public sealed class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Jo
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<JobDetailResponse?> Handle(GetJobByIdQuery request, CancellationToken cancellationToken)
+    public async ValueTask<JobDetailResponse?> Handle(GetJobByIdQuery request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
-        var job = await _dbContext.Jobs.AsNoTracking().FirstOrDefaultAsync(j => j.JobId == request.JobId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var job = await _dbContext.Jobs
+            .AsNoTracking()
+            .FirstOrDefaultAsync(j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
         if (job is null) return null;
 
         var ownerName = await _dbContext.Departments.AsNoTracking()
@@ -111,14 +117,17 @@ public sealed class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Jo
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
-        var depts = await (
-            from jd in _dbContext.JobDepartments.AsNoTracking().Where(e => e.JobId == job.JobId)
-            join d in _dbContext.Departments.AsNoTracking() on jd.DepartmentId equals d.DepartmentId into dd
-            from d in dd.DefaultIfEmpty()
-            select new JobDepartmentResponse(
+        var depts = await _dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(jd => jd.JobId == job.JobId)
+            .Select(jd => new JobDepartmentResponse(
                 jd.JobDepartmentId,
                 jd.DepartmentId,
-                d != null ? d.Name : null,
+                _dbContext.Departments
+                    .AsNoTracking()
+                    .Where(d => d.DepartmentId == jd.DepartmentId)
+                    .Select(d => (string?)d.Name)
+                    .FirstOrDefault(),
                 jd.Role.ToString(),
                 jd.ApprovalStatus.ToString(),
                 jd.RequestedByUserId,
@@ -126,26 +135,47 @@ public sealed class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Jo
                 jd.RequestedAtUtc,
                 jd.DecidedAtUtc,
                 jd.RejectReason,
-                jd.Notes)).ToListAsync(cancellationToken);
+                jd.Notes))
+            .ToListAsync(cancellationToken);
 
-        var tasks = await (
-            from t in _dbContext.Tasks.AsNoTracking().Where(e => e.JobId == job.JobId)
-            join dep in _dbContext.Departments.AsNoTracking() on t.AssignedDepartmentId equals dep.DepartmentId into dd
-            from dep in dd.DefaultIfEmpty()
-            join u in _dbContext.Users.AsNoTracking() on t.AssignedUserId equals u.UserId into uu
-            from u in uu.DefaultIfEmpty()
-            join cu in _dbContext.Users.AsNoTracking() on t.CreatedByUserId equals cu.UserId into cuu
-            from cu in cuu.DefaultIfEmpty()
-            join ou in _dbContext.Users.AsNoTracking() on t.OwnerUserId equals ou.UserId into ouu
-            from ou in ouu.DefaultIfEmpty()
-            select new TaskSummaryResponse(
-                t.TaskId, t.TenantId, t.JobId, job.Title,
-                t.Title, t.Priority, t.CurrentStatus.ToString(),
-                t.AssignedDepartmentId, dep != null ? dep.Name : null,
-                t.AssignedUserId, u != null ? u.DisplayName : null,
-                t.DueDateUtc, t.CompletionPercentage, t.EstimatedHours, t.ActualHours,
-                cu != null ? cu.DisplayName : null, t.CreatedAtUtc,
-                ou != null ? ou.DisplayName : null))
+        var tasks = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(t => t.JobId == job.JobId)
+            .Select(t => new TaskSummaryResponse(
+                t.TaskId,
+                t.TenantId,
+                t.JobId,
+                job.Title,
+                t.Title,
+                t.Priority,
+                t.CurrentStatus.ToString(),
+                t.AssignedDepartmentId,
+                _dbContext.Departments
+                    .AsNoTracking()
+                    .Where(dep => dep.DepartmentId == t.AssignedDepartmentId)
+                    .Select(dep => (string?)dep.Name)
+                    .FirstOrDefault(),
+                t.AssignedUserId,
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => u.UserId == t.AssignedUserId)
+                    .Select(u => (string?)u.DisplayName)
+                    .FirstOrDefault(),
+                t.DueDateUtc,
+                t.CompletionPercentage,
+                t.EstimatedHours,
+                t.ActualHours,
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => u.UserId == t.CreatedByUserId)
+                    .Select(u => (string?)u.DisplayName)
+                    .FirstOrDefault(),
+                t.CreatedAtUtc,
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => u.UserId == t.OwnerUserId)
+                    .Select(u => (string?)u.DisplayName)
+                    .FirstOrDefault()))
             .ToListAsync(cancellationToken);
 
         var approvals = await _dbContext.Approvals.AsNoTracking()

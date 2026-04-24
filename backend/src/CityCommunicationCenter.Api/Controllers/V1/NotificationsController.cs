@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Notifications;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -7,9 +6,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [TenantRequired]
 public sealed class NotificationsController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public NotificationsController(ISender sender)
+    public NotificationsController(IMediator sender)
     {
         _sender = sender;
     }

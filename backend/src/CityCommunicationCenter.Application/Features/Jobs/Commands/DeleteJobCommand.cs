@@ -1,29 +1,27 @@
-using CityCommunicationCenter.Application.Abstractions;
-using CityCommunicationCenter.Domain.Entities;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record DeleteJobCommand(Guid JobId, Guid? ActorUserId) : ICommand<bool>;
 
-public sealed class DeleteJobCommandHandler : IRequestHandler<DeleteJobCommand, bool>
+public sealed class DeleteJobCommandHandler : ICommandHandler<DeleteJobCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
 
-    public DeleteJobCommandHandler(IApplicationDbContext dbContext)
+    public DeleteJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
     {
         _dbContext = dbContext;
+        _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(DeleteJobCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(DeleteJobCommand request, CancellationToken cancellationToken)
     {
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var job = await _dbContext.Jobs
-            .FirstOrDefaultAsync(j => j.JobId == request.JobId, cancellationToken);
+            .FirstOrDefaultAsync(j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
 
         if (job is null) return false;
 
-        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
 
         // Only SystemAdmin or the owner-department manager can delete
         if (actor.RoleCode is not Domain.Enums.RoleCode.SystemAdmin)

@@ -17,7 +17,7 @@ public sealed class SubscribePushCommandValidator : AbstractValidator<SubscribeP
     }
 }
 
-public sealed class SubscribePushCommandHandler : IRequestHandler<SubscribePushCommand, Guid>
+public sealed class SubscribePushCommandHandler : ICommandHandler<SubscribePushCommand, Guid>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -28,10 +28,10 @@ public sealed class SubscribePushCommandHandler : IRequestHandler<SubscribePushC
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<Guid> Handle(SubscribePushCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Guid> Handle(SubscribePushCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
 
         // Upsert: update existing subscription or create new
         var existing = await _dbContext.PushSubscriptions

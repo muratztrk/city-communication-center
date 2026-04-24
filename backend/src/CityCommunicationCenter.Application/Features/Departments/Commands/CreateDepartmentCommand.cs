@@ -20,7 +20,7 @@ public sealed class CreateDepartmentCommandValidator : AbstractValidator<CreateD
     }
 }
 
-public sealed class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, DepartmentResponse>
+public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepartmentCommand, DepartmentResponse>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -29,7 +29,7 @@ public sealed class CreateDepartmentCommandHandler : IRequestHandler<CreateDepar
         _dbContext = dbContext;
     }
 
-    public async Task<DepartmentResponse> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
+    public async ValueTask<DepartmentResponse> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
     {
         var entity = new Department
         {

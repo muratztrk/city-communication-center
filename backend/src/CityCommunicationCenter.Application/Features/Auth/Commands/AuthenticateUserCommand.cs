@@ -22,7 +22,7 @@ public sealed class AuthenticateUserCommandValidator : AbstractValidator<Authent
     }
 }
 
-public sealed class AuthenticateUserCommandHandler : IRequestHandler<AuthenticateUserCommand, AuthenticatedTokenPayload?>
+public sealed class AuthenticateUserCommandHandler : ICommandHandler<AuthenticateUserCommand, AuthenticatedTokenPayload?>
 {
     private readonly IUserAuthenticationService _userAuthenticationService;
 
@@ -31,7 +31,7 @@ public sealed class AuthenticateUserCommandHandler : IRequestHandler<Authenticat
         _userAuthenticationService = userAuthenticationService;
     }
 
-    public async Task<AuthenticatedTokenPayload?> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
+    public async ValueTask<AuthenticatedTokenPayload?> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(request.TenantId, out var tenantId))
         {

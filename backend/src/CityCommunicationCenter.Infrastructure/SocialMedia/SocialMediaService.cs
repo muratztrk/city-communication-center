@@ -1,8 +1,3 @@
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
-using CityCommunicationCenter.Domain.Enums;
-using CityCommunicationCenter.Infrastructure.Persistence;
-using Microsoft.Extensions.Logging;
-
 namespace CityCommunicationCenter.Infrastructure.SocialMedia;
 
 /// <summary>

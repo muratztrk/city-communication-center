@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Auth;
 
 public sealed record GetTenantsQuery() : IQuery<IReadOnlyList<TenantLookupResponse>>;
 
-public sealed class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, IReadOnlyList<TenantLookupResponse>>
+public sealed class GetTenantsQueryHandler : IQueryHandler<GetTenantsQuery, IReadOnlyList<TenantLookupResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -13,7 +13,7 @@ public sealed class GetTenantsQueryHandler : IRequestHandler<GetTenantsQuery, IR
         _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<TenantLookupResponse>> Handle(GetTenantsQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<TenantLookupResponse>> Handle(GetTenantsQuery request, CancellationToken cancellationToken)
     {
         return await _dbContext.Tenants
             .OrderBy(entity => entity.DisplayName)

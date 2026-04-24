@@ -27,7 +27,7 @@ public sealed class UpdateDepartmentCommandValidator : AbstractValidator<UpdateD
     }
 }
 
-public sealed class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCommand, DepartmentResponse>
+public sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDepartmentCommand, DepartmentResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -43,10 +43,10 @@ public sealed class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepar
         _localizer = localizer;
     }
 
-    public async Task<DepartmentResponse> Handle(UpdateDepartmentCommand request, CancellationToken cancellationToken)
+    public async ValueTask<DepartmentResponse> Handle(UpdateDepartmentCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
 
         var entity = await _dbContext.Departments
             .FirstOrDefaultAsync(

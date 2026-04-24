@@ -58,7 +58,7 @@ public sealed class UpdateTenantAuthenticationPolicyCommandValidator : AbstractV
     }
 }
 
-public sealed class UpdateTenantAuthenticationPolicyCommandHandler : IRequestHandler<UpdateTenantAuthenticationPolicyCommand, Unit>
+public sealed class UpdateTenantAuthenticationPolicyCommandHandler : ICommandHandler<UpdateTenantAuthenticationPolicyCommand, Unit>
 {
     private readonly ITenantAuthenticationPolicyService _tenantAuthenticationPolicyService;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -71,7 +71,7 @@ public sealed class UpdateTenantAuthenticationPolicyCommandHandler : IRequestHan
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<Unit> Handle(UpdateTenantAuthenticationPolicyCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(UpdateTenantAuthenticationPolicyCommand request, CancellationToken cancellationToken)
     {
         await _tenantAuthenticationPolicyService.SaveSettingsAsync(
             request.TenantId,

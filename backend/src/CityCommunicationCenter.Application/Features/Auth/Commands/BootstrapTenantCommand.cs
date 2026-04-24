@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Application.Abstractions.Identity;
 using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Auth;
@@ -44,7 +43,7 @@ public sealed class BootstrapTenantCommandValidator : AbstractValidator<Bootstra
     }
 }
 
-public sealed class BootstrapTenantCommandHandler : IRequestHandler<BootstrapTenantCommand, BootstrapTenantResponse?>
+public sealed class BootstrapTenantCommandHandler : ICommandHandler<BootstrapTenantCommand, BootstrapTenantResponse?>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly IAuthenticationModeProvider _authenticationModeProvider;
@@ -60,7 +59,7 @@ public sealed class BootstrapTenantCommandHandler : IRequestHandler<BootstrapTen
         _localUserPasswordService = localUserPasswordService;
     }
 
-    public async Task<BootstrapTenantResponse?> Handle(BootstrapTenantCommand request, CancellationToken cancellationToken)
+    public async ValueTask<BootstrapTenantResponse?> Handle(BootstrapTenantCommand request, CancellationToken cancellationToken)
     {
         var municipalityName = request.MunicipalityName.Trim();
         var displayName = string.IsNullOrWhiteSpace(request.DisplayName) ? municipalityName : request.DisplayName.Trim();

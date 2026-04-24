@@ -1,10 +1,8 @@
-using CityCommunicationCenter.Application.Services;
-
 namespace CityCommunicationCenter.Application.Features.Routing;
 
 public sealed record GetRoutingConfigQuery() : IQuery<RoutingConfigResponse>;
 
-public sealed class GetRoutingConfigQueryHandler : IRequestHandler<GetRoutingConfigQuery, RoutingConfigResponse>
+public sealed class GetRoutingConfigQueryHandler : IQueryHandler<GetRoutingConfigQuery, RoutingConfigResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly IRoutingService _routingService;
@@ -17,9 +15,9 @@ public sealed class GetRoutingConfigQueryHandler : IRequestHandler<GetRoutingCon
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<RoutingConfigResponse> Handle(GetRoutingConfigQuery request, CancellationToken cancellationToken)
+    public async ValueTask<RoutingConfigResponse> Handle(GetRoutingConfigQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var isEnabled = await _routingService.IsAutoRoutingEnabledAsync(tenantId, cancellationToken);
         var rules = await _dbContext.RoutingRules.ToListAsync(cancellationToken);
         var departments = await _dbContext.Departments.ToListAsync(cancellationToken);

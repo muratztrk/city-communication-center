@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Tasks;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -7,9 +6,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [TenantRequired]
 public sealed class TasksController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public TasksController(ISender sender) { _sender = sender; }
+    public TasksController(IMediator sender) { _sender = sender; }
 
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<TaskSummaryResponse>>> GetAll([FromQuery] string? scope, CancellationToken cancellationToken)

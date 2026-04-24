@@ -12,7 +12,7 @@ public sealed class RequestTaskRevisionCommandValidator : AbstractValidator<Requ
     }
 }
 
-public sealed class RequestTaskRevisionCommandHandler : IRequestHandler<RequestTaskRevisionCommand, bool>
+public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestTaskRevisionCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -23,13 +23,14 @@ public sealed class RequestTaskRevisionCommandHandler : IRequestHandler<RequestT
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(RequestTaskRevisionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(RequestTaskRevisionCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
-        await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
 
         if (task.CurrentStatus is WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled)
         {
@@ -50,7 +51,7 @@ public sealed class RequestTaskRevisionCommandHandler : IRequestHandler<RequestT
         _dbContext.Approvals.Add(new WorkflowApproval
         {
             ApprovalId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             SubjectType = ApprovalSubjectType.TaskRevision,
             SubjectId = task.TaskId,
             StepOrder = stepOrder,
@@ -63,7 +64,7 @@ public sealed class RequestTaskRevisionCommandHandler : IRequestHandler<RequestT
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionRequested",
@@ -78,7 +79,7 @@ public sealed class RequestTaskRevisionCommandHandler : IRequestHandler<RequestT
 
 public sealed record ApproveTaskRevisionCommand(Guid TaskId, Guid? ActorUserId, string? Comment, DateTimeOffset? NewDueDateUtc) : ICommand<bool>;
 
-public sealed class ApproveTaskRevisionCommandHandler : IRequestHandler<ApproveTaskRevisionCommand, bool>
+public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveTaskRevisionCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -89,10 +90,11 @@ public sealed class ApproveTaskRevisionCommandHandler : IRequestHandler<ApproveT
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(ApproveTaskRevisionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(ApproveTaskRevisionCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
         if (task.CurrentStatus != WorkflowTaskStatus.RevisionRequested)
@@ -102,10 +104,10 @@ public sealed class ApproveTaskRevisionCommandHandler : IRequestHandler<ApproveT
             ]);
         }
 
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId, cancellationToken);
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
         task.CurrentStatus = WorkflowTaskStatus.InProgress;
@@ -118,7 +120,7 @@ public sealed class ApproveTaskRevisionCommandHandler : IRequestHandler<ApproveT
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionApproved",
@@ -153,7 +155,7 @@ public sealed class ApproveTaskRevisionCommandHandler : IRequestHandler<ApproveT
 
 public sealed record RejectTaskRevisionCommand(Guid TaskId, Guid? ActorUserId, string? Comment) : ICommand<bool>;
 
-public sealed class RejectTaskRevisionCommandHandler : IRequestHandler<RejectTaskRevisionCommand, bool>
+public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTaskRevisionCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -164,10 +166,11 @@ public sealed class RejectTaskRevisionCommandHandler : IRequestHandler<RejectTas
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(RejectTaskRevisionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(RejectTaskRevisionCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
         if (task.CurrentStatus != WorkflowTaskStatus.RevisionRequested)
@@ -177,10 +180,10 @@ public sealed class RejectTaskRevisionCommandHandler : IRequestHandler<RejectTas
             ]);
         }
 
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId, cancellationToken);
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
 
@@ -208,7 +211,7 @@ public sealed class RejectTaskRevisionCommandHandler : IRequestHandler<RejectTas
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionRejected",

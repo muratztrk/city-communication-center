@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Users;
 
 public sealed record SearchDirectoryUsersQuery(string Query) : IQuery<IReadOnlyList<DirectoryUserLookupResponse>>;
 
-public sealed class SearchDirectoryUsersQueryHandler : IRequestHandler<SearchDirectoryUsersQuery, IReadOnlyList<DirectoryUserLookupResponse>>
+public sealed class SearchDirectoryUsersQueryHandler : IQueryHandler<SearchDirectoryUsersQuery, IReadOnlyList<DirectoryUserLookupResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -26,9 +26,9 @@ public sealed class SearchDirectoryUsersQueryHandler : IRequestHandler<SearchDir
         _localizer = localizer;
     }
 
-    public async Task<IReadOnlyList<DirectoryUserLookupResponse>> Handle(SearchDirectoryUsersQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<DirectoryUserLookupResponse>> Handle(SearchDirectoryUsersQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var ldapSettings = await _tenantLdapSettingsService.GetSettingsAsync(tenantId, cancellationToken);
         if (!ldapSettings.CanSearch)
         {

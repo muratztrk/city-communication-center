@@ -1,8 +1,3 @@
-using CityCommunicationCenter.Application.Abstractions.Identity;
-using CityCommunicationCenter.Domain.Enums;
-using CityCommunicationCenter.Infrastructure.Options;
-using CityCommunicationCenter.Infrastructure.Persistence;
-
 namespace CityCommunicationCenter.Infrastructure.Services;
 
 public sealed class UserAuthenticationService : IUserAuthenticationService, IAuthenticationModeProvider, IUserManagementConfigurationProvider

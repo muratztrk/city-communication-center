@@ -3,7 +3,7 @@ namespace CityCommunicationCenter.Application.Features.Users;
 
 public sealed record GetUsersQuery() : IQuery<IReadOnlyList<UserSummaryResponse>>;
 
-public sealed class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IReadOnlyList<UserSummaryResponse>>
+public sealed class GetUsersQueryHandler : IQueryHandler<GetUsersQuery, IReadOnlyList<UserSummaryResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -14,11 +14,13 @@ public sealed class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IReadO
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<IReadOnlyList<UserSummaryResponse>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<UserSummaryResponse>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
 
         return await _dbContext.Users
+            .AsNoTracking()
+            .Where(entity => entity.TenantId == tenantId)
             .OrderBy(entity => entity.DisplayName)
             .Select(entity => new UserSummaryResponse(
                 entity.UserId,

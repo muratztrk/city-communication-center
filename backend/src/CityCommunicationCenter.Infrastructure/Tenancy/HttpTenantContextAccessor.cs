@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using CityCommunicationCenter.Application;
-using CityCommunicationCenter.Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
 
 namespace CityCommunicationCenter.Infrastructure.Tenancy;

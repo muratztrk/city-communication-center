@@ -50,7 +50,7 @@ public sealed partial class UpdateTenantAppearanceCommandValidator : AbstractVal
     private static partial Regex HexColorRegex();
 }
 
-public sealed class UpdateTenantAppearanceCommandHandler : IRequestHandler<UpdateTenantAppearanceCommand, Unit>
+public sealed class UpdateTenantAppearanceCommandHandler : ICommandHandler<UpdateTenantAppearanceCommand, Unit>
 {
     private readonly ITenantAppearanceService _tenantAppearanceService;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -61,7 +61,7 @@ public sealed class UpdateTenantAppearanceCommandHandler : IRequestHandler<Updat
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<Unit> Handle(UpdateTenantAppearanceCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(UpdateTenantAppearanceCommand request, CancellationToken cancellationToken)
     {
         var actorUserId = _tenantContextAccessor.GetCurrent().UserId;
 

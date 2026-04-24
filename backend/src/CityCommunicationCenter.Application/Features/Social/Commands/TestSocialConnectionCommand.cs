@@ -1,11 +1,8 @@
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
-using CityCommunicationCenter.Domain.Enums;
-
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record TestSocialConnectionCommand(string Channel) : ICommand<SocialConnectionTestResult>;
 
-public sealed class TestSocialConnectionCommandHandler : IRequestHandler<TestSocialConnectionCommand, SocialConnectionTestResult>
+public sealed class TestSocialConnectionCommandHandler : ICommandHandler<TestSocialConnectionCommand, SocialConnectionTestResult>
 {
     private readonly ISocialMediaClientFactory _clientFactory;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -16,14 +13,14 @@ public sealed class TestSocialConnectionCommandHandler : IRequestHandler<TestSoc
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<SocialConnectionTestResult> Handle(TestSocialConnectionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<SocialConnectionTestResult> Handle(TestSocialConnectionCommand request, CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<SocialChannel>(request.Channel, true, out var socialChannel))
         {
             return new SocialConnectionTestResult(false, false, new SocialConnectionTestResponse(request.Channel, false, "Gecersiz kanal"));
         }
 
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var client = _clientFactory.GetClient(socialChannel, tenantId);
         if (client is null)
         {

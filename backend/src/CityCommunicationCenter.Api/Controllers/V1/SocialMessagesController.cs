@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Enums;
 
@@ -8,9 +7,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [TenantRequired]
 public sealed class SocialMessagesController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public SocialMessagesController(ISender sender)
+    public SocialMessagesController(IMediator sender)
     {
         _sender = sender;
     }

@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 
 public sealed record GetTenantAuthenticationPolicyQuery(Guid TenantId) : IQuery<TenantAuthenticationPolicyResponse?>;
 
-public sealed class GetTenantAuthenticationPolicyQueryHandler : IRequestHandler<GetTenantAuthenticationPolicyQuery, TenantAuthenticationPolicyResponse?>
+public sealed class GetTenantAuthenticationPolicyQueryHandler : IQueryHandler<GetTenantAuthenticationPolicyQuery, TenantAuthenticationPolicyResponse?>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantAuthenticationPolicyService _tenantAuthenticationPolicyService;
@@ -15,7 +15,7 @@ public sealed class GetTenantAuthenticationPolicyQueryHandler : IRequestHandler<
         _tenantAuthenticationPolicyService = tenantAuthenticationPolicyService;
     }
 
-    public async Task<TenantAuthenticationPolicyResponse?> Handle(GetTenantAuthenticationPolicyQuery request, CancellationToken cancellationToken)
+    public async ValueTask<TenantAuthenticationPolicyResponse?> Handle(GetTenantAuthenticationPolicyQuery request, CancellationToken cancellationToken)
     {
         var tenantExists = await _dbContext.Tenants
             .AnyAsync(entity => entity.TenantId == request.TenantId, cancellationToken);

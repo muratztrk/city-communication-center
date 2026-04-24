@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Reports;
 
 public sealed record GetDashboardChartQuery() : IQuery<DashboardChartResponse>;
 
-public sealed class GetDashboardChartQueryHandler : IRequestHandler<GetDashboardChartQuery, DashboardChartResponse>
+public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardChartQuery, DashboardChartResponse>
 {
     private static readonly string[] SliceColors = ["primary", "success", "info", "warning", "danger", "neutral"];
 
@@ -22,10 +22,10 @@ public sealed class GetDashboardChartQueryHandler : IRequestHandler<GetDashboard
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<DashboardChartResponse> Handle(GetDashboardChartQuery request, CancellationToken cancellationToken)
+    public async ValueTask<DashboardChartResponse> Handle(GetDashboardChartQuery request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
         var userId = context.UserId;
         var roleCode = context.RoleCode;
 
@@ -44,15 +44,25 @@ public sealed class GetDashboardChartQueryHandler : IRequestHandler<GetDashboard
 
     private async Task<DashboardChartResponse> BuildDepartmentChartAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        var allTasks = await (
-            from task in _dbContext.Tasks.AsNoTracking()
-            where task.TenantId == tenantId &&
-                  (DoneStatuses.Contains(task.CurrentStatus) || PendingStatuses.Contains(task.CurrentStatus))
-            join job in _dbContext.Jobs.AsNoTracking() on task.JobId equals job.JobId
-            let deptId = task.AssignedDepartmentId ?? job.OwnerDepartmentId
-            join dept in _dbContext.Departments.AsNoTracking() on deptId equals dept.DepartmentId
-            select new { dept.Name, IsDone = DoneStatuses.Contains(task.CurrentStatus) }
-        ).ToListAsync(cancellationToken);
+        var allTasks = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => task.TenantId == tenantId
+                && (DoneStatuses.Contains(task.CurrentStatus) || PendingStatuses.Contains(task.CurrentStatus)))
+            .Join(
+                _dbContext.Jobs.AsNoTracking(),
+                task => task.JobId,
+                job => job.JobId,
+                (task, job) => new
+                {
+                    task,
+                    DepartmentId = task.AssignedDepartmentId ?? job.OwnerDepartmentId,
+                })
+            .Join(
+                _dbContext.Departments.AsNoTracking(),
+                item => item.DepartmentId,
+                dept => dept.DepartmentId,
+                (item, dept) => new { dept.Name, IsDone = DoneStatuses.Contains(item.task.CurrentStatus) })
+            .ToListAsync(cancellationToken);
 
         var grouped = allTasks
             .GroupBy(x => x.Name)
@@ -89,14 +99,18 @@ public sealed class GetDashboardChartQueryHandler : IRequestHandler<GetDashboard
             return new DashboardChartResponse("dashboard.chart.titleManager", []);
         }
 
-        var tasks = await (
-            from t in _dbContext.Tasks.AsNoTracking()
-            join j in _dbContext.Jobs.AsNoTracking() on t.JobId equals j.JobId
-            where t.TenantId == tenantId
-                && (DoneStatuses.Contains(t.CurrentStatus) || PendingStatuses.Contains(t.CurrentStatus))
-                && ((t.AssignedDepartmentId.HasValue && managedDeptIds.Contains(t.AssignedDepartmentId.Value))
-                    || managedDeptIds.Contains(j.OwnerDepartmentId))
-            select new { t.AssignedUserId, IsDone = DoneStatuses.Contains(t.CurrentStatus) })
+        var tasks = await _dbContext.Tasks
+            .AsNoTracking()
+            .Join(
+                _dbContext.Jobs.AsNoTracking(),
+                task => task.JobId,
+                job => job.JobId,
+                (task, job) => new { task, job })
+            .Where(item => item.task.TenantId == tenantId
+                && (DoneStatuses.Contains(item.task.CurrentStatus) || PendingStatuses.Contains(item.task.CurrentStatus))
+                && ((item.task.AssignedDepartmentId.HasValue && managedDeptIds.Contains(item.task.AssignedDepartmentId.Value))
+                    || managedDeptIds.Contains(item.job.OwnerDepartmentId)))
+            .Select(item => new { item.task.AssignedUserId, IsDone = DoneStatuses.Contains(item.task.CurrentStatus) })
             .ToListAsync(cancellationToken);
 
         var byUser = tasks
@@ -144,13 +158,17 @@ public sealed class GetDashboardChartQueryHandler : IRequestHandler<GetDashboard
 
         var deptId = actor.DepartmentId;
 
-        var deptTasks = await (
-            from t in _dbContext.Tasks.AsNoTracking()
-            join j in _dbContext.Jobs.AsNoTracking() on t.JobId equals j.JobId
-            where t.TenantId == tenantId
-                && (DoneStatuses.Contains(t.CurrentStatus) || PendingStatuses.Contains(t.CurrentStatus))
-                && (t.AssignedDepartmentId == deptId || j.OwnerDepartmentId == deptId)
-            select new { t.AssignedUserId, IsDone = DoneStatuses.Contains(t.CurrentStatus) })
+        var deptTasks = await _dbContext.Tasks
+            .AsNoTracking()
+            .Join(
+                _dbContext.Jobs.AsNoTracking(),
+                task => task.JobId,
+                job => job.JobId,
+                (task, job) => new { task, job })
+            .Where(item => item.task.TenantId == tenantId
+                && (DoneStatuses.Contains(item.task.CurrentStatus) || PendingStatuses.Contains(item.task.CurrentStatus))
+                && (item.task.AssignedDepartmentId == deptId || item.job.OwnerDepartmentId == deptId))
+            .Select(item => new { item.task.AssignedUserId, IsDone = DoneStatuses.Contains(item.task.CurrentStatus) })
             .ToListAsync(cancellationToken);
 
         var myCompleted = deptTasks.Count(t => t.IsDone && t.AssignedUserId == userId);

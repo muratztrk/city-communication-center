@@ -1,7 +1,4 @@
 using System.Security.Cryptography;
-using System.Text.Json;
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
-using CityCommunicationCenter.Domain.Enums;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace CityCommunicationCenter.Infrastructure.SocialMedia;

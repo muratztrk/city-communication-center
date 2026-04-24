@@ -1,7 +1,5 @@
 using System.DirectoryServices.Protocols;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 

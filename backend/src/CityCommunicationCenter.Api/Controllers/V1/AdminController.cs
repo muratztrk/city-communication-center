@@ -7,9 +7,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
 public sealed class AdminController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public AdminController(ISender sender)
+    public AdminController(IMediator sender)
     {
         _sender = sender;
     }

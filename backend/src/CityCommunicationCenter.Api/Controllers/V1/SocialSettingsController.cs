@@ -1,5 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
-using CityCommunicationCenter.Api.Security;
 using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -12,9 +10,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
 public sealed class SocialSettingsController : ApiControllerBase
 {
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
 
-    public SocialSettingsController(ISender sender)
+    public SocialSettingsController(IMediator sender)
     {
         _sender = sender;
     }

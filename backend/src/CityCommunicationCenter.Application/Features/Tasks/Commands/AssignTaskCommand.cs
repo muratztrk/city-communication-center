@@ -18,7 +18,7 @@ public sealed class AssignTaskCommandValidator : AbstractValidator<AssignTaskCom
     }
 }
 
-public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand, bool>
+public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -29,16 +29,17 @@ public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(AssignTaskCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(AssignTaskCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId, cancellationToken)
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken)
             ?? throw Validation(nameof(request.TaskId), "Gorev icin is bulunamadi.");
 
-        await TaskWorkflowAuthorization.EnsureCanAssignAsync(_dbContext, task, job, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanAssignAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
         if (task.CurrentStatus is WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled)
         {
@@ -92,7 +93,7 @@ public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand
         _dbContext.AssignmentHistories.Add(new AssignmentHistory
         {
             AssignmentId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             TaskId = request.TaskId,
             FromDepartmentId = previousDepartmentId,
             ToDepartmentId = targetDepartment?.DepartmentId,
@@ -105,7 +106,7 @@ public sealed class AssignTaskCommandHandler : IRequestHandler<AssignTaskCommand
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = request.TaskId.ToString(),
             Action = "TaskAssigned",

@@ -1,8 +1,5 @@
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 
 namespace CityCommunicationCenter.Infrastructure.SocialMedia;
 

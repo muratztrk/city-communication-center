@@ -8,4 +8,17 @@ public sealed record TenantContext(
     bool IsAuthenticated,
     string? ResolutionSource,
     string? ErrorMessage,
-    bool ApplyQueryFilter = false);
+    bool ApplyQueryFilter = true);
+
+public static class TenantContextExtensions
+{
+    public static Guid RequireTenantId(this TenantContext context)
+    {
+        if (!context.TenantId.HasValue || context.TenantId.Value == Guid.Empty)
+        {
+            throw new InvalidOperationException("Bu islem icin gecerli bir tenant baglami gereklidir.");
+        }
+
+        return context.TenantId.Value;
+    }
+}

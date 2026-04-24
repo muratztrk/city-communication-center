@@ -22,7 +22,7 @@ public sealed class SendTestNotificationCommandValidator : AbstractValidator<Sen
     }
 }
 
-public sealed class SendTestNotificationCommandHandler : IRequestHandler<SendTestNotificationCommand, TestNotificationResponse>
+public sealed class SendTestNotificationCommandHandler : ICommandHandler<SendTestNotificationCommand, TestNotificationResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -33,9 +33,9 @@ public sealed class SendTestNotificationCommandHandler : IRequestHandler<SendTes
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<TestNotificationResponse> Handle(SendTestNotificationCommand request, CancellationToken cancellationToken)
+    public async ValueTask<TestNotificationResponse> Handle(SendTestNotificationCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var notification = new Notification
         {
             NotificationId = Guid.NewGuid(),

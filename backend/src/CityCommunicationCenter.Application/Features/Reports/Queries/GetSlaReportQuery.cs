@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Reports;
 
 public sealed record GetSlaReportQuery() : IQuery<SlaReportResponse>;
 
-public sealed class GetSlaReportQueryHandler : IRequestHandler<GetSlaReportQuery, SlaReportResponse>
+public sealed class GetSlaReportQueryHandler : IQueryHandler<GetSlaReportQuery, SlaReportResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,9 +15,9 @@ public sealed class GetSlaReportQueryHandler : IRequestHandler<GetSlaReportQuery
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<SlaReportResponse> Handle(GetSlaReportQuery request, CancellationToken cancellationToken)
+    public async ValueTask<SlaReportResponse> Handle(GetSlaReportQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var utcNow = DateTimeOffset.UtcNow;
         var startOfDay = utcNow.Date;
         var endOfDay = startOfDay.AddDays(1);

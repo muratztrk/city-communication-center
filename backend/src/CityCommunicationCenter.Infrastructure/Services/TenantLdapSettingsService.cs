@@ -1,6 +1,4 @@
 using System.Security.Cryptography;
-using System.Text.Json;
-using CityCommunicationCenter.Infrastructure.Options;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace CityCommunicationCenter.Infrastructure.Services;

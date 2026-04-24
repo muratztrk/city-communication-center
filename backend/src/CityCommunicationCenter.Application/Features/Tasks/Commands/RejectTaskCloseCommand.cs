@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record RejectTaskCloseCommand(Guid TaskId, Guid? ActorUserId, string? Comment) : ICommand<bool>;
 
-public sealed class RejectTaskCloseCommandHandler : IRequestHandler<RejectTaskCloseCommand, bool>
+public sealed class RejectTaskCloseCommandHandler : ICommandHandler<RejectTaskCloseCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,10 +15,11 @@ public sealed class RejectTaskCloseCommandHandler : IRequestHandler<RejectTaskCl
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(RejectTaskCloseCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(RejectTaskCloseCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
         if (task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval)
@@ -28,10 +29,10 @@ public sealed class RejectTaskCloseCommandHandler : IRequestHandler<RejectTaskCl
             ]);
         }
 
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId, cancellationToken)!;
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken)!;
         if (job is null) return false;
 
-        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
         task.CurrentStatus = WorkflowTaskStatus.InProgress;
@@ -58,7 +59,7 @@ public sealed class RejectTaskCloseCommandHandler : IRequestHandler<RejectTaskCl
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskCloseRejected",

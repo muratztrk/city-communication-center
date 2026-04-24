@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 
 public sealed record GetTenantAppearanceQuery(Guid TenantId) : IQuery<TenantAppearanceResponse?>;
 
-public sealed class GetTenantAppearanceQueryHandler : IRequestHandler<GetTenantAppearanceQuery, TenantAppearanceResponse?>
+public sealed class GetTenantAppearanceQueryHandler : IQueryHandler<GetTenantAppearanceQuery, TenantAppearanceResponse?>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantAppearanceService _tenantAppearanceService;
@@ -13,7 +13,7 @@ public sealed class GetTenantAppearanceQueryHandler : IRequestHandler<GetTenantA
         _tenantAppearanceService = tenantAppearanceService;
     }
 
-    public async Task<TenantAppearanceResponse?> Handle(GetTenantAppearanceQuery request, CancellationToken cancellationToken)
+    public async ValueTask<TenantAppearanceResponse?> Handle(GetTenantAppearanceQuery request, CancellationToken cancellationToken)
     {
         var exists = await _dbContext.Tenants.AnyAsync(entity => entity.TenantId == request.TenantId, cancellationToken);
         if (!exists)

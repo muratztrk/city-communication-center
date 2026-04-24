@@ -1,5 +1,3 @@
-using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
-
 namespace CityCommunicationCenter.Application.Abstractions;
 
 public interface IApplicationDbContext

@@ -14,7 +14,7 @@ public sealed class DeleteDepartmentCommandValidator : AbstractValidator<DeleteD
     }
 }
 
-public sealed class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCommand, Unit>
+public sealed class DeleteDepartmentCommandHandler : ICommandHandler<DeleteDepartmentCommand, Unit>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -30,10 +30,10 @@ public sealed class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepar
         _localizer = localizer;
     }
 
-    public async Task<Unit> Handle(DeleteDepartmentCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(DeleteDepartmentCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
 
         var entity = await _dbContext.Departments
             .FirstOrDefaultAsync(

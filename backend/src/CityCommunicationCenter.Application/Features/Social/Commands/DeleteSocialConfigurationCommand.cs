@@ -1,10 +1,8 @@
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
-
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record DeleteSocialConfigurationCommand(string Channel) : ICommand<SocialSettingsDeleteResult>;
 
-public sealed class DeleteSocialConfigurationCommandHandler : IRequestHandler<DeleteSocialConfigurationCommand, SocialSettingsDeleteResult>
+public sealed class DeleteSocialConfigurationCommandHandler : ICommandHandler<DeleteSocialConfigurationCommand, SocialSettingsDeleteResult>
 {
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,9 +13,9 @@ public sealed class DeleteSocialConfigurationCommandHandler : IRequestHandler<De
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<SocialSettingsDeleteResult> Handle(DeleteSocialConfigurationCommand request, CancellationToken cancellationToken)
+    public async ValueTask<SocialSettingsDeleteResult> Handle(DeleteSocialConfigurationCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var settings = _settingsProvider.GetSettings(tenantId);
         if (settings is null)
         {

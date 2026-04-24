@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Api.Filters;
 using CityCommunicationCenter.Application.Features.Social;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,11 +9,11 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 public sealed class SocialWebhooksController : ApiControllerBase
 {
     private const string WebhookSecretHeader = "X-CCC-Webhook-Secret";
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _environment;
 
-    public SocialWebhooksController(ISender sender, IConfiguration configuration, IWebHostEnvironment environment)
+    public SocialWebhooksController(IMediator sender, IConfiguration configuration, IWebHostEnvironment environment)
     {
         _sender = sender;
         _configuration = configuration;

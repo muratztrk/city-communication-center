@@ -1,10 +1,8 @@
-using CityCommunicationCenter.Domain.Enums;
-
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record ReceiveSocialWebhookCommand(string Channel, Guid? ActorUserId, SocialWebhookRequest Request) : ICommand<Guid>;
 
-public sealed class ReceiveSocialWebhookCommandHandler : IRequestHandler<ReceiveSocialWebhookCommand, Guid>
+public sealed class ReceiveSocialWebhookCommandHandler : ICommandHandler<ReceiveSocialWebhookCommand, Guid>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,7 +13,7 @@ public sealed class ReceiveSocialWebhookCommandHandler : IRequestHandler<Receive
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<Guid> Handle(ReceiveSocialWebhookCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Guid> Handle(ReceiveSocialWebhookCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
         var message = new SocialMessage

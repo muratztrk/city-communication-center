@@ -1,5 +1,3 @@
-using CityCommunicationCenter.Application.Abstractions.Identity;
-using CityCommunicationCenter.Infrastructure.Options;
 using CityCommunicationCenter.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using AuthenticationOptions = CityCommunicationCenter.Infrastructure.Options.AuthenticationOptions;

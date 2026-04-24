@@ -1,11 +1,10 @@
-using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Common.Tenancy;
 
 namespace CityCommunicationCenter.Application.Features.Auth;
 
 public sealed record GetTenantLoginContextQuery(string? Host, Guid? TenantId = null) : IQuery<TenantLoginContextResponse>;
 
-public sealed class GetTenantLoginContextQueryHandler : IRequestHandler<GetTenantLoginContextQuery, TenantLoginContextResponse>
+public sealed class GetTenantLoginContextQueryHandler : IQueryHandler<GetTenantLoginContextQuery, TenantLoginContextResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantAppearanceService _tenantAppearanceService;
@@ -16,7 +15,7 @@ public sealed class GetTenantLoginContextQueryHandler : IRequestHandler<GetTenan
         _tenantAppearanceService = tenantAppearanceService;
     }
 
-    public async Task<TenantLoginContextResponse> Handle(GetTenantLoginContextQuery request, CancellationToken cancellationToken)
+    public async ValueTask<TenantLoginContextResponse> Handle(GetTenantLoginContextQuery request, CancellationToken cancellationToken)
     {
         var tenants = await _dbContext.Tenants
             .Where(entity => entity.IsActive)

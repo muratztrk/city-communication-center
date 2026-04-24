@@ -1,7 +1,4 @@
-﻿using System.Security.Claims;
-using CityCommunicationCenter.Application.Abstractions.Identity;
 using CityCommunicationCenter.Application.Features.Auth;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
@@ -16,13 +13,13 @@ public sealed class AuthController : ControllerBase
 {
     private const string ForwardedForHeader = "X-Forwarded-For";
     private const string PasswordGrantExchangeTicketPrefix = "auth-ticket:";
-    private readonly ISender _sender;
+    private readonly IMediator _sender;
     private readonly IConfiguration _configuration;
     private readonly ITenantAuthenticationPolicyService _tenantAuthenticationPolicyService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public AuthController(
-        ISender sender,
+        IMediator sender,
         IConfiguration configuration,
         ITenantAuthenticationPolicyService tenantAuthenticationPolicyService,
         IStringLocalizer<SharedResource> localizer)

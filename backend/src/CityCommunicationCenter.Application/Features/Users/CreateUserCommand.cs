@@ -1,7 +1,3 @@
-using CityCommunicationCenter.Application.Abstractions.Identity;
-using CityCommunicationCenter.Domain.Enums;
-using CityCommunicationCenter.Shared.Contracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Users;
@@ -79,7 +75,7 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
     }
 }
 
-public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserSummaryResponse>
+public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, UserSummaryResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ILdapAuthenticationService _ldapAuthenticationService;
@@ -101,10 +97,10 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         _localizer = localizer;
     }
 
-    public async Task<UserSummaryResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async ValueTask<UserSummaryResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
         var username = string.IsNullOrWhiteSpace(request.Username) ? null : request.Username.Trim();
         var displayName = request.DisplayName.Trim();
         var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();

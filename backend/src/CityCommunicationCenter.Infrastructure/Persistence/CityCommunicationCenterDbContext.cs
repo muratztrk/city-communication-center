@@ -1,5 +1,4 @@
 using CityCommunicationCenter.Domain.Common;
-using CityCommunicationCenter.Domain.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 

@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Notifications;
 
 public sealed record UnsubscribePushCommand(string Endpoint) : ICommand<bool>;
 
-public sealed class UnsubscribePushCommandHandler : IRequestHandler<UnsubscribePushCommand, bool>
+public sealed class UnsubscribePushCommandHandler : ICommandHandler<UnsubscribePushCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -11,7 +11,7 @@ public sealed class UnsubscribePushCommandHandler : IRequestHandler<UnsubscribeP
         _dbContext = dbContext;
     }
 
-    public async Task<bool> Handle(UnsubscribePushCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(UnsubscribePushCommand request, CancellationToken cancellationToken)
     {
         var subscription = await _dbContext.PushSubscriptions
             .FirstOrDefaultAsync(entity => entity.Endpoint == request.Endpoint, cancellationToken);

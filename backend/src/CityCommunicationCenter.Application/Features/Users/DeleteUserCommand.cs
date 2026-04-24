@@ -14,7 +14,7 @@ public sealed class DeleteUserCommandValidator : AbstractValidator<DeleteUserCom
     }
 }
 
-public sealed class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Unit>
+public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Unit>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -30,10 +30,10 @@ public sealed class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand
         _localizer = localizer;
     }
 
-    public async Task<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
         var currentUserId = context.UserId;
 
         if (request.UserId == currentUserId)

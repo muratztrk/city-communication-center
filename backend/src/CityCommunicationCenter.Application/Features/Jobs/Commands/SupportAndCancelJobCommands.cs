@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record AddSupportDepartmentCommand(Guid JobId, Guid DepartmentId, Guid? ActorUserId, string? Notes) : ICommand<bool>;
 
-public sealed class AddSupportDepartmentCommandHandler : IRequestHandler<AddSupportDepartmentCommand, bool>
+public sealed class AddSupportDepartmentCommandHandler : ICommandHandler<AddSupportDepartmentCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -13,14 +13,15 @@ public sealed class AddSupportDepartmentCommandHandler : IRequestHandler<AddSupp
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(AddSupportDepartmentCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(AddSupportDepartmentCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
         var utcNow = DateTimeOffset.UtcNow;
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId, cancellationToken);
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
             _dbContext, actor, job.OwnerDepartmentId, "Destek ekleme yetkiniz yok.", cancellationToken);
 
@@ -43,7 +44,7 @@ public sealed class AddSupportDepartmentCommandHandler : IRequestHandler<AddSupp
         _dbContext.JobDepartments.Add(new JobDepartment
         {
             JobDepartmentId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             JobId = job.JobId,
             DepartmentId = request.DepartmentId,
             Role = JobDepartmentRole.Support,
@@ -61,7 +62,7 @@ public sealed class AddSupportDepartmentCommandHandler : IRequestHandler<AddSupp
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId.Value,
+            TenantId = tenantId,
             EntityType = nameof(Job),
             EntityId = job.JobId.ToString(),
             Action = "JobSupportAdded",
@@ -81,7 +82,7 @@ public sealed class CancelJobCommandValidator : AbstractValidator<CancelJobComma
     public CancelJobCommandValidator() { RuleFor(c => c.Reason).NotEmpty().WithMessage("Iptal nedeni zorunludur."); }
 }
 
-public sealed class CancelJobCommandHandler : IRequestHandler<CancelJobCommand, bool>
+public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -92,14 +93,15 @@ public sealed class CancelJobCommandHandler : IRequestHandler<CancelJobCommand, 
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(CancelJobCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(CancelJobCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
         var utcNow = DateTimeOffset.UtcNow;
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId, cancellationToken);
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
             _dbContext, actor, job.OwnerDepartmentId, "Is iptal yetkiniz yok.", cancellationToken);
 
@@ -118,7 +120,7 @@ public sealed class CancelJobCommandHandler : IRequestHandler<CancelJobCommand, 
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(Job),
             EntityId = job.JobId.ToString(),
             Action = "JobCancelled",

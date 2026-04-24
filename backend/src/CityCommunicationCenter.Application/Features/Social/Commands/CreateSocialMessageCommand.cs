@@ -1,5 +1,3 @@
-using CityCommunicationCenter.Domain.Enums;
-
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record CreateSocialMessageCommand(
@@ -9,7 +7,7 @@ public sealed record CreateSocialMessageCommand(
     string Content,
     string? Category) : ICommand<Guid>;
 
-public sealed class CreateSocialMessageCommandHandler : IRequestHandler<CreateSocialMessageCommand, Guid>
+public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSocialMessageCommand, Guid>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -20,7 +18,7 @@ public sealed class CreateSocialMessageCommandHandler : IRequestHandler<CreateSo
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<Guid> Handle(CreateSocialMessageCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Guid> Handle(CreateSocialMessageCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
 

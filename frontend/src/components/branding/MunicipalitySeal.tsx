@@ -11,9 +11,8 @@ interface MunicipalitySealProps {
 const FALLBACK_LOGO_SRC = '/favicon.svg'
 
 export function MunicipalitySeal({ className, compact = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
-  const requestedSrc = src || FALLBACK_LOGO_SRC
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
-  const currentSrc = failedSrc === requestedSrc ? FALLBACK_LOGO_SRC : requestedSrc
+  const currentSrc = src && failedSrc !== src ? src : FALLBACK_LOGO_SRC
 
   return (
     <div
@@ -34,7 +33,11 @@ export function MunicipalitySeal({ className, compact = false, alt = 'Municipali
         src={currentSrc}
         loading="lazy"
         decoding="async"
-        onError={() => setFailedSrc(requestedSrc)}
+        onError={() => {
+          if (src) {
+            setFailedSrc(src)
+          }
+        }}
       />
     </div>
   )

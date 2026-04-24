@@ -23,7 +23,7 @@ public sealed class CreateJobCommandValidator : AbstractValidator<CreateJobComma
     }
 }
 
-public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobSummaryResponse>
+public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, JobSummaryResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -34,13 +34,13 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<JobSummaryResponse> Handle(CreateJobCommand request, CancellationToken cancellationToken)
+    public async ValueTask<JobSummaryResponse> Handle(CreateJobCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
         var utcNow = DateTimeOffset.UtcNow;
 
-        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
 
         // Auth: Staff can only create for own dept, Manager for managed dept, Admin for any
         if (!JobWorkflowAuthorization.IsSystemAdmin(actor))
@@ -61,7 +61,7 @@ public sealed class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, 
         }
 
         var ownerDept = await _dbContext.Departments.FirstOrDefaultAsync(
-            d => d.DepartmentId == request.OwnerDepartmentId, cancellationToken)
+            d => d.DepartmentId == request.OwnerDepartmentId && d.TenantId == tenantId, cancellationToken)
             ?? throw Validation(nameof(request.OwnerDepartmentId), "Sahip mudurluk bulunamadi.");
 
         var targets = request.TargetDepartmentIds?

@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Reports;
 
 public sealed record GetDashboardQuery() : IQuery<DashboardResponse>;
 
-public sealed class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, DashboardResponse>
+public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, DashboardResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,10 +15,10 @@ public sealed class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<DashboardResponse> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
+    public async ValueTask<DashboardResponse> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
         var canSeePendingApprovals = context.RoleCode is "Manager" or "SystemAdmin";
 
         var activeTasks = await _dbContext.Tasks.CountAsync(

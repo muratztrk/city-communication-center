@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record CompleteTaskCommand(Guid TaskId, Guid? ActorUserId, string? ResultNote, decimal? ActualHours) : ICommand<bool>;
 
-public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCommand, bool>
+public sealed class CompleteTaskCommandHandler : ICommandHandler<CompleteTaskCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,10 +15,11 @@ public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCom
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(CompleteTaskCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(CompleteTaskCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
         if (task.CurrentStatus is WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled)
@@ -26,7 +27,7 @@ public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCom
             throw Validation(nameof(request.TaskId), "Tamamlanmis veya iptal edilmis gorev yeniden tamamlanamaz.");
         }
 
-        await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
         task.ActualHours = request.ActualHours ?? task.ActualHours;
@@ -48,7 +49,7 @@ public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCom
             _dbContext.Approvals.Add(new WorkflowApproval
             {
                 ApprovalId = Guid.NewGuid(),
-                TenantId = context.TenantId!.Value,
+                TenantId = tenantId,
                 SubjectType = ApprovalSubjectType.TaskClose,
                 SubjectId = task.TaskId,
                 StepOrder = stepOrder,
@@ -61,7 +62,7 @@ public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCom
             _dbContext.AuditLogs.Add(new AuditLog
             {
                 AuditLogId = Guid.NewGuid(),
-                TenantId = context.TenantId.Value,
+                TenantId = tenantId,
                 EntityType = nameof(WorkTask),
                 EntityId = task.TaskId.ToString(),
                 Action = "TaskCloseRequested",
@@ -78,7 +79,7 @@ public sealed class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCom
             _dbContext.AuditLogs.Add(new AuditLog
             {
                 AuditLogId = Guid.NewGuid(),
-                TenantId = context.TenantId!.Value,
+                TenantId = tenantId,
                 EntityType = nameof(WorkTask),
                 EntityId = task.TaskId.ToString(),
                 Action = "TaskCompleted",

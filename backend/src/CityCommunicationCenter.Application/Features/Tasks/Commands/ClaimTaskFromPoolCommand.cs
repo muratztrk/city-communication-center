@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record ClaimTaskFromPoolCommand(Guid TaskId, Guid? ActorUserId) : ICommand<bool>;
 
-public sealed class ClaimTaskFromPoolCommandHandler : IRequestHandler<ClaimTaskFromPoolCommand, bool>
+public sealed class ClaimTaskFromPoolCommandHandler : ICommandHandler<ClaimTaskFromPoolCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,13 +15,14 @@ public sealed class ClaimTaskFromPoolCommandHandler : IRequestHandler<ClaimTaskF
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(ClaimTaskFromPoolCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(ClaimTaskFromPoolCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
-        var actor = await TaskWorkflowAuthorization.EnsureCanClaimFromPoolAsync(_dbContext, task, request.ActorUserId, cancellationToken);
+        var actor = await TaskWorkflowAuthorization.EnsureCanClaimFromPoolAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
         if (!TaskWorkflowAuthorization.IsClaimableFromDepartmentPool(task))
         {
             throw new ValidationException([
@@ -37,7 +38,7 @@ public sealed class ClaimTaskFromPoolCommandHandler : IRequestHandler<ClaimTaskF
         _dbContext.AssignmentHistories.Add(new AssignmentHistory
         {
             AssignmentId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             TaskId = task.TaskId,
             FromDepartmentId = task.AssignedDepartmentId,
             ToDepartmentId = task.AssignedDepartmentId,
@@ -50,7 +51,7 @@ public sealed class ClaimTaskFromPoolCommandHandler : IRequestHandler<ClaimTaskF
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskClaimedFromPool",

@@ -7,6 +7,7 @@ internal static class TaskWorkflowAuthorization
     public static async Task<ApplicationUser> RequireActiveActorAsync(
         IApplicationDbContext dbContext,
         Guid? actorUserId,
+        Guid tenantId,
         CancellationToken cancellationToken)
     {
         if (!actorUserId.HasValue)
@@ -15,7 +16,9 @@ internal static class TaskWorkflowAuthorization
         }
 
         var actor = await dbContext.Users
-            .FirstOrDefaultAsync(entity => entity.UserId == actorUserId.Value, cancellationToken);
+            .FirstOrDefaultAsync(
+                entity => entity.UserId == actorUserId.Value && entity.TenantId == tenantId,
+                cancellationToken);
         if (actor is null || !actor.IsActive)
         {
             throw new ForbiddenAccessException("Islemi gerceklestiren kullanici bulunamadi veya aktif degil.");
@@ -38,7 +41,9 @@ internal static class TaskWorkflowAuthorization
         }
 
         var department = await dbContext.Departments
-            .FirstOrDefaultAsync(entity => entity.DepartmentId == departmentId.Value, cancellationToken);
+            .FirstOrDefaultAsync(
+                entity => entity.DepartmentId == departmentId.Value && entity.TenantId == actor.TenantId,
+                cancellationToken);
         return department?.ManagerUserId == actor.UserId;
     }
 
@@ -47,9 +52,10 @@ internal static class TaskWorkflowAuthorization
         WorkTask task,
         Job job,
         Guid? actorUserId,
+        Guid tenantId,
         CancellationToken cancellationToken)
     {
-        var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
+        var actor = await RequireActiveActorAsync(dbContext, actorUserId, tenantId, cancellationToken);
         if (IsSystemAdmin(actor)) return;
 
         if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
@@ -63,9 +69,10 @@ internal static class TaskWorkflowAuthorization
         WorkTask task,
         Job job,
         Guid? actorUserId,
+        Guid tenantId,
         CancellationToken cancellationToken)
     {
-        var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
+        var actor = await RequireActiveActorAsync(dbContext, actorUserId, tenantId, cancellationToken);
         if (IsSystemAdmin(actor)) return;
 
         if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
@@ -78,9 +85,10 @@ internal static class TaskWorkflowAuthorization
         IApplicationDbContext dbContext,
         WorkTask task,
         Guid? actorUserId,
+        Guid tenantId,
         CancellationToken cancellationToken)
     {
-        var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
+        var actor = await RequireActiveActorAsync(dbContext, actorUserId, tenantId, cancellationToken);
         if (IsSystemAdmin(actor)) return;
         if (task.AssignedUserId == actor.UserId) return;
 
@@ -91,9 +99,10 @@ internal static class TaskWorkflowAuthorization
         IApplicationDbContext dbContext,
         WorkTask task,
         Guid? actorUserId,
+        Guid tenantId,
         CancellationToken cancellationToken)
     {
-        var actor = await RequireActiveActorAsync(dbContext, actorUserId, cancellationToken);
+        var actor = await RequireActiveActorAsync(dbContext, actorUserId, tenantId, cancellationToken);
         if (!task.AssignedDepartmentId.HasValue || actor.DepartmentId != task.AssignedDepartmentId.Value)
         {
             throw new ForbiddenAccessException("Bu gorevi departman havuzundan sahiplenme yetkiniz yok.");

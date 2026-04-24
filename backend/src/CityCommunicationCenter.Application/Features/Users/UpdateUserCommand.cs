@@ -1,5 +1,3 @@
-using CityCommunicationCenter.Domain.Enums;
-using CityCommunicationCenter.Shared.Contracts;
 using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Users;
@@ -29,7 +27,7 @@ public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCom
     }
 }
 
-public sealed class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserSummaryResponse>
+public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, UserSummaryResponse>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -45,10 +43,10 @@ public sealed class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand
         _localizer = localizer;
     }
 
-    public async Task<UserSummaryResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+    public async ValueTask<UserSummaryResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId!.Value;
+        var tenantId = context.RequireTenantId();
 
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(

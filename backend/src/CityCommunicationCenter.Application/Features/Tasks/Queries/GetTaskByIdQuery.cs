@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record GetTaskByIdQuery(Guid TaskId) : IQuery<TaskDetailResponse?>;
 
-public sealed class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDetailResponse?>
+public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, TaskDetailResponse?>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -13,28 +13,30 @@ public sealed class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, 
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<TaskDetailResponse?> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
+    public async ValueTask<TaskDetailResponse?> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.TenantId ?? throw new InvalidOperationException("Tenant context is required.");
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(entity => entity.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(
+            entity => entity.TaskId == request.TaskId && entity.TenantId == tenantId,
+            cancellationToken);
         if (task is null) return null;
 
         var jobTitle = await _dbContext.Jobs
-            .Where(entity => entity.JobId == task.JobId)
+            .Where(entity => entity.JobId == task.JobId && entity.TenantId == tenantId)
             .Select(entity => entity.Title)
             .FirstOrDefaultAsync(cancellationToken);
 
         var createdByName = task.CreatedByUserId.HasValue
             ? await _dbContext.Users.AsNoTracking()
-                .Where(u => u.UserId == task.CreatedByUserId.Value)
+                .Where(u => u.UserId == task.CreatedByUserId.Value && u.TenantId == tenantId)
                 .Select(u => u.DisplayName)
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
         var ownerDisplayName = task.OwnerUserId.HasValue
             ? await _dbContext.Users.AsNoTracking()
-                .Where(u => u.UserId == task.OwnerUserId.Value)
+                .Where(u => u.UserId == task.OwnerUserId.Value && u.TenantId == tenantId)
                 .Select(u => u.DisplayName)
                 .FirstOrDefaultAsync(cancellationToken)
             : null;

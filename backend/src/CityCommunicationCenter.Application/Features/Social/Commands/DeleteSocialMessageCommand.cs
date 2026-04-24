@@ -3,7 +3,7 @@ namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record DeleteSocialMessageCommand(Guid MessageId, Guid TenantId) : ICommand<bool>;
 
-public sealed class DeleteSocialMessageCommandHandler : IRequestHandler<DeleteSocialMessageCommand, bool>
+public sealed class DeleteSocialMessageCommandHandler : ICommandHandler<DeleteSocialMessageCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -12,7 +12,7 @@ public sealed class DeleteSocialMessageCommandHandler : IRequestHandler<DeleteSo
         _dbContext = dbContext;
     }
 
-    public async Task<bool> Handle(DeleteSocialMessageCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(DeleteSocialMessageCommand request, CancellationToken cancellationToken)
     {
         var message = await _dbContext.SocialMessages
             .FirstOrDefaultAsync(

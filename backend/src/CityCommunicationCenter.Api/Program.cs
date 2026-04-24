@@ -1,14 +1,9 @@
 using System.Threading.RateLimiting;
 using System.Globalization;
-using System.Data;
-using System.Data.Common;
 using System.Net;
 using CityCommunicationCenter.Application;
 using CityCommunicationCenter.Api.Hubs;
 using CityCommunicationCenter.Api.Services;
-using CityCommunicationCenter.Api.Security;
-using CityCommunicationCenter.Application.Abstractions;
-using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -215,6 +210,13 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services.AddMediator(options =>
+{
+    options.ServiceLifetime = ServiceLifetime.Scoped;
+    options.Assemblies = [typeof(CityCommunicationCenter.Application.DependencyInjection).Assembly];
+    options.PipelineBehaviors = [typeof(CityCommunicationCenter.Application.Behaviors.ValidationBehavior<,>)];
+});
+
 builder.Services.AddApplicationServices();
 builder.Services.AddScoped<InitialPasswordSeeder>();
 
@@ -248,7 +250,6 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Envi
 {
     await using var scope = app.Services.CreateAsyncScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<CityCommunicationCenterDbContext>();
-    await EnsureLegacyInitialMigrationMarkerAsync(dbContext, app.Logger, CancellationToken.None);
     await dbContext.Database.MigrateAsync();
     var passwordSeeder = scope.ServiceProvider.GetRequiredService<InitialPasswordSeeder>();
     await passwordSeeder.SeedAsync();
@@ -330,109 +331,6 @@ app.MapControllers().RequireCors(OpenCorsPolicy);
 app.MapHub<NotificationHub>("/hubs/notifications").RequireCors(OpenCorsPolicy);
 
 app.Run();
-
-static async Task EnsureLegacyInitialMigrationMarkerAsync(
-    CityCommunicationCenterDbContext dbContext,
-    Microsoft.Extensions.Logging.ILogger logger,
-    CancellationToken cancellationToken)
-{
-    const string legacyInitialMigrationId = "20260405171637_InitialPostgreSql";
-    const string currentInitialMigrationId = "20260420205414_InitialPostgreSql_V2";
-    const string fallbackProductVersion = "10.0.3";
-
-    var connection = dbContext.Database.GetDbConnection();
-    var shouldCloseConnection = connection.State != ConnectionState.Open;
-    if (shouldCloseConnection)
-    {
-        await connection.OpenAsync(cancellationToken);
-    }
-
-    try
-    {
-        await using var historyTableCommand = connection.CreateCommand();
-        historyTableCommand.CommandText = """
-            SELECT EXISTS (
-                SELECT 1
-                FROM information_schema.tables
-                WHERE table_schema = 'public' AND table_name = '__EFMigrationsHistory'
-            );
-            """;
-        var historyTableExists = Convert.ToBoolean(await historyTableCommand.ExecuteScalarAsync(cancellationToken));
-        if (!historyTableExists)
-        {
-            return;
-        }
-
-        var hasLegacyMigration = await HasMigrationAsync(connection, legacyInitialMigrationId, cancellationToken);
-        var hasCurrentMigration = await HasMigrationAsync(connection, currentInitialMigrationId, cancellationToken);
-        if (!hasLegacyMigration || hasCurrentMigration)
-        {
-            return;
-        }
-
-        var productVersion = await GetMigrationProductVersionAsync(connection, legacyInitialMigrationId, cancellationToken)
-            ?? fallbackProductVersion;
-
-        await using var insertCommand = connection.CreateCommand();
-        insertCommand.CommandText = """
-            INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-            VALUES (@migrationId, @productVersion);
-            """;
-        AddParameter(insertCommand, "@migrationId", currentInitialMigrationId);
-        AddParameter(insertCommand, "@productVersion", productVersion);
-        await insertCommand.ExecuteNonQueryAsync(cancellationToken);
-
-        logger.LogWarning(
-            "Detected legacy migration marker {LegacyMigrationId}. Added compatibility marker {CurrentMigrationId}.",
-            legacyInitialMigrationId,
-            currentInitialMigrationId);
-    }
-    finally
-    {
-        if (shouldCloseConnection)
-        {
-            await connection.CloseAsync();
-        }
-    }
-
-    static async Task<bool> HasMigrationAsync(DbConnection connection, string migrationId, CancellationToken cancellationToken)
-    {
-        await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT EXISTS (
-                SELECT 1
-                FROM "__EFMigrationsHistory"
-                WHERE "MigrationId" = @migrationId
-            );
-            """;
-        AddParameter(command, "@migrationId", migrationId);
-        return Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken));
-    }
-
-    static async Task<string?> GetMigrationProductVersionAsync(
-        DbConnection connection,
-        string migrationId,
-        CancellationToken cancellationToken)
-    {
-        await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT "ProductVersion"
-            FROM "__EFMigrationsHistory"
-            WHERE "MigrationId" = @migrationId
-            LIMIT 1;
-            """;
-        AddParameter(command, "@migrationId", migrationId);
-        return await command.ExecuteScalarAsync(cancellationToken) as string;
-    }
-
-    static void AddParameter(DbCommand command, string name, object? value)
-    {
-        var parameter = command.CreateParameter();
-        parameter.ParameterName = name;
-        parameter.Value = value ?? DBNull.Value;
-        command.Parameters.Add(parameter);
-    }
-}
 
 static void ConfigureForwardedHeaderTrust(
     IConfiguration configuration,

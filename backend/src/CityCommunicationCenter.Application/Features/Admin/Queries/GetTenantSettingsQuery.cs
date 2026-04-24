@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 
 public sealed record GetTenantSettingsQuery(Guid TenantId) : IQuery<TenantSettingsResponse?>;
 
-public sealed class GetTenantSettingsQueryHandler : IRequestHandler<GetTenantSettingsQuery, TenantSettingsResponse?>
+public sealed class GetTenantSettingsQueryHandler : IQueryHandler<GetTenantSettingsQuery, TenantSettingsResponse?>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -13,7 +13,7 @@ public sealed class GetTenantSettingsQueryHandler : IRequestHandler<GetTenantSet
         _dbContext = dbContext;
     }
 
-    public async Task<TenantSettingsResponse?> Handle(GetTenantSettingsQuery request, CancellationToken cancellationToken)
+    public async ValueTask<TenantSettingsResponse?> Handle(GetTenantSettingsQuery request, CancellationToken cancellationToken)
     {
         var tenant = await _dbContext.Tenants
             .FirstOrDefaultAsync(entity => entity.TenantId == request.TenantId, cancellationToken);

@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record ApproveTaskCloseCommand(Guid TaskId, Guid? ActorUserId, string? Comment) : ICommand<bool>;
 
-public sealed class ApproveTaskCloseCommandHandler : IRequestHandler<ApproveTaskCloseCommand, bool>
+public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTaskCloseCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,10 +15,11 @@ public sealed class ApproveTaskCloseCommandHandler : IRequestHandler<ApproveTask
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(ApproveTaskCloseCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(ApproveTaskCloseCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId, cancellationToken);
+        var tenantId = context.RequireTenantId();
+        var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
         if (task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval)
@@ -26,10 +27,10 @@ public sealed class ApproveTaskCloseCommandHandler : IRequestHandler<ApproveTask
             throw Validation(nameof(request.TaskId), "Sadece kapanis onayi bekleyen gorevler onaylanabilir.");
         }
 
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId, cancellationToken)!
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken)!
             ?? throw Validation(nameof(request.TaskId), "Gorev icin is bulunamadi.");
 
-        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, cancellationToken);
+        await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
         task.CurrentStatus = WorkflowTaskStatus.Completed;
@@ -58,7 +59,7 @@ public sealed class ApproveTaskCloseCommandHandler : IRequestHandler<ApproveTask
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskCloseApproved",

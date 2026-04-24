@@ -16,7 +16,7 @@ public sealed class StartInteractiveAuthenticationCommandValidator : AbstractVal
     }
 }
 
-public sealed class StartInteractiveAuthenticationCommandHandler : IRequestHandler<StartInteractiveAuthenticationCommand, StartInteractiveAuthenticationResponse>
+public sealed class StartInteractiveAuthenticationCommandHandler : ICommandHandler<StartInteractiveAuthenticationCommand, StartInteractiveAuthenticationResponse>
 {
     private readonly IInteractiveAuthenticationService _interactiveAuthenticationService;
     private readonly IStringLocalizer<ApplicationResource> _localizer;
@@ -29,7 +29,7 @@ public sealed class StartInteractiveAuthenticationCommandHandler : IRequestHandl
         _localizer = localizer;
     }
 
-    public async Task<StartInteractiveAuthenticationResponse> Handle(StartInteractiveAuthenticationCommand request, CancellationToken cancellationToken)
+    public async ValueTask<StartInteractiveAuthenticationResponse> Handle(StartInteractiveAuthenticationCommand request, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(request.TenantId, out var tenantId))
         {

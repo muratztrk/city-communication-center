@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record ApproveJobOwnerCommand(Guid JobId, Guid? ActorUserId, string? Comment) : ICommand<bool>;
 
-public sealed class ApproveJobOwnerCommandHandler : IRequestHandler<ApproveJobOwnerCommand, bool>
+public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOwnerCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -13,14 +13,15 @@ public sealed class ApproveJobOwnerCommandHandler : IRequestHandler<ApproveJobOw
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(ApproveJobOwnerCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(ApproveJobOwnerCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
         var utcNow = DateTimeOffset.UtcNow;
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId, cancellationToken);
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
             _dbContext, actor, job.OwnerDepartmentId, "Is sahibi onay yetkiniz yok.", cancellationToken);
 
@@ -68,7 +69,7 @@ public sealed class ApproveJobOwnerCommandHandler : IRequestHandler<ApproveJobOw
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(Job),
             EntityId = job.JobId.ToString(),
             Action = "JobOwnerApproved",
@@ -88,7 +89,7 @@ public sealed class RejectJobOwnerCommandValidator : AbstractValidator<RejectJob
     public RejectJobOwnerCommandValidator() { RuleFor(c => c.Reason).NotEmpty().WithMessage("Red nedeni zorunludur."); }
 }
 
-public sealed class RejectJobOwnerCommandHandler : IRequestHandler<RejectJobOwnerCommand, bool>
+public sealed class RejectJobOwnerCommandHandler : ICommandHandler<RejectJobOwnerCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -99,14 +100,15 @@ public sealed class RejectJobOwnerCommandHandler : IRequestHandler<RejectJobOwne
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<bool> Handle(RejectJobOwnerCommand request, CancellationToken cancellationToken)
+    public async ValueTask<bool> Handle(RejectJobOwnerCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
         var utcNow = DateTimeOffset.UtcNow;
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId, cancellationToken);
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, cancellationToken);
+        var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
             _dbContext, actor, job.OwnerDepartmentId, "Is sahibi red yetkiniz yok.", cancellationToken);
 
@@ -137,7 +139,7 @@ public sealed class RejectJobOwnerCommandHandler : IRequestHandler<RejectJobOwne
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             EntityType = nameof(Job),
             EntityId = job.JobId.ToString(),
             Action = "JobOwnerRejected",

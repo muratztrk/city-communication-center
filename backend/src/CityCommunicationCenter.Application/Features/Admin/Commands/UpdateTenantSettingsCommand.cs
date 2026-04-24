@@ -1,5 +1,4 @@
 using CityCommunicationCenter.Application.Common.Tenancy;
-using CityCommunicationCenter.Domain.Enums;
 using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Admin;
@@ -63,7 +62,7 @@ public sealed class UpdateTenantSettingsCommandValidator : AbstractValidator<Upd
     }
 }
 
-public sealed class UpdateTenantSettingsCommandHandler : IRequestHandler<UpdateTenantSettingsCommand, Unit>
+public sealed class UpdateTenantSettingsCommandHandler : ICommandHandler<UpdateTenantSettingsCommand, Unit>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -74,7 +73,7 @@ public sealed class UpdateTenantSettingsCommandHandler : IRequestHandler<UpdateT
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<Unit> Handle(UpdateTenantSettingsCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(UpdateTenantSettingsCommand request, CancellationToken cancellationToken)
     {
         var actorUserId = _tenantContextAccessor.GetCurrent().UserId;
         var normalizedDomain = TenantDomainNormalizer.Normalize(request.Domain);

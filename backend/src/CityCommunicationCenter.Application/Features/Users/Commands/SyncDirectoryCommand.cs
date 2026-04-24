@@ -3,7 +3,7 @@ namespace CityCommunicationCenter.Application.Features.Users;
 
 public sealed record SyncDirectoryCommand() : ICommand<string>;
 
-public sealed class SyncDirectoryCommandHandler : IRequestHandler<SyncDirectoryCommand, string>
+public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryCommand, string>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -14,7 +14,7 @@ public sealed class SyncDirectoryCommandHandler : IRequestHandler<SyncDirectoryC
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<string> Handle(SyncDirectoryCommand request, CancellationToken cancellationToken)
+    public async ValueTask<string> Handle(SyncDirectoryCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
 

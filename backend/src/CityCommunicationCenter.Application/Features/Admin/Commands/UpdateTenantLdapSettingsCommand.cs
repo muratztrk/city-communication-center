@@ -14,7 +14,7 @@ public sealed record UpdateTenantLdapSettingsCommand(
     bool ClearBindPassword,
     string? UserAttribute) : ICommand<Unit>;
 
-public sealed class UpdateTenantLdapSettingsCommandHandler : IRequestHandler<UpdateTenantLdapSettingsCommand, Unit>
+public sealed class UpdateTenantLdapSettingsCommandHandler : ICommandHandler<UpdateTenantLdapSettingsCommand, Unit>
 {
     private readonly ITenantLdapSettingsService _tenantLdapSettingsService;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -27,7 +27,7 @@ public sealed class UpdateTenantLdapSettingsCommandHandler : IRequestHandler<Upd
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<Unit> Handle(UpdateTenantLdapSettingsCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(UpdateTenantLdapSettingsCommand request, CancellationToken cancellationToken)
     {
         await _tenantLdapSettingsService.SaveSettingsAsync(
             request.TenantId,

@@ -20,7 +20,7 @@ public sealed class VerifyInteractiveAuthenticationCommandValidator : AbstractVa
     }
 }
 
-public sealed class VerifyInteractiveAuthenticationCommandHandler : IRequestHandler<VerifyInteractiveAuthenticationCommand, VerifyInteractiveAuthenticationResponse>
+public sealed class VerifyInteractiveAuthenticationCommandHandler : ICommandHandler<VerifyInteractiveAuthenticationCommand, VerifyInteractiveAuthenticationResponse>
 {
     private readonly IInteractiveAuthenticationService _interactiveAuthenticationService;
     private readonly IStringLocalizer<ApplicationResource> _localizer;
@@ -33,7 +33,7 @@ public sealed class VerifyInteractiveAuthenticationCommandHandler : IRequestHand
         _localizer = localizer;
     }
 
-    public async Task<VerifyInteractiveAuthenticationResponse> Handle(VerifyInteractiveAuthenticationCommand request, CancellationToken cancellationToken)
+    public async ValueTask<VerifyInteractiveAuthenticationResponse> Handle(VerifyInteractiveAuthenticationCommand request, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(request.TenantId, out var tenantId))
         {

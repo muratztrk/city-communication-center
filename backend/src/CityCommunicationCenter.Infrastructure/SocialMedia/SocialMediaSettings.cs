@@ -1,3 +1,1 @@
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
-
 namespace CityCommunicationCenter.Infrastructure.SocialMedia;

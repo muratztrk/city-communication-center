@@ -1,5 +1,4 @@
 using CityCommunicationCenter.Api.Hubs;
-using CityCommunicationCenter.Application.Abstractions;
 using Microsoft.AspNetCore.SignalR;
 
 namespace CityCommunicationCenter.Api.Services;

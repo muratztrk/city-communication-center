@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Application.Features.Reports;
 
 public sealed record GetWorkloadReportQuery() : IQuery<IReadOnlyList<WorkloadReportItemResponse>>;
 
-public sealed class GetWorkloadReportQueryHandler : IRequestHandler<GetWorkloadReportQuery, IReadOnlyList<WorkloadReportItemResponse>>
+public sealed class GetWorkloadReportQueryHandler : IQueryHandler<GetWorkloadReportQuery, IReadOnlyList<WorkloadReportItemResponse>>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -15,9 +15,9 @@ public sealed class GetWorkloadReportQueryHandler : IRequestHandler<GetWorkloadR
         _tenantContextAccessor = tenantContextAccessor;
     }
 
-    public async Task<IReadOnlyList<WorkloadReportItemResponse>> Handle(GetWorkloadReportQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<WorkloadReportItemResponse>> Handle(GetWorkloadReportQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().TenantId!.Value;
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         return await _dbContext.Tasks
             .Where(entity => entity.TenantId == tenantId
                 && entity.AssignedDepartmentId.HasValue

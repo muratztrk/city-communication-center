@@ -1,6 +1,3 @@
-using CityCommunicationCenter.Domain.Common;
-using CityCommunicationCenter.Domain.Enums;
-
 namespace CityCommunicationCenter.Domain.Entities;
 
 public sealed class JobDepartment : AuditableTenantEntity, IHasDatabaseIndexDefinitions

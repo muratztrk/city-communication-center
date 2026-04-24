@@ -5,6 +5,7 @@ internal static class JobWorkflowAuthorization
     public static async Task<ApplicationUser> RequireActorAsync(
         IApplicationDbContext dbContext,
         Guid? actorUserId,
+        Guid tenantId,
         CancellationToken cancellationToken)
     {
         if (!actorUserId.HasValue)
@@ -12,7 +13,9 @@ internal static class JobWorkflowAuthorization
             throw new ForbiddenAccessException("Islemi gerceklestiren kullanici dogrulanamadi.");
         }
 
-        var actor = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == actorUserId.Value, cancellationToken);
+        var actor = await dbContext.Users.FirstOrDefaultAsync(
+            u => u.UserId == actorUserId.Value && u.TenantId == tenantId,
+            cancellationToken);
         if (actor is null || !actor.IsActive)
         {
             throw new ForbiddenAccessException("Islemi gerceklestiren kullanici bulunamadi veya aktif degil.");
@@ -29,7 +32,9 @@ internal static class JobWorkflowAuthorization
         CancellationToken cancellationToken)
     {
         if (actor.RoleCode != RoleCode.Manager) return false;
-        var dept = await dbContext.Departments.FirstOrDefaultAsync(d => d.DepartmentId == departmentId, cancellationToken);
+        var dept = await dbContext.Departments.FirstOrDefaultAsync(
+            d => d.DepartmentId == departmentId && d.TenantId == actor.TenantId,
+            cancellationToken);
         return dept?.ManagerUserId == actor.UserId;
     }
 

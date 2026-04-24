@@ -13,6 +13,7 @@ using CityCommunicationCenter.Infrastructure;
 using CityCommunicationCenter.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Localization;
 using OpenIddict.Validation.AspNetCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 const string OpenCorsPolicy = "OpenCorsPolicy";
@@ -57,6 +58,10 @@ builder.Services.AddCors(options =>
         else if (builder.Environment.IsDevelopment())
         {
             policy.SetIsOriginAllowed(_ => true);
+        }
+        else
+        {
+            throw new InvalidOperationException("Cors:AllowedOrigins must be configured in non-development environments.");
         }
 
         policy.AllowAnyHeader()
@@ -189,11 +194,6 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .Build();
 
-    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
-        .AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, AuthorizationPolicies.SessionCookieScheme)
-        .RequireAuthenticatedUser()
-        .Build();
-
     options.AddPolicy(AuthorizationPolicies.TenantMember, policy =>
     {
         policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, AuthorizationPolicies.SessionCookieScheme);
@@ -228,6 +228,7 @@ builder.Services
     });
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApi();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddSignalR();
@@ -242,7 +243,7 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
 };
-ConfigureForwardedHeaderTrust(builder.Configuration, builder.Environment, forwardedHeadersOptions);
+ConfigureForwardedHeaderTrust(builder.Configuration, app.Environment, forwardedHeadersOptions);
 
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
@@ -330,6 +331,12 @@ app.MapGet("/health", async (IConfiguration configuration, CancellationToken can
 app.MapControllers().RequireCors(OpenCorsPolicy);
 app.MapHub<NotificationHub>("/hubs/notifications").RequireCors(OpenCorsPolicy);
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi("/openapi/{documentName}.json").AllowAnonymous();
+    app.MapScalarApiReference("/api-docs").AllowAnonymous();
+}
+
 app.Run();
 
 static void ConfigureForwardedHeaderTrust(
@@ -338,8 +345,13 @@ static void ConfigureForwardedHeaderTrust(
     ForwardedHeadersOptions options)
 {
     var allowUntrustedForwardedHeaders = configuration.GetValue<bool>("ForwardedHeaders:AllowUntrustedForwardedHeaders");
-    if (allowUntrustedForwardedHeaders && environment.IsDevelopment())
+    if (allowUntrustedForwardedHeaders)
     {
+        if (!environment.IsDevelopment())
+        {
+            throw new InvalidOperationException("ForwardedHeaders:AllowUntrustedForwardedHeaders can only be enabled in Development.");
+        }
+
         options.KnownIPNetworks.Clear();
         options.KnownProxies.Clear();
         return;

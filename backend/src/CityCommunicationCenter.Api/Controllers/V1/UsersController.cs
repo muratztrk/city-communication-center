@@ -78,6 +78,7 @@ public sealed class UsersController : ApiControllerBase
     }
 
     [HttpPost("sync/ad")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> SyncFromDirectory(CancellationToken cancellationToken)
     {

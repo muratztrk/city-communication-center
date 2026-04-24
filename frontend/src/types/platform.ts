@@ -320,7 +320,7 @@ export interface AuthUser {
 }
 
 export interface AuthSession {
-  accessToken: string;
+  accessToken: string | null;
   expiresAt: number | null;
   user: AuthUser;
 }
@@ -379,4 +379,3 @@ export interface RoutingTestResult {
   targetDepartmentId: string | null;
   targetDepartmentName: string | null;
 }
-

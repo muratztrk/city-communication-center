@@ -27,29 +27,29 @@ import type {
   UserManagementContext,
 } from '../types/platform'
 import { API_BASE } from './config'
-import { ensureOk, getAuthHeaders } from './http'
+import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
 
 export const api = {
   async getDashboard(): Promise<DashboardSnapshot> {
-    const response = await fetch(`${API_BASE}/reports/dashboard`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardSnapshot>
   },
 
   async getDashboardChart(): Promise<DashboardChartResponse> {
-    const response = await fetch(`${API_BASE}/reports/dashboard-chart`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard-chart`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardChartResponse>
   },
 
   async getDepartments(): Promise<Department[]> {
-    const response = await fetch(`${API_BASE}/departments`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/departments`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.departmentsLoadFailed'))
     return response.json() as Promise<Department[]>
   },
 
   async createDepartment(name: string, departmentType: string): Promise<Department> {
-    const response = await fetch(`${API_BASE}/departments`, {
+    const response = await fetchWithCredentials(`${API_BASE}/departments`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ name, departmentType }),
@@ -60,7 +60,7 @@ export const api = {
   },
 
   async updateDepartment(departmentId: string, name: string, departmentType: string, managerUserId?: string | null): Promise<Department> {
-    const response = await fetch(`${API_BASE}/departments/${departmentId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/departments/${departmentId}`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ name, departmentType, managerUserId: managerUserId ?? null }),
@@ -71,7 +71,7 @@ export const api = {
   },
 
   async deleteDepartment(departmentId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/departments/${departmentId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/departments/${departmentId}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
     })
@@ -80,13 +80,13 @@ export const api = {
   },
 
   async getUsers(): Promise<User[]> {
-    const response = await fetch(`${API_BASE}/users`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/users`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.usersLoadFailed'))
     return response.json() as Promise<User[]>
   },
 
   async getUserManagementContext(): Promise<UserManagementContext> {
-    const response = await fetch(`${API_BASE}/users/management-context`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/users/management-context`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.userManagementContextLoadFailed'))
     return response.json() as Promise<UserManagementContext>
   },
@@ -103,14 +103,14 @@ export const api = {
     }
 
     const suffix = params.toString()
-    const response = await fetch(`${API_BASE}/users/search${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/users/search${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.userSearchFailed'))
     return response.json() as Promise<UserLookup[]>
   },
 
   async searchDirectoryUsers(query: string): Promise<DirectoryUserLookup[]> {
     const params = new URLSearchParams({ query })
-    const response = await fetch(`${API_BASE}/users/directory-search?${params.toString()}`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/users/directory-search?${params.toString()}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.directorySearchFailed'))
     return response.json() as Promise<DirectoryUserLookup[]>
   },
@@ -127,7 +127,7 @@ export const api = {
     externalIdentityId: string | null
     ldapDepartmentName: string | null
   }): Promise<User> {
-    const response = await fetch(`${API_BASE}/users`, {
+    const response = await fetchWithCredentials(`${API_BASE}/users`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -142,7 +142,7 @@ export const api = {
     roleCode: string
     isActive: boolean
   }): Promise<User> {
-    const response = await fetch(`${API_BASE}/users/${userId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/users/${userId}`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -153,7 +153,7 @@ export const api = {
   },
 
   async deleteUser(userId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/users/${userId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/users/${userId}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
     })
@@ -162,7 +162,7 @@ export const api = {
   },
 
   async getTenantSettings(tenantId: string): Promise<TenantSettings> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/settings`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/settings`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.tenantSettingsLoadFailed'))
     return response.json() as Promise<TenantSettings>
   },
@@ -171,7 +171,7 @@ export const api = {
     tenantId: string,
     payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive'>,
   ): Promise<void> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/settings`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/settings`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -181,7 +181,7 @@ export const api = {
   },
 
   async getTenantLdapSettings(tenantId: string): Promise<TenantLdapSettings> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.tenantLdapSettingsLoadFailed'))
     return response.json() as Promise<TenantLdapSettings>
   },
@@ -202,7 +202,7 @@ export const api = {
       clearBindPassword: boolean
     },
   ): Promise<void> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -224,7 +224,7 @@ export const api = {
       bindPassword: string | null
     },
   ): Promise<{ success: boolean; message: string | null }> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings/test-connectivity`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings/test-connectivity`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -237,7 +237,7 @@ export const api = {
     tenantId: string,
     payload: { username: string; password: string },
   ): Promise<{ success: boolean; displayName: string | null; email: string | null; message: string | null }> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings/test-user-credentials`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings/test-user-credentials`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -247,7 +247,7 @@ export const api = {
   },
 
   async getTenantAuthenticationPolicy(tenantId: string): Promise<TenantAuthenticationPolicy> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/authentication-policy`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/authentication-policy`, {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.tenantAuthenticationPolicyLoadFailed'))
@@ -270,7 +270,7 @@ export const api = {
       webhookUrl: string | null
     },
   ): Promise<void> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/authentication-policy`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/authentication-policy`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -280,13 +280,13 @@ export const api = {
   },
 
   async getTenantAppearance(tenantId: string): Promise<TenantAppearance> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/appearance`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.tenantAppearanceLoadFailed'))
     return response.json() as Promise<TenantAppearance>
   },
 
   async updateTenantAppearance(tenantId: string, payload: TenantAppearanceInput): Promise<void> {
-    const response = await fetch(`${API_BASE}/admin/tenants/${tenantId}/appearance`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -303,7 +303,7 @@ export const api = {
     }
 
     const suffix = params.toString()
-    const response = await fetch(`${API_BASE}/tasks${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/tasks${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.tasksLoadFailed'))
     return response.json() as Promise<Task[]>
   },
@@ -320,7 +320,7 @@ export const api = {
     assignedDepartmentId?: string | null
     assignedUserId?: string | null
   }): Promise<Task> {
-    const response = await fetch(`${API_BASE}/tasks`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(task),
@@ -331,7 +331,7 @@ export const api = {
   },
 
   async assignTask(taskId: string, departmentId?: string | null, userId?: string | null): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/assign`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/assign`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ departmentId: departmentId ?? null, userId: userId ?? null }),
@@ -340,7 +340,7 @@ export const api = {
   },
 
   async claimTask(taskId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/claim`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/claim`, {
       method: 'POST',
       headers: await getAuthHeaders(),
     })
@@ -348,7 +348,7 @@ export const api = {
   },
 
   async completeTask(taskId: string, resultNote?: string, actualHours?: number | null): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/complete`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/complete`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ resultNote, actualHours: actualHours ?? null }),
@@ -357,7 +357,7 @@ export const api = {
   },
 
   async approveTaskClose(taskId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/approve-close`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/approve-close`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ comment }),
@@ -366,7 +366,7 @@ export const api = {
   },
 
   async rejectTaskClose(taskId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/reject-close`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/reject-close`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ comment }),
@@ -375,7 +375,7 @@ export const api = {
   },
 
   async requestTaskRevision(taskId: string, reason: string, proposedDueDateUtc?: string | null): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/request-revision`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/request-revision`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ reason, proposedDueDateUtc: proposedDueDateUtc ?? null }),
@@ -384,7 +384,7 @@ export const api = {
   },
 
   async approveTaskRevision(taskId: string, reason?: string, proposedDueDateUtc?: string | null): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/approve-revision`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/approve-revision`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ reason: reason ?? '', proposedDueDateUtc: proposedDueDateUtc ?? null }),
@@ -393,7 +393,7 @@ export const api = {
   },
 
   async rejectTaskRevision(taskId: string, comment?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/reject-revision`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/reject-revision`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ comment }),
@@ -405,7 +405,7 @@ export const api = {
     taskId: string,
     payload: { completionPercentage?: number | null; actualHours?: number | null; notes?: string | null },
   ): Promise<void> {
-    const response = await fetch(`${API_BASE}/tasks/${taskId}/progress`, {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/progress`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -418,13 +418,13 @@ export const api = {
     const params = new URLSearchParams()
     if (scope) params.set('scope', scope)
     const suffix = params.toString()
-    const response = await fetch(`${API_BASE}/jobs${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/jobs${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.jobsLoadFailed', 'Failed to load jobs'))
     return response.json() as Promise<JobSummary[]>
   },
 
   async getJobById(jobId: string): Promise<JobDetail> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.jobLoadFailed', 'Failed to load job'))
     return response.json() as Promise<JobDetail>
   },
@@ -440,7 +440,7 @@ export const api = {
     sourceType?: string
     sourceRefId?: string | null
   }): Promise<JobSummary> {
-    const response = await fetch(`${API_BASE}/jobs`, {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -450,7 +450,7 @@ export const api = {
   },
 
   async addSupportDepartment(jobId: string, departmentId: string, notes?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}/support`, {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/support`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ departmentId, notes }),
@@ -459,7 +459,7 @@ export const api = {
   },
 
   async cancelJob(jobId: string, reason: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}/cancel`, {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/cancel`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ reason }),
@@ -468,7 +468,7 @@ export const api = {
   },
 
   async deleteJob(jobId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/jobs/${jobId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
     })
@@ -476,7 +476,7 @@ export const api = {
   },
 
   async getSocialMessages(): Promise<SocialMessage[]> {
-    const response = await fetch(`${API_BASE}/social/messages`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.socialMessagesLoadFailed'))
     return response.json() as Promise<SocialMessage[]>
   },
@@ -487,7 +487,7 @@ export const api = {
     content: string
     category?: string
   }): Promise<void> {
-    const response = await fetch(`${API_BASE}/social/messages`, {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -496,7 +496,7 @@ export const api = {
   },
 
   async routeSocialMessage(socialMessageId: string, departmentId?: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/social/messages/${socialMessageId}/route`, {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/route`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ departmentId: departmentId || null }),
@@ -515,7 +515,7 @@ export const api = {
       dueDateUtc?: string | null
     },
   ): Promise<JobSummary> {
-    const response = await fetch(`${API_BASE}/social/messages/${socialMessageId}/convert`, {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/convert`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -526,7 +526,7 @@ export const api = {
   },
 
   async deleteSocialMessage(socialMessageId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/social/messages/${socialMessageId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
     })
@@ -534,19 +534,19 @@ export const api = {
   },
 
   async getAuditLogs(): Promise<AuditLog[]> {
-    const response = await fetch(`${API_BASE}/admin/audit-logs`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/admin/audit-logs`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.auditLoadFailed'))
     return response.json() as Promise<AuditLog[]>
   },
 
   async getSocialSettingsStatus(): Promise<SocialSettingsStatus> {
-    const response = await fetch(`${API_BASE}/admin/social-settings`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/admin/social-settings`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.socialSettingsLoadFailed'))
     return response.json() as Promise<SocialSettingsStatus>
   },
 
   async saveSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp', payload: object): Promise<SocialSettingsSaveResult> {
-    const response = await fetch(`${API_BASE}/admin/social-settings/${channel}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/social-settings/${channel}`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -557,7 +557,7 @@ export const api = {
   },
 
   async testSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp'): Promise<SocialConnectionTestResult> {
-    const response = await fetch(`${API_BASE}/admin/social-settings/${channel}/test`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/social-settings/${channel}/test`, {
       method: 'POST',
       headers: await getAuthHeaders(),
     })
@@ -567,7 +567,7 @@ export const api = {
   },
 
   async deleteSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp'): Promise<SocialSettingsSaveResult> {
-    const response = await fetch(`${API_BASE}/admin/social-settings/${channel}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/social-settings/${channel}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
     })
@@ -577,13 +577,13 @@ export const api = {
   },
 
   async getRoutingConfig(): Promise<RoutingConfig> {
-    const response = await fetch(`${API_BASE}/admin/routing`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/admin/routing`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.routingLoadFailed'))
     return response.json() as Promise<RoutingConfig>
   },
 
   async toggleAutoRouting(enabled: boolean): Promise<void> {
-    const response = await fetch(`${API_BASE}/admin/routing/toggle`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/routing/toggle`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ enabled }),
@@ -598,7 +598,7 @@ export const api = {
     targetDepartmentId: string
     priority: number
   }): Promise<RoutingRule> {
-    const response = await fetch(`${API_BASE}/admin/routing/rules`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/routing/rules`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -612,7 +612,7 @@ export const api = {
     ruleId: string,
     payload: { ruleName: string; keywords: string; targetDepartmentId: string; priority: number; isActive: boolean },
   ): Promise<void> {
-    const response = await fetch(`${API_BASE}/admin/routing/rules/${ruleId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/routing/rules/${ruleId}`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -622,7 +622,7 @@ export const api = {
   },
 
   async deleteRoutingRule(ruleId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/admin/routing/rules/${ruleId}`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/routing/rules/${ruleId}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
     })
@@ -631,7 +631,7 @@ export const api = {
   },
 
   async testRouting(messageContent: string): Promise<RoutingTestResult> {
-    const response = await fetch(`${API_BASE}/admin/routing/test`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/routing/test`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ messageContent }),
@@ -642,13 +642,13 @@ export const api = {
   },
 
   async getUnreadNotificationCount(): Promise<number> {
-    const response = await fetch(`${API_BASE}/notifications/unread-count`, { headers: await getAuthHeaders() })
+    const response = await fetchWithCredentials(`${API_BASE}/notifications/unread-count`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.notificationsLoadFailed', 'Failed to load notifications'))
     return response.json() as Promise<number>
   },
 
   async subscribePush(subscription: { endpoint: string; p256dhKey: string; authKey: string; userAgent?: string }): Promise<{ subscriptionId: string }> {
-    const response = await fetch(`${API_BASE}/notifications/push/subscribe`, {
+    const response = await fetchWithCredentials(`${API_BASE}/notifications/push/subscribe`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(subscription),
@@ -658,7 +658,7 @@ export const api = {
   },
 
   async unsubscribePush(endpoint: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/notifications/push/unsubscribe`, {
+    const response = await fetchWithCredentials(`${API_BASE}/notifications/push/unsubscribe`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ endpoint }),
@@ -667,7 +667,7 @@ export const api = {
   },
 
   async markNotificationRead(notificationId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/notifications/${notificationId}/read`, {
+    const response = await fetchWithCredentials(`${API_BASE}/notifications/${notificationId}/read`, {
       method: 'POST',
       headers: await getAuthHeaders(),
     })

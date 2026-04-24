@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import * as signalR from '@microsoft/signalr'
 import { useAuth } from '../context/AuthContext'
-import { getValidAccessToken } from '../api/auth'
 import { API_ORIGIN } from '../api/config'
 
 export function useSignalR(onNotification?: (payload: NotificationPayload) => void) {
@@ -9,12 +8,12 @@ export function useSignalR(onNotification?: (payload: NotificationPayload) => vo
   const connectionRef = useRef<signalR.HubConnection | null>(null)
 
   const connect = useCallback(async () => {
-    if (!session?.accessToken) return
+    if (!session) return
     if (connectionRef.current?.state === signalR.HubConnectionState.Connected) return
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(`${API_ORIGIN}/hubs/notifications`, {
-        accessTokenFactory: async () => (await getValidAccessToken()) ?? '',
+        withCredentials: true,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)
@@ -30,7 +29,7 @@ export function useSignalR(onNotification?: (payload: NotificationPayload) => vo
     } catch (err) {
       console.warn('SignalR connection failed:', err)
     }
-  }, [session?.accessToken, onNotification])
+  }, [session, onNotification])
 
   useEffect(() => {
     connect()

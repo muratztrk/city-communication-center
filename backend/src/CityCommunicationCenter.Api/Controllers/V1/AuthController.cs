@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using CityCommunicationCenter.Application.Abstractions.Identity;
 using CityCommunicationCenter.Application.Features.Auth;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
@@ -111,6 +112,60 @@ public sealed class AuthController : ControllerBase
             result.TenantId.ToString(),
             result.TenantName,
             result.AuthenticationMode));
+    }
+
+    [HttpPost("session/login")]
+    [AllowAnonymous]
+    public async Task<ActionResult<LoginResponse>> SessionLogin([FromBody] LoginRequest request, CancellationToken cancellationToken)
+    {
+        var tenantId = await ResolveTenantIdAsync(request.TenantId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(tenantId))
+        {
+            return BadRequest(new { error = _localizer["AuthTenantRequired"].Value });
+        }
+
+        if (Guid.TryParse(tenantId, out var parsedTenantId)
+            && await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+        {
+            return Unauthorized(new { error = _localizer["AuthSecondFactorRequired"].Value });
+        }
+
+        var result = await _sender.Send(
+            new AuthenticateUserCommand(request.Username, request.Password, tenantId),
+            cancellationToken);
+        if (result is null)
+        {
+            return Unauthorized(new { error = _localizer["AuthInvalidCredentials"].Value });
+        }
+
+        var principal = CreatePrincipal(result, AuthorizationPolicies.SessionCookieScheme);
+        await HttpContext.SignInAsync(
+            AuthorizationPolicies.SessionCookieScheme,
+            principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = true,
+                IssuedUtc = DateTimeOffset.UtcNow,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
+            });
+
+        return Ok(ToLoginResponse(result));
+    }
+
+    [HttpPost("session/logout")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SessionLogout()
+    {
+        await HttpContext.SignOutAsync(AuthorizationPolicies.SessionCookieScheme);
+        return NoContent();
+    }
+
+    [HttpGet("session/me")]
+    [Authorize(AuthenticationSchemes = AuthorizationPolicies.SessionCookieScheme)]
+    public async Task<ActionResult<AuthenticatedUserProfileResponse>> GetSessionUser(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetAuthenticatedUserProfileQuery(User), cancellationToken);
+        return Ok(response);
     }
 
     [HttpPost("interactive/start")]
@@ -230,7 +285,20 @@ public sealed class AuthController : ControllerBase
 
         return Ok(response);
     }
-    private ClaimsPrincipal CreatePrincipal(AuthenticatedTokenPayload payload)
+    private static LoginResponse ToLoginResponse(AuthenticatedTokenPayload payload)
+    {
+        return new LoginResponse(
+            payload.UserId.ToString(),
+            payload.Username,
+            payload.DisplayName,
+            string.IsNullOrWhiteSpace(payload.Email) ? null : payload.Email,
+            payload.RoleCode,
+            payload.TenantId.ToString(),
+            payload.TenantName,
+            payload.AuthenticationMode);
+    }
+
+    private ClaimsPrincipal CreatePrincipal(AuthenticatedTokenPayload payload, string? authenticationType = null)
     {
         var audience = _configuration["Authentication:Audience"] ?? "city-communication-center-api";
         var userId = payload.UserId.ToString();
@@ -238,7 +306,7 @@ public sealed class AuthController : ControllerBase
         var tenantId = payload.TenantId.ToString();
 
         var identity = new ClaimsIdentity(
-            TokenValidationParameters.DefaultAuthenticationType,
+            authenticationType ?? TokenValidationParameters.DefaultAuthenticationType,
             Claims.Name,
             Claims.Role);
 
@@ -407,4 +475,3 @@ public sealed class AuthController : ControllerBase
         }
     }
 }
-

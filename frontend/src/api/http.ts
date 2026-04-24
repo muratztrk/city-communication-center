@@ -21,6 +21,13 @@ export async function getAuthHeaders(): Promise<HeadersInit> {
   return headers
 }
 
+export async function fetchWithCredentials(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+  return fetch(input, {
+    ...init,
+    credentials: 'include',
+  })
+}
+
 export async function getErrorMessage(response: Response, fallbackMessage: string): Promise<string> {
   const responseText = await response.text()
   if (!responseText) {

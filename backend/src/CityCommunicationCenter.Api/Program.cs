@@ -2,12 +2,14 @@ using System.Threading.RateLimiting;
 using System.Globalization;
 using System.Data;
 using System.Data.Common;
+using System.Net;
 using CityCommunicationCenter.Application;
 using CityCommunicationCenter.Api.Hubs;
 using CityCommunicationCenter.Api.Services;
 using CityCommunicationCenter.Api.Security;
 using CityCommunicationCenter.Application.Abstractions;
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -121,6 +123,31 @@ builder.Services
         options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
         options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
     })
+    .AddCookie(AuthorizationPolicies.SessionCookieScheme, options =>
+    {
+        options.Cookie.Name = builder.Configuration["Authentication:SessionCookie:Name"] ?? "__Host-ccc-session";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.Path = "/";
+        options.Cookie.SecurePolicy = ParseCookieSecurePolicy(builder.Configuration["Authentication:SessionCookie:SecurePolicy"]);
+        options.Cookie.SameSite = ParseSameSiteMode(builder.Configuration["Authentication:SessionCookie:SameSite"]);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(builder.Configuration.GetValue("Authentication:SessionCookie:ExpireMinutes", 480));
+        options.SlidingExpiration = true;
+        options.LoginPath = PathString.Empty;
+        options.AccessDeniedPath = PathString.Empty;
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+        };
+    })
     .AddNegotiate();
 
 builder.Services.AddOpenIddict()
@@ -162,14 +189,19 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddAuthorization(options =>
 {
+    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, AuthorizationPolicies.SessionCookieScheme)
+        .RequireAuthenticatedUser()
+        .Build();
+
     options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
-        .AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
+        .AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, AuthorizationPolicies.SessionCookieScheme)
         .RequireAuthenticatedUser()
         .Build();
 
     options.AddPolicy(AuthorizationPolicies.TenantMember, policy =>
     {
-        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, AuthorizationPolicies.SessionCookieScheme);
         policy.RequireAuthenticatedUser();
         policy.RequireAssertion(context =>
             context.User.HasClaim(claim => claim.Type is "tenant_id" or "tenantId"));
@@ -177,7 +209,7 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy(AuthorizationPolicies.PlatformAdmin, policy =>
     {
-        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, AuthorizationPolicies.SessionCookieScheme);
         policy.RequireAuthenticatedUser();
         policy.RequireRole("SystemAdmin");
     });
@@ -208,8 +240,7 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
 };
-forwardedHeadersOptions.KnownIPNetworks.Clear();
-forwardedHeadersOptions.KnownProxies.Clear();
+ConfigureForwardedHeaderTrust(builder.Configuration, builder.Environment, forwardedHeadersOptions);
 
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
@@ -401,4 +432,55 @@ static async Task EnsureLegacyInitialMigrationMarkerAsync(
         parameter.Value = value ?? DBNull.Value;
         command.Parameters.Add(parameter);
     }
+}
+
+static void ConfigureForwardedHeaderTrust(
+    IConfiguration configuration,
+    IWebHostEnvironment environment,
+    ForwardedHeadersOptions options)
+{
+    var allowUntrustedForwardedHeaders = configuration.GetValue<bool>("ForwardedHeaders:AllowUntrustedForwardedHeaders");
+    if (allowUntrustedForwardedHeaders && environment.IsDevelopment())
+    {
+        options.KnownIPNetworks.Clear();
+        options.KnownProxies.Clear();
+        return;
+    }
+
+    var knownProxies = configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [];
+    var knownNetworks = configuration.GetSection("ForwardedHeaders:KnownNetworks").Get<string[]>() ?? [];
+
+    foreach (var proxy in knownProxies)
+    {
+        if (IPAddress.TryParse(proxy, out var address))
+        {
+            options.KnownProxies.Add(address);
+        }
+    }
+
+    foreach (var network in knownNetworks)
+    {
+        if (System.Net.IPNetwork.TryParse(network, out var parsedNetwork))
+        {
+            options.KnownIPNetworks.Add(parsedNetwork);
+        }
+    }
+}
+
+static SameSiteMode ParseSameSiteMode(string? value)
+{
+    return string.Equals(value, "None", StringComparison.OrdinalIgnoreCase)
+        ? SameSiteMode.None
+        : string.Equals(value, "Strict", StringComparison.OrdinalIgnoreCase)
+            ? SameSiteMode.Strict
+            : SameSiteMode.Lax;
+}
+
+static CookieSecurePolicy ParseCookieSecurePolicy(string? value)
+{
+    return string.Equals(value, "None", StringComparison.OrdinalIgnoreCase)
+        ? CookieSecurePolicy.None
+        : string.Equals(value, "SameAsRequest", StringComparison.OrdinalIgnoreCase)
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
 }

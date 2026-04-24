@@ -12,6 +12,9 @@ const TOKEN_ENDPOINT = `${API_ORIGIN}/connect/token`
 const TENANT_CONTEXT_ENDPOINT = `${API_BASE}/auth/tenant-context`
 const INTERACTIVE_START_ENDPOINT = `${API_BASE}/auth/interactive/start`
 const INTERACTIVE_VERIFY_ENDPOINT = `${API_BASE}/auth/interactive/verify`
+const SESSION_LOGIN_ENDPOINT = `${API_BASE}/auth/session/login`
+const SESSION_LOGOUT_ENDPOINT = `${API_BASE}/auth/session/logout`
+const SESSION_ME_ENDPOINT = `${API_BASE}/auth/session/me`
 
 const ACCESS_TOKEN_KEY = 'ccc_token'
 const TOKEN_EXPIRES_AT_KEY = 'ccc_token_expires_at'
@@ -22,6 +25,26 @@ interface TokenResponse {
   expires_in?: number
   error?: string
   error_description?: unknown
+}
+
+interface LoginResponse {
+  userId: string
+  username: string | null
+  displayName: string
+  email: string | null
+  role: string
+  tenantId: string
+  tenantName: string
+  authenticationMode: string
+}
+
+interface AuthenticatedUserProfileResponse {
+  userId: string | null
+  email: string | null
+  displayName: string | null
+  role: string | null
+  tenantId: string | null
+  departmentId: string | null
 }
 
 interface JwtPayload {
@@ -105,6 +128,32 @@ function buildUserFromToken(token: string, tenantNameOverride?: string): AuthUse
   }
 }
 
+function buildUserFromLoginResponse(response: LoginResponse): AuthUser {
+  return {
+    userId: response.userId,
+    username: response.username ?? '',
+    displayName: response.displayName,
+    email: response.email ?? '',
+    role: response.role,
+    tenantId: response.tenantId,
+    tenantName: response.tenantName,
+    departmentId: '',
+  }
+}
+
+function buildUserFromProfileResponse(response: AuthenticatedUserProfileResponse, existingUser?: AuthUser | null): AuthUser {
+  return {
+    userId: response.userId ?? '',
+    username: existingUser?.username ?? '',
+    displayName: response.displayName ?? existingUser?.displayName ?? '',
+    email: response.email ?? existingUser?.email ?? '',
+    role: response.role ?? existingUser?.role ?? '',
+    tenantId: response.tenantId ?? existingUser?.tenantId ?? '',
+    tenantName: existingUser?.tenantName ?? '',
+    departmentId: response.departmentId ?? existingUser?.departmentId ?? '',
+  }
+}
+
 function getTokenExpiry(token: string): number | null {
   const payload = parseJwtPayload(token)
   return typeof payload.exp === 'number' ? payload.exp * 1000 : null
@@ -142,6 +191,53 @@ function writeSession(tokenResponse: TokenResponse, tenantNameOverride?: string)
     expiresAt,
     user,
   }
+}
+
+function writeCookieSession(user: AuthUser): AuthSession {
+  clearStoredValues()
+  localStorage.setItem(USER_KEY, JSON.stringify(user))
+
+  return {
+    accessToken: null,
+    expiresAt: null,
+    user,
+  }
+}
+
+async function requestJson<T>(url: string, init: RequestInit, fallbackMessage: string): Promise<T> {
+  const response = await fetch(url, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+      ...(init.headers ?? {}),
+    },
+  })
+
+  const rawBody = await response.text()
+  const data = rawBody ? tryParseJson<T>(rawBody) : null
+
+  if (!response.ok) {
+    if (data) {
+      const payload = data as { error?: unknown; error_description?: unknown; message?: unknown; detail?: unknown }
+      throw new Error(
+        readErrorMessage(payload.error_description)
+        || readErrorMessage(payload.message)
+        || readErrorMessage(payload.detail)
+        || readErrorMessage(payload.error)
+        || fallbackMessage,
+      )
+    }
+
+    throw new Error(rawBody || fallbackMessage)
+  }
+
+  if (!data) {
+    throw new Error(i18n.t('errors.invalidAuthResponse'))
+  }
+
+  return data
 }
 
 async function requestToken(params: URLSearchParams): Promise<TokenResponse> {
@@ -209,7 +305,7 @@ export function getStoredSession(): AuthSession | null {
   const accessToken = readStoredValue(ACCESS_TOKEN_KEY)
   const rawUser = readStoredValue(USER_KEY)
 
-  if (!accessToken || !rawUser) {
+  if (!rawUser) {
     return null
   }
 
@@ -219,26 +315,72 @@ export function getStoredSession(): AuthSession | null {
     return null
   }
 
-  // Always rebuild user from the token so encoding fixes apply immediately.
-  // Keep tenantName from stored user since it may come from a login-time override.
   let user: AuthUser
-  try {
-    user = buildUserFromToken(accessToken, parsedUser.tenantName)
-  } catch {
+  if (accessToken) {
+    // Always rebuild user from legacy stored tokens so encoding fixes apply immediately.
+    // Keep tenantName from stored user since it may come from a login-time override.
+    try {
+      user = buildUserFromToken(accessToken, parsedUser.tenantName)
+    } catch {
+      user = parsedUser
+    }
+  } else {
     user = parsedUser
   }
 
   const expiresAtValue = readStoredValue(TOKEN_EXPIRES_AT_KEY)
-  const expiresAt = expiresAtValue ? Number(expiresAtValue) : getTokenExpiry(accessToken)
+  const expiresAt = expiresAtValue ? Number(expiresAtValue) : accessToken ? getTokenExpiry(accessToken) : null
 
   return {
     accessToken,
-    expiresAt: Number.isFinite(expiresAt) ? expiresAt : getTokenExpiry(accessToken),
+    expiresAt: Number.isFinite(expiresAt) ? expiresAt : accessToken ? getTokenExpiry(accessToken) : null,
     user,
   }
 }
 
+export async function restoreSessionFromCookie(): Promise<AuthSession | null> {
+  const existingUser = getStoredSession()?.user ?? null
+  const response = await fetch(SESSION_ME_ENDPOINT, {
+    headers: {
+      'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+    },
+    credentials: 'include',
+  })
+
+  if (response.status === 401 || response.status === 403) {
+    clearStoredValues()
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error(i18n.t('errors.authFailed'))
+  }
+
+  const profile = await response.json() as AuthenticatedUserProfileResponse
+  return writeCookieSession(buildUserFromProfileResponse(profile, existingUser))
+}
+
 export async function loginWithPassword(
+  username: string,
+  password: string,
+  tenantId: string,
+  tenantName: string,
+): Promise<AuthSession> {
+  const response = await requestJson<LoginResponse>(SESSION_LOGIN_ENDPOINT, {
+    method: 'POST',
+    body: JSON.stringify({
+      username,
+      password,
+      tenantId,
+    }),
+  }, i18n.t('errors.authFailed'))
+
+  const user = buildUserFromLoginResponse({ ...response, tenantName: response.tenantName || tenantName })
+  writeCookieSession(user)
+  return await restoreSessionFromCookie() ?? writeCookieSession(user)
+}
+
+export async function loginWithPasswordToken(
   username: string,
   password: string,
   tenantId: string,
@@ -262,6 +404,20 @@ export async function exchangeInteractiveGrant(
   tenantName: string,
 ): Promise<AuthSession> {
   return loginWithPassword(username, password, tenantId, tenantName)
+}
+
+export async function logoutSession(): Promise<void> {
+  try {
+    await fetch(SESSION_LOGOUT_ENDPOINT, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+      },
+    })
+  } finally {
+    clearAuthSession()
+  }
 }
 
 export async function getTenantLoginContext(): Promise<TenantLoginContext> {

@@ -2,8 +2,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 
@@ -20,6 +22,7 @@ internal sealed class InteractiveAuthenticationService : IInteractiveAuthenticat
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMemoryCache _memoryCache;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IWebHostEnvironment _environment;
     private readonly ILogger<InteractiveAuthenticationService> _logger;
 
     public InteractiveAuthenticationService(
@@ -29,6 +32,7 @@ internal sealed class InteractiveAuthenticationService : IInteractiveAuthenticat
         IHttpContextAccessor httpContextAccessor,
         IMemoryCache memoryCache,
         IHttpClientFactory httpClientFactory,
+        IWebHostEnvironment environment,
         ILogger<InteractiveAuthenticationService> logger)
     {
         _userAuthenticationService = userAuthenticationService;
@@ -37,6 +41,7 @@ internal sealed class InteractiveAuthenticationService : IInteractiveAuthenticat
         _httpContextAccessor = httpContextAccessor;
         _memoryCache = memoryCache;
         _httpClientFactory = httpClientFactory;
+        _environment = environment;
         _logger = logger;
     }
 
@@ -289,7 +294,7 @@ internal sealed class InteractiveAuthenticationService : IInteractiveAuthenticat
         var code = GenerateCode(policy.CodeLength);
         var expiresAtUtc = DateTimeOffset.UtcNow.AddSeconds(policy.CodeTtlSeconds);
         var deliveryDestination = ResolveDeliveryDestination(authenticatedUser);
-        var mockCodePreview = policy.AllowMockCodePreview ? code : null;
+        var mockCodePreview = _environment.IsDevelopment() && policy.AllowMockCodePreview ? code : null;
 
         if (!await DispatchSecondFactorAsync(challengeId, code, authenticatedUser, deliveryDestination, expiresAtUtc, policy, cancellationToken))
         {

@@ -512,7 +512,7 @@ export function UsersPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table">
+          <table className="data-table users-table">
             <thead>
               <tr>
                 <th>{t('users.username')}</th>
@@ -523,7 +523,7 @@ export function UsersPage() {
                 <th>{t('users.role')}</th>
                 <th>{t('users.source')}</th>
                 <th>{t('users.status')}</th>
-                {canManageUsers ? <th /> : null}
+                {canManageUsers ? <th className="actions-column" aria-label={t('common.actions')} /> : null}
               </tr>
             </thead>
             <tbody>
@@ -556,8 +556,8 @@ export function UsersPage() {
                         {editForm.isActive ? t('users.active') : t('users.inactive')}
                       </label>
                     </td>
-                    <td>
-                      <div className="inline-flex gap-1.5">
+                    <td className="actions-column">
+                      <div className="row-actions">
                         <Button size="sm" type="button" onClick={() => handleUpdateUser(user.userId)}>{t('common.save')}</Button>
                         <Button size="sm" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
                       </div>
@@ -578,16 +578,14 @@ export function UsersPage() {
                       </StatusPill>
                     </td>
                     {canManageUsers ? (
-                      <td>
-                        <div className="inline-flex gap-2">
-                          <button className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-900" type="button" onClick={() => startEditing(user)}>
+                      <td className="actions-column">
+                        <div className="row-actions">
+                          <button className="icon-action" title={t('common.edit')} aria-label={t('common.edit')} type="button" onClick={() => startEditing(user)}>
                             <Pencil className="size-3.5" />
-                            {t('common.edit')}
                           </button>
                           {user.userId !== currentUser?.userId ? (
-                            <button className="inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700" type="button" onClick={() => handleDeleteUser(user)}>
+                            <button className="icon-action danger" title={t('common.delete')} aria-label={t('common.delete')} type="button" onClick={() => handleDeleteUser(user)}>
                               <Trash2 className="size-3.5" />
-                              {t('common.delete')}
                             </button>
                           ) : null}
                         </div>
@@ -598,7 +596,7 @@ export function UsersPage() {
               ))}
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={canManageUsers ? 8 : 7}>
+                  <td colSpan={canManageUsers ? 9 : 8}>
                     <div className="empty-state">{t('users.empty')}</div>
                   </td>
                 </tr>

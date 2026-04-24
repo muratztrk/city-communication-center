@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useState } from 'react'
 import { cn } from '../../lib/cn'
 
 interface MunicipalitySealProps {
@@ -11,11 +11,9 @@ interface MunicipalitySealProps {
 const FALLBACK_LOGO_SRC = '/favicon.svg'
 
 export function MunicipalitySeal({ className, compact = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
-  const [currentSrc, setCurrentSrc] = useState(src || FALLBACK_LOGO_SRC)
-
-  useEffect(() => {
-    setCurrentSrc(src || FALLBACK_LOGO_SRC)
-  }, [src])
+  const requestedSrc = src || FALLBACK_LOGO_SRC
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+  const currentSrc = failedSrc === requestedSrc ? FALLBACK_LOGO_SRC : requestedSrc
 
   return (
     <div
@@ -36,7 +34,7 @@ export function MunicipalitySeal({ className, compact = false, alt = 'Municipali
         src={currentSrc}
         loading="lazy"
         decoding="async"
-        onError={() => setCurrentSrc(FALLBACK_LOGO_SRC)}
+        onError={() => setFailedSrc(requestedSrc)}
       />
     </div>
   )

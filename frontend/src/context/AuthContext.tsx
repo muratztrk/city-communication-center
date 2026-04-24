@@ -1,10 +1,10 @@
-import { createContext, useContext, useState, type PropsWithChildren } from 'react'
+import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react'
 import {
   clearAuthSession,
   exchangeInteractiveGrant,
-  getStoredSession,
-  isAccessTokenExpired,
   loginWithPassword,
+  logoutSession,
+  restoreSessionFromCookie,
 } from '../api/auth'
 import type { AuthSession, AuthUser } from '../types/platform'
 
@@ -15,22 +15,40 @@ interface AuthContextValue {
   user: AuthUser | null
   signIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
   completeInteractiveSignIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [session, setSession] = useState<AuthSession | null>(() => {
-    const storedSession = getStoredSession()
-    if (storedSession && !isAccessTokenExpired(storedSession)) {
-      return storedSession
-    }
+  const [session, setSession] = useState<AuthSession | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-    clearAuthSession()
-    return null
-  })
-  const [isLoading] = useState(false)
+  useEffect(() => {
+    let isMounted = true
+
+    restoreSessionFromCookie()
+      .then(restoredSession => {
+        if (isMounted) {
+          setSession(restoredSession)
+        }
+      })
+      .catch(() => {
+        clearAuthSession()
+        if (isMounted) {
+          setSession(null)
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const signIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
     const nextSession = await loginWithPassword(username, password, tenantId, tenantName)
@@ -42,8 +60,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setSession(nextSession)
   }
 
-  const logout = () => {
-    clearAuthSession()
+  const logout = async () => {
+    await logoutSession()
     setSession(null)
   }
 

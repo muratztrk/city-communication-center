@@ -60,6 +60,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             var normalizedQuery = query.Trim();
             var searchTerms = ExpandSearchTerms(normalizedQuery);
             IReadOnlyList<LdapDirectoryUser> results = settings.MockUsers
+                .Where(candidate => !IsMachineAccount(candidate.Username))
                 .Where(candidate =>
                     searchTerms.Any(searchTerm =>
                         candidate.Username.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -258,6 +259,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             var response = (SearchResponse)connection.SendRequest(request);
             return response.Entries
                 .Cast<SearchResultEntry>()
+                .Where(entry => !IsMachineAccountEntry(entry))
                 .Select(entry => new LdapDirectoryUser(
                     GetDistinguishedName(entry) ?? string.Empty,
                     GetAttribute(entry, "sAMAccountName")
@@ -475,12 +477,14 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
     private static string BuildDirectorySearchFilter(string userAttribute, IReadOnlyList<string> searchTerms)
     {
+        const string userAccountFilter = "(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$)))";
+
         if (searchTerms.Count == 0)
         {
-            return "(objectClass=user)";
+            return userAccountFilter;
         }
 
-        return $"(|{string.Concat(searchTerms.Select(BuildFilterForTerm))})";
+        return $"(&{userAccountFilter}(|{string.Concat(searchTerms.Select(BuildFilterForTerm))}))";
 
         string BuildFilterForTerm(string term)
         {
@@ -625,6 +629,17 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         return !string.IsNullOrWhiteSpace(entry.DistinguishedName)
             ? entry.DistinguishedName
             : GetAttribute(entry, "distinguishedName");
+    }
+
+    private static bool IsMachineAccountEntry(SearchResultEntry entry)
+    {
+        return IsMachineAccount(GetAttribute(entry, "sAMAccountName"))
+            || IsMachineAccount(GetAttribute(entry, "cn"));
+    }
+
+    private static bool IsMachineAccount(string? value)
+    {
+        return value?.TrimEnd().EndsWith('$') == true;
     }
 
     private static string? NormalizeEmail(string username)

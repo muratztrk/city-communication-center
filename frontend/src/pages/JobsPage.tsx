@@ -7,7 +7,7 @@ import { Button } from '../components/ui/button'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
-import { getPriorityLabel } from '../utils/localization'
+import { getLocale, getPriorityLabel } from '../utils/localization'
 
 const SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'mine', labelKey: 'jobs.scopes.mine' },
@@ -23,6 +23,17 @@ function getJobStatusLabel(t: TFunction, status: string): string {
 function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
   const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void }
   input.showPicker?.()
+}
+
+function formatDateTime(value: string | null, locale: string) {
+  if (!value) return '—'
+  return new Date(value).toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 interface CreateFormState {
@@ -62,8 +73,9 @@ const EMPTY_TASK_FORM: CreateTaskFormState = {
 }
 
 export function JobsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user } = useAuth()
+  const locale = getLocale(i18n.language)
   const [searchParams, setSearchParams] = useSearchParams()
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -422,7 +434,7 @@ export function JobsPage() {
                     <td>{getPriorityLabel(t, job.priority)}</td>
                     <td>{job.completionPercentage ?? 0}%</td>
                     <td>{job.taskCount}</td>
-                    <td>{job.dueDateUtc ? new Date(job.dueDateUtc).toLocaleDateString() : '—'}</td>
+                    <td>{formatDateTime(job.dueDateUtc, locale)}</td>
                     <td>
                       <div className="inline-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
@@ -465,7 +477,7 @@ export function JobsPage() {
                 {detail.createdByDisplayName && (
                   <p className="text-xs text-[color:var(--color-muted-foreground)] pt-1">
                     {t('common.createdBy', 'Oluşturan')}: <span className="font-semibold text-slate-700">{detail.createdByDisplayName}</span>
-                    {' · '}{new Date(detail.createdAtUtc).toLocaleDateString()}
+                    {' · '}{formatDateTime(detail.createdAtUtc, locale)}
                   </p>
                 )}
               </div>

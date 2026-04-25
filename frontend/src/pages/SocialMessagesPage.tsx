@@ -222,7 +222,6 @@ export function SocialMessagesPage() {
                       </div>
                     ) : (
                       <div className="inline-actions">
-                        <StatusPill tone="success">{t('social.converted')}</StatusPill>
                         {message.jobId && (
                           <Button size="sm" type="button" variant="secondary"
                             onClick={() => navigate(`/jobs?scope=all&jobId=${message.jobId}`)}>

@@ -13,6 +13,7 @@ const SocialMessagesPage = lazy(() => import('../pages/SocialMessagesPage').then
 const TasksPage = lazy(() => import('../pages/TasksPage').then(module => ({ default: module.TasksPage })))
 const UsersPage = lazy(() => import('../pages/UsersPage').then(module => ({ default: module.UsersPage })))
 const JobsPage = lazy(() => import('../pages/JobsPage').then(module => ({ default: module.JobsPage })))
+const WallboardPage = lazy(() => import('../pages/WallboardPage').then(module => ({ default: module.WallboardPage })))
 
 function LoadingScreen() {
   const { t } = useTranslation()
@@ -48,6 +49,7 @@ export default function App() {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
+        <Route path="/display" element={<WallboardPage />} />
         <Route element={<AppShell />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />

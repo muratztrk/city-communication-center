@@ -95,6 +95,7 @@
     "users": "Users",
     "audit": "Audit",
     "settings": "Settings",
+    "display": "Display",
     "home": "Home",
     "groupTasks": "Work Management",
     "groupSocial": "Citizen Relations",
@@ -110,6 +111,22 @@
     "liveTenant": "Active User",
     "logout": "Sign Out",
     "language": "Language selector"
+  },
+  "wallboard": {
+    "kicker": "Live Display",
+    "title": "Pending Work",
+    "subtitle": "Manager-approved pending work from internal teams and citizens",
+    "summary": "Summary",
+    "totalWaiting": "Total pending",
+    "internal": "Internal",
+    "citizen": "Citizen",
+    "urgent": "Priority",
+    "approvedJob": "Manager-approved job",
+    "citizenRequest": "Citizen request",
+    "noJob": "No job record",
+    "unassignedDepartment": "Waiting for unit",
+    "unassignedUser": "No person assigned",
+    "empty": "No pending work."
   },
   "notifications": {
     "bell": "Notifications",

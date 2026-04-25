@@ -1,4 +1,4 @@
-import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, LogOut, Menu, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
+import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -33,6 +33,7 @@ export function AppShell() {
     { path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
     { path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { path: '/jobs', label: t('nav.jobs'), icon: FolderKanban },
+    { path: '/display', label: t('nav.display'), icon: MonitorUp },
     { path: '/departments', label: t('nav.departments'), icon: Building },
     { path: '/users', label: t('nav.users'), icon: Users },
     { path: '/audit', label: t('nav.audit'), icon: ScrollText },
@@ -54,6 +55,7 @@ export function AppShell() {
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
     jobs: t('nav.jobs'),
+    display: t('nav.display'),
     social: t('nav.social'),
     departments: t('nav.departments'),
     users: t('nav.users'),
@@ -66,6 +68,7 @@ export function AppShell() {
     directorate: t('nav.groupJobs'),
     coordinated: t('nav.groupJobs'),
     jobs: t('nav.groupJobs'),
+    display: t('nav.groupJobs'),
     social: t('nav.groupSocial'),
     departments: t('nav.groupAdmin'),
     users: t('nav.groupAdmin'),
@@ -81,6 +84,7 @@ export function AppShell() {
     directorate: FolderKanban,
     coordinated: Workflow,
     jobs: FolderKanban,
+    display: MonitorUp,
     social: MessageSquareMore,
     departments: Building,
     users: Users,

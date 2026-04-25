@@ -95,6 +95,7 @@
     "users": "Kullanıcılar",
     "audit": "Log",
     "settings": "Ayarlar",
+    "display": "Ekran",
     "home": "Ana Sayfa",
     "groupTasks": "İş Yönetimi",
     "groupSocial": "Vatandaş İlişkileri",
@@ -110,6 +111,22 @@
     "liveTenant": "Aktif Kullanıcı",
     "logout": "Çıkış",
     "language": "Dil seçici"
+  },
+  "wallboard": {
+    "kicker": "Canlı Ekran",
+    "title": "Bekleyen İşler",
+    "subtitle": "Kurum içi ve vatandaştan gelen müdür onaylı bekleyen işler",
+    "summary": "Özet",
+    "totalWaiting": "Toplam bekleyen",
+    "internal": "Kurum içi",
+    "citizen": "Vatandaş",
+    "urgent": "Öncelikli",
+    "approvedJob": "Müdür onaylı iş",
+    "citizenRequest": "Vatandaş talebi",
+    "noJob": "İş kaydı yok",
+    "unassignedDepartment": "Birim bekliyor",
+    "unassignedUser": "Kişi ataması yok",
+    "empty": "Bekleyen iş bulunmuyor."
   },
   "notifications": {
     "bell": "Bildirimler",

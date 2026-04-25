@@ -477,6 +477,50 @@
     color: white;
   }
 
+  .role-matrix-table th,
+  .role-matrix-table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .role-matrix-table th:first-child,
+  .role-matrix-table td:first-child {
+    text-align: left;
+    min-width: 13rem;
+  }
+
+  .role-matrix-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-width: 6.5rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .role-matrix-toggle input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--color-primary);
+  }
+
+  .role-matrix-toggle:has(input:checked) {
+    border-color: color-mix(in srgb, var(--color-primary) 38%, var(--color-border));
+    background: color-mix(in srgb, var(--color-primary) 10%, white);
+    color: var(--color-primary);
+  }
+
+  .role-matrix-toggle:has(input:disabled) {
+    opacity: 0.58;
+    cursor: not-allowed;
+  }
+
   .scope-chips {
     display: flex;
     flex-wrap: wrap;

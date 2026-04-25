@@ -10,6 +10,16 @@ import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import { DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
+import {
+  DEFAULT_ROLE_PAGE_ACCESS,
+  PAGE_ACCESS_ITEMS,
+  ROLE_CODES,
+  loadRolePageAccessMatrix,
+  saveRolePageAccessMatrix,
+  type PageAccessKey,
+  type RoleCode,
+  type RolePageAccessMatrix,
+} from '../lib/rolePageAccess'
 import type {
   Department,
   RoutingConfig,
@@ -20,9 +30,9 @@ import type {
   TenantSettings,
   User,
 } from '../types/platform'
-import { getDeploymentModeLabel } from '../utils/localization'
+import { getDeploymentModeLabel, getRoleLabel } from '../utils/localization'
 
-type SettingsTab = 'tenant' | 'social' | 'routing' | 'citizen'
+type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'citizen'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
@@ -146,7 +156,7 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
 }
 
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'social' || tab === 'routing' || tab === 'citizen' ? tab : 'tenant'
+  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'citizen' ? tab : 'tenant'
 }
 
 function splitLines(value: string): string[] {
@@ -201,6 +211,7 @@ export function SettingsPage() {
   const [ldapTestStatus, setLdapTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
+  const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => loadRolePageAccessMatrix())
 
   useEffect(() => {
     if (!user?.tenantId) {
@@ -284,6 +295,28 @@ export function SettingsPage() {
     const next = new URLSearchParams(searchParams)
     next.set('tab', tab)
     setSearchParams(next, { replace: true })
+  }
+
+  const toggleRolePageAccess = (role: RoleCode, pageKey: PageAccessKey) => {
+    if (pageKey === 'dashboard' || pageKey === 'settings') return
+    setRolePageAccess(current => ({
+      ...current,
+      [role]: {
+        ...current[role],
+        [pageKey]: !current[role][pageKey],
+      },
+    }))
+  }
+
+  const saveRolePages = () => {
+    saveRolePageAccessMatrix(rolePageAccess)
+    setMessage({ type: 'success', text: t('settings.roles.saveSuccess') })
+  }
+
+  const resetRolePages = () => {
+    setRolePageAccess(DEFAULT_ROLE_PAGE_ACCESS)
+    saveRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
+    setMessage({ type: 'success', text: t('settings.roles.resetSuccess') })
   }
 
   const refreshRouting = async () => setRoutingConfig(await api.getRoutingConfig())
@@ -626,6 +659,12 @@ export function SettingsPage() {
         <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">
           {t('settings.tabs.organization')}
         </button>
+        <button className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`} onClick={() => setTab('appearance')} type="button">
+          {t('settings.tabs.appearance')}
+        </button>
+        <button className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setTab('roles')} type="button">
+          {t('settings.tabs.roles')}
+        </button>
         <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
           {t('settings.tabs.social')}
         </button>
@@ -645,7 +684,7 @@ export function SettingsPage() {
 
       {activeTab === 'tenant' ? (
         <div className="page-stack desktop-page-shell">
-          <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="grid gap-4">
             <section className="section-card page-stack">
               <div className="page-header-row">
                 <div>
@@ -698,99 +737,7 @@ export function SettingsPage() {
                 </div>
               </form>
             </section>
-
-            <section className="section-card page-stack">
-              <div className="page-header-row">
-                <div>
-                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.appearancePreviewTitle')}</h2>
-                  <p className="helper-copy">{t('settings.appearancePreviewDescription')}</p>
-                </div>
-                <Paintbrush className="size-5 text-slate-400" />
-              </div>
-              <div
-                className="rounded-[var(--radius-xl)] p-6 text-white shadow-[var(--shadow-edge)]"
-                style={{
-                  backgroundImage: previewAppearance.loginBackgroundImageUrl
-                    ? `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo}), url("${previewAppearance.loginBackgroundImageUrl}")`
-                    : `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundBlendMode: previewAppearance.loginBackgroundImageUrl ? 'multiply' : undefined,
-                }}
-              >
-                <MunicipalitySeal compact src={previewAppearance.logoUrl ?? null} />
-                <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
-                <p className="mt-2 max-w-md text-sm leading-6 text-white/78">{t('settings.appearancePreviewBody')}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {[
-                  previewAppearance.primaryColor,
-                  previewAppearance.secondaryColor,
-                  previewAppearance.accentColor,
-                  previewAppearance.neutralColor,
-                  previewAppearance.surfaceColor,
-                  previewAppearance.sidebarBackgroundColor,
-                ].map(color => (
-                  <div className="rounded-2xl border border-slate-200 bg-white p-3" key={color}>
-                    <div className="h-14 rounded-xl" style={{ backgroundColor: color }} />
-                    <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{color}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
           </div>
-
-          <form className="section-card page-stack" onSubmit={saveAppearanceSettings}>
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.appearanceTitle')}</h2>
-                <p className="helper-copy">{t('settings.appearanceDescription')}</p>
-              </div>
-              <Settings2 className="size-5 text-slate-400" />
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {(
-                [
-                  ['themePreset', t('settings.themePreset')],
-                  ['primaryColor', t('settings.primaryColor')],
-                  ['secondaryColor', t('settings.secondaryColor')],
-                  ['accentColor', t('settings.accentColor')],
-                  ['neutralColor', t('settings.neutralColor')],
-                  ['surfaceColor', t('settings.surfaceColor')],
-                  ['backgroundColor', t('settings.backgroundColor')],
-                  ['headerGradientFrom', t('settings.headerGradientFrom')],
-                  ['headerGradientTo', t('settings.headerGradientTo')],
-                  ['sidebarBackgroundColor', t('settings.sidebarBackgroundColor')],
-                  ['sidebarForegroundColor', t('settings.sidebarForegroundColor')],
-                  ['logoUrl', t('settings.logoUrl')],
-                  ['loginBackgroundImageUrl', t('settings.loginBackgroundImageUrl')],
-                ] as const
-              ).map(([field, label]) => (
-                <label className="grid gap-2 text-sm font-semibold text-slate-700" key={field}>
-                  <span>{label}</span>
-                  <input
-                    className="field-input"
-                    placeholder={field === 'logoUrl' || field === 'loginBackgroundImageUrl' ? t('settings.urlPlaceholder') : undefined}
-                    value={appearanceForm[field] ?? ''}
-                    onChange={event => {
-                      const nextValue = event.target.value
-                      setAppearanceForm(current => ({
-                        ...current,
-                        [field]:
-                          field === 'logoUrl' || field === 'loginBackgroundImageUrl'
-                            ? (nextValue || null)
-                            : nextValue,
-                      }))
-                    }}
-                  />
-                </label>
-              ))}
-            </div>
-            <div className="inline-actions">
-              <Button type="submit">{t('common.save')}</Button>
-              <Button type="button" variant="secondary" onClick={() => setAppearanceForm(loadedAppearance)}>{t('settings.reset')}</Button>
-            </div>
-          </form>
 
           <div className="grid gap-4 xl:grid-cols-2">
             <form className="section-card page-stack" onSubmit={saveTenantLdap}>
@@ -1059,6 +1006,156 @@ export function SettingsPage() {
             </table>
           </section>
         </div>
+      ) : null}
+
+      {activeTab === 'appearance' ? (
+        <div className="page-stack desktop-page-shell">
+          <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+            <section className="section-card page-stack">
+              <div className="page-header-row">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.appearancePreviewTitle')}</h2>
+                  <p className="helper-copy">{t('settings.appearancePreviewDescription')}</p>
+                </div>
+                <Paintbrush className="size-5 text-slate-400" />
+              </div>
+              <div
+                className="rounded-[var(--radius-xl)] p-6 text-white shadow-[var(--shadow-edge)]"
+                style={{
+                  backgroundImage: previewAppearance.loginBackgroundImageUrl
+                    ? `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo}), url("${previewAppearance.loginBackgroundImageUrl}")`
+                    : `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundBlendMode: previewAppearance.loginBackgroundImageUrl ? 'multiply' : undefined,
+                }}
+              >
+                <MunicipalitySeal compact src={previewAppearance.logoUrl ?? null} />
+                <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
+                <p className="mt-2 max-w-md text-sm leading-6 text-white/78">{t('settings.appearancePreviewBody')}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {[
+                  previewAppearance.primaryColor,
+                  previewAppearance.secondaryColor,
+                  previewAppearance.accentColor,
+                  previewAppearance.neutralColor,
+                  previewAppearance.surfaceColor,
+                  previewAppearance.sidebarBackgroundColor,
+                ].map(color => (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-3" key={color}>
+                    <div className="h-14 rounded-xl" style={{ backgroundColor: color }} />
+                    <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{color}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <form className="section-card page-stack" onSubmit={saveAppearanceSettings}>
+              <div className="page-header-row">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.appearanceTitle')}</h2>
+                  <p className="helper-copy">{t('settings.appearanceDescription')}</p>
+                </div>
+                <Settings2 className="size-5 text-slate-400" />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                {(
+                  [
+                    ['themePreset', t('settings.themePreset')],
+                    ['primaryColor', t('settings.primaryColor')],
+                    ['secondaryColor', t('settings.secondaryColor')],
+                    ['accentColor', t('settings.accentColor')],
+                    ['neutralColor', t('settings.neutralColor')],
+                    ['surfaceColor', t('settings.surfaceColor')],
+                    ['backgroundColor', t('settings.backgroundColor')],
+                    ['headerGradientFrom', t('settings.headerGradientFrom')],
+                    ['headerGradientTo', t('settings.headerGradientTo')],
+                    ['sidebarBackgroundColor', t('settings.sidebarBackgroundColor')],
+                    ['sidebarForegroundColor', t('settings.sidebarForegroundColor')],
+                    ['logoUrl', t('settings.logoUrl')],
+                    ['loginBackgroundImageUrl', t('settings.loginBackgroundImageUrl')],
+                  ] as const
+                ).map(([field, label]) => (
+                  <label className="grid gap-2 text-sm font-semibold text-slate-700" key={field}>
+                    <span>{label}</span>
+                    <input
+                      className="field-input"
+                      placeholder={field === 'logoUrl' || field === 'loginBackgroundImageUrl' ? t('settings.urlPlaceholder') : undefined}
+                      value={appearanceForm[field] ?? ''}
+                      onChange={event => {
+                        const nextValue = event.target.value
+                        setAppearanceForm(current => ({
+                          ...current,
+                          [field]:
+                            field === 'logoUrl' || field === 'loginBackgroundImageUrl'
+                              ? (nextValue || null)
+                              : nextValue,
+                        }))
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+              <div className="inline-actions">
+                <Button type="submit">{t('common.save')}</Button>
+                <Button type="button" variant="secondary" onClick={() => setAppearanceForm(loadedAppearance)}>{t('settings.reset')}</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
+      {activeTab === 'roles' ? (
+        <section className="section-card page-stack">
+          <div className="page-header-row">
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-950">{t('settings.roles.title')}</h2>
+              <p className="helper-copy">{t('settings.roles.description')}</p>
+            </div>
+            <ShieldCheck className="size-5 text-slate-400" />
+          </div>
+          <div className="table-wrap">
+            <table className="data-table role-matrix-table">
+              <thead>
+                <tr>
+                  <th>{t('settings.roles.page')}</th>
+                  {ROLE_CODES.map(role => (
+                    <th key={role}>{getRoleLabel(t, role)}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {PAGE_ACCESS_ITEMS.map(page => (
+                  <tr key={page.key}>
+                    <td className="font-semibold">{t(page.labelKey)}</td>
+                    {ROLE_CODES.map(role => {
+                      const disabled = page.key === 'dashboard' || page.key === 'settings'
+                      return (
+                        <td key={`${role}-${page.key}`}>
+                          <label className="role-matrix-toggle">
+                            <input
+                              checked={rolePageAccess[role][page.key]}
+                              disabled={disabled}
+                              type="checkbox"
+                              onChange={() => toggleRolePageAccess(role, page.key)}
+                            />
+                            <span>{rolePageAccess[role][page.key] ? t('common.enabled') : t('common.disabled')}</span>
+                          </label>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="helper-copy">{t('settings.roles.note')}</p>
+          <div className="inline-actions">
+            <Button type="button" onClick={saveRolePages}>{t('common.save')}</Button>
+            <Button type="button" variant="secondary" onClick={resetRolePages}>{t('settings.roles.resetDefaults')}</Button>
+          </div>
+        </section>
       ) : null}
 
       {activeTab === 'social' && socialStatus ? (

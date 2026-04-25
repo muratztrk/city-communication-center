@@ -8,6 +8,7 @@ import { SidebarNav } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
+import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT } from '../lib/rolePageAccess'
 import { getRoleLabel } from '../utils/localization'
 
 export function AppShell() {
@@ -16,6 +17,7 @@ export function AppShell() {
   const location = useLocation()
   const { user, logout } = useAuth()
   const { appearance } = useTenantTheme()
+  const [accessVersion, setAccessVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     return window.localStorage.getItem('ccc_sidebar_collapsed') === 'true'
   })
@@ -25,23 +27,32 @@ export function AppShell() {
     window.localStorage.setItem('ccc_sidebar_collapsed', String(isSidebarCollapsed))
   }, [isSidebarCollapsed])
 
+  useEffect(() => {
+    const updateAccess = () => setAccessVersion(version => version + 1)
+    window.addEventListener('storage', updateAccess)
+    window.addEventListener(ROLE_PAGE_ACCESS_EVENT, updateAccess)
+    return () => {
+      window.removeEventListener('storage', updateAccess)
+      window.removeEventListener(ROLE_PAGE_ACCESS_EVENT, updateAccess)
+    }
+  }, [])
+
   const institutionName = user?.tenantName || 'Tire Belediyesi'
   const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
   const logoUrl = appearance.logoUrl?.trim() || null
   const navItems = [
-    { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
-    { path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
-    { path: '/social', label: t('nav.social'), icon: MessageSquareMore },
-    { path: '/jobs', label: t('nav.jobs'), icon: FolderKanban },
-    { path: '/display', label: t('nav.display'), icon: MonitorUp },
-    { path: '/departments', label: t('nav.departments'), icon: Building },
-    { path: '/users', label: t('nav.users'), icon: Users },
-    { path: '/audit', label: t('nav.audit'), icon: ScrollText },
+    { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { pageKey: 'tasks' as const, path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
+    { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
+    { pageKey: 'jobs' as const, path: '/jobs', label: t('nav.jobs'), icon: FolderKanban },
+    { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp },
+    { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
+    { pageKey: 'users' as const, path: '/users', label: t('nav.users'), icon: Users },
+    { pageKey: 'audit' as const, path: '/audit', label: t('nav.audit'), icon: ScrollText },
+    { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },
   ]
-
-  if (user?.role === 'SystemAdmin') {
-    navItems.push({ path: '/settings', label: t('nav.settings'), icon: Settings2 })
-  }
+    .filter(item => canRoleAccessPage(user?.role, item.pageKey))
+  void accessVersion
 
   const handleLogout = () => {
     logout()

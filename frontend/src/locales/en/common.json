@@ -428,6 +428,8 @@
     "subtitle": "Manage organization info, appearance, social integration, and routing settings.",
     "tabs": {
       "organization": "Organization",
+      "appearance": "Appearance",
+      "roles": "Role Permissions",
       "social": "Social Media",
       "routing": "Auto Routing",
       "citizen": "Citizen Requests"
@@ -516,6 +518,15 @@
     "authWebhookUrl": "Webhook URL",
     "authWebhookUrlPlaceholder": "https://auth.example.com/send-code",
     "authSaveSuccess": "Authentication policy saved.",
+    "roles": {
+      "title": "Role Page Permissions",
+      "description": "Configure which application pages each role can see.",
+      "page": "Page",
+      "note": "This matrix controls page visibility in the user interface. Dashboard remains available to everyone; system settings stay limited to the System Administrator role.",
+      "saveSuccess": "Role page permissions saved.",
+      "resetSuccess": "Role page permissions reset to defaults.",
+      "resetDefaults": "Reset Defaults"
+    },
     "socialConfig": {
       "sectionTitle": "Social Integrations",
       "sectionDescription": "Manage tenant-level credentials for each channel.",

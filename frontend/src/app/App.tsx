@@ -1,7 +1,8 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
+import { canRoleAccessPage, type PageAccessKey } from '../lib/rolePageAccess'
 
 const AppShell = lazy(() => import('./AppShell').then(module => ({ default: module.AppShell })))
 const AuditLogsPage = lazy(() => import('../pages/AuditLogsPage').then(module => ({ default: module.AuditLogsPage })))
@@ -28,6 +29,10 @@ function LoadingScreen() {
   )
 }
 
+function PageAccessGate({ pageKey, role, children }: { pageKey: PageAccessKey; role?: string; children: ReactNode }) {
+  return canRoleAccessPage(role, pageKey) ? children : <Navigate to="/dashboard" replace />
+}
+
 export default function App() {
   const { isAuthenticated, isLoading, user } = useAuth()
 
@@ -49,20 +54,20 @@ export default function App() {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        <Route path="/display" element={<WallboardPage />} />
+        <Route path="/display" element={<PageAccessGate pageKey="display" role={user?.role}><WallboardPage /></PageAccessGate>} />
         <Route element={<AppShell />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/tasks" element={<TasksPage />} />
-          <Route path="/jobs" element={<JobsPage />} />
-          <Route path="/social" element={<SocialMessagesPage />} />
-          <Route path="/departments" element={<DepartmentsPage />} />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/audit" element={<AuditLogsPage />} />
+          <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" role={user?.role}><DashboardPage /></PageAccessGate>} />
+          <Route path="/tasks" element={<PageAccessGate pageKey="tasks" role={user?.role}><TasksPage /></PageAccessGate>} />
+          <Route path="/jobs" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
+          <Route path="/social" element={<PageAccessGate pageKey="social" role={user?.role}><SocialMessagesPage /></PageAccessGate>} />
+          <Route path="/departments" element={<PageAccessGate pageKey="departments" role={user?.role}><DepartmentsPage /></PageAccessGate>} />
+          <Route path="/users" element={<PageAccessGate pageKey="users" role={user?.role}><UsersPage /></PageAccessGate>} />
+          <Route path="/audit" element={<PageAccessGate pageKey="audit" role={user?.role}><AuditLogsPage /></PageAccessGate>} />
           <Route
             path="/settings"
-            element={user?.role === 'SystemAdmin' ? <SettingsPage /> : <Navigate to="/dashboard" replace />}
+            element={user?.role === 'SystemAdmin' && canRoleAccessPage(user?.role, 'settings') ? <SettingsPage /> : <Navigate to="/dashboard" replace />}
           />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -428,6 +428,8 @@
     "subtitle": "Kurum bilgisi, görünüm, sosyal entegrasyon ve yönlendirme ayarlarını yönetin.",
     "tabs": {
       "organization": "Kurum",
+      "appearance": "Görünüm",
+      "roles": "Rol Yetkileri",
       "social": "Sosyal Medya",
       "routing": "Otomatik Yönlendirme",
       "citizen": "Vatandaş Talepleri"
@@ -526,6 +528,15 @@
     "authWebhookUrl": "Webhook URL",
     "authWebhookUrlPlaceholder": "https://auth.example.com/send-code",
     "authSaveSuccess": "Kimlik politikası kaydedildi.",
+    "roles": {
+      "title": "Rol Sayfa Yetkileri",
+      "description": "Her rolün uygulamada hangi sayfaları görebileceğini düzenleyin.",
+      "page": "Sayfa",
+      "note": "Bu matris arayüzdeki sayfa görünürlüğünü yönetir. Kontrol paneli herkes için açık kalır; sistem ayarları yalnızca Sistem Yöneticisi rolüne açıktır.",
+      "saveSuccess": "Rol sayfa yetkileri kaydedildi.",
+      "resetSuccess": "Rol sayfa yetkileri varsayılanlara döndürüldü.",
+      "resetDefaults": "Varsayılanlara Dön"
+    },
     "socialConfig": {
       "sectionTitle": "Sosyal Entegrasyonlar",
       "sectionDescription": "Her kanal için tenant bazlı erişim bilgilerini yönetin.",

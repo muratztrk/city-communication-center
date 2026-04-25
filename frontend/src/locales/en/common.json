@@ -50,6 +50,7 @@
     "tenantAppearanceLoadFailed": "Failed to load appearance settings.",
     "tenantAppearanceSaveFailed": "Failed to save appearance settings.",
     "tasksLoadFailed": "Failed to load tasks.",
+    "taskLoadFailed": "Failed to load task details.",
     "taskCreateFailed": "Failed to create task.",
     "taskSubmitFailed": "Failed to submit task.",
     "taskApproveFailed": "Failed to approve task.",

@@ -105,6 +105,42 @@ export interface Task {
   ownerDisplayName?: string | null;
 }
 
+export interface TaskDetail {
+  taskId: string;
+  tenantId: string;
+  jobId: string;
+  jobTitle: string | null;
+  title: string;
+  description: string;
+  priority: string;
+  currentStatus: TaskCurrentStatus;
+  assignedDepartmentId: string | null;
+  assignedUserId: string | null;
+  startDateUtc: string | null;
+  dueDateUtc: string | null;
+  completedAtUtc: string | null;
+  completionPercentage: number | null;
+  estimatedHours: number | null;
+  actualHours: number | null;
+  notes: string | null;
+  revisionReason: string | null;
+  createdByDisplayName: string | null;
+  createdAtUtc: string;
+  approvals: JobApprovalStep[];
+  assignmentHistory: AssignmentHistory[];
+  ownerDisplayName: string | null;
+}
+
+export interface AssignmentHistory {
+  assignmentId: string;
+  fromDepartmentId: string | null;
+  toDepartmentId: string | null;
+  fromUserId: string | null;
+  toUserId: string | null;
+  actionType: string;
+  actionDateUtc: string;
+}
+
 export type JobStatus =
   | 'Draft'
   | 'PendingOwnerApproval'

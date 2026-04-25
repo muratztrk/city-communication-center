@@ -50,6 +50,7 @@
     "tenantAppearanceLoadFailed": "Görünüm ayarları alınamadı.",
     "tenantAppearanceSaveFailed": "Görünüm ayarları kaydedilemedi.",
     "tasksLoadFailed": "İşler alınamadı.",
+    "taskLoadFailed": "İş detayı alınamadı.",
     "taskCreateFailed": "İş oluşturulamadı.",
     "taskSubmitFailed": "İş gönderilemedi.",
     "taskApproveFailed": "İş onaylanamadı.",

@@ -13,6 +13,7 @@ import type {
   SocialSettingsSaveResult,
   SocialSettingsStatus,
   Task,
+  TaskDetail,
   TaskListScope,
   JobSummary,
   JobDetail,
@@ -306,6 +307,12 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/tasks${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.tasksLoadFailed'))
     return response.json() as Promise<Task[]>
+  },
+
+  async getTaskById(taskId: string): Promise<TaskDetail> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.taskLoadFailed', 'Failed to load task'))
+    return response.json() as Promise<TaskDetail>
   },
 
   async createTask(task: {

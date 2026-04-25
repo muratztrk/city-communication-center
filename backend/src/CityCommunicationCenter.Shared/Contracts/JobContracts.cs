@@ -42,7 +42,8 @@ public sealed record JobSummaryResponse(
     int? CompletionPercentage,
     bool IsCoordinated,
     string SourceType,
-    int TaskCount);
+    int TaskCount,
+    IReadOnlyCollection<JobDepartmentResponse> Departments);
 
 public sealed record JobDetailResponse(
     Guid JobId,

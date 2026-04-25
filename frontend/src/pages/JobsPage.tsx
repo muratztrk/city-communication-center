@@ -6,7 +6,7 @@ import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import type { Department, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
+import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
 import { getLocale, getPriorityLabel } from '../utils/localization'
 
 const SCOPES: { value: JobListScope; labelKey: string }[] = [
@@ -18,6 +18,18 @@ const SCOPES: { value: JobListScope; labelKey: string }[] = [
 
 function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
+}
+
+function getDepartmentRoleTone(role: string) {
+  if (role === 'Owner') return 'info' as const
+  if (role === 'Support') return 'warning' as const
+  if (role === 'Target') return 'success' as const
+  return 'neutral' as const
+}
+
+function sortJobDepartments(departments: JobDepartmentInfo[]) {
+  const order: Record<string, number> = { Owner: 0, Target: 1, Support: 2, Coordinating: 3 }
+  return [...departments].sort((a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9))
 }
 
 function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
@@ -254,6 +266,41 @@ export function JobsPage() {
     }
   }
 
+  const renderJobDepartments = (job: JobSummary) => {
+    const departmentsForJob = sortJobDepartments(job.departments ?? [])
+    const owner = departmentsForJob.find(department => department.role === 'Owner')
+    const related = departmentsForJob.filter(department => department.role !== 'Owner')
+    const visibleRelated = related.slice(0, 3)
+    const hiddenRelatedCount = related.length - visibleRelated.length
+    const ownerName = owner?.departmentName ?? job.ownerDepartmentName ?? '—'
+
+    return (
+      <div className="min-w-[14rem] max-w-[24rem] space-y-1.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="text-[0.68rem] font-bold uppercase tracking-wide text-slate-500">{t('jobs.roles.Owner')}</span>
+          <span className="truncate font-semibold text-slate-950" title={ownerName}>{ownerName}</span>
+        </div>
+        {related.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {visibleRelated.map(department => {
+              const roleLabel = t(`jobs.roles.${department.role}`, department.role)
+              const departmentName = department.departmentName ?? '—'
+              const label = `${roleLabel}: ${departmentName}`
+              return (
+                <StatusPill key={department.jobDepartmentId} tone={getDepartmentRoleTone(department.role)} title={label} className="max-w-[11rem]">
+                  <span className="truncate">{label}</span>
+                </StatusPill>
+              )
+            })}
+            {hiddenRelatedCount > 0 ? (
+              <StatusPill tone="neutral">{t('jobs.departmentsMore', { count: hiddenRelatedCount, defaultValue: '+{{count}} müdürlük' })}</StatusPill>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    )
+  }
+
   return (
     <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
@@ -412,11 +459,11 @@ export function JobsPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table">
+            <table className="data-table jobs-table">
               <thead>
                 <tr>
                   <th>{t('jobs.columns.title')}</th>
-                  <th>{t('jobs.columns.ownerDepartment')}</th>
+                  <th>{t('jobs.columns.departments')}</th>
                   <th>{t('jobs.columns.status')}</th>
                   <th>{t('jobs.columns.priority')}</th>
                   <th>{t('jobs.columns.progress')}</th>
@@ -429,7 +476,7 @@ export function JobsPage() {
                 {jobs.map(job => (
                   <tr key={job.jobId}>
                     <td className="font-semibold">{job.title}</td>
-                    <td>{job.ownerDepartmentName ?? '—'}</td>
+                    <td>{renderJobDepartments(job)}</td>
                     <td><StatusPill>{getJobStatusLabel(t, job.status)}</StatusPill></td>
                     <td>{getPriorityLabel(t, job.priority)}</td>
                     <td>{job.completionPercentage ?? 0}%</td>
@@ -496,7 +543,7 @@ export function JobsPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>{t('departments.name', 'Birim')}</th>
+                    <th>{t('departments.name', 'Müdürlük')}</th>
                     <th>{t('jobs.detail.role')}</th>
                   </tr>
                 </thead>
@@ -562,7 +609,7 @@ export function JobsPage() {
                     </select>
                   </div>
                   <div className="form-row">
-                    <label className="form-label">{t('tasks.form.assignedDepartment', 'Atanan Birim')}</label>
+                    <label className="form-label">{t('tasks.form.assignedDepartment', 'Atanan Müdürlük')}</label>
                     <select className="form-input" value={taskForm.assignedDepartmentId}
                       onChange={e => setTaskForm(f => ({ ...f, assignedDepartmentId: e.target.value }))}>
                       <option value="">{t('common.optional', '— Seçin (opsiyonel)')}</option>

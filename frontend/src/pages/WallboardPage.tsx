@@ -231,7 +231,7 @@ export function WallboardPage() {
                   </span>
                 </div>
                 <div className="wallboard-item-footer">
-                  <span><Building2 className="size-4" />{item.department ?? t('wallboard.unassignedDepartment', 'Birim bekliyor')}</span>
+                  <span><Building2 className="size-4" />{item.department ?? t('wallboard.unassignedDepartment', 'Müdürlük bekliyor')}</span>
                   <span><UserRound className="size-4" />{item.assignee ?? t('wallboard.unassignedUser', 'Kişi ataması yok')}</span>
                 </div>
               </article>

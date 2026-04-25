@@ -948,14 +948,14 @@ export function SettingsPage() {
           <section className="section-card page-stack">
             <div className="page-header-row">
               <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.departments.sectionTitle', 'Birimler')}</h2>
-                <p className="helper-copy">{t('settings.departments.sectionDescription', 'Her birimin müdürünü buradan atayın.')}</p>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.departments.sectionTitle', 'Müdürlükler')}</h2>
+                <p className="helper-copy">{t('settings.departments.sectionDescription', 'Her müdürlüğün müdürünü buradan atayın.')}</p>
               </div>
             </div>
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>{t('settings.departments.name', 'Birim Adı')}</th>
+                  <th>{t('settings.departments.name', 'Müdürlük Adı')}</th>
                   <th>{t('settings.departments.type', 'Tür')}</th>
                   <th>{t('settings.departments.manager', 'Müdür')}</th>
                   <th>{t('settings.departments.actions', 'İşlem')}</th>

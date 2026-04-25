@@ -138,6 +138,7 @@ export interface JobSummary {
   isCoordinated: boolean;
   sourceType: string;
   taskCount: number;
+  departments: JobDepartmentInfo[];
 }
 
 export interface JobDepartmentInfo {

@@ -12,6 +12,26 @@ internal static class JobSummaryResponseFactory
             .Select(d => d.Name)
             .FirstOrDefaultAsync(cancellationToken);
         var taskCount = await dbContext.Tasks.CountAsync(t => t.JobId == job.JobId, cancellationToken);
+        var departments = await dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(jd => jd.JobId == job.JobId)
+            .Select(jd => new JobDepartmentResponse(
+                jd.JobDepartmentId,
+                jd.DepartmentId,
+                dbContext.Departments
+                    .AsNoTracking()
+                    .Where(d => d.DepartmentId == jd.DepartmentId)
+                    .Select(d => (string?)d.Name)
+                    .FirstOrDefault(),
+                jd.Role.ToString(),
+                jd.ApprovalStatus.ToString(),
+                jd.RequestedByUserId,
+                jd.ApprovedByUserId,
+                jd.RequestedAtUtc,
+                jd.DecidedAtUtc,
+                jd.RejectReason,
+                jd.Notes))
+            .ToListAsync(cancellationToken);
 
         return new JobSummaryResponse(
             job.JobId,
@@ -27,6 +47,7 @@ internal static class JobSummaryResponseFactory
             job.CompletionPercentage,
             job.IsCoordinated,
             job.SourceType.ToString(),
-            taskCount);
+            taskCount,
+            departments);
     }
 }

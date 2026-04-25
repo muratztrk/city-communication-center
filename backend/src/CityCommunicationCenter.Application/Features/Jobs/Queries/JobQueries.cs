@@ -64,6 +64,33 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             .Select(g => new { JobId = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
         var countsMap = counts.ToDictionary(x => x.JobId, x => x.Count);
+        var departments = await _dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(jd => jobIds.Contains(jd.JobId))
+            .Select(jd => new
+            {
+                jd.JobId,
+                Department = new JobDepartmentResponse(
+                    jd.JobDepartmentId,
+                    jd.DepartmentId,
+                    _dbContext.Departments
+                        .AsNoTracking()
+                        .Where(d => d.DepartmentId == jd.DepartmentId)
+                        .Select(d => (string?)d.Name)
+                        .FirstOrDefault(),
+                    jd.Role.ToString(),
+                    jd.ApprovalStatus.ToString(),
+                    jd.RequestedByUserId,
+                    jd.ApprovedByUserId,
+                    jd.RequestedAtUtc,
+                    jd.DecidedAtUtc,
+                    jd.RejectReason,
+                    jd.Notes)
+            })
+            .ToListAsync(cancellationToken);
+        var departmentsMap = departments
+            .GroupBy(x => x.JobId)
+            .ToDictionary(x => x.Key, x => (IReadOnlyCollection<JobDepartmentResponse>)x.Select(d => d.Department).ToArray());
 
         return rows.Select(r => new JobSummaryResponse(
             r.Job.JobId,
@@ -79,7 +106,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.CompletionPercentage,
             r.Job.IsCoordinated,
             r.Job.SourceType.ToString(),
-            countsMap.GetValueOrDefault(r.Job.JobId, 0))).ToArray();
+            countsMap.GetValueOrDefault(r.Job.JobId, 0),
+            departmentsMap.GetValueOrDefault(r.Job.JobId, Array.Empty<JobDepartmentResponse>()))).ToArray();
     }
 }
 

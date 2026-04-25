@@ -101,7 +101,7 @@ export function SocialMessagesPage() {
       message?.assignedDepartmentId ||
       ''
     if (!ownerDepartmentId) {
-      setError(t('social.ownerDepartmentRequired', 'Önce bir birim seçin.'))
+      setError(t('social.ownerDepartmentRequired', 'Önce bir müdürlük seçin.'))
       return
     }
 

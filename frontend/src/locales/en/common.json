@@ -723,6 +723,7 @@
   "jobs": {
     "subtitle": "Track internal jobs, split them into tasks, and follow progress.",
     "empty": "No jobs",
+    "departmentsMore": "+{{count}} departments",
     "scopes": {
       "mine": "Created by me",
       "myDepartment": "My Department",
@@ -734,6 +735,7 @@
     "columns": {
       "title": "Title",
       "ownerDepartment": "Owner",
+      "departments": "Departments",
       "status": "Status",
       "priority": "Priority",
       "progress": "Progress",

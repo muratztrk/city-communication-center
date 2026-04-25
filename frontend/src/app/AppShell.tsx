@@ -150,13 +150,13 @@ export function AppShell() {
             <div className="mt-3 flex-1 overflow-y-auto scrollbar-none">
               <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} />
             </div>
-            <div className="mt-3 space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
-              <div>
+            <div className="mt-3 min-w-0 space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3.5">
+              <div className="min-w-0">
                 <div className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-white/55">{t('shell.liveTenant')}</div>
-                <div className="mt-1 text-sm font-semibold text-white">{user?.displayName}</div>
-                <div className="text-xs text-white/70">
-                  <span className="rounded bg-white/10 px-1 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60 mr-1">{t('shell.roleLabel', 'Rol')}</span>
-                  {getRoleLabel(t, user?.role ?? '')}
+                <div className="mt-1 truncate text-sm font-semibold text-white" title={user?.displayName}>{user?.displayName}</div>
+                <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-xs leading-snug text-white/70">
+                  <span className="rounded bg-white/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60">{t('shell.roleLabel', 'Rol')}</span>
+                  <span className="min-w-0 break-words">{getRoleLabel(t, user?.role ?? '')}</span>
                 </div>
               </div>
             </div>
@@ -194,15 +194,15 @@ export function AppShell() {
             <SidebarNav items={navItems} collapsed={isSidebarCollapsed} />
           </div>
 
-          <div className="mt-auto space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
+          <div className="mt-auto min-w-0 space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3.5">
             {!isSidebarCollapsed ? (
               <>
                 <div className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-white/55">{t('shell.liveTenant')}</div>
-                <div className="space-y-1">
-                  <div className="text-sm font-semibold text-white">{user?.displayName}</div>
-                  <div className="text-xs text-white/70">
-                    <span className="rounded bg-white/10 px-1 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60 mr-1">{t('shell.roleLabel', 'Rol')}</span>
-                    {getRoleLabel(t, user?.role ?? '')}
+                <div className="min-w-0 space-y-1.5">
+                  <div className="truncate text-sm font-semibold text-white" title={user?.displayName}>{user?.displayName}</div>
+                  <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs leading-snug text-white/70">
+                    <span className="rounded bg-white/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60">{t('shell.roleLabel', 'Rol')}</span>
+                    <span className="min-w-0 break-words">{getRoleLabel(t, user?.role ?? '')}</span>
                   </div>
                 </div>
               </>

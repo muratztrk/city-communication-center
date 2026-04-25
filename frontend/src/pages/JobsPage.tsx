@@ -496,7 +496,7 @@ export function JobsPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>{t('departments.name', 'Müdürlük')}</th>
+                    <th>{t('departments.name', 'Birim')}</th>
                     <th>{t('jobs.detail.role')}</th>
                   </tr>
                 </thead>
@@ -562,7 +562,7 @@ export function JobsPage() {
                     </select>
                   </div>
                   <div className="form-row">
-                    <label className="form-label">{t('tasks.form.assignedDepartment', 'Atanan Müdürlük')}</label>
+                    <label className="form-label">{t('tasks.form.assignedDepartment', 'Atanan Birim')}</label>
                     <select className="form-input" value={taskForm.assignedDepartmentId}
                       onChange={e => setTaskForm(f => ({ ...f, assignedDepartmentId: e.target.value }))}>
                       <option value="">{t('common.optional', '— Seçin (opsiyonel)')}</option>

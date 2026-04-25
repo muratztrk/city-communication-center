@@ -239,7 +239,7 @@ export function AppShell() {
         <main id="main-content" className="flex min-h-[calc(100dvh-3.6rem)] w-full max-w-none flex-col px-3 py-3 sm:px-4 md:min-h-0 md:flex-1 md:overflow-y-auto lg:px-6 lg:py-4 xl:px-7 2xl:px-8">
           {breadcrumbSegments.length > 0 && location.pathname !== '/dashboard' ? (
             <div className="mb-2">
-              <button type="button" className="inline-flex items-center gap-1.5 text-sm font-medium text-[color:var(--color-muted-foreground)] hover:text-slate-900" onClick={() => navigate(-1)}>
+              <button type="button" className="back-button" onClick={() => navigate(-1)}>
                 ← Geri
               </button>
             </div>

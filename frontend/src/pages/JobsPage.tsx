@@ -20,6 +20,10 @@ function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
 }
 
+function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
+  const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void }
+  input.showPicker?.()
+}
 
 interface CreateFormState {
   title: string
@@ -102,6 +106,25 @@ export function JobsPage() {
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [scope, t, user?.userId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      api.getJobs(scope)
+        .then(jobList => {
+          setJobs(jobList)
+          setError(null)
+        })
+        .catch(err => setError(err instanceof Error ? err.message : t('common.error')))
+
+      if (detail?.jobId) {
+        api.getJobById(detail.jobId)
+          .then(setDetail)
+          .catch(() => undefined)
+      }
+    }, 30000)
+
+    return () => window.clearInterval(intervalId)
+  }, [detail?.jobId, scope, t])
 
   const reload = async () => {
     try { setJobs(await api.getJobs(scope)) }
@@ -224,7 +247,9 @@ export function JobsPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
+            <div className="page-kicker">{t('jobs.scopes.active', 'Aktif')}</div>
             <h1 className="page-title">{t('nav.jobs', 'İşler')}</h1>
+            <p className="page-subtitle">{t('jobs.subtitle', 'Kurum içi işleri izleyin, görevlere ayırın ve ilerlemeyi takip edin.')}</p>
           </div>
           <Button type="button" onClick={() => (showForm ? setShowForm(false) : openCreateForm())}>
             {showForm ? t('common.cancel') : t('jobs.actions.new', 'Yeni İş')}
@@ -307,7 +332,6 @@ export function JobsPage() {
                 value={form.priority}
                 onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
               >
-                <option value="Low">{getPriorityLabel(t, 'Low')}</option>
                 <option value="Normal">{getPriorityLabel(t, 'Normal')}</option>
                 <option value="High">{getPriorityLabel(t, 'High')}</option>
               </select>
@@ -319,7 +343,9 @@ export function JobsPage() {
                 id="job-start-date"
                 className="field-input"
                 type="date"
+                placeholder="gg.aa.yyyy"
                 value={form.startDateUtc}
+                onClick={openDatePicker}
                 onChange={e => setForm(f => ({ ...f, startDateUtc: e.target.value }))}
               />
             </div>
@@ -330,7 +356,9 @@ export function JobsPage() {
                 id="job-due-date"
                 className="field-input"
                 type="date"
+                placeholder="gg.aa.yyyy"
                 value={form.dueDateUtc}
+                onClick={openDatePicker}
                 onChange={e => setForm(f => ({ ...f, dueDateUtc: e.target.value }))}
               />
             </div>
@@ -516,7 +544,6 @@ export function JobsPage() {
                     <label className="form-label">{t('tasks.form.priority', 'Öncelik')}</label>
                     <select className="form-input" value={taskForm.priority}
                       onChange={e => setTaskForm(f => ({ ...f, priority: e.target.value }))}>
-                      <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
                       <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
                       <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
                       <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
@@ -535,6 +562,8 @@ export function JobsPage() {
                   <div className="form-row">
                     <label className="form-label">{t('tasks.form.dueDate', 'Son Tarih')}</label>
                     <input type="date" className="form-input" value={taskForm.dueDateUtc}
+                      placeholder="gg.aa.yyyy"
+                      onClick={openDatePicker}
                       onChange={e => setTaskForm(f => ({ ...f, dueDateUtc: e.target.value }))} />
                   </div>
                   <div className="flex gap-2 justify-end mt-2">

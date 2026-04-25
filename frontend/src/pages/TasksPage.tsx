@@ -17,7 +17,7 @@ const SCOPES: { value: TaskListScope; labelKey: string }[] = [
 
 function availableScopes(role?: string): TaskListScope[] {
   if (role === 'SystemAdmin' || role === 'Manager') return ['mine', 'department-pool', 'pending-close-approval', 'all']
-  if (role === 'Staff' || role === 'Operator') return ['mine', 'department-pool']
+  if (role === 'Staff' || role === 'Operator') return ['mine']
   return ['mine']
 }
 
@@ -47,6 +47,19 @@ export function TasksPage() {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
+  }, [currentScope, t])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      api.getTasks(currentScope)
+        .then(list => {
+          setTasks(list)
+          setError(null)
+        })
+        .catch(err => setError(err instanceof Error ? err.message : t('common.error')))
+    }, 30000)
+
+    return () => window.clearInterval(intervalId)
   }, [currentScope, t])
 
   const reload = async () => {
@@ -134,12 +147,20 @@ export function TasksPage() {
 
   const isAssignee = (task: Task) => task.assignedUserId === user?.userId
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const openDatePicker = (event: React.MouseEvent<HTMLInputElement>) => {
+    const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void }
+    input.showPicker?.()
+  }
 
   return (
-    <div className="page">
-      <header className="page-header">
+    <div className="page-stack desktop-page-shell">
+      <header className="sticky-page-header">
         <div className="page-header-row">
-          <h1>{t('nav.tasks')}</h1>
+          <div className="space-y-1">
+            <div className="page-kicker">{t('tasks.scopeSelector', 'İş görünümleri')}</div>
+            <h1 className="page-title">{t('nav.tasks')}</h1>
+            <p className="page-subtitle">{t('tasks.subtitle')}</p>
+          </div>
           <Button onClick={() => setShowForm(v => !v)}>
             {t('tasks.newRequest.button', 'Yeni Talep')}
           </Button>
@@ -185,7 +206,6 @@ export function TasksPage() {
                 >
                   <option value="High">{t('jobs.priorities.High', 'Yüksek')}</option>
                   <option value="Normal">{t('jobs.priorities.Normal', 'Normal')}</option>
-                  <option value="Low">{t('jobs.priorities.Low', 'Düşük')}</option>
                 </select>
               </div>
               <div className="job-field">
@@ -193,7 +213,9 @@ export function TasksPage() {
                 <input
                   type="date"
                   className="field-input"
+                  placeholder="gg.aa.yyyy"
                   value={form.dueDateUtc}
+                  onClick={openDatePicker}
                   onChange={e => setForm(cur => ({ ...cur, dueDateUtc: e.target.value }))}
                 />
               </div>

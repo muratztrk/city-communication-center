@@ -310,7 +310,7 @@
   },
   "tasks": {
     "title": "Tasks",
-    "subtitle": "Split task views by role, manage the department pool, and complete assignments.",
+    "subtitle": "Split task views by role, manage the unit pool, and complete assignments.",
     "summary": {
       "total": "Total Tasks",
       "pendingApproval": "Pending Approval",
@@ -320,14 +320,14 @@
     "scopeSelector": "Task views",
     "scopes": {
       "mine": "My Tasks",
-      "departmentPool": "Department Pool",
+      "departmentPool": "Unit Pool",
       "pendingApproval": "Pending Approvals",
       "all": "All",
       "pendingCloseApproval": "Pending Close Approval"
     },
     "scopeDescriptions": {
       "mine": "Track tasks assigned to you or otherwise relevant to your day-to-day work.",
-      "departmentPool": "Review tasks assigned to your department but not yet claimed by a person, and claim them when needed.",
+      "departmentPool": "Review tasks assigned to your unit but not yet claimed by a person, and claim them when needed.",
       "pendingApproval": "Review tasks waiting for an approval or rejection decision in the manager workflow.",
       "all": "Browse every task visible to your current role in a single list."
     },
@@ -352,7 +352,7 @@
     "close": "Close",
     "assignedTo": "Assigned To",
     "department": "Department",
-    "departmentPoolAssignee": "Department pool",
+    "departmentPoolAssignee": "Unit pool",
     "departmentSelection": "Select department",
     "userSelection": "Select user",
     "empty": "No tasks found yet",
@@ -681,6 +681,7 @@
     }
   },
   "jobs": {
+    "subtitle": "Track internal jobs, split them into tasks, and follow progress.",
     "empty": "No jobs",
     "scopes": {
       "mine": "Created by me",

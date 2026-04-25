@@ -310,7 +310,7 @@
   },
   "tasks": {
     "title": "İşler",
-    "subtitle": "İş görünümlerini role göre ayırın, müdürlük havuzunu yönetin ve atamaları tamamlayın.",
+    "subtitle": "İş görünümlerini role göre ayırın, birim havuzunu yönetin ve atamaları tamamlayın.",
     "summary": {
       "total": "Toplam İş",
       "pendingApproval": "Onay Bekleyen",
@@ -320,14 +320,14 @@
     "scopeSelector": "İş görünümleri",
     "scopes": {
       "mine": "Benim Görevlerim",
-      "departmentPool": "Departman Havuzu",
+      "departmentPool": "Birim Havuzu",
       "pendingApproval": "Onay Bekleyen",
       "all": "Tümü",
       "pendingCloseApproval": "Kapanış Onayı Bekleyen"
     },
     "scopeDescriptions": {
       "mine": "Size atanmış veya sizin için öncelikli işleri izleyin.",
-      "departmentPool": "Müdürlüğünüze atanan ancak kişiye bağlanmamış işleri görün ve gerekirse üstlenin.",
+      "departmentPool": "Biriminize atanan ancak kişiye bağlanmamış işleri görün ve gerekirse üstlenin.",
       "pendingApproval": "Onay veya ret kararı bekleyen işleri yönetici akışında izleyin.",
       "all": "Yetkiniz dahilindeki tüm işleri tek listede görüntüleyin."
     },
@@ -352,7 +352,7 @@
     "close": "Kapat",
     "assignedTo": "Atanan",
     "department": "Müdürlük",
-    "departmentPoolAssignee": "Müdürlük havuzu",
+    "departmentPoolAssignee": "Birim havuzu",
     "departmentSelection": "Müdürlük seç",
     "userSelection": "Kullanıcı seç",
     "empty": "Henüz iş bulunmuyor",
@@ -691,6 +691,7 @@
     }
   },
   "jobs": {
+    "subtitle": "Kurum içi işleri izleyin, görevlere ayırın ve ilerlemeyi takip edin.",
     "empty": "Hiç iş bulunamadı",
     "scopes": {
       "mine": "Oluşturduğum",

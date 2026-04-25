@@ -348,6 +348,18 @@
       "pendingApproval": "Review tasks waiting for an approval or rejection decision in the manager workflow.",
       "all": "Browse every task visible to your current role in a single list."
     },
+    "columns": {
+      "title": "Title",
+      "job": "Job",
+      "status": "Status",
+      "priority": "Priority",
+      "assignedTo": "Assigned",
+      "owner": "Owner",
+      "createdBy": "Created By",
+      "progress": "Progress",
+      "dueDate": "Due",
+      "actions": "Actions"
+    },
     "new": "+ New Task",
     "newCancel": "Cancel",
     "newFormTitle": "New Task",

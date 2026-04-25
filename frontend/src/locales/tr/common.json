@@ -348,6 +348,18 @@
       "pendingApproval": "Onay veya ret kararı bekleyen işleri yönetici akışında izleyin.",
       "all": "Yetkiniz dahilindeki tüm işleri tek listede görüntüleyin."
     },
+    "columns": {
+      "title": "Başlık",
+      "job": "İş",
+      "status": "Durum",
+      "priority": "Öncelik",
+      "assignedTo": "Atanan",
+      "owner": "Sahip",
+      "createdBy": "Oluşturan",
+      "progress": "İlerleme",
+      "dueDate": "Son Tarih",
+      "actions": "İşlemler"
+    },
     "new": "+ Yeni İş",
     "newCancel": "ptal",
     "newFormTitle": "Yeni İş",

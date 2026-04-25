@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Task, TaskListScope } from '../types/platform'
-import { getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
 const SCOPES: { value: TaskListScope; labelKey: string }[] = [
   { value: 'mine', labelKey: 'tasks.scopes.mine' },
@@ -24,8 +24,9 @@ function availableScopes(role?: string): TaskListScope[] {
 const EMPTY_FORM = { title: '', description: '', priority: 'Normal', dueDateUtc: '' }
 
 export function TasksPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user } = useAuth()
+  const locale = getLocale(i18n.language)
   const [searchParams, setSearchParams] = useSearchParams()
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
@@ -277,7 +278,7 @@ export function TasksPage() {
                 <td>{task.ownerDisplayName ?? '—'}</td>
                 <td>{task.createdByDisplayName ?? '—'}</td>
                 <td>{task.completionPercentage ?? 0}%</td>
-                <td>{task.dueDateUtc ? new Date(task.dueDateUtc).toLocaleDateString() : '—'}</td>
+                <td>{task.dueDateUtc ? new Date(task.dueDateUtc).toLocaleDateString(locale) : '—'}</td>
                 <td className="actions-cell">
                   {currentScope === 'department-pool' && !task.assignedUserId && (
                     <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>

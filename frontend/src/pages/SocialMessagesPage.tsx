@@ -150,9 +150,9 @@ export function SocialMessagesPage() {
             <p className="page-subtitle">{t('social.subtitle')}</p>
           </div>
           <div className="inline-actions">
-            <StatusPill>{summary.total} {t('social.total')}</StatusPill>
-            <StatusPill tone="info">{summary.routed} {t('social.routedSummary')}</StatusPill>
-            <StatusPill tone="success">{summary.converted} {t('social.convertedSummary')}</StatusPill>
+            <StatusPill className="banner-status-pill">{summary.total} {t('social.total')}</StatusPill>
+            <StatusPill className="banner-status-pill">{summary.routed} {t('social.routedSummary')}</StatusPill>
+            <StatusPill className="banner-status-pill">{summary.converted} {t('social.convertedSummary')}</StatusPill>
           </div>
         </div>
       </header>

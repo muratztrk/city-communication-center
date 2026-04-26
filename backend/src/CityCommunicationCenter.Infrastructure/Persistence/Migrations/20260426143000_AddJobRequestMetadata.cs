@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
 namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(CityCommunicationCenterDbContext))]
+    [Migration("20260426143000_AddJobRequestMetadata")]
     public partial class AddJobRequestMetadata : Migration
     {
         /// <inheritdoc />

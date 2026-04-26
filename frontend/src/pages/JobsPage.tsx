@@ -53,6 +53,7 @@ interface CreateFormState {
   description: string
   ownerDepartmentId: string
   priority: string
+  isProject: boolean
   startDateUtc: string
   dueDateUtc: string
   targetDepartmentIds: string[]
@@ -63,6 +64,7 @@ const EMPTY_FORM: CreateFormState = {
   description: '',
   ownerDepartmentId: '',
   priority: 'Normal',
+  isProject: false,
   startDateUtc: '',
   dueDateUtc: '',
   targetDepartmentIds: [],
@@ -183,6 +185,8 @@ export function JobsPage() {
         description: form.description.trim(),
         ownerDepartmentId: form.ownerDepartmentId,
         priority: form.priority,
+        requestType: 'ExternalUnit',
+        isProject: form.isProject,
         startDateUtc: form.startDateUtc ? new Date(form.startDateUtc).toISOString() : null,
         dueDateUtc: form.dueDateUtc ? new Date(form.dueDateUtc).toISOString() : null,
         targetDepartmentIds: form.targetDepartmentIds.length > 0 ? form.targetDepartmentIds : undefined,
@@ -397,6 +401,19 @@ export function JobsPage() {
             </div>
 
             <div className="job-field">
+              <label className="job-field-label" htmlFor="job-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
+              <select
+                id="job-is-project"
+                className="field-select"
+                value={form.isProject ? 'yes' : 'no'}
+                onChange={e => setForm(f => ({ ...f, isProject: e.target.value === 'yes' }))}
+              >
+                <option value="no">{t('common.no', 'Hayır')}</option>
+                <option value="yes">{t('common.yes', 'Evet')}</option>
+              </select>
+            </div>
+
+            <div className="job-field">
               <label className="job-field-label" htmlFor="job-start-date">{t('jobs.form.startDate')}</label>
               <input
                 id="job-start-date"
@@ -466,6 +483,7 @@ export function JobsPage() {
                   <th>{t('jobs.columns.departments')}</th>
                   <th>{t('jobs.columns.status')}</th>
                   <th>{t('jobs.columns.priority')}</th>
+                  <th>{t('jobs.columns.project', 'Proje')}</th>
                   <th>{t('jobs.columns.taskCount')}</th>
                   <th>{t('jobs.columns.dueDate')}</th>
                   <th>{t('jobs.columns.actions')}</th>
@@ -478,6 +496,7 @@ export function JobsPage() {
                     <td>{renderJobDepartments(job)}</td>
                     <td><StatusPill>{getJobStatusLabel(t, job.status)}</StatusPill></td>
                     <td>{getPriorityLabel(t, job.priority)}</td>
+                    <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>
                     <td>{job.taskCount}</td>
                     <td>{formatDateTime(job.dueDateUtc, locale)}</td>
                     <td>
@@ -517,6 +536,7 @@ export function JobsPage() {
                 <div className="inline-actions pt-1">
                   <StatusPill>{getJobStatusLabel(t, detail.status)}</StatusPill>
                   <StatusPill tone="info">{getPriorityLabel(t, detail.priority)}</StatusPill>
+                  {detail.isProject && <StatusPill tone="warning">{t('jobs.columns.project', 'Proje')}</StatusPill>}
                 </div>
                 {detail.createdByDisplayName && (
                   <p className="text-xs text-[color:var(--color-muted-foreground)] pt-1">

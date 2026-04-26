@@ -11,6 +11,13 @@ public enum JobStatus
     Cancelled
 }
 
+public enum JobRequestType
+{
+    InternalUnit,
+    ExternalUnit,
+    Citizen
+}
+
 public enum JobDepartmentRole
 {
     Owner,

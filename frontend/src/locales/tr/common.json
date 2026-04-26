@@ -22,7 +22,9 @@
     "none": "-",
     "notFound": "Henüz kayıt bulunmuyor",
     "enabled": "Aktif",
-    "disabled": "Pasif"
+    "disabled": "Pasif",
+    "yes": "Evet",
+    "no": "Hayır"
   },
   "errors": {
     "invalidAccessToken": "Geçersiz access token.",
@@ -741,6 +743,11 @@
       "Completed": "Tamamlandı",
       "Rejected": "Reddedildi",
       "Cancelled": "İptal"
+    },
+    "jobRequestType": {
+      "InternalUnit": "Birim İçi",
+      "ExternalUnit": "Birim Dışı",
+      "Citizen": "Vatandaş Talebi"
     }
   },
   "jobs": {
@@ -762,6 +769,7 @@
       "status": "Durum",
       "priority": "Öncelik",
       "progress": "İlerleme",
+      "project": "Proje",
       "taskCount": "Görevler",
       "dueDate": "Son Tarih",
       "actions": "İşlemler"
@@ -791,6 +799,7 @@
       "priority": "Öncelik",
       "startDate": "Başlangıç Tarihi",
       "dueDate": "Son Tarih",
+      "isProject": "Proje niteliğinde mi?",
       "targetDepartments": "Koordine Müdürlükler (opsiyonel)",
       "targetDepartmentsHelp": "Birden fazla seçebilirsiniz (Cmd/Ctrl tuşu ile).",
       "sectionMain": "Temel Bilgiler",

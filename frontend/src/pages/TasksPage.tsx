@@ -19,7 +19,7 @@ function availableScopes(role?: string): TaskListScope[] {
   return ['department-pool', 'all']
 }
 
-const EMPTY_FORM = { title: '', description: '', priority: 'Normal', dueDateUtc: '' }
+const EMPTY_FORM = { title: '', description: '', priority: 'Normal', dueDateUtc: '', isProject: false }
 
 interface TasksPageProps {
   fixedScope?: TaskListScope
@@ -140,6 +140,8 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
         description: form.description,
         ownerDepartmentId: user.departmentId,
         priority: form.priority,
+        requestType: 'InternalUnit',
+        isProject: form.isProject,
         dueDateUtc: toApiDateTime(form.dueDateUtc),
         sourceType: 'InternalRequest',
       })
@@ -280,6 +282,17 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
                   onClick={openDatePicker}
                   onChange={e => setForm(cur => ({ ...cur, dueDateUtc: e.target.value }))}
                 />
+              </div>
+              <div className="job-field">
+                <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
+                <select
+                  className="field-select"
+                  value={form.isProject ? 'yes' : 'no'}
+                  onChange={e => setForm(cur => ({ ...cur, isProject: e.target.value === 'yes' }))}
+                >
+                  <option value="no">{t('common.no', 'Hayır')}</option>
+                  <option value="yes">{t('common.yes', 'Evet')}</option>
+                </select>
               </div>
             </div>
             <div className="inline-actions">

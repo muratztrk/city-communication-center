@@ -409,6 +409,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("completionpercentage");
 
+                    b.Property<string>("CitizenName")
+                        .HasColumnType("text")
+                        .HasColumnName("citizenname");
+
+                    b.Property<string>("CitizenPhone")
+                        .HasColumnType("text")
+                        .HasColumnName("citizenphone");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdatutc");
@@ -430,6 +438,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("iscoordinated");
 
+                    b.Property<bool>("IsProject")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isproject");
+
                     b.Property<Guid>("OwnerDepartmentId")
                         .HasColumnType("uuid")
                         .HasColumnName("ownerdepartmentid");
@@ -438,6 +450,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("priority");
+
+                    b.Property<string>("RequestType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("requesttype");
 
                     b.Property<Guid?>("SourceRefId")
                         .HasColumnType("uuid")
@@ -495,8 +512,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek iş.",
                             DueDateUtc = new DateTimeOffset(new DateTime(2026, 3, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsCoordinated = false,
+                            IsProject = false,
                             OwnerDepartmentId = new Guid("0e29fb34-64da-429e-b7c0-e6016a0c10a7"),
                             Priority = "Normal",
+                            RequestType = "InternalUnit",
                             SourceType = "Manual",
                             Status = "Active",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e"),

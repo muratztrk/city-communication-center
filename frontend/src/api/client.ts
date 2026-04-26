@@ -441,6 +441,10 @@ export const api = {
     description: string
     ownerDepartmentId: string
     priority: string
+    requestType?: string | null
+    isProject?: boolean
+    citizenName?: string | null
+    citizenPhone?: string | null
     startDateUtc?: string | null
     dueDateUtc?: string | null
     targetDepartmentIds?: string[]

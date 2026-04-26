@@ -14,6 +14,14 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 
     public string Priority { get; set; } = "Normal";
 
+    public JobRequestType RequestType { get; set; } = JobRequestType.InternalUnit;
+
+    public bool IsProject { get; set; }
+
+    public string? CitizenName { get; set; }
+
+    public string? CitizenPhone { get; set; }
+
     public DateTimeOffset? StartDateUtc { get; set; }
 
     public DateTimeOffset? DueDateUtc { get; set; }

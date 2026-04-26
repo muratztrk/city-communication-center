@@ -150,6 +150,7 @@ export type JobStatus =
   | 'Rejected'
   | 'Cancelled';
 
+export type JobRequestType = 'InternalUnit' | 'ExternalUnit' | 'Citizen';
 export type JobDepartmentRole = 'Owner' | 'Target' | 'Support' | 'Coordinating';
 export type JobApprovalStatus = 'Pending' | 'Approved' | 'Rejected' | 'NotRequired';
 
@@ -165,6 +166,10 @@ export interface JobSummary {
   title: string;
   status: JobStatus;
   priority: string;
+  requestType: JobRequestType;
+  isProject: boolean;
+  citizenName: string | null;
+  citizenPhone: string | null;
   ownerDepartmentId: string;
   ownerDepartmentName: string | null;
   startDateUtc: string | null;
@@ -209,6 +214,10 @@ export interface JobDetail {
   description: string;
   status: JobStatus;
   priority: string;
+  requestType: JobRequestType;
+  isProject: boolean;
+  citizenName: string | null;
+  citizenPhone: string | null;
   ownerDepartmentId: string;
   ownerDepartmentName: string | null;
   startDateUtc: string | null;

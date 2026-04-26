@@ -6,6 +6,10 @@ public sealed record CreateJobCommand(
     string Description,
     Guid OwnerDepartmentId,
     string Priority,
+    string? RequestType,
+    bool IsProject,
+    string? CitizenName,
+    string? CitizenPhone,
     DateTimeOffset? StartDateUtc,
     DateTimeOffset? DueDateUtc,
     IReadOnlyCollection<Guid>? TargetDepartmentIds,
@@ -70,6 +74,13 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             .ToArray() ?? [];
 
         var sourceType = Enum.TryParse<JobSourceType>(request.SourceType, true, out var st) ? st : JobSourceType.Manual;
+        var requestType = Enum.TryParse<JobRequestType>(request.RequestType, true, out var rt)
+            ? rt
+            : sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest
+                ? JobRequestType.Citizen
+                : targets.Length > 0
+                    ? JobRequestType.ExternalUnit
+                    : JobRequestType.InternalUnit;
 
         var job = new Job
         {
@@ -80,6 +91,10 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             OwnerDepartmentId = request.OwnerDepartmentId,
             Status = JobStatus.Active,
             Priority = request.Priority.Trim(),
+            RequestType = requestType,
+            IsProject = request.IsProject,
+            CitizenName = string.IsNullOrWhiteSpace(request.CitizenName) ? null : request.CitizenName.Trim(),
+            CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim(),
             StartDateUtc = request.StartDateUtc,
             DueDateUtc = request.DueDateUtc,
             SourceType = sourceType,

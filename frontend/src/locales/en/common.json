@@ -22,7 +22,9 @@
     "none": "-",
     "notFound": "No records found yet",
     "enabled": "Enabled",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "yes": "Yes",
+    "no": "No"
   },
   "errors": {
     "invalidAccessToken": "Invalid access token.",
@@ -731,6 +733,11 @@
       "Completed": "Completed",
       "Rejected": "Rejected",
       "Cancelled": "Cancelled"
+    },
+    "jobRequestType": {
+      "InternalUnit": "Internal Unit",
+      "ExternalUnit": "External Unit",
+      "Citizen": "Citizen Request"
     }
   },
   "jobs": {
@@ -752,6 +759,7 @@
       "status": "Status",
       "priority": "Priority",
       "progress": "Progress",
+      "project": "Project",
       "taskCount": "Tasks",
       "dueDate": "Due",
       "actions": "Actions"
@@ -781,6 +789,7 @@
       "priority": "Priority",
       "startDate": "Start Date",
       "dueDate": "Due Date",
+      "isProject": "Project-level request?",
       "targetDepartments": "Coordinating Departments (optional)",
       "targetDepartmentsHelp": "Hold Cmd/Ctrl to select multiple.",
       "sectionMain": "Basics",

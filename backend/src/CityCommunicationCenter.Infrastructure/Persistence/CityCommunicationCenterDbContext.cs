@@ -244,6 +244,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
                 OwnerDepartmentId = InitialData.PublicWorksDepartmentId,
                 Status = JobStatus.Active,
                 Priority = "Normal",
+                RequestType = JobRequestType.InternalUnit,
+                IsProject = false,
                 DueDateUtc = InitialData.SampleTaskDueDateUtc,
                 SourceType = JobSourceType.Manual,
                 IsCoordinated = false,
@@ -406,6 +408,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.ToTable("jobs");
         builder.HasKey(entity => entity.JobId);
         builder.Property(entity => entity.Status).HasConversion<string>();
+        builder.Property(entity => entity.RequestType).HasConversion<string>();
         builder.Property(entity => entity.SourceType).HasConversion<string>();
         builder.HasOne(entity => entity.Tenant)
             .WithMany()

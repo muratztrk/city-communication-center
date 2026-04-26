@@ -9,15 +9,26 @@ import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
 import { getLocale, getPriorityLabel } from '../utils/localization'
 
-const SCOPES: { value: JobListScope; labelKey: string }[] = [
-  { value: 'mine', labelKey: 'jobs.scopes.mine' },
-  { value: 'my-department', labelKey: 'jobs.scopes.myDepartment' },
-  { value: 'active', labelKey: 'jobs.scopes.active' },
+const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
+  { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApproval' },
+  { value: 'department-pool', labelKey: 'jobs.scopes.departmentPool' },
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
 
 function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
+}
+
+function getJobDirectionLabel(t: TFunction, job: JobSummary): string {
+  if (job.requestType === 'ExternalUnit') {
+    return t('jobs.directions.externalOutgoing', 'Birim Dışı Giden')
+  }
+
+  if (job.requestType === 'Citizen') {
+    return t('jobs.directions.citizenOutgoing', 'Vatandaş Talebi')
+  }
+
+  return t('jobs.directions.internalOutgoing', 'Birim İçi Giden')
 }
 
 function getDepartmentRoleTone(role: string) {
@@ -86,7 +97,12 @@ const EMPTY_TASK_FORM: CreateTaskFormState = {
   dueDateUtc: '',
 }
 
-export function JobsPage() {
+interface JobsPageProps {
+  fixedScope?: JobListScope
+  mode?: 'external' | 'myRequests'
+}
+
+export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const locale = getLocale(i18n.language)
@@ -108,10 +124,12 @@ export function JobsPage() {
   const [taskForm, setTaskForm] = useState<CreateTaskFormState>(EMPTY_TASK_FORM)
   const [taskSubmitting, setTaskSubmitting] = useState(false)
 
+  const isMyRequestsView = mode === 'myRequests'
   const scope = useMemo<JobListScope>(() => {
-    const raw = (searchParams.get('scope') as JobListScope | null) ?? 'my-department'
-    return SCOPES.some(s => s.value === raw) ? raw : 'my-department'
-  }, [searchParams])
+    if (fixedScope) return fixedScope
+    const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'
+    return EXTERNAL_SCOPES.some(s => s.value === raw) || raw === 'rejected' ? raw : 'department-pool'
+  }, [fixedScope, searchParams])
 
   // auto-open detail drawer when ?jobId=... is in the URL (e.g. linked from social messages)
   const autoOpenJobId = searchParams.get('jobId')
@@ -126,7 +144,7 @@ export function JobsPage() {
         setDepartments(deptList)
         const me = userList.find(u => u.userId === user?.userId)
         if (me?.departmentId) setMyDepartmentId(me.departmentId)
-        if (autoOpenJobId) openDetail(autoOpenJobId)
+        if (autoOpenJobId) void openDetail(autoOpenJobId)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -159,6 +177,20 @@ export function JobsPage() {
 
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const isStaff = user?.role === 'Staff'
+  const scopeLabel = scope === 'rejected'
+    ? t('jobs.scopes.rejected', 'İptal/Red Edilen')
+    : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Birim Havuzu')
+  const visibleJobs = useMemo(() => {
+    if (isMyRequestsView) {
+      return jobs
+    }
+
+    if (scope === 'rejected') {
+      return jobs
+    }
+
+    return jobs.filter(job => job.requestType === 'ExternalUnit')
+  }, [isMyRequestsView, jobs, scope])
 
   const ownerDeptOptions = useMemo(() => {
     if (isStaff && myDepartmentId) {
@@ -310,18 +342,22 @@ export function JobsPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('jobs.scopes.active', 'Aktif')}</div>
-            <h1 className="page-title">{t('nav.jobs', 'İşler')}</h1>
-            <p className="page-subtitle">{t('jobs.subtitle', 'Kurum içi işleri izleyin, görevlere ayırın ve ilerlemeyi takip edin.')}</p>
+            <div className="page-kicker">{isMyRequestsView ? t('jobs.myRequestsKicker', 'Talep Takibi') : scopeLabel}</div>
+            <h1 className="page-title">{isMyRequestsView ? t('nav.myRequests', 'Benim Taleplerim') : t('nav.jobs', 'Birim Dışı Gelen Talep')}</h1>
+            <p className="page-subtitle">
+              {isMyRequestsView
+                ? t('jobs.myRequestsSubtitle', 'Oluşturduğunuz talepleri ve hangi müdürlüğe gittiğini takip edin.')
+                : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
+            </p>
           </div>
-          <Button type="button" onClick={() => (showForm ? setShowForm(false) : openCreateForm())}>
+          {!isMyRequestsView && <Button type="button" onClick={() => (showForm ? setShowForm(false) : openCreateForm())}>
             {showForm ? t('common.cancel') : t('jobs.actions.new', 'Yeni İş')}
-          </Button>
+          </Button>}
         </div>
       </header>
 
-      <nav className="scope-chips">
-        {SCOPES.map(s => (
+      {!fixedScope && <nav className="scope-chips">
+        {EXTERNAL_SCOPES.map(s => (
           <button
             key={s.value}
             type="button"
@@ -331,7 +367,7 @@ export function JobsPage() {
             {t(s.labelKey, s.value)}
           </button>
         ))}
-      </nav>
+      </nav>}
 
       {error && <div className="error">{error}</div>}
 
@@ -471,7 +507,7 @@ export function JobsPage() {
 
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : jobs.length === 0 ? (
+      ) : visibleJobs.length === 0 ? (
         <div className="empty-state">{t('jobs.empty')}</div>
       ) : (
         <section className="section-card desktop-page-fill">
@@ -480,7 +516,7 @@ export function JobsPage() {
               <thead>
                 <tr>
                   <th>{t('jobs.columns.title')}</th>
-                  <th>{t('jobs.columns.departments')}</th>
+                  <th>{isMyRequestsView ? t('jobs.columns.destination', 'Gidiş Yeri') : t('jobs.columns.departments')}</th>
                   <th>{t('jobs.columns.status')}</th>
                   <th>{t('jobs.columns.priority')}</th>
                   <th>{t('jobs.columns.project', 'Proje')}</th>
@@ -490,17 +526,21 @@ export function JobsPage() {
                 </tr>
               </thead>
               <tbody>
-                {jobs.map(job => (
+                {visibleJobs.map(job => (
                   <tr key={job.jobId}>
                     <td className="font-semibold">{job.title}</td>
-                    <td>{renderJobDepartments(job)}</td>
+                    <td>
+                      {isMyRequestsView ? (
+                        <StatusPill tone="info">{getJobDirectionLabel(t, job)}</StatusPill>
+                      ) : renderJobDepartments(job)}
+                    </td>
                     <td><StatusPill>{getJobStatusLabel(t, job.status)}</StatusPill></td>
                     <td>{getPriorityLabel(t, job.priority)}</td>
                     <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>
                     <td>{job.taskCount}</td>
                     <td>{formatDateTime(job.dueDateUtc, locale)}</td>
-                    <td>
-                      <div className="inline-actions">
+                    <td className="actions-cell">
+                      <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
                         {isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>

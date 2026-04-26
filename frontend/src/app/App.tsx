@@ -60,6 +60,7 @@ export default function App() {
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" role={user?.role}><DashboardPage /></PageAccessGate>} />
           <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" role={user?.role}><TasksPage fixedScope="mine" /></PageAccessGate>} />
+          <Route path="/my-requests" element={<PageAccessGate pageKey="myRequests" role={user?.role}><JobsPage mode="myRequests" fixedScope="mine" /></PageAccessGate>} />
           <Route path="/tasks" element={<PageAccessGate pageKey="tasks" role={user?.role}><TasksPage /></PageAccessGate>} />
           <Route path="/jobs" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" role={user?.role}><SocialMessagesPage /></PageAccessGate>} />

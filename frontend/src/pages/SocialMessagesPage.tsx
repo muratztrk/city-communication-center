@@ -180,7 +180,7 @@ export function SocialMessagesPage() {
                   <td>{message.category || t('common.none')}</td>
                   <td><StatusPill tone={getStatusTone(message.status)}>{getSocialStatusLabel(t, message.status)}</StatusPill></td>
                   <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
-                   <td>
+                  <td className="actions-cell">
                     {!message.jobId ? (
                       <div className="table-stack">
                         <select
@@ -202,11 +202,11 @@ export function SocialMessagesPage() {
                             <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
                           ))}
                         </select>
-                        <div className="inline-actions">
+                        <div className="request-actions">
                           <Button size="sm" type="button" onClick={() => handleRoute(message.socialMessageId)}>{t('social.route')}</Button>
                           <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>
                         </div>
-                        <div className="inline-actions">
+                        <div className="request-actions">
                           <input
                             aria-label={t('social.taskTitleAria', { handle: message.citizenHandle })}
                             className="field-input"
@@ -221,7 +221,7 @@ export function SocialMessagesPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="inline-actions">
+                      <div className="request-actions">
                         {message.jobId && (
                           <Button size="sm" type="button" variant="secondary"
                             onClick={() => navigate(`/jobs?scope=all&jobId=${message.jobId}`)}>

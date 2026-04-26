@@ -13,6 +13,8 @@
     "save": "Kaydet",
     "cancel": "İptal",
     "create": "Oluştur",
+    "back": "Geri",
+    "refresh": "Yenile",
     "close": "Kapat",
     "edit": "Düzenle",
     "delete": "Sil",
@@ -93,13 +95,14 @@
   "nav": {
     "dashboard": "Kontrol Paneli",
     "myTasks": "Benim Görevlerim",
-    "tasks": "Birim İçi",
-    "social": "Vatandaş Talepleri",
+    "myRequests": "Benim Taleplerim",
+    "tasks": "Birim İçi Gelen Talep",
+    "social": "Vatandaştan Gelen Talep",
     "departments": "Müdürlükler",
     "users": "Kullanıcılar",
     "audit": "Log",
     "settings": "Ayarlar",
-    "display": "Ekran",
+    "display": "Ekrana Yansıt",
     "home": "Ana Sayfa",
     "groupTasks": "İş Yönetimi",
     "groupSocial": "Vatandaş İlişkileri",
@@ -107,7 +110,7 @@
     "directorateProjects": "Müdürlük Projesi",
     "coordinatedProjects": "Koordineli Proje",
     "groupProjects": "Projeler",
-    "jobs": "Birim Dışı",
+    "jobs": "Birim Dışı Gelen Talep",
     "groupJobs": "İş Yönetimi"
   },
   "shell": {
@@ -131,7 +134,14 @@
     "unassignedDepartment": "Müdürlük bekliyor",
     "unassignedUser": "Kişi ataması yok",
     "empty": "Bekleyen iş bulunmuyor.",
+    "refreshInterval": "Otomatik yenile",
+    "refreshOptions": {
+      "oneMinute": "1 dakika",
+      "tenMinutes": "10 dakika",
+      "thirtyMinutes": "30 dakika"
+    },
     "columns": {
+      "number": "Sıra",
       "source": "Kaynak",
       "title": "Başlık",
       "status": "Durum",
@@ -243,7 +253,8 @@
     "cards": {
       "openTasks": "Bekleyen İş",
       "pendingApprovals": "Onay Bekleyen",
-      "activeMessages": "Vatandaş Talebi"
+      "activeMessages": "Vatandaş Talebi",
+      "rejectedOrCancelled": "İptal/Red Edilen Talep"
     },
     "chart": {
       "titleDept": "Müdürlüklere Göre İş Dağılımı",
@@ -366,6 +377,7 @@
     "columns": {
       "title": "Başlık",
       "job": "İş",
+      "source": "Kaynak",
       "status": "Durum",
       "priority": "Öncelik",
       "assignedTo": "Atanan",
@@ -403,7 +415,12 @@
     "draftDepartment": "Müdürlük",
     "draftUser": "Kullanıcı",
     "userSearchPlaceholder": "Kullanıcı ara",
-    "userSearchEmpty": "Eşleşen kullanıcı bulunamadı"
+    "userSearchEmpty": "Eşleşen kullanıcı bulunamadı",
+    "sourceLabels": {
+      "internalIncoming": "Birim İçi Gelen",
+      "externalIncoming": "Birim Dışı Gelen",
+      "citizenIncoming": "Vatandaştan Gelen"
+    }
   },
   "social": {
     "title": "Vatandaş Talepleri",
@@ -751,12 +768,17 @@
     }
   },
   "jobs": {
-    "subtitle": "Birim dışı işleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.",
+    "subtitle": "Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.",
+    "myRequestsKicker": "Talep Takibi",
+    "myRequestsSubtitle": "Oluşturduğunuz talepleri ve hangi müdürlüğe gittiğini takip edin.",
     "empty": "Hiç iş bulunamadı",
     "departmentsMore": "+{{count}} müdürlük",
     "scopes": {
       "mine": "Oluşturduğum",
       "myDepartment": "Müdürlüğüm",
+      "pendingApproval": "Onay Bekleyen",
+      "departmentPool": "Birim Havuzu",
+      "rejected": "İptal/Red Edilen",
       "pendingOwnerApproval": "Sahip Onayı Bekleyen",
       "pendingExternalApproval": "Hedef Onayı Bekleyen",
       "active": "Aktif",
@@ -765,6 +787,7 @@
     "columns": {
       "title": "Başlık",
       "ownerDepartment": "Sahip Müdürlük",
+      "destination": "Gidiş Yeri",
       "departments": "Müdürlükler",
       "status": "Durum",
       "priority": "Öncelik",
@@ -830,6 +853,11 @@
       "Approved": "Onaylandı",
       "Rejected": "Reddedildi",
       "NotRequired": "Gerekmiyor"
+    },
+    "directions": {
+      "internalOutgoing": "Birim İçi Giden",
+      "externalOutgoing": "Birim Dışı Giden",
+      "citizenOutgoing": "Vatandaş Talebi"
     }
   }
 }

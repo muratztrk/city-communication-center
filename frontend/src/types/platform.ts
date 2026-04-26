@@ -2,6 +2,7 @@ export interface DashboardSnapshot {
   openTaskCount: number;
   pendingApprovalCount: number;
   activeSocialMessageCount: number;
+  rejectedOrCancelledRequestCount: number;
   unassignedItemCount: number;
 }
 
@@ -84,6 +85,8 @@ export interface Task {
   tenantId: string;
   jobId: string;
   jobTitle: string | null;
+  jobRequestType: JobRequestType | null;
+  jobSourceType: string | null;
   title: string;
   description?: string;
   priority: string;
@@ -110,6 +113,8 @@ export interface TaskDetail {
   tenantId: string;
   jobId: string;
   jobTitle: string | null;
+  jobRequestType: JobRequestType | null;
+  jobSourceType: string | null;
   title: string;
   description: string;
   priority: string;
@@ -158,7 +163,10 @@ export type JobListScope =
   | 'all'
   | 'mine'
   | 'my-department'
-  | 'active';
+  | 'active'
+  | 'department-pool'
+  | 'pending-approval'
+  | 'rejected';
 
 export interface JobSummary {
   jobId: string;

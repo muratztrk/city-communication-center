@@ -30,6 +30,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             cancellationToken);
 
         int pendingApprovals = 0;
+        int rejectedOrCancelledRequests = 0;
         if (canSeePendingApprovals)
         {
             var pendingJobsOwner = await _dbContext.Jobs.CountAsync(
@@ -37,6 +38,9 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             var pendingJobsExternal = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId && j.Status == JobStatus.PendingExternalApproval, cancellationToken);
             pendingApprovals = pendingJobsOwner + pendingJobsExternal;
+            rejectedOrCancelledRequests = await _dbContext.Jobs.CountAsync(
+                j => j.TenantId == tenantId && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled),
+                cancellationToken);
         }
 
         var openSocialMessages = await _dbContext.SocialMessages.CountAsync(
@@ -47,6 +51,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             activeTasks,
             pendingApprovals,
             openSocialMessages,
+            rejectedOrCancelledRequests,
             0);
     }
 }

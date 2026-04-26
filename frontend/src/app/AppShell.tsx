@@ -1,4 +1,4 @@
-import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
+import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -43,14 +43,15 @@ export function AppShell() {
   const navItems = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { pageKey: 'myTasks' as const, path: '/my-tasks', label: t('nav.myTasks', 'Benim Görevlerim'), icon: ListChecks },
+    { pageKey: 'myRequests' as const, path: '/my-requests', label: t('nav.myRequests', 'Benim Taleplerim'), icon: Send },
     { pageKey: 'tasks' as const, path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
-    { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { pageKey: 'jobs' as const, path: '/jobs', label: t('nav.jobs'), icon: FolderKanban },
+    { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp },
     { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
     { pageKey: 'users' as const, path: '/users', label: t('nav.users'), icon: Users },
-    { pageKey: 'audit' as const, path: '/audit', label: t('nav.audit'), icon: ScrollText },
     { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },
+    { pageKey: 'audit' as const, path: '/audit', label: t('nav.audit'), icon: ScrollText },
   ]
     .filter(item => canRoleAccessPage(user?.role, item.pageKey))
   void accessVersion
@@ -64,6 +65,7 @@ export function AppShell() {
   const breadcrumbLabels: Record<string, string> = {
     dashboard: t('nav.dashboard'),
     'my-tasks': t('nav.myTasks', 'Benim Görevlerim'),
+    'my-requests': t('nav.myRequests', 'Benim Taleplerim'),
     tasks: t('nav.tasks'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -78,6 +80,7 @@ export function AppShell() {
 
   const breadcrumbParent: Record<string, string> = {
     'my-tasks': t('nav.groupTasks'),
+    'my-requests': t('nav.groupTasks'),
     tasks: t('nav.groupTasks'),
     directorate: t('nav.groupJobs'),
     coordinated: t('nav.groupJobs'),
@@ -95,6 +98,7 @@ export function AppShell() {
   const breadcrumbIcon: Record<string, typeof LayoutDashboard> = {
     dashboard: LayoutDashboard,
     'my-tasks': ListChecks,
+    'my-requests': Send,
     tasks: SquareKanban,
     directorate: FolderKanban,
     coordinated: Workflow,
@@ -259,7 +263,7 @@ export function AppShell() {
           {breadcrumbSegments.length > 0 && location.pathname !== '/dashboard' ? (
             <div className="mb-2">
               <button type="button" className="back-button" onClick={() => navigate(-1)}>
-                ← Geri
+                ← {t('common.back', 'Geri')}
               </button>
             </div>
           ) : null}

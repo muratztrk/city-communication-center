@@ -32,15 +32,23 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         {
             q = q.Where(j => j.CreatedByUserId == userId);
         }
-        else if (scope == "my-department" && actor is not null)
+        else if ((scope == "my-department" || scope == "department-pool") && actor is not null)
         {
             q = q.Where(j =>
                 j.OwnerDepartmentId == actor.DepartmentId ||
                 _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId && jd.DepartmentId == actor.DepartmentId));
         }
+        else if (scope == "pending-approval")
+        {
+            q = q.Where(j => j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval);
+        }
         else if (scope == "active")
         {
             q = q.Where(j => j.Status == JobStatus.Active);
+        }
+        else if (scope == "rejected")
+        {
+            q = q.Where(j => j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled);
         }
 
         var rows = await q
@@ -178,6 +186,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 t.TenantId,
                 t.JobId,
                 job.Title,
+                job.RequestType.ToString(),
+                job.SourceType.ToString(),
                 t.Title,
                 t.Priority,
                 t.CurrentStatus.ToString(),

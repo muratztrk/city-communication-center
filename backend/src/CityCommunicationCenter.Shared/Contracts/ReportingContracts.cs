@@ -4,6 +4,7 @@ public sealed record DashboardResponse(
     int OpenTaskCount,
     int PendingApprovalCount,
     int ActiveSocialMessageCount,
+    int RejectedOrCancelledRequestCount,
     int UnassignedItemCount);
 
 public sealed record DashboardChartResponse(

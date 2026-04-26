@@ -40,6 +40,18 @@ function formatDateTime(value: string | null | undefined, locale: string) {
   })
 }
 
+function getTaskSourceLabel(t: ReturnType<typeof useTranslation>['t'], task: Task): string {
+  if (task.jobRequestType === 'Citizen' || task.jobSourceType === 'SocialMessage' || task.jobSourceType === 'CitizenRequest') {
+    return t('tasks.sourceLabels.citizenIncoming', 'Vatandaştan Gelen')
+  }
+
+  if (task.jobRequestType === 'ExternalUnit') {
+    return t('tasks.sourceLabels.externalIncoming', 'Birim Dışı Gelen')
+  }
+
+  return t('tasks.sourceLabels.internalIncoming', 'Birim İçi Gelen')
+}
+
 export function TasksPage({ fixedScope }: TasksPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -451,6 +463,7 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
                 <tr>
                   <th>{t('tasks.columns.title', 'Title')}</th>
                   <th>{t('tasks.columns.job', 'Job')}</th>
+                  {isMyTasksView ? <th>{t('tasks.columns.source', 'Kaynak')}</th> : null}
                   <th>{t('tasks.columns.status', 'Status')}</th>
                   <th>{t('tasks.columns.priority', 'Priority')}</th>
                   <th>{t('tasks.columns.assignedTo', 'Assigned')}</th>
@@ -465,6 +478,7 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
                   <tr key={task.taskId}>
                     <td>{task.title}</td>
                     <td>{task.jobTitle ?? '—'}</td>
+                    {isMyTasksView ? <td><StatusPill tone="info">{getTaskSourceLabel(t, task)}</StatusPill></td> : null}
                     <td><StatusPill>{getTaskStatusLabel(t, task.currentStatus)}</StatusPill></td>
                     <td>{getPriorityLabel(t, task.priority)}</td>
                     <td>{task.assignedUserDisplayName ?? task.assignedDepartmentName ?? '—'}</td>
@@ -472,7 +486,7 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
                     <td>{task.createdByDisplayName ?? '—'}</td>
                     <td>{formatDateTime(task.dueDateUtc, locale)}</td>
                     <td className="actions-cell">
-                      <div className="inline-actions">
+                      <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>

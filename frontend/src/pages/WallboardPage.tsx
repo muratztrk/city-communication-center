@@ -24,7 +24,11 @@ interface WallboardItem {
 
 const OPEN_TASK_STATUSES = new Set(['Waiting', 'Assigned', 'InProgress', 'RevisionRequested'])
 const OPEN_SOCIAL_STATUSES = new Set(['New', 'Categorized', 'Routed'])
-const REFRESH_INTERVAL_MS = 30000
+const REFRESH_OPTIONS = [
+  { value: 60_000, labelKey: 'wallboard.refreshOptions.oneMinute', fallback: '1 dakika' },
+  { value: 600_000, labelKey: 'wallboard.refreshOptions.tenMinutes', fallback: '10 dakika' },
+  { value: 1_800_000, labelKey: 'wallboard.refreshOptions.thirtyMinutes', fallback: '30 dakika' },
+]
 
 function isCitizenSource(sourceType?: string | null) {
   return sourceType === 'SocialMessage' || sourceType === 'CitizenRequest'
@@ -133,6 +137,7 @@ export function WallboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null)
+  const [refreshIntervalMs, setRefreshIntervalMs] = useState(60_000)
 
   const loadBoard = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -155,9 +160,9 @@ export function WallboardPage() {
 
   useEffect(() => {
     void loadBoard()
-    const intervalId = window.setInterval(() => void loadBoard(true), REFRESH_INTERVAL_MS)
+    const intervalId = window.setInterval(() => void loadBoard(true), refreshIntervalMs)
     return () => window.clearInterval(intervalId)
-  }, [loadBoard])
+  }, [loadBoard, refreshIntervalMs])
 
   const summary = useMemo(() => ({
     total: items.length,
@@ -186,6 +191,19 @@ export function WallboardPage() {
             <Clock3 className="size-5" />
             <span>{lastUpdatedAt ? formatTime(lastUpdatedAt, locale) : '—'}</span>
           </div>
+          <label className="wallboard-refresh-control">
+            <span>{t('wallboard.refreshInterval', 'Otomatik yenile')}</span>
+            <select
+              value={refreshIntervalMs}
+              onChange={event => setRefreshIntervalMs(Number(event.target.value))}
+            >
+              {REFRESH_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {t(option.labelKey, option.fallback)}
+                </option>
+              ))}
+            </select>
+          </label>
           <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')} className="gap-2">
             <ArrowLeft className="size-4" />
             {t('common.back', 'Geri')}
@@ -220,6 +238,7 @@ export function WallboardPage() {
           <table className="wallboard-table">
             <thead>
               <tr>
+                <th className="wallboard-number-col">{t('wallboard.columns.number', 'Sıra')}</th>
                 <th>{t('wallboard.columns.source', 'Kaynak')}</th>
                 <th>{t('wallboard.columns.title', 'Başlık')}</th>
                 <th>{t('wallboard.columns.status', 'Durum')}</th>
@@ -230,10 +249,11 @@ export function WallboardPage() {
               </tr>
             </thead>
             <tbody>
-              {visibleItems.map(item => {
+              {visibleItems.map((item, index) => {
                 const dueTone = getDueTone(item.dueDateUtc)
                 return (
                   <tr key={item.id} className={`wallboard-row ${item.source}`}>
+                    <td className="wallboard-number-cell">{index + 1}</td>
                     <td>
                       <span className="wallboard-source-pill">
                         {item.source === 'citizen' ? t('wallboard.citizen', 'Vatandaş') : t('wallboard.internal', 'Kurum içi')}

@@ -7,9 +7,14 @@ internal static class TaskSummaryResponseFactory
         WorkTask task,
         CancellationToken cancellationToken)
     {
-        var jobTitle = await dbContext.Jobs
+        var job = await dbContext.Jobs
             .Where(entity => entity.JobId == task.JobId)
-            .Select(entity => entity.Title)
+            .Select(entity => new
+            {
+                entity.Title,
+                entity.RequestType,
+                entity.SourceType
+            })
             .FirstOrDefaultAsync(cancellationToken);
         var assignedDepartmentName = await GetDepartmentNameAsync(dbContext, task.AssignedDepartmentId, cancellationToken);
         var assignedUserDisplayName = await GetUserDisplayNameAsync(dbContext, task.AssignedUserId, cancellationToken);
@@ -20,7 +25,9 @@ internal static class TaskSummaryResponseFactory
             task.TaskId,
             task.TenantId,
             task.JobId,
-            jobTitle,
+            job?.Title,
+            job is null ? null : job.RequestType.ToString(),
+            job is null ? null : job.SourceType.ToString(),
             task.Title,
             task.Priority,
             task.CurrentStatus.ToString(),

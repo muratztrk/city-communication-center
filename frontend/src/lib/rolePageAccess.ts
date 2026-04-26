@@ -5,14 +5,15 @@ export type RoleCode = typeof ROLE_CODES[number]
 export const PAGE_ACCESS_ITEMS = [
   { key: 'dashboard', path: '/dashboard', labelKey: 'nav.dashboard' },
   { key: 'myTasks', path: '/my-tasks', labelKey: 'nav.myTasks' },
+  { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'tasks', path: '/tasks', labelKey: 'nav.tasks' },
-  { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'jobs', path: '/jobs', labelKey: 'nav.jobs' },
+  { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'display', path: '/display', labelKey: 'nav.display' },
   { key: 'departments', path: '/departments', labelKey: 'nav.departments' },
   { key: 'users', path: '/users', labelKey: 'nav.users' },
-  { key: 'audit', path: '/audit', labelKey: 'nav.audit' },
   { key: 'settings', path: '/settings', labelKey: 'nav.settings' },
+  { key: 'audit', path: '/audit', labelKey: 'nav.audit' },
 ] as const
 
 export type PageAccessKey = typeof PAGE_ACCESS_ITEMS[number]['key']

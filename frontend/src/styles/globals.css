@@ -147,7 +147,7 @@
     border: 1px solid color-mix(in srgb, var(--color-border) 78%, var(--color-primary));
     border-radius: 999px;
     background: color-mix(in srgb, white 96%, var(--color-background));
-    color: #334155;
+    color: var(--color-primary);
     box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
     font-size: 0.88rem;
     font-weight: 700;
@@ -157,7 +157,7 @@
 
   .back-button:hover {
     border-color: color-mix(in srgb, var(--color-primary) 56%, var(--color-border));
-    color: #0f172a;
+    color: color-mix(in srgb, var(--color-primary) 70%, #0f172a);
     box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
     transform: translateY(-1px);
   }
@@ -414,6 +414,12 @@
     word-break: normal;
   }
 
+  .data-table tbody td.actions-cell {
+    min-width: 13rem;
+    white-space: normal;
+    word-break: normal;
+  }
+
   .row-actions {
     display: inline-flex;
     align-items: center;
@@ -451,6 +457,20 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
+  }
+
+  .request-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    min-width: 11rem;
+  }
+
+  .request-actions button,
+  .request-actions a {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
   .table-stack {
@@ -807,6 +827,31 @@
     font-weight: 800;
   }
 
+  .wallboard-refresh-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.42rem 0.55rem 0.42rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .wallboard-refresh-control select {
+    min-height: 1.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #0f172a;
+    padding: 0 1.75rem 0 0.65rem;
+    font-weight: 900;
+  }
+
   .wallboard-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -894,6 +939,18 @@
     font-size: clamp(0.95rem, 1.05vw, 1.18rem);
     font-weight: 800;
     vertical-align: middle;
+  }
+
+  .wallboard-number-col,
+  .wallboard-number-cell {
+    width: 4.25rem;
+    text-align: center;
+  }
+
+  .wallboard-number-cell {
+    color: var(--color-primary);
+    font-size: clamp(1rem, 1.1vw, 1.28rem);
+    font-weight: 900;
   }
 
   .wallboard-table tbody tr:last-child td {

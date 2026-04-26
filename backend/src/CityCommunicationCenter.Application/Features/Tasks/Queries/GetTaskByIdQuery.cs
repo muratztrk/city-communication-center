@@ -22,9 +22,14 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             cancellationToken);
         if (task is null) return null;
 
-        var jobTitle = await _dbContext.Jobs
+        var job = await _dbContext.Jobs
             .Where(entity => entity.JobId == task.JobId && entity.TenantId == tenantId)
-            .Select(entity => entity.Title)
+            .Select(entity => new
+            {
+                entity.Title,
+                entity.RequestType,
+                entity.SourceType
+            })
             .FirstOrDefaultAsync(cancellationToken);
 
         var createdByName = task.CreatedByUserId.HasValue
@@ -58,7 +63,9 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             task.TaskId,
             task.TenantId,
             task.JobId,
-            jobTitle,
+            job?.Title,
+            job is null ? null : job.RequestType.ToString(),
+            job is null ? null : job.SourceType.ToString(),
             task.Title,
             task.Description,
             task.Priority,

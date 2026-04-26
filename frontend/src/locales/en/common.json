@@ -13,6 +13,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "create": "Create",
+    "back": "Back",
+    "refresh": "Refresh",
     "close": "Close",
     "edit": "Edit",
     "delete": "Delete",
@@ -93,13 +95,14 @@
   "nav": {
     "dashboard": "Dashboard",
     "myTasks": "My Tasks",
-    "tasks": "Internal Requests",
-    "social": "Citizen Requests",
+    "myRequests": "My Requests",
+    "tasks": "Internal Incoming Requests",
+    "social": "Citizen Incoming Requests",
     "departments": "Departments",
     "users": "Users",
     "audit": "Audit",
     "settings": "Settings",
-    "display": "Display",
+    "display": "Display Board",
     "home": "Home",
     "groupTasks": "Work Management",
     "groupSocial": "Citizen Relations",
@@ -107,7 +110,7 @@
     "directorateProjects": "Directorate Projects",
     "coordinatedProjects": "Coordinated Projects",
     "groupProjects": "Projects",
-    "jobs": "External Unit Requests",
+    "jobs": "External Incoming Requests",
     "groupJobs": "Jobs"
   },
   "shell": {
@@ -131,7 +134,14 @@
     "unassignedDepartment": "Waiting for unit",
     "unassignedUser": "No person assigned",
     "empty": "No pending work.",
+    "refreshInterval": "Auto refresh",
+    "refreshOptions": {
+      "oneMinute": "1 minute",
+      "tenMinutes": "10 minutes",
+      "thirtyMinutes": "30 minutes"
+    },
     "columns": {
+      "number": "No.",
       "source": "Source",
       "title": "Title",
       "status": "Status",
@@ -243,7 +253,8 @@
     "cards": {
       "openTasks": "Pending Tasks",
       "pendingApprovals": "Pending Approvals",
-      "activeMessages": "Citizen Requests"
+      "activeMessages": "Citizen Requests",
+      "rejectedOrCancelled": "Cancelled/Rejected Requests"
     },
     "chart": {
       "titleDept": "Task Distribution by Department",
@@ -366,6 +377,7 @@
     "columns": {
       "title": "Title",
       "job": "Job",
+      "source": "Source",
       "status": "Status",
       "priority": "Priority",
       "assignedTo": "Assigned",
@@ -403,7 +415,12 @@
     "draftDepartment": "Department",
     "draftUser": "User",
     "userSearchPlaceholder": "Search user",
-    "userSearchEmpty": "No matching user found"
+    "userSearchEmpty": "No matching user found",
+    "sourceLabels": {
+      "internalIncoming": "Internal Incoming",
+      "externalIncoming": "External Incoming",
+      "citizenIncoming": "Citizen Incoming"
+    }
   },
   "social": {
     "title": "Social Media",
@@ -741,12 +758,17 @@
     }
   },
   "jobs": {
-    "subtitle": "Track external unit work, manage coordinating departments, and follow assignments.",
+    "subtitle": "Track external incoming requests, manage coordinating departments, and follow assignments.",
+    "myRequestsKicker": "Request Tracking",
+    "myRequestsSubtitle": "Track the requests you created and which department they were sent to.",
     "empty": "No jobs",
     "departmentsMore": "+{{count}} departments",
     "scopes": {
       "mine": "Created by me",
       "myDepartment": "My Department",
+      "pendingApproval": "Pending Approval",
+      "departmentPool": "Department Pool",
+      "rejected": "Cancelled/Rejected",
       "pendingOwnerApproval": "Pending Owner Approval",
       "pendingExternalApproval": "Pending External Approval",
       "active": "Active",
@@ -755,6 +777,7 @@
     "columns": {
       "title": "Title",
       "ownerDepartment": "Owner",
+      "destination": "Destination",
       "departments": "Departments",
       "status": "Status",
       "priority": "Priority",
@@ -820,6 +843,11 @@
       "Approved": "Approved",
       "Rejected": "Rejected",
       "NotRequired": "Not Required"
+    },
+    "directions": {
+      "internalOutgoing": "Internal Outgoing",
+      "externalOutgoing": "External Outgoing",
+      "citizenOutgoing": "Citizen Request"
     }
   }
 }

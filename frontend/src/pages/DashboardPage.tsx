@@ -1,4 +1,4 @@
-import { ChartBarBig, ClipboardList, MessageSquareMore } from 'lucide-react'
+import { ChartBarBig, ClipboardList, MessageSquareMore, XCircle } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -43,9 +43,17 @@ export function DashboardPage() {
                 label: t('dashboard.cards.pendingApprovals'),
                 value: dashboardQuery.data.pendingApprovalCount,
                 icon: ChartBarBig,
-                path: '/tasks',
+                path: '/jobs?scope=pending-approval',
                 iconBg: 'bg-orange-100',
                 iconColor: 'text-orange-600',
+              },
+              {
+                label: t('dashboard.cards.rejectedOrCancelled'),
+                value: dashboardQuery.data.rejectedOrCancelledRequestCount,
+                icon: XCircle,
+                path: '/jobs?scope=rejected',
+                iconBg: 'bg-red-100',
+                iconColor: 'text-red-600',
               },
             ]
           : []),
@@ -60,8 +68,8 @@ export function DashboardPage() {
       ]
     : []
 
-  const skeletonCount = isManagerOrAdmin ? 3 : 2
-  const colClass = isManagerOrAdmin ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+  const skeletonCount = isManagerOrAdmin ? 4 : 2
+  const colClass = isManagerOrAdmin ? 'sm:grid-cols-2 xl:grid-cols-4' : 'sm:grid-cols-2'
 
   const summaryChart = dashboardQuery.data
     ? {
@@ -70,6 +78,7 @@ export function DashboardPage() {
           { label: 'dashboard.cards.openTasks', value: dashboardQuery.data.openTaskCount, colorHint: 'warning' },
           { label: 'dashboard.cards.pendingApprovals', value: dashboardQuery.data.pendingApprovalCount, colorHint: 'primary' },
           { label: 'dashboard.cards.activeMessages', value: dashboardQuery.data.activeSocialMessageCount, colorHint: 'danger' },
+          { label: 'dashboard.cards.rejectedOrCancelled', value: dashboardQuery.data.rejectedOrCancelledRequestCount, colorHint: 'neutral' },
         ].filter(slice => slice.value > 0),
       }
     : null

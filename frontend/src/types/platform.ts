@@ -67,7 +67,7 @@ export interface UserManagementContext {
   ldapEnabled: boolean;
 }
 
-export type TaskListScope = 'all' | 'mine' | 'department-pool' | 'pending-close-approval';
+export type TaskListScope = 'all' | 'mine' | 'department-pool' | 'pending-approval';
 
 export type TaskCurrentStatus =
   | 'Waiting'

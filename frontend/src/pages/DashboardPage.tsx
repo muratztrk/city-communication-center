@@ -63,8 +63,21 @@ export function DashboardPage() {
   const skeletonCount = isManagerOrAdmin ? 3 : 2
   const colClass = isManagerOrAdmin ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
 
-  // Chart slices — label resolution is handled inside PieChart
-  const chartSlices = chartQuery.data?.slices ?? []
+  const summaryChart = dashboardQuery.data
+    ? {
+        titleKey: 'dashboard.chart.titleSummary',
+        slices: [
+          { label: 'dashboard.cards.openTasks', value: dashboardQuery.data.openTaskCount, colorHint: 'warning' },
+          { label: 'dashboard.cards.pendingApprovals', value: dashboardQuery.data.pendingApprovalCount, colorHint: 'primary' },
+          { label: 'dashboard.cards.activeMessages', value: dashboardQuery.data.activeSocialMessageCount, colorHint: 'danger' },
+        ].filter(slice => slice.value > 0),
+      }
+    : null
+
+  const chartCards = [
+    ...(chartQuery.data ? [chartQuery.data] : []),
+    ...(summaryChart ? [summaryChart] : []),
+  ]
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -119,25 +132,29 @@ export function DashboardPage() {
         </div>
       </section>
 
-      {/* Chart section */}
-      <section className="section-card p-4 sm:p-5">
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-slate-700">
-            {chartQuery.data ? t(chartQuery.data.titleKey) : t('dashboard.chart.titleDept')}
-          </h2>
-        </div>
-        {chartQuery.isLoading ? (
-          <div className="flex items-center gap-4">
-            <div className="size-40 animate-pulse rounded-full bg-slate-100" />
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-4 w-32 animate-pulse rounded bg-slate-100" />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <PieChart slices={chartSlices} noDataLabel={t('dashboard.chart.noData')} />
-        )}
+      <section className="grid gap-4 lg:grid-cols-2">
+        {(chartQuery.isLoading || dashboardQuery.isLoading) && chartCards.length === 0
+          ? Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="section-card p-4 sm:p-5">
+                <div className="mb-4 h-4 w-40 animate-pulse rounded bg-slate-100" />
+                <div className="flex items-center gap-4">
+                  <div className="size-40 animate-pulse rounded-full bg-slate-100" />
+                  <div className="flex flex-col gap-2">
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <div key={j} className="h-4 w-32 animate-pulse rounded bg-slate-100" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))
+          : chartCards.map(card => (
+              <section key={card.titleKey} className="section-card p-4 sm:p-5">
+                <div className="mb-4">
+                  <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+                </div>
+                <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} />
+              </section>
+            ))}
       </section>
 
       {dashboardQuery.isError ? (

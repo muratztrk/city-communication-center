@@ -25,7 +25,8 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             entity => entity.TenantId == tenantId
                 && entity.CurrentStatus != WorkflowTaskStatus.Completed
                 && entity.CurrentStatus != WorkflowTaskStatus.Cancelled
-                && entity.CurrentStatus != WorkflowTaskStatus.Rejected,
+                && entity.CurrentStatus != WorkflowTaskStatus.Rejected
+                && entity.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval,
             cancellationToken);
 
         int pendingApprovals = 0;
@@ -35,9 +36,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 j => j.TenantId == tenantId && j.Status == JobStatus.PendingOwnerApproval, cancellationToken);
             var pendingJobsExternal = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId && j.Status == JobStatus.PendingExternalApproval, cancellationToken);
-            var pendingTaskClose = await _dbContext.Tasks.CountAsync(
-                t => t.TenantId == tenantId && t.CurrentStatus == WorkflowTaskStatus.PendingCloseApproval, cancellationToken);
-            pendingApprovals = pendingJobsOwner + pendingJobsExternal + pendingTaskClose;
+            pendingApprovals = pendingJobsOwner + pendingJobsExternal;
         }
 
         var openSocialMessages = await _dbContext.SocialMessages.CountAsync(

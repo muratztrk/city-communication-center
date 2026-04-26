@@ -11,7 +11,7 @@ public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardCh
     private static readonly WorkflowTaskStatus[] DoneStatuses = [WorkflowTaskStatus.Completed];
     private static readonly WorkflowTaskStatus[] PendingStatuses =
         [WorkflowTaskStatus.Waiting, WorkflowTaskStatus.Assigned, WorkflowTaskStatus.InProgress,
-         WorkflowTaskStatus.PendingCloseApproval, WorkflowTaskStatus.RevisionRequested];
+         WorkflowTaskStatus.RevisionRequested];
 
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;

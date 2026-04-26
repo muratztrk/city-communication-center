@@ -36,59 +36,24 @@ public sealed class CompleteTaskCommandHandler : ICommandHandler<CompleteTaskCom
             task.Notes = request.ResultNote;
         }
 
-        var requiresApproval = task.AssigningManagerId.HasValue;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
+        task.CurrentStatus = WorkflowTaskStatus.Completed;
+        task.CompletedAtUtc = utcNow;
+        task.CompletionPercentage = 100;
 
-        if (requiresApproval)
+        _dbContext.AuditLogs.Add(new AuditLog
         {
-            task.CurrentStatus = WorkflowTaskStatus.PendingCloseApproval;
-            var stepOrder = await _dbContext.Approvals.CountAsync(
-                e => e.SubjectType == ApprovalSubjectType.TaskClose && e.SubjectId == task.TaskId, cancellationToken) + 1;
+            AuditLogId = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = nameof(WorkTask),
+            EntityId = task.TaskId.ToString(),
+            Action = "TaskCompleted",
+            ActorUserId = request.ActorUserId,
+            Details = request.ResultNote
+        });
 
-            _dbContext.Approvals.Add(new WorkflowApproval
-            {
-                ApprovalId = Guid.NewGuid(),
-                TenantId = tenantId,
-                SubjectType = ApprovalSubjectType.TaskClose,
-                SubjectId = task.TaskId,
-                StepOrder = stepOrder,
-                ApproverUserId = task.AssigningManagerId ?? Guid.Empty,
-                Decision = ApprovalDecision.Pending,
-                Comment = request.ResultNote,
-                CreatedByUserId = request.ActorUserId
-            });
-
-            _dbContext.AuditLogs.Add(new AuditLog
-            {
-                AuditLogId = Guid.NewGuid(),
-                TenantId = tenantId,
-                EntityType = nameof(WorkTask),
-                EntityId = task.TaskId.ToString(),
-                Action = "TaskCloseRequested",
-                ActorUserId = request.ActorUserId,
-                Details = request.ResultNote
-            });
-        }
-        else
-        {
-            task.CurrentStatus = WorkflowTaskStatus.Completed;
-            task.CompletedAtUtc = utcNow;
-            task.CompletionPercentage = 100;
-
-            _dbContext.AuditLogs.Add(new AuditLog
-            {
-                AuditLogId = Guid.NewGuid(),
-                TenantId = tenantId,
-                EntityType = nameof(WorkTask),
-                EntityId = task.TaskId.ToString(),
-                Action = "TaskCompleted",
-                ActorUserId = request.ActorUserId,
-                Details = request.ResultNote
-            });
-
-            await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
-        }
+        await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

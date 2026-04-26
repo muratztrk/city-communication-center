@@ -861,113 +861,109 @@
     color: #fecaca;
   }
 
-  .wallboard-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
-  }
-
-  .wallboard-item {
-    display: grid;
-    grid-template-rows: minmax(8.2rem, 1fr) auto auto;
-    gap: 0.85rem;
-    min-width: 0;
-    min-height: 15.5rem;
-    padding: 1rem;
+  .wallboard-table-shell {
+    overflow: auto;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 1rem;
     background: rgba(255, 255, 255, 0.94);
-    color: #102033;
     box-shadow: 0 20px 34px rgba(0, 0, 0, 0.18);
   }
 
-  .wallboard-item.citizen {
-    border-top: 0.45rem solid #0ea5e9;
+  .wallboard-table {
+    width: 100%;
+    min-width: 980px;
+    border-collapse: collapse;
+    color: #102033;
   }
 
-  .wallboard-item.internal {
-    border-top: 0.45rem solid #10b981;
-  }
-
-  .wallboard-item-source {
-    display: inline-flex;
-    width: fit-content;
-    margin-bottom: 0.65rem;
-    padding: 0.32rem 0.55rem;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--color-primary) 10%, white);
-    color: var(--color-primary);
-    font-size: 0.78rem;
+  .wallboard-table thead th {
+    padding: 0.95rem 1rem;
+    border-bottom: 1px solid #dbe5ef;
+    background: #f7faf8;
+    color: #526179;
+    font-size: clamp(0.8rem, 0.9vw, 1rem);
     font-weight: 900;
+    text-align: left;
     text-transform: uppercase;
   }
 
-  .wallboard-item h2 {
-    display: -webkit-box;
+  .wallboard-table tbody td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5edf5;
+    color: #172033;
+    font-size: clamp(0.95rem, 1.05vw, 1.18rem);
+    font-weight: 800;
+    vertical-align: middle;
+  }
+
+  .wallboard-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .wallboard-row.internal td:first-child {
+    border-left: 0.42rem solid #10b981;
+  }
+
+  .wallboard-row.citizen td:first-child {
+    border-left: 0.42rem solid #0ea5e9;
+  }
+
+  .wallboard-row-title {
+    max-width: 32rem;
     overflow: hidden;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    margin: 0;
-    font-size: clamp(1.2rem, 1.5vw, 1.8rem);
-    line-height: 1.12;
-    font-weight: 900;
     color: #0f172a;
+    font-size: clamp(1.08rem, 1.25vw, 1.4rem);
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .wallboard-item p {
-    display: -webkit-box;
+  .wallboard-row-subtitle {
+    max-width: 32rem;
     overflow: hidden;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    margin: 0.45rem 0 0;
-    color: #475569;
-    font-size: clamp(0.92rem, 1vw, 1.1rem);
+    margin-top: 0.2rem;
+    color: #64748b;
+    font-size: clamp(0.82rem, 0.9vw, 1rem);
     font-weight: 700;
-    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .wallboard-item-meta,
-  .wallboard-item-footer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    min-width: 0;
-  }
-
-  .wallboard-item-meta span,
-  .wallboard-item-footer span {
+  .wallboard-source-pill,
+  .wallboard-status-pill,
+  .wallboard-cell-icon {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    min-width: 0;
-    max-width: 100%;
-    padding: 0.38rem 0.55rem;
-    border-radius: 0.65rem;
+    max-width: 18rem;
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
     background: #f1f5f9;
     color: #334155;
-    font-size: 0.86rem;
-    font-weight: 800;
+    font-size: clamp(0.82rem, 0.9vw, 1rem);
+    font-weight: 900;
+    white-space: nowrap;
   }
 
-  .wallboard-item-meta .wallboard-status {
+  .wallboard-source-pill {
+    background: color-mix(in srgb, var(--color-primary) 10%, white);
+    color: var(--color-primary);
+    text-transform: uppercase;
+  }
+
+  .wallboard-status-pill {
     background: #dcfce7;
     color: #166534;
   }
 
-  .wallboard-item-meta .warning {
+  .wallboard-cell-icon.warning {
     background: #fef3c7;
     color: #92400e;
   }
 
-  .wallboard-item-meta .danger {
+  .wallboard-cell-icon.danger {
     background: #fee2e2;
     color: #b91c1c;
-  }
-
-  @media (max-width: 1180px) {
-    .wallboard-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   @media (max-width: 760px) {
@@ -975,8 +971,7 @@
       flex-direction: column;
     }
 
-    .wallboard-stats,
-    .wallboard-grid {
+    .wallboard-stats {
       grid-template-columns: 1fr;
     }
   }

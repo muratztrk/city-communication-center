@@ -22,7 +22,7 @@ interface WallboardItem {
   createdAtUtc: string | null
 }
 
-const OPEN_TASK_STATUSES = new Set(['Waiting', 'Assigned', 'InProgress', 'PendingCloseApproval', 'RevisionRequested'])
+const OPEN_TASK_STATUSES = new Set(['Waiting', 'Assigned', 'InProgress', 'RevisionRequested'])
 const OPEN_SOCIAL_STATUSES = new Set(['New', 'Categorized', 'Routed'])
 const REFRESH_INTERVAL_MS = 30000
 
@@ -42,7 +42,13 @@ function getDueTone(dueDateUtc: string | null) {
 
 function formatDate(value: string | null, locale: string) {
   if (!value) return '—'
-  return new Date(value).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return new Date(value).toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 function formatTime(value: Date, locale: string) {
@@ -210,33 +216,48 @@ export function WallboardPage() {
       ) : visibleItems.length === 0 ? (
         <div className="wallboard-empty">{t('wallboard.empty', 'Bekleyen iş bulunmuyor.')}</div>
       ) : (
-        <section className="wallboard-grid" aria-label={t('wallboard.title', 'Bekleyen İşler')}>
-          {visibleItems.map(item => {
-            const dueTone = getDueTone(item.dueDateUtc)
-            return (
-              <article key={item.id} className={`wallboard-item ${item.source}`}>
-                <div className="wallboard-item-main">
-                  <div className="wallboard-item-source">
-                    {item.source === 'citizen' ? t('wallboard.citizen', 'Vatandaş') : t('wallboard.internal', 'Kurum içi')}
-                  </div>
-                  <h2>{item.title}</h2>
-                  <p>{item.subtitle}</p>
-                </div>
-                <div className="wallboard-item-meta">
-                  <span className="wallboard-status">{item.status}</span>
-                  {item.priority ? <span>{getPriorityLabel(t, item.priority)}</span> : null}
-                  <span className={dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : undefined}>
-                    <CalendarClock className="size-4" />
-                    {formatDate(item.dueDateUtc, locale)}
-                  </span>
-                </div>
-                <div className="wallboard-item-footer">
-                  <span><Building2 className="size-4" />{item.department ?? t('wallboard.unassignedDepartment', 'Müdürlük bekliyor')}</span>
-                  <span><UserRound className="size-4" />{item.assignee ?? t('wallboard.unassignedUser', 'Kişi ataması yok')}</span>
-                </div>
-              </article>
-            )
-          })}
+        <section className="wallboard-table-shell" aria-label={t('wallboard.title', 'Bekleyen İşler')}>
+          <table className="wallboard-table">
+            <thead>
+              <tr>
+                <th>{t('wallboard.columns.source', 'Kaynak')}</th>
+                <th>{t('wallboard.columns.title', 'Başlık')}</th>
+                <th>{t('wallboard.columns.status', 'Durum')}</th>
+                <th>{t('wallboard.columns.priority', 'Öncelik')}</th>
+                <th>{t('wallboard.columns.department', 'Müdürlük')}</th>
+                <th>{t('wallboard.columns.assignee', 'Atanan')}</th>
+                <th>{t('wallboard.columns.dueDate', 'Son Tarih')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleItems.map(item => {
+                const dueTone = getDueTone(item.dueDateUtc)
+                return (
+                  <tr key={item.id} className={`wallboard-row ${item.source}`}>
+                    <td>
+                      <span className="wallboard-source-pill">
+                        {item.source === 'citizen' ? t('wallboard.citizen', 'Vatandaş') : t('wallboard.internal', 'Kurum içi')}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="wallboard-row-title">{item.title}</div>
+                      <div className="wallboard-row-subtitle">{item.subtitle}</div>
+                    </td>
+                    <td><span className="wallboard-status-pill">{item.status}</span></td>
+                    <td>{item.priority ? getPriorityLabel(t, item.priority) : '—'}</td>
+                    <td><span className="wallboard-cell-icon"><Building2 className="size-4" />{item.department ?? t('wallboard.unassignedDepartment', 'Müdürlük bekliyor')}</span></td>
+                    <td><span className="wallboard-cell-icon"><UserRound className="size-4" />{item.assignee ?? t('wallboard.unassignedUser', 'Kişi ataması yok')}</span></td>
+                    <td>
+                      <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>
+                        <CalendarClock className="size-4" />
+                        {formatDate(item.dueDateUtc, locale)}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </section>
       )}
     </main>

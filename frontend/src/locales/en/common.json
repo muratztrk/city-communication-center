@@ -90,8 +90,9 @@
   },
   "nav": {
     "dashboard": "Dashboard",
-    "tasks": "Tasks",
-    "social": "Social Media",
+    "myTasks": "My Tasks",
+    "tasks": "Internal Requests",
+    "social": "Citizen Requests",
     "departments": "Departments",
     "users": "Users",
     "audit": "Audit",
@@ -104,7 +105,7 @@
     "directorateProjects": "Directorate Projects",
     "coordinatedProjects": "Coordinated Projects",
     "groupProjects": "Projects",
-    "jobs": "Jobs",
+    "jobs": "External Unit Requests",
     "groupJobs": "Jobs"
   },
   "shell": {
@@ -127,7 +128,16 @@
     "noJob": "No job record",
     "unassignedDepartment": "Waiting for unit",
     "unassignedUser": "No person assigned",
-    "empty": "No pending work."
+    "empty": "No pending work.",
+    "columns": {
+      "source": "Source",
+      "title": "Title",
+      "status": "Status",
+      "priority": "Priority",
+      "department": "Department",
+      "assignee": "Assigned",
+      "dueDate": "Due"
+    }
   },
   "notifications": {
     "bell": "Notifications",
@@ -237,6 +247,7 @@
       "titleDept": "Task Distribution by Department",
       "titleManager": "Department Task Distribution",
       "titleStaff": "Workload Summary",
+      "titleSummary": "Request Summary",
       "myCompleted": "My Completed",
       "myPending": "My Pending",
       "deptCompleted": "Dept Completed",
@@ -328,7 +339,8 @@
   },
   "tasks": {
     "title": "Tasks",
-    "subtitle": "Split task views by role, manage the unit pool, and complete assignments.",
+    "subtitle": "Manage pending approvals, the unit pool, and all work in one flow.",
+    "myTasksSubtitle": "Track work assigned to you and tasks waiting for completion.",
     "summary": {
       "total": "Total Tasks",
       "pendingApproval": "Pending Approval",
@@ -653,13 +665,13 @@
     "taskStatus": {
       "Draft": "Draft",
       "PendingApproval": "Pending Approval",
-      "Assigned": "Assigned",
+      "Assigned": "In Progress",
       "InProgress": "In Progress",
-      "Completed": "Completed",
-      "Closed": "Closed",
+      "Completed": "Done",
+      "Closed": "Done",
       "Rejected": "Rejected",
-      "Waiting": "Waiting",
-      "PendingCloseApproval": "Pending Close Approval",
+      "Waiting": "Approved",
+      "PendingCloseApproval": "Done",
       "Cancelled": "Cancelled",
       "RevisionRequested": "Revision Requested"
     },
@@ -722,7 +734,7 @@
     }
   },
   "jobs": {
-    "subtitle": "Track internal jobs, split them into tasks, and follow progress.",
+    "subtitle": "Track external unit work, manage coordinating departments, and follow assignments.",
     "empty": "No jobs",
     "departmentsMore": "+{{count}} departments",
     "scopes": {
@@ -769,7 +781,7 @@
       "priority": "Priority",
       "startDate": "Start Date",
       "dueDate": "Due Date",
-      "targetDepartments": "Target Departments (optional)",
+      "targetDepartments": "Coordinating Departments (optional)",
       "targetDepartmentsHelp": "Hold Cmd/Ctrl to select multiple.",
       "sectionMain": "Basics",
       "sectionSchedule": "Schedule",

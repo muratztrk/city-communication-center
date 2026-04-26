@@ -4,6 +4,7 @@ export type RoleCode = typeof ROLE_CODES[number]
 
 export const PAGE_ACCESS_ITEMS = [
   { key: 'dashboard', path: '/dashboard', labelKey: 'nav.dashboard' },
+  { key: 'myTasks', path: '/my-tasks', labelKey: 'nav.myTasks' },
   { key: 'tasks', path: '/tasks', labelKey: 'nav.tasks' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'jobs', path: '/jobs', labelKey: 'nav.jobs' },

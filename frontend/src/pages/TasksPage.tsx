@@ -9,21 +9,38 @@ import type { Department, Task, TaskDetail, TaskListScope, User } from '../types
 import { getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
 const SCOPES: { value: TaskListScope; labelKey: string }[] = [
-  { value: 'mine', labelKey: 'tasks.scopes.mine' },
+  { value: 'pending-approval', labelKey: 'tasks.scopes.pendingApproval' },
   { value: 'department-pool', labelKey: 'tasks.scopes.departmentPool' },
-  { value: 'pending-close-approval', labelKey: 'tasks.scopes.pendingCloseApproval' },
   { value: 'all', labelKey: 'tasks.scopes.all' },
 ]
 
 function availableScopes(role?: string): TaskListScope[] {
-  if (role === 'SystemAdmin' || role === 'Manager') return ['mine', 'department-pool', 'pending-close-approval', 'all']
-  if (role === 'Staff' || role === 'Operator') return ['mine']
-  return ['mine']
+  if (role === 'SystemAdmin' || role === 'Manager') return ['pending-approval', 'department-pool', 'all']
+  return ['department-pool', 'all']
 }
 
 const EMPTY_FORM = { title: '', description: '', priority: 'Normal', dueDateUtc: '' }
 
-export function TasksPage() {
+interface TasksPageProps {
+  fixedScope?: TaskListScope
+}
+
+function toApiDateTime(value: string) {
+  return value ? new Date(value).toISOString() : null
+}
+
+function formatDateTime(value: string | null | undefined, locale: string) {
+  if (!value) return '—'
+  return new Date(value).toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+export function TasksPage({ fixedScope }: TasksPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -44,9 +61,10 @@ export function TasksPage() {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
 
-  const scopes = useMemo(() => availableScopes(user?.role), [user?.role])
+  const scopes = useMemo(() => fixedScope ? [fixedScope] : availableScopes(user?.role), [fixedScope, user?.role])
   const scopeParam = (searchParams.get('scope') as TaskListScope | null) ?? scopes[0]
   const currentScope: TaskListScope = scopes.includes(scopeParam) ? scopeParam : scopes[0]
+  const isMyTasksView = fixedScope === 'mine'
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
   const assignmentUsers = useMemo(() => {
@@ -103,35 +121,8 @@ export function TasksPage() {
     await reload()
   }
 
-  const handleApproveClose = async (taskId: string) => {
-    await api.approveTaskClose(taskId)
-    await reload()
-  }
-
-  const handleRejectClose = async (taskId: string) => {
-    const comment = window.prompt(t('tasks.actions.rejectReason', 'Reason:')) ?? ''
-    await api.rejectTaskClose(taskId, comment)
-    await reload()
-  }
-
   const handleClaim = async (taskId: string) => {
     await api.claimTask(taskId)
-    await reload()
-  }
-
-  const handleRevision = async (taskId: string) => {
-    const reason = window.prompt(t('tasks.actions.revisionReason', 'Revision reason:')) ?? ''
-    if (!reason) return
-    await api.requestTaskRevision(taskId, reason)
-    await reload()
-  }
-
-  const handleProgress = async (taskId: string) => {
-    const pctStr = window.prompt(t('tasks.actions.progressPrompt', 'Completion %:'))
-    if (!pctStr) return
-    const pct = Number(pctStr)
-    if (Number.isNaN(pct)) return
-    await api.updateTaskProgress(taskId, { completionPercentage: pct })
     await reload()
   }
 
@@ -149,7 +140,7 @@ export function TasksPage() {
         description: form.description,
         ownerDepartmentId: user.departmentId,
         priority: form.priority,
-        dueDateUtc: form.dueDateUtc || null,
+        dueDateUtc: toApiDateTime(form.dueDateUtc),
         sourceType: 'InternalRequest',
       })
       await api.createTask({
@@ -157,7 +148,7 @@ export function TasksPage() {
         title: form.title,
         description: form.description,
         priority: form.priority,
-        dueDateUtc: form.dueDateUtc || null,
+        dueDateUtc: toApiDateTime(form.dueDateUtc),
       })
       setForm(EMPTY_FORM)
       setShowForm(false)
@@ -225,16 +216,20 @@ export function TasksPage() {
         <div className="page-header-row">
           <div className="space-y-1">
             <div className="page-kicker">{t('tasks.scopeSelector', 'İş görünümleri')}</div>
-            <h1 className="page-title">{t('nav.tasks')}</h1>
-            <p className="page-subtitle">{t('tasks.subtitle')}</p>
+            <h1 className="page-title">{isMyTasksView ? t('nav.myTasks', 'Benim Görevlerim') : t('nav.tasks')}</h1>
+            <p className="page-subtitle">
+              {isMyTasksView
+                ? t('tasks.myTasksSubtitle', 'Size atanmış işleri ve tamamlanması beklenen görevleri takip edin.')
+                : t('tasks.subtitle')}
+            </p>
           </div>
-          <Button onClick={() => setShowForm(v => !v)}>
+          {!isMyTasksView && <Button onClick={() => setShowForm(v => !v)}>
             {t('tasks.newRequest.button', 'Yeni Talep')}
-          </Button>
+          </Button>}
         </div>
       </header>
 
-      {showForm && (
+      {!isMyTasksView && showForm && (
         <section className="section-card page-stack">
           <div>
             <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.newRequest.sectionTitle', 'Yeni Kurum İçi Talep')}</h2>
@@ -278,9 +273,9 @@ export function TasksPage() {
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (isteğe bağlı)')}</span>
                 <input
-                  type="date"
+                  type="datetime-local"
                   className="field-input"
-                  placeholder="gg.aa.yyyy"
+                  placeholder="gg.aa.yyyy ss:dd"
                   value={form.dueDateUtc}
                   onClick={openDatePicker}
                   onChange={e => setForm(cur => ({ ...cur, dueDateUtc: e.target.value }))}
@@ -299,7 +294,7 @@ export function TasksPage() {
         </section>
       )}
 
-      <nav className="scope-chips">
+      {!isMyTasksView && <nav className="scope-chips">
         {scopes.map(scope => (
           <button
             key={scope}
@@ -310,7 +305,7 @@ export function TasksPage() {
             {t(SCOPES.find(s => s.value === scope)!.labelKey)}
           </button>
         ))}
-      </nav>
+      </nav>}
 
       {selectedTask ? (
         <section className="section-card page-stack">
@@ -337,8 +332,7 @@ export function TasksPage() {
               <div className="info-grid">
                 <div className="info-item"><label>{t('tasks.columns.status')}</label><strong>{getTaskStatusLabel(t, taskDetail.currentStatus)}</strong></div>
                 <div className="info-item"><label>{t('tasks.columns.priority')}</label><strong>{getPriorityLabel(t, taskDetail.priority)}</strong></div>
-                <div className="info-item"><label>{t('tasks.columns.progress')}</label><strong>{taskDetail.completionPercentage ?? 0}%</strong></div>
-                <div className="info-item"><label>{t('tasks.columns.dueDate')}</label><strong>{taskDetail.dueDateUtc ? new Date(taskDetail.dueDateUtc).toLocaleDateString(locale) : '—'}</strong></div>
+                <div className="info-item"><label>{t('tasks.columns.dueDate')}</label><strong>{formatDateTime(taskDetail.dueDateUtc, locale)}</strong></div>
                 <div className="info-item"><label>{t('tasks.columns.owner')}</label><strong>{taskDetail.ownerDisplayName ?? '—'}</strong></div>
                 <div className="info-item"><label>{t('tasks.columns.createdBy')}</label><strong>{taskDetail.createdByDisplayName ?? '—'}</strong></div>
               </div>
@@ -449,7 +443,6 @@ export function TasksPage() {
                   <th>{t('tasks.columns.assignedTo', 'Assigned')}</th>
                   <th>{t('tasks.columns.owner', 'Sahip')}</th>
                   <th>{t('tasks.columns.createdBy', 'Created By')}</th>
-                  <th>{t('tasks.columns.progress', 'Progress')}</th>
                   <th>{t('tasks.columns.dueDate', 'Due')}</th>
                   <th>{t('tasks.columns.actions', 'Actions')}</th>
                 </tr>
@@ -464,8 +457,7 @@ export function TasksPage() {
                     <td>{task.assignedUserDisplayName ?? task.assignedDepartmentName ?? '—'}</td>
                     <td>{task.ownerDisplayName ?? '—'}</td>
                     <td>{task.createdByDisplayName ?? '—'}</td>
-                    <td>{task.completionPercentage ?? 0}%</td>
-                    <td>{task.dueDateUtc ? new Date(task.dueDateUtc).toLocaleDateString(locale) : '—'}</td>
+                    <td>{formatDateTime(task.dueDateUtc, locale)}</td>
                     <td className="actions-cell">
                       <div className="inline-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
@@ -473,17 +465,7 @@ export function TasksPage() {
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
                         {isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <>
-                            <Button size="sm" onClick={() => handleProgress(task.taskId)}>{t('tasks.actions.progress', 'Progress')}</Button>
-                            <Button size="sm" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Complete')}</Button>
-                            <Button size="sm" variant="secondary" onClick={() => handleRevision(task.taskId)}>{t('tasks.actions.revision', 'Revision')}</Button>
-                          </>
-                        )}
-                        {isManagerLike && task.currentStatus === 'PendingCloseApproval' && (
-                          <>
-                            <Button size="sm" onClick={() => handleApproveClose(task.taskId)}>{t('tasks.actions.approveClose', 'Approve Close')}</Button>
-                            <Button size="sm" variant="secondary" onClick={() => handleRejectClose(task.taskId)}>{t('tasks.actions.rejectClose', 'Reject Close')}</Button>
-                          </>
+                          <Button size="sm" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Complete')}</Button>
                         )}
                       </div>
                     </td>

@@ -1,4 +1,4 @@
-import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
+import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -42,6 +42,7 @@ export function AppShell() {
   const logoUrl = appearance.logoUrl?.trim() || null
   const navItems = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { pageKey: 'myTasks' as const, path: '/my-tasks', label: t('nav.myTasks', 'Benim Görevlerim'), icon: ListChecks },
     { pageKey: 'tasks' as const, path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { pageKey: 'jobs' as const, path: '/jobs', label: t('nav.jobs'), icon: FolderKanban },
@@ -62,6 +63,7 @@ export function AppShell() {
   const breadcrumbSegments = location.pathname.split('/').filter(Boolean)
   const breadcrumbLabels: Record<string, string> = {
     dashboard: t('nav.dashboard'),
+    'my-tasks': t('nav.myTasks', 'Benim Görevlerim'),
     tasks: t('nav.tasks'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -75,6 +77,7 @@ export function AppShell() {
   }
 
   const breadcrumbParent: Record<string, string> = {
+    'my-tasks': t('nav.groupTasks'),
     tasks: t('nav.groupTasks'),
     directorate: t('nav.groupJobs'),
     coordinated: t('nav.groupJobs'),
@@ -91,6 +94,7 @@ export function AppShell() {
 
   const breadcrumbIcon: Record<string, typeof LayoutDashboard> = {
     dashboard: LayoutDashboard,
+    'my-tasks': ListChecks,
     tasks: SquareKanban,
     directorate: FolderKanban,
     coordinated: Workflow,

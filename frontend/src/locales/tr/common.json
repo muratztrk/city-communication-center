@@ -90,7 +90,8 @@
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
-    "tasks": "Kurum İçi Talepler",
+    "myTasks": "Benim Görevlerim",
+    "tasks": "Birim İçi",
     "social": "Vatandaş Talepleri",
     "departments": "Müdürlükler",
     "users": "Kullanıcılar",
@@ -104,7 +105,7 @@
     "directorateProjects": "Müdürlük Projesi",
     "coordinatedProjects": "Koordineli Proje",
     "groupProjects": "Projeler",
-    "jobs": "İşler",
+    "jobs": "Birim Dışı",
     "groupJobs": "İş Yönetimi"
   },
   "shell": {
@@ -127,7 +128,16 @@
     "noJob": "İş kaydı yok",
     "unassignedDepartment": "Müdürlük bekliyor",
     "unassignedUser": "Kişi ataması yok",
-    "empty": "Bekleyen iş bulunmuyor."
+    "empty": "Bekleyen iş bulunmuyor.",
+    "columns": {
+      "source": "Kaynak",
+      "title": "Başlık",
+      "status": "Durum",
+      "priority": "Öncelik",
+      "department": "Müdürlük",
+      "assignee": "Atanan",
+      "dueDate": "Son Tarih"
+    }
   },
   "notifications": {
     "bell": "Bildirimler",
@@ -237,6 +247,7 @@
       "titleDept": "Müdürlüklere Göre İş Dağılımı",
       "titleManager": "Müdürlük İş Dağılımı",
       "titleStaff": "İş Yükü Özeti",
+      "titleSummary": "Genel Talep Özeti",
       "myCompleted": "Benim Tamamladıklarım",
       "myPending": "Bekleyen İşlerim",
       "deptCompleted": "Müdürlük Tamamladı",
@@ -328,7 +339,8 @@
   },
   "tasks": {
     "title": "İşler",
-    "subtitle": "İş görünümlerini role göre ayırın, müdürlük havuzunu yönetin ve atamaları tamamlayın.",
+    "subtitle": "Onay bekleyen talepleri, birim havuzunu ve tüm işleri aynı akışta yönetin.",
+    "myTasksSubtitle": "Size atanmış işleri ve tamamlanması beklenen görevleri takip edin.",
     "summary": {
       "total": "Toplam İş",
       "pendingApproval": "Onay Bekleyen",
@@ -338,7 +350,7 @@
     "scopeSelector": "İş görünümleri",
     "scopes": {
       "mine": "Benim Görevlerim",
-      "departmentPool": "Müdürlük Havuzu",
+      "departmentPool": "Birim Havuzu",
       "pendingApproval": "Onay Bekleyen",
       "all": "Tümü",
       "pendingCloseApproval": "Kapanış Onayı Bekleyen"
@@ -650,10 +662,10 @@
   "enum": {
     "role": {
       "SystemAdmin": "Sistem Yöneticisi",
-      "Manager": "Yönetici",
-      "Operator": "Operatör",
-      "Staff": "Personel",
-      "Reporter": "Raporlayıcı"
+      "Manager": "Müdür",
+      "Operator": "Vatandaş Talep Operatörü",
+      "Staff": "Standart",
+      "Reporter": "Üst Düzey Yönetici"
     },
     "taskType": {
       "CitizenRequest": "Vatandaş Talebi",
@@ -663,13 +675,13 @@
     "taskStatus": {
       "Draft": "Taslak",
       "PendingApproval": "Onay Bekliyor",
-      "Assigned": "Atandı",
-      "InProgress": "Devam Ediyor",
-      "Completed": "Tamamlandı",
-      "Closed": "Kapatıldı",
+      "Assigned": "Yapılmakta",
+      "InProgress": "Yapılmakta",
+      "Completed": "Yapıldı",
+      "Closed": "Yapıldı",
       "Rejected": "Reddedildi",
-      "Waiting": "Beklemede",
-      "PendingCloseApproval": "Kapanış Onayı Bekliyor",
+      "Waiting": "Onaylandı",
+      "PendingCloseApproval": "Yapıldı",
       "Cancelled": "İptal",
       "RevisionRequested": "Revize İstendi"
     },
@@ -732,7 +744,7 @@
     }
   },
   "jobs": {
-    "subtitle": "Kurum içi işleri izleyin, görevlere ayırın ve ilerlemeyi takip edin.",
+    "subtitle": "Birim dışı işleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.",
     "empty": "Hiç iş bulunamadı",
     "departmentsMore": "+{{count}} müdürlük",
     "scopes": {
@@ -779,7 +791,7 @@
       "priority": "Öncelik",
       "startDate": "Başlangıç Tarihi",
       "dueDate": "Son Tarih",
-      "targetDepartments": "Hedef Müdürlükler (opsiyonel)",
+      "targetDepartments": "Koordine Müdürlükler (opsiyonel)",
       "targetDepartmentsHelp": "Birden fazla seçebilirsiniz (Cmd/Ctrl tuşu ile).",
       "sectionMain": "Temel Bilgiler",
       "sectionSchedule": "Zaman Çizelgesi",

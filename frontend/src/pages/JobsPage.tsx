@@ -243,7 +243,7 @@ export function JobsPage() {
         description: taskForm.description,
         priority: taskForm.priority,
         assignedDepartmentId: taskForm.assignedDepartmentId || null,
-        dueDateUtc: taskForm.dueDateUtc || null,
+        dueDateUtc: taskForm.dueDateUtc ? new Date(taskForm.dueDateUtc).toISOString() : null,
       })
       setTaskForm(EMPTY_TASK_FORM)
       setShowTaskForm(false)
@@ -401,8 +401,8 @@ export function JobsPage() {
               <input
                 id="job-start-date"
                 className="field-input"
-                type="date"
-                placeholder="gg.aa.yyyy"
+                  type="datetime-local"
+                  placeholder="gg.aa.yyyy ss:dd"
                 value={form.startDateUtc}
                 onClick={openDatePicker}
                 onChange={e => setForm(f => ({ ...f, startDateUtc: e.target.value }))}
@@ -414,8 +414,8 @@ export function JobsPage() {
               <input
                 id="job-due-date"
                 className="field-input"
-                type="date"
-                placeholder="gg.aa.yyyy"
+                  type="datetime-local"
+                  placeholder="gg.aa.yyyy ss:dd"
                 value={form.dueDateUtc}
                 onClick={openDatePicker}
                 onChange={e => setForm(f => ({ ...f, dueDateUtc: e.target.value }))}
@@ -466,7 +466,6 @@ export function JobsPage() {
                   <th>{t('jobs.columns.departments')}</th>
                   <th>{t('jobs.columns.status')}</th>
                   <th>{t('jobs.columns.priority')}</th>
-                  <th>{t('jobs.columns.progress')}</th>
                   <th>{t('jobs.columns.taskCount')}</th>
                   <th>{t('jobs.columns.dueDate')}</th>
                   <th>{t('jobs.columns.actions')}</th>
@@ -479,7 +478,6 @@ export function JobsPage() {
                     <td>{renderJobDepartments(job)}</td>
                     <td><StatusPill>{getJobStatusLabel(t, job.status)}</StatusPill></td>
                     <td>{getPriorityLabel(t, job.priority)}</td>
-                    <td>{job.completionPercentage ?? 0}%</td>
                     <td>{job.taskCount}</td>
                     <td>{formatDateTime(job.dueDateUtc, locale)}</td>
                     <td>
@@ -519,7 +517,6 @@ export function JobsPage() {
                 <div className="inline-actions pt-1">
                   <StatusPill>{getJobStatusLabel(t, detail.status)}</StatusPill>
                   <StatusPill tone="info">{getPriorityLabel(t, detail.priority)}</StatusPill>
-                  <StatusPill>{detail.completionPercentage ?? 0}%</StatusPill>
                 </div>
                 {detail.createdByDisplayName && (
                   <p className="text-xs text-[color:var(--color-muted-foreground)] pt-1">
@@ -620,8 +617,8 @@ export function JobsPage() {
                   </div>
                   <div className="form-row">
                     <label className="form-label">{t('tasks.form.dueDate', 'Son Tarih')}</label>
-                    <input type="date" className="form-input" value={taskForm.dueDateUtc}
-                      placeholder="gg.aa.yyyy"
+                    <input type="datetime-local" className="form-input" value={taskForm.dueDateUtc}
+                      placeholder="gg.aa.yyyy ss:dd"
                       onClick={openDatePicker}
                       onChange={e => setTaskForm(f => ({ ...f, dueDateUtc: e.target.value }))} />
                   </div>
@@ -644,7 +641,6 @@ export function JobsPage() {
                       <th>{t('tasks.columns.title', 'Başlık')}</th>
                       <th>{t('tasks.columns.status', 'Durum')}</th>
                       <th>{t('tasks.columns.assignedTo', 'Atanan')}</th>
-                      <th>{t('tasks.columns.progress', 'İlerleme')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -653,7 +649,6 @@ export function JobsPage() {
                         <td>{tk.title}</td>
                         <td><StatusPill>{t(`enum.taskStatus.${tk.currentStatus}`, tk.currentStatus)}</StatusPill></td>
                         <td>{tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—'}</td>
-                        <td>{tk.completionPercentage ?? 0}%</td>
                       </tr>
                     ))}
                   </tbody>

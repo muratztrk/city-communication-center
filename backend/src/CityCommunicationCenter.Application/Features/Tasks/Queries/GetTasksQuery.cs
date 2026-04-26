@@ -20,7 +20,7 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
         var scope = TaskQueryScopeParser.Parse(request.Scope);
-        var actor = await ResolveActorAsync(scope, tenantId, context.UserId, cancellationToken);
+        var actor = await ResolveActorAsync(tenantId, context.UserId, cancellationToken);
         var managedDepartmentIds = actor?.RoleCode == RoleCode.Manager
             ? await _dbContext.Departments
                 .AsNoTracking()
@@ -35,7 +35,20 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
 
         tasks = scope switch
         {
-            TaskQueryScope.All => tasks,
+            TaskQueryScope.All => actor is null
+                ? tasks.Where(_ => false)
+                : actor.RoleCode switch
+                {
+                    RoleCode.SystemAdmin => tasks,
+                    RoleCode.Manager => managedDepartmentIds.Length == 0
+                        ? tasks.Where(entity => entity.AssignedUserId == actor.UserId || entity.CreatedByUserId == actor.UserId)
+                        : tasks.Where(entity =>
+                            entity.AssignedUserId == actor.UserId ||
+                            entity.CreatedByUserId == actor.UserId ||
+                            (entity.AssignedDepartmentId.HasValue && managedDepartmentIds.Contains(entity.AssignedDepartmentId.Value)) ||
+                            _dbContext.Jobs.Any(job => job.JobId == entity.JobId && managedDepartmentIds.Contains(job.OwnerDepartmentId))),
+                    _ => tasks.Where(entity => entity.AssignedUserId == actor.UserId || entity.CreatedByUserId == actor.UserId)
+                },
             TaskQueryScope.Mine => actor is null
                 ? tasks.Where(_ => false)
                 : tasks.Where(entity => entity.AssignedUserId == actor.UserId),
@@ -45,15 +58,15 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     entity.AssignedDepartmentId == actor.DepartmentId &&
                     entity.AssignedUserId == null &&
                     entity.CurrentStatus == WorkflowTaskStatus.Waiting),
-            TaskQueryScope.PendingCloseApproval => actor is null
+            TaskQueryScope.PendingApproval => actor is null
                 ? tasks.Where(_ => false)
                 : actor.RoleCode switch
                 {
-                    RoleCode.SystemAdmin => tasks.Where(entity => entity.CurrentStatus == WorkflowTaskStatus.PendingCloseApproval),
+                    RoleCode.SystemAdmin => tasks.Where(entity => entity.CurrentStatus == WorkflowTaskStatus.Waiting),
                     RoleCode.Manager => managedDepartmentIds.Length == 0
                         ? tasks.Where(_ => false)
                         : tasks.Where(entity =>
-                            entity.CurrentStatus == WorkflowTaskStatus.PendingCloseApproval &&
+                            entity.CurrentStatus == WorkflowTaskStatus.Waiting &&
                             entity.AssignedDepartmentId.HasValue &&
                             managedDepartmentIds.Contains(entity.AssignedDepartmentId!.Value)),
                     _ => tasks.Where(_ => false)
@@ -106,12 +119,11 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
     }
 
     private async Task<ApplicationUser?> ResolveActorAsync(
-        TaskQueryScope scope,
         Guid tenantId,
         Guid? actorUserId,
         CancellationToken cancellationToken)
     {
-        if (scope == TaskQueryScope.All || !actorUserId.HasValue)
+        if (!actorUserId.HasValue)
         {
             return null;
         }
@@ -129,7 +141,7 @@ internal enum TaskQueryScope
     All,
     Mine,
     DepartmentPool,
-    PendingCloseApproval
+    PendingApproval
 }
 
 internal static class TaskQueryScopeParser
@@ -146,7 +158,7 @@ internal static class TaskQueryScopeParser
             "all" => TaskQueryScope.All,
             "mine" => TaskQueryScope.Mine,
             "department-pool" => TaskQueryScope.DepartmentPool,
-            "pending-close-approval" => TaskQueryScope.PendingCloseApproval,
+            "pending-approval" => TaskQueryScope.PendingApproval,
             _ => throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(scope), "Gecersiz gorev scope degeri.")
             ])

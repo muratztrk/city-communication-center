@@ -1,4 +1,4 @@
-import { Building, ChevronLeft, ChevronRight, FolderKanban, Home, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
+import { Building, ChevronLeft, ChevronRight, ClipboardPlus, FolderKanban, Home, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -42,6 +42,7 @@ export function AppShell() {
   const logoUrl = appearance.logoUrl?.trim() || null
   const navItems = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
     { pageKey: 'myTasks' as const, path: '/my-tasks', label: t('nav.myTasks', 'Benim Görevlerim'), icon: ListChecks },
     { pageKey: 'myRequests' as const, path: '/my-requests', label: t('nav.myRequests', 'Benim Taleplerim'), icon: Send },
     { pageKey: 'tasks' as const, path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
@@ -64,6 +65,8 @@ export function AppShell() {
   const breadcrumbSegments = location.pathname.split('/').filter(Boolean)
   const breadcrumbLabels: Record<string, string> = {
     dashboard: t('nav.dashboard'),
+    requests: t('nav.createRequest', 'Talep Oluştur'),
+    new: t('nav.createRequest', 'Talep Oluştur'),
     'my-tasks': t('nav.myTasks', 'Benim Görevlerim'),
     'my-requests': t('nav.myRequests', 'Benim Taleplerim'),
     tasks: t('nav.tasks'),
@@ -97,6 +100,8 @@ export function AppShell() {
 
   const breadcrumbIcon: Record<string, typeof LayoutDashboard> = {
     dashboard: LayoutDashboard,
+    requests: ClipboardPlus,
+    new: ClipboardPlus,
     'my-tasks': ListChecks,
     'my-requests': Send,
     tasks: SquareKanban,

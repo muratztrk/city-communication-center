@@ -4,12 +4,16 @@ public sealed record CreateDepartmentRequest(
     string Name,
     string DepartmentType,
     Guid? ParentDepartmentId,
-    Guid? ManagerUserId);
+    Guid? ManagerUserId,
+    Guid? DeputyManagerUserId,
+    IReadOnlyCollection<Guid>? ResponsibleUserIds);
 
 public sealed record UpdateDepartmentRequest(
     string Name,
     string DepartmentType,
-    Guid? ManagerUserId);
+    Guid? ManagerUserId,
+    Guid? DeputyManagerUserId,
+    IReadOnlyCollection<Guid>? ResponsibleUserIds);
 
 public sealed record DepartmentResponse(
     Guid DepartmentId,
@@ -17,4 +21,6 @@ public sealed record DepartmentResponse(
     string Name,
     string DepartmentType,
     Guid? ParentDepartmentId,
-    Guid? ManagerUserId);
+    Guid? ManagerUserId,
+    Guid? DeputyManagerUserId,
+    IReadOnlyCollection<Guid> ResponsibleUserIds);

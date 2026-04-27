@@ -8,7 +8,9 @@ public sealed record CreateDepartmentCommand(
     string Name,
     string DepartmentType,
     Guid? ParentDepartmentId,
-    Guid? ManagerUserId) : ICommand<DepartmentResponse>;
+    Guid? ManagerUserId,
+    Guid? DeputyManagerUserId,
+    IReadOnlyCollection<Guid>? ResponsibleUserIds) : ICommand<DepartmentResponse>;
 
 public sealed class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartmentCommand>
 {
@@ -39,6 +41,8 @@ public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepar
             DepartmentType = request.DepartmentType.Trim(),
             ParentDepartmentId = request.ParentDepartmentId,
             ManagerUserId = request.ManagerUserId,
+            DeputyManagerUserId = request.DeputyManagerUserId,
+            ResponsibleUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(request.ResponsibleUserIds),
             CreatedByUserId = request.ActorUserId
         };
 
@@ -55,12 +59,6 @@ public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepar
         });
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new DepartmentResponse(
-            entity.DepartmentId,
-            entity.TenantId,
-            entity.Name,
-            entity.DepartmentType,
-            entity.ParentDepartmentId,
-            entity.ManagerUserId);
+        return DepartmentResponseFactory.Create(entity);
     }
 }

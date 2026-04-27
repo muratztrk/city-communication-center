@@ -583,7 +583,12 @@ export function SettingsPage() {
 
   const assignDepartmentManager = async (dept: Department, managerId: string | null) => {
     try {
-      const updated = await api.updateDepartment(dept.departmentId, dept.name, dept.departmentType, managerId)
+      const updated = await api.updateDepartment(dept.departmentId, {
+        name: dept.name,
+        departmentType: dept.departmentType,
+        managerUserId: managerId,
+        responsibleUserIds: dept.responsibleUserIds ?? [],
+      })
       setDepartments(current => current.map(d => d.departmentId === updated.departmentId ? updated : d))
       setDeptManagerEditing(null)
       setMessage({ type: 'success', text: t('settings.departments.managerSaved', 'Müdür güncellendi.') })

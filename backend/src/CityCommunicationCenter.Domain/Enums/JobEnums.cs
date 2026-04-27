@@ -22,7 +22,6 @@ public enum JobDepartmentRole
 {
     Owner,
     Target,
-    Support,
     Coordinating
 }
 

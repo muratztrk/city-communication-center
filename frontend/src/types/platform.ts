@@ -24,6 +24,7 @@ export interface Department {
   departmentType: string;
   parentDepartmentId: string | null;
   managerUserId: string | null;
+  responsibleUserIds: string[];
 }
 
 export interface User {
@@ -156,7 +157,7 @@ export type JobStatus =
   | 'Cancelled';
 
 export type JobRequestType = 'InternalUnit' | 'ExternalUnit' | 'Citizen';
-export type JobDepartmentRole = 'Owner' | 'Target' | 'Support' | 'Coordinating';
+export type JobDepartmentRole = 'Owner' | 'Target' | 'Coordinating';
 export type JobApprovalStatus = 'Pending' | 'Approved' | 'Rejected' | 'NotRequired';
 
 export type JobListScope =
@@ -250,6 +251,7 @@ export interface SocialMessage {
   category: string | null;
   status: string;
   assignedDepartmentId: string | null;
+  assignedDepartmentName: string | null;
   jobId: string | null;
   receivedAtUtc: string;
 }

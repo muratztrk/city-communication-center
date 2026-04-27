@@ -94,12 +94,20 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
 
         if (assignedUserId.HasValue)
         {
-            var target = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == assignedUserId.Value, cancellationToken);
+            var target = await _dbContext.Users.FirstOrDefaultAsync(
+                u => u.UserId == assignedUserId.Value && u.TenantId == tenantId,
+                cancellationToken);
             if (target is null || !target.IsActive)
             {
                 throw Validation(nameof(request.AssignedUserId), "Secilen kullanici bulunamadi veya aktif degil.");
             }
-            assignedDepartmentId ??= target.DepartmentId;
+            if (assignedDepartmentId.HasValue && assignedDepartmentId.Value != target.DepartmentId)
+            {
+                throw Validation(nameof(request.AssignedUserId), "Secilen kullanici atanan mudurlukte calismiyor.");
+            }
+
+            assignedDepartmentId = target.DepartmentId;
+            ownerUserId = target.UserId;
         }
 
         var initialStatus = assignedUserId.HasValue ? WorkflowTaskStatus.Assigned : WorkflowTaskStatus.Waiting;

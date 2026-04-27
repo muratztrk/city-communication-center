@@ -19,14 +19,8 @@ function availableScopes(role?: string): TaskListScope[] {
   return ['department-pool', 'all']
 }
 
-const EMPTY_FORM = { title: '', description: '', priority: 'Normal', dueDateUtc: '', isProject: false }
-
 interface TasksPageProps {
   fixedScope?: TaskListScope
-}
-
-function toApiDateTime(value: string) {
-  return value ? new Date(value).toISOString() : null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -63,10 +57,6 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [formSaving, setFormSaving] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -138,47 +128,7 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
     await reload()
   }
 
-  const handleSubmitForm = async (event: React.FormEvent) => {
-    event.preventDefault()
-    if (!user?.departmentId) {
-      setFormError(t('tasks.newRequest.noDepartment', 'Departman bilgisi bulunamadı.'))
-      return
-    }
-    setFormError(null)
-    setFormSaving(true)
-    try {
-      const job = await api.createJob({
-        title: form.title,
-        description: form.description,
-        ownerDepartmentId: user.departmentId,
-        priority: form.priority,
-        requestType: 'InternalUnit',
-        isProject: form.isProject,
-        dueDateUtc: toApiDateTime(form.dueDateUtc),
-        sourceType: 'InternalRequest',
-      })
-      await api.createTask({
-        jobId: job.jobId,
-        title: form.title,
-        description: form.description,
-        priority: form.priority,
-        dueDateUtc: toApiDateTime(form.dueDateUtc),
-      })
-      setForm(EMPTY_FORM)
-      setShowForm(false)
-      await reload()
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : t('common.error'))
-    } finally {
-      setFormSaving(false)
-    }
-  }
-
   const isAssignee = (task: Task) => task.assignedUserId === user?.userId
-  const openDatePicker = (event: React.MouseEvent<HTMLInputElement>) => {
-    const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void }
-    input.showPicker?.()
-  }
   const getDepartmentName = (departmentId?: string | null) => departments.find(department => department.departmentId === departmentId)?.name ?? '—'
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
 
@@ -237,87 +187,8 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
                 : t('tasks.subtitle')}
             </p>
           </div>
-          {!isMyTasksView && <Button onClick={() => setShowForm(v => !v)}>
-            {t('tasks.newRequest.button', 'Yeni Talep')}
-          </Button>}
         </div>
       </header>
-
-      {!isMyTasksView && showForm && (
-        <section className="section-card page-stack">
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.newRequest.sectionTitle', 'Yeni Kurum İçi Talep')}</h2>
-            <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Dahili iş akışı başlatmak için talep oluşturun.')}</p>
-          </div>
-          {formError && <div className="alert alert-error">{formError}</div>}
-          <form className="page-stack" onSubmit={event => void handleSubmitForm(event)}>
-            <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')}</span>
-              <input
-                className="field-input"
-                placeholder={t('tasks.newRequest.titlePlaceholder', 'Talebin kısa başlığı')}
-                required
-                value={form.title}
-                onChange={e => setForm(cur => ({ ...cur, title: e.target.value }))}
-              />
-            </div>
-            <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')}</span>
-              <textarea
-                className="field-textarea"
-                placeholder={t('tasks.newRequest.descriptionPlaceholder', 'Talebin detaylı açıklaması...')}
-                required
-                rows={4}
-                value={form.description}
-                onChange={e => setForm(cur => ({ ...cur, description: e.target.value }))}
-              />
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="job-field">
-                <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
-                <select
-                  className="field-select"
-                  value={form.priority}
-                  onChange={e => setForm(cur => ({ ...cur, priority: e.target.value }))}
-                >
-                  <option value="High">{t('jobs.priorities.High', 'Yüksek')}</option>
-                  <option value="Normal">{t('jobs.priorities.Normal', 'Normal')}</option>
-                </select>
-              </div>
-              <div className="job-field">
-                <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (isteğe bağlı)')}</span>
-                <input
-                  type="datetime-local"
-                  className="field-input"
-                  placeholder="gg.aa.yyyy ss:dd"
-                  value={form.dueDateUtc}
-                  onClick={openDatePicker}
-                  onChange={e => setForm(cur => ({ ...cur, dueDateUtc: e.target.value }))}
-                />
-              </div>
-              <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
-                <select
-                  className="field-select"
-                  value={form.isProject ? 'yes' : 'no'}
-                  onChange={e => setForm(cur => ({ ...cur, isProject: e.target.value === 'yes' }))}
-                >
-                  <option value="no">{t('common.no', 'Hayır')}</option>
-                  <option value="yes">{t('common.yes', 'Evet')}</option>
-                </select>
-              </div>
-            </div>
-            <div className="inline-actions">
-              <Button type="submit" disabled={formSaving}>
-                {t('tasks.newRequest.submit', 'Talep Oluştur')}
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setForm(EMPTY_FORM); setFormError(null) }}>
-                {t('common.cancel', 'İptal')}
-              </Button>
-            </div>
-          </form>
-        </section>
-      )}
 
       {!isMyTasksView && <nav className="scope-chips">
         {scopes.map(scope => (

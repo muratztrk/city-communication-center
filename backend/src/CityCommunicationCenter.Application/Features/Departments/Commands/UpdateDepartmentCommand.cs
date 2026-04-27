@@ -3,10 +3,13 @@ using Microsoft.Extensions.Localization;
 namespace CityCommunicationCenter.Application.Features.Departments;
 
 public sealed record UpdateDepartmentCommand(
+    Guid? ActorUserId,
     Guid DepartmentId,
     string Name,
     string DepartmentType,
-    Guid? ManagerUserId) : ICommand<DepartmentResponse>;
+    Guid? ManagerUserId,
+    Guid? DeputyManagerUserId,
+    IReadOnlyCollection<Guid>? ResponsibleUserIds) : ICommand<DepartmentResponse>;
 
 public sealed class UpdateDepartmentCommandValidator : AbstractValidator<UpdateDepartmentCommand>
 {
@@ -58,10 +61,31 @@ public sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDepar
             throw new ValidationException(_localizer["ValidationDepartmentNotFound"]);
         }
 
+        var actor = context.UserId.HasValue
+            ? await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
+                user => user.UserId == context.UserId.Value && user.TenantId == tenantId && user.IsActive,
+                cancellationToken)
+            : null;
+
+        if (actor is null || (actor.RoleCode != RoleCode.SystemAdmin && entity.ManagerUserId != actor.UserId))
+        {
+            throw new ForbiddenAccessException("Müdürlük kaydını sadece o müdürlüğün müdürü güncelleyebilir.");
+        }
+
+        await EnsureDepartmentUsersAsync(
+            tenantId,
+            request.DepartmentId,
+            request.ManagerUserId,
+            request.DeputyManagerUserId,
+            request.ResponsibleUserIds,
+            cancellationToken);
+
         var oldName = entity.Name;
         entity.Name = request.Name.Trim();
         entity.DepartmentType = request.DepartmentType.Trim();
         entity.ManagerUserId = request.ManagerUserId;
+        entity.DeputyManagerUserId = request.DeputyManagerUserId;
+        entity.ResponsibleUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(request.ResponsibleUserIds);
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
         entity.UpdatedByUserId = context.UserId;
 
@@ -78,12 +102,40 @@ public sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDepar
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new DepartmentResponse(
-            entity.DepartmentId,
-            entity.TenantId,
-            entity.Name,
-            entity.DepartmentType,
-            entity.ParentDepartmentId,
-            entity.ManagerUserId);
+        return DepartmentResponseFactory.Create(entity);
+    }
+
+    private async Task EnsureDepartmentUsersAsync(
+        Guid tenantId,
+        Guid departmentId,
+        Guid? managerUserId,
+        Guid? deputyManagerUserId,
+        IReadOnlyCollection<Guid>? responsibleUserIds,
+        CancellationToken cancellationToken)
+    {
+        var selectedUserIds = new[] { managerUserId, deputyManagerUserId }
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Concat(responsibleUserIds ?? [])
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (selectedUserIds.Length == 0)
+        {
+            return;
+        }
+
+        var validUserCount = await _dbContext.Users.CountAsync(
+            user => user.TenantId == tenantId
+                && user.DepartmentId == departmentId
+                && user.IsActive
+                && selectedUserIds.Contains(user.UserId),
+            cancellationToken);
+
+        if (validUserCount != selectedUserIds.Length)
+        {
+            throw new ValidationException("Seçilen müdür, vekil müdür ve sorumlular bu müdürlükte çalışan aktif kullanıcılardan olmalıdır.");
+        }
     }
 }

@@ -12,6 +12,10 @@ public sealed class Department : AuditableTenantEntity, IHasDatabaseIndexDefinit
 
     public Guid? ManagerUserId { get; set; }
 
+    public Guid? DeputyManagerUserId { get; set; }
+
+    public string ResponsibleUserIdsJson { get; set; } = "[]";
+
     public Tenant Tenant { get; set; } = null!;
 
     public Department? ParentDepartment { get; set; }
@@ -22,5 +26,6 @@ public sealed class Department : AuditableTenantEntity, IHasDatabaseIndexDefinit
     [
         DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(Name)),
         DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(ManagerUserId)),
+        DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(DeputyManagerUserId)),
     ];
 }

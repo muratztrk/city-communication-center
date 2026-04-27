@@ -354,6 +354,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("departments");
         builder.HasKey(entity => entity.DepartmentId);
+        builder.Property(entity => entity.ResponsibleUserIdsJson)
+            .HasColumnType("text");
         builder.HasOne(entity => entity.Tenant)
             .WithMany(tenant => tenant.Departments)
             .HasForeignKey(entity => entity.TenantId)

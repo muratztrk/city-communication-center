@@ -1,32 +1,42 @@
-import { Building2, Check, Layers3, Pencil, Trash2, X } from 'lucide-react'
+import { Building2, Layers3, Pencil, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { StatusPill } from '../components/ui/status-pill'
-import type { Department } from '../types/platform'
+import { useAuth } from '../context/AuthContext'
+import type { Department, User } from '../types/platform'
 import { getDepartmentTypeLabel } from '../utils/localization'
 
 export function DepartmentsPage() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const [departments, setDepartments] = useState<Department[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [newName, setNewName] = useState('')
   const [newType, setNewType] = useState('Müdürlük')
+  const [newManagerUserId, setNewManagerUserId] = useState('')
+  const [newResponsibleUserIds, setNewResponsibleUserIds] = useState<string[]>([])
 
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editType, setEditType] = useState('')
+  const [editManagerUserId, setEditManagerUserId] = useState('')
+  const [editResponsibleUserIds, setEditResponsibleUserIds] = useState<string[]>([])
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const loadDepartments = () => {
     setLoading(true)
     setError('')
 
-    void api.getDepartments()
-      .then(setDepartments)
+    void Promise.all([api.getDepartments(), api.getUsers().catch(() => [] as User[])])
+      .then(([loadedDepartments, loadedUsers]) => {
+        setDepartments(loadedDepartments)
+        setUsers(loadedUsers)
+      })
       .catch(loadError => setError(loadError instanceof Error ? loadError.message : t('common.error')))
       .finally(() => setLoading(false))
   }
@@ -34,10 +44,11 @@ export function DepartmentsPage() {
   useEffect(() => {
     let isActive = true
 
-    void api.getDepartments()
-      .then(loadedDepartments => {
+    void Promise.all([api.getDepartments(), api.getUsers().catch(() => [] as User[])])
+      .then(([loadedDepartments, loadedUsers]) => {
         if (isActive) {
           setDepartments(loadedDepartments)
+          setUsers(loadedUsers)
         }
       })
       .catch(loadError => {
@@ -64,9 +75,16 @@ export function DepartmentsPage() {
     }
 
     try {
-      await api.createDepartment(newName.trim(), newType)
+      await api.createDepartment({
+        name: newName.trim(),
+        departmentType: newType,
+        managerUserId: newManagerUserId || null,
+        responsibleUserIds: newResponsibleUserIds,
+      })
       setNewName('')
       setNewType('Müdürlük')
+      setNewManagerUserId('')
+      setNewResponsibleUserIds([])
       setShowForm(false)
       loadDepartments()
     } catch (createError) {
@@ -78,6 +96,8 @@ export function DepartmentsPage() {
     setEditId(department.departmentId)
     setEditName(department.name)
     setEditType(department.departmentType)
+    setEditManagerUserId(department.managerUserId ?? '')
+    setEditResponsibleUserIds(department.responsibleUserIds ?? [])
     setDeleteConfirmId(null)
   }
 
@@ -85,6 +105,8 @@ export function DepartmentsPage() {
     setEditId(null)
     setEditName('')
     setEditType('')
+    setEditManagerUserId('')
+    setEditResponsibleUserIds([])
   }
 
   const handleUpdate = async (departmentId: string) => {
@@ -93,7 +115,12 @@ export function DepartmentsPage() {
     }
 
     try {
-      await api.updateDepartment(departmentId, editName.trim(), editType)
+      await api.updateDepartment(departmentId, {
+        name: editName.trim(),
+        departmentType: editType,
+        managerUserId: editManagerUserId || null,
+        responsibleUserIds: editResponsibleUserIds,
+      })
       cancelEdit()
       loadDepartments()
     } catch (updateError) {
@@ -117,6 +144,11 @@ export function DepartmentsPage() {
       return summary
     }, {})
   }, [departments])
+
+  const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
+  const getDepartmentUsers = (departmentId?: string) => users.filter(item => item.isActive && (!departmentId || item.departmentId === departmentId))
+  const getSelectedValues = (select: HTMLSelectElement) => Array.from(select.selectedOptions).map(option => option.value)
+  const canEditDepartment = (department: Department) => user?.role === 'SystemAdmin' || department.managerUserId === user?.userId
 
   if (loading) {
     return <div className="loading">{t('common.loading')}</div>
@@ -194,6 +226,30 @@ export function DepartmentsPage() {
                 <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
               </select>
             </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('departments.manager', 'Müdür')}</span>
+              <select className="field-select" value={newManagerUserId} onChange={event => setNewManagerUserId(event.target.value)}>
+                <option value="">{t('common.optional', '— Seçin (opsiyonel)')}</option>
+                {users.filter(item => item.isActive).map(item => (
+                  <option key={item.userId} value={item.userId}>{item.displayName}</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+              <span>{t('departments.responsibles', 'Sorumlular')}</span>
+              <select
+                className="field-select"
+                multiple
+                size={Math.min(6, Math.max(3, users.length))}
+                value={newResponsibleUserIds}
+                onChange={event => setNewResponsibleUserIds(getSelectedValues(event.currentTarget))}
+              >
+                {users.filter(item => item.isActive).map(item => (
+                  <option key={item.userId} value={item.userId}>{item.displayName}</option>
+                ))}
+              </select>
+              <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz (Cmd/Ctrl tuşu ile).')}</span>
+            </label>
           </div>
           <div className="inline-actions">
             <Button type="submit">{t('common.create')}</Button>
@@ -209,49 +265,28 @@ export function DepartmentsPage() {
               <tr>
                 <th>{t('departments.name')}</th>
                 <th>{t('departments.type')}</th>
+                <th>{t('departments.manager', 'Müdür')}</th>
+                <th>{t('departments.responsibles', 'Sorumlular')}</th>
                 <th className="w-28">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {departments.map(department => (
                 <tr key={department.departmentId}>
-                  {editId === department.departmentId ? (
-                    <>
-                      <td>
-                        <input
-                          className="field-input"
-                          type="text"
-                          value={editName}
-                          onChange={event => setEditName(event.target.value)}
-                          onKeyDown={event => {
-                            if (event.key === 'Enter') { event.preventDefault(); void handleUpdate(department.departmentId) }
-                            if (event.key === 'Escape') cancelEdit()
-                          }}
-                        />
-                      </td>
-                      <td>
-                        <select className="field-select" value={editType} onChange={event => setEditType(event.target.value)}>
-                          <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
-                          <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
-                          <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
-                        </select>
-                      </td>
-                      <td>
-                        <div className="inline-actions">
-                          <button className="icon-btn text-green-600" title={t('common.save')} type="button" onClick={() => void handleUpdate(department.departmentId)}>
-                            <Check className="size-4" />
-                          </button>
-                          <button className="icon-btn text-slate-400" title={t('common.cancel')} type="button" onClick={cancelEdit}>
-                            <X className="size-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="font-semibold">{department.name}</td>
-                      <td><StatusPill>{getDepartmentTypeLabel(t, department.departmentType)}</StatusPill></td>
-                      <td>
+                  <>
+                    <td className="font-semibold">{department.name}</td>
+                    <td><StatusPill>{getDepartmentTypeLabel(t, department.departmentType)}</StatusPill></td>
+                    <td>{getUserName(department.managerUserId)}</td>
+                    <td>
+                      <div className="flex flex-wrap gap-1">
+                        {(department.responsibleUserIds ?? []).length > 0
+                          ? department.responsibleUserIds.map(responsibleUserId => (
+                              <StatusPill key={responsibleUserId} tone="info">{getUserName(responsibleUserId)}</StatusPill>
+                            ))
+                          : '—'}
+                      </div>
+                    </td>
+                    <td>
                         {deleteConfirmId === department.departmentId ? (
                           <div className="flex flex-col gap-1">
                             <span className="text-xs text-red-600">{t('departments.deleteConfirm', { name: department.name })}</span>
@@ -266,22 +301,23 @@ export function DepartmentsPage() {
                           </div>
                         ) : (
                           <div className="inline-actions">
-                            <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>
-                              <Pencil className="size-4" />
-                            </button>
+                            {canEditDepartment(department) ? (
+                              <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>
+                                <Pencil className="size-4" />
+                              </button>
+                            ) : null}
                             <button className="icon-btn text-slate-400 hover:text-red-600" title={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null) }}>
                               <Trash2 className="size-4" />
                             </button>
                           </div>
                         )}
-                      </td>
-                    </>
-                  )}
+                    </td>
+                  </>
                 </tr>
               ))}
               {departments.length === 0 ? (
                 <tr>
-                  <td colSpan={3}>
+                  <td colSpan={5}>
                     <div className="empty-state">{t('departments.empty')}</div>
                   </td>
                 </tr>
@@ -290,6 +326,64 @@ export function DepartmentsPage() {
           </table>
         </div>
       </section>
+
+      {editId ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" onClick={cancelEdit}>
+          <form className="w-full max-w-2xl rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl" onSubmit={event => { event.preventDefault(); void handleUpdate(editId) }} onClick={event => event.stopPropagation()}>
+            <div className="page-header-row mb-5">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('departments.editFormTitle')}</h2>
+                <p className="helper-copy">{t('departments.newFormDescription')}</p>
+              </div>
+              <button className="icon-btn text-slate-400" title={t('common.cancel')} type="button" onClick={cancelEdit}>
+                <X className="size-4" />
+              </button>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('departments.name')}</span>
+                <input className="field-input" type="text" value={editName} onChange={event => setEditName(event.target.value)} />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('departments.type')}</span>
+                <select className="field-select" value={editType} onChange={event => setEditType(event.target.value)}>
+                  <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
+                  <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
+                  <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                <span>{t('departments.manager', 'Müdür')}</span>
+                <select className="field-select" value={editManagerUserId} onChange={event => setEditManagerUserId(event.target.value)}>
+                  <option value="">{t('common.optional', '— Seçin (opsiyonel)')}</option>
+                  {getDepartmentUsers(editId).map(item => (
+                    <option key={item.userId} value={item.userId}>{item.displayName}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                <span>{t('departments.responsibles', 'Sorumlular')}</span>
+                <select
+                  className="field-select"
+                  multiple
+                  size={Math.min(6, Math.max(3, getDepartmentUsers(editId).length))}
+                  value={editResponsibleUserIds}
+                  onChange={event => setEditResponsibleUserIds(getSelectedValues(event.currentTarget))}
+                >
+                  {getDepartmentUsers(editId).map(item => (
+                    <option key={item.userId} value={item.userId}>{item.displayName}</option>
+                  ))}
+                </select>
+                <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz (Cmd/Ctrl tuşu ile).')}</span>
+              </label>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={cancelEdit}>{t('common.cancel')}</Button>
+              <Button type="submit">{t('common.save')}</Button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </div>
   )
 }

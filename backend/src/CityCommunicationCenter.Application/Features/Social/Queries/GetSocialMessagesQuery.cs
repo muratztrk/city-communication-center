@@ -1,3 +1,4 @@
+using System.Text.Json;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -16,11 +17,34 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
 
     public async ValueTask<IReadOnlyList<SocialMessageSummaryResponse>> Handle(GetSocialMessagesQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
+        var actor = context.UserId.HasValue
+            ? await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
+                user => user.UserId == context.UserId.Value && user.TenantId == tenantId && user.IsActive,
+                cancellationToken)
+            : null;
 
-        return await _dbContext.SocialMessages
+        IQueryable<SocialMessage> query = _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(entity => entity.TenantId == tenantId)
+            .Where(entity => entity.TenantId == tenantId);
+
+        if (actor is null)
+        {
+            query = query.Where(entity => false);
+        }
+        else if (actor.RoleCode == RoleCode.Operator)
+        {
+            query = query.Where(entity => entity.AssignedDepartmentId == null);
+        }
+        else if (actor.RoleCode != RoleCode.SystemAdmin)
+        {
+            var visibleDepartmentIds = await GetVisibleDepartmentIdsAsync(actor, tenantId, cancellationToken);
+            query = query.Where(entity => entity.AssignedDepartmentId.HasValue
+                && visibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value));
+        }
+
+        return await query
             .OrderByDescending(entity => entity.ReceivedAtUtc)
             .Select(entity => new SocialMessageSummaryResponse(
                 entity.SocialMessageId,
@@ -29,8 +53,50 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                 entity.Category,
                 entity.Status.ToString(),
                 entity.AssignedDepartmentId,
+                _dbContext.Departments
+                    .AsNoTracking()
+                    .Where(department => department.DepartmentId == entity.AssignedDepartmentId)
+                    .Select(department => (string?)department.Name)
+                    .FirstOrDefault(),
                 entity.JobId,
                 entity.ReceivedAtUtc))
             .ToListAsync(cancellationToken);
+    }
+
+    private async Task<Guid[]> GetVisibleDepartmentIdsAsync(ApplicationUser actor, Guid tenantId, CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+            .AsNoTracking()
+            .Where(department => department.TenantId == tenantId)
+            .Select(department => new
+            {
+                department.DepartmentId,
+                department.ManagerUserId,
+                department.ResponsibleUserIdsJson
+            })
+            .ToListAsync(cancellationToken);
+
+        return departments
+            .Where(department => department.ManagerUserId == actor.UserId
+                || ParseResponsibleUserIds(department.ResponsibleUserIdsJson).Contains(actor.UserId))
+            .Select(department => department.DepartmentId)
+            .ToArray();
+    }
+
+    private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return [];
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<Guid[]>(json) ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 }

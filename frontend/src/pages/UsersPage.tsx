@@ -364,7 +364,7 @@ export function UsersPage() {
                         matchedDepartmentId = existing.departmentId
                       } else {
                         try {
-                          const created = await api.createDepartment(selected.department, 'Müdürlük')
+                          const created = await api.createDepartment({ name: selected.department, departmentType: 'Müdürlük' })
                           const refreshed = await api.getDepartments()
                           setDepartments(refreshed)
                           matchedDepartmentId = created.departmentId

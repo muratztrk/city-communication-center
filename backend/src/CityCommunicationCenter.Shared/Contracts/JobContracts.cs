@@ -15,8 +15,6 @@ public sealed record CreateJobRequest(
     string? SourceType,
     Guid? SourceRefId);
 
-public sealed record AddSupportDepartmentRequest(Guid DepartmentId, string? Notes);
-
 public sealed record CancelJobRequest(string Reason);
 
 public sealed record JobDepartmentResponse(

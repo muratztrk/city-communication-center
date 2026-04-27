@@ -27,6 +27,14 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             return null;
         }
 
+        var assignedDepartmentName = message.AssignedDepartmentId.HasValue
+            ? await _dbContext.Departments
+                .AsNoTracking()
+                .Where(department => department.DepartmentId == message.AssignedDepartmentId.Value && department.TenantId == tenantId)
+                .Select(department => department.Name)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         return new SocialMessageDetailResponse(
             message.SocialMessageId,
             message.TenantId,
@@ -37,6 +45,7 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             message.Category,
             message.Status.ToString(),
             message.AssignedDepartmentId,
+            assignedDepartmentName,
             message.JobId,
             message.ReceivedAtUtc,
             string.IsNullOrWhiteSpace(message.Tags)

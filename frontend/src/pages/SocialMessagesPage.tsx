@@ -167,6 +167,7 @@ export function SocialMessagesPage() {
                 <th>{t('social.channel')}</th>
                 <th>{t('social.sender')}</th>
                 <th>{t('social.category')}</th>
+                <th>{t('social.assignedDepartment', 'Sahip Müdürlük')}</th>
                 <th>{t('common.status')}</th>
                 <th>{t('social.date')}</th>
                 <th>{t('common.actions')}</th>
@@ -178,34 +179,41 @@ export function SocialMessagesPage() {
                   <td>{getSocialChannelLabel(t, message.channel)}</td>
                   <td className="font-semibold">@{message.citizenHandle}</td>
                   <td>{message.category || t('common.none')}</td>
+                  <td>{message.assignedDepartmentName ?? t('common.none')}</td>
                   <td><StatusPill tone={getStatusTone(message.status)}>{getSocialStatusLabel(t, message.status)}</StatusPill></td>
                   <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
                   <td className="actions-cell">
                     {!message.jobId ? (
                       <div className="table-stack">
-                        <select
-                          aria-label={t('social.departmentSelectionAria', { handle: message.citizenHandle })}
-                          className="field-select"
-                          value={routeDrafts[message.socialMessageId]?.departmentId ?? message.assignedDepartmentId ?? ''}
-                          onChange={event => {
-                            const departmentId = event.target.value
-                            setRouteDrafts(current => ({
-                              ...current,
-                              [message.socialMessageId]: {
-                                departmentId,
-                              },
-                            }))
-                          }}
-                        >
-                          <option value="">{t('tasks.draftDepartment')}</option>
-                          {departments.map(department => (
-                            <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                          ))}
-                        </select>
-                        <div className="request-actions">
-                          <Button size="sm" type="button" onClick={() => handleRoute(message.socialMessageId)}>{t('social.route')}</Button>
-                          <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>
-                        </div>
+                        {!message.assignedDepartmentId ? (
+                          <>
+                            <select
+                              aria-label={t('social.departmentSelectionAria', { handle: message.citizenHandle })}
+                              className="field-select"
+                              value={routeDrafts[message.socialMessageId]?.departmentId ?? ''}
+                              onChange={event => {
+                                const departmentId = event.target.value
+                                setRouteDrafts(current => ({
+                                  ...current,
+                                  [message.socialMessageId]: {
+                                    departmentId,
+                                  },
+                                }))
+                              }}
+                            >
+                              <option value="">{t('tasks.draftDepartment')}</option>
+                              {departments.map(department => (
+                                <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                              ))}
+                            </select>
+                            <div className="request-actions">
+                              <Button size="sm" type="button" onClick={() => handleRoute(message.socialMessageId)}>{t('social.route')}</Button>
+                              <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>
+                            </div>
+                          </>
+                        ) : (
+                          <StatusPill tone="info">{message.assignedDepartmentName ?? t('social.routedSummary')}</StatusPill>
+                        )}
                         <div className="request-actions">
                           <input
                             aria-label={t('social.taskTitleAria', { handle: message.citizenHandle })}
@@ -236,7 +244,7 @@ export function SocialMessagesPage() {
               ))}
               {messages.length === 0 ? (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={7}>
                     <div className="empty-state">{t('social.empty')}</div>
                   </td>
                 </tr>

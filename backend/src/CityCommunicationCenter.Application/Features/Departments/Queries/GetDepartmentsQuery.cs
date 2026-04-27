@@ -19,17 +19,12 @@ public sealed class GetDepartmentsQueryHandler : IQueryHandler<GetDepartmentsQue
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
 
-        return await _dbContext.Departments
+        var departments = await _dbContext.Departments
             .AsNoTracking()
             .Where(department => department.TenantId == tenantId)
             .OrderBy(department => department.Name)
-            .Select(department => new DepartmentResponse(
-                department.DepartmentId,
-                department.TenantId,
-                department.Name,
-                department.DepartmentType,
-                department.ParentDepartmentId,
-                department.ManagerUserId))
             .ToListAsync(cancellationToken);
+
+        return departments.Select(DepartmentResponseFactory.Create).ToArray();
     }
 }

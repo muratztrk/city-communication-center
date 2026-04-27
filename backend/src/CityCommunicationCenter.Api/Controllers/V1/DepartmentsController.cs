@@ -36,7 +36,9 @@ public sealed class DepartmentsController : ApiControllerBase
                 request.Name,
                 request.DepartmentType,
                 request.ParentDepartmentId,
-                request.ManagerUserId),
+                request.ManagerUserId,
+                request.DeputyManagerUserId,
+                request.ResponsibleUserIds),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetAll), response);
@@ -50,7 +52,14 @@ public sealed class DepartmentsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var response = await _sender.Send(
-            new UpdateDepartmentCommand(departmentId, request.Name, request.DepartmentType, request.ManagerUserId),
+            new UpdateDepartmentCommand(
+                CurrentContext.UserId,
+                departmentId,
+                request.Name,
+                request.DepartmentType,
+                request.ManagerUserId,
+                request.DeputyManagerUserId,
+                request.ResponsibleUserIds),
             cancellationToken);
 
         return Ok(response);

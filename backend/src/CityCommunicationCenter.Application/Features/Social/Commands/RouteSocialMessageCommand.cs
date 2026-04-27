@@ -36,6 +36,18 @@ public sealed class RouteSocialMessageCommandHandler : ICommandHandler<RouteSoci
             return false;
         }
 
+        if (actor.RoleCode != RoleCode.Operator && actor.RoleCode != RoleCode.SystemAdmin)
+        {
+            throw new ForbiddenAccessException("Vatandaş talebini sadece operatör veya sistem yöneticisi müdürlüğe atayabilir.");
+        }
+
+        if (message.AssignedDepartmentId.HasValue)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.MessageId), "Bu vatandaş talebi zaten bir müdürlüğe atanmış.")
+            ]);
+        }
+
         Department? targetDepartment = null;
         if (request.DepartmentId.HasValue)
         {

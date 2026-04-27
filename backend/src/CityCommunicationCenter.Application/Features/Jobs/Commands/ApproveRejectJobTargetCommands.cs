@@ -27,12 +27,12 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
 
         var jd = await _dbContext.JobDepartments.FirstOrDefaultAsync(
             e => e.JobId == job.JobId && e.DepartmentId == request.DepartmentId
-            && (e.Role == JobDepartmentRole.Target || e.Role == JobDepartmentRole.Support),
+            && e.Role == JobDepartmentRole.Target,
             cancellationToken);
         if (jd is null)
         {
             throw new ValidationException([
-                new FluentValidation.Results.ValidationFailure(nameof(request.DepartmentId), "Hedef/destek kaydi bulunamadi.")
+                new FluentValidation.Results.ValidationFailure(nameof(request.DepartmentId), "Hedef kaydi bulunamadi.")
             ]);
         }
 
@@ -109,7 +109,7 @@ public sealed class RejectJobTargetCommandHandler : ICommandHandler<RejectJobTar
 
         var jd = await _dbContext.JobDepartments.FirstOrDefaultAsync(
             e => e.JobId == job.JobId && e.DepartmentId == request.DepartmentId
-            && (e.Role == JobDepartmentRole.Target || e.Role == JobDepartmentRole.Support),
+            && e.Role == JobDepartmentRole.Target,
             cancellationToken);
         if (jd is null || jd.ApprovalStatus != JobApprovalStatus.Pending)
         {

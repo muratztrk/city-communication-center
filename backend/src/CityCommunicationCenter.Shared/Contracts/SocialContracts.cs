@@ -35,6 +35,7 @@ public sealed record SocialMessageSummaryResponse(
     string? Category,
     string Status,
     Guid? AssignedDepartmentId,
+    string? AssignedDepartmentName,
     Guid? JobId,
     DateTimeOffset ReceivedAtUtc);
 
@@ -48,6 +49,7 @@ public sealed record SocialMessageDetailResponse(
     string? Category,
     string Status,
     Guid? AssignedDepartmentId,
+    string? AssignedDepartmentName,
     Guid? JobId,
     DateTimeOffset ReceivedAtUtc,
     IReadOnlyCollection<string> Tags);

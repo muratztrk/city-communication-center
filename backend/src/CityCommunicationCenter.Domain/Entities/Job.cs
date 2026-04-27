@@ -37,7 +37,7 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     /// <summary>Cached completion percentage (0-100), computed from sub-tasks.</summary>
     public int? CompletionPercentage { get; set; }
 
-    /// <summary>True if this job spans multiple departments (has Target or Support departments).</summary>
+    /// <summary>True if this job spans multiple departments.</summary>
     public bool IsCoordinated { get; set; }
 
     public Tenant Tenant { get; set; } = null!;

@@ -72,7 +72,6 @@
     "jobRejectFailed": "İş reddedilemedi.",
     "jobCancelFailed": "İş iptal edilemedi.",
     "jobDeleteFailed": "İş silinemedi.",
-    "jobSupportFailed": "Destek müdürlük eklenemedi.",
     "socialDeleteFailed": "Mesaj silinemedi.",
     "socialSettingsLoadFailed": "Sosyal medya ayarları alınamadı.",
     "socialSettingsSaveFailed": "Sosyal medya ayarları kaydedilemedi.",
@@ -94,10 +93,11 @@
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
+    "createRequest": "Talep Oluştur",
     "myTasks": "Benim Görevlerim",
     "myRequests": "Benim Taleplerim",
-    "tasks": "Birim İçi Gelen Talep",
-    "social": "Vatandaştan Gelen Talep",
+    "tasks": "Birim İçi Talepler",
+    "social": "Vatandaş Talepleri",
     "departments": "Müdürlükler",
     "users": "Kullanıcılar",
     "audit": "Log",
@@ -110,7 +110,7 @@
     "directorateProjects": "Müdürlük Projesi",
     "coordinatedProjects": "Koordineli Proje",
     "groupProjects": "Projeler",
-    "jobs": "Birim Dışı Gelen Talep",
+    "jobs": "Birim Dışı Talepler",
     "groupJobs": "İş Yönetimi"
   },
   "shell": {
@@ -282,7 +282,7 @@
     "quickLinks": {
       "tasksTitle": "İş Yönetimi",
       "tasksBody": "İş oluşturun, atayın ve durumu takip edin.",
-      "socialTitle": "Vatandaş Talepleri",
+      "socialTitle": "Vatandaş Akışı",
       "socialBody": "Mesajları yönlendirin veya işe dönüştürün.",
       "departmentsTitle": "Müdürlük Yapısı",
       "departmentsBody": "Müdürlükleri ve iş hedeflerini güncelleyin."
@@ -300,6 +300,9 @@
     "name": "Müdürlük Adı",
     "namePlaceholder": "Müdürlük adı girin",
     "type": "Tür",
+    "manager": "Müdür",
+    "responsibles": "Sorumlular",
+    "responsiblesHelp": "Birden fazla kullanıcı seçebilirsiniz (Cmd/Ctrl tuşu ile).",
     "empty": "Henüz müdürlük bulunmuyor",
     "editFormTitle": "Müdürlüğü Düzenle",
     "deleteConfirm": "\"{{name}}\" müdürlüğünü silmek istediğinize emin misiniz?",
@@ -349,6 +352,26 @@
     "empty": "Henüz kullanıcı bulunmuyor",
     "deleteConfirm": "\"{{name}}\" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
     "departmentWillBeCreated": "yeni oluşturulacak"
+  },
+  "requests": {
+    "create": {
+      "kicker": "Talep Akışı",
+      "subtitle": "Talebin türünü seçin ve ilgili form üzerinden yeni kayıt başlatın.",
+      "changeType": "Tür Değiştir",
+      "typeLabel": "Talep Tipi",
+      "internalTitle": "Birim İçi",
+      "internalPluralTitle": "Birim İçi Talepler",
+      "internalDescription": "Kendi biriminizden başlayan kurum içi talep oluşturun.",
+      "externalTitle": "Birim Dışı",
+      "externalPluralTitle": "Birim Dışı Talepler",
+      "externalDescription": "Başka bir müdürlüğe gidecek talep oluşturun.",
+      "citizenTitle": "Vatandaş Talepleri",
+      "citizenDescription": "Vatandaştan gelen talebi manuel kayıt olarak oluşturun.",
+      "internalFormTitle": "Birim İçi Talep Oluştur",
+      "externalFormTitle": "Birim Dışı Talep Oluştur",
+      "externalFormDescription": "Birim dışı talep kaydını başlatmak için temel bilgileri girin.",
+      "citizenFormTitle": "Vatandaş Talebi Oluştur"
+    }
   },
   "tasks": {
     "title": "İşler",
@@ -423,7 +446,7 @@
     }
   },
   "social": {
-    "title": "Vatandaş Talepleri",
+    "title": "Vatandaş Akışı",
     "subtitle": "Gelen mesajları yönlendirin ve işe dönüştürün.",
     "total": "mesaj",
     "routedSummary": "yönlendirildi",
@@ -464,7 +487,7 @@
       "roles": "Rol Yetkileri",
       "social": "Sosyal Medya",
       "routing": "Otomatik Yönlendirme",
-      "citizen": "Vatandaş Talepleri"
+      "citizen": "Vatandaş Akışı"
     },
     "organizationName": "Kurum Adı",
     "domain": "Alan Adı",
@@ -808,8 +831,6 @@
       "cancelReason": "İptal nedeni:",
       "new": "Yeni İş",
       "details": "Detaylar",
-      "addSupport": "Destek Müdürlük Ekle",
-      "addSupportPrompt": "Destek müdürlük seçin",
       "save": "Kaydet",
       "close": "Kapat"
     },
@@ -829,6 +850,11 @@
       "sectionSchedule": "Zaman Çizelgesi",
       "sectionTargets": "Koordinasyon"
     },
+    "requestTypes": {
+      "InternalUnit": "Birim İçi",
+      "ExternalUnit": "Birim Dışı",
+      "Citizen": "Vatandaş"
+    },
     "detail": {
       "title": "İş Detayı",
       "departments": "Müdürlükler",
@@ -845,7 +871,6 @@
     "roles": {
       "Owner": "Sahip",
       "Target": "Hedef",
-      "Support": "Destek",
       "Coordinating": "Koordinatör"
     },
     "approvalStatuses": {

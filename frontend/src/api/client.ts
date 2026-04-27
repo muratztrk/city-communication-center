@@ -49,22 +49,43 @@ export const api = {
     return response.json() as Promise<Department[]>
   },
 
-  async createDepartment(name: string, departmentType: string): Promise<Department> {
+  async createDepartment(payload: {
+    name: string
+    departmentType: string
+    managerUserId?: string | null
+    responsibleUserIds?: string[]
+  }): Promise<Department> {
     const response = await fetchWithCredentials(`${API_BASE}/departments`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ name, departmentType }),
+      body: JSON.stringify({
+        name: payload.name,
+        departmentType: payload.departmentType,
+        parentDepartmentId: null,
+        managerUserId: payload.managerUserId ?? null,
+        responsibleUserIds: payload.responsibleUserIds ?? [],
+      }),
     })
 
     await ensureOk(response, i18n.t('errors.departmentCreateFailed'))
     return response.json() as Promise<Department>
   },
 
-  async updateDepartment(departmentId: string, name: string, departmentType: string, managerUserId?: string | null): Promise<Department> {
+  async updateDepartment(departmentId: string, payload: {
+    name: string
+    departmentType: string
+    managerUserId?: string | null
+    responsibleUserIds?: string[]
+  }): Promise<Department> {
     const response = await fetchWithCredentials(`${API_BASE}/departments/${departmentId}`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ name, departmentType, managerUserId: managerUserId ?? null }),
+      body: JSON.stringify({
+        name: payload.name,
+        departmentType: payload.departmentType,
+        managerUserId: payload.managerUserId ?? null,
+        responsibleUserIds: payload.responsibleUserIds ?? [],
+      }),
     })
 
     await ensureOk(response, i18n.t('errors.departmentUpdateFailed'))
@@ -458,15 +479,6 @@ export const api = {
     })
     await ensureOk(response, i18n.t('errors.jobCreateFailed', 'Failed to create job'))
     return response.json() as Promise<JobSummary>
-  },
-
-  async addSupportDepartment(jobId: string, departmentId: string, notes?: string): Promise<void> {
-    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/support`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ departmentId, notes }),
-    })
-    await ensureOk(response, i18n.t('errors.jobSupportFailed', 'Failed to add support department'))
   },
 
   async cancelJob(jobId: string, reason: string): Promise<void> {

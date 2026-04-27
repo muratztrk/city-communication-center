@@ -323,6 +323,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("departmenttype");
 
+                    b.Property<Guid?>("DeputyManagerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deputymanageruserid");
+
                     b.Property<Guid?>("ManagerUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("manageruserid");
@@ -335,6 +339,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ParentDepartmentId")
                         .HasColumnType("uuid")
                         .HasColumnName("parentdepartmentid");
+
+                    b.Property<string>("ResponsibleUserIdsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("responsibleuseridsjson");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -352,6 +361,8 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ParentDepartmentId");
 
+                    b.HasIndex("TenantId", "DeputyManagerUserId");
+
                     b.HasIndex("TenantId", "ManagerUserId");
 
                     b.HasIndex("TenantId", "Name");
@@ -367,6 +378,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             DepartmentType = "Administration",
                             ManagerUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
                             Name = "Sistem Yönetimi",
+                            ResponsibleUserIdsJson = "[]",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         },
                         new
@@ -377,6 +389,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             DepartmentType = "Müdürlük",
                             ManagerUserId = new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"),
                             Name = "Fen İşleri Müdürlüğü",
+                            ResponsibleUserIdsJson = "[]",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         },
                         new
@@ -386,6 +399,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             CreatedByUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
                             DepartmentType = "Müdürlük",
                             Name = "Basın Yayın Müdürlüğü",
+                            ResponsibleUserIdsJson = "[]",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         });
                 });

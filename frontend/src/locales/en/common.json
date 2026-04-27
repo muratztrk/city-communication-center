@@ -72,7 +72,6 @@
     "jobRejectFailed": "Failed to reject job.",
     "jobCancelFailed": "Failed to cancel job.",
     "jobDeleteFailed": "Failed to delete job.",
-    "jobSupportFailed": "Failed to add support department.",
     "socialDeleteFailed": "Failed to delete social message.",
     "socialSettingsLoadFailed": "Failed to load social settings.",
     "socialSettingsSaveFailed": "Failed to save social settings.",
@@ -94,6 +93,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "createRequest": "Create Request",
     "myTasks": "My Tasks",
     "myRequests": "My Requests",
     "tasks": "Internal Incoming Requests",
@@ -300,6 +300,9 @@
     "name": "Department Name",
     "namePlaceholder": "Enter department name",
     "type": "Type",
+    "manager": "Manager",
+    "responsibles": "Responsible Users",
+    "responsiblesHelp": "You can select multiple users with Cmd/Ctrl.",
     "empty": "No departments found yet",
     "editFormTitle": "Edit Department",
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
@@ -349,6 +352,26 @@
     "empty": "No users found yet",
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "departmentWillBeCreated": "will be created"
+  },
+  "requests": {
+    "create": {
+      "kicker": "Request Flow",
+      "subtitle": "Choose the request type and start a new record with the matching form.",
+      "changeType": "Change Type",
+      "typeLabel": "Request Type",
+      "internalTitle": "Internal Unit",
+      "internalPluralTitle": "Internal Requests",
+      "internalDescription": "Create a request that starts inside your own unit.",
+      "externalTitle": "External Unit",
+      "externalPluralTitle": "External Requests",
+      "externalDescription": "Create a request that goes to another department.",
+      "citizenTitle": "Citizen Requests",
+      "citizenDescription": "Create a manual record for a request received from a citizen.",
+      "internalFormTitle": "Create Internal Request",
+      "externalFormTitle": "Create External Request",
+      "externalFormDescription": "Enter the basic details to start an external request record.",
+      "citizenFormTitle": "Create Citizen Request"
+    }
   },
   "tasks": {
     "title": "Tasks",
@@ -798,8 +821,6 @@
       "cancelReason": "Cancel reason:",
       "new": "New Job",
       "details": "Details",
-      "addSupport": "Add Support Dept",
-      "addSupportPrompt": "Pick support department",
       "save": "Save",
       "close": "Close"
     },
@@ -819,6 +840,11 @@
       "sectionSchedule": "Schedule",
       "sectionTargets": "Coordination"
     },
+    "requestTypes": {
+      "InternalUnit": "Internal",
+      "ExternalUnit": "External",
+      "Citizen": "Citizen"
+    },
     "detail": {
       "title": "Job Detail",
       "departments": "Departments",
@@ -835,7 +861,6 @@
     "roles": {
       "Owner": "Owner",
       "Target": "Target",
-      "Support": "Support",
       "Coordinating": "Coordinating"
     },
     "approvalStatuses": {

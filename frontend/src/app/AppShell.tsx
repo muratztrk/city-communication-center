@@ -40,6 +40,15 @@ export function AppShell() {
   const institutionName = user?.tenantName || 'Tire Belediyesi'
   const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
   const logoUrl = appearance.logoUrl?.trim() || null
+  const userDisplayName = user?.displayName || '-'
+  const userRoleLabel = getRoleLabel(t, user?.role ?? '')
+  const userInitials = userDisplayName
+    .trim()
+    .split(/\s+/)
+    .map(part => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey: PageAccessKey }
   type NavGroupConfig = {
     type: 'group'
@@ -228,16 +237,6 @@ export function AppShell() {
             <div className="mt-3 flex-1 overflow-y-auto scrollbar-none">
               <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} />
             </div>
-            <div className="mt-3 min-w-0 space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3.5">
-              <div className="min-w-0">
-                <div className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-white/55">{t('shell.liveTenant')}</div>
-                <div className="mt-1 truncate text-sm font-semibold text-white" title={user?.displayName}>{user?.displayName}</div>
-                <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-xs leading-snug text-white/70">
-                  <span className="rounded bg-white/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60">{t('shell.roleLabel', 'Rol')}</span>
-                  <span className="min-w-0 break-words">{getRoleLabel(t, user?.role ?? '')}</span>
-                </div>
-              </div>
-            </div>
           </aside>
         </div>
       ) : null}
@@ -271,25 +270,6 @@ export function AppShell() {
           <div className="flex-1 overflow-y-auto">
             <SidebarNav items={navItems} collapsed={isSidebarCollapsed} />
           </div>
-
-          <div className="mt-auto min-w-0 space-y-3 rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3.5">
-            {!isSidebarCollapsed ? (
-              <>
-                <div className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-white/55">{t('shell.liveTenant')}</div>
-                <div className="min-w-0 space-y-1.5">
-                  <div className="truncate text-sm font-semibold text-white" title={user?.displayName}>{user?.displayName}</div>
-                  <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs leading-snug text-white/70">
-                    <span className="rounded bg-white/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-white/60">{t('shell.roleLabel', 'Rol')}</span>
-                    <span className="min-w-0 break-words">{getRoleLabel(t, user?.role ?? '')}</span>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="flex justify-center">
-                <div className="sidebar-chip text-xs font-semibold">{user?.displayName?.slice(0, 2).toUpperCase()}</div>
-              </div>
-            )}
-          </div>
         </div>
       </aside>
 
@@ -318,6 +298,15 @@ export function AppShell() {
           </nav>
           <div className="flex items-center gap-3">
             <NotificationBell />
+            <div className="flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm" title={`${userDisplayName} - ${userRoleLabel}`}>
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-xs font-black text-white">
+                {userInitials}
+              </div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-bold text-slate-900">{userDisplayName}</div>
+                <div className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">{userRoleLabel}</div>
+              </div>
+            </div>
             <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
               <LogOut className="size-3.5" />
               {t('shell.logout')}

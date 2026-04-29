@@ -243,7 +243,7 @@ export function AppShell() {
       ) : null}
 
       <aside
-        className={`sidebar-shell relative hidden h-dvh shrink-0 flex-col border-r px-3 py-3 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[88px]' : 'w-[252px]'}`}
+        className={`sidebar-shell relative hidden h-dvh shrink-0 flex-col border-r px-3 py-3 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[88px]' : 'w-[296px]'}`}
       >
         <div className="flex h-full flex-col gap-3 rounded-[var(--radius-2xl)] border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-3">
           <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">

@@ -404,6 +404,10 @@ export function CreateRequestPage() {
             <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Dahili iş akışı başlatmak için talep oluşturun.')}</p>
           </div>
           <div className="grid content-start gap-3">
+            <div className="job-field">
+              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')}</span>
+              <input className="field-input" required value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
+            </div>
             <div className="grid gap-3 md:grid-cols-2">
               {renderRequestTypeField()}
               <div className="job-field">
@@ -418,10 +422,6 @@ export function CreateRequestPage() {
               mode => setInternalForm(current => ({ ...current, ownershipMode: mode, ownerUserIds: mode === 'department' ? [] : current.ownerUserIds })),
               ownerUserIds => setInternalForm(current => ({ ...current, ownerUserIds })),
             )}
-            <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')}</span>
-              <input className="field-input" required value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
-            </div>
             <div className="grid gap-3 md:grid-cols-3">
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
@@ -443,10 +443,10 @@ export function CreateRequestPage() {
               </div>
             </div>
           </div>
-          <div className="grid content-start gap-3">
-            <label className="job-field">
+          <div className="grid gap-3 xl:grid-rows-[minmax(0,1fr)_auto]">
+            <label className="job-field min-h-0">
               <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')}</span>
-              <textarea className="field-textarea min-h-56 xl:min-h-[18.5rem]" required value={internalForm.description} onChange={e => setInternalForm(current => ({ ...current, description: e.target.value }))} />
+              <textarea className="field-textarea min-h-72 flex-1" required value={internalForm.description} onChange={e => setInternalForm(current => ({ ...current, description: e.target.value }))} />
             </label>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
@@ -463,6 +463,10 @@ export function CreateRequestPage() {
             <p className="helper-copy">{t('requests.create.externalFormDescription', 'Birim dışı talep kaydını başlatmak için temel bilgileri girin.')}</p>
           </div>
           <div className="grid content-start gap-3">
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="request-title">{t('jobs.form.title')} <span className="text-red-500">*</span></label>
+              <input id="request-title" className="field-input" type="text" value={externalForm.title} onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))} required />
+            </div>
             <div className="grid gap-3 md:grid-cols-2">
               {renderRequestTypeField()}
               <div className="job-field">
@@ -482,10 +486,6 @@ export function CreateRequestPage() {
               mode => setExternalForm(current => ({ ...current, ownershipMode: mode, ownerUserIds: mode === 'department' ? [] : current.ownerUserIds })),
               ownerUserIds => setExternalForm(current => ({ ...current, ownerUserIds })),
             )}
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="request-title">{t('jobs.form.title')} <span className="text-red-500">*</span></label>
-              <input id="request-title" className="field-input" type="text" value={externalForm.title} onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))} required />
-            </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-priority">{t('jobs.form.priority')}</label>
@@ -511,10 +511,10 @@ export function CreateRequestPage() {
               </div>
             </div>
           </div>
-          <div className="grid content-start gap-3">
-            <label className="job-field">
+          <div className="grid gap-3 xl:grid-rows-[minmax(0,1fr)_auto]">
+            <label className="job-field min-h-0">
               <span className="job-field-label">{t('jobs.form.description')} <span className="text-red-500">*</span></span>
-              <textarea className="field-textarea min-h-56 xl:min-h-[20.8rem]" value={externalForm.description} onChange={e => setExternalForm(current => ({ ...current, description: e.target.value }))} required />
+              <textarea className="field-textarea min-h-72 flex-1" value={externalForm.description} onChange={e => setExternalForm(current => ({ ...current, description: e.target.value }))} required />
             </label>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />

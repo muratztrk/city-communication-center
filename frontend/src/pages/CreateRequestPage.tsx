@@ -1,4 +1,4 @@
-import { ArrowLeft, Building2, MessageSquareMore, Send, Workflow } from 'lucide-react'
+import { Building2, MessageSquareMore, Send, Workflow } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -189,11 +189,6 @@ export function CreateRequestPage() {
     })
   }, [externalOwnerUserOptions])
 
-  const resetSelection = () => {
-    setSelectedKind(null)
-    setError(null)
-  }
-
   const renderRequestTypeField = () => (
     <div className="job-field">
       <label className="job-field-label" htmlFor="request-kind">{t('requests.create.typeLabel', 'Talep Tipi')}</label>
@@ -343,12 +338,6 @@ export function CreateRequestPage() {
             <h1 className="page-title">{t('nav.createRequest', 'Talep Oluştur')}</h1>
             <p className="page-subtitle">{t('requests.create.subtitle', 'Talebin türünü seçin ve ilgili form üzerinden yeni kayıt başlatın.')}</p>
           </div>
-          {selectedKind ? (
-            <Button type="button" variant="secondary" onClick={resetSelection} className="gap-2">
-              <ArrowLeft className="size-4" />
-              {t('requests.create.changeType', 'Tür Değiştir')}
-            </Button>
-          ) : null}
         </div>
       </header>
 

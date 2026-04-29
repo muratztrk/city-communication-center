@@ -97,6 +97,7 @@
     "myTasks": "Görevlerim",
     "myTasksPending": "Bekleyen Görevlerim",
     "myTasksCompleted": "Tamamlanmış Görevlerim",
+    "myTasksRejected": "Reddedilen/İptal Görevlerim",
     "myTasksAll": "Tüm Görevlerim",
     "myRequests": "Taleplerim",
     "myRequestsCreated": "Oluşturduğum Talepler",
@@ -417,6 +418,7 @@
     "myViews": {
       "pending": "Bekleyen Görevlerim",
       "completed": "Tamamlanmış Görevlerim",
+      "rejected": "Reddedilen/İptal Görevlerim",
       "all": "Tüm Görevlerim",
       "empty": "{{view}} bulunmuyor"
     },

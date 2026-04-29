@@ -80,6 +80,7 @@ export function AppShell() {
       children: [
         { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasksPending', 'Bekleyen Görevlerim'), icon: Clock3 },
         { pageKey: 'myTasks' as const, path: '/my-tasks?view=completed', label: t('nav.myTasksCompleted', 'Tamamlanmış Görevlerim'), icon: ClipboardCheck },
+        { pageKey: 'myTasks' as const, path: '/my-tasks?view=rejected', label: t('nav.myTasksRejected', 'Reddedilen/İptal Görevlerim'), icon: XCircle },
         { pageKey: 'myTasks' as const, path: '/my-tasks?view=all', label: t('nav.myTasksAll', 'Tüm Görevlerim'), icon: Inbox },
       ],
     },

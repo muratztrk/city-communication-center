@@ -14,11 +14,12 @@ const SCOPES: { value: TaskListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'tasks.scopes.all' },
 ]
 
-type MyTaskView = 'pending' | 'completed' | 'all'
+type MyTaskView = 'pending' | 'completed' | 'rejected' | 'all'
 
 const MY_TASK_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.myViews.pending' },
   { value: 'completed', labelKey: 'tasks.myViews.completed' },
+  { value: 'rejected', labelKey: 'tasks.myViews.rejected' },
   { value: 'all', labelKey: 'tasks.myViews.all' },
 ]
 
@@ -55,7 +56,7 @@ function getTaskSourceLabel(t: ReturnType<typeof useTranslation>['t'], task: Tas
 }
 
 function getMyTaskView(value: string | null): MyTaskView {
-  return value === 'completed' || value === 'all' ? value : 'pending'
+  return value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
 
 function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
@@ -63,6 +64,10 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
 
   if (view === 'completed') {
     return tasks.filter(task => task.currentStatus === 'Completed')
+  }
+
+  if (view === 'rejected') {
+    return tasks.filter(task => task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
   }
 
   return tasks.filter(task => !['Completed', 'Cancelled', 'Rejected'].includes(task.currentStatus))

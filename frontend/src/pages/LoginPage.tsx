@@ -266,7 +266,7 @@ export function LoginPage() {
           <div className="relative grid gap-5">
             <div className="space-y-3">
               <div className="flex items-center gap-3.5">
-                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="h-42 w-42 rounded-[2.25rem]" />
+                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="h-28 w-72 max-w-[42vw] rounded-[2rem]" />
                 <div className="min-w-0">
                   <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                     {t('shell.subtitle', { municipalityName })}
@@ -304,7 +304,7 @@ export function LoginPage() {
         <section className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
           <div className="w-full max-w-[25rem] space-y-4">
             <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
-              <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} className="h-24 w-24 rounded-[1.5rem]" />
+              <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} className="h-16 w-40 rounded-[1.25rem]" />
               <div className="min-w-0">
                 <div className="truncate text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
               </div>

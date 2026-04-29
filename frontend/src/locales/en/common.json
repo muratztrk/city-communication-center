@@ -97,6 +97,7 @@
     "myTasks": "My Tasks",
     "myTasksPending": "Pending My Tasks",
     "myTasksCompleted": "Completed My Tasks",
+    "myTasksRejected": "Rejected/Cancelled My Tasks",
     "myTasksAll": "All My Tasks",
     "myRequests": "My Requests",
     "myRequestsCreated": "Requests I Created",
@@ -417,6 +418,7 @@
     "myViews": {
       "pending": "Pending My Tasks",
       "completed": "Completed My Tasks",
+      "rejected": "Rejected/Cancelled My Tasks",
       "all": "All My Tasks",
       "empty": "No {{view}}"
     },

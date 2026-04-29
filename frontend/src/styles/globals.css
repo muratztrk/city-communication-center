@@ -939,7 +939,7 @@
 
   .wallboard-table thead th {
     padding: 0.95rem 1rem;
-    border-bottom: 1px solid #dbe5ef;
+    border-bottom: 2px solid #c6d4e2;
     background: #f7faf8;
     color: #526179;
     font-size: clamp(0.8rem, 0.9vw, 1rem);
@@ -950,7 +950,7 @@
 
   .wallboard-table tbody td {
     padding: 1rem;
-    border-bottom: 1px solid #e5edf5;
+    border-bottom: 2px solid #cfd9e6;
     color: #172033;
     font-size: clamp(0.95rem, 1.05vw, 1.18rem);
     font-weight: 800;

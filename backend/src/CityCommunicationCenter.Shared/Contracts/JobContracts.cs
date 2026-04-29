@@ -4,6 +4,7 @@ public sealed record CreateJobRequest(
     string Title,
     string Description,
     Guid OwnerDepartmentId,
+    IReadOnlyCollection<Guid>? OwnerUserIds,
     string Priority,
     string? RequestType,
     bool IsProject,

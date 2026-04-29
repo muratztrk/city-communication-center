@@ -34,7 +34,7 @@ export function NotificationBell() {
       if (Notification.permission === 'granted') {
         new Notification(payload.title, {
           body: payload.message,
-          icon: '/favicon.ico',
+          icon: '/favicon.svg',
         })
       }
     },

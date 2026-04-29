@@ -94,9 +94,21 @@
   "nav": {
     "dashboard": "Kontrol Paneli",
     "createRequest": "Talep Oluştur",
-    "myTasks": "Benim Görevlerim",
-    "myRequests": "Benim Taleplerim",
-    "tasks": "Birim İçi Talepler",
+    "myTasks": "Görevlerim",
+    "myTasksPending": "Bekleyen Görevlerim",
+    "myTasksCompleted": "Tamamlanmış Görevlerim",
+    "myTasksAll": "Tüm Görevlerim",
+    "myRequests": "Taleplerim",
+    "myRequestsCreated": "Oluşturduğum Talepler",
+    "myRequestsPending": "Bekleyen Taleplerim",
+    "myRequestsApproved": "Onaylanmış Taleplerim",
+    "myRequestsRejected": "Reddedilen/İptal Taleplerim",
+    "myRequestsAll": "Tüm Taleplerim",
+    "incomingRequests": "Birime Gelen Talepler",
+    "incomingRequestsInternal": "Birim İçi Gelen Talepler",
+    "incomingRequestsExternal": "Birim Dışı Gelen Talepler",
+    "incomingRequestsAll": "Birime Gelen Tüm Talepler",
+    "tasks": "Birim İçi Gelen Talepler",
     "social": "Vatandaş Talepleri",
     "departments": "Müdürlükler",
     "users": "Kullanıcılar",
@@ -110,7 +122,7 @@
     "directorateProjects": "Müdürlük Projesi",
     "coordinatedProjects": "Koordineli Proje",
     "groupProjects": "Projeler",
-    "jobs": "Birim Dışı Talepler",
+    "jobs": "Birim Dışı Gelen Talepler",
     "groupJobs": "İş Yönetimi"
   },
   "shell": {
@@ -302,7 +314,9 @@
     "type": "Tür",
     "manager": "Müdür",
     "responsibles": "Sorumlular",
-    "responsiblesHelp": "Birden fazla kullanıcı seçebilirsiniz (Cmd/Ctrl tuşu ile).",
+    "responsiblesPlaceholder": "Sorumlu kullanıcı seçin",
+    "responsiblesEmpty": "Aktif kullanıcı bulunmuyor.",
+    "responsiblesHelp": "Birden fazla kullanıcı seçebilirsiniz.",
     "empty": "Henüz müdürlük bulunmuyor",
     "editFormTitle": "Müdürlüğü Düzenle",
     "deleteConfirm": "\"{{name}}\" müdürlüğünü silmek istediğinize emin misiniz?",
@@ -367,6 +381,15 @@
       "externalDescription": "Başka bir müdürlüğe gidecek talep oluşturun.",
       "citizenTitle": "Vatandaş Talepleri",
       "citizenDescription": "Vatandaştan gelen talebi manuel kayıt olarak oluşturun.",
+      "ownershipMode": "Sahiplik",
+      "ownershipDepartment": "Müdürlük",
+      "ownershipUsers": "Kullanıcı",
+      "ownerUsers": "Sahip Kullanıcılar",
+      "ownerUsersPlaceholder": "Kullanıcı seçin",
+      "ownerUsersHelp": "Bir veya daha fazla kullanıcı seçildiğinde her kullanıcı için görev oluşturulur.",
+      "ownerUsersEmpty": "Bu müdürlükte seçilebilir aktif kullanıcı bulunmuyor.",
+      "ownerUsersRequired": "Kullanıcı sahipliği için en az bir kullanıcı seçin.",
+      "departmentOwnershipHelp": "Talep müdürlükte kalır; otomatik görev oluşturulmaz.",
       "internalFormTitle": "Birim İçi Talep Oluştur",
       "externalFormTitle": "Birim Dışı Talep Oluştur",
       "externalFormDescription": "Birim dışı talep kaydını başlatmak için temel bilgileri girin.",
@@ -375,8 +398,8 @@
   },
   "tasks": {
     "title": "İşler",
-    "subtitle": "Onay bekleyen talepleri, birim havuzunu ve tüm işleri aynı akışta yönetin.",
-    "myTasksSubtitle": "Size atanmış işleri ve tamamlanması beklenen görevleri takip edin.",
+    "subtitle": "Onay bekleyen talepleri, onaylanmış talepleri ve tüm işleri aynı akışta yönetin.",
+    "myTasksSubtitle": "Size atanmış görevleri durumuna göre takip edin.",
     "summary": {
       "total": "Toplam İş",
       "pendingApproval": "Onay Bekleyen",
@@ -386,14 +409,20 @@
     "scopeSelector": "İş görünümleri",
     "scopes": {
       "mine": "Benim Görevlerim",
-      "departmentPool": "Birim Havuzu",
+      "departmentPool": "Onaylanmış Talepler",
       "pendingApproval": "Onay Bekleyen",
       "all": "Tümü",
       "pendingCloseApproval": "Kapanış Onayı Bekleyen"
     },
+    "myViews": {
+      "pending": "Bekleyen Görevlerim",
+      "completed": "Tamamlanmış Görevlerim",
+      "all": "Tüm Görevlerim",
+      "empty": "{{view}} bulunmuyor"
+    },
     "scopeDescriptions": {
       "mine": "Size atanmış veya sizin için öncelikli işleri izleyin.",
-      "departmentPool": "Müdürlüğünüze atanan ancak kişiye bağlanmamış işleri görün ve gerekirse üstlenin.",
+      "departmentPool": "Müdürlüğünüze gelen onaylanmış ancak kişiye bağlanmamış işleri görün ve gerekirse üstlenin.",
       "pendingApproval": "Onay veya ret kararı bekleyen işleri yönetici akışında izleyin.",
       "all": "Yetkiniz dahilindeki tüm işleri tek listede görüntüleyin."
     },
@@ -443,6 +472,13 @@
       "internalIncoming": "Birim İçi Gelen",
       "externalIncoming": "Birim Dışı Gelen",
       "citizenIncoming": "Vatandaştan Gelen"
+    }
+  },
+  "incomingRequests": {
+    "subtitle": "Birim içi ve birim dışı gelen talepleri tek listede takip edin.",
+    "empty": "Birime gelen talep bulunmuyor.",
+    "columns": {
+      "type": "Tip"
     }
   },
   "social": {
@@ -793,19 +829,27 @@
   "jobs": {
     "subtitle": "Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.",
     "myRequestsKicker": "Talep Takibi",
-    "myRequestsSubtitle": "Oluşturduğunuz talepleri ve hangi müdürlüğe gittiğini takip edin.",
+    "myRequestsSubtitle": "Oluşturduğunuz talepleri durumlarına göre takip edin.",
     "empty": "Hiç iş bulunamadı",
     "departmentsMore": "+{{count}} müdürlük",
     "scopes": {
       "mine": "Oluşturduğum",
       "myDepartment": "Müdürlüğüm",
       "pendingApproval": "Onay Bekleyen",
-      "departmentPool": "Birim Havuzu",
+      "departmentPool": "Onaylanmış Talepler",
       "rejected": "İptal/Red Edilen",
       "pendingOwnerApproval": "Sahip Onayı Bekleyen",
       "pendingExternalApproval": "Hedef Onayı Bekleyen",
       "active": "Aktif",
       "all": "Tümü"
+    },
+    "myViews": {
+      "created": "Oluşturduğum Talepler",
+      "pending": "Bekleyen Taleplerim",
+      "approved": "Onaylanmış Taleplerim",
+      "rejected": "Reddedilen/İptal Taleplerim",
+      "all": "Tüm Taleplerim",
+      "empty": "{{view}} bulunmuyor"
     },
     "columns": {
       "title": "Başlık",
@@ -845,7 +889,7 @@
       "dueDate": "Son Tarih",
       "isProject": "Proje niteliğinde mi?",
       "targetDepartments": "Koordine Müdürlükler (opsiyonel)",
-      "targetDepartmentsHelp": "Birden fazla seçebilirsiniz (Cmd/Ctrl tuşu ile).",
+      "targetDepartmentsHelp": "Birden fazla seçebilirsiniz.",
       "sectionMain": "Temel Bilgiler",
       "sectionSchedule": "Zaman Çizelgesi",
       "sectionTargets": "Koordinasyon"

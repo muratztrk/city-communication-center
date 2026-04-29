@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, User } from '../types/platform'
@@ -147,7 +148,7 @@ export function DepartmentsPage() {
 
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
   const getDepartmentUsers = (departmentId?: string) => users.filter(item => item.isActive && (!departmentId || item.departmentId === departmentId))
-  const getSelectedValues = (select: HTMLSelectElement) => Array.from(select.selectedOptions).map(option => option.value)
+  const getUserOptions = (sourceUsers: User[]) => sourceUsers.map(item => ({ value: item.userId, label: item.displayName }))
   const canEditDepartment = (department: Department) => user?.role === 'SystemAdmin' || department.managerUserId === user?.userId
 
   if (loading) {
@@ -235,21 +236,17 @@ export function DepartmentsPage() {
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+            <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
               <span>{t('departments.responsibles', 'Sorumlular')}</span>
-              <select
-                className="field-select"
-                multiple
-                size={Math.min(6, Math.max(3, users.length))}
+              <MultiSelectDropdown
+                options={getUserOptions(users.filter(item => item.isActive))}
                 value={newResponsibleUserIds}
-                onChange={event => setNewResponsibleUserIds(getSelectedValues(event.currentTarget))}
-              >
-                {users.filter(item => item.isActive).map(item => (
-                  <option key={item.userId} value={item.userId}>{item.displayName}</option>
-                ))}
-              </select>
-              <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz (Cmd/Ctrl tuşu ile).')}</span>
-            </label>
+                onChange={setNewResponsibleUserIds}
+                placeholder={t('departments.responsiblesPlaceholder', 'Sorumlu kullanıcı seçin')}
+                emptyText={t('departments.responsiblesEmpty', 'Aktif kullanıcı bulunmuyor.')}
+              />
+              <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz.')}</span>
+            </div>
           </div>
           <div className="inline-actions">
             <Button type="submit">{t('common.create')}</Button>
@@ -361,21 +358,17 @@ export function DepartmentsPage() {
                   ))}
                 </select>
               </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+              <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                 <span>{t('departments.responsibles', 'Sorumlular')}</span>
-                <select
-                  className="field-select"
-                  multiple
-                  size={Math.min(6, Math.max(3, getDepartmentUsers(editId).length))}
+                <MultiSelectDropdown
+                  options={getUserOptions(getDepartmentUsers(editId))}
                   value={editResponsibleUserIds}
-                  onChange={event => setEditResponsibleUserIds(getSelectedValues(event.currentTarget))}
-                >
-                  {getDepartmentUsers(editId).map(item => (
-                    <option key={item.userId} value={item.userId}>{item.displayName}</option>
-                  ))}
-                </select>
-                <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz (Cmd/Ctrl tuşu ile).')}</span>
-              </label>
+                  onChange={setEditResponsibleUserIds}
+                  placeholder={t('departments.responsiblesPlaceholder', 'Sorumlu kullanıcı seçin')}
+                  emptyText={t('departments.responsiblesEmpty', 'Aktif kullanıcı bulunmuyor.')}
+                />
+                <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz.')}</span>
+              </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={cancelEdit}>{t('common.cancel')}</Button>

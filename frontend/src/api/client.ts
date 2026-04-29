@@ -461,6 +461,7 @@ export const api = {
     title: string
     description: string
     ownerDepartmentId: string
+    ownerUserIds?: string[]
     priority: string
     requestType?: string | null
     isProject?: boolean

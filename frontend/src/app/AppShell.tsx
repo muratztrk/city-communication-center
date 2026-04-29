@@ -1,14 +1,14 @@
-import { Building, ChevronLeft, ChevronRight, ClipboardPlus, FolderKanban, Home, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X } from 'lucide-react'
+import { Building, CheckCircle2, ChevronLeft, ChevronRight, CircleDot, ClipboardCheck, ClipboardList, ClipboardPlus, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { NotificationBell } from '../components/layout/NotificationBell'
-import { SidebarNav } from '../components/layout/SidebarNav'
+import { SidebarNav, type SidebarNavItem, type SidebarNavLinkItem } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
-import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT } from '../lib/rolePageAccess'
+import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import { getRoleLabel } from '../utils/localization'
 
 export function AppShell() {
@@ -40,13 +40,50 @@ export function AppShell() {
   const institutionName = user?.tenantName || 'Tire Belediyesi'
   const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
   const logoUrl = appearance.logoUrl?.trim() || null
-  const navItems = [
+  type NavLinkConfig = SidebarNavLinkItem & { pageKey: PageAccessKey }
+  type NavGroupConfig = {
+    type: 'group'
+    label: string
+    icon: typeof LayoutDashboard
+    children: NavLinkConfig[]
+  }
+  type NavConfigItem = NavLinkConfig | NavGroupConfig
+
+  const navItemConfigs: NavConfigItem[] = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
-    { pageKey: 'myTasks' as const, path: '/my-tasks', label: t('nav.myTasks', 'Benim Görevlerim'), icon: ListChecks },
-    { pageKey: 'myRequests' as const, path: '/my-requests', label: t('nav.myRequests', 'Benim Taleplerim'), icon: Send },
-    { pageKey: 'tasks' as const, path: '/tasks', label: t('nav.tasks'), icon: SquareKanban },
-    { pageKey: 'jobs' as const, path: '/jobs', label: t('nav.jobs'), icon: FolderKanban },
+    {
+      type: 'group',
+      label: t('nav.myRequests', 'Taleplerim'),
+      icon: ClipboardList,
+      children: [
+        { pageKey: 'myRequests' as const, path: '/my-requests?view=created', label: t('nav.myRequestsCreated', 'Oluşturduğum Talepler'), icon: Send },
+        { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequestsPending', 'Bekleyen Taleplerim'), icon: Clock3 },
+        { pageKey: 'myRequests' as const, path: '/my-requests?view=approved', label: t('nav.myRequestsApproved', 'Onaylanmış Taleplerim'), icon: CheckCircle2 },
+        { pageKey: 'myRequests' as const, path: '/my-requests?view=rejected', label: t('nav.myRequestsRejected', 'Reddedilen/İptal Taleplerim'), icon: XCircle },
+        { pageKey: 'myRequests' as const, path: '/my-requests?view=all', label: t('nav.myRequestsAll', 'Tüm Taleplerim'), icon: Inbox },
+      ],
+    },
+    {
+      type: 'group',
+      label: t('nav.myTasks', 'Görevlerim'),
+      icon: ListChecks,
+      children: [
+        { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasksPending', 'Bekleyen Görevlerim'), icon: Clock3 },
+        { pageKey: 'myTasks' as const, path: '/my-tasks?view=completed', label: t('nav.myTasksCompleted', 'Tamamlanmış Görevlerim'), icon: ClipboardCheck },
+        { pageKey: 'myTasks' as const, path: '/my-tasks?view=all', label: t('nav.myTasksAll', 'Tüm Görevlerim'), icon: Inbox },
+      ],
+    },
+    {
+      type: 'group',
+      label: t('nav.incomingRequests', 'Birime Gelen Talepler'),
+      icon: FolderKanban,
+      children: [
+        { pageKey: 'tasks' as const, path: '/tasks', label: t('nav.incomingRequestsInternal', 'Birim İçi Gelen Talepler'), icon: SquareKanban },
+        { pageKey: 'jobs' as const, path: '/jobs', label: t('nav.incomingRequestsExternal', 'Birim Dışı Gelen Talepler'), icon: Workflow },
+        { pageKey: 'incomingRequests' as const, path: '/incoming-requests', label: t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'), icon: CircleDot },
+      ],
+    },
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp },
     { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
@@ -54,7 +91,27 @@ export function AppShell() {
     { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },
     { pageKey: 'audit' as const, path: '/audit', label: t('nav.audit'), icon: ScrollText },
   ]
-    .filter(item => canRoleAccessPage(user?.role, item.pageKey))
+
+  const navItems = navItemConfigs.reduce<SidebarNavItem[]>((items, item) => {
+    if ('children' in item) {
+      const children = item.children
+        .filter(child => canRoleAccessPage(user?.role, child.pageKey))
+        .map(child => ({ path: child.path, label: child.label, icon: child.icon }))
+
+      if (children.length > 0) {
+        items.push({ type: 'group', label: item.label, icon: item.icon, children })
+      }
+
+      return items
+    }
+
+    const { pageKey, ...link } = item
+    if (canRoleAccessPage(user?.role, pageKey)) {
+      items.push(link)
+    }
+
+    return items
+  }, [])
   void accessVersion
 
   const handleLogout = () => {
@@ -67,8 +124,9 @@ export function AppShell() {
     dashboard: t('nav.dashboard'),
     requests: t('nav.createRequest', 'Talep Oluştur'),
     new: t('nav.createRequest', 'Talep Oluştur'),
-    'my-tasks': t('nav.myTasks', 'Benim Görevlerim'),
-    'my-requests': t('nav.myRequests', 'Benim Taleplerim'),
+    'my-tasks': t('nav.myTasks', 'Görevlerim'),
+    'my-requests': t('nav.myRequests', 'Taleplerim'),
+    'incoming-requests': t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
     tasks: t('nav.tasks'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -82,9 +140,10 @@ export function AppShell() {
   }
 
   const breadcrumbParent: Record<string, string> = {
-    'my-tasks': t('nav.groupTasks'),
-    'my-requests': t('nav.groupTasks'),
-    tasks: t('nav.groupTasks'),
+    'my-tasks': t('nav.myTasks', 'Görevlerim'),
+    'my-requests': t('nav.myRequests', 'Taleplerim'),
+    'incoming-requests': t('nav.incomingRequests', 'Birime Gelen Talepler'),
+    tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.groupJobs'),
     coordinated: t('nav.groupJobs'),
     jobs: t('nav.groupJobs'),
@@ -96,7 +155,7 @@ export function AppShell() {
     settings: t('nav.groupAdmin'),
   }
 
-  const breadcrumbSkipSegments = new Set(['projects'])
+  const breadcrumbSkipSegments = new Set(['projects', 'requests'])
 
   const breadcrumbIcon: Record<string, typeof LayoutDashboard> = {
     dashboard: LayoutDashboard,
@@ -104,6 +163,7 @@ export function AppShell() {
     new: ClipboardPlus,
     'my-tasks': ListChecks,
     'my-requests': Send,
+    'incoming-requests': FolderKanban,
     tasks: SquareKanban,
     directorate: FolderKanban,
     coordinated: Workflow,
@@ -115,6 +175,11 @@ export function AppShell() {
     audit: ScrollText,
     settings: Settings2,
   }
+  const visibleBreadcrumbSegments = breadcrumbSegments.filter(segment => !breadcrumbSkipSegments.has(segment))
+  const currentBreadcrumbSegment = visibleBreadcrumbSegments.at(-1)
+  const currentBreadcrumbParent = currentBreadcrumbSegment ? breadcrumbParent[currentBreadcrumbSegment] : null
+  const currentBreadcrumbLabel = currentBreadcrumbSegment ? breadcrumbLabels[currentBreadcrumbSegment] || currentBreadcrumbSegment : null
+  const CurrentBreadcrumbIcon = currentBreadcrumbSegment ? breadcrumbIcon[currentBreadcrumbSegment] : null
 
   return (
     <div className="min-h-dvh bg-[color:var(--color-background)] lg:flex">
@@ -230,31 +295,26 @@ export function AppShell() {
 
       <div className="min-w-0 flex-1 overflow-x-clip md:flex md:min-h-0 md:flex-col md:overflow-visible">
         <div className="hidden items-center justify-between border-b border-[var(--color-border)] bg-white/94 px-6 py-2.5 backdrop-blur lg:flex">
-          <nav className="flex items-center gap-1.5 text-sm text-[color:var(--color-muted-foreground)]" aria-label="Breadcrumb">
-            <button type="button" className="flex items-center gap-1 hover:text-slate-700" onClick={() => navigate('/dashboard')}>
+          <nav className="flex min-w-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-1.5 py-1 text-sm text-[color:var(--color-muted-foreground)] shadow-sm" aria-label="Breadcrumb">
+            <button type="button" className="inline-flex h-8 min-w-0 items-center gap-1 rounded-full px-2.5 font-semibold text-slate-600 hover:bg-white hover:text-slate-800" onClick={() => navigate('/dashboard')}>
               <Home className="size-4" />
-              <span>{t('nav.home')}</span>
+              <span className="truncate">{t('nav.home')}</span>
             </button>
-            {breadcrumbSegments.filter(s => !breadcrumbSkipSegments.has(s)).map((segment) => {
-              const label = breadcrumbLabels[segment] || segment
-              const parent = breadcrumbParent[segment]
-              const Icon = breadcrumbIcon[segment]
-              return (
-                <span key={segment} className="flex items-center gap-1.5">
-                  {parent ? (
-                    <>
-                      <ChevronRight className="size-3.5 text-slate-300" />
-                      <span>{parent}</span>
-                    </>
-                  ) : null}
-                  <ChevronRight className="size-3.5 text-slate-300" />
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-[color:var(--color-primary)]/10 px-2 py-0.5 font-medium text-[color:var(--color-primary)]">
-                    {Icon ? <Icon className="size-3.5" /> : null}
-                    {label}
-                  </span>
+            {currentBreadcrumbParent ? (
+              <>
+                <ChevronRight className="size-3.5 shrink-0 text-slate-300" />
+                <span className="max-w-[14rem] truncate px-2 font-semibold text-slate-500">{currentBreadcrumbParent}</span>
+              </>
+            ) : null}
+            {currentBreadcrumbLabel ? (
+              <>
+                <ChevronRight className="size-3.5 shrink-0 text-slate-300" />
+                <span className="inline-flex h-8 min-w-0 max-w-[18rem] items-center gap-1 rounded-full bg-white px-3 font-bold text-[color:var(--color-primary)] shadow-sm ring-1 ring-slate-200">
+                  {CurrentBreadcrumbIcon ? <CurrentBreadcrumbIcon className="size-3.5 shrink-0" /> : null}
+                  <span className="truncate">{currentBreadcrumbLabel}</span>
                 </span>
-              )
-            })}
+              </>
+            ) : null}
           </nav>
           <div className="flex items-center gap-3">
             <NotificationBell />

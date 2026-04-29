@@ -9,6 +9,7 @@ const AuditLogsPage = lazy(() => import('../pages/AuditLogsPage').then(module =>
 const CreateRequestPage = lazy(() => import('../pages/CreateRequestPage').then(module => ({ default: module.CreateRequestPage })))
 const DepartmentsPage = lazy(() => import('../pages/DepartmentsPage').then(module => ({ default: module.DepartmentsPage })))
 const DashboardPage = lazy(() => import('../pages/DashboardPage').then(module => ({ default: module.DashboardPage })))
+const IncomingRequestsPage = lazy(() => import('../pages/IncomingRequestsPage').then(module => ({ default: module.IncomingRequestsPage })))
 const LoginPage = lazy(() => import('../pages/LoginPage').then(module => ({ default: module.LoginPage })))
 const SettingsPage = lazy(() => import('../pages/SettingsPage').then(module => ({ default: module.SettingsPage })))
 const SocialMessagesPage = lazy(() => import('../pages/SocialMessagesPage').then(module => ({ default: module.SocialMessagesPage })))
@@ -65,6 +66,7 @@ export default function App() {
           <Route path="/my-requests" element={<PageAccessGate pageKey="myRequests" role={user?.role}><JobsPage mode="myRequests" fixedScope="mine" /></PageAccessGate>} />
           <Route path="/tasks" element={<PageAccessGate pageKey="tasks" role={user?.role}><TasksPage /></PageAccessGate>} />
           <Route path="/jobs" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
+          <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" role={user?.role}><IncomingRequestsPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" role={user?.role}><SocialMessagesPage /></PageAccessGate>} />
           <Route path="/departments" element={<PageAccessGate pageKey="departments" role={user?.role}><DepartmentsPage /></PageAccessGate>} />
           <Route path="/users" element={<PageAccessGate pageKey="users" role={user?.role}><UsersPage /></PageAccessGate>} />

@@ -181,7 +181,13 @@ export function WallboardPage() {
             <MonitorUp className="size-7" />
           </div>
           <div>
-            <div className="wallboard-kicker">{t('wallboard.kicker', 'Canlı Ekran')}</div>
+            <div className="wallboard-kicker-row">
+              <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')} className="wallboard-back-button gap-1.5">
+                <ArrowLeft className="size-3.5" />
+                {t('common.back', 'Geri')}
+              </Button>
+              <div className="wallboard-kicker">{t('wallboard.kicker', 'Canlı Ekran')}</div>
+            </div>
             <h1>{t('wallboard.title', 'Bekleyen İşler')}</h1>
             <p>{t('wallboard.subtitle', 'Kurum içi ve vatandaştan gelen müdür onaylı bekleyen işler')}</p>
           </div>
@@ -204,10 +210,6 @@ export function WallboardPage() {
               ))}
             </select>
           </label>
-          <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')} className="gap-2">
-            <ArrowLeft className="size-4" />
-            {t('common.back', 'Geri')}
-          </Button>
           <Button type="button" onClick={() => void loadBoard()} className="gap-2">
             <RefreshCw className="size-4" />
             {t('common.refresh', 'Yenile')}

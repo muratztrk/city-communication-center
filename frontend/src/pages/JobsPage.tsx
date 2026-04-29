@@ -15,6 +15,16 @@ const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
 
+type MyRequestsView = 'created' | 'pending' | 'approved' | 'rejected' | 'all'
+
+const MY_REQUEST_VIEWS: { value: MyRequestsView; labelKey: string }[] = [
+  { value: 'created', labelKey: 'jobs.myViews.created' },
+  { value: 'pending', labelKey: 'jobs.myViews.pending' },
+  { value: 'approved', labelKey: 'jobs.myViews.approved' },
+  { value: 'rejected', labelKey: 'jobs.myViews.rejected' },
+  { value: 'all', labelKey: 'jobs.myViews.all' },
+]
+
 function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
 }
@@ -53,6 +63,24 @@ function formatDateTime(value: string | null, locale: string) {
   })
 }
 
+function getMyRequestsView(value: string | null): MyRequestsView {
+  return value === 'pending' || value === 'approved' || value === 'rejected' || value === 'all' ? value : 'created'
+}
+
+function filterMyRequests(jobs: JobSummary[], view: MyRequestsView): JobSummary[] {
+  if (view === 'created' || view === 'all') return jobs
+
+  if (view === 'pending') {
+    return jobs.filter(job => job.status === 'Draft' || job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
+  }
+
+  if (view === 'approved') {
+    return jobs.filter(job => job.status === 'Active' || job.status === 'Completed')
+  }
+
+  return jobs.filter(job => job.status === 'Rejected' || job.status === 'Cancelled')
+}
+
 interface JobsPageProps {
   fixedScope?: JobListScope
   mode?: 'external' | 'myRequests'
@@ -71,6 +99,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [detailLoading, setDetailLoading] = useState(false)
 
   const isMyRequestsView = mode === 'myRequests'
+  const currentMyRequestsView = getMyRequestsView(searchParams.get('view'))
+  const currentMyRequestsViewLabel = t(MY_REQUEST_VIEWS.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.created', 'Oluşturduğum Talepler')
   const scope = useMemo<JobListScope>(() => {
     if (fixedScope) return fixedScope
     const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'
@@ -121,18 +151,19 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const scopeLabel = scope === 'rejected'
     ? t('jobs.scopes.rejected', 'İptal/Red Edilen')
-    : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Birim Havuzu')
+    : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Onaylanmış Talepler')
   const visibleJobs = useMemo(() => {
     if (isMyRequestsView) {
-      return jobs
+      return filterMyRequests(jobs, currentMyRequestsView)
     }
 
-    if (scope === 'rejected') {
-      return jobs
+    const externalJobs = jobs.filter(job => job.requestType === 'ExternalUnit')
+    if (scope === 'department-pool') {
+      return externalJobs.filter(job => job.status === 'Active' || job.status === 'Completed')
     }
 
-    return jobs.filter(job => job.requestType === 'ExternalUnit')
-  }, [isMyRequestsView, jobs, scope])
+    return externalJobs
+  }, [currentMyRequestsView, isMyRequestsView, jobs, scope])
 
   const openDetail = async (jobId: string) => {
     setDetailLoading(true)
@@ -206,36 +237,51 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{isMyRequestsView ? t('jobs.myRequestsKicker', 'Talep Takibi') : scopeLabel}</div>
-            <h1 className="page-title">{isMyRequestsView ? t('nav.myRequests', 'Benim Taleplerim') : t('nav.jobs', 'Birim Dışı Gelen Talep')}</h1>
+            <div className="page-kicker">{isMyRequestsView ? currentMyRequestsViewLabel : scopeLabel}</div>
+            <h1 className="page-title">{isMyRequestsView ? t('nav.myRequests', 'Taleplerim') : t('nav.jobs', 'Birim Dışı Gelen Talep')}</h1>
             <p className="page-subtitle">
               {isMyRequestsView
-                ? t('jobs.myRequestsSubtitle', 'Oluşturduğunuz talepleri ve hangi müdürlüğe gittiğini takip edin.')
+                ? t('jobs.myRequestsSubtitle', 'Oluşturduğunuz talepleri durumlarına göre takip edin.')
                 : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
             </p>
           </div>
         </div>
       </header>
 
-      {!fixedScope && <nav className="scope-chips">
-        {EXTERNAL_SCOPES.map(s => (
-          <button
-            key={s.value}
-            type="button"
-            className={`scope-chip${s.value === scope ? ' active' : ''}`}
-            onClick={() => setSearchParams({ scope: s.value })}
-          >
-            {t(s.labelKey, s.value)}
-          </button>
-        ))}
-      </nav>}
+      {isMyRequestsView ? (
+        <nav className="scope-chips" aria-label={t('nav.myRequests', 'Taleplerim')}>
+          {MY_REQUEST_VIEWS.map(view => (
+            <button
+              key={view.value}
+              type="button"
+              className={`scope-chip${view.value === currentMyRequestsView ? ' active' : ''}`}
+              onClick={() => setSearchParams({ view: view.value })}
+            >
+              {t(view.labelKey)}
+            </button>
+          ))}
+        </nav>
+      ) : !fixedScope ? (
+        <nav className="scope-chips">
+          {EXTERNAL_SCOPES.map(s => (
+            <button
+              key={s.value}
+              type="button"
+              className={`scope-chip${s.value === scope ? ' active' : ''}`}
+              onClick={() => setSearchParams({ scope: s.value })}
+            >
+              {t(s.labelKey, s.value)}
+            </button>
+          ))}
+        </nav>
+      ) : null}
 
       {error && <div className="error">{error}</div>}
 
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
       ) : visibleJobs.length === 0 ? (
-        <div className="empty-state">{t('jobs.empty')}</div>
+        <div className="empty-state">{isMyRequestsView ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` }) : t('jobs.empty')}</div>
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">

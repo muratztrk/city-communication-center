@@ -30,6 +30,7 @@ public sealed class JobsController : ApiControllerBase
             request.Title,
             request.Description,
             request.OwnerDepartmentId,
+            request.OwnerUserIds,
             request.Priority,
             request.RequestType,
             request.IsProject,

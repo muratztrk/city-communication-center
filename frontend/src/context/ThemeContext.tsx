@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react'
-import { applyTenantAppearance, DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
+import { applyTenantAppearance, applyTenantBrowserBranding, DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
 import type { TenantAppearance } from '../types/platform'
 
 const APPEARANCE_STORAGE_KEY = 'ccc_tenant_appearance'
@@ -33,6 +33,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     applyTenantAppearance(appearance)
+    applyTenantBrowserBranding(appearance)
     persistAppearance(appearance)
   }, [appearance])
 

@@ -130,3 +130,31 @@ export function applyTenantAppearance(appearance: TenantAppearance): void {
   root.style.setProperty('--color-sidebar-foreground', appearance.sidebarForegroundColor)
   root.dataset.themePreset = appearance.themePreset
 }
+
+export function applyTenantBrowserBranding(appearance: TenantAppearance): void {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  const iconUrl = appearance.logoUrl?.trim() || '/favicon.svg'
+  const iconType = iconUrl.endsWith('.svg') ? 'image/svg+xml' : undefined
+  const ensureIconLink = (rel: string) => {
+    let link = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)
+    if (!link) {
+      link = document.createElement('link')
+      link.rel = rel
+      document.head.appendChild(link)
+    }
+
+    link.href = iconUrl
+    if (iconType) {
+      link.type = iconType
+    } else {
+      link.removeAttribute('type')
+    }
+  }
+
+  ensureIconLink('icon')
+  ensureIconLink('shortcut icon')
+  ensureIconLink('apple-touch-icon')
+}

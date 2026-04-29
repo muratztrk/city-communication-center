@@ -9,6 +9,7 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'tasks', path: '/tasks', labelKey: 'nav.tasks' },
   { key: 'jobs', path: '/jobs', labelKey: 'nav.jobs' },
+  { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequestsAll' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'display', path: '/display', labelKey: 'nav.display' },
   { key: 'departments', path: '/departments', labelKey: 'nav.departments' },

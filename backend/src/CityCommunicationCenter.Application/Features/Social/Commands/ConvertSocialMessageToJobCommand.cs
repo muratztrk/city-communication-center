@@ -62,6 +62,7 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             request.Title,
             request.Description,
             request.OwnerDepartmentId,
+            OwnerUserIds: null,
             request.Priority,
             RequestType: JobRequestType.Citizen.ToString(),
             IsProject: false,

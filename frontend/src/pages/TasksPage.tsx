@@ -14,6 +14,14 @@ const SCOPES: { value: TaskListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'tasks.scopes.all' },
 ]
 
+type MyTaskView = 'pending' | 'completed' | 'all'
+
+const MY_TASK_VIEWS: { value: MyTaskView; labelKey: string }[] = [
+  { value: 'pending', labelKey: 'tasks.myViews.pending' },
+  { value: 'completed', labelKey: 'tasks.myViews.completed' },
+  { value: 'all', labelKey: 'tasks.myViews.all' },
+]
+
 function availableScopes(role?: string): TaskListScope[] {
   if (role === 'SystemAdmin' || role === 'Manager') return ['pending-approval', 'department-pool', 'all']
   return ['department-pool', 'all']
@@ -46,6 +54,20 @@ function getTaskSourceLabel(t: ReturnType<typeof useTranslation>['t'], task: Tas
   return t('tasks.sourceLabels.internalIncoming', 'Birim İçi Gelen')
 }
 
+function getMyTaskView(value: string | null): MyTaskView {
+  return value === 'completed' || value === 'all' ? value : 'pending'
+}
+
+function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
+  if (view === 'all') return tasks
+
+  if (view === 'completed') {
+    return tasks.filter(task => task.currentStatus === 'Completed')
+  }
+
+  return tasks.filter(task => !['Completed', 'Cancelled', 'Rejected'].includes(task.currentStatus))
+}
+
 export function TasksPage({ fixedScope }: TasksPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -67,8 +89,14 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
   const scopeParam = (searchParams.get('scope') as TaskListScope | null) ?? scopes[0]
   const currentScope: TaskListScope = scopes.includes(scopeParam) ? scopeParam : scopes[0]
   const isMyTasksView = fixedScope === 'mine'
+  const currentMyTaskView = getMyTaskView(searchParams.get('view'))
+  const autoOpenTaskId = searchParams.get('taskId')
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
+  const visibleTasks = useMemo(() => {
+    return isMyTasksView ? filterMyTasks(tasks, currentMyTaskView) : tasks
+  }, [currentMyTaskView, isMyTasksView, tasks])
+  const currentMyTaskViewLabel = t(MY_TASK_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.myViews.pending', 'Bekleyen Görevlerim')
   const assignmentUsers = useMemo(() => {
     if (!assignmentDraft.departmentId) return activeUsers
     return activeUsers.filter(item => item.departmentId === assignmentDraft.departmentId)
@@ -154,6 +182,14 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
     }
   }
 
+  useEffect(() => {
+    if (!autoOpenTaskId || selectedTask?.taskId === autoOpenTaskId) return
+    const task = tasks.find(item => item.taskId === autoOpenTaskId)
+    if (task) {
+      void openTaskDetail(task)
+    }
+  }, [autoOpenTaskId, selectedTask?.taskId, tasks]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const closeTaskDetail = () => {
     setSelectedTask(null)
     setTaskDetail(null)
@@ -179,29 +215,44 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('tasks.scopeSelector', 'İş görünümleri')}</div>
-            <h1 className="page-title">{isMyTasksView ? t('nav.myTasks', 'Benim Görevlerim') : t('nav.tasks')}</h1>
+            <div className="page-kicker">{isMyTasksView ? currentMyTaskViewLabel : t('tasks.scopeSelector', 'İş görünümleri')}</div>
+            <h1 className="page-title">{isMyTasksView ? t('nav.myTasks', 'Görevlerim') : t('nav.tasks')}</h1>
             <p className="page-subtitle">
               {isMyTasksView
-                ? t('tasks.myTasksSubtitle', 'Size atanmış işleri ve tamamlanması beklenen görevleri takip edin.')
+                ? t('tasks.myTasksSubtitle', 'Size atanmış görevleri durumuna göre takip edin.')
                 : t('tasks.subtitle')}
             </p>
           </div>
         </div>
       </header>
 
-      {!isMyTasksView && <nav className="scope-chips">
-        {scopes.map(scope => (
-          <button
-            key={scope}
-            type="button"
-            className={`scope-chip${scope === currentScope ? ' active' : ''}`}
-            onClick={() => setSearchParams({ scope })}
-          >
-            {t(SCOPES.find(s => s.value === scope)!.labelKey)}
-          </button>
-        ))}
-      </nav>}
+      {isMyTasksView ? (
+        <nav className="scope-chips" aria-label={t('nav.myTasks', 'Görevlerim')}>
+          {MY_TASK_VIEWS.map(view => (
+            <button
+              key={view.value}
+              type="button"
+              className={`scope-chip${view.value === currentMyTaskView ? ' active' : ''}`}
+              onClick={() => setSearchParams({ view: view.value })}
+            >
+              {t(view.labelKey)}
+            </button>
+          ))}
+        </nav>
+      ) : (
+        <nav className="scope-chips">
+          {scopes.map(scope => (
+            <button
+              key={scope}
+              type="button"
+              className={`scope-chip${scope === currentScope ? ' active' : ''}`}
+              onClick={() => setSearchParams({ scope })}
+            >
+              {t(SCOPES.find(s => s.value === scope)!.labelKey)}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {selectedTask ? (
         <section className="section-card page-stack">
@@ -324,8 +375,8 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
       {error && <div className="alert alert-error">{error}</div>}
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : tasks.length === 0 ? (
-        <div className="empty">{t('tasks.empty', 'No tasks')}</div>
+      ) : visibleTasks.length === 0 ? (
+        <div className="empty">{isMyTasksView ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` }) : t('tasks.empty', 'No tasks')}</div>
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
@@ -345,7 +396,7 @@ export function TasksPage({ fixedScope }: TasksPageProps) {
                 </tr>
               </thead>
               <tbody>
-                {tasks.map(task => (
+                {visibleTasks.map(task => (
                   <tr key={task.taskId}>
                     <td>{task.title}</td>
                     <td>{task.jobTitle ?? '—'}</td>

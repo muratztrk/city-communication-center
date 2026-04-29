@@ -5,6 +5,7 @@ public sealed record CreateJobCommand(
     string Title,
     string Description,
     Guid OwnerDepartmentId,
+    IReadOnlyCollection<Guid>? OwnerUserIds,
     string Priority,
     string? RequestType,
     bool IsProject,
@@ -45,9 +46,10 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         var utcNow = DateTimeOffset.UtcNow;
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
+        var isSystemAdmin = JobWorkflowAuthorization.IsSystemAdmin(actor);
 
         // Auth: Staff can only create for own dept, Manager for managed dept, Admin for any
-        if (!JobWorkflowAuthorization.IsSystemAdmin(actor))
+        if (!isSystemAdmin)
         {
             if (actor.RoleCode == RoleCode.Staff && actor.DepartmentId != request.OwnerDepartmentId)
             {
@@ -67,6 +69,34 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         var ownerDept = await _dbContext.Departments.FirstOrDefaultAsync(
             d => d.DepartmentId == request.OwnerDepartmentId && d.TenantId == tenantId, cancellationToken)
             ?? throw Validation(nameof(request.OwnerDepartmentId), "Sahip mudurluk bulunamadi.");
+
+        var ownerUserIds = request.OwnerUserIds?
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToArray() ?? [];
+
+        var ownerUsers = Array.Empty<ApplicationUser>();
+        if (ownerUserIds.Length > 0)
+        {
+            ownerUsers = await _dbContext.Users
+                .Where(u => u.TenantId == tenantId && ownerUserIds.Contains(u.UserId))
+                .ToArrayAsync(cancellationToken);
+
+            if (ownerUsers.Length != ownerUserIds.Length || ownerUsers.Any(u => !u.IsActive))
+            {
+                throw Validation(nameof(request.OwnerUserIds), "Secilen kullanicilardan biri bulunamadi veya aktif degil.");
+            }
+
+            if (ownerUsers.Any(u => u.DepartmentId != request.OwnerDepartmentId))
+            {
+                throw Validation(nameof(request.OwnerUserIds), "Secilen kullanicilar sahip mudurlukte calismali.");
+            }
+
+            if (!isSystemAdmin && actor.RoleCode == RoleCode.Staff && ownerUsers.Any(u => u.UserId != actor.UserId))
+            {
+                throw Validation(nameof(request.OwnerUserIds), "Personel sadece kendisine gorev olusturabilir.");
+            }
+        }
 
         var targets = request.TargetDepartmentIds?
             .Where(id => id != request.OwnerDepartmentId)
@@ -136,6 +166,39 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             });
         }
 
+        foreach (var ownerUser in ownerUsers)
+        {
+            var task = new WorkTask
+            {
+                TaskId = Guid.NewGuid(),
+                TenantId = tenantId,
+                JobId = job.JobId,
+                Title = job.Title,
+                Description = job.Description,
+                AssignedDepartmentId = ownerUser.DepartmentId,
+                AssignedUserId = ownerUser.UserId,
+                AssigningManagerId = actor.RoleCode == RoleCode.Manager ? actor.UserId : null,
+                OwnerUserId = ownerUser.UserId,
+                CurrentStatus = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned,
+                Priority = job.Priority,
+                StartDateUtc = job.StartDateUtc,
+                DueDateUtc = job.DueDateUtc,
+                CreatedByUserId = context.UserId
+            };
+
+            _dbContext.Tasks.Add(task);
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(WorkTask),
+                EntityId = task.TaskId.ToString(),
+                Action = "TaskCreated",
+                ActorUserId = context.UserId,
+                Details = $"Created from job owner user selection. AssignedUser={ownerUser.UserId}"
+            });
+        }
+
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
@@ -144,7 +207,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             EntityId = job.JobId.ToString(),
             Action = "JobCreated",
             ActorUserId = context.UserId,
-            Details = $"Status=Active, Targets={targets.Length}"
+            Details = $"Status=Active, Targets={targets.Length}, OwnerUsers={ownerUsers.Length}"
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

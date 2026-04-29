@@ -265,8 +265,13 @@ export function LoginPage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
           <div className="relative grid gap-5">
             <div className="space-y-3">
-              <div className="flex items-center gap-3.5">
-                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="h-28 w-72 max-w-[42vw] rounded-[2rem]" />
+              <div className="flex items-center gap-4">
+                <MunicipalitySeal
+                  alt={`${institutionName} logo`}
+                  src={logoUrl}
+                  className="h-[7.25rem] w-[26rem] max-w-[46vw] rounded-[2rem]"
+                  imageClassName="h-[82%] w-[86%]"
+                />
                 <div className="min-w-0">
                   <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                     {t('shell.subtitle', { municipalityName })}
@@ -304,7 +309,13 @@ export function LoginPage() {
         <section className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
           <div className="w-full max-w-[25rem] space-y-4">
             <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
-              <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} className="h-16 w-40 rounded-[1.25rem]" />
+              <MunicipalitySeal
+                compact
+                alt={`${institutionName} logo`}
+                src={logoUrl}
+                className="h-16 w-44 rounded-[1.25rem]"
+                imageClassName="h-[78%] w-[86%]"
+              />
               <div className="min-w-0">
                 <div className="truncate text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
               </div>

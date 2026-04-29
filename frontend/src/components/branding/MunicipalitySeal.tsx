@@ -3,6 +3,7 @@ import { cn } from '../../lib/cn'
 
 interface MunicipalitySealProps {
   className?: string
+  imageClassName?: string
   compact?: boolean
   alt?: string
   src?: string | null
@@ -10,7 +11,7 @@ interface MunicipalitySealProps {
 
 const FALLBACK_LOGO_SRC = '/favicon.svg'
 
-export function MunicipalitySeal({ className, compact = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
+export function MunicipalitySeal({ className, imageClassName, compact = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
   const currentSrc = src && failedSrc !== src ? src : FALLBACK_LOGO_SRC
 
@@ -29,6 +30,7 @@ export function MunicipalitySeal({ className, compact = false, alt = 'Municipali
         className={cn(
           'absolute inset-0 m-auto object-contain drop-shadow-[0_12px_24px_rgba(15,23,42,0.22)]',
           compact ? 'h-[62%] w-[62%]' : 'h-[68%] w-[68%]',
+          imageClassName,
         )}
         src={currentSrc}
         loading="lazy"

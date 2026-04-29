@@ -235,7 +235,7 @@ export function AppShell() {
                 <X className="size-4" />
               </button>
             </div>
-            <div className="mt-3 flex-1 overflow-y-auto scrollbar-none">
+            <div className="sidebar-scroll-area mt-3 flex-1 overflow-y-auto">
               <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} />
             </div>
           </aside>
@@ -268,7 +268,7 @@ export function AppShell() {
             {isSidebarCollapsed ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
           </button>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="sidebar-scroll-area flex-1 overflow-y-auto">
             <SidebarNav items={navItems} collapsed={isSidebarCollapsed} />
           </div>
         </div>

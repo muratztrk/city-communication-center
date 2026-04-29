@@ -25,22 +25,14 @@ interface SidebarNavProps {
   onNavigate?: () => void
 }
 
-function areSetsEqual(left: Set<string>, right: Set<string>) {
-  if (left.size !== right.size) return false
-  for (const value of left) {
-    if (!right.has(value)) return false
-  }
-  return true
-}
-
 export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavProps) {
   const location = useLocation()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLElement>(null)
   const measureRef = useRef<HTMLElement>(null)
-  const preferredOpenGroupRef = useRef<string | null>(null)
   const [closedGroups, setClosedGroups] = useState<Set<string>>(() => new Set())
-  const [autoClosedGroups, setAutoClosedGroups] = useState<Set<string>>(() => new Set())
+  const [shouldConstrainGroups, setShouldConstrainGroups] = useState(false)
+  const [constrainedOpenGroup, setConstrainedOpenGroup] = useState<string | null>(null)
   const currentPath = `${location.pathname}${location.search}`
   const groupLabels = useMemo(() => items.filter(item => item.type === 'group').map(item => item.label), [items])
 
@@ -91,34 +83,37 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
   }
 
   const updateOverflowState = useCallback((preferredOpenLabel?: string | null) => {
-    if (collapsed || groupLabels.length === 0) {
+    const parent = wrapperRef.current?.parentElement
+    if (collapsed || groupLabels.length === 0 || !parent) {
+      setShouldConstrainGroups(false)
+      setConstrainedOpenGroup(null)
       return
     }
-
-    const parent = wrapperRef.current?.parentElement
-    if (!parent) return
 
     const allGroupsOpenHeight = measureRef.current?.scrollHeight ?? navRef.current?.scrollHeight ?? 0
     const wouldOverflow = allGroupsOpenHeight > parent.clientHeight + 2
     if (!wouldOverflow) {
-      setAutoClosedGroups(current => current.size === 0 ? current : new Set())
+      setShouldConstrainGroups(false)
+      setConstrainedOpenGroup(null)
       return
     }
 
-    const keepLabel = preferredOpenLabel ?? activeGroupLabel ?? null
-    const nextAutoClosedGroups = new Set(groupLabels.filter(label => label !== keepLabel))
-    setAutoClosedGroups(current => areSetsEqual(current, nextAutoClosedGroups) ? current : nextAutoClosedGroups)
+    setShouldConstrainGroups(true)
+    setConstrainedOpenGroup(current => {
+      if (preferredOpenLabel && groupLabels.includes(preferredOpenLabel)) {
+        return preferredOpenLabel
+      }
+
+      if (current && groupLabels.includes(current)) {
+        return current
+      }
+
+      return activeGroupLabel && groupLabels.includes(activeGroupLabel) ? activeGroupLabel : null
+    })
   }, [activeGroupLabel, collapsed, groupLabels])
 
   useLayoutEffect(() => {
-    if (collapsed || groupLabels.length === 0) {
-      return
-    }
-
-    const frameId = window.requestAnimationFrame(() => {
-      updateOverflowState(preferredOpenGroupRef.current)
-      preferredOpenGroupRef.current = null
-    })
+    const frameId = window.requestAnimationFrame(() => updateOverflowState())
     const observer = new ResizeObserver(() => updateOverflowState())
     const parent = wrapperRef.current?.parentElement
     if (parent) {
@@ -132,10 +127,14 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
       window.cancelAnimationFrame(frameId)
       observer.disconnect()
     }
-  }, [closedGroups, collapsed, groupLabels.length, updateOverflowState])
+  }, [collapsed, groupLabels.length, updateOverflowState])
 
   const toggleGroup = (label: string, isOpen: boolean) => {
-    preferredOpenGroupRef.current = isOpen ? null : label
+    if (shouldConstrainGroups) {
+      setConstrainedOpenGroup(isOpen ? null : label)
+      return
+    }
+
     setClosedGroups(current => {
       const next = new Set(current)
       if (isOpen) {
@@ -145,14 +144,7 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
       }
       return next
     })
-    setAutoClosedGroups(current => {
-      if (!current.has(label)) return current
-      const next = new Set(current)
-      next.delete(label)
-      return next
-    })
   }
-  const effectiveAutoClosedGroups = collapsed ? new Set<string>() : autoClosedGroups
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -164,7 +156,7 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
 
           const Icon = item.icon
           const isGroupActive = item.children.some(child => isPathActive(child.path))
-          const isOpen = collapsed || (!closedGroups.has(item.label) && !effectiveAutoClosedGroups.has(item.label))
+          const isOpen = collapsed || (shouldConstrainGroups ? constrainedOpenGroup === item.label : !closedGroups.has(item.label))
           return (
             <div key={item.label} className={cn('grid gap-1', collapsed ? 'justify-stretch' : '')}>
               {!collapsed ? (

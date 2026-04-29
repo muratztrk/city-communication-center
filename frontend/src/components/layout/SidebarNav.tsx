@@ -25,9 +25,18 @@ interface SidebarNavProps {
   onNavigate?: () => void
 }
 
+function areSetsEqual(left: Set<string>, right: Set<string>) {
+  if (left.size !== right.size) return false
+  for (const value of left) {
+    if (!right.has(value)) return false
+  }
+  return true
+}
+
 export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavProps) {
   const location = useLocation()
   const navRef = useRef<HTMLElement>(null)
+  const preferredOpenGroupRef = useRef<string | null>(null)
   const [closedGroups, setClosedGroups] = useState<Set<string>>(() => new Set())
   const [autoClosedGroups, setAutoClosedGroups] = useState<Set<string>>(() => new Set())
   const currentPath = `${location.pathname}${location.search}`
@@ -40,6 +49,10 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
 
     return location.pathname === path || location.pathname.startsWith(`${path}/`)
   }, [currentPath, location.pathname])
+  const activeGroupLabel = useMemo(() => {
+    const activeGroup = items.find(item => item.type === 'group' && item.children.some(child => isPathActive(child.path)))
+    return activeGroup?.label ?? null
+  }, [isPathActive, items])
 
   const renderLink = (item: SidebarNavLinkItem, nested = false) => {
     const isActive = isPathActive(item.path)
@@ -65,29 +78,35 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
     )
   }
 
+  const updateOverflowState = useCallback((preferredOpenLabel?: string | null) => {
+    if (collapsed || groupLabels.length === 0) {
+      return
+    }
+
+    const parent = navRef.current?.parentElement
+    if (!parent) return
+
+    const isOverflowing = parent.scrollHeight > parent.clientHeight + 2
+    if (!isOverflowing) {
+      setAutoClosedGroups(current => current.size === 0 ? current : new Set())
+      return
+    }
+
+    const keepLabel = activeGroupLabel ?? preferredOpenLabel ?? null
+    const nextAutoClosedGroups = new Set(groupLabels.filter(label => label !== keepLabel))
+    setAutoClosedGroups(current => areSetsEqual(current, nextAutoClosedGroups) ? current : nextAutoClosedGroups)
+  }, [activeGroupLabel, collapsed, groupLabels])
+
   useEffect(() => {
     if (collapsed || groupLabels.length === 0) {
       return
     }
 
-    const updateOverflowState = () => {
-      const parent = navRef.current?.parentElement
-      if (!parent) return
-
-      const isOverflowing = parent.scrollHeight > parent.clientHeight + 2
-      if (!isOverflowing) {
-        setAutoClosedGroups(current => current.size === 0 ? current : new Set())
-        return
-      }
-
-      setAutoClosedGroups(() => {
-        const activeGroup = items.find(item => item.type === 'group' && item.children.some(child => isPathActive(child.path)))
-        return new Set(groupLabels.filter(label => label !== activeGroup?.label))
-      })
-    }
-
-    const frameId = window.requestAnimationFrame(updateOverflowState)
-    const observer = new ResizeObserver(updateOverflowState)
+    const frameId = window.requestAnimationFrame(() => {
+      updateOverflowState(preferredOpenGroupRef.current)
+      preferredOpenGroupRef.current = null
+    })
+    const observer = new ResizeObserver(() => updateOverflowState())
     if (navRef.current?.parentElement) {
       observer.observe(navRef.current.parentElement)
     }
@@ -96,15 +115,16 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
       window.cancelAnimationFrame(frameId)
       observer.disconnect()
     }
-  }, [collapsed, groupLabels, isPathActive, items])
+  }, [closedGroups, collapsed, groupLabels.length, updateOverflowState])
 
-  const toggleGroup = (label: string) => {
+  const toggleGroup = (label: string, isOpen: boolean) => {
+    preferredOpenGroupRef.current = label
     setClosedGroups(current => {
       const next = new Set(current)
-      if (next.has(label)) {
-        next.delete(label)
-      } else {
+      if (isOpen) {
         next.add(label)
+      } else {
+        next.delete(label)
       }
       return next
     })
@@ -137,7 +157,7 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
                   isGroupActive ? 'text-white' : 'text-[color:var(--color-sidebar-foreground)]/48',
                 )}
                 aria-expanded={isOpen}
-                onClick={() => toggleGroup(item.label)}
+                onClick={() => toggleGroup(item.label, isOpen)}
               >
                 <Icon className="size-3.5 shrink-0" />
                 <span className="truncate">{item.label}</span>

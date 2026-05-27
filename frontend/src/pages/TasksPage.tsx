@@ -76,6 +76,13 @@ const DEPARTMENT_TASK_FLOWS: { value: RequestFlowFilter; labelKey: string }[] = 
   { value: 'all', labelKey: 'nav.departmentTasksAll' },
 ]
 
+const DEPARTMENT_STATUS_VIEWS: { value: MyTaskView; labelKey: string }[] = [
+  { value: 'pending', labelKey: 'tasks.departmentViews.pending' },
+  { value: 'completed', labelKey: 'tasks.departmentViews.completed' },
+  { value: 'rejected', labelKey: 'tasks.departmentViews.rejected' },
+  { value: 'all', labelKey: 'tasks.departmentViews.all' },
+]
+
 function availableScopes(role?: string): TaskListScope[] {
   if (role === 'SystemAdmin' || role === 'Manager') return ['pending-approval', 'department-pool', 'all']
   return ['department-pool', 'all']
@@ -275,7 +282,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       const staffTasks = tasks.filter(task => task.assignedUserId && staffUserIds.has(task.assignedUserId))
       result = currentStaffUserId === 'all' ? staffTasks : staffTasks.filter(task => task.assignedUserId === currentStaffUserId)
     } else if (isDepartmentTasksView) {
-      result = tasks.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
+      result = filterMyTasks(tasks, currentMyTaskView).filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
     } else if (!isMyTasksView) {
       result = tasks
     } else {
@@ -302,9 +309,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   )
 
   const currentMyTaskViewLabel = t(MY_TASK_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.myViews.pending', 'Bekleyen Görevlerim')
-  const currentDepartmentTaskFlowLabel = t(
-    DEPARTMENT_TASK_FLOWS.find(flow => flow.value === currentRequestFlowFilter)?.labelKey ?? 'nav.departmentTasksAll',
-    'Birimde Oluşan Tüm Görevler',
+  const currentDepartmentStatusViewLabel = t(
+    DEPARTMENT_STATUS_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.departmentViews.pending',
+    'Bekleyen Görevler',
   )
   const assignmentUsers = useMemo(() => {
     if (!assignmentDraft.departmentId) return activeUsers
@@ -422,7 +429,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
 const pageKicker = isMyTasksView
     ? currentMyTaskViewLabel
     : isDepartmentTasksView
-      ? currentDepartmentTaskFlowLabel
+      ? currentDepartmentStatusViewLabel
       : isStaffTasksView
         ? currentStaffUserLabel
         : t('tasks.scopeSelector', 'İş görünümleri')
@@ -546,6 +553,17 @@ const pageKicker = isMyTasksView
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>
+          {DEPARTMENT_STATUS_VIEWS.map(view => (
+            <button
+              key={view.value}
+              type="button"
+              className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyTaskView ? ' active' : ''}`}
+              onClick={() => setMyTaskView(view.value)}
+            >
+              {t(view.labelKey)}
+            </button>
+          ))}
+          <span className="scope-chip-divider" aria-hidden="true">|</span>
           {DEPARTMENT_TASK_FLOWS.map(flow => (
             <button
               key={flow.value}
@@ -798,7 +816,7 @@ const pageKicker = isMyTasksView
             {isMyTasksView
               ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
               : isDepartmentTasksView
-                ? t('tasks.departmentTasksEmpty', { view: currentDepartmentTaskFlowLabel, defaultValue: `${currentDepartmentTaskFlowLabel} bulunmuyor` })
+                ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
                 : isStaffTasksView
                   ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
                   : t('tasks.empty', 'No tasks')}

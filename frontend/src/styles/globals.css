@@ -11,7 +11,7 @@
   * {
     box-sizing: border-box;
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--color-primary) 28%, transparent) transparent;
+    scrollbar-color: color-mix(in srgb, var(--color-primary) 60%, transparent) transparent;
   }
 
   *::-webkit-scrollbar {
@@ -25,11 +25,11 @@
 
   *::-webkit-scrollbar-thumb {
     border-radius: 999px;
-    background: color-mix(in srgb, var(--color-primary) 28%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 60%, transparent);
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--color-primary) 48%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 80%, transparent);
   }
 
   *::-webkit-scrollbar-corner {
@@ -1287,7 +1287,6 @@
     z-index: 12;
     display: grid;
     gap: 0.85rem;
-    overflow: hidden;
     padding: 1rem 1.1rem;
     border: 1px solid color-mix(in srgb, var(--color-primary) 24%, white);
     border-radius: var(--radius-2xl);
@@ -1311,7 +1310,6 @@
 
   .sticky-page-header .page-header-row {
     position: relative;
-    z-index: 1;
   }
 
   .sticky-page-header .banner-status-pill {
@@ -1516,14 +1514,14 @@
 
   .wallboard-fullscreen-arrow {
     position: absolute;
-    top: 0.48rem;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     transition: transform 180ms ease;
   }
 
   .wallboard-fullscreen-arrow.is-fullscreen {
-    transform: translateX(-50%) rotate(180deg);
+    transform: translate(-50%, -50%) rotate(180deg);
   }
 
   .wallboard-kicker {

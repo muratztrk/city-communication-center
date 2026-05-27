@@ -1,7 +1,3 @@
-import { useTenantTheme } from '../../context/ThemeContext'
-
-const FALLBACK_LOGO = '/favicon.svg'
-
 function LumespecLogo() {
   return (
     <div className="flex items-center gap-1.5 text-white/30">
@@ -16,34 +12,18 @@ function LumespecLogo() {
   )
 }
 
-function InstitutionLogo({ src }: { src: string }) {
-  return (
-    <img
-      src={src}
-      alt="Kurum logosu"
-      className="h-7 w-auto max-w-[48px] object-contain"
-      style={{ filter: 'brightness(0) invert(1)', opacity: 0.5 }}
-      onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK_LOGO }}
-    />
-  )
-}
 
 export function AppFooter() {
-  const { appearance } = useTenantTheme()
   const year = new Date().getFullYear()
-  const logoSrc = appearance?.logoUrl?.trim() || FALLBACK_LOGO
 
   return (
     <footer
       className="w-full shrink-0 select-none"
       style={{ background: 'var(--color-sidebar)' }}
     >
-      <div className="grid grid-cols-3 items-center px-6 py-2">
-        <div><LumespecLogo /></div>
-        <div className="flex justify-center">
-          <InstitutionLogo src={logoSrc} />
-        </div>
-        <div className="text-right text-[10.5px] font-medium tracking-wide text-white/30">
+      <div className="flex items-center justify-between px-6 py-1">
+        <LumespecLogo />
+        <div className="text-[10.5px] font-medium tracking-wide text-white/30">
           © Her Hakkı Saklıdır – {year}
         </div>
       </div>

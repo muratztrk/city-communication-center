@@ -20,6 +20,7 @@ interface InternalFormState {
   priority: string
   dueDateUtc: string
   isProject: boolean
+  ownerDepartmentId: string
 }
 
 interface ExternalFormState extends InternalFormState {
@@ -43,6 +44,7 @@ const EMPTY_INTERNAL_FORM: InternalFormState = {
   priority: 'Normal',
   dueDateUtc: '',
   isProject: false,
+  ownerDepartmentId: '',
 }
 
 const EMPTY_EXTERNAL_FORM: ExternalFormState = {
@@ -126,9 +128,12 @@ export function CreateRequestPage() {
     if (user?.role === 'Staff' && myDepartmentId) {
       return departments.filter(department => department.departmentId === myDepartmentId)
     }
-
+    if (user?.role === 'Manager') {
+      const managed = departments.filter(department => department.managerUserId === user.userId)
+      return managed.length > 0 ? managed : departments
+    }
     return departments
-  }, [departments, myDepartmentId, user?.role])
+  }, [departments, myDepartmentId, user?.role, user?.userId])
 
   const myDepartmentName = useMemo(() => {
     return departments.find(department => department.departmentId === myDepartmentId)?.name ?? ''
@@ -193,6 +198,14 @@ export function CreateRequestPage() {
       setExternalForm(current => ({ ...current, ownerDepartmentId: firstDepartmentId }))
     }
   }, [externalForm.ownerDepartmentId, myDepartmentId, ownerDepartmentOptions, selectedKind])
+
+  useEffect(() => {
+    if (selectedKind !== 'internal') return
+    const defaultDeptId = ownerDepartmentOptions[0]?.departmentId || myDepartmentId
+    if (defaultDeptId && !internalForm.ownerDepartmentId) {
+      setInternalForm(current => ({ ...current, ownerDepartmentId: defaultDeptId }))
+    }
+  }, [selectedKind, internalForm.ownerDepartmentId, ownerDepartmentOptions, myDepartmentId])
 
   useEffect(() => {
     if ((rawKindParam && !kindParam) || (kindParam === 'citizen' && !canCreateCitizenRequest)) {
@@ -281,7 +294,8 @@ export function CreateRequestPage() {
 
   const handleCreateInternal = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (!myDepartmentId) {
+    const effectiveOwnerDeptId = internalForm.ownerDepartmentId || myDepartmentId
+    if (!effectiveOwnerDeptId) {
       setError(t('tasks.newRequest.noDepartment', 'Departman bilgisi bulunamadı.'))
       return
     }
@@ -296,7 +310,7 @@ export function CreateRequestPage() {
       const job = await api.createJob({
         title: internalForm.title.trim(),
         description: internalForm.description.trim(),
-        ownerDepartmentId: myDepartmentId,
+        ownerDepartmentId: effectiveOwnerDeptId,
         ownerUserIds: [],
         priority: internalForm.priority,
         requestType: 'InternalUnit',
@@ -468,7 +482,21 @@ export function CreateRequestPage() {
               {renderRequestTypeField()}
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.ownerDepartment', 'Sahip Müdürlük')}</span>
-                <input className="field-input bg-slate-50 font-semibold text-slate-700" value={myDepartmentName || '-'} readOnly />
+                {user?.role === 'Staff' ? (
+                  <input className="field-input bg-slate-50 font-semibold text-slate-700" value={myDepartmentName || '-'} readOnly />
+                ) : (
+                  <select
+                    className="field-select"
+                    value={internalForm.ownerDepartmentId}
+                    onChange={e => setInternalForm(current => ({ ...current, ownerDepartmentId: e.target.value }))}
+                    required
+                  >
+                    <option value="">{t('requests.create.selectDepartment', 'Birim seçin')}</option>
+                    {ownerDepartmentOptions.map(d => (
+                      <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
             {renderOwnershipFields()}

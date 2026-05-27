@@ -494,6 +494,12 @@
       "all": "Tüm Görevlerim",
       "empty": "{{view}} bulunmuyor"
     },
+    "departmentViews": {
+      "pending": "Bekleyen Görevler",
+      "completed": "Tamamlanmış Görevler",
+      "rejected": "İptal/İade Görevler",
+      "all": "Tüm Görevler"
+    },
     "scopeDescriptions": {
       "mine": "Size atanmış veya sizin için öncelikli işleri izleyin.",
       "departmentPool": "Müdürlüğünüze gelen onaylanmış ancak kişiye bağlanmamış işleri görün ve gerekirse üstlenin.",

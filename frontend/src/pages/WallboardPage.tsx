@@ -166,6 +166,17 @@ export function WallboardPage() {
     <main ref={wallboardRef} className="wallboard-page">
       <header className="wallboard-hero">
         <div className="wallboard-brand">
+          <div>
+            <div className="wallboard-kicker-row">
+              <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')} className="wallboard-back-button gap-1.5">
+                <ArrowLeft className="size-3.5" />
+                {t('common.back', 'Geri')}
+              </Button>
+              <div className="wallboard-kicker">{t('wallboard.kicker', 'Canlı Ekran')}</div>
+            </div>
+            <h1>{t('wallboard.title', 'Bekleyen İşler')}</h1>
+            <p>{t('wallboard.subtitle', 'Birim İçi ve Birim Dışı gelen yönetici onaylı tüm işler')}</p>
+          </div>
           <button
             type="button"
             className="wallboard-icon wallboard-fullscreen-button"
@@ -179,17 +190,6 @@ export function WallboardPage() {
               <ArrowUp className={`size-3.5 wallboard-fullscreen-arrow ${isFullscreen ? 'is-fullscreen' : ''}`} />
             </span>
           </button>
-          <div>
-            <div className="wallboard-kicker-row">
-              <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')} className="wallboard-back-button gap-1.5">
-                <ArrowLeft className="size-3.5" />
-                {t('common.back', 'Geri')}
-              </Button>
-              <div className="wallboard-kicker">{t('wallboard.kicker', 'Canlı Ekran')}</div>
-            </div>
-            <h1>{t('wallboard.title', 'Bekleyen İşler')}</h1>
-            <p>{t('wallboard.subtitle', 'Birim İçi ve Birim Dışı gelen yönetici onaylı tüm işler')}</p>
-          </div>
         </div>
         <div className="wallboard-actions">
           <div className="wallboard-clock">

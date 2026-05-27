@@ -493,6 +493,12 @@
       "all": "All My Tasks",
       "empty": "No {{view}}"
     },
+    "departmentViews": {
+      "pending": "Pending Tasks",
+      "completed": "Completed Tasks",
+      "rejected": "Rejected/Cancelled Tasks",
+      "all": "All Tasks"
+    },
     "scopeDescriptions": {
       "mine": "Track tasks assigned to you or otherwise relevant to your day-to-day work.",
       "departmentPool": "Review approved requests assigned to your unit but not yet claimed by a person, and claim them when needed.",

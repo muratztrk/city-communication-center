@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowUp } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 const SCROLL_CONTAINER_ID = 'main-content'
@@ -85,13 +85,16 @@ export function ScrollFab() {
       type="button"
       onClick={handleClick}
       aria-label={scrolledDown ? 'Sayfanın başına git' : 'Sayfanın sonuna git'}
-      className="fixed right-5 z-50 flex size-11 cursor-pointer items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl active:scale-95"
+      title={scrolledDown ? 'Sayfanın başına git' : 'Sayfanın sonuna git'}
+      className="fixed right-5 z-50 flex size-11 cursor-pointer items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-lg transition-all duration-200 hover:scale-110 hover:brightness-110 hover:shadow-xl active:scale-95"
       style={{ bottom: '96px' }}
     >
-      {scrolledDown
-        ? <ArrowUp className="size-5" />
-        : <ArrowDown className="size-5" />
-      }
+      <span
+        className="flex items-center justify-center transition-transform duration-300"
+        style={{ transform: scrolledDown ? 'rotate(0deg)' : 'rotate(180deg)' }}
+      >
+        <ArrowUp className="size-5" />
+      </span>
     </button>
   )
 }

@@ -14,9 +14,24 @@ public sealed record CreateJobRequest(
     DateTimeOffset? DueDateUtc,
     IReadOnlyCollection<Guid>? TargetDepartmentIds,
     string? SourceType,
-    Guid? SourceRefId);
+    Guid? SourceRefId,
+    double? Latitude,
+    double? Longitude);
+
+public sealed record UpdateJobRequest(
+    string Title,
+    string Description,
+    string Priority,
+    DateTimeOffset? StartDateUtc,
+    DateTimeOffset? DueDateUtc,
+    double? Latitude,
+    double? Longitude);
 
 public sealed record CancelJobRequest(string Reason);
+
+public sealed record JobApprovalDecisionRequest(string? Comment);
+
+public sealed record RejectJobRequest(string Reason);
 
 public sealed record JobDepartmentResponse(
     Guid JobDepartmentId,
@@ -50,7 +65,11 @@ public sealed record JobSummaryResponse(
     bool IsCoordinated,
     string SourceType,
     int TaskCount,
-    IReadOnlyCollection<JobDepartmentResponse> Departments);
+    IReadOnlyCollection<JobDepartmentResponse> Departments,
+    DateTimeOffset CreatedAtUtc,
+    int? JobNumber,
+    int? JobNumberYear,
+    string? CreatedByDisplayName);
 
 public sealed record JobDetailResponse(
     Guid JobId,
@@ -73,8 +92,11 @@ public sealed record JobDetailResponse(
     string SourceType,
     Guid? SourceRefId,
     string? CancelReason,
+    double? Latitude,
+    double? Longitude,
     string? CreatedByDisplayName,
     DateTimeOffset CreatedAtUtc,
     IReadOnlyCollection<JobDepartmentResponse> Departments,
     IReadOnlyCollection<TaskSummaryResponse> Tasks,
-    IReadOnlyCollection<ApprovalStepResponse> Approvals);
+    IReadOnlyCollection<ApprovalStepResponse> Approvals,
+    IReadOnlyCollection<AttachmentResponse> Attachments);

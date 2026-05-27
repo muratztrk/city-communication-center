@@ -5,7 +5,9 @@ public sealed record CreateSocialMessageCommand(
     SocialChannel Channel,
     string CitizenHandle,
     string Content,
-    string? Category) : ICommand<Guid>;
+    string? Category,
+    double? Latitude,
+    double? Longitude) : ICommand<Guid>;
 
 public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSocialMessageCommand, Guid>
 {
@@ -32,6 +34,8 @@ public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSo
             CitizenHandle = request.CitizenHandle,
             Content = request.Content,
             Category = string.IsNullOrWhiteSpace(request.Category) ? null : request.Category,
+            Latitude = request.Latitude,
+            Longitude = request.Longitude,
             Status = SocialMessageStatus.New,
             ReceivedAtUtc = DateTimeOffset.UtcNow,
             CreatedByUserId = request.ActorUserId,

@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -21,13 +22,21 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
         var tenantId = context.RequireTenantId();
         var scope = TaskQueryScopeParser.Parse(request.Scope);
         var actor = await ResolveActorAsync(tenantId, context.UserId, cancellationToken);
-        var managedDepartmentIds = actor?.RoleCode == RoleCode.Manager
+        var allManagedDepartmentIds = actor?.RoleCode == RoleCode.Manager
             ? await _dbContext.Departments
                 .AsNoTracking()
                 .Where(entity => entity.TenantId == tenantId && entity.ManagerUserId == actor.UserId)
                 .Select(entity => entity.DepartmentId)
                 .ToArrayAsync(cancellationToken)
             : [];
+        var managedDepartmentIds = context.ActiveDepartmentId.HasValue
+            ? allManagedDepartmentIds.Contains(context.ActiveDepartmentId.Value)
+                ? [context.ActiveDepartmentId.Value]
+                : []
+            : allManagedDepartmentIds;
+        var accessibleDepartmentIds = actor is null
+            ? []
+            : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(_dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
 
         IQueryable<WorkTask> tasks = _dbContext.Tasks
             .AsNoTracking()
@@ -40,13 +49,13 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                 : actor.RoleCode switch
                 {
                     RoleCode.SystemAdmin => tasks,
-                    RoleCode.Manager => managedDepartmentIds.Length == 0
+                    RoleCode.Manager => accessibleDepartmentIds.Length == 0
                         ? tasks.Where(entity => entity.AssignedUserId == actor.UserId || entity.CreatedByUserId == actor.UserId)
                         : tasks.Where(entity =>
                             entity.AssignedUserId == actor.UserId ||
                             entity.CreatedByUserId == actor.UserId ||
-                            (entity.AssignedDepartmentId.HasValue && managedDepartmentIds.Contains(entity.AssignedDepartmentId.Value)) ||
-                            _dbContext.Jobs.Any(job => job.JobId == entity.JobId && managedDepartmentIds.Contains(job.OwnerDepartmentId))),
+                            (entity.AssignedDepartmentId.HasValue && accessibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value)) ||
+                            _dbContext.Jobs.Any(job => job.JobId == entity.JobId && accessibleDepartmentIds.Contains(job.OwnerDepartmentId))),
                     _ => tasks.Where(entity => entity.AssignedUserId == actor.UserId || entity.CreatedByUserId == actor.UserId)
                 },
             TaskQueryScope.Mine => actor is null
@@ -55,7 +64,8 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
             TaskQueryScope.DepartmentPool => actor is null
                 ? tasks.Where(_ => false)
                 : tasks.Where(entity =>
-                    entity.AssignedDepartmentId == actor.DepartmentId &&
+                    entity.AssignedDepartmentId.HasValue &&
+                    accessibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value) &&
                     entity.AssignedUserId == null &&
                     entity.CurrentStatus == WorkflowTaskStatus.Waiting),
             TaskQueryScope.PendingApproval => actor is null
@@ -124,6 +134,15 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     .AsNoTracking()
                     .Where(ownerUser => ownerUser.UserId == task.OwnerUserId)
                     .Select(ownerUser => (string?)ownerUser.DisplayName)
+                    .FirstOrDefault(),
+                task.TaskNumber,
+                task.TaskNumberYear,
+                _dbContext.Jobs
+                    .AsNoTracking()
+                    .Where(job => job.JobId == task.JobId)
+                    .SelectMany(job => _dbContext.Departments
+                        .Where(dept => dept.DepartmentId == job.OwnerDepartmentId)
+                        .Select(dept => (string?)dept.Name))
                     .FirstOrDefault()))
             .ToListAsync(cancellationToken);
     }

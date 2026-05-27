@@ -136,8 +136,16 @@ export function applyTenantBrowserBranding(appearance: TenantAppearance): void {
     return
   }
 
-  const iconUrl = appearance.logoUrl?.trim() || '/favicon.svg'
-  const iconType = iconUrl.endsWith('.svg') ? 'image/svg+xml' : undefined
+  const iconUrl = appearance.logoUrl?.trim() || '/favicon.ico'
+  const iconType = iconUrl.endsWith('.svg')
+    ? 'image/svg+xml'
+    : iconUrl.endsWith('.png')
+      ? 'image/png'
+    : iconUrl.endsWith('.jpeg') || iconUrl.endsWith('.jpg')
+      ? 'image/jpeg'
+    : iconUrl.endsWith('.ico')
+      ? 'image/x-icon'
+      : undefined
   const ensureIconLink = (rel: string) => {
     let link = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)
     if (!link) {

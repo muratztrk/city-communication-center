@@ -46,6 +46,12 @@ interface PieChartProps {
 }
 
 /** Resolve a label — may be a plain i18n key, a "prefix – i18n.key" compound, or a literal name. */
+const TRANSLATABLE_PREFIXES = ['dashboard.', 'channel.', 'sourceType.']
+
+function isTranslatableKey(key: string): boolean {
+  return TRANSLATABLE_PREFIXES.some(prefix => key.startsWith(prefix))
+}
+
 function useResolvedLabel(rawLabel: string): string {
   const { t } = useTranslation()
   const SEP = ' – '
@@ -53,10 +59,10 @@ function useResolvedLabel(rawLabel: string): string {
   if (sepIdx !== -1) {
     const prefix = rawLabel.slice(0, sepIdx)
     const key = rawLabel.slice(sepIdx + SEP.length)
-    const suffix = key.startsWith('dashboard.') ? t(key) : key
+    const suffix = isTranslatableKey(key) ? t(key) : key
     return `${prefix} (${suffix})`
   }
-  return rawLabel.startsWith('dashboard.') ? t(rawLabel) : rawLabel
+  return isTranslatableKey(rawLabel) ? t(rawLabel) : rawLabel
 }
 
 function LegendItem({ slice }: { slice: DashboardChartSlice }) {

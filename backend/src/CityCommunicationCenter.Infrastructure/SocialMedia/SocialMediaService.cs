@@ -147,6 +147,8 @@ public class SocialMediaService : ISocialMediaService
             ExternalMessageId = message.MessageId,
             CitizenHandle = message.SenderHandle ?? message.SenderId,
             Content = message.Content,
+            Latitude = message.Latitude,
+            Longitude = message.Longitude,
             ReceivedAtUtc = message.ReceivedAt,
             Status = SocialMessageStatus.New
         };

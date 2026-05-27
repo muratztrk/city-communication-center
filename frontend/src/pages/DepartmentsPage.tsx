@@ -28,6 +28,8 @@ export function DepartmentsPage() {
   const [editManagerUserId, setEditManagerUserId] = useState('')
   const [editResponsibleUserIds, setEditResponsibleUserIds] = useState<string[]>([])
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [managerAssignId, setManagerAssignId] = useState<string | null>(null)
+  const [managerAssignSavingId, setManagerAssignSavingId] = useState<string | null>(null)
 
   const loadDepartments = () => {
     setLoading(true)
@@ -100,6 +102,7 @@ export function DepartmentsPage() {
     setEditManagerUserId(department.managerUserId ?? '')
     setEditResponsibleUserIds(department.responsibleUserIds ?? [])
     setDeleteConfirmId(null)
+    setManagerAssignId(null)
   }
 
   const cancelEdit = () => {
@@ -139,6 +142,26 @@ export function DepartmentsPage() {
     }
   }
 
+  const assignDepartmentManager = async (department: Department, managerUserId: string | null) => {
+    setManagerAssignSavingId(department.departmentId)
+    setError('')
+
+    try {
+      const updated = await api.updateDepartment(department.departmentId, {
+        name: department.name,
+        departmentType: department.departmentType,
+        managerUserId,
+        responsibleUserIds: department.responsibleUserIds ?? [],
+      })
+      setDepartments(current => current.map(item => item.departmentId === updated.departmentId ? updated : item))
+      setManagerAssignId(null)
+    } catch (assignError) {
+      setError(assignError instanceof Error ? assignError.message : t('common.error'))
+    } finally {
+      setManagerAssignSavingId(null)
+    }
+  }
+
   const typeSummary = useMemo(() => {
     return departments.reduce<Record<string, number>>((summary, department) => {
       summary[department.departmentType] = (summary[department.departmentType] ?? 0) + 1
@@ -147,7 +170,12 @@ export function DepartmentsPage() {
   }, [departments])
 
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
-  const getDepartmentUsers = (departmentId?: string) => users.filter(item => item.isActive && (!departmentId || item.departmentId === departmentId))
+  const getManagerCandidates = () => users.filter(item => item.isActive)
+  const userBelongsToDepartment = (item: User, departmentId?: string) => {
+    if (!departmentId) return true
+    return item.departmentId === departmentId || !!item.departments?.some(department => department.departmentId === departmentId)
+  }
+  const getDepartmentUsers = (departmentId?: string) => users.filter(item => item.isActive && userBelongsToDepartment(item, departmentId))
   const getUserOptions = (sourceUsers: User[]) => sourceUsers.map(item => ({ value: item.userId, label: item.displayName }))
   const canEditDepartment = (department: Department) => user?.role === 'SystemAdmin' || department.managerUserId === user?.userId
 
@@ -264,16 +292,36 @@ export function DepartmentsPage() {
                 <th>{t('departments.type')}</th>
                 <th>{t('departments.manager', 'Müdür')}</th>
                 <th>{t('departments.responsibles', 'Sorumlular')}</th>
-                <th className="w-28">{t('common.actions')}</th>
+                <th className="w-56">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {departments.map(department => (
-                <tr key={department.departmentId}>
-                  <>
+              {departments.map(department => {
+                const isManagerAssigning = managerAssignId === department.departmentId
+                const isManagerSaving = managerAssignSavingId === department.departmentId
+
+                return (
+                  <tr key={department.departmentId}>
                     <td className="font-semibold">{department.name}</td>
                     <td><StatusPill>{getDepartmentTypeLabel(t, department.departmentType)}</StatusPill></td>
-                    <td>{getUserName(department.managerUserId)}</td>
+                    <td>
+                      {isManagerAssigning ? (
+                        <select
+                          aria-label={t('departments.assignManager', 'Müdür Ata')}
+                          className="field-select min-w-52"
+                          value={department.managerUserId ?? ''}
+                          disabled={isManagerSaving}
+                          onChange={event => void assignDepartmentManager(department, event.target.value || null)}
+                        >
+                          <option value="">{t('departments.noManager', '— Müdür Yok —')}</option>
+                          {getManagerCandidates().map(item => (
+                            <option key={item.userId} value={item.userId}>{item.displayName}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        getUserName(department.managerUserId)
+                      )}
+                    </td>
                     <td>
                       <div className="flex flex-wrap gap-1">
                         {(department.responsibleUserIds ?? []).length > 0
@@ -297,21 +345,32 @@ export function DepartmentsPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className="inline-actions">
+                          <div className="inline-actions justify-end">
                             {canEditDepartment(department) ? (
-                              <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>
-                                <Pencil className="size-4" />
-                              </button>
+                              <>
+                                {isManagerAssigning ? (
+                                  <Button size="sm" variant="secondary" onClick={() => setManagerAssignId(null)} disabled={isManagerSaving}>
+                                    {t('common.cancel')}
+                                  </Button>
+                                ) : (
+                                  <Button size="sm" variant="secondary" onClick={() => { setManagerAssignId(department.departmentId); setEditId(null); setDeleteConfirmId(null) }}>
+                                    {t('departments.assignManager', 'Müdür Ata')}
+                                  </Button>
+                                )}
+                                <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>
+                                  <Pencil className="size-4" />
+                                </button>
+                              </>
                             ) : null}
-                            <button className="icon-btn text-slate-400 hover:text-red-600" title={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null) }}>
+                            <button className="icon-btn text-slate-400 hover:text-red-600" title={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null); setManagerAssignId(null) }}>
                               <Trash2 className="size-4" />
                             </button>
                           </div>
                         )}
                     </td>
-                  </>
-                </tr>
-              ))}
+                  </tr>
+                )
+              })}
               {departments.length === 0 ? (
                 <tr>
                   <td colSpan={5}>
@@ -353,7 +412,7 @@ export function DepartmentsPage() {
                 <span>{t('departments.manager', 'Müdür')}</span>
                 <select className="field-select" value={editManagerUserId} onChange={event => setEditManagerUserId(event.target.value)}>
                   <option value="">{t('common.optional', '— Seçin (opsiyonel)')}</option>
-                  {getDepartmentUsers(editId).map(item => (
+                  {getManagerCandidates().map(item => (
                     <option key={item.userId} value={item.userId}>{item.displayName}</option>
                   ))}
                 </select>

@@ -26,11 +26,11 @@ WORKDIR /app
 RUN apk add --no-cache su-exec && \
     addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=publish /app/publish .
-RUN mkdir -p /app/logs /var/lib/city-communication-center/dataprotection && \
-    chown -R appuser:appgroup /app/logs /var/lib/city-communication-center/dataprotection
+RUN mkdir -p /app/logs /app/uploads /var/lib/city-communication-center/dataprotection && \
+    chown -R appuser:appgroup /app/logs /app/uploads /var/lib/city-communication-center/dataprotection
 COPY --chmod=755 <<'EOF' /app/entrypoint.sh
 #!/bin/sh
-chown -R appuser:appgroup /var/lib/city-communication-center/dataprotection /app/logs 2>/dev/null || true
+chown -R appuser:appgroup /var/lib/city-communication-center/dataprotection /app/logs /app/uploads 2>/dev/null || true
 exec su-exec appuser dotnet CityCommunicationCenter.Api.dll
 EOF
 ENTRYPOINT ["/app/entrypoint.sh"]

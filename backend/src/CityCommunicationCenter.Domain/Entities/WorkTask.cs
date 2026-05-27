@@ -39,6 +39,9 @@ public sealed class WorkTask : AuditableTenantEntity, IHasDatabaseIndexDefinitio
 
     public string? RevisionReason { get; set; }
 
+    public int? TaskNumber { get; set; }
+    public int? TaskNumberYear { get; set; }
+
     public Job Job { get; set; } = null!;
 
     public Tenant Tenant { get; set; } = null!;

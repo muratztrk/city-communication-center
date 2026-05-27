@@ -128,14 +128,20 @@ public sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDepar
 
         var validUserCount = await _dbContext.Users.CountAsync(
             user => user.TenantId == tenantId
-                && user.DepartmentId == departmentId
                 && user.IsActive
-                && selectedUserIds.Contains(user.UserId),
+                && selectedUserIds.Contains(user.UserId)
+                && (user.DepartmentId == departmentId
+                    || _dbContext.UserDepartmentAssignments.Any(assignment =>
+                        assignment.TenantId == tenantId
+                        && assignment.UserId == user.UserId
+                        && assignment.DepartmentId == departmentId)
+                    || user.UserId == managerUserId
+                    || user.UserId == deputyManagerUserId),
             cancellationToken);
 
         if (validUserCount != selectedUserIds.Length)
         {
-            throw new ValidationException("Seçilen müdür, vekil müdür ve sorumlular bu müdürlükte çalışan aktif kullanıcılardan olmalıdır.");
+            throw new ValidationException("Seçilen müdür, vekil müdür ve sorumlular bu müdürlükte görev yapabilen aktif kullanıcılardan olmalıdır.");
         }
     }
 }

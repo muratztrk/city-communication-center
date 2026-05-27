@@ -5,15 +5,31 @@ interface MunicipalitySealProps {
   className?: string
   imageClassName?: string
   compact?: boolean
+  bare?: boolean
   alt?: string
   src?: string | null
 }
 
 const FALLBACK_LOGO_SRC = '/favicon.svg'
 
-export function MunicipalitySeal({ className, imageClassName, compact = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
+export function MunicipalitySeal({ className, imageClassName, compact = false, bare = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
   const currentSrc = src && failedSrc !== src ? src : FALLBACK_LOGO_SRC
+
+  const handleError = () => { if (src) setFailedSrc(src) }
+
+  if (bare) {
+    return (
+      <img
+        alt={alt}
+        className={cn('object-contain', className)}
+        src={currentSrc}
+        loading="lazy"
+        decoding="async"
+        onError={handleError}
+      />
+    )
+  }
 
   return (
     <div
@@ -35,11 +51,7 @@ export function MunicipalitySeal({ className, imageClassName, compact = false, a
         src={currentSrc}
         loading="lazy"
         decoding="async"
-        onError={() => {
-          if (src) {
-            setFailedSrc(src)
-          }
-        }}
+        onError={handleError}
       />
     </div>
   )

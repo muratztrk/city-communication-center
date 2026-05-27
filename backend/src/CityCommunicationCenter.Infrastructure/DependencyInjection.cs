@@ -38,6 +38,8 @@ public static class DependencyInjection
         // Routing Service
         services.AddScoped<IRoutingService, RoutingService>();
         services.AddScoped<ITenantAppearanceService, TenantAppearanceService>();
+        services.AddScoped<ITenantWorkingHoursService, TenantWorkingHoursService>();
+        services.AddScoped<ITenantSmsSettingsService, TenantSmsSettingsService>();
         services.AddScoped<ITenantLdapSettingsService, TenantLdapSettingsService>();
         services.AddScoped<ITenantAuthenticationPolicyService, TenantAuthenticationPolicyService>();
         services.AddScoped<ILdapAuthenticationService, LdapAuthenticationService>();

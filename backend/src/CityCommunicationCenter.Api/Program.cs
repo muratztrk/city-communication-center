@@ -220,6 +220,14 @@ builder.Services.AddMediator(options =>
 builder.Services.AddApplicationServices();
 builder.Services.AddScoped<InitialPasswordSeeder>();
 
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
+{
+    o.MultipartBodyLengthLimit = 6_000_000;
+});
+
+builder.Services.Configure<CityCommunicationCenter.Application.Features.Attachments.AttachmentStorageOptions>(o =>
+    o.UploadRootPath = Path.Combine(builder.Environment.ContentRootPath, "uploads"));
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
@@ -258,6 +266,15 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Envi
 
 app.UseRouting();
 app.UseCors(OpenCorsPolicy);
+
+// Serve uploaded files as static content
+var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
+Directory.CreateDirectory(uploadsPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();

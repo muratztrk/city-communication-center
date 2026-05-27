@@ -1,8 +1,9 @@
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Reports;
 
-public sealed record GetDashboardChartQuery() : IQuery<DashboardChartResponse>;
+public sealed record GetDashboardChartQuery(DateTimeOffset? FromUtc, DateTimeOffset? ToUtc) : IQuery<DashboardChartResponse>;
 
 public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardChartQuery, DashboardChartResponse>
 {
@@ -31,23 +32,49 @@ public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardCh
 
         if (roleCode == "Manager" && userId.HasValue)
         {
-            return await BuildManagerChartAsync(tenantId, userId.Value, cancellationToken);
+            var actor = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(user => user.TenantId == tenantId && user.UserId == userId.Value && user.IsActive, cancellationToken);
+            var departmentIds = actor is null
+                ? []
+                : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                    _dbContext,
+                    tenantId,
+                    actor,
+                    context.ActiveDepartmentId,
+                    cancellationToken);
+
+            return await BuildManagerChartAsync(tenantId, departmentIds, request.FromUtc, request.ToUtc, cancellationToken);
         }
 
         if ((roleCode == "Staff" || roleCode == "Operator") && userId.HasValue)
         {
-            return await BuildStaffChartAsync(tenantId, userId.Value, cancellationToken);
+            var actor = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(user => user.TenantId == tenantId && user.UserId == userId.Value && user.IsActive, cancellationToken);
+            var departmentIds = actor is null
+                ? []
+                : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                    _dbContext,
+                    tenantId,
+                    actor,
+                    context.ActiveDepartmentId,
+                    cancellationToken);
+
+            return await BuildStaffChartAsync(tenantId, userId.Value, departmentIds, request.FromUtc, request.ToUtc, cancellationToken);
         }
 
-        return await BuildDepartmentChartAsync(tenantId, cancellationToken);
+        return await BuildDepartmentChartAsync(tenantId, request.FromUtc, request.ToUtc, cancellationToken);
     }
 
-    private async Task<DashboardChartResponse> BuildDepartmentChartAsync(Guid tenantId, CancellationToken cancellationToken)
+    private async Task<DashboardChartResponse> BuildDepartmentChartAsync(Guid tenantId, DateTimeOffset? fromUtc, DateTimeOffset? toUtc, CancellationToken cancellationToken)
     {
         var allTasks = await _dbContext.Tasks
             .AsNoTracking()
             .Where(task => task.TenantId == tenantId
-                && (DoneStatuses.Contains(task.CurrentStatus) || PendingStatuses.Contains(task.CurrentStatus)))
+                && (DoneStatuses.Contains(task.CurrentStatus) || PendingStatuses.Contains(task.CurrentStatus))
+                && (!fromUtc.HasValue || task.CreatedAtUtc >= fromUtc.Value)
+                && (!toUtc.HasValue || task.CreatedAtUtc <= toUtc.Value))
             .Join(
                 _dbContext.Jobs.AsNoTracking(),
                 task => task.JobId,
@@ -86,15 +113,9 @@ public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardCh
         return new DashboardChartResponse("dashboard.chart.titleDept", slices);
     }
 
-    private async Task<DashboardChartResponse> BuildManagerChartAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken)
+    private async Task<DashboardChartResponse> BuildManagerChartAsync(Guid tenantId, Guid[] departmentIds, DateTimeOffset? fromUtc, DateTimeOffset? toUtc, CancellationToken cancellationToken)
     {
-        var managedDeptIds = await _dbContext.Departments
-            .AsNoTracking()
-            .Where(d => d.ManagerUserId == userId)
-            .Select(d => d.DepartmentId)
-            .ToArrayAsync(cancellationToken);
-
-        if (managedDeptIds.Length == 0)
+        if (departmentIds.Length == 0)
         {
             return new DashboardChartResponse("dashboard.chart.titleManager", []);
         }
@@ -108,8 +129,10 @@ public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardCh
                 (task, job) => new { task, job })
             .Where(item => item.task.TenantId == tenantId
                 && (DoneStatuses.Contains(item.task.CurrentStatus) || PendingStatuses.Contains(item.task.CurrentStatus))
-                && ((item.task.AssignedDepartmentId.HasValue && managedDeptIds.Contains(item.task.AssignedDepartmentId.Value))
-                    || managedDeptIds.Contains(item.job.OwnerDepartmentId)))
+                && ((item.task.AssignedDepartmentId.HasValue && departmentIds.Contains(item.task.AssignedDepartmentId.Value))
+                    || departmentIds.Contains(item.job.OwnerDepartmentId))
+                && (!fromUtc.HasValue || item.task.CreatedAtUtc >= fromUtc.Value)
+                && (!toUtc.HasValue || item.task.CreatedAtUtc <= toUtc.Value))
             .Select(item => new { item.task.AssignedUserId, IsDone = DoneStatuses.Contains(item.task.CurrentStatus) })
             .ToListAsync(cancellationToken);
 
@@ -143,20 +166,12 @@ public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardCh
         return new DashboardChartResponse("dashboard.chart.titleManager", slices);
     }
 
-    private async Task<DashboardChartResponse> BuildStaffChartAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken)
+    private async Task<DashboardChartResponse> BuildStaffChartAsync(Guid tenantId, Guid userId, Guid[] departmentIds, DateTimeOffset? fromUtc, DateTimeOffset? toUtc, CancellationToken cancellationToken)
     {
-        var actor = await _dbContext.Users
-            .AsNoTracking()
-            .Where(u => u.TenantId == tenantId && u.UserId == userId)
-            .Select(u => new { u.DepartmentId })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (actor is null)
+        if (departmentIds.Length == 0)
         {
             return new DashboardChartResponse("dashboard.chart.titleStaff", []);
         }
-
-        var deptId = actor.DepartmentId;
 
         var deptTasks = await _dbContext.Tasks
             .AsNoTracking()
@@ -167,7 +182,10 @@ public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardCh
                 (task, job) => new { task, job })
             .Where(item => item.task.TenantId == tenantId
                 && (DoneStatuses.Contains(item.task.CurrentStatus) || PendingStatuses.Contains(item.task.CurrentStatus))
-                && (item.task.AssignedDepartmentId == deptId || item.job.OwnerDepartmentId == deptId))
+                && ((item.task.AssignedDepartmentId.HasValue && departmentIds.Contains(item.task.AssignedDepartmentId.Value))
+                    || departmentIds.Contains(item.job.OwnerDepartmentId))
+                && (!fromUtc.HasValue || item.task.CreatedAtUtc >= fromUtc.Value)
+                && (!toUtc.HasValue || item.task.CreatedAtUtc <= toUtc.Value))
             .Select(item => new { item.task.AssignedUserId, IsDone = DoneStatuses.Contains(item.task.CurrentStatus) })
             .ToListAsync(cancellationToken);
 

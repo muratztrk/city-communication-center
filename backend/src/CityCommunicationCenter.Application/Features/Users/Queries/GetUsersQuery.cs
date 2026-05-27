@@ -18,22 +18,36 @@ public sealed class GetUsersQueryHandler : IQueryHandler<GetUsersQuery, IReadOnl
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
 
-        return await _dbContext.Users
+        var users = await _dbContext.Users
             .AsNoTracking()
             .Where(entity => entity.TenantId == tenantId)
             .OrderBy(entity => entity.DisplayName)
-            .Select(entity => new UserSummaryResponse(
-                entity.UserId,
-                entity.TenantId,
-                entity.DepartmentId,
-                entity.Username,
-                entity.DisplayName,
-                entity.Email,
-                entity.RoleCode.ToString(),
-                entity.IsActive,
-                entity.UserSource.ToString(),
-                entity.Title,
-                entity.Phone))
             .ToListAsync(cancellationToken);
+
+        var responses = new List<UserSummaryResponse>(users.Count);
+        foreach (var user in users)
+        {
+            var departments = await UserDepartmentAccess.GetDepartmentSummariesAsync(
+                _dbContext,
+                tenantId,
+                user,
+                cancellationToken);
+
+            responses.Add(new UserSummaryResponse(
+                user.UserId,
+                user.TenantId,
+                user.DepartmentId,
+                user.Username,
+                user.DisplayName,
+                user.Email,
+                user.RoleCode.ToString(),
+                user.IsActive,
+                user.UserSource.ToString(),
+                user.Title,
+                user.Phone,
+                departments));
+        }
+
+        return responses;
     }
 }

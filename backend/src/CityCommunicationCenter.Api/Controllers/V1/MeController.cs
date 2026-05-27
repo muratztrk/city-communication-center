@@ -20,4 +20,12 @@ public sealed class MeController : ApiControllerBase
         var response = await _sender.Send(new GetCurrentUserQuery(), cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("departments")]
+    [ProducesResponseType<IReadOnlyList<DepartmentSummaryResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<DepartmentSummaryResponse>>> GetDepartments(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetMyDepartmentsQuery(), cancellationToken);
+        return Ok(response);
+    }
 }

@@ -1,13 +1,13 @@
-import { AlertTriangle, ArrowLeft, Building2, CalendarClock, Clock3, MonitorUp, RefreshCw, UserRound } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, Clock3, Monitor, RefreshCw, UserRound } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
-import type { JobSummary, SocialMessage, Task } from '../types/platform'
-import { getLocale, getPriorityLabel, getSocialStatusLabel, getTaskStatusLabel } from '../utils/localization'
+import type { JobSummary, Task } from '../types/platform'
+import { getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
-type WallboardSource = 'internal' | 'citizen'
+type WallboardSource = 'internal' | 'external' | 'citizen'
 
 interface WallboardItem {
   id: string
@@ -16,14 +16,12 @@ interface WallboardItem {
   source: WallboardSource
   status: string
   priority: string | null
-  department: string | null
   assignee: string | null
   dueDateUtc: string | null
   createdAtUtc: string | null
 }
 
 const OPEN_TASK_STATUSES = new Set(['Waiting', 'Assigned', 'InProgress', 'RevisionRequested'])
-const OPEN_SOCIAL_STATUSES = new Set(['New', 'Categorized', 'Routed'])
 const REFRESH_OPTIONS = [
   { value: 60_000, labelKey: 'wallboard.refreshOptions.oneMinute', fallback: '1 dakika' },
   { value: 600_000, labelKey: 'wallboard.refreshOptions.tenMinutes', fallback: '10 dakika' },
@@ -45,7 +43,7 @@ function getDueTone(dueDateUtc: string | null) {
 }
 
 function formatDate(value: string | null, locale: string) {
-  if (!value) return '—'
+  if (!value) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
   return new Date(value).toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',
@@ -66,59 +64,30 @@ function getPriorityRank(priority: string | null) {
   return 3
 }
 
-function buildWallboardItems(tasks: Task[], jobs: JobSummary[], socialMessages: SocialMessage[], t: ReturnType<typeof useTranslation>['t']): WallboardItem[] {
+function buildWallboardItems(tasks: Task[], jobs: JobSummary[], t: ReturnType<typeof useTranslation>['t']): WallboardItem[] {
   const jobsById = new Map(jobs.map(job => [job.jobId, job]))
 
-  const taskItems: WallboardItem[] = tasks
+  return tasks
     .filter(task => OPEN_TASK_STATUSES.has(task.currentStatus))
     .map(task => {
       const job = jobsById.get(task.jobId)
+      const source: WallboardSource = isCitizenSource(job?.sourceType)
+        ? 'citizen'
+        : job?.requestType === 'ExternalUnit'
+          ? 'external'
+          : 'internal'
       return {
         id: `task-${task.taskId}`,
         title: task.title,
         subtitle: task.jobTitle ?? t('wallboard.noJob', 'İş kaydı yok'),
-        source: isCitizenSource(job?.sourceType) ? 'citizen' : 'internal',
+        source,
         status: getTaskStatusLabel(t, task.currentStatus),
         priority: task.priority,
-        department: task.assignedDepartmentName ?? null,
         assignee: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,
         dueDateUtc: task.dueDateUtc,
         createdAtUtc: task.createdAtUtc ?? null,
       }
     })
-  const openTaskJobIds = new Set(tasks.filter(task => OPEN_TASK_STATUSES.has(task.currentStatus)).map(task => task.jobId))
-
-  const activeJobItems: WallboardItem[] = jobs
-    .filter(job => !openTaskJobIds.has(job.jobId))
-    .map(job => ({
-      id: `job-${job.jobId}`,
-      title: job.title,
-      subtitle: t('wallboard.approvedJob', 'Müdür onaylı iş'),
-      source: isCitizenSource(job.sourceType) ? 'citizen' : 'internal',
-      status: t('enum.jobStatus.Active', 'Aktif'),
-      priority: job.priority,
-      department: job.ownerDepartmentName,
-      assignee: null,
-      dueDateUtc: job.dueDateUtc,
-      createdAtUtc: job.startDateUtc,
-    }))
-
-  const socialItems: WallboardItem[] = socialMessages
-    .filter(message => !message.jobId && OPEN_SOCIAL_STATUSES.has(message.status))
-    .map(message => ({
-      id: `social-${message.socialMessageId}`,
-      title: `@${message.citizenHandle}`,
-      subtitle: message.category ?? t('wallboard.citizenRequest', 'Vatandaş talebi'),
-      source: 'citizen',
-      status: getSocialStatusLabel(t, message.status),
-      priority: null,
-      department: null,
-      assignee: null,
-      dueDateUtc: null,
-      createdAtUtc: message.receivedAtUtc,
-    }))
-
-  return [...taskItems, ...activeJobItems, ...socialItems]
     .sort((a, b) => {
       const priorityDelta = getPriorityRank(a.priority) - getPriorityRank(b.priority)
       if (priorityDelta !== 0) return priorityDelta
@@ -133,23 +102,24 @@ export function WallboardPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const locale = getLocale(i18n.language)
+  const wallboardRef = useRef<HTMLElement>(null)
   const [items, setItems] = useState<WallboardItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null)
   const [refreshIntervalMs, setRefreshIntervalMs] = useState(60_000)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const loadBoard = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
     setError(null)
 
     try {
-      const [tasks, jobs, socialMessages] = await Promise.all([
+      const [tasks, jobs] = await Promise.all([
         api.getTasks('all'),
         api.getJobs('active'),
-        api.getSocialMessages(),
       ])
-      setItems(buildWallboardItems(tasks, jobs, socialMessages, t))
+      setItems(buildWallboardItems(tasks, jobs, t))
       setLastUpdatedAt(new Date())
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
@@ -164,22 +134,51 @@ export function WallboardPage() {
     return () => window.clearInterval(intervalId)
   }, [loadBoard, refreshIntervalMs])
 
+  useEffect(() => {
+    const syncFullscreenState = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    syncFullscreenState()
+    document.addEventListener('fullscreenchange', syncFullscreenState)
+    return () => document.removeEventListener('fullscreenchange', syncFullscreenState)
+  }, [])
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen()
+        return
+      }
+
+      await (wallboardRef.current ?? document.documentElement).requestFullscreen()
+    } catch {
+      setIsFullscreen(Boolean(document.fullscreenElement))
+    }
+  }, [])
+
   const summary = useMemo(() => ({
     total: items.length,
     internal: items.filter(item => item.source === 'internal').length,
-    citizen: items.filter(item => item.source === 'citizen').length,
-    urgent: items.filter(item => item.priority === 'Critical' || item.priority === 'High' || getDueTone(item.dueDateUtc) !== 'normal').length,
+    external: items.filter(item => item.source === 'external').length,
   }), [items])
 
   const visibleItems = items.slice(0, 24)
 
   return (
-    <main className="wallboard-page">
+    <main ref={wallboardRef} className="wallboard-page">
       <header className="wallboard-hero">
         <div className="wallboard-brand">
-          <div className="wallboard-icon">
-            <MonitorUp className="size-7" />
-          </div>
+          <button
+            type="button"
+            className="wallboard-icon wallboard-fullscreen-button"
+            onClick={() => void toggleFullscreen()}
+            aria-pressed={isFullscreen}
+            aria-label={isFullscreen ? t('wallboard.exitFullscreen', 'Tam ekrandan çık') : t('wallboard.enterFullscreen', 'Tam ekran yap')}
+            title={isFullscreen ? t('wallboard.exitFullscreen', 'Tam ekrandan çık') : t('wallboard.enterFullscreen', 'Tam ekran yap')}
+          >
+            <span className="wallboard-fullscreen-icon" aria-hidden="true">
+              <Monitor className="size-7 wallboard-fullscreen-monitor" />
+              <ArrowUp className={`size-3.5 wallboard-fullscreen-arrow ${isFullscreen ? 'is-fullscreen' : ''}`} />
+            </span>
+          </button>
           <div>
             <div className="wallboard-kicker-row">
               <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')} className="wallboard-back-button gap-1.5">
@@ -189,7 +188,7 @@ export function WallboardPage() {
               <div className="wallboard-kicker">{t('wallboard.kicker', 'Canlı Ekran')}</div>
             </div>
             <h1>{t('wallboard.title', 'Bekleyen İşler')}</h1>
-            <p>{t('wallboard.subtitle', 'Kurum içi ve vatandaştan gelen müdür onaylı bekleyen işler')}</p>
+            <p>{t('wallboard.subtitle', 'Birim İçi ve Birim Dışı gelen yönetici onaylı tüm işler')}</p>
           </div>
         </div>
         <div className="wallboard-actions">
@@ -218,10 +217,9 @@ export function WallboardPage() {
       </header>
 
       <section className="wallboard-stats" aria-label={t('wallboard.summary', 'Özet')}>
-        <div><span>{summary.total}</span><p>{t('wallboard.totalWaiting', 'Toplam bekleyen')}</p></div>
-        <div><span>{summary.internal}</span><p>{t('wallboard.internal', 'Kurum içi')}</p></div>
-        <div><span>{summary.citizen}</span><p>{t('wallboard.citizen', 'Vatandaş')}</p></div>
-        <div><span>{summary.urgent}</span><p>{t('wallboard.urgent', 'Öncelikli')}</p></div>
+        <div><span>{summary.total}</span><p>{t('wallboard.totalWaiting', 'Toplam Bekleyen')}</p></div>
+        <div><span>{summary.internal}</span><p>{t('wallboard.internal', 'Birim İçi')}</p></div>
+        <div><span>{summary.external}</span><p>{t('wallboard.external', 'Birim Dışı')}</p></div>
       </section>
 
       {error ? (
@@ -245,7 +243,6 @@ export function WallboardPage() {
                 <th>{t('wallboard.columns.title', 'Başlık')}</th>
                 <th>{t('wallboard.columns.status', 'Durum')}</th>
                 <th>{t('wallboard.columns.priority', 'Öncelik')}</th>
-                <th>{t('wallboard.columns.department', 'Müdürlük')}</th>
                 <th>{t('wallboard.columns.assignee', 'Atanan')}</th>
                 <th>{t('wallboard.columns.dueDate', 'Son Tarih')}</th>
               </tr>
@@ -258,7 +255,11 @@ export function WallboardPage() {
                     <td className="wallboard-number-cell">{index + 1}</td>
                     <td>
                       <span className="wallboard-source-pill">
-                        {item.source === 'citizen' ? t('wallboard.citizen', 'Vatandaş') : t('wallboard.internal', 'Kurum içi')}
+                        {item.source === 'citizen'
+                          ? t('wallboard.citizen', 'Vatandaş')
+                          : item.source === 'external'
+                            ? t('wallboard.external', 'Birim Dışı')
+                            : t('wallboard.internal', 'Birim İçi')}
                       </span>
                     </td>
                     <td>
@@ -267,7 +268,6 @@ export function WallboardPage() {
                     </td>
                     <td><span className="wallboard-status-pill">{item.status}</span></td>
                     <td>{item.priority ? getPriorityLabel(t, item.priority) : '—'}</td>
-                    <td><span className="wallboard-cell-icon"><Building2 className="size-4" />{item.department ?? t('wallboard.unassignedDepartment', 'Müdürlük bekliyor')}</span></td>
                     <td><span className="wallboard-cell-icon"><UserRound className="size-4" />{item.assignee ?? t('wallboard.unassignedUser', 'Kişi ataması yok')}</span></td>
                     <td>
                       <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>

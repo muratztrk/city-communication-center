@@ -22,6 +22,12 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? AppearanceJson { get; set; }
 
+    public string? WorkingHoursJson { get; set; }
+
+    public string? SmsSettingsJson { get; set; }
+
+    public string? RolePageAccessJson { get; set; }
+
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
     [
         DatabaseIndexDefinition.Unique(nameof(TenantId), databaseName: "ix_tenantsettings_tenantid_unique"),

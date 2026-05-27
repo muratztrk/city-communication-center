@@ -26,7 +26,15 @@
     "enabled": "Aktif",
     "disabled": "Pasif",
     "yes": "Evet",
-    "no": "Hayır"
+    "no": "Hayır",
+    "unspecified": "Belirsiz"
+  },
+  "filters": {
+    "requestFlow": {
+      "internal": "Birim İçi",
+      "external": "Birim Dışı",
+      "all": "Birim İçi/Birim Dışı"
+    }
   },
   "errors": {
     "invalidAccessToken": "Geçersiz access token.",
@@ -89,28 +97,46 @@
     "projectApproveFailed": "Proje onaylanamadı.",
     "projectRejectFailed": "Proje reddedilemedi.",
     "projectUpdateFailed": "Proje güncellenemedi.",
-    "socialCreateFailed": "Vatandaş talebi oluşturulamadı."
+    "socialCreateFailed": "Vatandaş talebi oluşturulamadı.",
+    "workingHoursLoadFailed": "Mesai saatleri alınamadı.",
+    "workingHoursSaveFailed": "Mesai saatleri kaydedilemedi.",
+    "smsSettingsLoadFailed": "SMS API ayarları alınamadı.",
+    "smsSettingsSaveFailed": "SMS API ayarları kaydedilemedi."
+  },
+  "search": {
+    "placeholder": "Sistemde ara...",
+    "label": "Sistemde ara",
+    "noResults": "Sonuç bulunamadı"
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
     "createRequest": "Talep Oluştur",
+    "createRoutineTask": "Rutin Görev Oluştur",
     "myTasks": "Görevlerim",
     "myTasksPending": "Bekleyen Görevlerim",
     "myTasksCompleted": "Tamamlanmış Görevlerim",
-    "myTasksRejected": "Reddedilen/İptal Görevlerim",
+    "myTasksRejected": "İptal/İade Görevlerim",
     "myTasksAll": "Tüm Görevlerim",
     "myRequests": "Taleplerim",
     "myRequestsCreated": "Oluşturduğum Talepler",
     "myRequestsPending": "Bekleyen Taleplerim",
     "myRequestsApproved": "Onaylanmış Taleplerim",
-    "myRequestsRejected": "Reddedilen/İptal Taleplerim",
+    "myRequestsRejected": "İptal/İade Taleplerim",
     "myRequestsAll": "Tüm Taleplerim",
     "incomingRequests": "Birime Gelen Talepler",
     "incomingRequestsInternal": "Birim İçi Gelen Talepler",
     "incomingRequestsExternal": "Birim Dışı Gelen Talepler",
     "incomingRequestsAll": "Birime Gelen Tüm Talepler",
+    "outgoingRequests": "Birimden Giden Talepler",
+    "departmentTasks": "Birimdeki Görevler",
+    "departmentTasksInternal": "Birim İçi Oluşan Görevler",
+    "departmentTasksExternal": "Birim Dışı Oluşan Görevler",
+    "departmentTasksAll": "Birimde Oluşan Tüm Görevler",
+    "staffTasks": "Personelimin Görevleri",
     "tasks": "Birim İçi Gelen Talepler",
     "social": "Vatandaş Talepleri",
+    "socialPhone": "Çağrı",
+    "socialAll": "Tümü",
     "departments": "Müdürlükler",
     "users": "Kullanıcılar",
     "audit": "Log",
@@ -135,10 +161,11 @@
   "wallboard": {
     "kicker": "Canlı Ekran",
     "title": "Bekleyen İşler",
-    "subtitle": "Kurum içi ve vatandaştan gelen müdür onaylı bekleyen işler",
+    "subtitle": "Birim İçi ve Birim Dışı gelen yönetici onaylı tüm işler",
     "summary": "Özet",
-    "totalWaiting": "Toplam bekleyen",
-    "internal": "Kurum içi",
+    "totalWaiting": "Toplam Bekleyen",
+    "internal": "Birim İçi",
+    "external": "Birim Dışı",
     "citizen": "Vatandaş",
     "urgent": "Öncelikli",
     "approvedJob": "Müdür onaylı iş",
@@ -159,7 +186,6 @@
       "title": "Başlık",
       "status": "Durum",
       "priority": "Öncelik",
-      "department": "Müdürlük",
       "assignee": "Atanan",
       "dueDate": "Son Tarih"
     }
@@ -266,8 +292,17 @@
     "cards": {
       "openTasks": "Bekleyen İş",
       "pendingApprovals": "Onay Bekleyen",
-      "activeMessages": "Vatandaş Talebi",
-      "rejectedOrCancelled": "İptal/Red Edilen Talep"
+      "activeMessages": "Vatandaş Talepleri",
+      "rejectedOrCancelled": "İptal/Red Edilen Talep",
+      "myPendingRequests": "Bekleyen Taleplerim (İçi/Dışı)",
+      "incomingPendingApproval": "Birime Gelen Onay Bekleyenler",
+      "outgoingPending": "Birimden Giden Bekleyen Talepler",
+      "myPendingTasks": "Bekleyen Görevlerim (İçi/Dışı)",
+      "deptPendingTasks": "Birimdeki Bekleyen Görevler",
+      "myTotalRequests": "Tüm Taleplerim",
+      "incomingTotal": "Birime Gelen Tüm Talepler",
+      "outgoingTotal": "Birimden Giden Tüm Talepler",
+      "deptTotalTasks": "Birimde Oluşan Tüm Görevler"
     },
     "chart": {
       "titleDept": "Müdürlüklere Göre İş Dağılımı",
@@ -282,6 +317,32 @@
       "completed": "Tamamlanan",
       "pending": "Bekleyen",
       "noData": "Henüz gösterilecek veri yok."
+    },
+    "citizenChannels": {
+      "title": "Vatandaş Talep Kanalları"
+    },
+    "channel": {
+      "Facebook": "Facebook",
+      "Instagram": "Instagram",
+      "X": "X (Twitter)",
+      "Email": "E-Posta",
+      "WebForm": "Web Formu",
+      "WhatsApp": "WhatsApp",
+      "Phone": "Telefon",
+      "Other": "Diğer"
+    },
+    "sourceType": {
+      "Manual": "Manuel Giriş",
+      "CitizenRequest": "Vatandaş Başvurusu",
+      "Integration": "Entegrasyon"
+    },
+    "period": {
+      "label": "Dönem",
+      "daily": "Günlük",
+      "weekly": "Haftalık",
+      "monthly": "Aylık",
+      "yearly": "Yıllık",
+      "custom": "Özel"
     },
     "recentTasksTitle": "Son İşler",
     "recentTasksBody": "Son hareketler ve işlem bekleyen kayıtlar.",
@@ -314,6 +375,8 @@
     "namePlaceholder": "Müdürlük adı girin",
     "type": "Tür",
     "manager": "Müdür",
+    "assignManager": "Müdür Ata",
+    "noManager": "— Müdür Yok —",
     "responsibles": "Sorumlular",
     "responsiblesPlaceholder": "Sorumlu kullanıcı seçin",
     "responsiblesEmpty": "Aktif kullanıcı bulunmuyor.",
@@ -341,6 +404,11 @@
     "email": "E-posta",
     "emailPlaceholder": "ornek@belediye.gov.tr",
     "department": "Müdürlük",
+    "additionalDepartments": "Ek görev yaptığı birimler",
+    "additionalDepartmentsShort": "Ek birimler",
+    "additionalDepartmentsPlaceholder": "Ek birim/müdürlük seçin",
+    "additionalDepartmentsEmpty": "Seçilebilir ek birim bulunmuyor.",
+    "additionalDepartmentsHelp": "Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.",
     "role": "Rol",
     "password": "Şifre",
     "passwordPlaceholder": "En az 8 karakter",
@@ -366,7 +434,8 @@
     "status": "Durum",
     "empty": "Henüz kullanıcı bulunmuyor",
     "deleteConfirm": "\"{{name}}\" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
-    "departmentWillBeCreated": "yeni oluşturulacak"
+    "departmentWillBeCreated": "yeni oluşturulacak",
+    "managerConflict": "Bu müdürlükte zaten bir Müdür mevcut: {{name}}. Her müdürlüğün yalnızca 1 müdür kontenjanı vardır."
   },
   "requests": {
     "create": {
@@ -382,10 +451,10 @@
       "externalDescription": "Başka bir müdürlüğe gidecek talep oluşturun.",
       "citizenTitle": "Vatandaş Talepleri",
       "citizenDescription": "Vatandaştan gelen talebi manuel kayıt olarak oluşturun.",
-      "ownershipMode": "Sahiplik",
+      "ownershipMode": "Oluşacak Görevin Sahibi",
       "ownershipDepartment": "Müdürlük",
       "ownershipUsers": "Kullanıcı",
-      "ownerUsers": "Sahip Kullanıcılar",
+      "ownerUsers": "Görev Sahibi Birim",
       "ownerUsersPlaceholder": "Kullanıcı seçin",
       "ownerUsersHelp": "Bir veya daha fazla kullanıcı seçildiğinde her kullanıcı için görev oluşturulur.",
       "ownerUsersEmpty": "Bu müdürlükte seçilebilir aktif kullanıcı bulunmuyor.",
@@ -401,6 +470,9 @@
     "title": "İşler",
     "subtitle": "Onay bekleyen talepleri, onaylanmış talepleri ve tüm işleri aynı akışta yönetin.",
     "myTasksSubtitle": "Size atanmış görevleri durumuna göre takip edin.",
+    "departmentTasksSubtitle": "Müdürlüğünüzde oluşan görevleri kaynak tipine göre takip edin.",
+    "staffTasksSubtitle": "Personelinizin üzerindeki görevleri ve aşamalarını izleyin.",
+    "departmentTasksEmpty": "{{view}} bulunmuyor",
     "summary": {
       "total": "Toplam İş",
       "pendingApproval": "Onay Bekleyen",
@@ -418,7 +490,7 @@
     "myViews": {
       "pending": "Bekleyen Görevlerim",
       "completed": "Tamamlanmış Görevlerim",
-      "rejected": "Reddedilen/İptal Görevlerim",
+      "rejected": "İptal/İade Görevlerim",
       "all": "Tüm Görevlerim",
       "empty": "{{view}} bulunmuyor"
     },
@@ -459,6 +531,11 @@
     "assign": "Ata",
     "claim": "Üstlen",
     "complete": "Tamamla",
+    "return": "İade Et",
+    "returnTitle": "Görevi İade Et",
+    "returnHelp": "Görevi iade etmek için açıklama yazınız.",
+    "returnReason": "İade Açıklaması",
+    "returnReasonPlaceholder": "İade nedenini açıklayınız...",
     "close": "Kapat",
     "assignedTo": "Atanan",
     "department": "Müdürlük",
@@ -470,6 +547,11 @@
     "draftUser": "Kullanıcı",
     "userSearchPlaceholder": "Kullanıcı ara",
     "userSearchEmpty": "Eşleşen kullanıcı bulunamadı",
+    "staff": {
+      "filterLabel": "Personel",
+      "allStaff": "Tüm Personel",
+      "empty": "{{staff}} için görev bulunmuyor"
+    },
     "sourceLabels": {
       "internalIncoming": "Birim İçi Gelen",
       "externalIncoming": "Birim Dışı Gelen",
@@ -581,6 +663,55 @@
     "ldapUseSsl": "SSL / LDAPS kullan",
     "ldapIgnoreCertificateErrors": "Sertifika hatalarını yoksay",
     "ldapSaveSuccess": "LDAP ayarları kaydedildi.",
+    "workingHours": {
+      "sectionTitle": "Mesai Saatleri",
+      "sectionDescription": "Varsayılan mesai saatlerini ve birim bazlı istisnaları yönetin.",
+      "defaultScheduleTitle": "Varsayılan Mesai Saatleri",
+      "alwaysOpen": "7/24 Açık",
+      "alwaysOpenHelp": "Bu birim 7 gün 24 saat hizmet vermektedir.",
+      "days": {
+        "0": "Pazar",
+        "1": "Pazartesi",
+        "2": "Salı",
+        "3": "Çarşamba",
+        "4": "Perşembe",
+        "5": "Cuma",
+        "6": "Cumartesi"
+      },
+      "from": "Açılış",
+      "to": "Kapanış",
+      "closed": "Kapalı",
+      "addOverride": "Birim İstisnası Ekle",
+      "overrideTitle": "Birim Bazlı İstisnalar",
+      "overrideHelp": "Varsayılan mesai saatlerinden farklı çalışan birimler için özel mesai tanımlayın.",
+      "selectDepartment": "Birim seçin...",
+      "removeOverride": "Kaldır",
+      "save": "Kaydet",
+      "saved": "Mesai saatleri kaydedildi."
+    },
+    "sms": {
+      "sectionTitle": "SMS API",
+      "sectionDescription": "Sistemin SMS göndermesi için kullanılacak API ayarlarını yapılandırın.",
+      "isEnabled": "SMS Gönderimi Aktif",
+      "provider": "SMS Sağlayıcısı",
+      "providers": {
+        "NetGSM": "NetGSM",
+        "Iletimerkezi": "İletimerkezi",
+        "Verimor": "Verimor",
+        "Custom": "Özel (Custom)"
+      },
+      "apiUrl": "API URL",
+      "apiUrlPlaceholder": "https://api.example.com/sms/send",
+      "username": "Kullanıcı Adı / API Anahtarı",
+      "password": "Şifre / API Gizli Anahtarı",
+      "passwordPlaceholder": "Kayıtlı şifreyi değiştirmek için girin",
+      "clearPassword": "Kayıtlı şifreyi sil",
+      "originator": "Gönderici Adı",
+      "originatorPlaceholder": "BELEDIYE",
+      "originatorHelp": "SMS'lerde görünecek gönderici adı veya numarası (max 11 karakter).",
+      "save": "Kaydet",
+      "saved": "SMS API ayarları kaydedildi."
+    },
     "ldapTestConnectivity": "Bağlantı Testi",
     "ldapTestUserCredentials": "Kullanıcı Girişi Testi",
     "ldapTestSuccess": "Bağlantı başarılı.",
@@ -642,11 +773,15 @@
       "facebook": "Facebook",
       "instagram": "Instagram",
       "whatsapp": "WhatsApp",
+      "edevlet": "e-Devlet",
+      "email": "E-posta (IMAP/SMTP)",
       "descriptions": {
         "x": "X üzerinden gelen şikayet, mention ve DM akışlarını yönetin.",
         "facebook": "Facebook sayfa mesajları ve yorumları için erişim bilgilerini yapılandırın.",
         "instagram": "Instagram Business hesabını bağlayıp DM ve mention akışlarını yönetin.",
-        "whatsapp": "WhatsApp Business entegrasyonu için tenant bazlı erişim bilgilerini tanımlayın."
+        "whatsapp": "WhatsApp Business entegrasyonu için tenant bazlı erişim bilgilerini tanımlayın.",
+        "edevlet": "e-Devlet Kapısı servis erişimi için OAuth ve yönlendirme bilgilerini tanımlayın.",
+        "email": "IMAP ile gelen e-postaları vatandaş talebi olarak alın ve SMTP ile yanıt gönderin."
       },
       "fields": {
         "x": {
@@ -673,6 +808,25 @@
           "phoneNumberId": "Phone Number ID",
           "accessToken": "Access Token",
           "webhookVerifyToken": "Webhook Verify Token"
+        },
+        "edevlet": {
+          "clientId": "Client ID",
+          "clientSecret": "Client Secret",
+          "redirectUri": "Redirect URI",
+          "authorizationEndpoint": "Yetkilendirme Endpoint",
+          "tokenEndpoint": "Token Endpoint",
+          "scope": "Scope"
+        },
+        "email": {
+          "imapHost": "IMAP Sunucu",
+          "imapPort": "IMAP Port (örn. 993)",
+          "imapUser": "IMAP Kullanıcı Adı",
+          "imapPassword": "IMAP Parola",
+          "folder": "Klasör (varsayılan: INBOX)",
+          "smtpHost": "SMTP Sunucu",
+          "smtpPort": "SMTP Port (örn. 587)",
+          "smtpUser": "SMTP Kullanıcı Adı",
+          "smtpPassword": "SMTP Parola"
         }
       }
     },
@@ -768,7 +922,8 @@
     "priority": {
       "Low": "Düşük",
       "Normal": "Normal",
-      "High": "Yüksek"
+      "High": "Yüksek",
+      "VeryHigh": "Çok Yüksek"
     },
     "socialStatus": {
       "New": "Yeni",
@@ -784,6 +939,7 @@
       "Facebook": "Facebook",
       "Instagram": "Instagram",
       "WhatsApp": "WhatsApp",
+      "Phone": "Çağrı",
       "Other": "Diğer"
     },
     "departmentType": {
@@ -802,7 +958,56 @@
       "TaskClosed": "İş kapatıldı",
       "TaskAssigned": "İş atandı",
       "SocialMessageRouted": "Mesaj yönlendirildi",
-      "SocialMessageConverted": "Mesaj işe dönüştürüldü"
+      "SocialMessageConverted": "Mesaj işe dönüştürüldü",
+      "JobCreated": "Talep oluşturuldu",
+      "JobUpdated": "Talep güncellendi",
+      "JobDeleted": "Talep silindi",
+      "JobCancelled": "Talep iptal edildi",
+      "JobOwnerApproved": "Sahip onayı verildi",
+      "JobOwnerRejected": "Sahip onayı reddedildi",
+      "JobTargetApproved": "Hedef onayı verildi",
+      "JobTargetRejected": "Hedef onayı reddedildi",
+      "JobReturnRequested": "Talep iade edildi",
+      "TaskClaimedFromPool": "Görev havuzdan alındı",
+      "TaskCloseApproved": "Görev kapatma onaylandı",
+      "TaskCloseRejected": "Görev kapatma reddedildi",
+      "TaskProgressUpdated": "İlerleme güncellendi",
+      "TaskRevisionRequested": "Revizyon talep edildi",
+      "TaskRevisionApproved": "Revizyon onaylandı",
+      "TaskRevisionRejected": "Revizyon reddedildi",
+      "DepartmentCreated": "Müdürlük oluşturuldu",
+      "DepartmentUpdated": "Müdürlük güncellendi",
+      "DepartmentDeleted": "Müdürlük silindi",
+      "DirectorySyncRequested": "Dizin senkronizasyonu istendi",
+      "JobSupportAdded": "Destek kaydı eklendi"
+    },
+    "auditLog": {
+      "title": "Denetim İzi",
+      "subtitle": "Bu kayda ait tüm işlem geçmişi",
+      "empty": "Henüz denetim kaydı bulunmuyor",
+      "columns": {
+        "action": "İşlem",
+        "actor": "Kullanıcı",
+        "status": "Durum",
+        "notes": "Notlar",
+        "date": "Tarih"
+      },
+      "noteKeys": {
+        "Status": "Durum",
+        "Targets": "Hedefler",
+        "OwnerUsers": "Sahip kullanıcılar",
+        "AssignedUser": "Atanan kullanıcı",
+        "CreatedTasks": "Oluşan görevler",
+        "Dept": "Müdürlük",
+        "Title": "Başlık"
+      },
+      "notePhrases": {
+        "assignedTo": "Atanan",
+        "assignedToUser": "Atanan kullanıcı",
+        "unassignedPool": "Atanmamış (havuz)",
+        "titleUpdated": "Başlık güncellendi",
+        "jobDeleted": "'{{title}}' talebi silindi."
+      }
     },
     "userSource": {
       "Manual": "Yerel",
@@ -815,12 +1020,13 @@
     },
     "jobStatus": {
       "Draft": "Taslak",
-      "PendingOwnerApproval": "Sahip Onayı Bekliyor",
+      "PendingOwnerApproval": "Yönetici Onayı Bekliyor",
       "PendingExternalApproval": "Hedef Onayı Bekliyor",
       "Active": "Aktif",
       "Completed": "Tamamlandı",
       "Rejected": "Reddedildi",
-      "Cancelled": "İptal"
+      "Cancelled": "İptal",
+      "RevisionRequested": "İade Edildi"
     },
     "jobRequestType": {
       "InternalUnit": "Birim İçi",
@@ -832,6 +1038,7 @@
     "subtitle": "Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.",
     "myRequestsKicker": "Talep Takibi",
     "myRequestsSubtitle": "Oluşturduğunuz talepleri durumlarına göre takip edin.",
+    "outgoingSubtitle": "Biriminizden diğer birimlere gönderilen talepleri durumlarına göre takip edin.",
     "empty": "Hiç iş bulunamadı",
     "departmentsMore": "+{{count}} müdürlük",
     "scopes": {
@@ -840,7 +1047,7 @@
       "pendingApproval": "Onay Bekleyen",
       "departmentPool": "Onaylanmış Talepler",
       "rejected": "İptal/Red Edilen",
-      "pendingOwnerApproval": "Sahip Onayı Bekleyen",
+      "pendingOwnerApproval": "Yönetici Onayı Bekleyen",
       "pendingExternalApproval": "Hedef Onayı Bekleyen",
       "active": "Aktif",
       "all": "Tümü"
@@ -849,19 +1056,28 @@
       "created": "Oluşturduğum Talepler",
       "pending": "Bekleyen Taleplerim",
       "approved": "Onaylanmış Taleplerim",
-      "rejected": "Reddedilen/İptal Taleplerim",
+      "completed": "Tamamlanmış Taleplerim",
+      "rejected": "İptal/İade Taleplerim",
       "all": "Tüm Taleplerim",
+      "empty": "{{view}} bulunmuyor"
+    },
+    "outgoingViews": {
+      "pending": "Bekleyen Talepler",
+      "approved": "Onaylanmış Talepler",
+      "inProgress": "Yapılmakta Olan Talepler",
+      "completed": "Tamamlanmış Talepler",
+      "rejected": "Reddedilen/İptal Talepler",
+      "all": "Tümü",
       "empty": "{{view}} bulunmuyor"
     },
     "columns": {
       "title": "Başlık",
-      "ownerDepartment": "Sahip Müdürlük",
-      "destination": "Gidiş Yeri",
+      "ownerDepartment": "Talep Sahibi Birim/Müdürlük",
       "departments": "Müdürlükler",
       "status": "Durum",
       "priority": "Öncelik",
       "progress": "İlerleme",
-      "project": "Proje",
+      "project": "Proje mi",
       "taskCount": "Görevler",
       "dueDate": "Son Tarih",
       "actions": "İşlemler"
@@ -872,7 +1088,13 @@
       "approveTarget": "Hedef Onayla",
       "rejectTarget": "Hedef Reddet",
       "cancel": "İptal Et",
+      "return": "İade Et",
+      "returnTitle": "Talebi İade Et",
+      "returnHelp": "Talebi iade etmek için açıklama yazınız.",
+      "returnReason": "İade Açıklaması",
+      "returnReasonPlaceholder": "İade nedenini açıklayınız...",
       "delete": "Sil",
+      "edit": "Düzenle",
       "rejectReason": "Red nedeni:",
       "cancelReason": "İptal nedeni:",
       "new": "Yeni İş",
@@ -885,13 +1107,13 @@
       "titlePlaceholder": "Örn: Park bakımı organizasyonu",
       "description": "Açıklama",
       "descriptionPlaceholder": "Detaylar...",
-      "ownerDepartment": "Sahip Müdürlük",
+      "ownerDepartment": "Görev Sahibi Birim",
+      "startDate": "Başlangıç Tarihi (opsiyonel)",
+      "dueDate": "Son Tarih (opsiyonel)",
       "priority": "Öncelik",
-      "startDate": "Başlangıç Tarihi",
-      "dueDate": "Son Tarih",
       "isProject": "Proje niteliğinde mi?",
-      "targetDepartments": "Koordine Müdürlükler (opsiyonel)",
-      "targetDepartmentsHelp": "Birden fazla seçebilirsiniz.",
+      "targetDepartments": "Talebin Hangi Birime Gideceği",
+      "targetDepartmentsHelp": "Talebin gönderileceği birim(ler)i seçin.",
       "sectionMain": "Temel Bilgiler",
       "sectionSchedule": "Zaman Çizelgesi",
       "sectionTargets": "Koordinasyon"
@@ -929,6 +1151,28 @@
       "internalOutgoing": "Birim İçi Giden",
       "externalOutgoing": "Birim Dışı Giden",
       "citizenOutgoing": "Vatandaş Talebi"
+    },
+    "editModal": {
+      "title": "Talebi Düzenle"
     }
+  },
+  "attachments": {
+    "sectionTitle": "Ekler / Fotoğraflar",
+    "uploadLabel": "Fotoğraf Ekle",
+    "uploadHint": "JPG, PNG, GIF, WebP — maks. 5 MB",
+    "dragHint": "Dosyayı buraya sürükleyin veya tıklayın",
+    "errorSize": "Dosya boyutu 5 MB'ı aşamaz.",
+    "errorType": "Sadece JPG, PNG, GIF ve WebP dosyaları yüklenebilir.",
+    "deleteConfirm": "Bu eki silmek istediğinize emin misiniz?",
+    "uploading": "Yükleniyor..."
+  },
+  "location": {
+    "label": "Konum (İsteğe Bağlı)",
+    "latPlaceholder": "Enlem (ör. 41.0082)",
+    "lngPlaceholder": "Boylam (ör. 28.9784)",
+    "useCurrentTitle": "Mevcut konumu kullan",
+    "mapPreview": "Konum Önizleme",
+    "mapSectionTitle": "Konum",
+    "mapTitle": "Konum Haritası"
   }
 }

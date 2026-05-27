@@ -6,6 +6,8 @@ import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
+import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
@@ -15,7 +17,9 @@ import {
   PAGE_ACCESS_ITEMS,
   ROLE_CODES,
   loadRolePageAccessMatrix,
+  parseRolePageAccessMatrix,
   saveRolePageAccessMatrix,
+  serializeRolePageAccessMatrix,
   type PageAccessKey,
   type RoleCode,
   type RolePageAccessMatrix,
@@ -28,12 +32,14 @@ import type {
   TenantAuthenticationPolicy,
   TenantLdapSettings,
   TenantSettings,
-  User,
+  WorkingHoursSettings,
+  SmsSettings,
+  SmsSettingsUpdate,
 } from '../types/platform'
 import { getDeploymentModeLabel, getRoleLabel } from '../utils/localization'
 
-type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'citizen'
-type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp'
+type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'citizen' | 'templates'
+type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
 
@@ -95,6 +101,37 @@ const CHANNELS: ChannelConfig[] = [
       { key: 'webhookVerifyToken', labelKey: 'settings.socialConfig.fields.whatsapp.webhookVerifyToken' },
     ],
   },
+  {
+    id: 'edevlet',
+    titleKey: 'settings.socialConfig.edevlet',
+    descriptionKey: 'settings.socialConfig.descriptions.edevlet',
+    statusKey: 'eDevlet',
+    fields: [
+      { key: 'clientId', labelKey: 'settings.socialConfig.fields.edevlet.clientId' },
+      { key: 'clientSecret', labelKey: 'settings.socialConfig.fields.edevlet.clientSecret', secret: true },
+      { key: 'redirectUri', labelKey: 'settings.socialConfig.fields.edevlet.redirectUri' },
+      { key: 'authorizationEndpoint', labelKey: 'settings.socialConfig.fields.edevlet.authorizationEndpoint' },
+      { key: 'tokenEndpoint', labelKey: 'settings.socialConfig.fields.edevlet.tokenEndpoint' },
+      { key: 'scope', labelKey: 'settings.socialConfig.fields.edevlet.scope' },
+    ],
+  },
+  {
+    id: 'email',
+    titleKey: 'settings.socialConfig.email',
+    descriptionKey: 'settings.socialConfig.descriptions.email',
+    statusKey: 'email',
+    fields: [
+      { key: 'imapHost', labelKey: 'settings.socialConfig.fields.email.imapHost' },
+      { key: 'imapPort', labelKey: 'settings.socialConfig.fields.email.imapPort' },
+      { key: 'imapUser', labelKey: 'settings.socialConfig.fields.email.imapUser' },
+      { key: 'imapPassword', labelKey: 'settings.socialConfig.fields.email.imapPassword', secret: true },
+      { key: 'folder', labelKey: 'settings.socialConfig.fields.email.folder' },
+      { key: 'smtpHost', labelKey: 'settings.socialConfig.fields.email.smtpHost' },
+      { key: 'smtpPort', labelKey: 'settings.socialConfig.fields.email.smtpPort' },
+      { key: 'smtpUser', labelKey: 'settings.socialConfig.fields.email.smtpUser' },
+      { key: 'smtpPassword', labelKey: 'settings.socialConfig.fields.email.smtpPassword', secret: true },
+    ],
+  },
 ]
 
 const EMPTY_TENANT_SETTINGS: TenantSettings = {
@@ -106,6 +143,7 @@ const EMPTY_TENANT_SETTINGS: TenantSettings = {
   theme: null,
   domain: null,
   defaultSlaHours: 48,
+  rolePageAccessJson: null,
 }
 
 const EMPTY_TENANT_LDAP_SETTINGS: TenantLdapFormState = {
@@ -153,10 +191,49 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
   facebook: { appId: '', appSecret: '', pageAccessToken: '', pageId: '', webhookVerifyToken: '' },
   instagram: { accountId: '', accessToken: '', linkedPageId: '' },
   whatsapp: { businessAccountId: '', phoneNumberId: '', accessToken: '', webhookVerifyToken: '' },
+  edevlet: { clientId: '', clientSecret: '', redirectUri: '', authorizationEndpoint: '', tokenEndpoint: '', scope: '' },
+  email: { imapHost: '', imapPort: '', imapUser: '', imapPassword: '', folder: '', smtpHost: '', smtpPort: '', smtpUser: '', smtpPassword: '' },
 }
 
+interface MessageTemplate {
+  id: string
+  name: string
+  content: string
+  isActive: boolean
+  channel: string
+  isGeneral: boolean
+  autoReply: boolean
+  replyDelaySecs: number
+  hasKeyword: boolean
+  queryType: string
+  keywords: string[]
+}
+
+const TEMPLATE_CHANNEL_OPTIONS = ['Genel', 'WhatsApp', 'Facebook', 'Instagram', 'X', 'Phone', 'Other']
+const TEMPLATE_REPLY_DELAY_OPTIONS = [10, 30, 60, 120, 300]
+
+const EMPTY_TEMPLATE_FORM: Omit<MessageTemplate, 'id'> = {
+  name: '', content: '', isActive: true, channel: 'Genel',
+  isGeneral: false, autoReply: false, replyDelaySecs: 30,
+  hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [],
+}
+
+const TEMPLATE_STORAGE_KEY = 'ccc_message_templates'
+
+const SEED_TEMPLATES: MessageTemplate[] = [
+  { id: 'seed-1', name: 'KVKK Hoşgeldiniz', channel: 'Genel', isActive: true, isGeneral: true, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Tire Belediyesi İletişim Merkezine hoşgeldiniz. Tire Belediyesi olarak kişisel verilerinizi önemsiyoruz. KVKK bilgilendirmesi için "https://tire.bel.tr/tr/Kurumsal/AydinlatmaMetni" linkine tıklayarak KVKK Aydınlatma Metnine ulaşabilirsiniz. İstek, talep ve şikâyetlerinizin kayıt altına alınabilmesi için Ad, Soyad, Telefon ve adres bilgilerinizi yazabilir misiniz?' },
+  { id: 'seed-2', name: 'Eksik Bilgi', channel: 'Genel', isActive: true, isGeneral: false, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Değerli hemşehrimiz, taleplerinizde adınız soyadınız telefon numaranız talebinizin bulunduğu açık adresi ile birlikte talebinizi belirtmeniz gerektiğini lütfen unutmayınız. Eksik bilgi nedeniyle talebiniz oluşturulamamış olup, lütfen yeniden talep oluşturunuz.' },
+  { id: 'seed-3', name: 'Talep İletildi', channel: 'Genel', isActive: true, isGeneral: false, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Merhaba, talebiniz ilgili Birime iletilmiştir. İlginize teşekkür eder. İyi günler dileriz.' },
+  { id: 'seed-4', name: 'Mesai Saati', channel: 'Genel', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['mesai', 'çalışma saati', 'saat'], content: 'Tire Belediyesi İletişim Merkezi\'ne hoş geldiniz. İletişim Merkezi, hafta içi her gün 08:30 - 17:30 saatleri arasında hizmet vermektedir. Acil durumlar için 444 35 03 numaramızı arayarak talebinizi bize 7/24 iletebilirsiniz. İyi günler dileriz.' },
+  { id: 'seed-5', name: 'Nöbetçi Eczane', channel: 'Genel', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['eczane', 'nöbetçi eczane'], content: 'Merhaba, nöbetçi eczane listesine https://tire.bel.tr/tr/HizmetRehberi/NobetciEczaneler linkinden ulaşabilirsiniz. Geçmiş olsun dileklerimizi iletir, iyi günler dileriz.' },
+  { id: 'seed-6', name: 'Toptepe Rezervasyon', channel: 'WhatsApp', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['toptepe aile restaurant', 'Toptepe Aile Gazinosu', 'toptepe restoran', 'toptepe restorant'], content: 'Merhabalar mesajınız için teşekkür ederiz. Toptepe Aile Restoranımızın bilgi alma ve rezervasyon numarası: 0232 270 1261. Bizimle iletişime geçtiğiniz için teşekkür ederiz. Tekrar görüşmek dileğiyle.' },
+  { id: 'seed-7', name: 'Gölet Restoran', channel: 'WhatsApp', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['gölet restoran', 'gölet'], content: 'Merhabalar mesajınız için teşekkür ederiz. Gölet Restoran\'ımızın bilgi alma ve rezervasyon numarası: 0232 270 1260. Bizimle iletişime geçtiğiniz için teşekkür ederiz. Tekrar görüşmek dileğiyle.' },
+  { id: 'seed-8', name: 'Derekahve Kafe', channel: 'WhatsApp', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['derekahve', 'dere kahve', 'kafe'], content: 'Merhabalar mesajınız için teşekkür ederiz. Derekahve Kafe için bilgi alma ve rezervasyon numarası: 0232 270 1262. Bizimle iletişime geçtiğiniz için teşekkür ederiz. Tekrar görüşmek dileğiyle.' },
+  { id: 'seed-9', name: 'Acil İletişim', channel: 'Genel', isActive: true, isGeneral: false, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Tire Belediyesi İletişim Merkezi\'ne hoş geldiniz. İletişim Merkezi, hafta içi her gün 08:30 - 17:30 saatleri arasında hizmet vermektedir. Acil durumlar için 444 35 03 numaramızı arayarak talebinizi bize 7/24 iletebilirsiniz. İyi günler dileriz.' },
+]
+
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'citizen' ? tab : 'tenant'
+  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'citizen' || tab === 'templates' ? tab : 'tenant'
 }
 
 function splitLines(value: string): string[] {
@@ -178,8 +255,6 @@ export function SettingsPage() {
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
   const [routingConfig, setRoutingConfig] = useState<RoutingConfig | null>(null)
   const [departments, setDepartments] = useState<Department[]>([])
-  const [users, setUsers] = useState<User[]>([])
-  const [deptManagerEditing, setDeptManagerEditing] = useState<string | null>(null)
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
     primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
@@ -212,6 +287,26 @@ export function SettingsPage() {
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => loadRolePageAccessMatrix())
+  const [workingHoursForm, setWorkingHoursForm] = useState<WorkingHoursSettings | null>(null)
+  const [smsSettings, setSmsSettings] = useState<SmsSettings | null>(null)
+  const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
+    isEnabled: false, provider: 'NetGSM', apiUrl: null,
+    username: null, password: null, clearPassword: false, originator: null,
+  })
+  const [templates, setTemplates] = useState<MessageTemplate[]>(() => {
+    try {
+      const stored = window.localStorage.getItem(TEMPLATE_STORAGE_KEY)
+      if (stored) return JSON.parse(stored) as MessageTemplate[]
+    } catch {
+      return SEED_TEMPLATES
+    }
+    return SEED_TEMPLATES
+  })
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
+  const [templateForm, setTemplateForm] = useState<Omit<MessageTemplate, 'id'>>(EMPTY_TEMPLATE_FORM)
+  const [isNewTemplate, setIsNewTemplate] = useState(false)
+  const [keywordInput, setKeywordInput] = useState('')
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   useEffect(() => {
     if (!user?.tenantId) {
@@ -228,9 +323,10 @@ export function SettingsPage() {
       api.getSocialSettingsStatus(),
       api.getRoutingConfig(),
       api.getDepartments(),
-      api.getUsers(),
+      api.getWorkingHours(user.tenantId),
+      api.getSmsSettings(user.tenantId),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, usersResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse]) => {
         if (!isActive) {
           return
         }
@@ -252,6 +348,9 @@ export function SettingsPage() {
         }
 
         setTenantSettings(tenantResponse)
+        const nextRolePageAccess = parseRolePageAccessMatrix(tenantResponse.rolePageAccessJson) ?? loadRolePageAccessMatrix()
+        setRolePageAccess(nextRolePageAccess)
+        saveRolePageAccessMatrix(nextRolePageAccess)
         setTenantLdapSettings({
           ...ldapResponse,
           bindPassword: '',
@@ -263,7 +362,17 @@ export function SettingsPage() {
         setSocialStatus(socialResponse)
         setRoutingConfig(routingResponse)
         setDepartments(departmentResponse)
-        setUsers(usersResponse)
+        setWorkingHoursForm(workingHoursResponse)
+        setSmsSettings(smsResponse)
+        setSmsForm({
+          isEnabled: smsResponse.isEnabled,
+          provider: smsResponse.provider,
+          apiUrl: smsResponse.apiUrl,
+          username: smsResponse.username,
+          password: null,
+          clearPassword: false,
+          originator: smsResponse.originator,
+        })
       })
       .catch(loadError => {
         if (isActive) {
@@ -308,15 +417,39 @@ export function SettingsPage() {
     }))
   }
 
-  const saveRolePages = () => {
-    saveRolePageAccessMatrix(rolePageAccess)
-    setMessage({ type: 'success', text: t('settings.roles.saveSuccess') })
+  const saveRolePages = async () => {
+    if (!user?.tenantId) {
+      return
+    }
+
+    setMessage(null)
+    try {
+      const matrixJson = serializeRolePageAccessMatrix(rolePageAccess)
+      await api.updateRolePageAccess(user.tenantId, matrixJson)
+      saveRolePageAccessMatrix(rolePageAccess)
+      setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
+      setMessage({ type: 'success', text: t('settings.roles.saveSuccess') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
   }
 
-  const resetRolePages = () => {
-    setRolePageAccess(DEFAULT_ROLE_PAGE_ACCESS)
-    saveRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
-    setMessage({ type: 'success', text: t('settings.roles.resetSuccess') })
+  const resetRolePages = async () => {
+    if (!user?.tenantId) {
+      return
+    }
+
+    setMessage(null)
+    try {
+      const matrixJson = serializeRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
+      await api.updateRolePageAccess(user.tenantId, matrixJson)
+      setRolePageAccess(DEFAULT_ROLE_PAGE_ACCESS)
+      saveRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
+      setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
+      setMessage({ type: 'success', text: t('settings.roles.resetSuccess') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
   }
 
   const refreshRouting = async () => setRoutingConfig(await api.getRoutingConfig())
@@ -407,6 +540,39 @@ export function SettingsPage() {
         clearBindPassword: false,
       })
       setMessage({ type: 'success', text: t('settings.ldapSaveSuccess') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveWorkingHours = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId || !workingHoursForm) {
+      return
+    }
+
+    setMessage(null)
+    try {
+      await api.updateWorkingHours(user.tenantId, workingHoursForm)
+      setMessage({ type: 'success', text: t('settings.workingHours.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveSmsSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) {
+      return
+    }
+
+    setMessage(null)
+    try {
+      await api.updateSmsSettings(user.tenantId, smsForm)
+      const refreshed = await api.getSmsSettings(user.tenantId)
+      setSmsSettings(refreshed)
+      setSmsForm(current => ({ ...current, password: null, clearPassword: false }))
+      setMessage({ type: 'success', text: t('settings.sms.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -532,19 +698,21 @@ export function SettingsPage() {
     setShowRuleForm(true)
   }
 
-  const removeRule = async (ruleId: string) => {
-    if (!window.confirm(t('settings.routing.deleteConfirm'))) {
-      return
-    }
-
-    setMessage(null)
-    try {
-      await api.deleteRoutingRule(ruleId)
-      setMessage({ type: 'success', text: t('settings.routing.deleted') })
-      await refreshRouting()
-    } catch (deleteError) {
-      setMessage({ type: 'error', text: deleteError instanceof Error ? deleteError.message : t('common.error') })
-    }
+  const removeRule = (ruleId: string) => {
+    setConfirmDialog({
+      message: t('settings.routing.deleteConfirm'),
+      variant: 'destructive',
+      onConfirm: async () => {
+        setMessage(null)
+        try {
+          await api.deleteRoutingRule(ruleId)
+          setMessage({ type: 'success', text: t('settings.routing.deleted') })
+          await refreshRouting()
+        } catch (deleteError) {
+          setMessage({ type: 'error', text: deleteError instanceof Error ? deleteError.message : t('common.error') })
+        }
+      },
+    })
   }
 
   const testRouting = async () => {
@@ -578,22 +746,6 @@ export function SettingsPage() {
       setMessage({ type: 'error', text: submitError instanceof Error ? submitError.message : t('common.error') })
     } finally {
       setCitizenFormSaving(false)
-    }
-  }
-
-  const assignDepartmentManager = async (dept: Department, managerId: string | null) => {
-    try {
-      const updated = await api.updateDepartment(dept.departmentId, {
-        name: dept.name,
-        departmentType: dept.departmentType,
-        managerUserId: managerId,
-        responsibleUserIds: dept.responsibleUserIds ?? [],
-      })
-      setDepartments(current => current.map(d => d.departmentId === updated.departmentId ? updated : d))
-      setDeptManagerEditing(null)
-      setMessage({ type: 'success', text: t('settings.departments.managerSaved', 'Müdür güncellendi.') })
-    } catch (err) {
-      setMessage({ type: 'error', text: err instanceof Error ? err.message : t('common.error') })
     }
   }
 
@@ -642,6 +794,69 @@ export function SettingsPage() {
     }
   }
 
+  const persistTemplates = (next: MessageTemplate[]) => {
+    setTemplates(next)
+    window.localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(next))
+  }
+
+  const selectTemplate = (tpl: MessageTemplate) => {
+    setSelectedTemplateId(tpl.id)
+    const { id: _id, ...rest } = tpl
+    void _id
+    setTemplateForm(rest)
+    setKeywordInput('')
+    setIsNewTemplate(false)
+  }
+
+  const startNewTemplate = () => {
+    setSelectedTemplateId(null)
+    setTemplateForm(EMPTY_TEMPLATE_FORM)
+    setKeywordInput('')
+    setIsNewTemplate(true)
+  }
+
+  const addKeyword = () => {
+    const kw = keywordInput.trim()
+    if (!kw || templateForm.keywords.includes(kw)) return
+    setTemplateForm(cur => ({ ...cur, keywords: [...cur.keywords, kw] }))
+    setKeywordInput('')
+  }
+
+  const removeKeyword = (kw: string) => {
+    setTemplateForm(cur => ({ ...cur, keywords: cur.keywords.filter(k => k !== kw) }))
+  }
+
+  const saveTemplate = (event: FormEvent) => {
+    event.preventDefault()
+    setMessage(null)
+    if (!templateForm.name.trim() || !templateForm.content.trim()) return
+    if (isNewTemplate) {
+      const newTpl: MessageTemplate = { id: `tpl-${Date.now()}`, ...templateForm, name: templateForm.name.trim(), content: templateForm.content.trim() }
+      persistTemplates([...templates, newTpl])
+      setSelectedTemplateId(newTpl.id)
+      setIsNewTemplate(false)
+    } else if (selectedTemplateId) {
+      persistTemplates(templates.map(t => t.id === selectedTemplateId ? { ...t, ...templateForm, name: templateForm.name.trim(), content: templateForm.content.trim() } : t))
+    }
+    setMessage({ type: 'success', text: 'Şablon kaydedildi.' })
+  }
+
+  const deleteTemplate = (id: string) => {
+    setConfirmDialog({
+      message: 'Bu şablonu silmek istediğinizden emin misiniz?',
+      variant: 'destructive',
+      onConfirm: () => {
+        persistTemplates(templates.filter(tmpl => tmpl.id !== id))
+        if (selectedTemplateId === id) {
+          setSelectedTemplateId(null)
+          setTemplateForm(EMPTY_TEMPLATE_FORM)
+          setIsNewTemplate(false)
+        }
+        setMessage({ type: 'success', text: 'Şablon silindi.' })
+      },
+    })
+  }
+
   if (loading) {
     return <div className="loading">{t('common.loading')}</div>
   }
@@ -652,12 +867,15 @@ export function SettingsPage() {
 
   return (
     <div className="page-stack desktop-page-shell">
-      <header className="page-header-row">
-        <div className="space-y-2">
-          <h1 className="page-title">{t('settings.title')}</h1>
-          <p className="page-subtitle">{t('settings.subtitle')}</p>
+      <header className="sticky-page-header">
+        <div className="page-header-row">
+          <div className="space-y-1">
+            <div className="page-kicker">{t('nav.settings', 'Yönetim')}</div>
+            <h1 className="page-title">{t('settings.title')}</h1>
+            <p className="page-subtitle">{t('settings.subtitle')}</p>
+          </div>
+          <StatusPill tone="success" className="banner-status-pill">{institutionName}</StatusPill>
         </div>
-        <StatusPill tone="success">{institutionName}</StatusPill>
       </header>
 
       <div className="tab-bar">
@@ -678,6 +896,9 @@ export function SettingsPage() {
         </button>
         <button className={`tab-button ${activeTab === 'citizen' ? 'active' : ''}`} onClick={() => setTab('citizen')} type="button">
           {t('settings.tabs.citizen')}
+        </button>
+        <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
+          Taslak Mesajlar
         </button>
       </div>
 
@@ -743,6 +964,293 @@ export function SettingsPage() {
               </form>
             </section>
           </div>
+
+          <form className="section-card page-stack" onSubmit={event => void saveWorkingHours(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.workingHours.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.workingHours.sectionDescription')}</p>
+              </div>
+            </div>
+            {workingHoursForm && (
+              <>
+                <div className="page-stack">
+                  <h3 className="text-base font-bold text-slate-800">{t('settings.workingHours.defaultScheduleTitle')}</h3>
+                  <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                    <input
+                      className="field-checkbox"
+                      type="checkbox"
+                      checked={workingHoursForm.default.isAlwaysOpen}
+                      onChange={event =>
+                        setWorkingHoursForm(current => current ? { ...current, default: { ...current.default, isAlwaysOpen: event.target.checked } } : current)
+                      }
+                    />
+                    {t('settings.workingHours.alwaysOpen')}
+                  </label>
+                  {workingHoursForm.default.isAlwaysOpen ? (
+                    <p className="helper-copy">{t('settings.workingHours.alwaysOpenHelp')}</p>
+                  ) : (
+                    <div className="grid gap-2">
+                      {workingHoursForm.default.schedule.map(daySchedule => (
+                        <div key={daySchedule.day} className="grid grid-cols-[120px_1fr_1fr] gap-3 items-center">
+                          <span className="text-sm font-semibold text-slate-700">{t(`settings.workingHours.days.${daySchedule.day}`)}</span>
+                          {daySchedule.from !== null || daySchedule.to !== null ? (
+                            <>
+                              <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                                <span>{t('settings.workingHours.from')}</span>
+                                <input
+                                  className="field-input"
+                                  type="time"
+                                  value={daySchedule.from ?? ''}
+                                  onChange={event => setWorkingHoursForm(current => current ? {
+                                    ...current,
+                                    default: {
+                                      ...current.default,
+                                      schedule: current.default.schedule.map(s => s.day === daySchedule.day ? { ...s, from: event.target.value || null } : s),
+                                    },
+                                  } : current)}
+                                />
+                              </label>
+                              <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                                <span>{t('settings.workingHours.to')}</span>
+                                <input
+                                  className="field-input"
+                                  type="time"
+                                  value={daySchedule.to ?? ''}
+                                  onChange={event => setWorkingHoursForm(current => current ? {
+                                    ...current,
+                                    default: {
+                                      ...current.default,
+                                      schedule: current.default.schedule.map(s => s.day === daySchedule.day ? { ...s, to: event.target.value || null } : s),
+                                    },
+                                  } : current)}
+                                />
+                              </label>
+                            </>
+                          ) : (
+                            <span className="col-span-2 text-sm text-slate-400">{t('settings.workingHours.closed')}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="page-stack">
+                  <div className="page-header-row">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800">{t('settings.workingHours.overrideTitle')}</h3>
+                      <p className="helper-copy">{t('settings.workingHours.overrideHelp')}</p>
+                    </div>
+                  </div>
+                  {workingHoursForm.departmentOverrides.map(override => (
+                    <div key={override.departmentId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 page-stack">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-slate-800">{override.departmentName ?? override.departmentId}</span>
+                        <button
+                          type="button"
+                          className="text-xs font-semibold text-red-600 hover:underline"
+                          onClick={() => setWorkingHoursForm(current => current ? { ...current, departmentOverrides: current.departmentOverrides.filter(o => o.departmentId !== override.departmentId) } : current)}
+                        >
+                          {t('settings.workingHours.removeOverride')}
+                        </button>
+                      </div>
+                      <label className="inline-flex items-center gap-3 text-sm font-semibold text-slate-700">
+                        <input
+                          className="field-checkbox"
+                          type="checkbox"
+                          checked={override.isAlwaysOpen}
+                          onChange={event => setWorkingHoursForm(current => current ? {
+                            ...current,
+                            departmentOverrides: current.departmentOverrides.map(o => o.departmentId === override.departmentId ? { ...o, isAlwaysOpen: event.target.checked } : o),
+                          } : current)}
+                        />
+                        {t('settings.workingHours.alwaysOpen')}
+                      </label>
+                      {!override.isAlwaysOpen && (
+                        <div className="grid gap-2">
+                          {override.schedule.map(daySchedule => (
+                            <div key={daySchedule.day} className="grid grid-cols-[120px_1fr_1fr] gap-3 items-center">
+                              <span className="text-sm font-semibold text-slate-700">{t(`settings.workingHours.days.${daySchedule.day}`)}</span>
+                              {daySchedule.from !== null || daySchedule.to !== null ? (
+                                <>
+                                  <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                                    <span>{t('settings.workingHours.from')}</span>
+                                    <input
+                                      className="field-input"
+                                      type="time"
+                                      value={daySchedule.from ?? ''}
+                                      onChange={event => setWorkingHoursForm(current => current ? {
+                                        ...current,
+                                        departmentOverrides: current.departmentOverrides.map(o => o.departmentId === override.departmentId ? {
+                                          ...o,
+                                          schedule: o.schedule.map(s => s.day === daySchedule.day ? { ...s, from: event.target.value || null } : s),
+                                        } : o),
+                                      } : current)}
+                                    />
+                                  </label>
+                                  <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                                    <span>{t('settings.workingHours.to')}</span>
+                                    <input
+                                      className="field-input"
+                                      type="time"
+                                      value={daySchedule.to ?? ''}
+                                      onChange={event => setWorkingHoursForm(current => current ? {
+                                        ...current,
+                                        departmentOverrides: current.departmentOverrides.map(o => o.departmentId === override.departmentId ? {
+                                          ...o,
+                                          schedule: o.schedule.map(s => s.day === daySchedule.day ? { ...s, to: event.target.value || null } : s),
+                                        } : o),
+                                      } : current)}
+                                    />
+                                  </label>
+                                </>
+                              ) : (
+                                <span className="col-span-2 text-sm text-slate-400">{t('settings.workingHours.closed')}</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <div>
+                    <select
+                      className="field-select"
+                      value=""
+                      onChange={event => {
+                        const deptId = event.target.value
+                        if (!deptId) return
+                        const dept = departments.find(d => d.departmentId === deptId)
+                        if (!dept) return
+                        setWorkingHoursForm(current => current ? {
+                          ...current,
+                          departmentOverrides: [
+                            ...current.departmentOverrides,
+                            {
+                              departmentId: deptId,
+                              departmentName: dept.name,
+                              isAlwaysOpen: false,
+                              schedule: [
+                                { day: 1, from: '08:00', to: '17:00' },
+                                { day: 2, from: '08:00', to: '17:00' },
+                                { day: 3, from: '08:00', to: '17:00' },
+                                { day: 4, from: '08:00', to: '17:00' },
+                                { day: 5, from: '08:00', to: '17:00' },
+                                { day: 6, from: null, to: null },
+                                { day: 0, from: null, to: null },
+                              ],
+                            },
+                          ],
+                        } : current)
+                      }}
+                    >
+                      <option value="">{t('settings.workingHours.addOverride')}</option>
+                      {departments
+                        .filter(d => !workingHoursForm.departmentOverrides.some(o => o.departmentId === d.departmentId))
+                        .map(d => (
+                          <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
+                        ))}
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.workingHours.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveSmsSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.sms.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.sms.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={smsForm.isEnabled}
+                onChange={event => setSmsForm(current => ({ ...current, isEnabled: event.target.checked }))}
+              />
+              {t('settings.sms.isEnabled')}
+            </label>
+            {smsForm.isEnabled && (
+              <>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.sms.provider')}</label>
+                  <select
+                    className="field-select"
+                    value={smsForm.provider}
+                    onChange={event => setSmsForm(current => ({ ...current, provider: event.target.value as SmsSettingsUpdate['provider'] }))}
+                  >
+                    <option value="NetGSM">{t('settings.sms.providers.NetGSM')}</option>
+                    <option value="Iletimerkezi">{t('settings.sms.providers.Iletimerkezi')}</option>
+                    <option value="Verimor">{t('settings.sms.providers.Verimor')}</option>
+                    <option value="Custom">{t('settings.sms.providers.Custom')}</option>
+                  </select>
+                </div>
+                {smsForm.provider === 'Custom' && (
+                  <div className="field-row">
+                    <label className="field-label">{t('settings.sms.apiUrl')}</label>
+                    <input
+                      className="field-input"
+                      type="url"
+                      placeholder={t('settings.sms.apiUrlPlaceholder')}
+                      value={smsForm.apiUrl ?? ''}
+                      onChange={event => setSmsForm(current => ({ ...current, apiUrl: event.target.value || null }))}
+                    />
+                  </div>
+                )}
+                <div className="field-row">
+                  <label className="field-label">{t('settings.sms.username')}</label>
+                  <input
+                    className="field-input"
+                    type="text"
+                    value={smsForm.username ?? ''}
+                    onChange={event => setSmsForm(current => ({ ...current, username: event.target.value || null }))}
+                  />
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.sms.password')}</label>
+                  <input
+                    className="field-input"
+                    type="password"
+                    placeholder={t('settings.sms.passwordPlaceholder')}
+                    value={smsForm.password ?? ''}
+                    onChange={event => setSmsForm(current => ({ ...current, password: event.target.value || null }))}
+                  />
+                  {smsSettings?.hasPassword && (
+                    <label className="inline-flex items-center gap-2 text-sm text-slate-600">
+                      <input
+                        className="field-checkbox"
+                        type="checkbox"
+                        checked={smsForm.clearPassword}
+                        onChange={event => setSmsForm(current => ({ ...current, clearPassword: event.target.checked }))}
+                      />
+                      {t('settings.sms.clearPassword')}
+                    </label>
+                  )}
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.sms.originator')}</label>
+                  <input
+                    className="field-input"
+                    type="text"
+                    maxLength={11}
+                    placeholder={t('settings.sms.originatorPlaceholder')}
+                    value={smsForm.originator ?? ''}
+                    onChange={event => setSmsForm(current => ({ ...current, originator: event.target.value || null }))}
+                  />
+                  <p className="helper-copy">{t('settings.sms.originatorHelp')}</p>
+                </div>
+              </>
+            )}
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.sms.save')}</Button>
+            </div>
+          </form>
 
           <div className="grid gap-4 xl:grid-cols-2">
             <form className="section-card page-stack" onSubmit={saveTenantLdap}>
@@ -950,66 +1458,6 @@ export function SettingsPage() {
             </form>
           </div>
 
-          <section className="section-card page-stack">
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.departments.sectionTitle', 'Müdürlükler')}</h2>
-                <p className="helper-copy">{t('settings.departments.sectionDescription', 'Her müdürlüğün müdürünü buradan atayın.')}</p>
-              </div>
-            </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>{t('settings.departments.name', 'Müdürlük Adı')}</th>
-                  <th>{t('settings.departments.type', 'Tür')}</th>
-                  <th>{t('settings.departments.manager', 'Müdür')}</th>
-                  <th>{t('settings.departments.actions', 'İşlem')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {departments.map(dept => {
-                  const currentManager = users.find(u => u.userId === dept.managerUserId)
-                  const isEditing = deptManagerEditing === dept.departmentId
-                  return (
-                    <tr key={dept.departmentId}>
-                      <td>{dept.name}</td>
-                      <td>{dept.departmentType}</td>
-                      <td>
-                        {isEditing ? (
-                          <select
-                            className="field-select"
-                            defaultValue={dept.managerUserId ?? ''}
-                            onChange={async e => {
-                              const val = e.target.value || null
-                              await assignDepartmentManager(dept, val)
-                            }}
-                          >
-                            <option value="">{t('settings.departments.noManager', '— Müdür Yok —')}</option>
-                            {users.filter(u => u.isActive).map(u => (
-                              <option key={u.userId} value={u.userId}>{u.displayName}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <span>{currentManager?.displayName ?? '—'}</span>
-                        )}
-                      </td>
-                      <td className="actions-cell">
-                        {isEditing ? (
-                          <Button size="sm" variant="secondary" onClick={() => setDeptManagerEditing(null)}>
-                            {t('common.cancel', 'İptal')}
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="secondary" onClick={() => setDeptManagerEditing(dept.departmentId)}>
-                            {t('settings.departments.assignManager', 'Müdür Ata')}
-                          </Button>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </section>
         </div>
       ) : null}
 
@@ -1379,6 +1827,193 @@ export function SettingsPage() {
           </div>
         </form>
       ) : null}
+
+      {activeTab === 'templates' ? (
+        <div className="flex gap-4 min-h-[520px]">
+          <div className="flex w-64 shrink-0 flex-col gap-2">
+            <button
+              type="button"
+              onClick={startNewTemplate}
+              className="flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-primary)] px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:opacity-90"
+            >
+              + Yeni Şablon Oluştur
+            </button>
+            <div className="flex flex-col gap-0.5 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
+              {templates.map(tpl => (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  onClick={() => selectTemplate(tpl)}
+                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${selectedTemplateId === tpl.id ? 'bg-[color:var(--color-primary)]/10 font-bold text-[color:var(--color-primary)]' : 'font-medium text-slate-700 hover:bg-slate-50'}`}
+                >
+                  <span className="min-w-0 truncate">{tpl.name}</span>
+                </button>
+              ))}
+              {templates.length === 0 ? (
+                <div className="px-3 py-4 text-center text-xs text-slate-400">Henüz şablon yok</div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            {isNewTemplate || selectedTemplateId ? (
+              <form onSubmit={saveTemplate} className="section-card page-stack">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-extrabold text-slate-900">
+                    {isNewTemplate ? 'Yeni Şablon' : 'Şablonu Düzenle'}
+                  </h2>
+                  {selectedTemplateId && !isNewTemplate ? (
+                    <button
+                      type="button"
+                      onClick={() => deleteTemplate(selectedTemplateId)}
+                      className="rounded-lg px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50"
+                    >
+                      Sil
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-slate-700">Aktif</span>
+                    <button
+                      type="button"
+                      onClick={() => setTemplateForm(cur => ({ ...cur, isActive: !cur.isActive }))}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.isActive ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                      role="switch" aria-checked={templateForm.isActive}
+                    >
+                      <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.isActive ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+                  <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                    <span>Şablon Türü</span>
+                    <select className="field-select" value={templateForm.channel} onChange={e => setTemplateForm(cur => ({ ...cur, channel: e.target.value }))}>
+                      {TEMPLATE_CHANNEL_OPTIONS.map(ch => <option key={ch} value={ch}>{ch}</option>)}
+                    </select>
+                  </label>
+                </div>
+
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  <span>Şablon Adı</span>
+                  <input
+                    className="field-input"
+                    required
+                    placeholder="Şablon adını girin"
+                    value={templateForm.name}
+                    onChange={e => setTemplateForm(cur => ({ ...cur, name: e.target.value }))}
+                  />
+                </label>
+
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  <span>Gönderilecek Mesaj</span>
+                  <textarea
+                    className="field-textarea"
+                    required
+                    rows={5}
+                    placeholder="Gönderilecek mesaj içeriğini buraya yazın..."
+                    value={templateForm.content}
+                    onChange={e => setTemplateForm(cur => ({ ...cur, content: e.target.value }))}
+                  />
+                </label>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-slate-700">Genel cevap</span>
+                  <button
+                    type="button"
+                    onClick={() => setTemplateForm(cur => ({ ...cur, isGeneral: !cur.isGeneral }))}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.isGeneral ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                    role="switch" aria-checked={templateForm.isGeneral}
+                  >
+                    <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.isGeneral ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 items-end">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-slate-700">Otomatik Cevap</span>
+                    <button
+                      type="button"
+                      onClick={() => setTemplateForm(cur => ({ ...cur, autoReply: !cur.autoReply }))}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.autoReply ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                      role="switch" aria-checked={templateForm.autoReply}
+                    >
+                      <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.autoReply ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+                  {templateForm.autoReply ? (
+                    <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                      <span>Cevap Süresi</span>
+                      <select className="field-select" value={templateForm.replyDelaySecs} onChange={e => setTemplateForm(cur => ({ ...cur, replyDelaySecs: Number(e.target.value) }))}>
+                        {TEMPLATE_REPLY_DELAY_OPTIONS.map(s => <option key={s} value={s}>{s} saniye</option>)}
+                      </select>
+                    </label>
+                  ) : null}
+                </div>
+
+                <div className="border-t border-slate-100 pt-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-slate-700">Anahtar Kelime</span>
+                    <button
+                      type="button"
+                      onClick={() => setTemplateForm(cur => ({ ...cur, hasKeyword: !cur.hasKeyword }))}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.hasKeyword ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                      role="switch" aria-checked={templateForm.hasKeyword}
+                    >
+                      <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.hasKeyword ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+
+                  {templateForm.hasKeyword ? (
+                    <div className="mt-3 grid gap-2">
+                      <span className="text-sm font-semibold text-slate-700">Kelimeler</span>
+                      <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 min-h-[42px]">
+                        {templateForm.keywords.map(kw => (
+                          <span key={kw} className="flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200">
+                            {kw}
+                            <button type="button" onClick={() => removeKeyword(kw)} className="ml-0.5 text-slate-400 hover:text-rose-500">×</button>
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          className="field-input flex-1"
+                          placeholder="Kelime ekle ve Enter'a bas"
+                          value={keywordInput}
+                          onChange={e => setKeywordInput(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addKeyword() } }}
+                        />
+                        <button type="button" onClick={addKeyword} className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                          Ekle
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="inline-actions">
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedTemplateId(null); setIsNewTemplate(false) }}
+                    className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                  >
+                    İptal
+                  </button>
+                  <Button type="submit">Kaydet</Button>
+                </div>
+              </form>
+            ) : (
+              <div className="section-card flex h-full items-center justify-center text-slate-400">
+                <div className="text-center">
+                  <div className="mb-2 text-4xl">💬</div>
+                  <p className="text-sm font-semibold">Düzenlemek için soldaki listeden bir şablon seçin</p>
+                  <p className="text-xs">veya yeni şablon oluşturun</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
 }

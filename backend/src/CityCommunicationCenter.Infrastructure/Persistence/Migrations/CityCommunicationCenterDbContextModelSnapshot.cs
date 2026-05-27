@@ -17,7 +17,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -240,6 +240,71 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.ToTable("assignmenthistory", (string)null);
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Attachment", b =>
+                {
+                    b.Property<Guid>("AttachmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("attachmentid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("contenttype");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entityid");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("entitytype");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("filename");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("filesizebytes");
+
+                    b.Property<string>("RelativeUrl")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("relativeurl");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("storedfilename");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.HasKey("AttachmentId");
+
+                    b.ToTable("attachments", (string)null);
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("AuditLogId")
@@ -252,6 +317,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("action");
 
+                    b.Property<string>("ActorDisplayName")
+                        .HasColumnType("text")
+                        .HasColumnName("actordisplayname");
+
                     b.Property<Guid?>("ActorUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("actoruserid");
@@ -263,6 +332,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("createdbyuserid");
+
+                    b.Property<string>("DepartmentName")
+                        .HasColumnType("text")
+                        .HasColumnName("departmentname");
 
                     b.Property<string>("Details")
                         .HasColumnType("text")
@@ -281,6 +354,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("EventTimeUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("eventtimeutc");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("StatusAtEvent")
+                        .HasColumnType("text")
+                        .HasColumnName("statusatevent");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -415,14 +496,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("cancelreason");
 
-                    b.Property<DateTimeOffset?>("CompletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completedatutc");
-
-                    b.Property<int?>("CompletionPercentage")
-                        .HasColumnType("integer")
-                        .HasColumnName("completionpercentage");
-
                     b.Property<string>("CitizenName")
                         .HasColumnType("text")
                         .HasColumnName("citizenname");
@@ -430,6 +503,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<string>("CitizenPhone")
                         .HasColumnType("text")
                         .HasColumnName("citizenphone");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completedatutc");
+
+                    b.Property<int?>("CompletionPercentage")
+                        .HasColumnType("integer")
+                        .HasColumnName("completionpercentage");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -455,6 +536,22 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsProject")
                         .HasColumnType("boolean")
                         .HasColumnName("isproject");
+
+                    b.Property<int?>("JobNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("jobnumber");
+
+                    b.Property<int?>("JobNumberYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("jobnumberyear");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
 
                     b.Property<Guid>("OwnerDepartmentId")
                         .HasColumnType("uuid")
@@ -883,6 +980,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("jobid");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
+
                     b.Property<DateTimeOffset>("ReceivedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("receivedatutc");
@@ -1057,6 +1162,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("ldapsettingsjson");
 
+                    b.Property<string>("RolePageAccessJson")
+                        .HasColumnType("text")
+                        .HasColumnName("rolepageaccessjson");
+
+                    b.Property<string>("SmsSettingsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("smssettingsjson");
+
                     b.Property<string>("SocialSettingsJson")
                         .HasColumnType("text")
                         .HasColumnName("socialsettingsjson");
@@ -1076,6 +1189,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("updatedbyuserid");
+
+                    b.Property<string>("WorkingHoursJson")
+                        .HasColumnType("text")
+                        .HasColumnName("workinghoursjson");
 
                     b.HasKey("TenantSettingId");
 
@@ -1099,6 +1216,58 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             LdapSettingsJson = "{\"enabled\":true,\"domain\":\"tire.bel.tr\",\"userAttribute\":\"mail\"}",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         });
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.UserDepartmentAssignment", b =>
+                {
+                    b.Property<Guid>("AssignmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignmentid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("departmentid");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isprimary");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("userid");
+
+                    b.HasKey("AssignmentId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("TenantId", "UserId", "DepartmentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_userdeptassign_tenantid_userid_deptid_unique");
+
+                    b.ToTable("userdepartmentassignments", (string)null);
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkTask", b =>
@@ -1182,6 +1351,14 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("StartDateUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("startdateutc");
+
+                    b.Property<int?>("TaskNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("tasknumber");
+
+                    b.Property<int?>("TaskNumberYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("tasknumberyear");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -1412,6 +1589,25 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.UserDepartmentAssignment", b =>
+                {
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("DepartmentAssignments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkTask", b =>
                 {
                     b.HasOne("CityCommunicationCenter.Domain.Entities.Job", "Job")
@@ -1429,6 +1625,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Navigation("Job");
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("DepartmentAssignments");
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Department", b =>

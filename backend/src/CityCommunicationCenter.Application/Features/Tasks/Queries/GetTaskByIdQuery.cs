@@ -59,6 +59,13 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             .OrderBy(entity => entity.ActionDateUtc)
             .ToListAsync(cancellationToken);
 
+        var attachments = await _dbContext.Attachments
+            .AsNoTracking()
+            .Where(a => a.TenantId == tenantId && a.EntityType == "Task" && a.EntityId == request.TaskId)
+            .OrderBy(a => a.CreatedAtUtc)
+            .Select(a => new AttachmentResponse(a.AttachmentId, a.FileName, a.ContentType, a.FileSizeBytes, a.RelativeUrl, a.CreatedAtUtc))
+            .ToListAsync(cancellationToken);
+
         return new TaskDetailResponse(
             task.TaskId,
             task.TenantId,
@@ -105,6 +112,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                     entity.ActionType,
                     entity.ActionDateUtc))
                 .ToArray(),
-            ownerDisplayName);
+            ownerDisplayName,
+            attachments);
     }
 }

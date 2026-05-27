@@ -50,6 +50,9 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
             EntityId = job.JobId.ToString(),
             Action = "JobCancelled",
             ActorUserId = actor.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = JobStatus.Cancelled.ToString(),
+            Notes = request.Reason,
             Details = request.Reason
         });
 

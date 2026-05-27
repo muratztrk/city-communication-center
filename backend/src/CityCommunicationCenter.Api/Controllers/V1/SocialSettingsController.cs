@@ -69,6 +69,26 @@ public sealed class SocialSettingsController : ApiControllerBase
     }
 
     /// <summary>
+    /// Configure e-Devlet integration credentials.
+    /// </summary>
+    [HttpPost("edevlet")]
+    public async Task<ActionResult<SocialSettingsSaveResponse>> ConfigureEDevlet([FromBody] EDevletSettingsRequest request, CancellationToken ct)
+    {
+        var response = await _sender.Send(new ConfigureEDevletCommand(request), ct);
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Configure Email (IMAP/SMTP) integration credentials.
+    /// </summary>
+    [HttpPost("email")]
+    public async Task<ActionResult<SocialSettingsSaveResponse>> ConfigureEmail([FromBody] EmailSettingsRequest request, CancellationToken ct)
+    {
+        var response = await _sender.Send(new ConfigureEmailCommand(request), ct);
+        return Ok(response);
+    }
+
+    /// <summary>
     /// Test connection for a specific platform.
     /// </summary>
     [HttpPost("{channel}/test")]

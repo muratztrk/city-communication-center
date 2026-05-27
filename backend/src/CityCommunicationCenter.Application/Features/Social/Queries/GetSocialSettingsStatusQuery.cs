@@ -34,6 +34,14 @@ public sealed class GetSocialSettingsStatusQueryHandler : IQueryHandler<GetSocia
             new SocialChannelStatusResponse(
                 !string.IsNullOrEmpty(settings?.WhatsApp?.AccessToken),
                 !string.IsNullOrEmpty(settings?.WhatsApp?.PhoneNumberId),
-                !string.IsNullOrEmpty(settings?.WhatsApp?.BusinessAccountId))));
+                !string.IsNullOrEmpty(settings?.WhatsApp?.BusinessAccountId)),
+            new SocialChannelStatusResponse(
+                !string.IsNullOrEmpty(settings?.EDevlet?.ClientId) && !string.IsNullOrEmpty(settings?.EDevlet?.ClientSecret),
+                !string.IsNullOrEmpty(settings?.EDevlet?.ClientId),
+                !string.IsNullOrEmpty(settings?.EDevlet?.RedirectUri)),
+            new SocialChannelStatusResponse(
+                !string.IsNullOrEmpty(settings?.Email?.ImapHost) && !string.IsNullOrEmpty(settings?.Email?.ImapUser),
+                !string.IsNullOrEmpty(settings?.Email?.ImapHost),
+                !string.IsNullOrEmpty(settings?.Email?.ImapUser))));
     }
 }

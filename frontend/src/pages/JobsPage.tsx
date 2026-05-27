@@ -1,13 +1,57 @@
 import { useEffect, useMemo, useState } from 'react'
+import type React from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { useSearchParams } from 'react-router-dom'
+import { ClipboardPlus, Search } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
+import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { PromptDialog } from '../components/ui/prompt-dialog'
+import type { PromptDialogState } from '../components/ui/prompt-dialog'
+import { RichTextContent } from '../components/ui/RichTextContent'
+import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
+import { canRoleAccessPage } from '../lib/rolePageAccess'
 import type { JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
-import { getLocale, getPriorityLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityLabel } from '../utils/localization'
+import { TablePagination } from '../components/ui/table-pagination'
+
+interface ScopeChipFiltersProps {
+  searchText: string
+  filterYear: string
+  availableYears: string[]
+  onSearch: (v: string) => void
+  onYearChange: (v: string) => void
+}
+function ScopeChipFilters({ searchText, filterYear, availableYears, onSearch, onYearChange }: ScopeChipFiltersProps) {
+  return (
+    <div className="scope-chips-filters">
+      <div className="scope-chip-search-wrap">
+        <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
+        <input
+          type="search"
+          className="scope-chip-search-input"
+          placeholder="Ara..."
+          value={searchText}
+          onChange={e => onSearch(e.target.value)}
+        />
+      </div>
+      <select
+        className="scope-chip-year-select"
+        value={filterYear}
+        onChange={e => onYearChange(e.target.value)}
+      >
+        <option value="">Yıl Seçimi</option>
+        {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+      </select>
+    </div>
+  )
+}
 
 const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApproval' },
@@ -15,31 +59,51 @@ const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
 
-type MyRequestsView = 'created' | 'pending' | 'approved' | 'rejected' | 'all'
+type MyRequestsView = 'pending' | 'approved' | 'completed' | 'rejected' | 'all'
+type RequestFlowFilter = 'internal' | 'external' | 'all'
+type DepartmentOutgoingView = 'pending' | 'approved' | 'in-progress' | 'completed' | 'rejected' | 'all'
 
 const MY_REQUEST_VIEWS: { value: MyRequestsView; labelKey: string }[] = [
-  { value: 'created', labelKey: 'jobs.myViews.created' },
   { value: 'pending', labelKey: 'jobs.myViews.pending' },
   { value: 'approved', labelKey: 'jobs.myViews.approved' },
+  { value: 'completed', labelKey: 'jobs.myViews.completed' },
   { value: 'rejected', labelKey: 'jobs.myViews.rejected' },
   { value: 'all', labelKey: 'jobs.myViews.all' },
 ]
+
+const REQUEST_FLOW_FILTERS: { value: RequestFlowFilter; labelKey: string }[] = [
+  { value: 'internal', labelKey: 'filters.requestFlow.internal' },
+  { value: 'external', labelKey: 'filters.requestFlow.external' },
+  { value: 'all', labelKey: 'filters.requestFlow.all' },
+]
+
+const DEPARTMENT_OUTGOING_VIEWS: { value: DepartmentOutgoingView; labelKey: string }[] = [
+  { value: 'pending', labelKey: 'jobs.outgoingViews.pending' },
+  { value: 'approved', labelKey: 'jobs.outgoingViews.approved' },
+  { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress' },
+  { value: 'completed', labelKey: 'jobs.outgoingViews.completed' },
+  { value: 'rejected', labelKey: 'jobs.outgoingViews.rejected' },
+  { value: 'all', labelKey: 'jobs.outgoingViews.all' },
+]
+
+function getScopeChipColorClass(value: string): string {
+  if (value === 'pending' || value === 'pending-approval') return 'scope-chip--pending'
+  if (value === 'approved') return 'scope-chip--approved'
+  if (value === 'in-progress') return 'scope-chip--in-progress'
+  if (value === 'completed') return 'scope-chip--completed'
+  if (value === 'rejected') return 'scope-chip--rejected'
+  if (value === 'all') return 'scope-chip--all'
+  return ''
+}
+
+function isPreApprovalStatus(status: string): boolean {
+  return status === 'Draft' || status === 'PendingOwnerApproval' || status === 'PendingExternalApproval' || status === 'RevisionRequested'
+}
 
 function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
 }
 
-function getJobDirectionLabel(t: TFunction, job: JobSummary): string {
-  if (job.requestType === 'ExternalUnit') {
-    return t('jobs.directions.externalOutgoing', 'Birim Dışı Giden')
-  }
-
-  if (job.requestType === 'Citizen') {
-    return t('jobs.directions.citizenOutgoing', 'Vatandaş Talebi')
-  }
-
-  return t('jobs.directions.internalOutgoing', 'Birim İçi Giden')
-}
 
 function getDepartmentRoleTone(role: string) {
   if (role === 'Owner') return 'info' as const
@@ -52,8 +116,12 @@ function sortJobDepartments(departments: JobDepartmentInfo[]) {
   return [...departments].sort((a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9))
 }
 
+function getTargetJobDepartments(job: JobSummary) {
+  return sortJobDepartments(job.departments ?? []).filter(department => department.role === 'Target' || department.role === 'Coordinating')
+}
+
 function formatDateTime(value: string | null, locale: string) {
-  if (!value) return '—'
+  if (!value) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
   return new Date(value).toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',
@@ -63,19 +131,126 @@ function formatDateTime(value: string | null, locale: string) {
   })
 }
 
+function formatJobDisplayNumber(job: JobSummary): string {
+  if (job.jobNumber != null && job.jobNumberYear != null) {
+    return `T-${job.jobNumberYear}-${job.jobNumber}`
+  }
+  const year = job.jobNumberYear ?? new Date().getFullYear()
+  return `T-${year}-Onay Bekleyen`
+}
+
+function escHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+function printJobDetail(detail: import('../types/platform').JobDetail, locale: string) {
+  const win = window.open('', '_blank', 'width=820,height=960')
+  if (!win) return
+  const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+  const deptRows = detail.departments.map(d => `<tr><td>${escHtml(d.departmentName ?? '—')}</td><td>${escHtml(d.role)}</td></tr>`).join('')
+  const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.currentStatus)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td><td>${escHtml(tk.ownerDisplayName ?? '—')}</td></tr>`).join('')
+  const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
+  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(detail.title)}</title><style>
+    body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
+    h1{font-size:18px;margin:4px 0 8px}
+    .kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#666}
+    .meta{font-size:11px;color:#444;margin-bottom:1rem;line-height:1.7}
+    .section{margin-top:1.5rem}
+    .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #ccc;padding-bottom:3px;margin-bottom:8px;color:#333}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    th,td{border:1px solid #ccc;padding:4px 8px;text-align:left}
+    th{background:#f0f0f0;font-weight:bold}
+    .desc{border:1px solid #ccc;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
+    .footer{margin-top:2rem;font-size:10px;color:#aaa}
+    @media print{body{padding:0}}
+  </style></head><body>
+  <div class="kicker">Talep Detayı</div>
+  <h1>${escHtml(detail.title)}</h1>
+  <div class="meta">
+    <strong>Durum:</strong> ${escHtml(detail.status)} &nbsp;|&nbsp;
+    <strong>Öncelik:</strong> ${escHtml(detail.priority)} &nbsp;|&nbsp;
+    <strong>Talep Tipi:</strong> ${escHtml(detail.requestType)}<br/>
+    <strong>Sahip Müdürlük:</strong> ${escHtml(detail.ownerDepartmentName ?? '—')} &nbsp;|&nbsp;
+    <strong>Proje mi:</strong> ${detail.isProject ? 'Evet' : 'Hayır'}<br/>
+    <strong>Oluşturan:</strong> ${escHtml(detail.createdByDisplayName ?? '—')} &nbsp;|&nbsp;
+    <strong>Tarih:</strong> ${fd(detail.createdAtUtc)}
+    ${detail.dueDateUtc ? ` &nbsp;|&nbsp; <strong>Termin:</strong> ${fd(detail.dueDateUtc)}` : ''}
+  </div>
+  <div class="section">
+    <div class="section-title">Açıklama</div>
+    <div class="desc">${detail.description ?? '<em>Açıklama yok</em>'}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Müdürlükler</div>
+    <table><thead><tr><th>Müdürlük</th><th>Rol</th></tr></thead><tbody>${deptRows || '<tr><td colspan="2">—</td></tr>'}</tbody></table>
+  </div>
+  <div class="section">
+    <div class="section-title">Görevler (${detail.tasks.length})</div>
+    ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Durum</th><th>Atanan</th><th>Sahip</th></tr></thead><tbody>${taskRows}</tbody></table>`}
+  </div>
+  ${attachItems ? `<div class="section"><div class="section-title">Ekler (${(detail.attachments ?? []).length})</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul></div>` : ''}
+  <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
+  <script>window.onload=function(){window.print()}</script>
+  </body></html>`)
+  win.document.close()
+}
+
 function getMyRequestsView(value: string | null): MyRequestsView {
-  return value === 'pending' || value === 'approved' || value === 'rejected' || value === 'all' ? value : 'created'
+  if (value === 'returned') return 'rejected'
+  return value === 'approved' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+}
+
+function getRequestFlowFilter(value: string | null): RequestFlowFilter {
+  return value === 'internal' || value === 'external' ? value : 'all'
+}
+
+function getDepartmentOutgoingView(value: string | null): DepartmentOutgoingView {
+  return value === 'approved' || value === 'in-progress' || value === 'completed' || value === 'rejected' || value === 'all'
+    ? value
+    : 'pending'
+}
+
+function matchesRequestFlow(requestType: JobSummary['requestType'], filter: RequestFlowFilter): boolean {
+  if (filter === 'internal') return requestType === 'InternalUnit'
+  if (filter === 'external') return requestType === 'ExternalUnit'
+  return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
 }
 
 function filterMyRequests(jobs: JobSummary[], view: MyRequestsView): JobSummary[] {
-  if (view === 'created' || view === 'all') return jobs
+  if (view === 'all') return jobs
 
   if (view === 'pending') {
     return jobs.filter(job => job.status === 'Draft' || job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
   }
 
   if (view === 'approved') {
-    return jobs.filter(job => job.status === 'Active' || job.status === 'Completed')
+    return jobs.filter(job => job.status === 'Active')
+  }
+
+  if (view === 'completed') {
+    return jobs.filter(job => job.status === 'Completed')
+  }
+
+  return jobs.filter(job => job.status === 'Rejected' || job.status === 'Cancelled' || job.status === 'RevisionRequested')
+}
+
+function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOutgoingView): JobSummary[] {
+  if (view === 'all') return jobs
+
+  if (view === 'pending') {
+    return jobs.filter(job => job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
+  }
+
+  if (view === 'approved') {
+    return jobs.filter(job => job.status === 'Active' && job.taskCount === 0)
+  }
+
+  if (view === 'in-progress') {
+    return jobs.filter(job => job.status === 'Active' && job.taskCount > 0)
+  }
+
+  if (view === 'completed') {
+    return jobs.filter(job => job.status === 'Completed')
   }
 
   return jobs.filter(job => job.status === 'Rejected' || job.status === 'Cancelled')
@@ -83,28 +258,62 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView): JobSummary[
 
 interface JobsPageProps {
   fixedScope?: JobListScope
-  mode?: 'external' | 'myRequests'
+  mode?: 'external' | 'myRequests' | 'departmentOutgoing'
 }
 
 export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const locale = getLocale(i18n.language)
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [jobsPage, setJobsPage] = useState(1)
+  const [jobsPageSize, setJobsPageSize] = useState(25)
 
   const [detail, setDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
+  const auditLogQuery = useQuery({
+    queryKey: ['job-audit-log', detail?.jobId],
+    queryFn: () => api.getJobAuditLog(detail!.jobId),
+    enabled: !!detail?.jobId,
+  })
+  const [returnModal, setReturnModal] = useState<{ jobId: string } | null>(null)
+  const [returnReason, setReturnReason] = useState('')
+  const [returnSaving, setReturnSaving] = useState(false)
+
+  const [editModal, setEditModal] = useState<{
+    jobId: string
+    title: string
+    description: string
+    priority: string
+    startDateUtc: string
+    dueDateUtc: string
+  } | null>(null)
+  const [editSaving, setEditSaving] = useState(false)
+  const [attachmentUploading, setAttachmentUploading] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
+  const [filterYear, setFilterYear] = useState('')
+  const [searchText, setSearchText] = useState('')
+
   const isMyRequestsView = mode === 'myRequests'
+  const isDepartmentOutgoingView = mode === 'departmentOutgoing'
   const currentMyRequestsView = getMyRequestsView(searchParams.get('view'))
-  const currentMyRequestsViewLabel = t(MY_REQUEST_VIEWS.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.created', 'Oluşturduğum Talepler')
+  const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
+  const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
+  const currentMyRequestsViewLabel = t(MY_REQUEST_VIEWS.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.pending', 'Bekleyen Taleplerim')
+  const currentDepartmentOutgoingViewLabel = t(
+    DEPARTMENT_OUTGOING_VIEWS.find(view => view.value === currentDepartmentOutgoingView)?.labelKey ?? 'jobs.outgoingViews.pending',
+    'Bekleyen Talepler',
+  )
   const scope = useMemo<JobListScope>(() => {
     if (fixedScope) return fixedScope
-    const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'
-    return EXTERNAL_SCOPES.some(s => s.value === raw) || raw === 'rejected' ? raw : 'department-pool'
+    const raw = (searchParams.get('scope') as JobListScope | null) ?? 'pending-approval'
+    return EXTERNAL_SCOPES.some(s => s.value === raw) || raw === 'rejected' ? raw : 'pending-approval'
   }, [fixedScope, searchParams])
 
   // auto-open detail drawer when ?jobId=... is in the URL (e.g. linked from social messages)
@@ -149,21 +358,75 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }
 
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const showRequestFlowFilters = isMyRequestsView && user?.role !== 'SystemAdmin'
+  const canCreateRequest = canRoleAccessPage(user?.role, 'createRequest')
+  const canMutatePreApprovalJob = (job: JobSummary | JobDetail) => (
+    isPreApprovalStatus(job.status) &&
+    (user?.role === 'SystemAdmin' || isManagerLike || isMyRequestsView)
+  )
   const scopeLabel = scope === 'rejected'
     ? t('jobs.scopes.rejected', 'İptal/Red Edilen')
     : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Onaylanmış Talepler')
+  const availableYears = useMemo(() => {
+    const years = new Set<string>()
+    for (const job of jobs) {
+      const y = job.createdAtUtc?.slice(0, 4)
+      if (y) years.add(y)
+    }
+    return [...years].sort().reverse()
+  }, [jobs])
+
   const visibleJobs = useMemo(() => {
+    let result: typeof jobs
+
     if (isMyRequestsView) {
-      return filterMyRequests(jobs, currentMyRequestsView)
+      const myJobs = filterMyRequests(jobs, currentMyRequestsView)
+      result = showRequestFlowFilters ? myJobs.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter)) : myJobs
+    } else if (isDepartmentOutgoingView) {
+      result = filterDepartmentOutgoingRequests(jobs, currentDepartmentOutgoingView)
+    } else {
+      const externalJobs = jobs.filter(job => job.requestType === 'ExternalUnit')
+      result = scope === 'department-pool'
+        ? externalJobs.filter(job => job.status === 'Active' || job.status === 'Completed')
+        : externalJobs
     }
 
-    const externalJobs = jobs.filter(job => job.requestType === 'ExternalUnit')
-    if (scope === 'department-pool') {
-      return externalJobs.filter(job => job.status === 'Active' || job.status === 'Completed')
+    if (filterYear) result = result.filter(job => job.createdAtUtc?.startsWith(filterYear))
+
+    if (searchText.trim()) {
+      const q = searchText.toLowerCase()
+      result = result.filter(job => job.title.toLowerCase().includes(q))
     }
 
-    return externalJobs
-  }, [currentMyRequestsView, isMyRequestsView, jobs, scope])
+    return result
+  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterYear, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters])
+
+  const pagedJobs = useMemo(
+    () => visibleJobs.slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize),
+    [visibleJobs, jobsPage, jobsPageSize],
+  )
+
+  const setMyRequestsView = (view: MyRequestsView) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.set('view', view)
+    setSearchParams(nextParams)
+    setJobsPage(1)
+  }
+
+  const setRequestFlowFilter = (filter: RequestFlowFilter) => {
+    const nextParams = new URLSearchParams(searchParams)
+    if (filter === 'all') nextParams.delete('flow')
+    else nextParams.set('flow', filter)
+    setSearchParams(nextParams)
+    setJobsPage(1)
+  }
+
+  const setDepartmentOutgoingView = (view: DepartmentOutgoingView) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.set('view', view)
+    setSearchParams(nextParams)
+    setJobsPage(1)
+  }
 
   const openDetail = async (jobId: string) => {
     setDetailLoading(true)
@@ -183,18 +446,94 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     await reload()
   }
 
-  const handleCancel = async (jobId: string) => {
-    const reason = window.prompt(t('jobs.actions.cancelReason'))
-    if (!reason) return
-    await api.cancelJob(jobId, reason)
+  const handleCancel = (jobId: string) => {
+    setPromptDialog({
+      title: t('jobs.actions.cancelReason'),
+      onConfirm: async (reason) => {
+        await api.cancelJob(jobId, reason)
+        await refreshDetail()
+        await reload()
+      },
+    })
+  }
+  const handleApproveOwner = async (jobId: string) => {
+    await api.approveJobOwner(jobId)
     await refreshDetail()
     await reload()
   }
-  const handleDelete = async (jobId: string) => {
-    if (!window.confirm(t('jobs.deleteConfirm', 'Bu iş kaydı kalıcı olarak silinecek. Emin misiniz?'))) return
-    await api.deleteJob(jobId)
-    if (detail?.jobId === jobId) setDetail(null)
-    await reload()
+  const handleRejectOwner = (jobId: string) => {
+    setPromptDialog({
+      title: t('jobs.actions.rejectReason'),
+      onConfirm: async (reason) => {
+        await api.rejectJobOwner(jobId, reason)
+        await refreshDetail()
+        await reload()
+      },
+    })
+  }
+  const handleDelete = (jobId: string) => {
+    setConfirmDialog({
+      message: t('jobs.deleteConfirm', 'Bu iş kaydı kalıcı olarak silinecek. Emin misiniz?'),
+      variant: 'destructive',
+      onConfirm: async () => {
+        await api.deleteJob(jobId)
+        if (detail?.jobId === jobId) setDetail(null)
+        await reload()
+      },
+    })
+  }
+
+  const openReturnModal = (jobId: string) => {
+    setReturnModal({ jobId })
+    setReturnReason('')
+  }
+
+  const openEditModal = async (job: JobSummary | JobDetail) => {
+    const editableJob = 'description' in job ? job : await api.getJobById(job.jobId)
+    setEditModal({
+      jobId: editableJob.jobId,
+      title: editableJob.title,
+      description: editableJob.description ?? '',
+      priority: editableJob.priority,
+      startDateUtc: editableJob.startDateUtc ? new Date(editableJob.startDateUtc).toISOString().slice(0, 16) : '',
+      dueDateUtc: editableJob.dueDateUtc ? new Date(editableJob.dueDateUtc).toISOString().slice(0, 16) : '',
+    })
+  }
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editModal) return
+    setEditSaving(true)
+    try {
+      await api.updateJob(editModal.jobId, {
+        title: editModal.title,
+        description: editModal.description,
+        priority: editModal.priority,
+        startDateUtc: editModal.startDateUtc ? new Date(editModal.startDateUtc).toISOString() : null,
+        dueDateUtc: editModal.dueDateUtc ? new Date(editModal.dueDateUtc).toISOString() : null,
+      })
+      setEditModal(null)
+      await reload()
+      if (detail?.jobId === editModal.jobId) await refreshDetail()
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
+  const handleReturn = async () => {
+    if (!returnModal || !returnReason.trim()) return
+    setReturnSaving(true)
+    try {
+      await api.returnJob(returnModal.jobId, returnReason.trim())
+      setReturnModal(null)
+      setReturnReason('')
+      if (detail?.jobId === returnModal.jobId) await refreshDetail()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setReturnSaving(false)
+    }
   }
 
   const renderJobDepartments = (job: JobSummary) => {
@@ -232,19 +571,49 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     )
   }
 
+  const renderOutgoingDestination = (job: JobSummary) => {
+    const targetDepartments = getTargetJobDepartments(job)
+    if (targetDepartments.length === 0) {
+      return <span className="font-medium text-slate-700">{job.ownerDepartmentName ?? '—'}</span>
+    }
+
+    const visibleTargets = targetDepartments.slice(0, 3)
+    const hiddenTargetCount = targetDepartments.length - visibleTargets.length
+    return (
+      <div className="flex min-w-[12rem] max-w-[24rem] flex-wrap gap-1.5">
+        {visibleTargets.map(department => (
+          <StatusPill key={department.jobDepartmentId} tone={department.approvalStatus === 'Rejected' ? 'danger' : department.approvalStatus === 'Approved' ? 'success' : 'info'} className="max-w-[12rem]">
+            <span className="truncate">{department.departmentName ?? '—'}</span>
+          </StatusPill>
+        ))}
+        {hiddenTargetCount > 0 ? (
+          <StatusPill tone="neutral">{t('jobs.departmentsMore', { count: hiddenTargetCount, defaultValue: '+{{count}} müdürlük' })}</StatusPill>
+        ) : null}
+      </div>
+    )
+  }
+
   return (
     <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{isMyRequestsView ? currentMyRequestsViewLabel : scopeLabel}</div>
-            <h1 className="page-title">{isMyRequestsView ? t('nav.myRequests', 'Taleplerim') : t('nav.jobs', 'Birim Dışı Gelen Talep')}</h1>
+            <div className="page-kicker">{isMyRequestsView ? currentMyRequestsViewLabel : isDepartmentOutgoingView ? currentDepartmentOutgoingViewLabel : scopeLabel}</div>
+            <h1 className="page-title">{isMyRequestsView ? t('nav.myRequests', 'Taleplerim') : isDepartmentOutgoingView ? t('nav.outgoingRequests', 'Birimden Giden Talepler') : t('nav.jobs', 'Birim Dışı Gelen Talep')}</h1>
             <p className="page-subtitle">
               {isMyRequestsView
                 ? t('jobs.myRequestsSubtitle', 'Oluşturduğunuz talepleri durumlarına göre takip edin.')
-                : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
+                : isDepartmentOutgoingView
+                  ? t('jobs.outgoingSubtitle', 'Biriminizden diğer birimlere gönderilen talepleri durumlarına göre takip edin.')
+                  : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
             </p>
           </div>
+          {isMyRequestsView && canCreateRequest ? (
+            <Button type="button" variant="secondary" className="shrink-0" onClick={() => navigate('/requests/new')}>
+              <ClipboardPlus aria-hidden="true" className="size-4" />
+              {t('nav.createRequest', 'Talep Oluştur')}
+            </Button>
+          ) : null}
         </div>
       </header>
 
@@ -254,12 +623,54 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
             <button
               key={view.value}
               type="button"
-              className={`scope-chip${view.value === currentMyRequestsView ? ' active' : ''}`}
-              onClick={() => setSearchParams({ view: view.value })}
+              className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
+              onClick={() => setMyRequestsView(view.value)}
             >
               {t(view.labelKey)}
             </button>
           ))}
+          {showRequestFlowFilters ? (
+            <>
+              <span className="scope-chip-divider" aria-hidden="true">|</span>
+              {REQUEST_FLOW_FILTERS.map(filter => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className={`scope-chip scope-chip--${filter.value}${filter.value === currentRequestFlowFilter ? ' active' : ''}`}
+                  onClick={() => setRequestFlowFilter(filter.value)}
+                >
+                  {t(filter.labelKey)}
+                </button>
+              ))}
+            </>
+          ) : null}
+          <ScopeChipFilters
+            searchText={searchText}
+            filterYear={filterYear}
+            availableYears={availableYears}
+            onSearch={setSearchText}
+            onYearChange={setFilterYear}
+          />
+        </nav>
+      ) : isDepartmentOutgoingView ? (
+        <nav className="scope-chips" aria-label={t('nav.outgoingRequests', 'Birimden Giden Talepler')}>
+          {DEPARTMENT_OUTGOING_VIEWS.map(view => (
+            <button
+              key={view.value}
+              type="button"
+              className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentDepartmentOutgoingView ? ' active' : ''}`}
+              onClick={() => setDepartmentOutgoingView(view.value)}
+            >
+              {t(view.labelKey)}
+            </button>
+          ))}
+          <ScopeChipFilters
+            searchText={searchText}
+            filterYear={filterYear}
+            availableYears={availableYears}
+            onSearch={setSearchText}
+            onYearChange={setFilterYear}
+          />
         </nav>
       ) : !fixedScope ? (
         <nav className="scope-chips">
@@ -273,6 +684,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               {t(s.labelKey, s.value)}
             </button>
           ))}
+          <ScopeChipFilters
+            searchText={searchText}
+            filterYear={filterYear}
+            availableYears={availableYears}
+            onSearch={setSearchText}
+            onYearChange={setFilterYear}
+          />
         </nav>
       ) : null}
 
@@ -281,44 +699,72 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
       ) : visibleJobs.length === 0 ? (
-        <div className="empty-state">{isMyRequestsView ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` }) : t('jobs.empty')}</div>
+        <section className="section-card">
+          <div className="empty-state">
+            {isMyRequestsView
+              ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
+              : isDepartmentOutgoingView
+                ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
+                : t('jobs.empty')}
+          </div>
+        </section>
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table jobs-table">
+            <table className={`data-table jobs-table${isMyRequestsView ? ' data-table--zebra' : ''}`}>
               <thead>
                 <tr>
+                  <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
+                  {(isMyRequestsView || isDepartmentOutgoingView) && <th>{t('jobs.columns.requestNo', 'Talep No')}</th>}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>}
                   <th>{t('jobs.columns.title')}</th>
-                  <th>{isMyRequestsView ? t('jobs.columns.destination', 'Gidiş Yeri') : t('jobs.columns.departments')}</th>
+                  <th>{isMyRequestsView || isDepartmentOutgoingView ? t('jobs.columns.destination', 'Gittiği Yer') : t('jobs.columns.departments')}</th>
                   <th>{t('jobs.columns.status')}</th>
                   <th>{t('jobs.columns.priority')}</th>
-                  <th>{t('jobs.columns.project', 'Proje')}</th>
-                  <th>{t('jobs.columns.taskCount')}</th>
+                  {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
+                  {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
                   <th>{t('jobs.columns.dueDate')}</th>
                   <th>{t('jobs.columns.actions')}</th>
                 </tr>
               </thead>
               <tbody>
-                {visibleJobs.map(job => (
+                {pagedJobs.map((job, index) => (
                   <tr key={job.jobId}>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
+                    {(isMyRequestsView || isDepartmentOutgoingView) && <td className="font-mono text-xs text-slate-500">{formatJobDisplayNumber(job)}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && <td>{formatDateTime(job.createdAtUtc ?? null, locale)}</td>}
                     <td className="font-semibold">{job.title}</td>
                     <td>
-                      {isMyRequestsView ? (
-                        <StatusPill tone="info">{getJobDirectionLabel(t, job)}</StatusPill>
+                      {isMyRequestsView || isDepartmentOutgoingView ? (
+                        renderOutgoingDestination(job)
                       ) : renderJobDepartments(job)}
                     </td>
                     <td><StatusPill>{getJobStatusLabel(t, job.status)}</StatusPill></td>
                     <td>{getPriorityLabel(t, job.priority)}</td>
-                    <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>
-                    <td>{job.taskCount}</td>
+                    {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
+                    {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     <td>{formatDateTime(job.dueDateUtc, locale)}</td>
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
+                        {isManagerLike && job.status === 'PendingOwnerApproval' && (
+                          <>
+                            <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleRejectOwner(job.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
+                          </>
+                        )}
                         {isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
                         )}
-                        {user?.role === 'SystemAdmin' && (
+                        {isMyRequestsView && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active') && (
+                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(job.jobId)}>{t('jobs.actions.return', 'İade Et')}</Button>
+                        )}
+                        {canMutatePreApprovalJob(job) && (
+                          <Button size="sm" variant="secondary" onClick={() => void openEditModal(job)}>
+                            {t('jobs.actions.edit', 'Düzenle')}
+                          </Button>
+                        )}
+                        {canMutatePreApprovalJob(job) && (
                           <Button size="sm" variant="destructive" onClick={() => handleDelete(job.jobId)}>{t('jobs.actions.delete')}</Button>
                         )}
                       </div>
@@ -328,6 +774,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </tbody>
             </table>
           </div>
+          <TablePagination
+            totalCount={visibleJobs.length}
+            pageSize={jobsPageSize}
+            currentPage={jobsPage}
+            onPageSizeChange={setJobsPageSize}
+            onPageChange={setJobsPage}
+          />
         </section>
       )}
 
@@ -345,7 +798,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               <div className="space-y-1">
                 <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('jobs.detail.title')}</div>
                 <h2 className="text-xl font-extrabold text-slate-950">{detail.title}</h2>
-                <p className="text-sm text-slate-600">{detail.description}</p>
+                <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content text-sm text-slate-600" />
                 <div className="inline-actions pt-1">
                   <StatusPill>{getJobStatusLabel(t, detail.status)}</StatusPill>
                   <StatusPill tone="info">{getPriorityLabel(t, detail.priority)}</StatusPill>
@@ -364,9 +817,21 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </div>
               </div>
               <div className="inline-actions ml-auto">
-                {user?.role === 'SystemAdmin' && (
+                {isManagerLike && detail.status === 'PendingOwnerApproval' && (
+                  <>
+                    <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>{t('jobs.actions.approveOwner')}</Button>
+                    <Button type="button" variant="destructive" onClick={() => handleRejectOwner(detail.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
+                  </>
+                )}
+                {canMutatePreApprovalJob(detail) && (
+                  <Button type="button" variant="secondary" onClick={() => void openEditModal(detail)}>
+                    {t('jobs.actions.edit', 'Düzenle')}
+                  </Button>
+                )}
+                {canMutatePreApprovalJob(detail) && (
                   <Button type="button" variant="destructive" onClick={() => handleDelete(detail.jobId)}>{t('jobs.actions.delete')}</Button>
                 )}
+                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale)}>{t('common.print', 'Yazdır')}</Button>
                 <Button type="button" variant="secondary" onClick={() => setDetail(null)}>{t('jobs.actions.close')}</Button>
               </div>
             </div>
@@ -393,6 +858,25 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </table>
 
             </section>
+
+            {detail.latitude != null && detail.longitude != null && (
+              <section className="mb-5">
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                  {t('location.mapSectionTitle', 'Konum')}
+                </h3>
+                <div className="rounded-xl overflow-hidden border border-slate-200">
+                  <iframe
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${(detail.longitude - 0.005).toFixed(6)},${(detail.latitude - 0.005).toFixed(6)},${(detail.longitude + 0.005).toFixed(6)},${(detail.latitude + 0.005).toFixed(6)}&layer=mapnik&marker=${detail.latitude},${detail.longitude}`}
+                    className="h-64 w-full"
+                    title={t('location.mapTitle', 'Konum Haritası')}
+                    allowFullScreen
+                  />
+                </div>
+                <p className="mt-1 text-xs text-slate-500">
+                  {detail.latitude.toFixed(6)}, {detail.longitude.toFixed(6)}
+                </p>
+              </section>
+            )}
 
             <section className="mb-5">
               <div className="flex items-center justify-between mb-2">
@@ -423,9 +907,171 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </table>
               )}
             </section>
+
+            <section className="mb-5">
+              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+              </h3>
+              <AttachmentSection
+                attachments={detail.attachments ?? []}
+                onUpload={async (file) => {
+                  setAttachmentUploading(true)
+                  try {
+                    await api.uploadJobAttachment(detail.jobId, file)
+                    await refreshDetail()
+                  } finally {
+                    setAttachmentUploading(false)
+                  }
+                }}
+                onDelete={async (id) => {
+                  await api.deleteAttachment(id)
+                  await refreshDetail()
+                }}
+                disabled={attachmentUploading}
+              />
+            </section>
+
+            <section className="mb-5">
+              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                {t('auditLog.title', 'Denetim İzi')}
+              </h3>
+              {auditLogQuery.isLoading ? (
+                <div className="loading">{t('common.loading')}</div>
+              ) : !auditLogQuery.data || auditLogQuery.data.length === 0 ? (
+                <div className="empty-state">{t('auditLog.empty', 'Henüz denetim kaydı bulunmuyor')}</div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>{t('auditLog.columns.date', 'Tarih')}</th>
+                      <th>{t('auditLog.columns.action', 'İşlem')}</th>
+                      <th>{t('auditLog.columns.actor', 'Kullanıcı')}</th>
+                      <th>{t('auditLog.columns.status', 'Durum')}</th>
+                      <th>{t('auditLog.columns.notes', 'Notlar')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditLogQuery.data.map(entry => (
+                      <tr key={entry.auditLogId}>
+                        <td className="text-xs text-slate-500">{new Date(entry.eventTimeUtc).toLocaleString(locale)}</td>
+                        <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
+                        <td>{entry.actorDisplayName}</td>
+                        <td>{entry.statusAtEvent ? getAuditStatusLabel(t, entry.statusAtEvent) : '—'}</td>
+                        <td className="text-xs text-slate-500">{entry.notes ? formatAuditNotes(t, entry.notes) : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </section>
           </section>
         </div>
       )}
+
+      {returnModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          onClick={() => setReturnModal(null)}
+        >
+          <div className="form-card page-stack w-full max-w-md" onClick={event => event.stopPropagation()}>
+            <h2 className="text-xl font-extrabold text-slate-950">{t('jobs.actions.returnTitle', 'Talebi İade Et')}</h2>
+            <p className="helper-copy">{t('jobs.actions.returnHelp', 'Talebi iade etmek için açıklama yazınız.')}</p>
+            <label className="job-field">
+              <span className="job-field-label">{t('jobs.actions.returnReason', 'İade Açıklaması')}</span>
+              <textarea
+                className="field-textarea"
+                rows={4}
+                value={returnReason}
+                onChange={event => setReturnReason(event.target.value)}
+                placeholder={t('jobs.actions.returnReasonPlaceholder', 'İade nedenini açıklayınız...')}
+              />
+            </label>
+            <div className="inline-actions">
+              <Button type="button" variant="secondary" onClick={() => setReturnModal(null)}>{t('common.cancel', 'İptal')}</Button>
+              <Button type="button" variant="destructive" disabled={returnSaving || !returnReason.trim()} onClick={() => void handleReturn()}>
+                {returnSaving ? t('common.loading') : t('jobs.actions.return', 'İade Et')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {editModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          onClick={() => setEditModal(null)}
+          role="presentation"
+        >
+          <form
+            className="w-full max-w-lg rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+            onSubmit={e => void handleSaveEdit(e)}
+          >
+            <h2 className="mb-4 text-lg font-bold">{t('jobs.editModal.title', 'Talebi Düzenle')}</h2>
+            <div className="page-stack">
+              <div className="form-group">
+                <label className="form-label">{t('jobs.form.title', 'Başlık')}</label>
+                <input
+                  className="input"
+                  value={editModal.title}
+                  onChange={e => setEditModal(m => m && ({ ...m, title: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">{t('jobs.form.description', 'Açıklama')}</label>
+                <RichTextEditor
+                  value={editModal.description}
+                  onChange={val => setEditModal(m => m && ({ ...m, description: val }))}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">{t('jobs.form.priority', 'Öncelik')}</label>
+                <select
+                  className="input"
+                  value={editModal.priority}
+                  onChange={e => setEditModal(m => m && ({ ...m, priority: e.target.value }))}
+                >
+                  <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
+                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                  <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+                </select>
+              </div>
+              <div className="form-row-2">
+                <div className="form-group">
+                  <label className="form-label">{t('jobs.form.startDate', 'Başlangıç Tarihi')}</label>
+                  <input
+                    type="datetime-local"
+                    className="input"
+                    value={editModal.startDateUtc}
+                    onChange={e => setEditModal(m => m && ({ ...m, startDateUtc: e.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">{t('jobs.form.dueDate', 'Bitiş Tarihi')}</label>
+                  <input
+                    type="datetime-local"
+                    className="input"
+                    value={editModal.dueDateUtc}
+                    onChange={e => setEditModal(m => m && ({ ...m, dueDateUtc: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setEditModal(null)}>
+                {t('common.cancel', 'İptal')}
+              </Button>
+              <Button type="submit" disabled={editSaving}>
+                {editSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+      <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
     </div>
   )
 }

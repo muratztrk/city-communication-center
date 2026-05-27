@@ -50,8 +50,12 @@ public sealed class DeleteDepartmentCommandHandler : ICommandHandler<DeleteDepar
             .AnyAsync(
                 u => u.DepartmentId == request.DepartmentId && u.TenantId == tenantId,
                 cancellationToken);
+        var hasAdditionalUserAssignments = await _dbContext.UserDepartmentAssignments
+            .AnyAsync(
+                assignment => assignment.DepartmentId == request.DepartmentId && assignment.TenantId == tenantId,
+                cancellationToken);
 
-        if (hasUsers)
+        if (hasUsers || hasAdditionalUserAssignments)
         {
             throw new ValidationException(_localizer["ValidationDepartmentHasUsers"]);
         }

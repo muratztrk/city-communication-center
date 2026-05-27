@@ -302,9 +302,30 @@ public class WhatsAppClient : ISocialMediaClient
                             .GetProperty("profile").GetProperty("name").GetString()
                         : null;
 
-                    var content = msg.TryGetProperty("text", out var text)
-                        ? text.GetProperty("body").GetString()!
-                        : "[Media or interactive message]";
+                    double? latitude = null;
+                    double? longitude = null;
+                    string content;
+
+                    if (msg.TryGetProperty("text", out var text))
+                    {
+                        content = text.GetProperty("body").GetString()!;
+                    }
+                    else if (msg.TryGetProperty("location", out var location))
+                    {
+                        latitude = TryGetDouble(location, "latitude");
+                        longitude = TryGetDouble(location, "longitude");
+                        var name = TryGetString(location, "name");
+                        var address = TryGetString(location, "address");
+                        content = string.Join(" - ", new[] { name, address }.Where(value => !string.IsNullOrWhiteSpace(value)));
+                        if (string.IsNullOrWhiteSpace(content))
+                        {
+                            content = "[Location message]";
+                        }
+                    }
+                    else
+                    {
+                        content = "[Media or interactive message]";
+                    }
 
                     messages.Add(new IncomingMessage
                     {
@@ -313,6 +334,8 @@ public class WhatsAppClient : ISocialMediaClient
                         SenderHandle = senderId,
                         SenderName = senderName,
                         Content = content,
+                        Latitude = latitude,
+                        Longitude = longitude,
                         ReceivedAt = DateTimeOffset.FromUnixTimeSeconds(
                             long.Parse(msg.GetProperty("timestamp").GetString()!)),
                         IsDirectMessage = true
@@ -327,6 +350,30 @@ public class WhatsAppClient : ISocialMediaClient
     #endregion
 
     #region Helpers
+
+    private static string? TryGetString(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+    }
+
+    private static double? TryGetDouble(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var value))
+        {
+            return null;
+        }
+
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out var number))
+        {
+            return number;
+        }
+
+        return value.ValueKind == JsonValueKind.String && double.TryParse(value.GetString(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out number)
+            ? number
+            : null;
+    }
 
     private async Task<HttpResponseMessage> PostJsonAsync(string url, object payload, CancellationToken ct)
     {

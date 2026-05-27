@@ -55,7 +55,9 @@ public sealed class ClaimTaskFromPoolCommandHandler : ICommandHandler<ClaimTaskF
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
             Action = "TaskClaimedFromPool",
-            ActorUserId = actor.UserId
+            ActorUserId = actor.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = WorkflowTaskStatus.Assigned.ToString()
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

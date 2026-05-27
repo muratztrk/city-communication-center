@@ -32,6 +32,8 @@ public sealed class ApplicationUser : AuditableTenantEntity, IHasDatabaseIndexDe
 
     public Department Department { get; set; } = null!;
 
+    public ICollection<UserDepartmentAssignment> DepartmentAssignments { get; set; } = new List<UserDepartmentAssignment>();
+
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
     [
         DatabaseIndexDefinition.Unique([nameof(TenantId), nameof(Username)], "username IS NOT NULL", "ix_users_tenantid_username_unique"),

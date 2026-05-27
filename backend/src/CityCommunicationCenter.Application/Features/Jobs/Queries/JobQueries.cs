@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Features.Users;
+
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record GetJobsQuery(string? Scope) : IQuery<IReadOnlyList<JobSummaryResponse>>;
@@ -23,6 +25,24 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         var actor = userId.HasValue
             ? await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userId.Value, cancellationToken)
             : null;
+        var allManagedDepartmentIds = actor is { RoleCode: RoleCode.Manager }
+            ? await _dbContext.Departments
+                .AsNoTracking()
+                .Where(department => department.TenantId == tenantId && department.ManagerUserId == actor.UserId)
+                .Select(department => department.DepartmentId)
+                .ToArrayAsync(cancellationToken)
+            : [];
+        var managedDepartmentIds = context.ActiveDepartmentId.HasValue
+            ? allManagedDepartmentIds.Contains(context.ActiveDepartmentId.Value)
+                ? [context.ActiveDepartmentId.Value]
+                : []
+            : allManagedDepartmentIds;
+        var accessibleDepartmentIds = actor is null
+            ? []
+            : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(_dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
+        var visibleDepartmentIds = actor is null
+            ? []
+            : accessibleDepartmentIds;
 
         IQueryable<Job> q = _dbContext.Jobs
             .AsNoTracking()
@@ -35,12 +55,27 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         else if ((scope == "my-department" || scope == "department-pool") && actor is not null)
         {
             q = q.Where(j =>
-                j.OwnerDepartmentId == actor.DepartmentId ||
-                _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId && jd.DepartmentId == actor.DepartmentId));
+                visibleDepartmentIds.Contains(j.OwnerDepartmentId) ||
+                _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId && visibleDepartmentIds.Contains(jd.DepartmentId)));
         }
         else if (scope == "pending-approval")
         {
             q = q.Where(j => j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval);
+            if (actor is not null && actor.RoleCode == RoleCode.Manager)
+            {
+                q = q.Where(j =>
+                    managedDepartmentIds.Contains(j.OwnerDepartmentId) ||
+                    _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
+                        && managedDepartmentIds.Contains(jd.DepartmentId)
+                        && jd.Role == JobDepartmentRole.Target));
+            }
+        }
+        else if (scope == "outgoing-department")
+        {
+            q = actor is { RoleCode: RoleCode.Manager } && visibleDepartmentIds.Length > 0
+                ? q.Where(j => j.RequestType == JobRequestType.ExternalUnit
+                    && visibleDepartmentIds.Contains(j.OwnerDepartmentId))
+                : q.Where(_ => false);
         }
         else if (scope == "active")
         {
@@ -61,6 +96,13 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                     .Where(d => d.DepartmentId == j.OwnerDepartmentId)
                     .Select(d => (string?)d.Name)
                     .FirstOrDefault(),
+                CreatedByDisplayName = j.CreatedByUserId.HasValue
+                    ? _dbContext.Users
+                        .AsNoTracking()
+                        .Where(u => u.UserId == j.CreatedByUserId.Value)
+                        .Select(u => (string?)u.DisplayName)
+                        .FirstOrDefault()
+                    : null,
             })
             .ToListAsync(cancellationToken);
 
@@ -119,7 +161,11 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.IsCoordinated,
             r.Job.SourceType.ToString(),
             countsMap.GetValueOrDefault(r.Job.JobId, 0),
-            departmentsMap.GetValueOrDefault(r.Job.JobId, Array.Empty<JobDepartmentResponse>()))).ToArray();
+            departmentsMap.GetValueOrDefault(r.Job.JobId, Array.Empty<JobDepartmentResponse>()),
+            r.Job.CreatedAtUtc,
+            r.Job.JobNumber,
+            r.Job.JobNumberYear,
+            r.CreatedByDisplayName)).ToArray();
     }
 }
 
@@ -217,6 +263,13 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     .AsNoTracking()
                     .Where(u => u.UserId == t.OwnerUserId)
                     .Select(u => (string?)u.DisplayName)
+                    .FirstOrDefault(),
+                t.TaskNumber,
+                t.TaskNumberYear,
+                _dbContext.Departments
+                    .AsNoTracking()
+                    .Where(dep => dep.DepartmentId == job.OwnerDepartmentId)
+                    .Select(dep => (string?)dep.Name)
                     .FirstOrDefault()))
             .ToListAsync(cancellationToken);
 
@@ -229,6 +282,13 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 a.DecisionDateUtc, a.Comment))
             .ToListAsync(cancellationToken);
 
+        var attachments = await _dbContext.Attachments
+            .AsNoTracking()
+            .Where(a => a.TenantId == tenantId && a.EntityType == "Job" && a.EntityId == request.JobId)
+            .OrderBy(a => a.CreatedAtUtc)
+            .Select(a => new AttachmentResponse(a.AttachmentId, a.FileName, a.ContentType, a.FileSizeBytes, a.RelativeUrl, a.CreatedAtUtc))
+            .ToListAsync(cancellationToken);
+
         return new JobDetailResponse(
             job.JobId, job.TenantId, job.Title, job.Description,
             job.Status.ToString(), job.Priority,
@@ -237,7 +297,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.StartDateUtc, job.DueDateUtc, job.CompletedAtUtc,
             job.CompletionPercentage, job.IsCoordinated,
             job.SourceType.ToString(), job.SourceRefId, job.CancelReason,
+            job.Latitude, job.Longitude,
             createdByName, job.CreatedAtUtc,
-            depts, tasks, approvals);
+            depts, tasks, approvals, attachments);
     }
 }

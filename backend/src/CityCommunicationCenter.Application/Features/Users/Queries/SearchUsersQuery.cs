@@ -18,6 +18,13 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IR
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var normalizedQuery = request.Query?.Trim();
         var normalizedQueryUpper = normalizedQuery?.ToUpperInvariant();
+        var requestedDepartmentName = request.DepartmentId.HasValue
+            ? await _dbContext.Departments
+                .AsNoTracking()
+                .Where(entity => entity.TenantId == tenantId && entity.DepartmentId == request.DepartmentId.Value)
+                .Select(entity => entity.Name)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
 
         var query = _dbContext.Users
             .Where(entity => entity.TenantId == tenantId && entity.IsActive)
@@ -29,7 +36,16 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IR
 
         if (request.DepartmentId.HasValue)
         {
-            query = query.Where(item => item.User.DepartmentId == request.DepartmentId.Value);
+            query = query.Where(item =>
+                item.User.DepartmentId == request.DepartmentId.Value ||
+                _dbContext.UserDepartmentAssignments.Any(assignment =>
+                    assignment.TenantId == tenantId &&
+                    assignment.UserId == item.User.UserId &&
+                    assignment.DepartmentId == request.DepartmentId.Value) ||
+                _dbContext.Departments.Any(department =>
+                    department.TenantId == tenantId &&
+                    department.DepartmentId == request.DepartmentId.Value &&
+                    department.ManagerUserId == item.User.UserId));
         }
 
         if (!string.IsNullOrWhiteSpace(normalizedQueryUpper))
@@ -45,8 +61,8 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IR
             .Take(15)
             .Select(item => new UserLookupResponse(
                 item.User.UserId,
-                item.User.DepartmentId,
-                item.Department.Name,
+                request.DepartmentId ?? item.User.DepartmentId,
+                requestedDepartmentName ?? item.Department.Name,
                 item.User.DisplayName,
                 item.User.Email,
                 item.User.RoleCode.ToString(),

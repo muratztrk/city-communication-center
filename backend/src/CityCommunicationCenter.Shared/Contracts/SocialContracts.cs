@@ -19,14 +19,18 @@ public sealed record CreateSocialMessageRequest(
     string Channel,
     string CitizenHandle,
     string Content,
-    string? Category);
+    string? Category,
+    double? Latitude,
+    double? Longitude);
 
 public sealed record SocialWebhookRequest(
     string ExternalMessageId,
     string CitizenHandle,
     string Content,
     string Channel,
-    DateTimeOffset? ReceivedAtUtc);
+    DateTimeOffset? ReceivedAtUtc,
+    double? Latitude,
+    double? Longitude);
 
 public sealed record SocialMessageSummaryResponse(
     Guid SocialMessageId,
@@ -37,7 +41,9 @@ public sealed record SocialMessageSummaryResponse(
     Guid? AssignedDepartmentId,
     string? AssignedDepartmentName,
     Guid? JobId,
-    DateTimeOffset ReceivedAtUtc);
+    DateTimeOffset ReceivedAtUtc,
+    double? Latitude,
+    double? Longitude);
 
 public sealed record SocialMessageDetailResponse(
     Guid SocialMessageId,
@@ -52,6 +58,8 @@ public sealed record SocialMessageDetailResponse(
     string? AssignedDepartmentName,
     Guid? JobId,
     DateTimeOffset ReceivedAtUtc,
+    double? Latitude,
+    double? Longitude,
     IReadOnlyCollection<string> Tags);
 
 public sealed record SocialChannelStatusResponse(
@@ -63,7 +71,9 @@ public sealed record SocialSettingsStatusResponse(
     SocialChannelStatusResponse X,
     SocialChannelStatusResponse Facebook,
     SocialChannelStatusResponse Instagram,
-    SocialChannelStatusResponse WhatsApp);
+    SocialChannelStatusResponse WhatsApp,
+    SocialChannelStatusResponse EDevlet,
+    SocialChannelStatusResponse Email);
 
 public sealed record XSettingsRequest(
     string? ApiKey,
@@ -89,6 +99,25 @@ public sealed record WhatsAppSettingsRequest(
     string? PhoneNumberId,
     string? AccessToken,
     string? WebhookVerifyToken);
+
+public sealed record EDevletSettingsRequest(
+    string? ClientId,
+    string? ClientSecret,
+    string? RedirectUri,
+    string? AuthorizationEndpoint,
+    string? TokenEndpoint,
+    string? Scope);
+
+public sealed record EmailSettingsRequest(
+    string? ImapHost,
+    string? ImapPort,
+    string? ImapUser,
+    string? ImapPassword,
+    string? Folder,
+    string? SmtpHost,
+    string? SmtpPort,
+    string? SmtpUser,
+    string? SmtpPassword);
 
 public sealed record SocialSettingsSaveResponse(
     string Message,

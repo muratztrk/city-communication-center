@@ -1,8 +1,17 @@
-import { Building, CheckCircle2, ChevronLeft, ChevronRight, CircleDot, ClipboardCheck, ClipboardList, ClipboardPlus, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { ArrowUpRight, BookOpen, Building, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ChannelIcon } from '../components/ui/channel-icon'
+import { AppFooter } from '../components/layout/AppFooter'
+import { ScrollFab } from '../components/layout/ScrollFab'
+
+declare const __APP_VERSION__: string
+const SUPPORT_WHATSAPP_NUMBER = '905320000000'   // TODO: gerçek numara ile güncelle
+const SUPPORT_WHATSAPP_DISPLAY = '+90 532 000 00 00'
+import { useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
+import { DepartmentSwitcher } from '../components/layout/DepartmentSwitcher'
+import { GlobalSearchBar } from '../components/layout/GlobalSearchBar'
 import { NotificationBell } from '../components/layout/NotificationBell'
 import { SidebarNav, type SidebarNavItem, type SidebarNavLinkItem } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
@@ -11,6 +20,7 @@ import { useTenantTheme } from '../context/ThemeContext'
 import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import { getRoleLabel } from '../utils/localization'
 
+
 export function AppShell() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -18,14 +28,9 @@ export function AppShell() {
   const { user, logout } = useAuth()
   const { appearance } = useTenantTheme()
   const [accessVersion, setAccessVersion] = useState(0)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    return window.localStorage.getItem('ccc_sidebar_collapsed') === 'true'
-  })
+  const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-
-  useEffect(() => {
-    window.localStorage.setItem('ccc_sidebar_collapsed', String(isSidebarCollapsed))
-  }, [isSidebarCollapsed])
 
   useEffect(() => {
     const updateAccess = () => setAccessVersion(version => version + 1)
@@ -35,6 +40,12 @@ export function AppShell() {
       window.removeEventListener('storage', updateAccess)
       window.removeEventListener(ROLE_PAGE_ACCESS_EVENT, updateAccess)
     }
+  }, [])
+
+  useEffect(() => {
+    const updateActiveDepartment = () => setActiveDepartmentVersion(version => version + 1)
+    window.addEventListener('activeDepartmentChanged', updateActiveDepartment)
+    return () => window.removeEventListener('activeDepartmentChanged', updateActiveDepartment)
   }, [])
 
   const institutionName = user?.tenantName || 'Tire Belediyesi'
@@ -49,51 +60,18 @@ export function AppShell() {
     .join('')
     .slice(0, 2)
     .toUpperCase()
-  type NavLinkConfig = SidebarNavLinkItem & { pageKey: PageAccessKey }
-  type NavGroupConfig = {
-    type: 'group'
-    label: string
-    icon: typeof LayoutDashboard
-    children: NavLinkConfig[]
-  }
-  type NavConfigItem = NavLinkConfig | NavGroupConfig
+  type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  const navItemConfigs: NavConfigItem[] = [
+  const navItemConfigs: NavLinkConfig[] = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
+    { path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, requiredRole: 'Manager' },
+    { path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban, requiredRole: 'Manager' },
+    { path: '/staff-tasks', label: t('nav.staffTasks', 'Personelimin Görevleri'), icon: Users, requiredRole: 'Manager' },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
-    {
-      type: 'group',
-      label: t('nav.myRequests', 'Taleplerim'),
-      icon: ClipboardList,
-      children: [
-        { pageKey: 'myRequests' as const, path: '/my-requests?view=created', label: t('nav.myRequestsCreated', 'Oluşturduğum Talepler'), icon: Send },
-        { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequestsPending', 'Bekleyen Taleplerim'), icon: Clock3 },
-        { pageKey: 'myRequests' as const, path: '/my-requests?view=approved', label: t('nav.myRequestsApproved', 'Onaylanmış Taleplerim'), icon: CheckCircle2 },
-        { pageKey: 'myRequests' as const, path: '/my-requests?view=rejected', label: t('nav.myRequestsRejected', 'Reddedilen/İptal Taleplerim'), icon: XCircle },
-        { pageKey: 'myRequests' as const, path: '/my-requests?view=all', label: t('nav.myRequestsAll', 'Tüm Taleplerim'), icon: Inbox },
-      ],
-    },
-    {
-      type: 'group',
-      label: t('nav.myTasks', 'Görevlerim'),
-      icon: ListChecks,
-      children: [
-        { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasksPending', 'Bekleyen Görevlerim'), icon: Clock3 },
-        { pageKey: 'myTasks' as const, path: '/my-tasks?view=completed', label: t('nav.myTasksCompleted', 'Tamamlanmış Görevlerim'), icon: ClipboardCheck },
-        { pageKey: 'myTasks' as const, path: '/my-tasks?view=rejected', label: t('nav.myTasksRejected', 'Reddedilen/İptal Görevlerim'), icon: XCircle },
-        { pageKey: 'myTasks' as const, path: '/my-tasks?view=all', label: t('nav.myTasksAll', 'Tüm Görevlerim'), icon: Inbox },
-      ],
-    },
-    {
-      type: 'group',
-      label: t('nav.incomingRequests', 'Birime Gelen Talepler'),
-      icon: FolderKanban,
-      children: [
-        { pageKey: 'tasks' as const, path: '/tasks', label: t('nav.incomingRequestsInternal', 'Birim İçi Gelen Talepler'), icon: SquareKanban },
-        { pageKey: 'jobs' as const, path: '/jobs', label: t('nav.incomingRequestsExternal', 'Birim Dışı Gelen Talepler'), icon: Workflow },
-        { pageKey: 'incomingRequests' as const, path: '/incoming-requests', label: t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'), icon: CircleDot },
-      ],
-    },
+    { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck },
+    { pageKey: 'myRequests' as const, path: '/my-requests?view=all', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
+    { pageKey: 'myTasks' as const, path: '/my-tasks?view=all', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp },
     { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
@@ -103,23 +81,8 @@ export function AppShell() {
   ]
 
   const navItems = navItemConfigs.reduce<SidebarNavItem[]>((items, item) => {
-    if ('children' in item) {
-      const children = item.children
-        .filter(child => canRoleAccessPage(user?.role, child.pageKey))
-        .map(child => ({ path: child.path, label: child.label, icon: child.icon }))
-
-      if (children.length > 0) {
-        items.push({ type: 'group', label: item.label, icon: item.icon, children })
-      }
-
-      return items
-    }
-
-    const { pageKey, ...link } = item
-    if (canRoleAccessPage(user?.role, pageKey)) {
-      items.push(link)
-    }
-
+    const canUse = item.requiredRole ? user?.role === item.requiredRole : item.pageKey ? canRoleAccessPage(user?.role, item.pageKey) : false
+    if (canUse) items.push({ path: item.path, label: item.label, icon: item.icon })
     return items
   }, [])
   void accessVersion
@@ -130,13 +93,87 @@ export function AppShell() {
   }
 
   const breadcrumbSegments = location.pathname.split('/').filter(Boolean)
+
+  const viewParam = useMemo(() => new URLSearchParams(location.search).get('view') ?? '', [location.search])
+  const requestKindParam = useMemo(() => new URLSearchParams(location.search).get('kind') ?? '', [location.search])
+
+  const myRequestsViewLabels: Record<string, string> = {
+    pending: t('nav.myRequestsPending', 'Bekleyen Taleplerim'),
+    approved: t('nav.myRequestsApproved', 'Onaylanmış Taleplerim'),
+    rejected: t('nav.myRequestsRejected', 'İptal/İade Taleplerim'),
+    all: t('nav.myRequestsAll', 'Tüm Taleplerim'),
+  }
+  const myRequestsViewIcons: Record<string, typeof LayoutDashboard> = {
+    pending: Clock3,
+    approved: CheckCircle2,
+    rejected: XCircle,
+    all: Inbox,
+  }
+
+  const myTasksViewLabels: Record<string, string> = {
+    pending: t('nav.myTasksPending', 'Bekleyen Görevlerim'),
+    completed: t('nav.myTasksCompleted', 'Tamamlanmış Görevlerim'),
+    rejected: t('nav.myTasksRejected', 'İptal/İade Görevlerim'),
+    all: t('nav.myTasksAll', 'Tüm Görevlerim'),
+  }
+  const myTasksViewIcons: Record<string, typeof LayoutDashboard> = {
+    pending: Clock3,
+    completed: ClipboardCheck,
+    rejected: XCircle,
+    all: Inbox,
+  }
+  const outgoingRequestsViewLabels: Record<string, string> = {
+    pending: t('jobs.outgoingViews.pending', 'Bekleyen Talepler'),
+    approved: t('jobs.outgoingViews.approved', 'Onaylanmış Talepler'),
+    'in-progress': t('jobs.outgoingViews.inProgress', 'Yapılmakta Olan Talepler'),
+    completed: t('jobs.outgoingViews.completed', 'Tamamlanmış Talepler'),
+    rejected: t('jobs.outgoingViews.rejected', 'Reddedilen/İptal Talepler'),
+    all: t('jobs.outgoingViews.all', 'Tümü'),
+  }
+  const outgoingRequestsViewIcons: Record<string, typeof LayoutDashboard> = {
+    pending: Clock3,
+    approved: CheckCircle2,
+    'in-progress': Workflow,
+    completed: ClipboardCheck,
+    rejected: XCircle,
+    all: Inbox,
+  }
+  const flowParam = useMemo(() => new URLSearchParams(location.search).get('flow') ?? '', [location.search])
+  const departmentTasksViewLabels: Record<string, string> = {
+    internal: t('nav.departmentTasksInternal', 'Birim İçi Oluşan Görevler'),
+    external: t('nav.departmentTasksExternal', 'Birim Dışı Oluşan Görevler'),
+    all: t('nav.departmentTasksAll', 'Birimde Oluşan Tüm Görevler'),
+  }
+  const departmentTasksViewIcons: Record<string, typeof LayoutDashboard> = {
+    internal: SquareKanban,
+    external: Workflow,
+    all: CircleDot,
+  }
+  const requestKindLabels: Record<string, string> = {
+    internal: t('requests.create.internalTitle', 'Birim İçi'),
+    external: t('requests.create.externalTitle', 'Birim Dışı'),
+    citizen: t('requests.create.citizenTitle', 'Vatandaş Talepleri'),
+  }
+  const requestKindIcons: Record<string, typeof LayoutDashboard> = {
+    internal: SquareKanban,
+    external: Workflow,
+    citizen: MessageSquareMore,
+  }
+
   const breadcrumbLabels: Record<string, string> = {
     dashboard: t('nav.dashboard'),
     requests: t('nav.createRequest', 'Talep Oluştur'),
     new: t('nav.createRequest', 'Talep Oluştur'),
-    'my-tasks': t('nav.myTasks', 'Görevlerim'),
-    'my-requests': t('nav.myRequests', 'Taleplerim'),
-    'incoming-requests': t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
+    'my-tasks': (viewParam && myTasksViewLabels[viewParam]) || t('nav.myTasks', 'Görevlerim'),
+    'my-requests': (viewParam && myRequestsViewLabels[viewParam]) || t('nav.myRequests', 'Taleplerim'),
+    'outgoing-requests': (viewParam && outgoingRequestsViewLabels[viewParam]) || t('nav.outgoingRequests', 'Birimden Giden Talepler'),
+    'department-tasks': (flowParam && departmentTasksViewLabels[flowParam]) || t('nav.departmentTasks', 'Birimdeki Görevler'),
+    'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
+    'incoming-requests': requestKindParam === 'internal'
+      ? t('nav.incomingRequestsInternal', 'Birim İçi Gelen Talepler')
+      : requestKindParam === 'external'
+        ? t('nav.incomingRequestsExternal', 'Birim Dışı Gelen Talepler')
+        : t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
     tasks: t('nav.tasks'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -152,12 +189,15 @@ export function AppShell() {
   const breadcrumbParent: Record<string, string> = {
     'my-tasks': t('nav.myTasks', 'Görevlerim'),
     'my-requests': t('nav.myRequests', 'Taleplerim'),
+    'outgoing-requests': t('nav.outgoingRequests', 'Birimden Giden Talepler'),
+    'department-tasks': t('nav.departmentTasks', 'Birimdeki Görevler'),
+    'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': t('nav.incomingRequests', 'Birime Gelen Talepler'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
-    directorate: t('nav.groupJobs'),
-    coordinated: t('nav.groupJobs'),
-    jobs: t('nav.groupJobs'),
-    display: t('nav.groupJobs'),
+    directorate: t('nav.incomingRequests', 'Birime Gelen Talepler'),
+    coordinated: t('nav.incomingRequests', 'Birime Gelen Talepler'),
+    jobs: t('nav.incomingRequests', 'Birime Gelen Talepler'),
+    display: t('nav.display'),
     social: t('nav.groupSocial'),
     departments: t('nav.groupAdmin'),
     users: t('nav.groupAdmin'),
@@ -171,8 +211,11 @@ export function AppShell() {
     dashboard: LayoutDashboard,
     requests: ClipboardPlus,
     new: ClipboardPlus,
-    'my-tasks': ListChecks,
-    'my-requests': Send,
+    'my-tasks': (viewParam && myTasksViewIcons[viewParam]) || ListChecks,
+    'my-requests': (viewParam && myRequestsViewIcons[viewParam]) || Clock3,
+    'outgoing-requests': (viewParam && outgoingRequestsViewIcons[viewParam]) || ArrowUpRight,
+    'department-tasks': (flowParam && departmentTasksViewIcons[flowParam]) || SquareKanban,
+    'staff-tasks': Users,
     'incoming-requests': FolderKanban,
     tasks: SquareKanban,
     directorate: FolderKanban,
@@ -187,12 +230,13 @@ export function AppShell() {
   }
   const visibleBreadcrumbSegments = breadcrumbSegments.filter(segment => !breadcrumbSkipSegments.has(segment))
   const currentBreadcrumbSegment = visibleBreadcrumbSegments.at(-1)
-  const currentBreadcrumbParent = currentBreadcrumbSegment ? breadcrumbParent[currentBreadcrumbSegment] : null
-  const currentBreadcrumbLabel = currentBreadcrumbSegment ? breadcrumbLabels[currentBreadcrumbSegment] || currentBreadcrumbSegment : null
-  const CurrentBreadcrumbIcon = currentBreadcrumbSegment ? breadcrumbIcon[currentBreadcrumbSegment] : null
+  const requestKindBreadcrumbLabel = currentBreadcrumbSegment === 'new' ? requestKindLabels[requestKindParam] : null
+  const currentBreadcrumbParent = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? t('nav.createRequest', 'Talep Oluştur') : breadcrumbParent[currentBreadcrumbSegment]) : null
+  const currentBreadcrumbLabel = currentBreadcrumbSegment ? requestKindBreadcrumbLabel || breadcrumbLabels[currentBreadcrumbSegment] || currentBreadcrumbSegment : null
+  const CurrentBreadcrumbIcon = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? requestKindIcons[requestKindParam] : breadcrumbIcon[currentBreadcrumbSegment]) : null
 
   return (
-    <div className="min-h-dvh bg-[color:var(--color-background)] lg:flex">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[color:var(--color-background)]">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg">
         Skip to content
       </a>
@@ -226,7 +270,7 @@ export function AppShell() {
           <aside className="sidebar-shell relative z-10 flex h-full w-[88vw] max-w-[320px] flex-col p-3 shadow-2xl">
             <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
               <div className="flex min-w-0 flex-col items-center gap-3 pr-12 text-center">
-                <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} className="h-24 w-24 rounded-[1.9rem]" />
+                <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} />
                 <div className="min-w-0">
                   <div className="text-2xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
                 </div>
@@ -238,19 +282,43 @@ export function AppShell() {
             <div className="sidebar-scroll-area mt-3 flex-1 overflow-y-auto">
               <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} />
             </div>
+            <div className="shrink-0 pt-2">
+              <div className="rounded-[var(--radius-xl)] border border-white/8 bg-white/6 px-3 py-2.5">
+                <p className="mb-2 text-center text-[0.55rem] font-bold tracking-[0.18em] text-white/25 uppercase select-none">
+                  v{__APP_VERSION__}
+                </p>
+                <a
+                  href={`https://wa.me/${SUPPORT_WHATSAPP_NUMBER}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/10"
+                >
+                  <ChannelIcon channel="WhatsApp" className="size-5 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[0.58rem] font-bold uppercase tracking-wider text-white/30">
+                      {t('shell.supportLine', 'Destek Hattı')}
+                    </p>
+                    <p className="text-[0.72rem] font-bold text-white/55">{SUPPORT_WHATSAPP_DISPLAY}</p>
+                  </div>
+                </a>
+              </div>
+            </div>
           </aside>
         </div>
       ) : null}
 
+      {/* Main area: sidebar + content — fills remaining height */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
       <aside
-        className={`sidebar-shell relative hidden h-dvh shrink-0 flex-col border-r px-3 py-3 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[88px]' : 'w-[296px]'}`}
+        style={{ zoom: 0.78 }}
+        className={`sidebar-shell relative hidden h-full shrink-0 flex-col border-r px-2.5 py-2.5 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[80px]' : 'w-[252px]'}`}
       >
-        <div className="flex h-full flex-col gap-3 rounded-[var(--radius-2xl)] border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-3">
-          <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
+        <div className="flex h-full flex-col gap-2.5 rounded-[var(--radius-2xl)] border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-2.5">
+          <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-2.5">
             {!isSidebarCollapsed ? (
-              <div className="flex flex-col items-center gap-2.5">
-                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="h-20 w-full max-w-full rounded-[1.7rem]" />
-                <div className="min-w-0 w-full text-center text-sm font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
+              <div className="flex flex-col items-center gap-2">
+                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} />
+                <div className="min-w-0 w-full text-center text-xs font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             ) : (
               <div className="flex justify-center">
@@ -269,13 +337,57 @@ export function AppShell() {
           </button>
 
           <div className="sidebar-scroll-area flex-1 overflow-y-auto">
-            <SidebarNav items={navItems} collapsed={isSidebarCollapsed} />
+            <SidebarNav
+              items={navItems}
+              collapsed={isSidebarCollapsed}
+            />
+          </div>
+
+          {/* Sidebar footer: version + WhatsApp support */}
+          <div className="shrink-0 pt-1">
+            {!isSidebarCollapsed ? (
+              <div className="rounded-[var(--radius-xl)] border border-white/8 bg-white/6 px-3 py-2.5">
+                <p className="mb-2 text-center text-[0.55rem] font-bold tracking-[0.18em] text-white/25 uppercase select-none">
+                  v{__APP_VERSION__}
+                </p>
+                <a
+                  href={`https://wa.me/${SUPPORT_WHATSAPP_NUMBER}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/10"
+                >
+                  <ChannelIcon channel="WhatsApp" className="size-5 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[0.58rem] font-bold uppercase tracking-wider text-white/30">
+                      {t('shell.supportLine', 'Destek Hattı')}
+                    </p>
+                    <p className="text-[0.72rem] font-bold text-white/55">{SUPPORT_WHATSAPP_DISPLAY}</p>
+                  </div>
+                </a>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-1.5 pb-0.5">
+                <a
+                  href={`https://wa.me/${SUPPORT_WHATSAPP_NUMBER}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={t('shell.supportLine', 'Destek Hattı')}
+                  className="flex size-9 items-center justify-center rounded-xl transition-colors hover:bg-white/10"
+                >
+                  <ChannelIcon channel="WhatsApp" className="size-5" />
+                </a>
+                <span className="text-[0.5rem] font-bold uppercase tracking-widest text-white/22 select-none">
+                  v{__APP_VERSION__}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1 overflow-x-clip md:flex md:min-h-0 md:flex-col md:overflow-visible">
-        <div className="hidden items-center justify-between border-b border-[var(--color-border)] bg-white/94 px-6 py-2.5 backdrop-blur lg:flex">
+      <div className="flex flex-1 min-w-0 min-h-0 flex-col">
+      <div style={{ zoom: 0.84 }} className="app-content-shell my-2 mr-2 min-w-0 flex-1 overflow-x-clip rounded-2xl border border-[var(--color-border)] bg-white shadow-sm md:flex md:min-h-0 md:flex-col md:overflow-visible">
+        <div className="relative z-40 hidden items-center justify-between border-b border-[var(--color-border)] bg-white/94 px-5 py-2 backdrop-blur lg:flex">
           <nav className="flex min-w-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-1.5 py-1 text-sm text-[color:var(--color-muted-foreground)] shadow-sm" aria-label="Breadcrumb">
             <button type="button" className="inline-flex h-8 min-w-0 items-center gap-1 rounded-full px-2.5 font-semibold text-slate-600 hover:bg-white hover:text-slate-800" onClick={() => navigate('/dashboard')}>
               <Home className="size-4" />
@@ -298,14 +410,25 @@ export function AppShell() {
             ) : null}
           </nav>
           <div className="flex items-center gap-3">
+            <GlobalSearchBar />
+            <DepartmentSwitcher />
             <NotificationBell />
-            <div className="flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm" title={`${userDisplayName} - ${userRoleLabel}`}>
+            <a
+              href="https://lumespec.com/apps/city-communication-center/guide/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t('shell.userGuide', 'Kullanım Kılavuzu')}
+              className="flex size-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm transition-colors hover:border-[color:var(--color-primary)]/40 hover:bg-[color:var(--color-primary)]/8 hover:text-[color:var(--color-primary)]"
+            >
+              <BookOpen className="size-4" />
+            </a>
+            <div className="flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm" title={`${userDisplayName} - ${user?.departmentName || userRoleLabel}`}>
               <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-xs font-black text-white">
                 {userInitials}
               </div>
               <div className="min-w-0">
                 <div className="truncate text-sm font-bold text-slate-900">{userDisplayName}</div>
-                <div className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">{userRoleLabel}</div>
+                <div className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">{user?.departmentName || userRoleLabel}</div>
               </div>
             </div>
             <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
@@ -314,7 +437,7 @@ export function AppShell() {
             </Button>
           </div>
         </div>
-        <main id="main-content" className="flex min-h-[calc(100dvh-3.6rem)] w-full max-w-none flex-col px-3 py-3 sm:px-4 md:min-h-0 md:flex-1 md:overflow-y-auto lg:px-6 lg:py-4 xl:px-7 2xl:px-8">
+        <main id="main-content" className="flex min-h-[calc(100dvh-3.6rem)] w-full max-w-none flex-col px-3 py-3 sm:px-4 md:min-h-0 md:flex-1 md:overflow-y-auto lg:px-5 lg:py-3 xl:px-6 2xl:px-7">
           {breadcrumbSegments.length > 0 && location.pathname !== '/dashboard' ? (
             <div className="mb-2">
               <button type="button" className="back-button" onClick={() => navigate(-1)}>
@@ -322,9 +445,13 @@ export function AppShell() {
               </button>
             </div>
           ) : null}
-          <Outlet />
+          <Outlet key={activeDepartmentVersion} />
         </main>
       </div>
+      <AppFooter />
+      </div>
+      </div> {/* end main area row */}
+      <ScrollFab />
     </div>
   )
 }

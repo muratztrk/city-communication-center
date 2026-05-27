@@ -1,7 +1,9 @@
-﻿import { NavLink, useLocation } from 'react-router-dom'
-import { ChevronDown, ChevronRight, type LucideIcon } from 'lucide-react'
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { cn } from '../../lib/cn'
+
+const PAGE_SIZE = 10
 
 export interface SidebarNavLinkItem {
   type?: 'link'
@@ -14,6 +16,7 @@ export interface SidebarNavGroupItem {
   type: 'group'
   label: string
   icon: LucideIcon
+  path?: string
   children: SidebarNavLinkItem[]
 }
 
@@ -22,34 +25,50 @@ export type SidebarNavItem = SidebarNavLinkItem | SidebarNavGroupItem
 interface SidebarNavProps {
   items: SidebarNavItem[]
   collapsed?: boolean
+  defaultActivePaths?: string[]
   onNavigate?: () => void
 }
 
-export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavProps) {
+export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], onNavigate }: SidebarNavProps) {
   const location = useLocation()
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const navRef = useRef<HTMLElement>(null)
-  const measureRef = useRef<HTMLElement>(null)
-  const [closedGroups, setClosedGroups] = useState<Set<string>>(() => new Set())
-  const [shouldConstrainGroups, setShouldConstrainGroups] = useState(false)
-  const [constrainedOpenGroup, setConstrainedOpenGroup] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const [groupPages, setGroupPages] = useState<Map<string, number>>(() => new Map())
   const currentPath = `${location.pathname}${location.search}`
-  const groupLabels = useMemo(() => items.filter(item => item.type === 'group').map(item => item.label), [items])
+  const defaultActivePathSet = useMemo(() => new Set(defaultActivePaths), [defaultActivePaths])
 
   const isPathActive = useCallback((path: string) => {
     if (path.includes('?')) {
       return currentPath === path
     }
+    if (location.pathname === path) {
+      return location.search === ''
+    }
+    return location.pathname.startsWith(`${path}/`)
+  }, [currentPath, location.pathname, location.search])
 
-    return location.pathname === path || location.pathname.startsWith(`${path}/`)
-  }, [currentPath, location.pathname])
-  const activeGroupLabel = useMemo(() => {
-    const activeGroup = items.find(item => item.type === 'group' && item.children.some(child => isPathActive(child.path)))
-    return activeGroup?.label ?? null
-  }, [isPathActive, items])
+  const getGroupPage = useCallback((label: string) => groupPages.get(label) ?? 0, [groupPages])
+  const setGroupPage = useCallback((label: string, page: number) => {
+    setGroupPages(current => {
+      const next = new Map(current)
+      next.set(label, page)
+      return next
+    })
+  }, [])
 
-  const renderLink = (item: SidebarNavLinkItem, nested = false, measuring = false) => {
-    const isActive = isPathActive(item.path)
+  useEffect(() => {
+    items.forEach(item => {
+      if (item.type !== 'group') return
+      const activeIndex = item.children.findIndex(child => isPathActive(child.path))
+      if (activeIndex < 0) return
+      const correctPage = Math.floor(activeIndex / PAGE_SIZE)
+      if (correctPage !== getGroupPage(item.label)) {
+        setGroupPage(item.label, correctPage)
+      }
+    })
+  }, [currentPath, items, getGroupPage, setGroupPage, isPathActive])
+
+  const renderLink = (item: SidebarNavLinkItem, nested = false, forceActive = false) => {
+    const isActive = isPathActive(item.path) || forceActive
     const Icon = item.icon
     const className = cn(
       'flex w-full min-w-0 items-center rounded-xl border text-left font-semibold transition-colors duration-150',
@@ -58,107 +77,46 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
         ? 'border-white/10 bg-white text-slate-950 shadow-sm'
         : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',
     )
-    const content = (
-      <>
-        <Icon className={cn('shrink-0', nested && !collapsed ? 'size-4' : 'size-4.5')} />
-        {!collapsed ? <span className="truncate">{item.label}</span> : null}
-      </>
-    )
-
-    if (measuring) {
-      return <div key={item.path} className={className}>{content}</div>
-    }
 
     return (
       <NavLink
         key={item.path}
         to={item.path}
-        title={collapsed ? item.label : undefined}
+        title={item.label}
         className={className}
         onClick={() => onNavigate?.()}
       >
-        {content}
+        <Icon className={cn('shrink-0', nested && !collapsed ? 'size-4' : 'size-4.5')} />
+        {!collapsed ? <span className="truncate">{item.label}</span> : null}
       </NavLink>
     )
   }
 
-  const updateOverflowState = useCallback((preferredOpenLabel?: string | null) => {
-    const parent = wrapperRef.current?.parentElement
-    if (collapsed || groupLabels.length === 0 || !parent) {
-      setShouldConstrainGroups(false)
-      setConstrainedOpenGroup(null)
-      return
-    }
-
-    const allGroupsOpenHeight = measureRef.current?.scrollHeight ?? navRef.current?.scrollHeight ?? 0
-    const wouldOverflow = allGroupsOpenHeight > parent.clientHeight + 2
-    if (!wouldOverflow) {
-      setShouldConstrainGroups(false)
-      setConstrainedOpenGroup(null)
-      return
-    }
-
-    setShouldConstrainGroups(true)
-    setConstrainedOpenGroup(current => {
-      if (preferredOpenLabel && groupLabels.includes(preferredOpenLabel)) {
-        return preferredOpenLabel
-      }
-
-      if (current && groupLabels.includes(current)) {
-        return current
-      }
-
-      return activeGroupLabel && groupLabels.includes(activeGroupLabel) ? activeGroupLabel : null
-    })
-  }, [activeGroupLabel, collapsed, groupLabels])
-
-  useLayoutEffect(() => {
-    const frameId = window.requestAnimationFrame(() => updateOverflowState())
-    const observer = new ResizeObserver(() => updateOverflowState())
-    const parent = wrapperRef.current?.parentElement
-    if (parent) {
-      observer.observe(parent)
-    }
-    if (measureRef.current) {
-      observer.observe(measureRef.current)
-    }
-
-    return () => {
-      window.cancelAnimationFrame(frameId)
-      observer.disconnect()
-    }
-  }, [collapsed, groupLabels.length, updateOverflowState])
-
-  const toggleGroup = (label: string, isOpen: boolean) => {
-    if (shouldConstrainGroups) {
-      setConstrainedOpenGroup(isOpen ? null : label)
-      return
-    }
-
-    setClosedGroups(current => {
-      const next = new Set(current)
-      if (isOpen) {
-        next.add(label)
-      } else {
-        next.delete(label)
-      }
-      return next
-    })
-  }
-
   return (
-    <div ref={wrapperRef} className="relative">
-      <nav ref={navRef} className="grid gap-1.5">
-        {items.map(item => {
+    <div className="relative">
+      <nav className="grid gap-0">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1
+          const separator = !isLast ? (
+            <div className="mx-2 h-px bg-white/[0.09]" />
+          ) : null
+
           if (item.type !== 'group') {
-            return renderLink(item)
+            return (
+              <Fragment key={item.path}>
+                <div className="py-0.5">{renderLink(item)}</div>
+                {separator}
+              </Fragment>
+            )
           }
 
           const Icon = item.icon
           const isGroupActive = item.children.some(child => isPathActive(child.path))
-          const isOpen = collapsed || (shouldConstrainGroups ? constrainedOpenGroup === item.label : !closedGroups.has(item.label))
+          const groupHasActiveChild = isGroupActive
+
           return (
-            <div key={item.label} className={cn('grid gap-1', collapsed ? 'justify-stretch' : '')}>
+            <Fragment key={item.label}>
+            <div className={cn('grid gap-1 py-0.5', collapsed ? 'justify-stretch' : '')}>
               {!collapsed ? (
                 <button
                   type="button"
@@ -168,54 +126,74 @@ export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavP
                       ? 'border-white/10 bg-white/10 text-white shadow-sm'
                       : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',
                   )}
-                  aria-expanded={isOpen}
-                  onClick={() => toggleGroup(item.label, isOpen)}
+                  onClick={() => {
+                    if (item.path) {
+                      navigate(item.path)
+                      onNavigate?.()
+                    }
+                  }}
                 >
                   <Icon className="size-4.5 shrink-0" />
-                  <span className="truncate">{item.label}</span>
-                  {isOpen ? <ChevronDown className="ml-auto size-4 shrink-0 opacity-70" /> : <ChevronRight className="ml-auto size-4 shrink-0 opacity-70" />}
+                  <span className="truncate" title={item.label}>{item.label}</span>
                 </button>
               ) : null}
-              {isOpen ? (
-                <div className={cn('grid gap-1', collapsed ? '' : 'ml-4 border-l border-white/10 pl-2.5')}>
-                  {item.children.map(child => renderLink(child, true))}
-                </div>
-              ) : null}
+              <div className={cn('grid gap-1', collapsed ? '' : 'ml-4 border-l border-white/10 pl-2.5')}>
+                {(() => {
+                  const page = getGroupPage(item.label)
+                  const totalPages = Math.ceil(item.children.length / PAGE_SIZE)
+                  const visible = item.children.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+                  return (
+                    <>
+                      {visible.map(child => renderLink(child, true, !groupHasActiveChild && defaultActivePathSet.has(child.path)))}
+                      {!collapsed && totalPages > 1 ? (
+                        <div className="flex items-center gap-1 pt-1">
+                          <button
+                            type="button"
+                            disabled={page === 0}
+                            onClick={() => setGroupPage(item.label, page - 1)}
+                            className="flex size-6 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-30"
+                            aria-label="Önceki sayfa"
+                          >
+                            <ChevronLeft className="size-3.5" />
+                          </button>
+                          {Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => setGroupPage(item.label, i)}
+                              className={cn(
+                                'flex size-6 items-center justify-center rounded-lg text-xs font-bold transition-colors',
+                                i === page
+                                  ? 'bg-white/15 text-white'
+                                  : 'text-white/50 hover:bg-white/10 hover:text-white',
+                              )}
+                              aria-label={`Sayfa ${i + 1}`}
+                              aria-current={i === page ? 'page' : undefined}
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            disabled={page === totalPages - 1}
+                            onClick={() => setGroupPage(item.label, page + 1)}
+                            className="flex size-6 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-30"
+                            aria-label="Sonraki sayfa"
+                          >
+                            <ChevronRight className="size-3.5" />
+                          </button>
+                        </div>
+                      ) : null}
+                    </>
+                  )
+                })()}
+              </div>
             </div>
+            {separator}
+            </Fragment>
           )
         })}
       </nav>
-      {!collapsed ? (
-        <nav ref={measureRef} aria-hidden="true" className="pointer-events-none invisible absolute inset-x-0 top-0 grid gap-1.5">
-          {items.map(item => {
-            if (item.type !== 'group') {
-              return renderLink(item, false, true)
-            }
-
-            const Icon = item.icon
-            const isGroupActive = item.children.some(child => isPathActive(child.path))
-            return (
-              <div key={`measure-${item.label}`} className="grid gap-1">
-                <div
-                  className={cn(
-                    'flex w-full min-w-0 items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition-colors duration-150',
-                    isGroupActive
-                      ? 'border-white/10 bg-white/10 text-white shadow-sm'
-                      : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78',
-                  )}
-                >
-                  <Icon className="size-4.5 shrink-0" />
-                  <span className="truncate">{item.label}</span>
-                  <ChevronDown className="ml-auto size-4 shrink-0 opacity-70" />
-                </div>
-                <div className="ml-4 grid gap-1 border-l border-white/10 pl-2.5">
-                  {item.children.map(child => renderLink(child, true, true))}
-                </div>
-              </div>
-            )
-          })}
-        </nav>
-      ) : null}
     </div>
   )
 }

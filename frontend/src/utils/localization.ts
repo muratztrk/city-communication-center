@@ -28,6 +28,66 @@ export function getAuditActionLabel(t: TFunction, action: string): string {
   return t(`enum.auditAction.${action}`, { defaultValue: action })
 }
 
+export function getAuditStatusLabel(t: TFunction, status: string): string {
+  return t(`enum.jobStatus.${status}`, {
+    defaultValue: t(`enum.taskStatus.${status}`, { defaultValue: status }),
+  })
+}
+
+function getAuditNoteKeyLabel(t: TFunction, key: string): string {
+  return t(`enum.auditLog.noteKeys.${key}`, { defaultValue: key })
+}
+
+function formatAuditNoteValue(t: TFunction, key: string, value: string): string {
+  if (key === 'Status') return getAuditStatusLabel(t, value)
+  return value
+}
+
+export function formatAuditNotes(t: TFunction, notes: string): string {
+  const trimmedNotes = notes.trim()
+  if (!trimmedNotes) return trimmedNotes
+
+  const parts = trimmedNotes.split(/,\s*/)
+  const keyValueParts = parts
+    .map(part => part.match(/^([A-Za-z][A-Za-z0-9]*)=(.*)$/))
+    .filter((match): match is RegExpMatchArray => Boolean(match))
+
+  if (keyValueParts.length === parts.length) {
+    return keyValueParts
+      .map(match => {
+        const [, key, rawValue] = match
+        return `${getAuditNoteKeyLabel(t, key)}: ${formatAuditNoteValue(t, key, rawValue)}`
+      })
+      .join(', ')
+  }
+
+  if (trimmedNotes.startsWith('Assigned to: ')) {
+    return `${t('enum.auditLog.notePhrases.assignedTo', { defaultValue: 'Atanan' })}: ${trimmedNotes.slice('Assigned to: '.length)}`
+  }
+
+  if (trimmedNotes.startsWith('Assigned to user ')) {
+    return `${t('enum.auditLog.notePhrases.assignedToUser', { defaultValue: 'Atanan kullanıcı' })}: ${trimmedNotes.slice('Assigned to user '.length)}`
+  }
+
+  if (trimmedNotes === 'Unassigned (pool)') {
+    return t('enum.auditLog.notePhrases.unassignedPool', { defaultValue: 'Atanmamış (havuz)' })
+  }
+
+  if (trimmedNotes.startsWith('Title updated: ')) {
+    return `${t('enum.auditLog.notePhrases.titleUpdated', { defaultValue: 'Başlık güncellendi' })}: ${trimmedNotes.slice('Title updated: '.length)}`
+  }
+
+  const deletedJobMatch = trimmedNotes.match(/^Job '(.+)' deleted\.$/)
+  if (deletedJobMatch) {
+    return t('enum.auditLog.notePhrases.jobDeleted', {
+      title: deletedJobMatch[1],
+      defaultValue: `'${deletedJobMatch[1]}' talebi silindi.`,
+    })
+  }
+
+  return trimmedNotes
+}
+
 export function getDeploymentModeLabel(t: TFunction, deploymentMode: string): string {
   return t(`enum.deploymentMode.${deploymentMode}`, { defaultValue: deploymentMode })
 }

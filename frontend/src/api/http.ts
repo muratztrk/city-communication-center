@@ -1,9 +1,25 @@
 import i18n from '../i18n'
 import { getStoredSession, getValidAccessToken } from './auth'
 
+const ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_id'
+
+export function getActiveDepartmentId(): string | null {
+  return window.localStorage.getItem(ACTIVE_DEPARTMENT_KEY)
+}
+
+export function setActiveDepartmentId(departmentId: string | null): void {
+  if (departmentId) {
+    window.localStorage.setItem(ACTIVE_DEPARTMENT_KEY, departmentId)
+  } else {
+    window.localStorage.removeItem(ACTIVE_DEPARTMENT_KEY)
+  }
+  window.dispatchEvent(new CustomEvent('activeDepartmentChanged'))
+}
+
 export async function getAuthHeaders(): Promise<HeadersInit> {
   const token = await getValidAccessToken()
   const tenantId = getStoredSession()?.user.tenantId ?? null
+  const activeDepartmentId = getActiveDepartmentId()
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -16,6 +32,10 @@ export async function getAuthHeaders(): Promise<HeadersInit> {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`
+  }
+
+  if (activeDepartmentId) {
+    headers['X-Active-Department-Id'] = activeDepartmentId
   }
 
   return headers

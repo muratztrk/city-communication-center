@@ -52,6 +52,9 @@ public sealed class HttpTenantContextAccessor : ITenantContextAccessor
             : !isAuthenticated && httpContext.Request.Headers.ContainsKey(_options.HeaderName)
                 ? "header"
                 : null;
+        var activeDepartmentId = isAuthenticated
+            ? ParseGuid(httpContext.Request.Headers["X-Active-Department-Id"].FirstOrDefault())
+            : null;
 
         return new TenantContext(
             tenantId,
@@ -65,7 +68,8 @@ public sealed class HttpTenantContextAccessor : ITenantContextAccessor
                     ? "No tenant claim was found on the authenticated principal."
                     : $"No tenant context was found. Provide a tenant claim or the '{_options.HeaderName}' header."
                 : null,
-            tenantId is not null);
+            tenantId is not null,
+            activeDepartmentId);
     }
 
     private static Guid? ParseGuid(string? value)

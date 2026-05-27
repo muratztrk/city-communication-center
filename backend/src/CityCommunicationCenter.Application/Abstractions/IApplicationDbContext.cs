@@ -16,6 +16,8 @@ public interface IApplicationDbContext
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<RoutingRule> RoutingRules { get; }
     DbSet<PushSubscription> PushSubscriptions { get; }
+    DbSet<Attachment> Attachments { get; }
+    DbSet<UserDepartmentAssignment> UserDepartmentAssignments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

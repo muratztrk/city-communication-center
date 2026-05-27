@@ -26,6 +26,8 @@ public sealed class SocialMessage : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     /// <summary>Response content sent back to the citizen</summary>
     public string? ResponseContent { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 
     /// <summary>When the response was sent</summary>
     public DateTimeOffset? RespondedAtUtc { get; set; }

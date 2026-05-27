@@ -8,7 +8,8 @@ public sealed record TenantSettingsResponse(
     bool IsActive,
     string? Theme,
     string? Domain,
-    int DefaultSlaHours);
+    int DefaultSlaHours,
+    string? RolePageAccessJson);
 
 public sealed record UpdateTenantSettingsRequest(
     string DisplayName,
@@ -16,6 +17,8 @@ public sealed record UpdateTenantSettingsRequest(
     string? Theme,
     string? Domain,
     int DefaultSlaHours);
+
+public sealed record UpdateRolePageAccessRequest(string? MatrixJson);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

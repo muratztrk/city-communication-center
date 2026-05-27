@@ -1,4 +1,6 @@
+using CityCommunicationCenter.Application.Features.AuditLogs;
 using CityCommunicationCenter.Application.Features.Tasks;
+using CityCommunicationCenter.Domain.Entities;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
@@ -20,6 +22,19 @@ public sealed class TasksController : ApiControllerBase
         var response = await _sender.Send(new GetTaskByIdQuery(taskId), cancellationToken);
         if (response is null) return NotFound();
         return Ok(response);
+    }
+
+    [HttpPost("routine")]
+    public async Task<ActionResult<TaskSummaryResponse>> CreateRoutine([FromBody] CreateRoutineTaskRequest request, CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new CreateRoutineTaskCommand(
+            CurrentContext.UserId,
+            request.Title,
+            request.Description,
+            request.Priority,
+            request.DueDateUtc,
+            request.Notes), cancellationToken);
+        return CreatedAtRoute("GetTaskById", new { taskId = response.TaskId }, response);
     }
 
     [HttpPost("")]
@@ -101,5 +116,12 @@ public sealed class TasksController : ApiControllerBase
     {
         var ok = await _sender.Send(new UpdateTaskProgressCommand(taskId, CurrentContext.UserId, request.CompletionPercentage, request.ActualHours, request.Notes), cancellationToken);
         return ok ? NoContent() : NotFound();
+    }
+
+    [HttpGet("{taskId:guid}/audit-log")]
+    public async Task<ActionResult<IEnumerable<EntityAuditLogEntryResponse>>> GetTaskAuditLog(Guid taskId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetEntityAuditLogQuery(RequiredTenantId, nameof(WorkTask), taskId), cancellationToken);
+        return Ok(result);
     }
 }

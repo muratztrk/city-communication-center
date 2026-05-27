@@ -69,6 +69,8 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionRequested",
             ActorUserId = request.ActorUserId,
+            StatusAtEvent = WorkflowTaskStatus.RevisionRequested.ToString(),
+            Notes = request.Reason,
             Details = request.Reason
         });
 
@@ -125,6 +127,8 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionApproved",
             ActorUserId = request.ActorUserId,
+            StatusAtEvent = WorkflowTaskStatus.InProgress.ToString(),
+            Notes = request.Comment,
             Details = request.Comment
         });
 
@@ -216,6 +220,7 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionRejected",
             ActorUserId = request.ActorUserId,
+            Notes = request.Comment,
             Details = request.Comment
         });
 

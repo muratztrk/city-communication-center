@@ -27,6 +27,8 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     public DateTimeOffset? DueDateUtc { get; set; }
 
     public DateTimeOffset? CompletedAtUtc { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 
     public JobSourceType SourceType { get; set; } = JobSourceType.Manual;
 
@@ -39,6 +41,9 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 
     /// <summary>True if this job spans multiple departments.</summary>
     public bool IsCoordinated { get; set; }
+
+    public int? JobNumber { get; set; }
+    public int? JobNumberYear { get; set; }
 
     public Tenant Tenant { get; set; } = null!;
 

@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Features.Users;
+
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record CreateJobCommand(
@@ -15,7 +17,9 @@ public sealed record CreateJobCommand(
     DateTimeOffset? DueDateUtc,
     IReadOnlyCollection<Guid>? TargetDepartmentIds,
     string? SourceType,
-    Guid? SourceRefId) : ICommand<JobSummaryResponse>;
+    Guid? SourceRefId,
+    double? Latitude = null,
+    double? Longitude = null) : ICommand<JobSummaryResponse>;
 
 public sealed class CreateJobCommandValidator : AbstractValidator<CreateJobCommand>
 {
@@ -51,7 +55,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         // Auth: Staff can only create for own dept, Manager for managed dept, Admin for any
         if (!isSystemAdmin)
         {
-            if (actor.RoleCode == RoleCode.Staff && actor.DepartmentId != request.OwnerDepartmentId)
+            if (actor.RoleCode == RoleCode.Staff &&
+                !await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, actor, request.OwnerDepartmentId, cancellationToken, includeManagedDepartments: false))
             {
                 throw new ForbiddenAccessException("Personel sadece kendi mudurlugu icin is olusturabilir.");
             }
@@ -87,9 +92,12 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 throw Validation(nameof(request.OwnerUserIds), "Secilen kullanicilardan biri bulunamadi veya aktif degil.");
             }
 
-            if (ownerUsers.Any(u => u.DepartmentId != request.OwnerDepartmentId))
+            foreach (var ownerUser in ownerUsers)
             {
-                throw Validation(nameof(request.OwnerUserIds), "Secilen kullanicilar sahip mudurlukte calismali.");
+                if (!await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, ownerUser, request.OwnerDepartmentId, cancellationToken))
+                {
+                    throw Validation(nameof(request.OwnerUserIds), "Secilen kullanicilar sahip mudurlukte calismali.");
+                }
             }
 
             if (!isSystemAdmin && actor.RoleCode == RoleCode.Staff && ownerUsers.Any(u => u.UserId != actor.UserId))
@@ -111,6 +119,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 : targets.Length > 0
                     ? JobRequestType.ExternalUnit
                     : JobRequestType.InternalUnit;
+        var requiresOwnerApproval = actor.RoleCode == RoleCode.Staff;
+        var ownerTaskNotes = JobOwnerTaskProvisioning.CreateOwnerTaskNotes(ownerUserIds);
 
         var job = new Job
         {
@@ -119,7 +129,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             Title = request.Title.Trim(),
             Description = request.Description.Trim(),
             OwnerDepartmentId = request.OwnerDepartmentId,
-            Status = JobStatus.Active,
+            Status = requiresOwnerApproval ? JobStatus.PendingOwnerApproval : JobStatus.Active,
             Priority = request.Priority.Trim(),
             RequestType = requestType,
             IsProject = request.IsProject,
@@ -129,6 +139,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             DueDateUtc = request.DueDateUtc,
             SourceType = sourceType,
             SourceRefId = request.SourceRefId,
+            Latitude = request.Latitude,
+            Longitude = request.Longitude,
             IsCoordinated = targets.Length > 0,
             CreatedByUserId = context.UserId
         };
@@ -142,11 +154,12 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             JobId = job.JobId,
             DepartmentId = request.OwnerDepartmentId,
             Role = JobDepartmentRole.Owner,
-            ApprovalStatus = JobApprovalStatus.Approved,
+            ApprovalStatus = requiresOwnerApproval ? JobApprovalStatus.Pending : JobApprovalStatus.Approved,
             RequestedByUserId = actor.UserId,
             RequestedAtUtc = utcNow,
-            ApprovedByUserId = actor.UserId,
-            DecidedAtUtc = utcNow,
+            ApprovedByUserId = requiresOwnerApproval ? null : actor.UserId,
+            DecidedAtUtc = requiresOwnerApproval ? null : utcNow,
+            Notes = ownerTaskNotes,
             CreatedByUserId = context.UserId
         });
 
@@ -166,37 +179,43 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             });
         }
 
-        foreach (var ownerUser in ownerUsers)
+        if (!requiresOwnerApproval)
         {
-            var task = new WorkTask
+            foreach (var ownerUser in ownerUsers)
             {
-                TaskId = Guid.NewGuid(),
-                TenantId = tenantId,
-                JobId = job.JobId,
-                Title = job.Title,
-                Description = job.Description,
-                AssignedDepartmentId = ownerUser.DepartmentId,
-                AssignedUserId = ownerUser.UserId,
-                AssigningManagerId = actor.RoleCode == RoleCode.Manager ? actor.UserId : null,
-                OwnerUserId = ownerUser.UserId,
-                CurrentStatus = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned,
-                Priority = job.Priority,
-                StartDateUtc = job.StartDateUtc,
-                DueDateUtc = job.DueDateUtc,
-                CreatedByUserId = context.UserId
-            };
+                var task = new WorkTask
+                {
+                    TaskId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    JobId = job.JobId,
+                    Title = job.Title,
+                    Description = job.Description,
+                    AssignedDepartmentId = request.OwnerDepartmentId,
+                    AssignedUserId = ownerUser.UserId,
+                    AssigningManagerId = actor.RoleCode == RoleCode.Manager ? actor.UserId : null,
+                    OwnerUserId = ownerUser.UserId,
+                    CurrentStatus = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned,
+                    Priority = job.Priority,
+                    StartDateUtc = job.StartDateUtc,
+                    DueDateUtc = job.DueDateUtc,
+                    CreatedByUserId = context.UserId
+                };
 
-            _dbContext.Tasks.Add(task);
-            _dbContext.AuditLogs.Add(new AuditLog
-            {
-                AuditLogId = Guid.NewGuid(),
-                TenantId = tenantId,
-                EntityType = nameof(WorkTask),
-                EntityId = task.TaskId.ToString(),
-                Action = "TaskCreated",
-                ActorUserId = context.UserId,
-                Details = $"Created from job owner user selection. AssignedUser={ownerUser.UserId}"
-            });
+                _dbContext.Tasks.Add(task);
+                _dbContext.AuditLogs.Add(new AuditLog
+                {
+                    AuditLogId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    EntityType = nameof(WorkTask),
+                    EntityId = task.TaskId.ToString(),
+                    Action = "TaskCreated",
+                    ActorUserId = context.UserId,
+                    ActorDisplayName = actor.DisplayName,
+                    StatusAtEvent = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned.ToString(),
+                    Notes = $"Assigned to: {ownerUser.DisplayName}",
+                    Details = $"Created from job owner user selection. AssignedUser={ownerUser.UserId}"
+                });
+            }
         }
 
         _dbContext.AuditLogs.Add(new AuditLog
@@ -207,7 +226,10 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             EntityId = job.JobId.ToString(),
             Action = "JobCreated",
             ActorUserId = context.UserId,
-            Details = $"Status=Active, Targets={targets.Length}, OwnerUsers={ownerUsers.Length}"
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = job.Status.ToString(),
+            Notes = $"Targets={targets.Length}, OwnerUsers={ownerUsers.Length}",
+            Details = $"Status={job.Status}, Targets={targets.Length}, OwnerUsers={ownerUsers.Length}"
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

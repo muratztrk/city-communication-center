@@ -1,8 +1,9 @@
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Reports;
 
-public sealed record GetDashboardQuery() : IQuery<DashboardResponse>;
+public sealed record GetDashboardQuery(DateTimeOffset? FromUtc, DateTimeOffset? ToUtc) : IQuery<DashboardResponse>;
 
 public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, DashboardResponse>
 {
@@ -19,32 +20,156 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
     {
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
-        var canSeePendingApprovals = context.RoleCode is "Manager" or "SystemAdmin";
+        var userId = context.UserId;
+        var isManagerOrAdmin = context.RoleCode is "Manager" or "SystemAdmin";
 
         var activeTasks = await _dbContext.Tasks.CountAsync(
             entity => entity.TenantId == tenantId
                 && entity.CurrentStatus != WorkflowTaskStatus.Completed
                 && entity.CurrentStatus != WorkflowTaskStatus.Cancelled
                 && entity.CurrentStatus != WorkflowTaskStatus.Rejected
-                && entity.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval,
+                && entity.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                && (!request.FromUtc.HasValue || entity.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || entity.CreatedAtUtc <= request.ToUtc.Value),
             cancellationToken);
 
         int pendingApprovals = 0;
         int rejectedOrCancelledRequests = 0;
-        if (canSeePendingApprovals)
+        int myPendingRequestCount = 0;
+        int outgoingPendingCount = 0;
+        int myPendingTaskCount = 0;
+        int deptPendingTaskCount = 0;
+        int myTotalRequestCount = 0;
+        int incomingTotalCount = 0;
+        int outgoingTotalCount = 0;
+        int deptTotalTaskCount = 0;
+
+        if (isManagerOrAdmin && userId.HasValue)
         {
+            var actor = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId.Value && u.TenantId == tenantId && u.IsActive, cancellationToken);
+            var scopedDepartmentIds = actor is null
+                ? []
+                : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                    _dbContext,
+                    tenantId,
+                    actor,
+                    context.ActiveDepartmentId,
+                    cancellationToken);
+
             var pendingJobsOwner = await _dbContext.Jobs.CountAsync(
-                j => j.TenantId == tenantId && j.Status == JobStatus.PendingOwnerApproval, cancellationToken);
+                j => j.TenantId == tenantId
+                    && j.Status == JobStatus.PendingOwnerApproval
+                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                cancellationToken);
             var pendingJobsExternal = await _dbContext.Jobs.CountAsync(
-                j => j.TenantId == tenantId && j.Status == JobStatus.PendingExternalApproval, cancellationToken);
+                j => j.TenantId == tenantId
+                    && j.Status == JobStatus.PendingExternalApproval
+                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                cancellationToken);
             pendingApprovals = pendingJobsOwner + pendingJobsExternal;
+
             rejectedOrCancelledRequests = await _dbContext.Jobs.CountAsync(
-                j => j.TenantId == tenantId && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled),
+                j => j.TenantId == tenantId
+                    && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled)
+                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                cancellationToken);
+
+            // Card 1: My pending requests (internal + external combined)
+            myPendingRequestCount = await _dbContext.Jobs.CountAsync(
+                j => j.TenantId == tenantId
+                    && j.CreatedByUserId == userId
+                    && j.Status != JobStatus.Completed
+                    && j.Status != JobStatus.Cancelled
+                    && j.Status != JobStatus.Rejected
+                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                cancellationToken);
+
+            // Card 7: All my requests (total)
+            myTotalRequestCount = await _dbContext.Jobs.CountAsync(
+                j => j.TenantId == tenantId
+                    && j.CreatedByUserId == userId
+                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                cancellationToken);
+
+            if (scopedDepartmentIds.Length > 0)
+            {
+                // Card 3: Outgoing pending = external jobs created by dept users that are pending
+                outgoingPendingCount = await _dbContext.Jobs.CountAsync(
+                    j => j.TenantId == tenantId
+                        && j.RequestType == JobRequestType.ExternalUnit
+                        && j.Status != JobStatus.Completed
+                        && j.Status != JobStatus.Cancelled
+                        && j.Status != JobStatus.Rejected
+                        && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                    cancellationToken);
+
+                // Card 9: Outgoing total
+                outgoingTotalCount = await _dbContext.Jobs.CountAsync(
+                    j => j.TenantId == tenantId
+                        && j.RequestType == JobRequestType.ExternalUnit
+                        && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                    cancellationToken);
+
+                // Card 5: Dept pending tasks
+                deptPendingTaskCount = await _dbContext.Tasks.CountAsync(
+                    t => t.TenantId == tenantId
+                        && t.AssignedDepartmentId.HasValue
+                        && scopedDepartmentIds.Contains(t.AssignedDepartmentId.Value)
+                        && t.CurrentStatus != WorkflowTaskStatus.Completed
+                        && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && t.CurrentStatus != WorkflowTaskStatus.Rejected
+                        && t.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                        && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
+                    cancellationToken);
+
+                // Card 10: Dept total tasks
+                deptTotalTaskCount = await _dbContext.Tasks.CountAsync(
+                    t => t.TenantId == tenantId
+                        && t.AssignedDepartmentId.HasValue
+                        && scopedDepartmentIds.Contains(t.AssignedDepartmentId.Value)
+                        && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
+                    cancellationToken);
+
+                // Card 8: Incoming total (jobs where dept is owner)
+                incomingTotalCount = await _dbContext.Jobs.CountAsync(
+                    j => j.TenantId == tenantId
+                        && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                    cancellationToken);
+            }
+
+            // Card 4: My pending tasks
+            myPendingTaskCount = await _dbContext.Tasks.CountAsync(
+                t => t.TenantId == tenantId
+                    && t.AssignedUserId == userId
+                    && t.CurrentStatus != WorkflowTaskStatus.Completed
+                    && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && t.CurrentStatus != WorkflowTaskStatus.Rejected
+                    && t.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                    && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
                 cancellationToken);
         }
 
         var openSocialMessages = await _dbContext.SocialMessages.CountAsync(
-            entity => entity.TenantId == tenantId && entity.Status != SocialMessageStatus.Closed,
+            entity => entity.TenantId == tenantId
+                && entity.Status != SocialMessageStatus.Closed
+                && (!request.FromUtc.HasValue || entity.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || entity.CreatedAtUtc <= request.ToUtc.Value),
             cancellationToken);
 
         return new DashboardResponse(
@@ -52,6 +177,14 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             pendingApprovals,
             openSocialMessages,
             rejectedOrCancelledRequests,
-            0);
+            0,
+            myPendingRequestCount,
+            outgoingPendingCount,
+            myPendingTaskCount,
+            deptPendingTaskCount,
+            myTotalRequestCount,
+            incomingTotalCount,
+            outgoingTotalCount,
+            deptTotalTaskCount);
     }
 }

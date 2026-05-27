@@ -13,10 +13,12 @@ internal static class TaskSummaryResponseFactory
             {
                 entity.Title,
                 entity.RequestType,
-                entity.SourceType
+                entity.SourceType,
+                entity.OwnerDepartmentId
             })
             .FirstOrDefaultAsync(cancellationToken);
         var assignedDepartmentName = await GetDepartmentNameAsync(dbContext, task.AssignedDepartmentId, cancellationToken);
+        var ownerDepartmentName = await GetDepartmentNameAsync(dbContext, job?.OwnerDepartmentId, cancellationToken);
         var assignedUserDisplayName = await GetUserDisplayNameAsync(dbContext, task.AssignedUserId, cancellationToken);
         var createdByDisplayName = await GetUserDisplayNameAsync(dbContext, task.CreatedByUserId, cancellationToken);
         var ownerDisplayName = await GetUserDisplayNameAsync(dbContext, task.OwnerUserId, cancellationToken);
@@ -41,7 +43,10 @@ internal static class TaskSummaryResponseFactory
             task.ActualHours,
             createdByDisplayName,
             task.CreatedAtUtc,
-            ownerDisplayName);
+            ownerDisplayName,
+            task.TaskNumber,
+            task.TaskNumberYear,
+            ownerDepartmentName);
     }
 
     private static Task<string?> GetDepartmentNameAsync(

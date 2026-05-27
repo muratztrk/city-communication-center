@@ -1,10 +1,13 @@
 import i18n from '../i18n'
 import type {
   AuditLog,
+  Attachment,
   DashboardSnapshot,
   DashboardChartResponse,
   Department,
+  DepartmentSummary,
   DirectoryUserLookup,
+  EntityAuditLogEntry,
   RoutingConfig,
   RoutingRule,
   RoutingTestResult,
@@ -18,6 +21,7 @@ import type {
   JobSummary,
   JobDetail,
   JobListScope,
+  UpdateJobRequest,
   TenantAppearance,
   TenantAppearanceInput,
   TenantAuthenticationPolicy,
@@ -26,19 +30,50 @@ import type {
   User,
   UserLookup,
   UserManagementContext,
+  WorkingHoursSettings,
+  SmsSettings,
+  SmsSettingsUpdate,
+  AppNotification,
 } from '../types/platform'
 import { API_BASE } from './config'
 import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
 
 export const api = {
-  async getDashboard(): Promise<DashboardSnapshot> {
-    const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard`, { headers: await getAuthHeaders() })
+  async getMyDepartments(): Promise<DepartmentSummary[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/departments`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.departmentsLoadFailed', 'Birim bilgileri yüklenemedi'))
+    return response.json() as Promise<DepartmentSummary[]>
+  },
+
+  async getDashboard(from?: string, to?: string): Promise<DashboardSnapshot> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    const url = `${API_BASE}/reports/dashboard${qs ? `?${qs}` : ''}`
+    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardSnapshot>
   },
 
-  async getDashboardChart(): Promise<DashboardChartResponse> {
-    const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard-chart`, { headers: await getAuthHeaders() })
+  async getDashboardChart(from?: string, to?: string): Promise<DashboardChartResponse> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    const url = `${API_BASE}/reports/dashboard-chart${qs ? `?${qs}` : ''}`
+    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
+    return response.json() as Promise<DashboardChartResponse>
+  },
+
+  async getCitizenChannelChart(from?: string, to?: string): Promise<DashboardChartResponse> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    const url = `${API_BASE}/reports/citizen-channels${qs ? `?${qs}` : ''}`
+    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardChartResponse>
   },
@@ -143,6 +178,7 @@ export const api = {
     email: string | null
     password: string | null
     departmentId: string | null
+    additionalDepartmentIds?: string[]
     roleCode: string
     isActive: boolean
     sourceType: string
@@ -161,6 +197,7 @@ export const api = {
 
   async updateUser(userId: string, payload: {
     departmentId: string
+    additionalDepartmentIds?: string[]
     roleCode: string
     isActive: boolean
   }): Promise<User> {
@@ -191,12 +228,22 @@ export const api = {
 
   async updateTenantSettings(
     tenantId: string,
-    payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive'>,
+    payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive' | 'rolePageAccessJson'>,
   ): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/settings`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
+    })
+
+    await ensureOk(response, i18n.t('errors.tenantSettingsSaveFailed'))
+  },
+
+  async updateRolePageAccess(tenantId: string, matrixJson: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/role-page-access`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ matrixJson }),
     })
 
     await ensureOk(response, i18n.t('errors.tenantSettingsSaveFailed'))
@@ -317,6 +364,36 @@ export const api = {
     await ensureOk(response, i18n.t('errors.tenantAppearanceSaveFailed'))
   },
 
+  async getWorkingHours(tenantId: string): Promise<WorkingHoursSettings> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/working-hours`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.workingHoursLoadFailed'))
+    return response.json() as Promise<WorkingHoursSettings>
+  },
+
+  async updateWorkingHours(tenantId: string, data: WorkingHoursSettings): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/working-hours`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.workingHoursSaveFailed'))
+  },
+
+  async getSmsSettings(tenantId: string): Promise<SmsSettings> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/sms-settings`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.smsSettingsLoadFailed'))
+    return response.json() as Promise<SmsSettings>
+  },
+
+  async updateSmsSettings(tenantId: string, data: SmsSettingsUpdate): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/sms-settings`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.smsSettingsSaveFailed'))
+  },
+
   async getTasks(scope?: TaskListScope): Promise<Task[]> {
     const params = new URLSearchParams()
 
@@ -354,6 +431,22 @@ export const api = {
       body: JSON.stringify(task),
     })
 
+    await ensureOk(response, i18n.t('errors.taskCreateFailed'))
+    return response.json() as Promise<Task>
+  },
+
+  async createRoutineTask(task: {
+    title: string
+    description: string
+    priority: string
+    dueDateUtc?: string | null
+    notes?: string | null
+  }): Promise<Task> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/routine`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(task),
+    })
     await ensureOk(response, i18n.t('errors.taskCreateFailed'))
     return response.json() as Promise<Task>
   },
@@ -472,6 +565,8 @@ export const api = {
     targetDepartmentIds?: string[]
     sourceType?: string
     sourceRefId?: string | null
+    latitude?: number | null
+    longitude?: number | null
   }): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs`, {
       method: 'POST',
@@ -491,12 +586,48 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobCancelFailed', 'Failed to cancel job'))
   },
 
+  async returnJob(jobId: string, reason: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/return`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    })
+    await ensureOk(response, i18n.t('errors.jobReturnFailed', 'Failed to return job'))
+  },
+
+  async approveJobOwner(jobId: string, comment?: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/owner-approval/approve`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment: comment || null }),
+    })
+    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
+  },
+
+  async rejectJobOwner(jobId: string, reason: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/owner-approval/reject`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    })
+    await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
+  },
+
   async deleteJob(jobId: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.jobDeleteFailed', 'Failed to delete job'))
+  },
+
+  async updateJob(jobId: string, data: UpdateJobRequest): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.jobUpdateFailed', 'Failed to update job'))
   },
 
   async getSocialMessages(): Promise<SocialMessage[]> {
@@ -510,6 +641,8 @@ export const api = {
     citizenHandle: string
     content: string
     category?: string
+    latitude?: number
+    longitude?: number
   }): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages`, {
       method: 'POST',
@@ -569,7 +702,7 @@ export const api = {
     return response.json() as Promise<SocialSettingsStatus>
   },
 
-  async saveSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp', payload: object): Promise<SocialSettingsSaveResult> {
+  async saveSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email', payload: object): Promise<SocialSettingsSaveResult> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/social-settings/${channel}`, {
       method: 'POST',
       headers: await getAuthHeaders(),
@@ -580,7 +713,7 @@ export const api = {
     return response.json() as Promise<SocialSettingsSaveResult>
   },
 
-  async testSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp'): Promise<SocialConnectionTestResult> {
+  async testSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'): Promise<SocialConnectionTestResult> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/social-settings/${channel}/test`, {
       method: 'POST',
       headers: await getAuthHeaders(),
@@ -590,7 +723,7 @@ export const api = {
     return response.json() as Promise<SocialConnectionTestResult>
   },
 
-  async deleteSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp'): Promise<SocialSettingsSaveResult> {
+  async deleteSocialSettings(channel: 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'): Promise<SocialSettingsSaveResult> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/social-settings/${channel}`, {
       method: 'DELETE',
       headers: await getAuthHeaders(),
@@ -671,6 +804,16 @@ export const api = {
     return response.json() as Promise<number>
   },
 
+  async getNotifications(): Promise<AppNotification[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/notifications`, { headers: await getAuthHeaders() })
+    await ensureOk(response, 'Failed to load notifications')
+    return response.json() as Promise<AppNotification[]>
+  },
+
+  async markAllNotificationsRead(ids: string[]): Promise<void> {
+    await Promise.all(ids.map(id => api.markNotificationRead(id)))
+  },
+
   async subscribePush(subscription: { endpoint: string; p256dhKey: string; authKey: string; userAgent?: string }): Promise<{ subscriptionId: string }> {
     const response = await fetchWithCredentials(`${API_BASE}/notifications/push/subscribe`, {
       method: 'POST',
@@ -696,5 +839,62 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, 'Failed to mark notification as read')
+  },
+
+  async uploadJobAttachment(jobId: string, file: File): Promise<Attachment> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const authHeaders = await getAuthHeaders() as Record<string, string>
+    // Omit Content-Type so the browser sets the multipart boundary automatically
+    const uploadHeaders: Record<string, string> = {}
+    for (const [key, value] of Object.entries(authHeaders)) {
+      if (key.toLowerCase() !== 'content-type') uploadHeaders[key] = value
+    }
+    const response = await fetchWithCredentials(`${API_BASE}/attachments/jobs/${jobId}`, {
+      method: 'POST',
+      headers: uploadHeaders,
+      body: formData,
+    })
+    await ensureOk(response, i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment'))
+    return response.json() as Promise<Attachment>
+  },
+
+  async uploadTaskAttachment(taskId: string, file: File): Promise<Attachment> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const authHeaders = await getAuthHeaders() as Record<string, string>
+    const uploadHeaders: Record<string, string> = {}
+    for (const [key, value] of Object.entries(authHeaders)) {
+      if (key.toLowerCase() !== 'content-type') uploadHeaders[key] = value
+    }
+    const response = await fetchWithCredentials(`${API_BASE}/attachments/tasks/${taskId}`, {
+      method: 'POST',
+      headers: uploadHeaders,
+      body: formData,
+    })
+    await ensureOk(response, i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment'))
+    return response.json() as Promise<Attachment>
+  },
+
+  async deleteAttachment(attachmentId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/attachments/${attachmentId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+    if (!response.ok && response.status !== 204) {
+      throw new Error(await response.text())
+    }
+  },
+
+  async getJobAuditLog(jobId: string): Promise<EntityAuditLogEntry[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/audit-log`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.auditLoadFailed'))
+    return response.json() as Promise<EntityAuditLogEntry[]>
+  },
+
+  async getTaskAuditLog(taskId: string): Promise<EntityAuditLogEntry[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/audit-log`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.auditLoadFailed'))
+    return response.json() as Promise<EntityAuditLogEntry[]>
   },
 }

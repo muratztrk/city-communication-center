@@ -72,7 +72,9 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             request.DueDateUtc,
             TargetDepartmentIds: null,
             SourceType: JobSourceType.SocialMessage.ToString(),
-            SourceRefId: message.SocialMessageId), cancellationToken);
+            SourceRefId: message.SocialMessageId,
+            Latitude: message.Latitude,
+            Longitude: message.Longitude), cancellationToken);
 
         message.JobId = jobSummary.JobId;
         message.Status = SocialMessageStatus.ConvertedToTask;

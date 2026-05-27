@@ -15,6 +15,10 @@ public sealed class AuditLog : AuditableTenantEntity, IHasDatabaseIndexDefinitio
     public DateTimeOffset EventTimeUtc { get; set; } = DateTimeOffset.UtcNow;
 
     public string? Details { get; set; }
+    public string? ActorDisplayName { get; set; }
+    public string? DepartmentName { get; set; }
+    public string? StatusAtEvent { get; set; }
+    public string? Notes { get; set; }
 
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
     [

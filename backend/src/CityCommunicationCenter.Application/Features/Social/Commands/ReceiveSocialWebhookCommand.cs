@@ -26,6 +26,8 @@ public sealed class ReceiveSocialWebhookCommandHandler : ICommandHandler<Receive
             ExternalMessageId = request.Request.ExternalMessageId,
             CitizenHandle = request.Request.CitizenHandle,
             Content = request.Request.Content,
+            Latitude = request.Request.Latitude,
+            Longitude = request.Request.Longitude,
             ReceivedAtUtc = request.Request.ReceivedAtUtc ?? DateTimeOffset.UtcNow,
             CreatedByUserId = request.ActorUserId
         };

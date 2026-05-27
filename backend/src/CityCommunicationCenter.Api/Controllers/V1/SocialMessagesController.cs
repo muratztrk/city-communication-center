@@ -38,7 +38,9 @@ public sealed class SocialMessagesController : ApiControllerBase
                 channel,
                 request.CitizenHandle,
                 request.Content,
-                request.Category),
+                request.Category,
+                request.Latitude,
+                request.Longitude),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { messageId }, new { socialMessageId = messageId });

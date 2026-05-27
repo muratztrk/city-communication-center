@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -39,7 +40,7 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
         }
         else if (actor.RoleCode != RoleCode.SystemAdmin)
         {
-            var visibleDepartmentIds = await GetVisibleDepartmentIdsAsync(actor, tenantId, cancellationToken);
+            var visibleDepartmentIds = await GetVisibleDepartmentIdsAsync(actor, tenantId, context.ActiveDepartmentId, cancellationToken);
             query = query.Where(entity => entity.AssignedDepartmentId.HasValue
                 && visibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value));
         }
@@ -59,12 +60,21 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                     .Select(department => (string?)department.Name)
                     .FirstOrDefault(),
                 entity.JobId,
-                entity.ReceivedAtUtc))
+                entity.ReceivedAtUtc,
+                entity.Latitude,
+                entity.Longitude))
             .ToListAsync(cancellationToken);
     }
 
-    private async Task<Guid[]> GetVisibleDepartmentIdsAsync(ApplicationUser actor, Guid tenantId, CancellationToken cancellationToken)
+    private async Task<Guid[]> GetVisibleDepartmentIdsAsync(ApplicationUser actor, Guid tenantId, Guid? activeDepartmentId, CancellationToken cancellationToken)
     {
+        var visibleDepartmentIds = (await UserDepartmentAccess.GetAccessibleDepartmentIdsAsync(
+                _dbContext,
+                tenantId,
+                actor,
+                cancellationToken))
+            .ToHashSet();
+
         var departments = await _dbContext.Departments
             .AsNoTracking()
             .Where(department => department.TenantId == tenantId)
@@ -76,11 +86,17 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
             })
             .ToListAsync(cancellationToken);
 
-        return departments
+        foreach (var departmentId in departments
             .Where(department => department.ManagerUserId == actor.UserId
                 || ParseResponsibleUserIds(department.ResponsibleUserIdsJson).Contains(actor.UserId))
-            .Select(department => department.DepartmentId)
-            .ToArray();
+            .Select(department => department.DepartmentId))
+        {
+            visibleDepartmentIds.Add(departmentId);
+        }
+
+        return activeDepartmentId.HasValue && visibleDepartmentIds.Contains(activeDepartmentId.Value)
+            ? [activeDepartmentId.Value]
+            : visibleDepartmentIds.ToArray();
     }
 
     private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)

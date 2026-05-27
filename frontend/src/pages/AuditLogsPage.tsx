@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { StatusPill } from '../components/ui/status-pill'
 import type { AuditLog } from '../types/platform'
-import { getAuditActionLabel, getLocale } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale } from '../utils/localization'
 
 function getActionTone(action: string) {
   if (action.includes('Created') || action.includes('Approved') || action.includes('Completed')) {
@@ -94,7 +94,7 @@ export function AuditLogsPage() {
                   <td>
                     <StatusPill tone={getActionTone(log.action)}>{getAuditActionLabel(t, log.action)}</StatusPill>
                   </td>
-                  <td>{log.details || t('common.none')}</td>
+                  <td>{log.details ? formatAuditNotes(t, log.details) : t('common.none')}</td>
                 </tr>
               ))}
               {logs.length === 0 ? (

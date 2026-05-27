@@ -8,7 +8,8 @@ public enum JobStatus
     Active,
     Completed,
     Rejected,
-    Cancelled
+    Cancelled,
+    RevisionRequested
 }
 
 public enum JobRequestType

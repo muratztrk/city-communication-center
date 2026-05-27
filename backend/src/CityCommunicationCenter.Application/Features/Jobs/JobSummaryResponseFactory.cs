@@ -12,6 +12,12 @@ internal static class JobSummaryResponseFactory
             .Select(d => d.Name)
             .FirstOrDefaultAsync(cancellationToken);
         var taskCount = await dbContext.Tasks.CountAsync(t => t.JobId == job.JobId, cancellationToken);
+        var createdByDisplayName = job.CreatedByUserId.HasValue
+            ? await dbContext.Users
+                .Where(u => u.UserId == job.CreatedByUserId.Value)
+                .Select(u => (string?)u.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
         var departments = await dbContext.JobDepartments
             .AsNoTracking()
             .Where(jd => jd.JobId == job.JobId)
@@ -52,6 +58,10 @@ internal static class JobSummaryResponseFactory
             job.IsCoordinated,
             job.SourceType.ToString(),
             taskCount,
-            departments);
+            departments,
+            job.CreatedAtUtc,
+            job.JobNumber,
+            job.JobNumberYear,
+            createdByDisplayName);
     }
 }

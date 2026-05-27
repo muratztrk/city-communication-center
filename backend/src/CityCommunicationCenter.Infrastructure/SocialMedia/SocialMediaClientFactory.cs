@@ -29,13 +29,14 @@ public class SocialMediaClientFactory : ISocialMediaClientFactory
             SocialChannel.Facebook when settings.Facebook != null => new FacebookClient(httpClient, settings.Facebook),
             SocialChannel.Instagram when settings.Instagram != null => new InstagramClient(httpClient, settings.Instagram),
             SocialChannel.WhatsApp when settings.WhatsApp != null => new WhatsAppClient(httpClient, settings.WhatsApp),
+            SocialChannel.EDevlet when settings.EDevlet != null => new EDevletClient(settings.EDevlet),
             _ => null
         };
     }
 
     public IEnumerable<ISocialMediaClient> GetAllClients(Guid tenantId)
     {
-        var channels = new[] { SocialChannel.X, SocialChannel.Facebook, SocialChannel.Instagram, SocialChannel.WhatsApp };
+        var channels = new[] { SocialChannel.X, SocialChannel.Facebook, SocialChannel.Instagram, SocialChannel.WhatsApp, SocialChannel.EDevlet };
         
         foreach (var channel in channels)
         {
@@ -56,9 +57,40 @@ public class SocialMediaClientFactory : ISocialMediaClientFactory
             SocialChannel.Facebook => !string.IsNullOrEmpty(settings.Facebook?.PageAccessToken),
             SocialChannel.Instagram => !string.IsNullOrEmpty(settings.Instagram?.AccessToken),
             SocialChannel.WhatsApp => !string.IsNullOrEmpty(settings.WhatsApp?.AccessToken),
+            SocialChannel.EDevlet => !string.IsNullOrEmpty(settings.EDevlet?.ClientId) && !string.IsNullOrEmpty(settings.EDevlet?.ClientSecret),
             _ => false
         };
     }
+}
+
+internal sealed class EDevletClient : ISocialMediaClient
+{
+    private readonly EDevletSettings _settings;
+
+    public EDevletClient(EDevletSettings settings)
+    {
+        _settings = settings;
+    }
+
+    public string Platform => "e-Devlet";
+
+    public Task<SocialMediaResult> SendMessageAsync(SendMessageRequest request, CancellationToken ct = default)
+        => Task.FromResult(SocialMediaResult.Fail("e-Devlet mesaj gonderimi desteklenmiyor."));
+
+    public Task<SocialMediaResult> PostAsync(PostRequest request, CancellationToken ct = default)
+        => Task.FromResult(SocialMediaResult.Fail("e-Devlet paylasim gonderimi desteklenmiyor."));
+
+    public Task<SocialMediaResult> ReplyAsync(ReplyRequest request, CancellationToken ct = default)
+        => Task.FromResult(SocialMediaResult.Fail("e-Devlet yanit gonderimi desteklenmiyor."));
+
+    public Task<IReadOnlyList<IncomingMessage>> FetchMessagesAsync(FetchMessagesRequest request, CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<IncomingMessage>>([]);
+
+    public Task<UserProfile?> GetUserProfileAsync(string userId, CancellationToken ct = default)
+        => Task.FromResult<UserProfile?>(null);
+
+    public Task<bool> ValidateConnectionAsync(CancellationToken ct = default)
+        => Task.FromResult(!string.IsNullOrWhiteSpace(_settings.ClientId) && !string.IsNullOrWhiteSpace(_settings.ClientSecret));
 }
 
 public sealed class DatabaseSocialMediaSettingsProvider : ISocialMediaSettingsProvider

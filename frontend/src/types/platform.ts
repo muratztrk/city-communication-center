@@ -4,6 +4,15 @@ export interface DashboardSnapshot {
   activeSocialMessageCount: number;
   rejectedOrCancelledRequestCount: number;
   unassignedItemCount: number;
+  // Manager-specific metrics
+  myPendingRequestCount: number;
+  outgoingPendingCount: number;
+  myPendingTaskCount: number;
+  deptPendingTaskCount: number;
+  myTotalRequestCount: number;
+  incomingTotalCount: number;
+  outgoingTotalCount: number;
+  deptTotalTaskCount: number;
 }
 
 export interface DashboardChartSlice {
@@ -39,6 +48,7 @@ export interface User {
   userSource: string;
   title: string | null;
   phone: string | null;
+  departments?: DepartmentSummary[] | null;
 }
 
 export interface UserLookup {
@@ -107,6 +117,9 @@ export interface Task {
   createdByDisplayName?: string | null;
   createdAtUtc?: string;
   ownerDisplayName?: string | null;
+  taskNumber?: number | null;
+  taskNumberYear?: number | null;
+  ownerDepartmentName?: string | null;
 }
 
 export interface TaskDetail {
@@ -135,6 +148,7 @@ export interface TaskDetail {
   approvals: JobApprovalStep[];
   assignmentHistory: AssignmentHistory[];
   ownerDisplayName: string | null;
+  attachments: Attachment[];
 }
 
 export interface AssignmentHistory {
@@ -147,6 +161,15 @@ export interface AssignmentHistory {
   actionDateUtc: string;
 }
 
+export interface Attachment {
+  attachmentId: string;
+  fileName: string;
+  contentType: string;
+  fileSizeBytes: number;
+  url: string;
+  uploadedAtUtc: string;
+}
+
 export type JobStatus =
   | 'Draft'
   | 'PendingOwnerApproval'
@@ -154,7 +177,8 @@ export type JobStatus =
   | 'Active'
   | 'Completed'
   | 'Rejected'
-  | 'Cancelled';
+  | 'Cancelled'
+  | 'RevisionRequested';
 
 export type JobRequestType = 'InternalUnit' | 'ExternalUnit' | 'Citizen';
 export type JobDepartmentRole = 'Owner' | 'Target' | 'Coordinating';
@@ -167,7 +191,18 @@ export type JobListScope =
   | 'active'
   | 'department-pool'
   | 'pending-approval'
+  | 'outgoing-department'
   | 'rejected';
+
+export interface UpdateJobRequest {
+  title: string;
+  description: string;
+  priority: string;
+  startDateUtc: string | null;
+  dueDateUtc: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}
 
 export interface JobSummary {
   jobId: string;
@@ -189,6 +224,10 @@ export interface JobSummary {
   sourceType: string;
   taskCount: number;
   departments: JobDepartmentInfo[];
+  createdAtUtc: string;
+  jobNumber: number | null;
+  jobNumberYear: number | null;
+  createdByDisplayName: string | null;
 }
 
 export interface JobDepartmentInfo {
@@ -237,11 +276,14 @@ export interface JobDetail {
   sourceType: string;
   sourceRefId: string | null;
   cancelReason: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   createdByDisplayName: string | null;
   createdAtUtc: string;
   departments: JobDepartmentInfo[];
   tasks: Task[];
   approvals: JobApprovalStep[];
+  attachments: Attachment[];
 }
 
 export interface SocialMessage {
@@ -254,6 +296,8 @@ export interface SocialMessage {
   assignedDepartmentName: string | null;
   jobId: string | null;
   receivedAtUtc: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface AuditLog {
@@ -265,6 +309,16 @@ export interface AuditLog {
   actorUserId: string | null;
   eventTimeUtc: string;
   details: string | null;
+}
+
+export interface EntityAuditLogEntry {
+  auditLogId: string;
+  action: string;
+  actorDisplayName: string;
+  departmentName: string | null;
+  statusAtEvent: string | null;
+  notes: string | null;
+  eventTimeUtc: string;
 }
 
 export interface TenantLookup {
@@ -364,6 +418,13 @@ export interface VerifyInteractiveAuthenticationResult {
   mockCodePreview: string | null;
 }
 
+export interface DepartmentSummary {
+  departmentId: string;
+  name: string;
+  departmentType: string;
+  isPrimary: boolean;
+}
+
 export interface AuthUser {
   userId: string;
   username: string;
@@ -373,6 +434,7 @@ export interface AuthUser {
   tenantId: string;
   tenantName: string;
   departmentId: string;
+  departmentName?: string;
 }
 
 export interface AuthSession {
@@ -390,6 +452,7 @@ export interface TenantSettings {
   theme: string | null;
   domain: string | null;
   defaultSlaHours: number;
+  rolePageAccessJson: string | null;
 }
 
 export interface SocialChannelStatus {
@@ -403,6 +466,8 @@ export interface SocialSettingsStatus {
   facebook: SocialChannelStatus;
   instagram: SocialChannelStatus;
   whatsApp: SocialChannelStatus;
+  eDevlet: SocialChannelStatus;
+  email: SocialChannelStatus;
 }
 
 export interface SocialSettingsSaveResult {
@@ -434,4 +499,44 @@ export interface RoutingConfig {
 export interface RoutingTestResult {
   targetDepartmentId: string | null;
   targetDepartmentName: string | null;
+}
+
+export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }
+export interface WorkingHoursDepartmentOverride { departmentId: string; departmentName: string | null; isAlwaysOpen: boolean; schedule: WorkingHoursDaySchedule[] }
+export interface WorkingHoursSchedule { isAlwaysOpen: boolean; schedule: WorkingHoursDaySchedule[] }
+export interface WorkingHoursSettings { default: WorkingHoursSchedule; departmentOverrides: WorkingHoursDepartmentOverride[] }
+
+export type SmsProvider = 'NetGSM' | 'Iletimerkezi' | 'Verimor' | 'Custom';
+
+export interface SmsSettings {
+  isEnabled: boolean;
+  provider: SmsProvider;
+  apiUrl: string | null;
+  username: string | null;
+  hasPassword: boolean;
+  originator: string | null;
+}
+
+export interface SmsSettingsUpdate {
+  isEnabled: boolean;
+  provider: SmsProvider;
+  apiUrl: string | null;
+  username: string | null;
+  password: string | null;
+  clearPassword: boolean;
+  originator: string | null;
+}
+
+
+export interface AppNotification {
+  notificationId: string
+  taskId: string | null
+  userId: string | null
+  channel: string
+  deliveryStatus: string
+  title: string
+  message: string
+  isRead: boolean
+  actionUrl: string | null
+  sentAtUtc: string | null
 }

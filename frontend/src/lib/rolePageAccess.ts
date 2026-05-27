@@ -5,6 +5,7 @@ export type RoleCode = typeof ROLE_CODES[number]
 export const PAGE_ACCESS_ITEMS = [
   { key: 'dashboard', path: '/dashboard', labelKey: 'nav.dashboard' },
   { key: 'createRequest', path: '/requests/new', labelKey: 'nav.createRequest' },
+  { key: 'createRoutineTask', path: '/routine-tasks/new', labelKey: 'nav.createRoutineTask' },
   { key: 'myTasks', path: '/my-tasks', labelKey: 'nav.myTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'tasks', path: '/tasks', labelKey: 'nav.tasks' },
@@ -36,7 +37,7 @@ function isRoleCode(value: string): value is RoleCode {
   return ROLE_CODES.includes(value as RoleCode)
 }
 
-function normalizeMatrix(input: unknown): RolePageAccessMatrix {
+export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMatrix {
   const source = input && typeof input === 'object' ? input as Partial<RolePageAccessMatrix> : {}
   return ROLE_CODES.reduce((matrix, role) => {
     matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
@@ -53,14 +54,27 @@ function normalizeMatrix(input: unknown): RolePageAccessMatrix {
 export function loadRolePageAccessMatrix(): RolePageAccessMatrix {
   try {
     const stored = window.localStorage.getItem(ROLE_PAGE_ACCESS_STORAGE_KEY)
-    return normalizeMatrix(stored ? JSON.parse(stored) : null)
+    return normalizeRolePageAccessMatrix(stored ? JSON.parse(stored) : null)
   } catch {
     return DEFAULT_ROLE_PAGE_ACCESS
   }
 }
 
+export function parseRolePageAccessMatrix(value: string | null | undefined): RolePageAccessMatrix | null {
+  if (!value) return null
+  try {
+    return normalizeRolePageAccessMatrix(JSON.parse(value))
+  } catch {
+    return null
+  }
+}
+
+export function serializeRolePageAccessMatrix(matrix: RolePageAccessMatrix): string {
+  return JSON.stringify(normalizeRolePageAccessMatrix(matrix))
+}
+
 export function saveRolePageAccessMatrix(matrix: RolePageAccessMatrix) {
-  const normalized = normalizeMatrix(matrix)
+  const normalized = normalizeRolePageAccessMatrix(matrix)
   window.localStorage.setItem(ROLE_PAGE_ACCESS_STORAGE_KEY, JSON.stringify(normalized))
   window.dispatchEvent(new CustomEvent(ROLE_PAGE_ACCESS_EVENT))
 }

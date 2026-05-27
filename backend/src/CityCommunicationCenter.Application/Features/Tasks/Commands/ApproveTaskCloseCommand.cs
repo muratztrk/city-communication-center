@@ -64,6 +64,8 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
             EntityId = task.TaskId.ToString(),
             Action = "TaskCloseApproved",
             ActorUserId = request.ActorUserId,
+            StatusAtEvent = WorkflowTaskStatus.Completed.ToString(),
+            Notes = request.Comment,
             Details = request.Comment
         });
 

@@ -1,5 +1,6 @@
 import { API_BASE, API_ORIGIN, TENANT_ID } from './config'
 import i18n from '../i18n'
+import { parseRolePageAccessMatrix, saveRolePageAccessMatrix } from '../lib/rolePageAccess'
 import type {
   AuthSession,
   AuthUser,
@@ -45,6 +46,8 @@ interface AuthenticatedUserProfileResponse {
   role: string | null
   tenantId: string | null
   departmentId: string | null
+  departmentName: string | null
+  rolePageAccessJson: string | null
 }
 
 interface JwtPayload {
@@ -151,6 +154,7 @@ function buildUserFromProfileResponse(response: AuthenticatedUserProfileResponse
     tenantId: response.tenantId ?? existingUser?.tenantId ?? '',
     tenantName: existingUser?.tenantName ?? '',
     departmentId: response.departmentId ?? existingUser?.departmentId ?? '',
+    departmentName: response.departmentName ?? existingUser?.departmentName ?? '',
   }
 }
 
@@ -201,6 +205,13 @@ function writeCookieSession(user: AuthUser): AuthSession {
     accessToken: null,
     expiresAt: null,
     user,
+  }
+}
+
+function syncRolePageAccess(value: string | null | undefined): void {
+  const matrix = parseRolePageAccessMatrix(value)
+  if (matrix) {
+    saveRolePageAccessMatrix(matrix)
   }
 }
 
@@ -357,6 +368,7 @@ export async function restoreSessionFromCookie(): Promise<AuthSession | null> {
   }
 
   const profile = await response.json() as AuthenticatedUserProfileResponse
+  syncRolePageAccess(profile.rolePageAccessJson)
   return writeCookieSession(buildUserFromProfileResponse(profile, existingUser))
 }
 

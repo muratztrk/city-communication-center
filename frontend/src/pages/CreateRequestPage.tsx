@@ -1,21 +1,22 @@
-import { Building2, MessageSquareMore, Send, Workflow } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Building2, MapPin, MessageSquareMore, Paperclip, Send, Workflow, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
+import { ChannelIcon } from '../components/ui/channel-icon'
+import { DateTimePicker } from '../components/ui/date-time-picker'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
+import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { useAuth } from '../context/AuthContext'
 import type { Department, User } from '../types/platform'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
-type RequestOwnershipMode = 'department' | 'users'
 
 interface InternalFormState {
   title: string
   description: string
-  ownershipMode: RequestOwnershipMode
-  ownerUserIds: string[]
   priority: string
   dueDateUtc: string
   isProject: boolean
@@ -23,6 +24,7 @@ interface InternalFormState {
 
 interface ExternalFormState extends InternalFormState {
   ownerDepartmentId: string
+  targetDepartmentIds: string[]
   startDateUtc: string
 }
 
@@ -31,13 +33,13 @@ interface CitizenFormState {
   citizenHandle: string
   content: string
   category: string
+  latitude: string
+  longitude: string
 }
 
 const EMPTY_INTERNAL_FORM: InternalFormState = {
   title: '',
   description: '',
-  ownershipMode: 'department',
-  ownerUserIds: [],
   priority: 'Normal',
   dueDateUtc: '',
   isProject: false,
@@ -46,6 +48,7 @@ const EMPTY_INTERNAL_FORM: InternalFormState = {
 const EMPTY_EXTERNAL_FORM: ExternalFormState = {
   ...EMPTY_INTERNAL_FORM,
   ownerDepartmentId: '',
+  targetDepartmentIds: [],
   startDateUtc: '',
 }
 
@@ -54,37 +57,70 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   citizenHandle: '',
   content: '',
   category: '',
+  latitude: '',
+  longitude: '',
 }
 
 const CITIZEN_CHANNELS = ['Facebook', 'Instagram', 'X', 'Email', 'WebForm', 'WhatsApp', 'Other']
+
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
+function validateFile(file: File): string | null {
+  const ext = '.' + (file.name.split('.').pop()?.toLowerCase() ?? '')
+  if (!ALLOWED_EXTENSIONS.includes(ext) || !ALLOWED_TYPES.includes(file.type)) {
+    return 'Sadece JPG, PNG, GIF ve WebP dosyaları yüklenebilir.'
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    return 'Dosya boyutu 5 MB\'ı aşamaz.'
+  }
+  return null
+}
+
+function isRequestKind(value: string | null): value is RequestKind {
+  return value === 'internal' || value === 'external' || value === 'citizen'
+}
 
 function toApiDateTime(value: string) {
   return value ? new Date(value).toISOString() : null
 }
 
-function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
-  const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void }
-  input.showPicker?.()
+function hasRichTextContent(value: string) {
+  return value
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .trim()
+    .length > 0
 }
+
 
 export function CreateRequestPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user } = useAuth()
-  const [selectedKind, setSelectedKind] = useState<RequestKind | null>(null)
+  const rawKindParam = searchParams.get('kind')
+  const kindParam = isRequestKind(rawKindParam) ? rawKindParam : null
+  const selectedKind = kindParam
   const [departments, setDepartments] = useState<Department[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
+  const [fileError, setFileError] = useState<string | null>(null)
+  const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
   const canCreateCitizenRequest = user?.role === 'Operator'
 
   const myDepartmentId = useMemo(() => {
-    return user?.departmentId || users.find(item => item.userId === user?.userId)?.departmentId || ''
-  }, [user?.departmentId, user?.userId, users])
+    return activeDepartmentId || user?.departmentId || users.find(item => item.userId === user?.userId)?.departmentId || ''
+  }, [activeDepartmentId, user?.departmentId, user?.userId, users])
 
   const ownerDepartmentOptions = useMemo(() => {
     if (user?.role === 'Staff' && myDepartmentId) {
@@ -98,25 +134,10 @@ export function CreateRequestPage() {
     return departments.find(department => department.departmentId === myDepartmentId)?.name ?? ''
   }, [departments, myDepartmentId])
 
-  const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
-  const internalOwnerUserOptions = useMemo(() => {
-    const departmentUsers = activeUsers.filter(item => item.departmentId === myDepartmentId)
+  const targetDepartmentOptions = useMemo(() => {
+    return departments.filter(department => department.departmentId !== myDepartmentId)
+  }, [departments, myDepartmentId])
 
-    if (user?.role === 'Staff') {
-      return departmentUsers.filter(item => item.userId === user.userId)
-    }
-
-    return departmentUsers
-  }, [activeUsers, myDepartmentId, user?.role, user?.userId])
-  const externalOwnerUserOptions = useMemo(() => {
-    const departmentUsers = activeUsers.filter(item => item.departmentId === externalForm.ownerDepartmentId)
-
-    if (user?.role === 'Staff') {
-      return departmentUsers.filter(item => item.userId === user.userId)
-    }
-
-    return departmentUsers
-  }, [activeUsers, externalForm.ownerDepartmentId, user?.role, user?.userId])
 
   const requestTypeOptions = useMemo(() => {
     const options: { value: RequestKind; label: string }[] = [
@@ -132,13 +153,19 @@ export function CreateRequestPage() {
   }, [canCreateCitizenRequest, t])
 
   const selectRequestKind = (kind: RequestKind) => {
-    setSelectedKind(kind)
     setError(null)
+    navigate(`/requests/new?kind=${kind}`)
   }
 
   const getRequestTypeLabel = (kind: RequestKind | null) => {
     return requestTypeOptions.find(option => option.value === kind)?.label ?? ''
   }
+
+  useEffect(() => {
+    const handler = () => setActiveDepartmentId(getActiveDepartmentId())
+    window.addEventListener('activeDepartmentChanged', handler)
+    return () => window.removeEventListener('activeDepartmentChanged', handler)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -160,34 +187,19 @@ export function CreateRequestPage() {
   }, [t])
 
   useEffect(() => {
-    if (!selectedKind || externalForm.ownerDepartmentId) return
+    if (!selectedKind) return
     const firstDepartmentId = myDepartmentId || ownerDepartmentOptions[0]?.departmentId
-    if (firstDepartmentId) {
+    if (firstDepartmentId && externalForm.ownerDepartmentId !== firstDepartmentId) {
       setExternalForm(current => ({ ...current, ownerDepartmentId: firstDepartmentId }))
     }
   }, [externalForm.ownerDepartmentId, myDepartmentId, ownerDepartmentOptions, selectedKind])
 
   useEffect(() => {
-    if (selectedKind === 'citizen' && !canCreateCitizenRequest) {
-      setSelectedKind(null)
+    if ((rawKindParam && !kindParam) || (kindParam === 'citizen' && !canCreateCitizenRequest)) {
+      navigate('/requests/new', { replace: true })
     }
-  }, [canCreateCitizenRequest, selectedKind])
+  }, [canCreateCitizenRequest, kindParam, navigate, rawKindParam])
 
-  useEffect(() => {
-    const allowedIds = new Set(internalOwnerUserOptions.map(item => item.userId))
-    setInternalForm(current => {
-      const ownerUserIds = current.ownerUserIds.filter(userId => allowedIds.has(userId))
-      return ownerUserIds.length === current.ownerUserIds.length ? current : { ...current, ownerUserIds }
-    })
-  }, [internalOwnerUserOptions])
-
-  useEffect(() => {
-    const allowedIds = new Set(externalOwnerUserOptions.map(item => item.userId))
-    setExternalForm(current => {
-      const ownerUserIds = current.ownerUserIds.filter(userId => allowedIds.has(userId))
-      return ownerUserIds.length === current.ownerUserIds.length ? current : { ...current, ownerUserIds }
-    })
-  }, [externalOwnerUserOptions])
 
   const renderRequestTypeField = () => (
     <div className="job-field">
@@ -196,47 +208,72 @@ export function CreateRequestPage() {
     </div>
   )
 
-  const renderOwnershipFields = (
-    mode: RequestOwnershipMode,
-    ownerUserIds: string[],
-    ownerUserOptions: User[],
-    onModeChange: (mode: RequestOwnershipMode) => void,
-    onUsersChange: (userIds: string[]) => void,
-  ) => (
-    <div className="grid gap-4 md:grid-cols-2">
-      <label className="job-field">
-        <span className="job-field-label">{t('requests.create.ownershipMode', 'Sahiplik')}</span>
-        <select
-          className="field-select"
-          value={mode}
-          onChange={event => onModeChange(event.target.value as RequestOwnershipMode)}
-        >
-          <option value="department">{t('requests.create.ownershipDepartment', 'Müdürlük')}</option>
-          <option value="users">{t('requests.create.ownershipUsers', 'Kullanıcı')}</option>
-        </select>
-      </label>
-      {mode === 'users' ? (
-        <div className="job-field">
-          <span className="job-field-label">{t('requests.create.ownerUsers', 'Sahip Kullanıcılar')}</span>
-          <MultiSelectDropdown
-            options={ownerUserOptions.map(item => ({ value: item.userId, label: item.displayName }))}
-            value={ownerUserIds}
-            onChange={onUsersChange}
-            placeholder={t('requests.create.ownerUsersPlaceholder', 'Kullanıcı seçin')}
-            emptyText={t('requests.create.ownerUsersEmpty', 'Bu müdürlükte seçilebilir aktif kullanıcı bulunmuyor.')}
-          />
-          <span className="helper-copy">
-            {ownerUserOptions.length > 0
-              ? t('requests.create.ownerUsersHelp', 'Bir veya daha fazla kullanıcı seçildiğinde her kullanıcı için görev oluşturulur.')
-              : t('requests.create.ownerUsersEmpty', 'Bu müdürlükte seçilebilir aktif kullanıcı bulunmuyor.')}
-          </span>
-        </div>
-      ) : (
-        <div className="job-field">
-          <span className="job-field-label">{t('requests.create.ownerUsers', 'Sahip Kullanıcılar')}</span>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-            {t('requests.create.departmentOwnershipHelp', 'Talep müdürlükte kalır; otomatik görev oluşturulmaz.')}
-          </div>
+  const renderOwnershipFields = () => (
+    <div className="job-field">
+      <span className="job-field-label">{t('requests.create.ownerUsers', 'Görev Sahibi Birim')}</span>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+        {t('requests.create.departmentOwnershipHelp', 'Talep müdürlükte kalır; otomatik görev oluşturulmaz.')}
+      </div>
+    </div>
+  )
+
+  const renderPhotoUpload = () => (
+    <div className="job-field">
+      <span className="job-field-label">{t('attachments.label', 'Fotoğraf Ekle (opsiyonel)')}</span>
+      <div
+        role="button"
+        tabIndex={saving ? -1 : 0}
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+        onClick={() => !saving && fileInputRef.current?.click()}
+        onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
+        onDragOver={event => event.preventDefault()}
+        onDrop={event => {
+          event.preventDefault()
+          if (saving) return
+          setFileError(null)
+          for (const file of Array.from(event.dataTransfer.files)) {
+            const err = validateFile(file)
+            if (err) { setFileError(err); return }
+            setPendingFiles(prev => [...prev, file])
+          }
+        }}
+      >
+        <Paperclip className="mb-1 size-4 text-slate-400" />
+        <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
+        <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, GIF, WebP — maks. 5 MB')}</span>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".jpg,.jpeg,.png,.gif,.webp"
+          multiple
+          className="hidden"
+          disabled={saving}
+          onChange={event => {
+            setFileError(null)
+            for (const file of Array.from(event.target.files ?? [])) {
+              const err = validateFile(file)
+              if (err) { setFileError(err); return }
+              setPendingFiles(prev => [...prev, file])
+            }
+            if (fileInputRef.current) fileInputRef.current.value = ''
+          }}
+        />
+      </div>
+      {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
+      {pendingFiles.length > 0 && (
+        <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {pendingFiles.map((file, idx) => (
+            <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+              <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
+              <button
+                type="button"
+                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"
+                onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+              >
+                <X className="size-3" />
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -248,26 +285,30 @@ export function CreateRequestPage() {
       setError(t('tasks.newRequest.noDepartment', 'Departman bilgisi bulunamadı.'))
       return
     }
-    if (internalForm.ownershipMode === 'users' && internalForm.ownerUserIds.length === 0) {
-      setError(t('requests.create.ownerUsersRequired', 'Kullanıcı sahipliği için en az bir kullanıcı seçin.'))
+    if (!hasRichTextContent(internalForm.description)) {
+      setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
       return
     }
 
     setSaving(true)
     setError(null)
     try {
-      await api.createJob({
+      const job = await api.createJob({
         title: internalForm.title.trim(),
         description: internalForm.description.trim(),
         ownerDepartmentId: myDepartmentId,
-        ownerUserIds: internalForm.ownershipMode === 'users' ? internalForm.ownerUserIds : [],
+        ownerUserIds: [],
         priority: internalForm.priority,
         requestType: 'InternalUnit',
         isProject: internalForm.isProject,
         dueDateUtc: toApiDateTime(internalForm.dueDateUtc),
         sourceType: 'InternalRequest',
       })
+      for (const file of pendingFiles) {
+        await api.uploadJobAttachment(job.jobId, file)
+      }
       setInternalForm(EMPTY_INTERNAL_FORM)
+      setPendingFiles([])
       navigate('/tasks')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -279,27 +320,36 @@ export function CreateRequestPage() {
   const handleCreateExternal = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!externalForm.ownerDepartmentId) return
-    if (externalForm.ownershipMode === 'users' && externalForm.ownerUserIds.length === 0) {
-      setError(t('requests.create.ownerUsersRequired', 'Kullanıcı sahipliği için en az bir kullanıcı seçin.'))
+    if (externalForm.targetDepartmentIds.length === 0) {
+      setError(t('requests.create.targetDepartmentRequired', 'Talebin gideceği birim seçilmelidir.'))
+      return
+    }
+    if (!hasRichTextContent(externalForm.description)) {
+      setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
       return
     }
 
     setSaving(true)
     setError(null)
     try {
-      await api.createJob({
+      const job = await api.createJob({
         title: externalForm.title.trim(),
         description: externalForm.description.trim(),
         ownerDepartmentId: externalForm.ownerDepartmentId,
-        ownerUserIds: externalForm.ownershipMode === 'users' ? externalForm.ownerUserIds : [],
+        ownerUserIds: [],
         priority: externalForm.priority,
         requestType: 'ExternalUnit',
         isProject: externalForm.isProject,
         startDateUtc: toApiDateTime(externalForm.startDateUtc),
         dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
+        targetDepartmentIds: externalForm.targetDepartmentIds,
         sourceType: 'Manual',
       })
+      for (const file of pendingFiles) {
+        await api.uploadJobAttachment(job.jobId, file)
+      }
       setExternalForm(EMPTY_EXTERNAL_FORM)
+      setPendingFiles([])
       navigate('/jobs')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -310,6 +360,10 @@ export function CreateRequestPage() {
 
   const handleCreateCitizen = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (!hasRichTextContent(citizenForm.content)) {
+      setError(t('settings.citizen.contentRequired', 'Talep içeriği gereklidir.'))
+      return
+    }
 
     setSaving(true)
     setError(null)
@@ -319,6 +373,8 @@ export function CreateRequestPage() {
         citizenHandle: citizenForm.citizenHandle.trim(),
         content: citizenForm.content.trim(),
         category: citizenForm.category.trim() || undefined,
+        latitude: citizenForm.latitude ? parseFloat(citizenForm.latitude) : undefined,
+        longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
       })
       setCitizenForm(EMPTY_CITIZEN_FORM)
       navigate('/social')
@@ -347,32 +403,32 @@ export function CreateRequestPage() {
         <section className={`grid gap-4 ${requestTypeOptions.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
           <button
             type="button"
-            className="section-card min-h-[190px] cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+            className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
             onClick={() => selectRequestKind('internal')}
           >
-            <div className="flex h-full flex-col justify-between gap-6">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-                <Building2 className="size-6" />
-              </div>
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+                <Building2 className="size-5" />
+              </span>
               <div>
-                <h2 className="text-2xl font-extrabold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizden başlayan kurum içi talep oluşturun.')}</p>
+                <h2 className="text-lg font-extrabold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
+                <p className="mt-1 text-sm leading-5 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizden başlayan kurum içi talep oluşturun.')}</p>
               </div>
             </div>
           </button>
 
           <button
             type="button"
-            className="section-card min-h-[190px] cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+            className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
             onClick={() => selectRequestKind('external')}
           >
-            <div className="flex h-full flex-col justify-between gap-6">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                <Workflow className="size-6" />
-              </div>
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                <Workflow className="size-5" />
+              </span>
               <div>
-                <h2 className="text-2xl font-extrabold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{t('requests.create.externalDescription', 'Başka bir müdürlüğe gidecek talep oluşturun.')}</p>
+                <h2 className="text-lg font-extrabold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
+                <p className="mt-1 text-sm leading-5 text-slate-600">{t('requests.create.externalDescription', 'Başka bir müdürlüğe gidecek talep oluşturun.')}</p>
               </div>
             </div>
           </button>
@@ -380,16 +436,16 @@ export function CreateRequestPage() {
           {canCreateCitizenRequest ? (
             <button
               type="button"
-              className="section-card min-h-[190px] cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+              className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
               onClick={() => selectRequestKind('citizen')}
             >
-              <div className="flex h-full flex-col justify-between gap-6">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
-                  <MessageSquareMore className="size-6" />
-                </div>
+              <div className="flex items-start gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
+                  <MessageSquareMore className="size-5" />
+                </span>
                 <div>
-                  <h2 className="text-2xl font-extrabold text-slate-950">{t('requests.create.citizenTitle', 'Vatandaş Talepleri')}</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
+                  <h2 className="text-lg font-extrabold text-slate-950">{t('requests.create.citizenTitle', 'Vatandaş Talepleri')}</h2>
+                  <p className="mt-1 text-sm leading-5 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
                 </div>
               </div>
             </button>
@@ -398,7 +454,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'internal' ? (
-        <form className="section-card grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.95fr)]" onSubmit={handleCreateInternal}>
+        <form className="section-card grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.internalFormTitle', 'Birim İçi Talep Oluştur')}</h2>
             <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Dahili iş akışı başlatmak için talep oluşturun.')}</p>
@@ -415,24 +471,19 @@ export function CreateRequestPage() {
                 <input className="field-input bg-slate-50 font-semibold text-slate-700" value={myDepartmentName || '-'} readOnly />
               </div>
             </div>
-            {renderOwnershipFields(
-              internalForm.ownershipMode,
-              internalForm.ownerUserIds,
-              internalOwnerUserOptions,
-              mode => setInternalForm(current => ({ ...current, ownershipMode: mode, ownerUserIds: mode === 'department' ? [] : current.ownerUserIds })),
-              ownerUserIds => setInternalForm(current => ({ ...current, ownerUserIds })),
-            )}
+            {renderOwnershipFields()}
             <div className="grid gap-3 md:grid-cols-3">
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
                 <select className="field-select" value={internalForm.priority} onChange={e => setInternalForm(current => ({ ...current, priority: e.target.value }))}>
-                  <option value="High">{t('jobs.priorities.High', 'Yüksek')}</option>
-                  <option value="Normal">{t('jobs.priorities.Normal', 'Normal')}</option>
+                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
                 </select>
               </div>
               <div className="job-field">
-                <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}</span>
-                <input type="datetime-local" className="field-input" value={internalForm.dueDateUtc} onClick={openDatePicker} onChange={e => setInternalForm(current => ({ ...current, dueDateUtc: e.target.value }))} />
+                <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')}</span>
+                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: v }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} />
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
@@ -442,12 +493,18 @@ export function CreateRequestPage() {
                 </select>
               </div>
             </div>
+            {renderPhotoUpload()}
           </div>
-          <div className="grid gap-3 xl:grid-rows-[minmax(0,1fr)_auto]">
-            <label className="job-field min-h-0">
+          <div className="grid content-start gap-3">
+            <div className="job-field min-h-0">
               <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')}</span>
-              <textarea className="field-textarea min-h-72 flex-1" required value={internalForm.description} onChange={e => setInternalForm(current => ({ ...current, description: e.target.value }))} />
-            </label>
+              <RichTextEditor
+                value={internalForm.description}
+                onChange={description => setInternalForm(current => ({ ...current, description }))}
+                required
+                minHeight="min-h-64"
+              />
+            </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
               {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
@@ -457,7 +514,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'external' ? (
-        <form className="section-card grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.95fr)]" onSubmit={handleCreateExternal}>
+        <form className="section-card grid gap-4 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}</h2>
             <p className="helper-copy">{t('requests.create.externalFormDescription', 'Birim dışı talep kaydını başlatmak için temel bilgileri girin.')}</p>
@@ -470,28 +527,39 @@ export function CreateRequestPage() {
             <div className="grid gap-3 md:grid-cols-2">
               {renderRequestTypeField()}
               <div className="job-field">
-                <label className="job-field-label" htmlFor="request-owner-dept">{t('jobs.form.ownerDepartment')} <span className="text-red-500">*</span></label>
-                <select id="request-owner-dept" className="field-select" value={externalForm.ownerDepartmentId} onChange={e => setExternalForm(current => ({ ...current, ownerDepartmentId: e.target.value, ownerUserIds: [] }))} required>
-                  <option value="">-</option>
-                  {ownerDepartmentOptions.map(department => (
-                    <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                <label className="job-field-label" htmlFor="request-owner-dept">{t('jobs.form.ownerDepartment', 'Görev Sahibi Birim')} <span className="text-red-500">*</span></label>
+                <select
+                  id="request-owner-dept"
+                  className="field-select"
+                  value={externalForm.ownerDepartmentId}
+                  onChange={e => setExternalForm(current => ({ ...current, ownerDepartmentId: e.target.value }))}
+                  required
+                >
+                  <option value="">{t('requests.create.selectDepartment', 'Birim seçin')}</option>
+                  {ownerDepartmentOptions.map(d => (
+                    <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
                   ))}
                 </select>
               </div>
             </div>
-            {renderOwnershipFields(
-              externalForm.ownershipMode,
-              externalForm.ownerUserIds,
-              externalOwnerUserOptions,
-              mode => setExternalForm(current => ({ ...current, ownershipMode: mode, ownerUserIds: mode === 'department' ? [] : current.ownerUserIds })),
-              ownerUserIds => setExternalForm(current => ({ ...current, ownerUserIds })),
-            )}
+            <div className="job-field">
+              <span className="job-field-label">{t('jobs.form.targetDepartments', 'Talebin Hangi Birime Gideceği')} <span className="text-red-500">*</span></span>
+              <MultiSelectDropdown
+                options={targetDepartmentOptions.map(d => ({ value: d.departmentId, label: d.name }))}
+                value={externalForm.targetDepartmentIds}
+                onChange={targetDepartmentIds => setExternalForm(current => ({ ...current, targetDepartmentIds }))}
+                placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Birim/Müdürlük seçin')}
+                emptyText={t('requests.create.targetDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+              />
+              <span className="helper-copy">{t('jobs.form.targetDepartmentsHelp', 'Talebin gönderileceği birim(ler)i seçin.')}</span>
+            </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-priority">{t('jobs.form.priority')}</label>
                 <select id="request-priority" className="field-select" value={externalForm.priority} onChange={e => setExternalForm(current => ({ ...current, priority: e.target.value }))}>
-                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
                   <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
                 </select>
               </div>
               <div className="job-field">
@@ -503,19 +571,25 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-start-date">{t('jobs.form.startDate')}</label>
-                <input id="request-start-date" className="field-input" type="datetime-local" value={externalForm.startDateUtc} onClick={openDatePicker} onChange={e => setExternalForm(current => ({ ...current, startDateUtc: e.target.value }))} />
+                <DateTimePicker id="request-start-date" value={externalForm.startDateUtc} onChange={v => setExternalForm(current => ({ ...current, startDateUtc: v }))} />
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-due-date">{t('jobs.form.dueDate')}</label>
-                <input id="request-due-date" className="field-input" type="datetime-local" value={externalForm.dueDateUtc} onClick={openDatePicker} onChange={e => setExternalForm(current => ({ ...current, dueDateUtc: e.target.value }))} />
+                <DateTimePicker id="request-due-date" value={externalForm.dueDateUtc} onChange={v => setExternalForm(current => ({ ...current, dueDateUtc: v }))} />
               </div>
             </div>
+            {renderPhotoUpload()}
           </div>
-          <div className="grid gap-3 xl:grid-rows-[minmax(0,1fr)_auto]">
-            <label className="job-field min-h-0">
+          <div className="grid content-start gap-3">
+            <div className="job-field min-h-0">
               <span className="job-field-label">{t('jobs.form.description')} <span className="text-red-500">*</span></span>
-              <textarea className="field-textarea min-h-72 flex-1" value={externalForm.description} onChange={e => setExternalForm(current => ({ ...current, description: e.target.value }))} required />
-            </label>
+              <RichTextEditor
+                value={externalForm.description}
+                onChange={description => setExternalForm(current => ({ ...current, description }))}
+                required
+                minHeight="min-h-64"
+              />
+            </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
               {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
@@ -532,14 +606,26 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             {renderRequestTypeField()}
-            <label className="job-field">
+            <div className="job-field">
               <span className="job-field-label">{t('settings.citizen.channel', 'Kanal')}</span>
-              <select className="field-select" value={citizenForm.channel} onChange={event => setCitizenForm(current => ({ ...current, channel: event.target.value }))}>
+              <div className="grid grid-cols-4 gap-2">
                 {CITIZEN_CHANNELS.map(channel => (
-                  <option key={channel} value={channel}>{t(`settings.citizen.channels.${channel}`, channel)}</option>
+                  <button
+                    key={channel}
+                    type="button"
+                    onClick={() => setCitizenForm(current => ({ ...current, channel }))}
+                    className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
+                      citizenForm.channel === channel
+                        ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/8 text-[color:var(--color-primary)]'
+                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    <ChannelIcon channel={channel} className="size-5 shrink-0" />
+                    <span className="truncate w-full text-center leading-tight">{t(`settings.citizen.channels.${channel}`, channel)}</span>
+                  </button>
                 ))}
-              </select>
-            </label>
+              </div>
+            </div>
             <label className="job-field">
               <span className="job-field-label">{t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')}</span>
               <input
@@ -559,16 +645,62 @@ export function CreateRequestPage() {
                 onChange={event => setCitizenForm(current => ({ ...current, category: event.target.value }))}
               />
             </label>
+            <div className="job-field">
+              <span className="job-field-label">{t('location.label', 'Konum (İsteğe Bağlı)')}</span>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  step="any"
+                  className="field-input flex-1"
+                  placeholder={t('location.latPlaceholder', 'Enlem (ör. 41.0082)')}
+                  value={citizenForm.latitude}
+                  onChange={e => setCitizenForm(c => ({ ...c, latitude: e.target.value }))}
+                />
+                <input
+                  type="number"
+                  step="any"
+                  className="field-input flex-1"
+                  placeholder={t('location.lngPlaceholder', 'Boylam (ör. 28.9784)')}
+                  value={citizenForm.longitude}
+                  onChange={e => setCitizenForm(c => ({ ...c, longitude: e.target.value }))}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    if (!navigator.geolocation) return
+                    navigator.geolocation.getCurrentPosition(pos => {
+                      setCitizenForm(c => ({
+                        ...c,
+                        latitude: pos.coords.latitude.toFixed(6),
+                        longitude: pos.coords.longitude.toFixed(6),
+                      }))
+                    })
+                  }}
+                  title={t('location.useCurrentTitle', 'Mevcut konumu kullan')}
+                >
+                  <MapPin className="size-4" />
+                </Button>
+              </div>
+              {citizenForm.latitude && citizenForm.longitude && (
+                <iframe
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${(parseFloat(citizenForm.longitude) - 0.005).toFixed(6)},${(parseFloat(citizenForm.latitude) - 0.005).toFixed(6)},${(parseFloat(citizenForm.longitude) + 0.005).toFixed(6)},${(parseFloat(citizenForm.latitude) + 0.005).toFixed(6)}&layer=mapnik&marker=${citizenForm.latitude},${citizenForm.longitude}`}
+                  className="mt-2 h-52 w-full rounded-xl border border-slate-200"
+                  title={t('location.mapPreview', 'Konum Önizleme')}
+                />
+              )}
+            </div>
           </div>
           <div className="grid content-start gap-3">
             <label className="job-field">
               <span className="job-field-label">{t('settings.citizen.content', 'Talep İçeriği')}</span>
-              <textarea
-                className="field-textarea min-h-56 xl:min-h-[17rem]"
+              <RichTextEditor
+                value={citizenForm.content}
+                onChange={content => setCitizenForm(current => ({ ...current, content }))}
                 required
                 placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin içeriğini girin...')}
-                value={citizenForm.content}
-                onChange={event => setCitizenForm(current => ({ ...current, content: event.target.value }))}
+                minHeight="min-h-48"
               />
             </label>
             <Button type="submit" disabled={saving || loading} className="gap-2">

@@ -7,6 +7,7 @@ global using CityCommunicationCenter.Application.Common.Exceptions;
 global using CityCommunicationCenter.Application.Common;
 global using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 global using CityCommunicationCenter.Application.Services;
+global using CityCommunicationCenter.Application.Features;
 global using CityCommunicationCenter.Domain.Entities;
 global using CityCommunicationCenter.Domain.Enums;
 global using CityCommunicationCenter.Shared.Contracts;

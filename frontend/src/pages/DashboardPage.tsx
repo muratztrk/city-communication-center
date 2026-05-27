@@ -1,4 +1,5 @@
-import { ChartBarBig, ClipboardList, MessageSquareMore, XCircle } from 'lucide-react'
+import { ArrowUpRight, Building2, ChartBarBig, ClipboardList, FolderKanban, ListChecks, MessageSquareMore, SquareKanban, Users, XCircle } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -16,18 +17,163 @@ interface MetricCard {
   iconColor: string
 }
 
+type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
+
 export function DashboardPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user: currentUser } = useAuth()
   const role = currentUser?.role ?? ''
 
-  const dashboardQuery = useQuery({ queryKey: ['dashboard'], queryFn: () => api.getDashboard() })
-  const chartQuery = useQuery({ queryKey: ['dashboard-chart'], queryFn: () => api.getDashboardChart() })
+  const [period, setPeriod] = useState<Period>('monthly')
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
+
+  function getPeriodRange(p: Period): { from: string; to: string } {
+    const now = new Date()
+    const toStr = now.toISOString()
+    if (p === 'daily') {
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+      return { from: start.toISOString(), to: toStr }
+    }
+    if (p === 'weekly') {
+      const dayOfWeek = now.getDay()
+      const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff, 0, 0, 0, 0)
+      return { from: start.toISOString(), to: toStr }
+    }
+    if (p === 'monthly') {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+      return { from: start.toISOString(), to: toStr }
+    }
+    if (p === 'yearly') {
+      const start = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0)
+      return { from: start.toISOString(), to: toStr }
+    }
+    return {
+      from: customFrom ? new Date(customFrom).toISOString() : '',
+      to: customTo ? new Date(customTo).toISOString() : '',
+    }
+  }
+
+  const { from: activeFrom, to: activeTo } = useMemo(
+    () => getPeriodRange(period),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [period, customFrom, customTo],
+  )
+
+  const dashboardQuery = useQuery({
+    queryKey: ['dashboard', activeFrom, activeTo],
+    queryFn: () => api.getDashboard(activeFrom || undefined, activeTo || undefined),
+    refetchInterval: 60_000,
+  })
+  const chartQuery = useQuery({
+    queryKey: ['dashboard-chart', activeFrom, activeTo],
+    queryFn: () => api.getDashboardChart(activeFrom || undefined, activeTo || undefined),
+    refetchInterval: 60_000,
+  })
+
+  const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator'
+  const citizenChannelQuery = useQuery({
+    queryKey: ['citizen-channel-chart', activeFrom, activeTo],
+    queryFn: () => api.getCitizenChannelChart(activeFrom || undefined, activeTo || undefined),
+    enabled: canSeeCitizenChannels,
+    refetchInterval: 60_000,
+  })
 
   const isManagerOrAdmin = role === 'Manager' || role === 'SystemAdmin'
 
-  const metrics: MetricCard[] = dashboardQuery.data
+  const managerRow1: MetricCard[] = isManagerOrAdmin && dashboardQuery.data
+    ? [
+        {
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim (İçi/Dışı)'),
+          value: dashboardQuery.data.myPendingRequestCount,
+          icon: ClipboardList,
+          path: '/my-requests?view=pending',
+          iconBg: 'bg-amber-100',
+          iconColor: 'text-amber-600',
+        },
+        {
+          label: t('dashboard.cards.incomingPendingApproval', 'Birime Gelen Onay Bekleyenler'),
+          value: dashboardQuery.data.pendingApprovalCount,
+          icon: ChartBarBig,
+          path: '/jobs?scope=pending-approval',
+          iconBg: 'bg-orange-100',
+          iconColor: 'text-orange-600',
+        },
+        {
+          label: t('dashboard.cards.outgoingPending', 'Birimden Giden Bekleyen Talepler'),
+          value: dashboardQuery.data.outgoingPendingCount,
+          icon: ArrowUpRight,
+          path: '/outgoing-requests',
+          iconBg: 'bg-sky-100',
+          iconColor: 'text-sky-600',
+        },
+        {
+          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (İçi/Dışı)'),
+          value: dashboardQuery.data.myPendingTaskCount,
+          icon: ListChecks,
+          path: '/my-tasks?view=pending',
+          iconBg: 'bg-violet-100',
+          iconColor: 'text-violet-600',
+        },
+        {
+          label: t('dashboard.cards.deptPendingTasks', 'Birimdeki Bekleyen Görevler'),
+          value: dashboardQuery.data.deptPendingTaskCount,
+          icon: SquareKanban,
+          path: '/department-tasks?flow=all',
+          iconBg: 'bg-emerald-100',
+          iconColor: 'text-emerald-600',
+        },
+      ]
+    : []
+
+  const managerRow2: MetricCard[] = isManagerOrAdmin && dashboardQuery.data
+    ? [
+        {
+          label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
+          value: dashboardQuery.data.activeSocialMessageCount,
+          icon: MessageSquareMore,
+          path: '/social',
+          iconBg: 'bg-rose-100',
+          iconColor: 'text-rose-600',
+        },
+        {
+          label: t('dashboard.cards.myTotalRequests', 'Tüm Taleplerim'),
+          value: dashboardQuery.data.myTotalRequestCount,
+          icon: FolderKanban,
+          path: '/my-requests?view=all',
+          iconBg: 'bg-slate-100',
+          iconColor: 'text-slate-600',
+        },
+        {
+          label: t('dashboard.cards.incomingTotal', 'Birime Gelen Tüm Talepler'),
+          value: dashboardQuery.data.incomingTotalCount,
+          icon: Building2,
+          path: '/incoming-requests?kind=all',
+          iconBg: 'bg-cyan-100',
+          iconColor: 'text-cyan-600',
+        },
+        {
+          label: t('dashboard.cards.outgoingTotal', 'Birimden Giden Tüm Talepler'),
+          value: dashboardQuery.data.outgoingTotalCount,
+          icon: ArrowUpRight,
+          path: '/outgoing-requests',
+          iconBg: 'bg-indigo-100',
+          iconColor: 'text-indigo-600',
+        },
+        {
+          label: t('dashboard.cards.deptTotalTasks', 'Birimde Oluşan Tüm Görevler'),
+          value: dashboardQuery.data.deptTotalTaskCount,
+          icon: Users,
+          path: '/department-tasks?flow=all',
+          iconBg: 'bg-teal-100',
+          iconColor: 'text-teal-600',
+        },
+      ]
+    : []
+
+  const staffMetrics: MetricCard[] = !isManagerOrAdmin && dashboardQuery.data
     ? [
         {
           label: t('dashboard.cards.openTasks'),
@@ -37,39 +183,24 @@ export function DashboardPage() {
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
         },
-        ...(isManagerOrAdmin
-          ? [
-              {
-                label: t('dashboard.cards.pendingApprovals'),
-                value: dashboardQuery.data.pendingApprovalCount,
-                icon: ChartBarBig,
-                path: '/jobs?scope=pending-approval',
-                iconBg: 'bg-orange-100',
-                iconColor: 'text-orange-600',
-              },
-              {
-                label: t('dashboard.cards.rejectedOrCancelled'),
-                value: dashboardQuery.data.rejectedOrCancelledRequestCount,
-                icon: XCircle,
-                path: '/jobs?scope=rejected',
-                iconBg: 'bg-red-100',
-                iconColor: 'text-red-600',
-              },
-            ]
-          : []),
         {
-          label: t('dashboard.cards.activeMessages'),
+          label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
           value: dashboardQuery.data.activeSocialMessageCount,
           icon: MessageSquareMore,
           path: '/social',
           iconBg: 'bg-rose-100',
           iconColor: 'text-rose-600',
         },
+        {
+          label: t('dashboard.cards.rejectedOrCancelled'),
+          value: dashboardQuery.data.rejectedOrCancelledRequestCount,
+          icon: XCircle,
+          path: '/jobs?scope=rejected',
+          iconBg: 'bg-red-100',
+          iconColor: 'text-red-600',
+        },
       ]
     : []
-
-  const skeletonCount = isManagerOrAdmin ? 4 : 2
-  const colClass = isManagerOrAdmin ? 'sm:grid-cols-2 xl:grid-cols-4' : 'sm:grid-cols-2'
 
   const summaryChart = dashboardQuery.data
     ? {
@@ -86,7 +217,32 @@ export function DashboardPage() {
   const chartCards = [
     ...(chartQuery.data ? [chartQuery.data] : []),
     ...(summaryChart ? [summaryChart] : []),
+    ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ]
+
+  function renderCard(metric: MetricCard) {
+    const Icon = metric.icon
+    return (
+      <button
+        key={metric.label}
+        type="button"
+        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        onClick={() => navigate(metric.path)}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+              {metric.label}
+            </div>
+            <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{metric.value ?? '...'}</div>
+          </div>
+          <div className={`flex size-10 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
+            <Icon className="size-4.5" />
+          </div>
+        </div>
+      </button>
+    )
+  }
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -107,38 +263,91 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className={`grid gap-3 p-3.5 ${colClass}`}>
-          {dashboardQuery.isLoading
-            ? Array.from({ length: skeletonCount }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100"
-                />
-              ))
-            : metrics.map(metric => {
-                const Icon = metric.icon
-                return (
-                  <button
-                    key={metric.label}
-                    type="button"
-                    className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
-                    onClick={() => navigate(metric.path)}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
-                          {metric.label}
-                        </div>
-                        <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{metric.value ?? '...'}</div>
-                      </div>
-                      <div className={`flex size-10 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
-                        <Icon className="size-4.5" />
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
+        <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
+          <span className="text-xs font-semibold text-[color:var(--color-muted-foreground)] uppercase tracking-wide mr-1">
+            {t('dashboard.period.label', 'Dönem')}:
+          </span>
+          {(['daily', 'weekly', 'monthly', 'yearly'] as const).map(p => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPeriod(p)}
+              className={`rounded-lg border px-3 py-1 text-xs font-semibold transition-colors ${
+                period === p
+                  ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white'
+                  : 'border-[var(--color-border)] bg-white text-slate-600 hover:border-[color:var(--color-primary)]/50'
+              }`}
+            >
+              {t(`dashboard.period.${p}`, { daily: 'Günlük', weekly: 'Haftalık', monthly: 'Aylık', yearly: 'Yıllık' }[p])}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setPeriod('custom')}
+            className={`rounded-lg border px-3 py-1 text-xs font-semibold transition-colors ${
+              period === 'custom'
+                ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white'
+                : 'border-[var(--color-border)] bg-white text-slate-600 hover:border-[color:var(--color-primary)]/50'
+            }`}
+          >
+            {t('dashboard.period.custom', 'Özel')}
+          </button>
+          {period === 'custom' && (
+            <>
+              <input
+                type="date"
+                className="input text-xs px-2 py-1 h-auto"
+                value={customFrom}
+                onChange={e => setCustomFrom(e.target.value)}
+              />
+              <span className="text-xs text-slate-400">–</span>
+              <input
+                type="date"
+                className="input text-xs px-2 py-1 h-auto"
+                value={customTo}
+                onChange={e => setCustomTo(e.target.value)}
+              />
+            </>
+          )}
         </div>
+
+        {isManagerOrAdmin ? (
+          <div className="space-y-3 p-3.5">
+            {dashboardQuery.isLoading
+              ? (
+                <>
+                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                    ))}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                    ))}
+                  </div>
+                </>
+              )
+              : (
+                <>
+                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                    {managerRow1.map(renderCard)}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                    {managerRow2.map(renderCard)}
+                  </div>
+                </>
+              )}
+          </div>
+        ) : (
+          <div className="grid gap-3 p-3.5 sm:grid-cols-2">
+            {dashboardQuery.isLoading
+              ? Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                ))
+              : staffMetrics.map(renderCard)}
+          </div>
+        )}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">

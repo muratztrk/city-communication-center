@@ -30,6 +30,8 @@ public sealed class SocialMediaSettings
     public FacebookSettings? Facebook { get; set; }
     public InstagramSettings? Instagram { get; set; }
     public WhatsAppSettings? WhatsApp { get; set; }
+    public EDevletSettings? EDevlet { get; set; }
+    public EmailSettings? Email { get; set; }
 }
 
 public sealed class XSettings
@@ -63,6 +65,29 @@ public sealed class WhatsAppSettings
     public string? PhoneNumberId { get; set; }
     public string? AccessToken { get; set; }
     public string? WebhookVerifyToken { get; set; }
+}
+
+public sealed class EDevletSettings
+{
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set; }
+    public string? RedirectUri { get; set; }
+    public string? AuthorizationEndpoint { get; set; }
+    public string? TokenEndpoint { get; set; }
+    public string? Scope { get; set; }
+}
+
+public sealed class EmailSettings
+{
+    public string? ImapHost { get; set; }
+    public string? ImapPort { get; set; }
+    public string? ImapUser { get; set; }
+    public string? ImapPassword { get; set; }
+    public string? Folder { get; set; }
+    public string? SmtpHost { get; set; }
+    public string? SmtpPort { get; set; }
+    public string? SmtpUser { get; set; }
+    public string? SmtpPassword { get; set; }
 }
 
 public sealed class SendMessageRequest
@@ -114,6 +139,8 @@ public sealed class IncomingMessage
     public DateTimeOffset ReceivedAt { get; init; }
     public List<string>? MediaUrls { get; init; }
     public string? ReplyToMessageId { get; init; }
+    public double? Latitude { get; init; }
+    public double? Longitude { get; init; }
     public bool IsDirectMessage { get; init; }
 }
 

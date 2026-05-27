@@ -1,4 +1,6 @@
 
+using CityCommunicationCenter.Application.Features.Users;
+
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record RouteSocialMessageCommand(Guid MessageId, Guid? ActorUserId, Guid? DepartmentId, Guid? UserId) : ICommand<bool>;
@@ -26,7 +28,8 @@ public sealed class RouteSocialMessageCommandHandler : ICommandHandler<RouteSoci
 
     public async ValueTask<bool> Handle(RouteSocialMessageCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
         var actor = await ActorAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(
             entity => entity.SocialMessageId == request.MessageId && entity.TenantId == tenantId,
@@ -74,16 +77,26 @@ public sealed class RouteSocialMessageCommandHandler : ICommandHandler<RouteSoci
                 ]);
             }
 
-            if (targetDepartment is not null && targetUser.DepartmentId != targetDepartment.DepartmentId)
+            if (targetDepartment is not null &&
+                !await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, targetUser, targetDepartment.DepartmentId, cancellationToken))
             {
                 throw new ValidationException([
                     new FluentValidation.Results.ValidationFailure(nameof(request.UserId), "Secilen kullanici secilen departmana ait degil.")
                 ]);
             }
 
-            targetDepartment ??= await _dbContext.Departments.FirstOrDefaultAsync(
-                entity => entity.DepartmentId == targetUser.DepartmentId && entity.TenantId == tenantId,
-                cancellationToken);
+            if (targetDepartment is null)
+            {
+                var defaultDepartmentId = await UserDepartmentAccess.GetDefaultDepartmentIdAsync(
+                    _dbContext,
+                    tenantId,
+                    targetUser,
+                    context.ActiveDepartmentId,
+                    cancellationToken);
+                targetDepartment = await _dbContext.Departments.FirstOrDefaultAsync(
+                    entity => entity.DepartmentId == defaultDepartmentId && entity.TenantId == tenantId,
+                    cancellationToken);
+            }
         }
 
         message.AssignedDepartmentId = targetDepartment?.DepartmentId;

@@ -45,6 +45,16 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPut("tenants/{tenantId:guid}/role-page-access")]
+    public async Task<IActionResult> UpdateRolePageAccess(
+        Guid tenantId,
+        [FromBody] UpdateRolePageAccessRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(new UpdateRolePageAccessCommand(tenantId, request.MatrixJson), cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/appearance")]
     public async Task<ActionResult<TenantAppearanceResponse>> GetTenantAppearance(Guid tenantId, CancellationToken cancellationToken)
     {
@@ -79,6 +89,34 @@ public sealed class AdminController : ApiControllerBase
                 request.SidebarForegroundColor,
                 request.LogoUrl,
                 request.LoginBackgroundImageUrl),
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpGet("tenants/{tenantId:guid}/working-hours")]
+    public async Task<ActionResult<WorkingHoursResponse>> GetWorkingHours(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetWorkingHoursQuery(tenantId), cancellationToken);
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/working-hours")]
+    public async Task<IActionResult> UpdateWorkingHours(
+        Guid tenantId,
+        [FromBody] UpdateWorkingHoursRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateWorkingHoursCommand(
+                tenantId,
+                request.Default,
+                request.DepartmentOverrides),
             cancellationToken);
 
         return NoContent();
@@ -199,6 +237,39 @@ public sealed class AdminController : ApiControllerBase
                 request.CodeTtlSeconds,
                 request.AllowMockCodePreview,
                 request.WebhookUrl),
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpGet("tenants/{tenantId:guid}/sms-settings")]
+    public async Task<ActionResult<SmsSettingsResponse>> GetSmsSettings(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetSmsSettingsQuery(tenantId), cancellationToken);
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/sms-settings")]
+    public async Task<IActionResult> UpdateSmsSettings(
+        Guid tenantId,
+        [FromBody] UpdateSmsSettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateSmsSettingsCommand(
+                tenantId,
+                request.IsEnabled,
+                request.Provider,
+                request.ApiUrl,
+                request.Username,
+                request.Password,
+                request.ClearPassword,
+                request.Originator),
             cancellationToken);
 
         return NoContent();

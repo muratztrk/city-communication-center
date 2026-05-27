@@ -1,10 +1,16 @@
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string }
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -13,7 +19,7 @@ export default defineConfig({
       devOptions: {
         enabled: false,
       },
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.jpeg', 'icon_black.jpeg', 'icon_white.jpeg'],
       manifest: {
         name: 'Tire İletişim Merkezi',
         short_name: 'Tire İletişim',
@@ -24,9 +30,9 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'favicon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
+            src: 'favicon.jpeg',
+            sizes: '512x512',
+            type: 'image/jpeg',
             purpose: 'any maskable',
           },
         ],

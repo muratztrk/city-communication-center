@@ -8,7 +8,8 @@ public sealed record TenantContext(
     bool IsAuthenticated,
     string? ResolutionSource,
     string? ErrorMessage,
-    bool ApplyQueryFilter = true);
+    bool ApplyQueryFilter = true,
+    Guid? ActiveDepartmentId = null);
 
 public static class TenantContextExtensions
 {

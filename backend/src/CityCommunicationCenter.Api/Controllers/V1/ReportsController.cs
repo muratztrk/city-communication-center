@@ -14,16 +14,22 @@ public sealed class ReportsController : ApiControllerBase
     }
 
     [HttpGet("dashboard")]
-    public async Task<ActionResult<DashboardResponse>> GetDashboard(CancellationToken cancellationToken)
+    public async Task<ActionResult<DashboardResponse>> GetDashboard(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetDashboardQuery(), cancellationToken);
+        var response = await _sender.Send(new GetDashboardQuery(from, to), cancellationToken);
         return Ok(response);
     }
 
     [HttpGet("dashboard-chart")]
-    public async Task<ActionResult<DashboardChartResponse>> GetDashboardChart(CancellationToken cancellationToken)
+    public async Task<ActionResult<DashboardChartResponse>> GetDashboardChart(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetDashboardChartQuery(), cancellationToken);
+        var response = await _sender.Send(new GetDashboardChartQuery(from, to), cancellationToken);
         return Ok(response);
     }
 
@@ -38,6 +44,16 @@ public sealed class ReportsController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<WorkloadReportItemResponse>>> GetWorkload(CancellationToken cancellationToken)
     {
         var response = await _sender.Send(new GetWorkloadReportQuery(), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("citizen-channels")]
+    public async Task<ActionResult<DashboardChartResponse>> GetCitizenChannelChart(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetCitizenChannelChartQuery(from, to), cancellationToken);
         return Ok(response);
     }
 

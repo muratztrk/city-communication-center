@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -55,7 +56,13 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         var actor = await TaskWorkflowAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         var isSystemAdmin = TaskWorkflowAuthorization.IsSystemAdmin(actor);
 
-        var actorDept = await _dbContext.Departments.FirstOrDefaultAsync(d => d.TenantId == tenantId && d.DepartmentId == actor.DepartmentId, cancellationToken);
+        var actorDepartmentId = await UserDepartmentAccess.GetDefaultDepartmentIdAsync(
+            _dbContext,
+            tenantId,
+            actor,
+            context.ActiveDepartmentId,
+            cancellationToken);
+        var actorDept = await _dbContext.Departments.FirstOrDefaultAsync(d => d.TenantId == tenantId && d.DepartmentId == actorDepartmentId, cancellationToken);
         var ownerUserId = actorDept?.ManagerUserId;
 
         var assignedUserId = request.AssignedUserId;
@@ -72,11 +79,11 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
                 }
 
                 assignedUserId = actor.UserId;
-                assignedDepartmentId ??= actor.DepartmentId;
+                assignedDepartmentId ??= actorDepartmentId;
             }
             else if (actor.RoleCode == RoleCode.Manager)
             {
-                var managerDept = assignedDepartmentId ?? job.OwnerDepartmentId;
+                var managerDept = assignedDepartmentId ?? context.ActiveDepartmentId ?? job.OwnerDepartmentId;
                 var isManagerDept = await TaskWorkflowAuthorization.IsManagerOfAsync(_dbContext, actor, managerDept, cancellationToken);
                 if (!isManagerDept)
                 {
@@ -101,16 +108,25 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             {
                 throw Validation(nameof(request.AssignedUserId), "Secilen kullanici bulunamadi veya aktif degil.");
             }
-            if (assignedDepartmentId.HasValue && assignedDepartmentId.Value != target.DepartmentId)
+            if (assignedDepartmentId.HasValue &&
+                !await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, target, assignedDepartmentId.Value, cancellationToken))
             {
                 throw Validation(nameof(request.AssignedUserId), "Secilen kullanici atanan mudurlukte calismiyor.");
             }
 
-            assignedDepartmentId = target.DepartmentId;
+            assignedDepartmentId ??= await UserDepartmentAccess.GetDefaultDepartmentIdAsync(
+                _dbContext,
+                tenantId,
+                target,
+                context.ActiveDepartmentId,
+                cancellationToken);
             ownerUserId = target.UserId;
         }
 
         var initialStatus = assignedUserId.HasValue ? WorkflowTaskStatus.Assigned : WorkflowTaskStatus.Waiting;
+
+        var taskYear = DateTimeOffset.UtcNow.Year;
+        var taskNumber = await SequenceNumberHelper.NextTaskNumberAsync(_dbContext, tenantId, taskYear, cancellationToken);
 
         var task = new WorkTask
         {
@@ -129,7 +145,9 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             DueDateUtc = request.DueDateUtc,
             EstimatedHours = request.EstimatedHours,
             Notes = request.Notes,
-            CreatedByUserId = context.UserId
+            CreatedByUserId = context.UserId,
+            TaskNumber = taskNumber,
+            TaskNumberYear = taskYear
         };
 
         _dbContext.Tasks.Add(task);
@@ -142,6 +160,9 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             EntityId = task.TaskId.ToString(),
             Action = "TaskCreated",
             ActorUserId = context.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = initialStatus.ToString(),
+            Notes = request.Notes,
             Details = assignedUserId.HasValue ? $"Assigned to user {assignedUserId}" : "Unassigned (pool)"
         });
 

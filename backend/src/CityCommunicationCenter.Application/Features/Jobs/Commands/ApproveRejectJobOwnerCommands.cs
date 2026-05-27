@@ -48,6 +48,7 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
             .Where(e => e.JobId == job.JobId && e.Role == JobDepartmentRole.Target)
             .ToListAsync(cancellationToken);
 
+        var createdTaskCount = 0;
         if (targets.Count > 0)
         {
             foreach (var t in targets.Where(x => x.ApprovalStatus == JobApprovalStatus.NotRequired))
@@ -61,6 +62,13 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
         else
         {
             job.Status = JobStatus.Active;
+            if (job.JobNumber is null)
+            {
+                job.JobNumberYear = utcNow.Year;
+                job.JobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken);
+            }
+            createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(
+                _dbContext, tenantId, job, actor.UserId, utcNow, cancellationToken);
         }
 
         job.UpdatedAtUtc = utcNow;
@@ -74,7 +82,12 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
             EntityId = job.JobId.ToString(),
             Action = "JobOwnerApproved",
             ActorUserId = actor.UserId,
-            Details = request.Comment
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = job.Status.ToString(),
+            Notes = request.Comment,
+            Details = string.IsNullOrWhiteSpace(request.Comment)
+                ? $"CreatedTasks={createdTaskCount}"
+                : $"{request.Comment} CreatedTasks={createdTaskCount}"
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -144,6 +157,9 @@ public sealed class RejectJobOwnerCommandHandler : ICommandHandler<RejectJobOwne
             EntityId = job.JobId.ToString(),
             Action = "JobOwnerRejected",
             ActorUserId = actor.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = JobStatus.Rejected.ToString(),
+            Notes = request.Reason,
             Details = request.Reason
         });
 

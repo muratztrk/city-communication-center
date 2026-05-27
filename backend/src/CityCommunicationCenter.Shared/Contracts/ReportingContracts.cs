@@ -5,7 +5,16 @@ public sealed record DashboardResponse(
     int PendingApprovalCount,
     int ActiveSocialMessageCount,
     int RejectedOrCancelledRequestCount,
-    int UnassignedItemCount);
+    int UnassignedItemCount,
+    // Manager-specific metrics
+    int MyPendingRequestCount,
+    int OutgoingPendingCount,
+    int MyPendingTaskCount,
+    int DeptPendingTaskCount,
+    int MyTotalRequestCount,
+    int IncomingTotalCount,
+    int OutgoingTotalCount,
+    int DeptTotalTaskCount);
 
 public sealed record DashboardChartResponse(
     string TitleKey,

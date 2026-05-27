@@ -55,6 +55,8 @@ public sealed class UpdateTaskProgressCommandHandler : ICommandHandler<UpdateTas
             EntityId = task.TaskId.ToString(),
             Action = "TaskProgressUpdated",
             ActorUserId = request.ActorUserId,
+            StatusAtEvent = task.CurrentStatus.ToString(),
+            Notes = request.CompletionPercentage.HasValue ? $"{request.CompletionPercentage}%" : null,
             Details = request.CompletionPercentage?.ToString()
         });
 

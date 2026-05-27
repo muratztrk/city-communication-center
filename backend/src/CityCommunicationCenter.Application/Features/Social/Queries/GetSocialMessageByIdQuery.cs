@@ -48,6 +48,8 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             assignedDepartmentName,
             message.JobId,
             message.ReceivedAtUtc,
+            message.Latitude,
+            message.Longitude,
             string.IsNullOrWhiteSpace(message.Tags)
                 ? Array.Empty<string>()
                 : message.Tags.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));

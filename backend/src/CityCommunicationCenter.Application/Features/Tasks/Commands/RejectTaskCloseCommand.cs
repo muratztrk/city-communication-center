@@ -64,6 +64,8 @@ public sealed class RejectTaskCloseCommandHandler : ICommandHandler<RejectTaskCl
             EntityId = task.TaskId.ToString(),
             Action = "TaskCloseRejected",
             ActorUserId = request.ActorUserId,
+            StatusAtEvent = WorkflowTaskStatus.InProgress.ToString(),
+            Notes = request.Comment,
             Details = request.Comment
         });
 

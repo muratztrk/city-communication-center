@@ -5,6 +5,7 @@ namespace CityCommunicationCenter.Application.Features.Users;
 public sealed record UpdateUserCommand(
     Guid UserId,
     Guid DepartmentId,
+    IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
     bool IsActive) : ICommand<UserSummaryResponse>;
 
@@ -68,13 +69,39 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             throw new ValidationException(_localizer["ValidationDepartmentNotFound"]);
         }
 
+        var roleCode = Enum.Parse<RoleCode>(request.RoleCode, true);
+        if (roleCode == RoleCode.Manager)
+        {
+            await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(
+                _dbContext,
+                tenantId,
+                request.DepartmentId,
+                user.UserId,
+                cancellationToken);
+        }
+
         user.DepartmentId = request.DepartmentId;
-        user.RoleCode = Enum.Parse<RoleCode>(request.RoleCode, true);
+        user.RoleCode = roleCode;
         user.IsActive = request.IsActive;
         user.UpdatedAtUtc = DateTimeOffset.UtcNow;
         user.UpdatedByUserId = context.UserId;
 
+        await UserDepartmentAccess.ReplaceAdditionalAssignmentsAsync(
+            _dbContext,
+            tenantId,
+            user.UserId,
+            user.DepartmentId,
+            request.AdditionalDepartmentIds,
+            context.UserId,
+            user.UpdatedAtUtc.Value,
+            cancellationToken);
+
         await _dbContext.SaveChangesAsync(cancellationToken);
+        var departments = await UserDepartmentAccess.GetDepartmentSummariesAsync(
+            _dbContext,
+            tenantId,
+            user,
+            cancellationToken);
 
         return new UserSummaryResponse(
             user.UserId,
@@ -87,6 +114,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             user.IsActive,
             user.UserSource.ToString(),
             user.Title,
-            user.Phone);
+            user.Phone,
+            departments);
     }
 }

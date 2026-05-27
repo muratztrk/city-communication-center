@@ -8,6 +8,7 @@ public sealed record CreateUserCommand(
     string? Email,
     string? Password,
     Guid DepartmentId,
+    IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
     bool IsActive,
     string SourceType,
@@ -221,6 +222,16 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         }
 
         var roleCode = Enum.Parse<RoleCode>(request.RoleCode, true);
+        if (roleCode == RoleCode.Manager)
+        {
+            await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(
+                _dbContext,
+                tenantId,
+                departmentId,
+                currentUserId: null,
+                cancellationToken);
+        }
+
         var user = new ApplicationUser
         {
             UserId = Guid.NewGuid(),
@@ -244,7 +255,22 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         }
 
         _dbContext.Users.Add(user);
+        await UserDepartmentAccess.ReplaceAdditionalAssignmentsAsync(
+            _dbContext,
+            tenantId,
+            user.UserId,
+            user.DepartmentId,
+            request.AdditionalDepartmentIds,
+            context.UserId,
+            DateTimeOffset.UtcNow,
+            cancellationToken);
+
         await _dbContext.SaveChangesAsync(cancellationToken);
+        var departments = await UserDepartmentAccess.GetDepartmentSummariesAsync(
+            _dbContext,
+            tenantId,
+            user,
+            cancellationToken);
 
         return new UserSummaryResponse(
             user.UserId,
@@ -257,6 +283,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             user.IsActive,
             sourceType.ToString(),
             user.Title,
-            user.Phone);
+            user.Phone,
+            departments);
     }
 }

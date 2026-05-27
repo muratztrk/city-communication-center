@@ -39,6 +39,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<RoutingRule> RoutingRules => Set<RoutingRule>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
+    public DbSet<Attachment> Attachments => Set<Attachment>();
+    public DbSet<UserDepartmentAssignment> UserDepartmentAssignments => Set<UserDepartmentAssignment>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -92,6 +94,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
         ConfigureRoutingRule(modelBuilder.Entity<RoutingRule>());
         ConfigurePushSubscription(modelBuilder.Entity<PushSubscription>());
+        ConfigureAttachment(modelBuilder.Entity<Attachment>());
+        ConfigureUserDepartmentAssignment(modelBuilder.Entity<UserDepartmentAssignment>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -108,6 +112,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<AuditLog>());
         ApplyTenantFilter(modelBuilder.Entity<RoutingRule>());
         ApplyTenantFilter(modelBuilder.Entity<PushSubscription>());
+        ApplyTenantFilter(modelBuilder.Entity<Attachment>());
+        ApplyTenantFilter(modelBuilder.Entity<UserDepartmentAssignment>());
 
         ApplyInstallSeedData(modelBuilder);
     }
@@ -347,6 +353,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.LdapSettingsJson).HasColumnType("text");
         builder.Property(entity => entity.AuthPolicyJson).HasColumnType("text");
         builder.Property(entity => entity.AppearanceJson).HasColumnType("text");
+        builder.Property(entity => entity.WorkingHoursJson).HasColumnType("text");
+        builder.Property(entity => entity.RolePageAccessJson).HasColumnType("text");
         ApplyLowerCaseColumnNames(builder);
     }
 
@@ -505,6 +513,31 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("pushsubscriptions");
         builder.HasKey(entity => entity.PushSubscriptionId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureAttachment(EntityTypeBuilder<Attachment> builder)
+    {
+        builder.ToTable("attachments");
+        builder.HasKey(entity => entity.AttachmentId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureUserDepartmentAssignment(EntityTypeBuilder<UserDepartmentAssignment> builder)
+    {
+        builder.ToTable("userdepartmentassignments");
+        builder.HasKey(entity => entity.AssignmentId);
+        builder.HasOne(entity => entity.User)
+            .WithMany(user => user.DepartmentAssignments)
+            .HasForeignKey(entity => entity.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(entity => entity.Department)
+            .WithMany()
+            .HasForeignKey(entity => entity.DepartmentId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(nameof(UserDepartmentAssignment.TenantId), nameof(UserDepartmentAssignment.UserId), nameof(UserDepartmentAssignment.DepartmentId))
+            .IsUnique()
+            .HasDatabaseName("ix_userdeptassign_tenantid_userid_deptid_unique");
         ApplyLowerCaseColumnNames(builder);
     }
 

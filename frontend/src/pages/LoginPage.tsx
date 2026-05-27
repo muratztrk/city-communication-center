@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, MessageSquareMore, SquareKanban } from 'lucide-react'
+import { Eye, EyeOff, MessageSquareMore, SquareKanban, X, ShieldCheck } from 'lucide-react'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +10,7 @@ import {
   startInteractiveAuthentication,
   verifyInteractiveAuthentication,
 } from '../api/auth'
+import { AppFooter } from '../components/layout/AppFooter'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
@@ -42,6 +43,9 @@ const EMPTY_SECURITY_STATE: SecurityState = {
   secondFactorRequiredOnSuccess: false,
 }
 
+const LOGIN_LOGO_LIGHT_SRC = '/favicon.svg'
+const LOGIN_LOGO_DARK_SRC = '/favicon.svg'
+
 export function LoginPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -56,9 +60,11 @@ export function LoginPage() {
   const [challengeState, setChallengeState] = useState<ChallengeState | null>(null)
   const [isTenantContextLoading, setIsTenantContextLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+  const [loginSuccess, setLoginSuccess] = useState(false)
   const autoProbeTenantRef = useRef<string | null>(null)
   const latestInteractiveRequestRef = useRef(0)
   const [showPassword, setShowPassword] = useState(false)
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
 
   const credentialsForm = useForm<z.infer<typeof credentialsSchema>>({
     resolver: zodResolver(credentialsSchema),
@@ -88,6 +94,8 @@ export function LoginPage() {
     ?? t('login.organizationFallback')
   const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
   const logoUrl = tenantContext?.appearance?.logoUrl?.trim() || null
+  const desktopLogoUrl = logoUrl ?? LOGIN_LOGO_LIGHT_SRC
+  const compactLogoUrl = logoUrl ?? LOGIN_LOGO_DARK_SRC
   const loginBackgroundImageUrl = tenantContext?.appearance?.loginBackgroundImageUrl?.trim() || null
   const loginHeroBackgroundStyle = loginBackgroundImageUrl
     ? {
@@ -169,6 +177,8 @@ export function LoginPage() {
       }
 
       await completeInteractiveSignIn(result.grant.username, result.grant.password, selectedTenant, getTenantDisplayName())
+      setLoginSuccess(true)
+      await new Promise(resolve => setTimeout(resolve, 420))
       navigate('/dashboard', { replace: true })
       return
     }
@@ -256,29 +266,27 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-[color:var(--color-background)] px-3 py-3 sm:px-4 lg:px-5">
-      <div className="mx-auto grid max-w-[1320px] overflow-hidden rounded-[var(--radius-2xl)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-soft)] lg:min-h-[calc(100dvh-2rem)] lg:grid-cols-[minmax(0,1.05fr)_440px]">
+    <div className="flex min-h-dvh flex-col">
+    <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10"
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
-          <div className="relative grid gap-5">
-            <div className="space-y-3">
-              <div className="flex items-center gap-4">
+          <div className="relative grid gap-5 pt-10">
+            <div className="space-y-4">
+              <div className="inline-block rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-2.5">
                 <MunicipalitySeal
                   alt={`${institutionName} logo`}
-                  src={logoUrl}
-                  className="h-[7.25rem] w-[26rem] max-w-[46vw] rounded-[2rem]"
-                  imageClassName="h-[82%] w-[86%]"
+                  src={desktopLogoUrl}
                 />
-                <div className="min-w-0">
-                  <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
-                    {t('shell.subtitle', { municipalityName })}
-                  </h1>
-                </div>
               </div>
-              <p className="max-w-2xl text-sm leading-7 text-white/84">{t('login.subtitle')}</p>
+              <div>
+                <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
+                  {t('shell.subtitle', { municipalityName })}
+                </h1>
+                <p className="mt-3 max-w-2xl text-base leading-7 text-white/86 xl:text-lg xl:leading-8">{t('login.subtitle')}</p>
+              </div>
             </div>
             <ul className="grid max-w-3xl gap-3 sm:grid-cols-2">
               {[
@@ -289,12 +297,12 @@ export function LoginPage() {
                 return (
                   <li
                     key={item.title}
-                    className="flex min-h-[104px] items-center gap-4 rounded-[var(--radius-xl)] border border-white/14 bg-white/9 px-5 py-4 shadow-[0_18px_55px_rgba(0,0,0,0.14)] backdrop-blur"
+                    className="flex min-h-[108px] items-center gap-4 rounded-[1.75rem] border border-white/14 bg-white/9 px-5 py-4 shadow-[0_18px_55px_rgba(0,0,0,0.14)] backdrop-blur"
                   >
-                    <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white">
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-white/14 bg-white/12 text-white">
                       <Icon className="size-6" />
                     </span>
-                    <span className="text-lg font-extrabold leading-snug text-white">{item.title}</span>
+                    <span className="text-base font-semibold leading-snug text-white/95">{item.title}</span>
                   </li>
                 )
               })}
@@ -306,15 +314,20 @@ export function LoginPage() {
           </div>
         </section>
 
-        <section className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+        <section
+          className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8"
+          style={{
+            transition: 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.42s ease',
+            transform: loginSuccess ? 'scale(0.78)' : 'scale(1)',
+            opacity: loginSuccess ? 0.6 : 1,
+          }}
+        >
           <div className="w-full max-w-[25rem] space-y-4">
             <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
               <MunicipalitySeal
                 compact
                 alt={`${institutionName} logo`}
-                src={logoUrl}
-                className="h-16 w-44 rounded-[1.25rem]"
-                imageClassName="h-[78%] w-[86%]"
+                src={compactLogoUrl}
               />
               <div className="min-w-0">
                 <div className="truncate text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
@@ -437,6 +450,8 @@ export function LoginPage() {
                         }
 
                         await completeInteractiveSignIn(result.grant.username, result.grant.password, selectedTenant, getTenantDisplayName())
+                        setLoginSuccess(true)
+                        await new Promise(resolve => setTimeout(resolve, 420))
                         navigate('/dashboard', { replace: true })
                       } catch (verifyError) {
                         if (requestId !== latestInteractiveRequestRef.current) {
@@ -494,9 +509,152 @@ export function LoginPage() {
                 ) : null}
               </div>
             </div>
+
+            {/* Privacy policy link */}
+            <p className="text-center text-xs text-slate-400">
+              Bu sistemi kullanarak{' '}
+              <button
+                type="button"
+                onClick={() => setIsPrivacyOpen(true)}
+                className="font-semibold text-[color:var(--color-primary)] underline-offset-2 hover:underline"
+              >
+                Gizlilik Politikası
+              </button>
+              'nı kabul etmiş sayılırsınız.
+            </p>
           </div>
         </section>
-      </div>
+
+    </div>{/* end inner grid */}
+    <AppFooter />
+      {/* Privacy Policy Modal */}
+      {isPrivacyOpen && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={() => setIsPrivacyOpen(false)}
+          onKeyDown={e => { if (e.key === 'Escape') setIsPrivacyOpen(false) }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Gizlilik Politikası"
+        >
+          <div
+            className="flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex shrink-0 items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-[color:var(--color-primary)] to-[color:var(--color-secondary)] px-6 py-4">
+              <ShieldCheck className="size-5 shrink-0 text-white/80" />
+              <h2 className="flex-1 text-base font-extrabold text-white">Gizlilik Politikası</h2>
+              <button
+                type="button"
+                onClick={() => setIsPrivacyOpen(false)}
+                className="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+                aria-label="Kapat"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {/* Modal body */}
+            <div className="flex-1 overflow-y-auto px-6 py-5 text-sm leading-7 text-slate-700 space-y-5">
+
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                Son güncelleme: {new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}
+              </p>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">1. Veri Sorumlusu</h3>
+                <p>
+                  {institutionName} ("Belediye"), 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında veri sorumlusu sıfatıyla,
+                  bu platformu kullanan personel ve yetkilendirilmiş kullanıcılara ait kişisel verileri işlemektedir.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">2. İşlenen Kişisel Veriler</h3>
+                <ul className="list-disc space-y-1 pl-5">
+                  <li>Kimlik bilgileri: Ad, soyad, kullanıcı adı</li>
+                  <li>İletişim bilgileri: Kurumsal e-posta adresi, dahili telefon numarası</li>
+                  <li>Sisteme erişim bilgileri: IP adresi, oturum açma tarihi/saati, kullanılan cihaz türü</li>
+                  <li>İş ve görev bilgileri: Departman, unvan, atanan görev ve talepler</li>
+                  <li>Sistem aktiviteleri: İşlem geçmişi, denetim kayıtları (audit log)</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">3. Kişisel Verilerin İşlenme Amaçları</h3>
+                <ul className="list-disc space-y-1 pl-5">
+                  <li>Kurumsal iletişim ve iş akışlarının yönetilmesi</li>
+                  <li>Vatandaş talepleri ile görevlerin takip edilmesi ve sonuçlandırılması</li>
+                  <li>Sistem güvenliğinin ve erişim denetiminin sağlanması</li>
+                  <li>Yasal yükümlülüklerin yerine getirilmesi</li>
+                  <li>İstatistiksel raporlama ve hizmet kalitesinin iyileştirilmesi</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">4. Hukuki Dayanak</h3>
+                <p>
+                  Kişisel verileriniz; KVKK'nın 5. maddesi uyarınca <strong>kanunlarda açıkça öngörülmesi</strong>,
+                  <strong> bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması</strong> ve
+                  <strong> veri sorumlusunun meşru menfaati</strong> hukuki sebeplerine dayanılarak işlenmektedir.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">5. Verilerin Aktarımı</h3>
+                <p>
+                  Kişisel verileriniz; yetkili kamu kurum ve kuruluşları ile yasal zorunluluklar çerçevesinde
+                  paylaşılabilir. Üçüncü taraflarla ticari amaçlarla paylaşılmaz.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">6. Saklama Süresi</h3>
+                <p>
+                  Kişisel verileriniz, ilgili mevzuatta öngörülen süreler ve kurumsal saklama politikaları
+                  çerçevesinde saklanmakta; bu sürelerin dolması halinde güvenli biçimde imha edilmektedir.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">7. KVKK Kapsamındaki Haklarınız</h3>
+                <p className="mb-1.5">KVKK'nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:</p>
+                <ul className="list-disc space-y-1 pl-5">
+                  <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+                  <li>İşlenmişse buna ilişkin bilgi talep etme</li>
+                  <li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+                  <li>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme</li>
+                  <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme</li>
+                  <li>KVKK'nın 7. maddesi çerçevesinde silinmesini veya yok edilmesini isteme</li>
+                  <li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla aleyhinize sonuç doğurmasına itiraz etme</li>
+                  <li>Kanuna aykırı işleme nedeniyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="mb-1.5 text-sm font-extrabold text-slate-900">8. İletişim</h3>
+                <p>
+                  Haklarınızı kullanmak veya gizlilik politikamız hakkında bilgi almak için kurumun
+                  veri sorumlusu temsilcisine başvurabilirsiniz.
+                </p>
+              </section>
+
+            </div>
+
+            {/* Modal footer */}
+            <div className="shrink-0 border-t border-slate-100 bg-slate-50 px-6 py-3.5 text-right">
+              <button
+                type="button"
+                onClick={() => setIsPrivacyOpen(false)}
+                className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--color-primary)] px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Anladım, Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

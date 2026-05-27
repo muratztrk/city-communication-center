@@ -54,11 +54,19 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
         var targetsOk = all.Where(x => x.Role == JobDepartmentRole.Target)
             .All(x => x.ApprovalStatus == JobApprovalStatus.Approved || x.ApprovalStatus == JobApprovalStatus.NotRequired);
 
+        var createdTaskCount = 0;
         if (ownerOk && targetsOk)
         {
             job.Status = JobStatus.Active;
             job.UpdatedAtUtc = utcNow;
             job.UpdatedByUserId = actor.UserId;
+            if (job.JobNumber is null)
+            {
+                job.JobNumberYear = utcNow.Year;
+                job.JobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken);
+            }
+            createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(
+                _dbContext, tenantId, job, actor.UserId, utcNow, cancellationToken);
         }
 
         _dbContext.AuditLogs.Add(new AuditLog
@@ -69,7 +77,10 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
             EntityId = job.JobId.ToString(),
             Action = "JobTargetApproved",
             ActorUserId = actor.UserId,
-            Details = $"Dept={request.DepartmentId} {request.Comment}"
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = job.Status.ToString(),
+            Notes = request.Comment,
+            Details = $"Dept={request.DepartmentId} {request.Comment} CreatedTasks={createdTaskCount}"
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -151,6 +162,9 @@ public sealed class RejectJobTargetCommandHandler : ICommandHandler<RejectJobTar
             EntityId = job.JobId.ToString(),
             Action = "JobTargetRejected",
             ActorUserId = actor.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = job.Status.ToString(),
+            Notes = request.Reason,
             Details = request.Reason
         });
 

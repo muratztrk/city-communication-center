@@ -23,11 +23,18 @@ public sealed class DeleteJobCommandHandler : ICommandHandler<DeleteJobCommand, 
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
 
-        // Only SystemAdmin or the owner-department manager can delete
         if (actor.RoleCode is not Domain.Enums.RoleCode.SystemAdmin)
         {
-            await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
-                _dbContext, actor, job.OwnerDepartmentId, "Bu isi silme yetkiniz yok.", cancellationToken);
+            if (job.Status is not (JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested))
+            {
+                throw new ForbiddenAccessException("Sadece onay bekleyen veya taslak isler silebilinir.");
+            }
+
+            if (job.CreatedByUserId != actor.UserId)
+            {
+                await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
+                    _dbContext, actor, job.OwnerDepartmentId, "Bu isi silme yetkiniz yok.", cancellationToken);
+            }
         }
 
         // Remove related records that have Restrict FKs
@@ -56,6 +63,9 @@ public sealed class DeleteJobCommandHandler : ICommandHandler<DeleteJobCommand, 
             EntityId = job.JobId.ToString(),
             Action = "JobDeleted",
             ActorUserId = actor.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = job.Status.ToString(),
+            Notes = $"Job '{job.Title}' deleted.",
             Details = $"Job '{job.Title}' deleted."
         });
 

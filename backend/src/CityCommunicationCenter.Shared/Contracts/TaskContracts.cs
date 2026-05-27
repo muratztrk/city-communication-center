@@ -1,5 +1,12 @@
 namespace CityCommunicationCenter.Shared.Contracts;
 
+public sealed record CreateRoutineTaskRequest(
+    string Title,
+    string Description,
+    string Priority,
+    DateTimeOffset? DueDateUtc,
+    string? Notes);
+
 public sealed record CreateTaskRequest(
     Guid JobId,
     string Title,
@@ -44,7 +51,10 @@ public sealed record TaskSummaryResponse(
     decimal? ActualHours,
     string? CreatedByDisplayName,
     DateTimeOffset CreatedAtUtc,
-    string? OwnerDisplayName);
+    string? OwnerDisplayName,
+    int? TaskNumber,
+    int? TaskNumberYear,
+    string? OwnerDepartmentName);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,
@@ -90,4 +100,5 @@ public sealed record TaskDetailResponse(
     DateTimeOffset CreatedAtUtc,
     IReadOnlyCollection<ApprovalStepResponse> Approvals,
     IReadOnlyCollection<AssignmentHistoryResponse> AssignmentHistory,
-    string? OwnerDisplayName);
+    string? OwnerDisplayName,
+    IReadOnlyCollection<AttachmentResponse> Attachments);

@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -50,7 +51,7 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
         if (request.DepartmentId.HasValue)
         {
             targetDepartment = await _dbContext.Departments.FirstOrDefaultAsync(
-                e => e.DepartmentId == request.DepartmentId.Value, cancellationToken);
+                e => e.DepartmentId == request.DepartmentId.Value && e.TenantId == tenantId, cancellationToken);
             if (targetDepartment is null)
             {
                 throw Validation(nameof(request.DepartmentId), "Secilen departman bulunamadi.");
@@ -66,13 +67,23 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
                 throw Validation(nameof(request.UserId), "Secilen kullanici bulunamadi veya aktif degil.");
             }
 
-            if (targetDepartment is not null && targetUser.DepartmentId != targetDepartment.DepartmentId)
+            if (targetDepartment is not null &&
+                !await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, targetUser, targetDepartment.DepartmentId, cancellationToken))
             {
                 throw Validation(nameof(request.UserId), "Secilen kullanici secilen departmana ait degil.");
             }
 
-            targetDepartment ??= await _dbContext.Departments.FirstOrDefaultAsync(
-                e => e.DepartmentId == targetUser.DepartmentId, cancellationToken);
+            if (targetDepartment is null)
+            {
+                var defaultDepartmentId = await UserDepartmentAccess.GetDefaultDepartmentIdAsync(
+                    _dbContext,
+                    tenantId,
+                    targetUser,
+                    context.ActiveDepartmentId,
+                    cancellationToken);
+                targetDepartment = await _dbContext.Departments.FirstOrDefaultAsync(
+                    e => e.DepartmentId == defaultDepartmentId && e.TenantId == tenantId, cancellationToken);
+            }
         }
 
         if (request.UserId.HasValue && targetDepartment is null)
@@ -110,7 +121,8 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
             EntityType = nameof(WorkTask),
             EntityId = request.TaskId.ToString(),
             Action = "TaskAssigned",
-            ActorUserId = request.ActorUserId
+            ActorUserId = request.ActorUserId,
+            StatusAtEvent = WorkflowTaskStatus.Assigned.ToString()
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

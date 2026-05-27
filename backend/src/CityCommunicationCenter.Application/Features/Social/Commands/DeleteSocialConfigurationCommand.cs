@@ -36,6 +36,12 @@ public sealed class DeleteSocialConfigurationCommandHandler : ICommandHandler<De
             case "whatsapp":
                 settings.WhatsApp = null;
                 break;
+            case "edevlet":
+                settings.EDevlet = null;
+                break;
+            case "email":
+                settings.Email = null;
+                break;
             default:
                 return new SocialSettingsDeleteResult(false, true, null);
         }

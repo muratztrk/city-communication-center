@@ -8,6 +8,12 @@ public sealed record CurrentUserResponse(
     bool IsAuthenticated,
     string? ResolutionSource);
 
+public sealed record DepartmentSummaryResponse(
+    Guid DepartmentId,
+    string Name,
+    string DepartmentType,
+    bool IsPrimary);
+
 public sealed record UserSummaryResponse(
     Guid UserId,
     Guid TenantId,
@@ -19,7 +25,8 @@ public sealed record UserSummaryResponse(
     bool IsActive,
     string UserSource,
     string? Title = null,
-    string? Phone = null);
+    string? Phone = null,
+    IReadOnlyList<DepartmentSummaryResponse>? Departments = null);
 
 public sealed record CreateUserRequest(
     string? Username,
@@ -27,6 +34,7 @@ public sealed record CreateUserRequest(
     string? Email,
     string? Password,
     Guid? DepartmentId,
+    IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
     bool IsActive,
     string SourceType,
@@ -35,6 +43,7 @@ public sealed record CreateUserRequest(
 
 public sealed record UpdateUserRequest(
     Guid DepartmentId,
+    IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
     bool IsActive);
 
@@ -125,7 +134,9 @@ public sealed record AuthenticatedUserProfileResponse(
     string? DisplayName,
     string? Role,
     string? TenantId,
-    string? DepartmentId);
+    string? DepartmentId,
+    string? DepartmentName,
+    string? RolePageAccessJson);
 
 public sealed record TenantLookupResponse(
     Guid TenantId,

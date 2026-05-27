@@ -5,7 +5,8 @@ public enum JobSourceType
     Manual,
     SocialMessage,
     CitizenRequest,
-    Integration
+    Integration,
+    Routine
 }
 
 public enum TaskStatus

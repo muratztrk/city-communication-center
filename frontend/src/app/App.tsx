@@ -17,6 +17,7 @@ const TasksPage = lazy(() => import('../pages/TasksPage').then(module => ({ defa
 const UsersPage = lazy(() => import('../pages/UsersPage').then(module => ({ default: module.UsersPage })))
 const JobsPage = lazy(() => import('../pages/JobsPage').then(module => ({ default: module.JobsPage })))
 const WallboardPage = lazy(() => import('../pages/WallboardPage').then(module => ({ default: module.WallboardPage })))
+const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(module => ({ default: module.RoutineTaskPage })))
 
 function LoadingScreen() {
   const { t } = useTranslation()
@@ -33,6 +34,10 @@ function LoadingScreen() {
 
 function PageAccessGate({ pageKey, role, children }: { pageKey: PageAccessKey; role?: string; children: ReactNode }) {
   return canRoleAccessPage(role, pageKey) ? children : <Navigate to="/dashboard" replace />
+}
+
+function ManagerOnlyGate({ role, children }: { role?: string; children: ReactNode }) {
+  return role === 'Manager' ? children : <Navigate to="/dashboard" replace />
 }
 
 export default function App() {
@@ -62,8 +67,12 @@ export default function App() {
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" role={user?.role}><DashboardPage /></PageAccessGate>} />
           <Route path="/requests/new" element={<PageAccessGate pageKey="createRequest" role={user?.role}><CreateRequestPage /></PageAccessGate>} />
+          <Route path="/routine-tasks/new" element={<PageAccessGate pageKey="createRoutineTask" role={user?.role}><RoutineTaskPage /></PageAccessGate>} />
           <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" role={user?.role}><TasksPage fixedScope="mine" /></PageAccessGate>} />
           <Route path="/my-requests" element={<PageAccessGate pageKey="myRequests" role={user?.role}><JobsPage mode="myRequests" fixedScope="mine" /></PageAccessGate>} />
+          <Route path="/outgoing-requests" element={<ManagerOnlyGate role={user?.role}><JobsPage mode="departmentOutgoing" fixedScope="outgoing-department" /></ManagerOnlyGate>} />
+          <Route path="/department-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="departmentTasks" fixedScope="all" /></ManagerOnlyGate>} />
+          <Route path="/staff-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="staffTasks" fixedScope="all" /></ManagerOnlyGate>} />
           <Route path="/tasks" element={<PageAccessGate pageKey="tasks" role={user?.role}><TasksPage /></PageAccessGate>} />
           <Route path="/jobs" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" role={user?.role}><IncomingRequestsPage /></PageAccessGate>} />

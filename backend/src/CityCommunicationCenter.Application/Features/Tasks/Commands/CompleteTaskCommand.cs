@@ -50,6 +50,8 @@ public sealed class CompleteTaskCommandHandler : ICommandHandler<CompleteTaskCom
             EntityId = task.TaskId.ToString(),
             Action = "TaskCompleted",
             ActorUserId = request.ActorUserId,
+            StatusAtEvent = WorkflowTaskStatus.Completed.ToString(),
+            Notes = request.ResultNote,
             Details = request.ResultNote
         });
 

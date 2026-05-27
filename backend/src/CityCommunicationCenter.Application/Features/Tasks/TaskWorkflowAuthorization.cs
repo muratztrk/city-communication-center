@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -103,7 +104,13 @@ internal static class TaskWorkflowAuthorization
         CancellationToken cancellationToken)
     {
         var actor = await RequireActiveActorAsync(dbContext, actorUserId, tenantId, cancellationToken);
-        if (!task.AssignedDepartmentId.HasValue || actor.DepartmentId != task.AssignedDepartmentId.Value)
+        if (!task.AssignedDepartmentId.HasValue ||
+            !await UserDepartmentAccess.CanWorkInDepartmentAsync(
+                dbContext,
+                tenantId,
+                actor,
+                task.AssignedDepartmentId.Value,
+                cancellationToken))
         {
             throw new ForbiddenAccessException("Bu gorevi departman havuzundan sahiplenme yetkiniz yok.");
         }

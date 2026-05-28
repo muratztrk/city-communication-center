@@ -8,6 +8,8 @@ function getScopeChipColorClass(value: string): string {
   return ''
 }
 import { useEffect, useMemo, useState } from 'react'
+import { useSortable } from '../hooks/useSortable'
+import { SortableTh } from '../components/ui/SortableTh'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -215,9 +217,16 @@ export function IncomingRequestsPage() {
     .filter(row => matchesKindFilter(row, currentKindFilter)),
   [currentKindFilter, currentStatusFilter, rows])
 
+  const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
+
+  const toggleIncomingSort = (key: string) => {
+    _toggleIncomingSort(key)
+    setIncomingPage(1)
+  }
+
   const pagedRows = useMemo(
-    () => visibleRows.slice((incomingPage - 1) * incomingPageSize, incomingPage * incomingPageSize),
-    [visibleRows, incomingPage, incomingPageSize],
+    () => sortIncoming(visibleRows).slice((incomingPage - 1) * incomingPageSize, incomingPage * incomingPageSize),
+    [visibleRows, incomingPage, incomingPageSize, sortIncoming],
   )
 
   const setStatusFilter = (filter: IncomingStatusFilter) => {
@@ -288,12 +297,12 @@ export function IncomingRequestsPage() {
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <th>{t('incomingRequests.columns.requestNo', 'Talep No')}</th>
-                  <th>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</th>
-                  <th>{t('tasks.columns.createdBy', 'Oluşturan')}</th>
-                  <th>{t('jobs.columns.title', 'Başlık')}</th>
-                  <th>{t('jobs.columns.status', 'Durum')}</th>
-                  <th>{t('jobs.columns.priority', 'Öncelik')}</th>
-                  <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
+                  <SortableTh sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</SortableTh>
+                  <SortableTh sortKey="createdByDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</SortableTh>
+                  <SortableTh sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</SortableTh>
+                  <SortableTh sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</SortableTh>
+                  <SortableTh sortKey="priority" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.priority', 'Öncelik')}</SortableTh>
+                  <SortableTh sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</SortableTh>
                   <th>{t('jobs.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>

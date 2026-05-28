@@ -1,6 +1,8 @@
 import type { FormEvent } from 'react'
 import { Pencil, ShieldUser, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useSortable } from '../hooks/useSortable'
+import { SortableTh } from '../components/ui/SortableTh'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -297,6 +299,8 @@ export function UsersPage() {
 
   const ldapModeReady = createMode !== 'ldap' || !!newUser.externalIdentityId
   const getDepartmentName = (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none')
+  const { sortKey: usersSortKey, sortDir: usersSortDir, toggleSort: toggleUsersSort, sortItems: sortUsers } = useSortable()
+  const sortedUsers = useMemo(() => sortUsers(users), [users, sortUsers])
   const summary = {
     total: users.length,
     active: users.filter(user => user.isActive).length,
@@ -585,19 +589,19 @@ export function UsersPage() {
           <table className="data-table users-table">
             <thead>
               <tr>
-                <th>{t('users.username')}</th>
-                <th>{t('users.displayName')}</th>
-                <th>{t('users.jobTitle')}</th>
-                <th>{t('users.email')}</th>
+                <SortableTh sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.username')}</SortableTh>
+                <SortableTh sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.displayName')}</SortableTh>
+                <SortableTh sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.jobTitle')}</SortableTh>
+                <SortableTh sortKey="email" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.email')}</SortableTh>
                 <th>{t('users.department')}</th>
-                <th>{t('users.role')}</th>
-                <th>{t('users.source')}</th>
-                <th>{t('users.status')}</th>
+                <SortableTh sortKey="roleCode" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.role')}</SortableTh>
+                <SortableTh sortKey="userSource" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.source')}</SortableTh>
+                <SortableTh sortKey="isActive" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.status')}</SortableTh>
                 {canManageUsers ? <th className="actions-column" aria-label={t('common.actions')} /> : null}
               </tr>
             </thead>
             <tbody>
-              {users.map(user => (
+              {sortedUsers.map(user => (
                 editingUserId === user.userId ? (
                   <tr key={user.userId} className="bg-slate-50">
                     <td>{user.username || t('common.none')}</td>

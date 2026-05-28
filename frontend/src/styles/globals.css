@@ -740,6 +740,36 @@
     color: #64748b;
   }
 
+  .data-table thead th.sortable-th {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+
+  .data-table thead th.sortable-th:hover {
+    color: var(--color-primary);
+  }
+
+  .data-table thead th.sort-active {
+    color: var(--color-primary);
+  }
+
+  .sortable-th-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .sort-icon {
+    opacity: 0.35;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+
+  .sort-active .sort-icon {
+    opacity: 1;
+  }
+
   .data-table tbody td {
     padding: 0.8rem 0.9rem;
     border-top: 1px solid #edf2f7;

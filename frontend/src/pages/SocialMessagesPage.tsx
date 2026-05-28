@@ -1,5 +1,7 @@
 import { MapPin } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
+import { useSortable } from '../hooks/useSortable'
+import { SortableTh } from '../components/ui/SortableTh'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -151,9 +153,11 @@ export function SocialMessagesPage() {
     })
   }
 
+  const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
+
   const filteredMessages = useMemo(
-    () => (channelFilter ? messages.filter(m => m.channel === channelFilter) : messages),
-    [messages, channelFilter],
+    () => sortSocial(channelFilter ? messages.filter(m => m.channel === channelFilter) : messages),
+    [messages, channelFilter, sortSocial],
   )
 
   const summary = {
@@ -223,13 +227,13 @@ export function SocialMessagesPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>{t('social.channel')}</th>
-                <th>{t('social.sender')}</th>
-                <th>{t('social.category')}</th>
-                <th>{t('social.assignedDepartment', 'Sahip Müdürlük')}</th>
-                <th>{t('common.status')}</th>
+                <SortableTh sortKey="channel" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.channel')}</SortableTh>
+                <SortableTh sortKey="citizenHandle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.sender')}</SortableTh>
+                <SortableTh sortKey="category" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.category')}</SortableTh>
+                <SortableTh sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.assignedDepartment', 'Sahip Müdürlük')}</SortableTh>
+                <SortableTh sortKey="status" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('common.status')}</SortableTh>
                 <th>{t('location.mapSectionTitle', 'Konum')}</th>
-                <th>{t('social.date')}</th>
+                <SortableTh sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.date')}</SortableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>

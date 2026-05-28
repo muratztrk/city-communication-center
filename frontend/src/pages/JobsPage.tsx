@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSortable } from '../hooks/useSortable'
+import { SortableTh } from '../components/ui/SortableTh'
 import type React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -401,9 +403,16 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     return result
   }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterYear, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters])
 
+  const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
+
+  const toggleJobsSort = (key: string) => {
+    _toggleJobsSort(key)
+    setJobsPage(1)
+  }
+
   const pagedJobs = useMemo(
-    () => visibleJobs.slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize),
-    [visibleJobs, jobsPage, jobsPageSize],
+    () => sortJobs(visibleJobs).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize),
+    [visibleJobs, jobsPage, jobsPageSize, sortJobs],
   )
 
   const setMyRequestsView = (view: MyRequestsView) => {
@@ -716,14 +725,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   {(isMyRequestsView || isDepartmentOutgoingView) && <th>{t('jobs.columns.requestNo', 'Talep No')}</th>}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>}
-                  <th>{t('jobs.columns.title')}</th>
+                  {(isMyRequestsView || isDepartmentOutgoingView) && <SortableTh sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</SortableTh>}
+                  <SortableTh sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</SortableTh>
                   <th>{isMyRequestsView || isDepartmentOutgoingView ? t('jobs.columns.destination', 'Gittiği Yer') : t('jobs.columns.departments')}</th>
-                  <th>{t('jobs.columns.status')}</th>
-                  <th>{t('jobs.columns.priority')}</th>
+                  <SortableTh sortKey="status" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status')}</SortableTh>
+                  <SortableTh sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</SortableTh>
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
-                  <th>{t('jobs.columns.dueDate')}</th>
+                  <SortableTh sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</SortableTh>
                   <th>{t('jobs.columns.actions')}</th>
                 </tr>
               </thead>

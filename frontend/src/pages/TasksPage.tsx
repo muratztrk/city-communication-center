@@ -1,5 +1,7 @@
 import { ClipboardCheck, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useSortable } from '../hooks/useSortable'
+import { SortableTh } from '../components/ui/SortableTh'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -303,9 +305,16 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     return result
   }, [currentMyTaskView, currentRequestFlowFilter, currentStaffUserId, filterYear, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
+  const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
+
+  const toggleTasksSort = (key: string) => {
+    _toggleTasksSort(key)
+    setTasksPage(1)
+  }
+
   const pagedTasks = useMemo(
-    () => visibleTasks.slice((tasksPage - 1) * tasksPageSize, tasksPage * tasksPageSize),
-    [visibleTasks, tasksPage, tasksPageSize],
+    () => sortTasks(visibleTasks).slice((tasksPage - 1) * tasksPageSize, tasksPage * tasksPageSize),
+    [visibleTasks, tasksPage, tasksPageSize, sortTasks],
   )
 
   const currentMyTaskViewLabel = t(MY_TASK_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.myViews.pending', 'Bekleyen Görevlerim')
@@ -830,13 +839,13 @@ const pageKicker = isMyTasksView
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <th>{t('tasks.columns.taskNo', 'Görev No')}</th>
-                  <th>{t('tasks.columns.taskDate', 'Görev Tarihi')}</th>
-                  <th>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</th>
-                  <th>{t('tasks.columns.createdBy', 'Oluşturan')}</th>
-                  <th>{t('tasks.columns.title', 'Başlık')}</th>
-                  <th>{t('tasks.columns.status', 'Durum')}</th>
-                  <th>{t('tasks.columns.priority', 'Öncelik')}</th>
-                  <th>{t('tasks.columns.dueDate', 'Son Tarih')}</th>
+                  <SortableTh sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</SortableTh>
+                  <SortableTh sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</SortableTh>
+                  <SortableTh sortKey="createdByDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</SortableTh>
+                  <SortableTh sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</SortableTh>
+                  <SortableTh sortKey="currentStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.status', 'Durum')}</SortableTh>
+                  <SortableTh sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</SortableTh>
+                  <SortableTh sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</SortableTh>
                   <th>{t('tasks.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>

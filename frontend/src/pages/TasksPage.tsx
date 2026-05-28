@@ -334,8 +334,15 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   useEffect(() => { setTasksPage(1) }, [taskFilters])
 
   const columnFilteredTasks = useMemo(
-    () => visibleTasks.filter(t => taskMatchesFilters(t)),
-    [visibleTasks, taskMatchesFilters],
+    () => visibleTasks.filter(task => taskMatchesFilters(task, (key, row) => {
+      if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)
+      if (key === 'priority') return getPriorityLabel(t, row.priority)
+      if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
+      if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
+      if (key === 'assignedDepartmentName') return row.assignedDepartmentName ?? row.assignedUserDisplayName ?? ''
+      return String((row as unknown as Record<string, unknown>)[key] ?? '')
+    })),
+    [visibleTasks, taskMatchesFilters, t, locale],
   )
 
   const pagedTasks = useMemo(
@@ -943,6 +950,7 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</FilterableTh>
                   <FilterableTh filterKey="createdByDisplayName" filterValue={taskFilters['createdByDisplayName']} onFilter={setTaskFilter} sortKey="createdByDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
+                  <FilterableTh filterKey="assignedDepartmentName" filterValue={taskFilters['assignedDepartmentName']} onFilter={setTaskFilter} sortKey="assignedDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.assignedDepartment', 'Gittiği Yer')}</FilterableTh>
                   <FilterableTh filterKey="currentStatus" filterValue={taskFilters['currentStatus']} onFilter={setTaskFilter} sortKey="currentStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.status', 'Durum')}</FilterableTh>
                   <FilterableTh filterKey="priority" filterValue={taskFilters['priority']} onFilter={setTaskFilter} sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>
@@ -958,6 +966,7 @@ const pageKicker = isMyTasksView
                     <td className="font-semibold text-slate-700">{task.ownerDepartmentName ?? '—'}</td>
                     <td>{task.createdByDisplayName ?? '—'}</td>
                     <td>{task.title}</td>
+                    <td className="text-slate-600">{task.assignedDepartmentName ?? task.assignedUserDisplayName ?? '—'}</td>
                     <td><StatusPill>{getTaskStatusLabel(t, task.currentStatus)}</StatusPill></td>
                     <td>{getPriorityLabel(t, task.priority)}</td>
                     <td>{formatDateTime(task.dueDateUtc, locale)}</td>

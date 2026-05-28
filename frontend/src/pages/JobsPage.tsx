@@ -413,8 +413,20 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }
 
   const columnFilteredJobs = useMemo(
-    () => visibleJobs.filter(j => jobMatchesFilters(j)),
-    [visibleJobs, jobMatchesFilters],
+    () => visibleJobs.filter(job => jobMatchesFilters(job, (key, row) => {
+      if (key === 'destinationText') {
+        const targets = getTargetJobDepartments(row)
+        return targets.length > 0
+          ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
+          : row.ownerDepartmentName ?? ''
+      }
+      if (key === 'status') return getJobStatusLabel(t, row.status)
+      if (key === 'priority') return getPriorityLabel(t, row.priority)
+      if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc ?? null, locale)
+      if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc ?? null, locale)
+      return String((row as unknown as Record<string, unknown>)[key] ?? '')
+    })),
+    [visibleJobs, jobMatchesFilters, t, locale],
   )
 
   useEffect(() => { setJobsPage(1) }, [jobFilters])
@@ -763,7 +775,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   {(isMyRequestsView || isDepartmentOutgoingView) && <th>{t('jobs.columns.requestNo', 'Talep No')}</th>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
-                  <th>{isMyRequestsView || isDepartmentOutgoingView ? t('jobs.columns.destination', 'Gittiği Yer') : t('jobs.columns.departments')}</th>
+                  {(isMyRequestsView || isDepartmentOutgoingView)
+                    ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
+                    : <th>{t('jobs.columns.departments')}</th>
+                  }
                   <FilterableTh filterKey="status" filterValue={jobFilters['status'] ?? ''} onFilter={setJobFilter} sortKey="status" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status')}</FilterableTh>
                   <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}

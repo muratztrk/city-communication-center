@@ -282,8 +282,14 @@ export function IncomingRequestsPage() {
   const { filters: incomingFilters, setFilter: setIncomingFilter, matchesFilters: incomingMatchesFilters } = useColumnFilters()
 
   const columnFilteredRows = useMemo(
-    () => visibleRows.filter(r => incomingMatchesFilters(r)),
-    [visibleRows, incomingMatchesFilters],
+    () => visibleRows.filter(row => incomingMatchesFilters(row, (key, r) => {
+      if (key === 'status') return r.statusDomain === 'task' ? getTaskStatusLabel(t, r.status) : getJobStatusLabel(t, r.status)
+      if (key === 'priority') return getPriorityLabel(t, r.priority)
+      if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
+      if (key === 'dueDateUtc') return formatDateTime(r.dueDateUtc, locale)
+      return String((r as unknown as Record<string, unknown>)[key] ?? '')
+    })),
+    [visibleRows, incomingMatchesFilters, t, locale],
   )
 
   useEffect(() => { setIncomingPage(1) }, [incomingFilters])
@@ -367,7 +373,7 @@ export function IncomingRequestsPage() {
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <th>{t('incomingRequests.columns.requestNo', 'Talep No')}</th>
                   <FilterableTh filterKey="createdAtUtc" filterValue={incomingFilters['createdAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
-                  <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdByDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
+                  <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdBy" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
                   <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                   <FilterableTh filterKey="priority" filterValue={incomingFilters['priority'] ?? ''} onFilter={setIncomingFilter} sortKey="priority" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.priority', 'Öncelik')}</FilterableTh>

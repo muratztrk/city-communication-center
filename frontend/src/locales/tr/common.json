@@ -1072,7 +1072,7 @@
       "approved": "Onaylanmış Talepler",
       "inProgress": "Yapılmakta Olan Talepler",
       "completed": "Tamamlanmış Talepler",
-      "rejected": "Reddedilen/İptal Talepler",
+      "rejected": "İptal Talepler",
       "all": "Tümü",
       "empty": "{{view}} bulunmuyor"
     },

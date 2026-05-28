@@ -1047,7 +1047,7 @@
       "approved": "Approved Requests",
       "inProgress": "Requests In Progress",
       "completed": "Resulted Requests",
-      "rejected": "Rejected/Cancelled Requests",
+      "rejected": "Cancelled Requests",
       "all": "All",
       "empty": "No {{view}}"
     },

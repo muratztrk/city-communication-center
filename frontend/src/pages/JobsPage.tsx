@@ -773,7 +773,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </tr>
               </thead>
               <tbody>
-                {pagedJobs.map((job, index) => (
+                {pagedJobs.map((job, index) => {
+                  const isOutgoingTargetApproved = isDepartmentOutgoingView &&
+                    job.departments.some(d => d.role === 'Target' && d.approvalStatus === 'Approved')
+                  return (
                   <tr key={job.jobId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td className="font-mono text-xs text-slate-500">{formatJobDisplayNumber(job)}</td>}
@@ -798,13 +801,36 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         {isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
                         )}
+                        {/* Birimden Giden → Bekleyen: İptal butonu */}
+                        {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && (
+                          isOutgoingTargetApproved ? (
+                            <span
+                              title="Talep onaylandığı için iptal edilemez"
+                              className="inline-block cursor-not-allowed"
+                            >
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled
+                                style={{ pointerEvents: 'none' }}
+                              >
+                                {t('jobs.actions.cancel', 'İptal')}
+                              </Button>
+                            </span>
+                          ) : (
+                            <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>
+                              {t('jobs.actions.cancel', 'İptal')}
+                            </Button>
+                          )
+                        )}
                         {isMyRequestsView && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active') && (
                           <Button size="sm" variant="destructive" onClick={() => openReturnModal(job.jobId)}>{t('jobs.actions.return', 'İade Et')}</Button>
                         )}
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>

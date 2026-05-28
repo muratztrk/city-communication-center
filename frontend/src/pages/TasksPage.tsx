@@ -235,7 +235,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
   const [returnManagerId, setReturnManagerId] = useState('')
@@ -454,7 +454,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
 
   const openReturnModal = (taskId: string) => {
     const task = tasks.find(t => t.taskId === taskId)
-    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null })
+    const isRoutine = task?.jobSourceType === 'Routine'
+    // Rutin görevlerde İade seçeneği yok — doğrudan İptal adımına geç
+    setReturnModal({ taskId, step: isRoutine ? 'cancel' : 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')

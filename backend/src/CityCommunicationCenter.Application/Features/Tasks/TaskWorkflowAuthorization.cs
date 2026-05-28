@@ -41,11 +41,14 @@ internal static class TaskWorkflowAuthorization
             return false;
         }
 
+        // Aktörün birincil birimi eşleşiyorsa yönetici sayılır
+        if (actor.DepartmentId == departmentId.Value) return true;
+
         var department = await dbContext.Departments
             .FirstOrDefaultAsync(
                 entity => entity.DepartmentId == departmentId.Value && entity.TenantId == actor.TenantId,
                 cancellationToken);
-        return department?.ManagerUserId == actor.UserId;
+        return department?.ManagerUserId == actor.UserId || department?.DeputyManagerUserId == actor.UserId;
     }
 
     public static async Task EnsureCanAssignAsync(

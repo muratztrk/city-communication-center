@@ -32,10 +32,12 @@ internal static class JobWorkflowAuthorization
         CancellationToken cancellationToken)
     {
         if (actor.RoleCode != RoleCode.Manager) return false;
+        // Aktörün birincil birimi eşleşiyorsa yönetici sayılır
+        if (actor.DepartmentId == departmentId) return true;
         var dept = await dbContext.Departments.FirstOrDefaultAsync(
             d => d.DepartmentId == departmentId && d.TenantId == actor.TenantId,
             cancellationToken);
-        return dept?.ManagerUserId == actor.UserId;
+        return dept?.ManagerUserId == actor.UserId || dept?.DeputyManagerUserId == actor.UserId;
     }
 
     public static async Task EnsureManagesDepartmentAsync(

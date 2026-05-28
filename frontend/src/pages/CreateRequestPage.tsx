@@ -1,4 +1,4 @@
-import { Building2, MapPin, MessageSquareMore, Paperclip, Send, Workflow, X } from 'lucide-react'
+import { Building2, MapPin, MessageSquareMore, Paperclip, Plus, Send, Trash2, Workflow, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -21,6 +21,8 @@ interface InternalFormState {
   dueDateUtc: string
   isProject: boolean
   ownerDepartmentId: string
+  /** Her string bir görev-atama satırı; boş string = havuz görevi */
+  ownerUserIds: string[]
 }
 
 interface ExternalFormState extends InternalFormState {
@@ -47,6 +49,7 @@ const EMPTY_INTERNAL_FORM: InternalFormState = {
   dueDateUtc: '',
   isProject: false,
   ownerDepartmentId: '',
+  ownerUserIds: [''],
 }
 
 const EMPTY_EXTERNAL_FORM: ExternalFormState = {
@@ -143,6 +146,16 @@ export function CreateRequestPage() {
     return departments.find(department => department.departmentId === myDepartmentId)?.name ?? ''
   }, [departments, myDepartmentId])
 
+  /** Müdürün birimi içindeki aktif personel (birincil veya ek atama) */
+  const deptStaffUsers = useMemo(() => {
+    if (!myDepartmentId) return []
+    return users.filter(u =>
+      u.isActive &&
+      (u.departmentId === myDepartmentId ||
+        u.departments?.some(d => d.departmentId === myDepartmentId))
+    )
+  }, [users, myDepartmentId])
+
   const targetDepartmentOptions = useMemo(() => {
     return departments.filter(department => department.departmentId !== externalForm.ownerDepartmentId)
   }, [departments, externalForm.ownerDepartmentId])
@@ -232,14 +245,71 @@ export function CreateRequestPage() {
     </div>
   )
 
-  const renderOwnershipFields = () => (
-    <div className="job-field">
-      <span className="job-field-label">{t('requests.create.ownerUsers', 'Görev Sahibi Birim')}</span>
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-        {t('requests.create.departmentOwnershipHelp', 'Talep müdürlükte kalır; otomatik görev oluşturulmaz.')}
+  const renderOwnershipFields = () => {
+    if (user?.role !== 'Manager') {
+      return (
+        <div className="job-field">
+          <span className="job-field-label">{t('requests.create.ownerUsers', 'Görev Sahibi Birim')}</span>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+            {t('requests.create.departmentOwnershipHelp', 'Talep müdürlükte kalır; müdür tarafından atama yapılacak.')}
+          </div>
+        </div>
+      )
+    }
+
+    // Müdür: satır bazlı personel atama
+    const rows = internalForm.ownerUserIds
+    const setRow = (idx: number, uid: string) =>
+      setInternalForm(f => {
+        const next = [...f.ownerUserIds]
+        next[idx] = uid
+        return { ...f, ownerUserIds: next }
+      })
+    const addRow = () => setInternalForm(f => ({ ...f, ownerUserIds: [...f.ownerUserIds, ''] }))
+    const removeRow = (idx: number) =>
+      setInternalForm(f => ({ ...f, ownerUserIds: f.ownerUserIds.filter((_, i) => i !== idx) }))
+
+    return (
+      <div className="job-field">
+        <span className="job-field-label">{t('requests.create.taskAssignments', 'Görev Atamaları')}</span>
+        <div className="flex flex-col gap-2">
+          {rows.map((uid, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <select
+                className="field-select flex-1"
+                value={uid}
+                onChange={e => setRow(idx, e.target.value)}
+              >
+                <option value="">{t('requests.create.poolOption', '— Atanmamış (havuz görevi) —')}</option>
+                {deptStaffUsers.map(u => (
+                  <option key={u.userId} value={u.userId}>{u.displayName}</option>
+                ))}
+              </select>
+              {rows.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeRow(idx)}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-rose-200 text-rose-500 hover:bg-rose-50"
+                  title={t('common.remove', 'Kaldır')}
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addRow}
+            className="flex items-center gap-1.5 self-start rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-100"
+          >
+            <Plus className="size-3.5" />
+            {t('requests.create.addAssignment', 'Başka personele görev ekle')}
+          </button>
+          <p className="text-xs text-slate-400">{t('requests.create.assignmentHelp', 'Her satır ayrı bir görev oluşturur. Atanmamış bırakılırsa birim havuzuna gider.')}</p>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderPhotoUpload = () => (
     <div className="job-field">
@@ -318,11 +388,12 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      const selectedOwnerUserIds = internalForm.ownerUserIds.filter(id => id.trim() !== '')
       const job = await api.createJob({
         title: internalForm.title.trim(),
         description: internalForm.description.trim(),
         ownerDepartmentId: effectiveOwnerDeptId,
-        ownerUserIds: [],
+        ownerUserIds: selectedOwnerUserIds,
         priority: internalForm.priority,
         requestType: 'InternalUnit',
         isProject: internalForm.isProject,
@@ -497,7 +568,7 @@ export function CreateRequestPage() {
               {renderRequestTypeField()}
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.ownerDepartment', 'Sahip Müdürlük')}</span>
-                {user?.role === 'Staff' ? (
+                {(user?.role === 'Staff' || user?.role === 'Manager') ? (
                   <input className="field-input bg-slate-50 font-semibold text-slate-700" value={myDepartmentName || '-'} readOnly />
                 ) : (
                   <select

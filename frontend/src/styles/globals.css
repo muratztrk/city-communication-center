@@ -770,6 +770,101 @@
     opacity: 1;
   }
 
+  /* ── FilterableTh ─────────────────────────────────────────────────────── */
+  .filterable-th-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  .filterable-th-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ⋮ button */
+  .col-filter-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 3px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: color 0.13s, background 0.13s;
+    line-height: 1;
+  }
+
+  .col-filter-btn:hover {
+    color: var(--color-primary);
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  /* Yellow when a filter is active */
+  .col-filter-btn--active {
+    color: #eab308;
+  }
+
+  .col-filter-btn--active:hover {
+    color: #ca8a04;
+  }
+
+  /* Column filter popover (rendered in a portal on <body>) */
+  .col-filter-popover {
+    position: fixed;
+    z-index: 9999;
+    min-width: 220px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    padding: 0.9rem 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .col-filter-popover-title {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  .col-filter-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.625rem;
+    font-size: 0.8125rem;
+    color: #0f172a;
+    background: #f8fafc;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .col-filter-input:focus {
+    border-color: var(--color-primary);
+    background: #fff;
+  }
+
+  .col-filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
   .data-table tbody td {
     padding: 0.8rem 0.9rem;
     border-top: 1px solid #edf2f7;
@@ -1060,26 +1155,26 @@
 
   /* ── Bekleyen → Sarı ───────────────────────── */
   .scope-chip--pending.active {
-    background: #ca8a04;
-    border-color: #ca8a04;
+    background: #eab308;
+    border-color: #eab308;
     color: white;
-    box-shadow: 0 1px 4px rgba(202, 138, 4, 0.38);
+    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.38);
   }
 
   /* ── Onaylanmış → Açık Yeşil ───────────────── */
   .scope-chip--approved.active {
+    background: #22c55e;
+    border-color: #22c55e;
+    color: white;
+    box-shadow: 0 1px 4px rgba(34, 197, 94, 0.35);
+  }
+
+  /* ── Tamamlanmış → Yeşil ────────────────────── */
+  .scope-chip--completed.active {
     background: #16a34a;
     border-color: #16a34a;
     color: white;
-    box-shadow: 0 1px 4px rgba(22, 163, 74, 0.35);
-  }
-
-  /* ── Tamamlanmış → Koyu Yeşil ──────────────── */
-  .scope-chip--completed.active {
-    background: #15803d;
-    border-color: #15803d;
-    color: white;
-    box-shadow: 0 1px 4px rgba(21, 128, 61, 0.38);
+    box-shadow: 0 1px 4px rgba(22, 163, 74, 0.38);
   }
 
   /* ── İptal/İade → Kırmızı ──────────────────── */
@@ -1090,12 +1185,16 @@
     box-shadow: 0 1px 4px rgba(220, 38, 38, 0.35);
   }
 
-  /* ── Tümü → Mavi ───────────────────────────── */
+  /* ── Tümü → Hover (nötr) ────────────────────── */
   .scope-chip--all.active {
-    background: #2563eb;
-    border-color: #2563eb;
-    color: white;
-    box-shadow: 0 1px 4px rgba(37, 99, 235, 0.38);
+    background: #cbd5e1;
+    border-color: #94a3b8;
+    color: #1e293b;
+    box-shadow: none;
+  }
+  .scope-chip--all.active:hover {
+    background: #b0bfcc;
+    border-color: #7a8fa3;
   }
 
   /* ── Birim İçi → Turkuaz ───────────────────── */

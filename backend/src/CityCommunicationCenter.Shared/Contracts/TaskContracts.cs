@@ -25,7 +25,9 @@ public sealed record AssignTaskRequest(
 
 public sealed record CompleteTaskRequest(string? ResultNote, decimal? ActualHours);
 
-public sealed record RequestTaskRevisionRequest(string Reason, DateTimeOffset? ProposedDueDateUtc);
+public sealed record RequestTaskRevisionRequest(string Reason, DateTimeOffset? ProposedDueDateUtc, Guid? TargetManagerUserId);
+
+public sealed record CancelTaskRequest(string Reason);
 
 public sealed record ApprovalActionRequest(string? Comment);
 

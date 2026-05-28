@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
-import { SortableTh } from '../components/ui/SortableTh'
+import { FilterableTh } from '../components/ui/FilterableTh'
+import { useColumnFilters } from '../hooks/useColumnFilters'
 import type React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -404,15 +405,23 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterYear, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
+  const { filters: jobFilters, setFilter: setJobFilter, matchesFilters: jobMatchesFilters } = useColumnFilters()
 
   const toggleJobsSort = (key: string) => {
     _toggleJobsSort(key)
     setJobsPage(1)
   }
 
+  const columnFilteredJobs = useMemo(
+    () => visibleJobs.filter(j => jobMatchesFilters(j)),
+    [visibleJobs, jobMatchesFilters],
+  )
+
+  useEffect(() => { setJobsPage(1) }, [jobFilters])
+
   const pagedJobs = useMemo(
-    () => sortJobs(visibleJobs).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize),
-    [visibleJobs, jobsPage, jobsPageSize, sortJobs],
+    () => sortJobs(columnFilteredJobs).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize),
+    [columnFilteredJobs, jobsPage, jobsPageSize, sortJobs],
   )
 
   const setMyRequestsView = (view: MyRequestsView) => {
@@ -459,24 +468,47 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     setPromptDialog({
       title: t('jobs.actions.cancelReason'),
       onConfirm: async (reason) => {
-        await api.cancelJob(jobId, reason)
-        await refreshDetail()
-        await reload()
+        try {
+          await api.cancelJob(jobId, reason)
+          await refreshDetail()
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
       },
     })
   }
   const handleApproveOwner = async (jobId: string) => {
-    await api.approveJobOwner(jobId)
-    await refreshDetail()
-    await reload()
+    setError(null)
+    try {
+      await api.approveJobOwner(jobId)
+      await refreshDetail()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+  const handleApproveTarget = async (jobId: string, departmentId: string) => {
+    setError(null)
+    try {
+      await api.approveJobTarget(jobId, departmentId)
+      await refreshDetail()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
   }
   const handleRejectOwner = (jobId: string) => {
     setPromptDialog({
       title: t('jobs.actions.rejectReason'),
       onConfirm: async (reason) => {
-        await api.rejectJobOwner(jobId, reason)
-        await refreshDetail()
-        await reload()
+        try {
+          await api.rejectJobOwner(jobId, reason)
+          await refreshDetail()
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
       },
     })
   }
@@ -485,9 +517,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       message: t('jobs.deleteConfirm', 'Bu iş kaydı kalıcı olarak silinecek. Emin misiniz?'),
       variant: 'destructive',
       onConfirm: async () => {
-        await api.deleteJob(jobId)
-        if (detail?.jobId === jobId) setDetail(null)
-        await reload()
+        try {
+          await api.deleteJob(jobId)
+          if (detail?.jobId === jobId) setDetail(null)
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
       },
     })
   }
@@ -707,7 +743,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : visibleJobs.length === 0 ? (
+      ) : columnFilteredJobs.length === 0 ? (
         <section className="section-card">
           <div className="empty-state">
             {isMyRequestsView
@@ -725,14 +761,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   {(isMyRequestsView || isDepartmentOutgoingView) && <th>{t('jobs.columns.requestNo', 'Talep No')}</th>}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && <SortableTh sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</SortableTh>}
-                  <SortableTh sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</SortableTh>
+                  {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
+                  <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
                   <th>{isMyRequestsView || isDepartmentOutgoingView ? t('jobs.columns.destination', 'Gittiği Yer') : t('jobs.columns.departments')}</th>
-                  <SortableTh sortKey="status" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status')}</SortableTh>
-                  <SortableTh sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</SortableTh>
+                  <FilterableTh filterKey="status" filterValue={jobFilters['status'] ?? ''} onFilter={setJobFilter} sortKey="status" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status')}</FilterableTh>
+                  <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
-                  <SortableTh sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</SortableTh>
+                  <FilterableTh filterKey="dueDateUtc" filterValue={jobFilters['dueDateUtc'] ?? ''} onFilter={setJobFilter} sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</FilterableTh>
                   <th>{t('jobs.columns.actions')}</th>
                 </tr>
               </thead>
@@ -757,24 +793,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
                         {isManagerLike && job.status === 'PendingOwnerApproval' && (
-                          <>
-                            <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleRejectOwner(job.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
-                          </>
+                          <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
                         )}
                         {isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
                         )}
                         {isMyRequestsView && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active') && (
                           <Button size="sm" variant="destructive" onClick={() => openReturnModal(job.jobId)}>{t('jobs.actions.return', 'İade Et')}</Button>
-                        )}
-                        {canMutatePreApprovalJob(job) && (
-                          <Button size="sm" variant="secondary" onClick={() => void openEditModal(job)}>
-                            {t('jobs.actions.edit', 'Düzenle')}
-                          </Button>
-                        )}
-                        {canMutatePreApprovalJob(job) && (
-                          <Button size="sm" variant="destructive" onClick={() => handleDelete(job.jobId)}>{t('jobs.actions.delete')}</Button>
                         )}
                       </div>
                     </td>
@@ -784,7 +809,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
             </table>
           </div>
           <TablePagination
-            totalCount={visibleJobs.length}
+            totalCount={columnFilteredJobs.length}
             pageSize={jobsPageSize}
             currentPage={jobsPage}
             onPageSizeChange={setJobsPageSize}
@@ -832,6 +857,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <Button type="button" variant="destructive" onClick={() => handleRejectOwner(detail.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
                   </>
                 )}
+                {isManagerLike && detail.status === 'PendingExternalApproval' && detail.departments
+                  .filter(d => d.role === 'Target' && d.approvalStatus === 'Pending')
+                  .map(d => (
+                    <Button key={d.jobDepartmentId} type="button" variant="success" onClick={() => handleApproveTarget(detail.jobId, d.departmentId)}>
+                      {t('jobs.actions.approveTarget', 'Onayla')} — {d.departmentName ?? d.departmentId}
+                    </Button>
+                  ))
+                }
                 {canMutatePreApprovalJob(detail) && (
                   <Button type="button" variant="secondary" onClick={() => void openEditModal(detail)}>
                     {t('jobs.actions.edit', 'Düzenle')}

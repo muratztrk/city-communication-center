@@ -1,7 +1,8 @@
 import { MapPin } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
-import { SortableTh } from '../components/ui/SortableTh'
+import { FilterableTh } from '../components/ui/FilterableTh'
+import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -155,9 +156,16 @@ export function SocialMessagesPage() {
 
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
 
+  const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
+
   const filteredMessages = useMemo(
     () => sortSocial(channelFilter ? messages.filter(m => m.channel === channelFilter) : messages),
     [messages, channelFilter, sortSocial],
+  )
+
+  const columnFilteredMessages = useMemo(
+    () => filteredMessages.filter(m => socialMatchesFilters(m)),
+    [filteredMessages, socialMatchesFilters],
   )
 
   const summary = {
@@ -227,18 +235,18 @@ export function SocialMessagesPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <SortableTh sortKey="channel" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.channel')}</SortableTh>
-                <SortableTh sortKey="citizenHandle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.sender')}</SortableTh>
-                <SortableTh sortKey="category" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.category')}</SortableTh>
-                <SortableTh sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.assignedDepartment', 'Sahip Müdürlük')}</SortableTh>
-                <SortableTh sortKey="status" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('common.status')}</SortableTh>
+                <FilterableTh filterKey="channel" filterValue={socialFilters['channel'] ?? ''} onFilter={setSocialFilter} sortKey="channel" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.channel')}</FilterableTh>
+                <FilterableTh filterKey="citizenHandle" filterValue={socialFilters['citizenHandle'] ?? ''} onFilter={setSocialFilter} sortKey="citizenHandle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.sender')}</FilterableTh>
+                <FilterableTh filterKey="category" filterValue={socialFilters['category'] ?? ''} onFilter={setSocialFilter} sortKey="category" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.category')}</FilterableTh>
+                <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.assignedDepartment', 'Sahip Müdürlük')}</FilterableTh>
+                <FilterableTh filterKey="status" filterValue={socialFilters['status'] ?? ''} onFilter={setSocialFilter} sortKey="status" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('common.status')}</FilterableTh>
                 <th>{t('location.mapSectionTitle', 'Konum')}</th>
-                <SortableTh sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.date')}</SortableTh>
+                <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.date')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {filteredMessages.map(message => (
+              {columnFilteredMessages.map(message => (
                 <Fragment key={message.socialMessageId}>
                   <tr>
                     <td>

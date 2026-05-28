@@ -25,7 +25,9 @@ interface InternalFormState {
 
 interface ExternalFormState extends InternalFormState {
   ownerDepartmentId: string
-  targetDepartmentIds: string[]
+  targetDepartmentId: string
+  isCoordinated: boolean
+  coordinatedDepartmentIds: string[]
   startDateUtc: string
 }
 
@@ -50,7 +52,9 @@ const EMPTY_INTERNAL_FORM: InternalFormState = {
 const EMPTY_EXTERNAL_FORM: ExternalFormState = {
   ...EMPTY_INTERNAL_FORM,
   ownerDepartmentId: '',
-  targetDepartmentIds: [],
+  targetDepartmentId: '',
+  isCoordinated: false,
+  coordinatedDepartmentIds: [],
   startDateUtc: '',
 }
 
@@ -140,8 +144,15 @@ export function CreateRequestPage() {
   }, [departments, myDepartmentId])
 
   const targetDepartmentOptions = useMemo(() => {
-    return departments.filter(department => department.departmentId !== myDepartmentId)
-  }, [departments, myDepartmentId])
+    return departments.filter(department => department.departmentId !== externalForm.ownerDepartmentId)
+  }, [departments, externalForm.ownerDepartmentId])
+
+  const coordinatedDepartmentOptions = useMemo(() => {
+    return departments.filter(department =>
+      department.departmentId !== externalForm.ownerDepartmentId &&
+      department.departmentId !== externalForm.targetDepartmentId
+    )
+  }, [departments, externalForm.ownerDepartmentId, externalForm.targetDepartmentId])
 
 
   const requestTypeOptions = useMemo(() => {
@@ -334,7 +345,7 @@ export function CreateRequestPage() {
   const handleCreateExternal = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!externalForm.ownerDepartmentId) return
-    if (externalForm.targetDepartmentIds.length === 0) {
+    if (!externalForm.targetDepartmentId) {
       setError(t('requests.create.targetDepartmentRequired', 'Talebin gideceği birim seçilmelidir.'))
       return
     }
@@ -346,6 +357,10 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      const targetDepartmentIds = [
+        externalForm.targetDepartmentId,
+        ...(externalForm.isCoordinated ? externalForm.coordinatedDepartmentIds : []),
+      ]
       const job = await api.createJob({
         title: externalForm.title.trim(),
         description: externalForm.description.trim(),
@@ -356,7 +371,7 @@ export function CreateRequestPage() {
         isProject: externalForm.isProject,
         startDateUtc: toApiDateTime(externalForm.startDateUtc),
         dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
-        targetDepartmentIds: externalForm.targetDepartmentIds,
+        targetDepartmentIds,
         sourceType: 'Manual',
       })
       for (const file of pendingFiles) {
@@ -571,16 +586,50 @@ export function CreateRequestPage() {
               </div>
             </div>
             <div className="job-field">
-              <span className="job-field-label">{t('jobs.form.targetDepartments', 'Talebin Hangi Birime Gideceği')} <span className="text-red-500">*</span></span>
-              <MultiSelectDropdown
-                options={targetDepartmentOptions.map(d => ({ value: d.departmentId, label: d.name }))}
-                value={externalForm.targetDepartmentIds}
-                onChange={targetDepartmentIds => setExternalForm(current => ({ ...current, targetDepartmentIds }))}
-                placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Birim/Müdürlük seçin')}
-                emptyText={t('requests.create.targetDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-              />
-              <span className="helper-copy">{t('jobs.form.targetDepartmentsHelp', 'Talebin gönderileceği birim(ler)i seçin.')}</span>
+              <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
+              <select
+                id="request-target-dept"
+                className="field-select"
+                value={externalForm.targetDepartmentId}
+                onChange={e => setExternalForm(current => ({ ...current, targetDepartmentId: e.target.value }))}
+                required
+              >
+                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Birim/Müdürlük seçin')}</option>
+                {targetDepartmentOptions.map(d => (
+                  <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
+                ))}
+              </select>
+              <span className="helper-copy">{t('jobs.form.targetDepartmentHelp', 'Talebin birincil olarak gönderileceği birim.')}</span>
             </div>
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="request-is-coordinated">{t('jobs.form.isCoordinated', 'Koordineli talep mi?')}</label>
+              <select
+                id="request-is-coordinated"
+                className="field-select"
+                value={externalForm.isCoordinated ? 'yes' : 'no'}
+                onChange={e => setExternalForm(current => ({
+                  ...current,
+                  isCoordinated: e.target.value === 'yes',
+                  coordinatedDepartmentIds: e.target.value === 'yes' ? current.coordinatedDepartmentIds : [],
+                }))}
+              >
+                <option value="no">{t('common.no', 'Hayır')}</option>
+                <option value="yes">{t('common.yes', 'Evet')}</option>
+              </select>
+            </div>
+            {externalForm.isCoordinated ? (
+              <div className="job-field">
+                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordineli Birimler')}</span>
+                <MultiSelectDropdown
+                  options={coordinatedDepartmentOptions.map(d => ({ value: d.departmentId, label: d.name }))}
+                  value={externalForm.coordinatedDepartmentIds}
+                  onChange={coordinatedDepartmentIds => setExternalForm(current => ({ ...current, coordinatedDepartmentIds }))}
+                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Birim/Müdürlük seçin')}
+                  emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                />
+                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek birimler.')}</span>
+              </div>
+            ) : null}
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-priority">{t('jobs.form.priority')}</label>

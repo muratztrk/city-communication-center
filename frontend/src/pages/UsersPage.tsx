@@ -2,7 +2,8 @@ import type { FormEvent } from 'react'
 import { Pencil, ShieldUser, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
-import { SortableTh } from '../components/ui/SortableTh'
+import { FilterableTh } from '../components/ui/FilterableTh'
+import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -301,6 +302,11 @@ export function UsersPage() {
   const getDepartmentName = (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none')
   const { sortKey: usersSortKey, sortDir: usersSortDir, toggleSort: toggleUsersSort, sortItems: sortUsers } = useSortable()
   const sortedUsers = useMemo(() => sortUsers(users), [users, sortUsers])
+  const { filters: userFilters, setFilter: setUserFilter, matchesFilters: userMatchesFilters } = useColumnFilters()
+  const columnFilteredUsers = useMemo(
+    () => sortedUsers.filter(u => userMatchesFilters(u)),
+    [sortedUsers, userMatchesFilters],
+  )
   const summary = {
     total: users.length,
     active: users.filter(user => user.isActive).length,
@@ -589,19 +595,19 @@ export function UsersPage() {
           <table className="data-table users-table">
             <thead>
               <tr>
-                <SortableTh sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.username')}</SortableTh>
-                <SortableTh sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.displayName')}</SortableTh>
-                <SortableTh sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.jobTitle')}</SortableTh>
-                <SortableTh sortKey="email" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.email')}</SortableTh>
-                <th>{t('users.department')}</th>
-                <SortableTh sortKey="roleCode" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.role')}</SortableTh>
-                <SortableTh sortKey="userSource" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.source')}</SortableTh>
-                <SortableTh sortKey="isActive" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.status')}</SortableTh>
+                <FilterableTh filterKey="username" filterValue={userFilters['username'] ?? ''} onFilter={setUserFilter} sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.username')}</FilterableTh>
+                <FilterableTh filterKey="displayName" filterValue={userFilters['displayName'] ?? ''} onFilter={setUserFilter} sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.displayName')}</FilterableTh>
+                <FilterableTh filterKey="title" filterValue={userFilters['title'] ?? ''} onFilter={setUserFilter} sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.jobTitle')}</FilterableTh>
+                <FilterableTh filterKey="email" filterValue={userFilters['email'] ?? ''} onFilter={setUserFilter} sortKey="email" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.email')}</FilterableTh>
+                <FilterableTh filterKey="departmentId" filterValue={userFilters['departmentId'] ?? ''} onFilter={setUserFilter}>{t('users.department')}</FilterableTh>
+                <FilterableTh filterKey="roleCode" filterValue={userFilters['roleCode'] ?? ''} onFilter={setUserFilter} sortKey="roleCode" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.role')}</FilterableTh>
+                <FilterableTh filterKey="userSource" filterValue={userFilters['userSource'] ?? ''} onFilter={setUserFilter} sortKey="userSource" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.source')}</FilterableTh>
+                <FilterableTh filterKey="isActive" filterValue={userFilters['isActive'] ?? ''} onFilter={setUserFilter} sortKey="isActive" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.status')}</FilterableTh>
                 {canManageUsers ? <th className="actions-column" aria-label={t('common.actions')} /> : null}
               </tr>
             </thead>
             <tbody>
-              {sortedUsers.map(user => (
+              {columnFilteredUsers.map(user => (
                 editingUserId === user.userId ? (
                   <tr key={user.userId} className="bg-slate-50">
                     <td>{user.username || t('common.none')}</td>

@@ -10,7 +10,7 @@ interface MunicipalitySealProps {
   src?: string | null
 }
 
-const FALLBACK_LOGO_SRC = '/favicon.svg'
+const FALLBACK_LOGO_SRC = '/favicon.jpeg'
 
 export function MunicipalitySeal({ className, imageClassName, compact = false, bare = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null)

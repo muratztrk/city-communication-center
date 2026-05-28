@@ -43,8 +43,8 @@ const EMPTY_SECURITY_STATE: SecurityState = {
   secondFactorRequiredOnSuccess: false,
 }
 
-const LOGIN_LOGO_LIGHT_SRC = '/favicon.svg'
-const LOGIN_LOGO_DARK_SRC = '/favicon.svg'
+const LOGIN_LOGO_LIGHT_SRC = '/favicon.jpeg'
+const LOGIN_LOGO_DARK_SRC = '/favicon.jpeg'
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -273,20 +273,29 @@ export function LoginPage() {
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
-          <div className="relative grid gap-5 pt-10">
-            <div className="space-y-4">
-              <div className="inline-block rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-2.5">
-                <MunicipalitySeal
-                  alt={`${institutionName} logo`}
-                  src={desktopLogoUrl}
-                />
-              </div>
-              <div>
+          <div className="relative grid gap-6 pt-8">
+            <div className="space-y-5">
+              {/* Logo kartı + Başlık yan yana */}
+              <div className="flex items-center gap-5">
+                <div className="shrink-0 rounded-[var(--radius-xl)] border border-white/12 bg-white/8 p-3">
+                  <div className="flex items-center gap-3 pr-1">
+                    <img
+                      src={desktopLogoUrl}
+                      alt={`${institutionName} amblemi`}
+                      className="h-12 w-12 shrink-0 rounded-full object-cover"
+                    />
+                    <div className="flex flex-col leading-none text-white">
+                      <span className="text-[0.58rem] font-bold uppercase tracking-[0.18em] opacity-60">T.C.</span>
+                      <span className="text-sm font-black uppercase tracking-wide">{municipalityName}</span>
+                      <span className="text-[0.58rem] font-bold uppercase tracking-[0.1em] opacity-60">Belediyesi</span>
+                    </div>
+                  </div>
+                </div>
                 <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
-                <p className="mt-3 max-w-2xl text-base leading-7 text-white/86 xl:text-lg xl:leading-8">{t('login.subtitle')}</p>
               </div>
+              <p className="max-w-2xl text-base leading-7 text-white/86 xl:text-lg xl:leading-8">{t('login.subtitle')}</p>
             </div>
             <ul className="grid max-w-3xl gap-3 sm:grid-cols-2">
               {[

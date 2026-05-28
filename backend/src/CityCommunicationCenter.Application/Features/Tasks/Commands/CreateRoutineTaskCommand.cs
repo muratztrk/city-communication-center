@@ -42,6 +42,10 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
         var departmentId = await UserDepartmentAccess.GetDefaultDepartmentIdAsync(
             _dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
 
+        var year = DateTimeOffset.UtcNow.Year;
+        var jobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, year, cancellationToken);
+        var taskNumber = await SequenceNumberHelper.NextTaskNumberAsync(_dbContext, tenantId, year, cancellationToken);
+
         var job = new Job
         {
             JobId = Guid.NewGuid(),
@@ -54,7 +58,9 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             RequestType = Domain.Enums.JobRequestType.InternalUnit,
             SourceType = Domain.Enums.JobSourceType.Routine,
             DueDateUtc = request.DueDateUtc,
-            CreatedByUserId = context.UserId
+            CreatedByUserId = context.UserId,
+            JobNumber = jobNumber,
+            JobNumberYear = year
         };
 
         _dbContext.Jobs.Add(job);
@@ -88,7 +94,9 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             Priority = request.Priority.Trim(),
             DueDateUtc = request.DueDateUtc,
             Notes = request.Notes,
-            CreatedByUserId = context.UserId
+            CreatedByUserId = context.UserId,
+            TaskNumber = taskNumber,
+            TaskNumberYear = year
         };
 
         _dbContext.Tasks.Add(task);

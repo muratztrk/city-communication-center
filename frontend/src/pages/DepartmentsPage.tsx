@@ -1,6 +1,8 @@
 import { Building2, Layers3, Pencil, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FilterableTh } from '../components/ui/FilterableTh'
+import { useColumnFilters } from '../hooks/useColumnFilters'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
@@ -169,6 +171,12 @@ export function DepartmentsPage() {
     }, {})
   }, [departments])
 
+  const { filters: deptFilters, setFilter: setDeptFilter, matchesFilters: deptMatchesFilters } = useColumnFilters()
+  const columnFilteredDepts = useMemo(
+    () => departments.filter(d => deptMatchesFilters(d)),
+    [departments, deptMatchesFilters],
+  )
+
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
   const getManagerCandidates = () => users.filter(item => item.isActive)
   const userBelongsToDepartment = (item: User, departmentId?: string) => {
@@ -288,15 +296,15 @@ export function DepartmentsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>{t('departments.name')}</th>
-                <th>{t('departments.type')}</th>
+                <FilterableTh filterKey="name" filterValue={deptFilters['name'] ?? ''} onFilter={setDeptFilter}>{t('departments.name')}</FilterableTh>
+                <FilterableTh filterKey="departmentType" filterValue={deptFilters['departmentType'] ?? ''} onFilter={setDeptFilter}>{t('departments.type')}</FilterableTh>
                 <th>{t('departments.manager', 'Müdür')}</th>
                 <th>{t('departments.responsibles', 'Sorumlular')}</th>
                 <th className="w-56">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {departments.map(department => {
+              {columnFilteredDepts.map(department => {
                 const isManagerAssigning = managerAssignId === department.departmentId
                 const isManagerSaving = managerAssignSavingId === department.departmentId
 

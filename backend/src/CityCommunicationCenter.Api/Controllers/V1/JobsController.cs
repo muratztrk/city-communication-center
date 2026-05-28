@@ -76,6 +76,20 @@ public sealed class JobsController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{jobId:guid}/target-approval/{departmentId:guid}/approve")]
+    public async Task<IActionResult> ApproveTarget(Guid jobId, Guid departmentId, [FromBody] JobApprovalDecisionRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new ApproveJobTargetCommand(jobId, departmentId, CurrentContext.UserId, request.Comment), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{jobId:guid}/target-approval/{departmentId:guid}/reject")]
+    public async Task<IActionResult> RejectTarget(Guid jobId, Guid departmentId, [FromBody] RejectJobRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new RejectJobTargetCommand(jobId, departmentId, CurrentContext.UserId, request.Reason), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPut("{jobId:guid}")]
     public async Task<IActionResult> Update(Guid jobId, [FromBody] UpdateJobRequest request, CancellationToken cancellationToken)
     {

@@ -1,15 +1,16 @@
 import { ClipboardCheck, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
-import { SortableTh } from '../components/ui/SortableTh'
+import { useColumnFilters } from '../hooks/useColumnFilters'
+import { FilterableTh } from '../components/ui/FilterableTh'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
-import { PromptDialog } from '../components/ui/prompt-dialog'
-import type { PromptDialogState } from '../components/ui/prompt-dialog'
+import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
@@ -233,10 +234,15 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return' } | null>(null)
+  const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
+  const [returnManagerId, setReturnManagerId] = useState('')
+  const [returnDeptId, setReturnDeptId] = useState('')
+  const [returnUserId, setReturnUserId] = useState('')
   const [returnSaving, setReturnSaving] = useState(false)
-  const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [completionNote, setCompletionNote] = useState('')
   const [filterYear, setFilterYear] = useState('')
   const [searchText, setSearchText] = useState('')
 
@@ -263,6 +269,10 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       item.roleCode !== 'SystemAdmin')
   }, [activeUsers, managedDepartmentIds, user?.userId])
   const staffUserIds = useMemo(() => new Set(staffUsers.map(item => item.userId)), [staffUsers])
+  const managerUsers = useMemo(() => activeUsers.filter(item => item.roleCode === 'Manager'), [activeUsers])
+  const returnDeptUsers = useMemo(() =>
+    returnDeptId ? activeUsers.filter(item => userBelongsToAnyDepartment(item, new Set([returnDeptId]))) : [],
+  [activeUsers, returnDeptId])
   const staffUserParam = searchParams.get('userId') ?? 'all'
   const currentStaffUserId = staffUserParam !== 'all' && staffUserIds.has(staffUserParam) ? staffUserParam : 'all'
   const currentStaffUserLabel = currentStaffUserId === 'all'
@@ -306,15 +316,23 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }, [currentMyTaskView, currentRequestFlowFilter, currentStaffUserId, filterYear, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
+  const { filters: taskFilters, setFilter: setTaskFilter, matchesFilters: taskMatchesFilters } = useColumnFilters()
 
   const toggleTasksSort = (key: string) => {
     _toggleTasksSort(key)
     setTasksPage(1)
   }
 
+  useEffect(() => { setTasksPage(1) }, [taskFilters])
+
+  const columnFilteredTasks = useMemo(
+    () => visibleTasks.filter(t => taskMatchesFilters(t)),
+    [visibleTasks, taskMatchesFilters],
+  )
+
   const pagedTasks = useMemo(
-    () => sortTasks(visibleTasks).slice((tasksPage - 1) * tasksPageSize, tasksPage * tasksPageSize),
-    [visibleTasks, tasksPage, tasksPageSize, sortTasks],
+    () => sortTasks(columnFilteredTasks).slice((tasksPage - 1) * tasksPageSize, tasksPage * tasksPageSize),
+    [columnFilteredTasks, tasksPage, tasksPageSize, sortTasks],
   )
 
   const currentMyTaskViewLabel = t(MY_TASK_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.myViews.pending', 'Bekleyen Görevlerim')
@@ -397,33 +415,78 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }
 
   const handleComplete = (taskId: string) => {
-    setPromptDialog({
-      title: t('tasks.actions.completePrompt', 'Tamamlama Notu'),
-      required: false,
-      onConfirm: async (note) => {
-        await api.completeTask(taskId, note || undefined)
-        await reload()
+    setConfirmDialog({
+      message: t('tasks.actions.completeConfirm', 'Görevi tamamladığınızı onaylıyor musunuz?'),
+      confirmLabel: t('common.yes', 'Evet'),
+      cancelLabel: t('common.no', 'Hayır'),
+      variant: 'primary',
+      onConfirm: async () => {
+        try {
+          await api.completeTask(taskId, completionNote.trim() || undefined)
+          setCompletionNote('')
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
       },
     })
   }
 
   const handleClaim = async (taskId: string) => {
-    await api.claimTask(taskId)
-    await reload()
+    setError(null)
+    try {
+      await api.claimTask(taskId)
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
   }
 
   const openReturnModal = (taskId: string) => {
-    setReturnModal({ taskId })
+    setReturnModal({ taskId, step: 'choose' })
+    setCancelReason('')
     setReturnReason('')
+    setReturnManagerId('')
+    setReturnDeptId('')
+    setReturnUserId('')
+  }
+
+  const closeReturnModal = () => {
+    setReturnModal(null)
+    setCancelReason('')
+    setReturnReason('')
+    setReturnManagerId('')
+    setReturnDeptId('')
+    setReturnUserId('')
+  }
+
+  const handleCancelTask = async () => {
+    if (!returnModal || !cancelReason.trim()) return
+    setReturnSaving(true)
+    try {
+      await api.cancelTask(returnModal.taskId, cancelReason.trim())
+      closeReturnModal()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setReturnSaving(false)
+    }
   }
 
   const handleReturn = async () => {
-    if (!returnModal || !returnReason.trim()) return
+    if (!returnModal) return
     setReturnSaving(true)
     try {
-      await api.requestTaskRevision(returnModal.taskId, returnReason.trim())
-      setReturnModal(null)
-      setReturnReason('')
+      if (isManagerLike) {
+        // Manager: reassign task to another dept/user
+        await api.assignTask(returnModal.taskId, returnDeptId || undefined, returnUserId || undefined)
+      } else {
+        // Staff: send revision request to selected manager
+        if (!returnReason.trim() || !returnManagerId) return
+        await api.requestTaskRevision(returnModal.taskId, returnReason.trim(), undefined, returnManagerId)
+      }
+      closeReturnModal()
       await reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -753,6 +816,30 @@ const pageKicker = isMyTasksView
                 </section>
               </div>
 
+              {(taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && taskDetail.assignedUserId === user?.userId && (
+                <section className="form-card page-stack mb-5">
+                  <div>
+                    <h3 className="text-lg font-extrabold text-slate-950">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h3>
+                    <p className="helper-copy">{t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}</p>
+                  </div>
+                  <label className="job-field">
+                    <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')}</span>
+                    <textarea
+                      className="field-textarea"
+                      rows={3}
+                      value={completionNote}
+                      onChange={e => setCompletionNote(e.target.value)}
+                      placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                    />
+                  </label>
+                  <div className="inline-actions">
+                    <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
+                      {t('tasks.actions.complete', 'Tamamla')}
+                    </Button>
+                  </div>
+                </section>
+              )}
+
               <section className="mb-5">
                 <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
                   {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
@@ -819,7 +906,7 @@ const pageKicker = isMyTasksView
       {error && <div className="alert alert-error">{error}</div>}
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : visibleTasks.length === 0 ? (
+      ) : columnFilteredTasks.length === 0 ? (
         <section className="section-card">
           <div className="empty-state">
             {isMyTasksView
@@ -839,13 +926,13 @@ const pageKicker = isMyTasksView
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <th>{t('tasks.columns.taskNo', 'Görev No')}</th>
-                  <SortableTh sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</SortableTh>
-                  <SortableTh sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</SortableTh>
-                  <SortableTh sortKey="createdByDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</SortableTh>
-                  <SortableTh sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</SortableTh>
-                  <SortableTh sortKey="currentStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.status', 'Durum')}</SortableTh>
-                  <SortableTh sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</SortableTh>
-                  <SortableTh sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</SortableTh>
+                  <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
+                  <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</FilterableTh>
+                  <FilterableTh filterKey="createdByDisplayName" filterValue={taskFilters['createdByDisplayName']} onFilter={setTaskFilter} sortKey="createdByDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
+                  <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
+                  <FilterableTh filterKey="currentStatus" filterValue={taskFilters['currentStatus']} onFilter={setTaskFilter} sortKey="currentStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.status', 'Durum')}</FilterableTh>
+                  <FilterableTh filterKey="priority" filterValue={taskFilters['priority']} onFilter={setTaskFilter} sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</FilterableTh>
+                  <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>
                   <th>{t('tasks.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -867,11 +954,8 @@ const pageKicker = isMyTasksView
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
-                        {isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button size="sm" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Complete')}</Button>
-                        )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>{t('tasks.actions.return', 'İade Et')}</Button>
+                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>{t('tasks.actions.cancelReturn', 'İptal / İade')}</Button>
                         )}
                       </div>
                     </td>
@@ -881,7 +965,7 @@ const pageKicker = isMyTasksView
             </table>
           </div>
           <TablePagination
-            totalCount={visibleTasks.length}
+            totalCount={columnFilteredTasks.length}
             pageSize={tasksPageSize}
             currentPage={tasksPage}
             onPageSizeChange={setTasksPageSize}
@@ -893,31 +977,133 @@ const pageKicker = isMyTasksView
       {returnModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-          onClick={() => setReturnModal(null)}
+          onClick={closeReturnModal}
         >
-          <div className="form-card page-stack w-full max-w-md" onClick={event => event.stopPropagation()}>
-            <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnTitle', 'Görevi İade Et')}</h2>
-            <p className="helper-copy">{t('tasks.actions.returnHelp', 'Görevi iade etmek için açıklama yazınız.')}</p>
-            <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.returnReason', 'İade Açıklaması')}</span>
-              <textarea
-                className="field-textarea"
-                rows={4}
-                value={returnReason}
-                onChange={event => setReturnReason(event.target.value)}
-                placeholder={t('tasks.actions.returnReasonPlaceholder', 'İade nedenini açıklayınız...')}
-              />
-            </label>
-            <div className="inline-actions">
-              <Button type="button" variant="secondary" onClick={() => setReturnModal(null)}>{t('common.cancel', 'İptal')}</Button>
-              <Button type="button" variant="destructive" disabled={returnSaving || !returnReason.trim()} onClick={() => void handleReturn()}>
-                {returnSaving ? t('common.loading') : t('tasks.actions.return', 'İade Et')}
-              </Button>
-            </div>
+          <div className="form-card page-stack w-full max-w-md" onClick={e => e.stopPropagation()}>
+
+            {/* ── STEP 1: seçim ── */}
+            {returnModal.step === 'choose' && (
+              <>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelReturnTitle', 'Görev İptal / İade')}</h2>
+                <p className="helper-copy">{t('tasks.actions.cancelReturnHelp', 'Göreve ne yapmak istediğinizi seçin.')}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button type="button" variant="destructive" onClick={() => setReturnModal(m => m ? { ...m, step: 'cancel' } : null)}>
+                    {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
+                  </Button>
+                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'return' } : null)}>
+                    {isManagerLike
+                      ? t('tasks.actions.returnToDept', 'Başka Birime İade')
+                      : t('tasks.actions.returnToManager', 'Yöneticiye İade')}
+                  </Button>
+                </div>
+                <div className="inline-actions justify-end">
+                  <Button type="button" variant="secondary" onClick={closeReturnModal}>{t('common.close', 'Kapat')}</Button>
+                </div>
+              </>
+            )}
+
+            {/* ── STEP 2a: İptal ── */}
+            {returnModal.step === 'cancel' && (
+              <>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelTask', 'Görevi İptal Et')}</h2>
+                <p className="helper-copy">{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
+                <label className="job-field">
+                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+                  <textarea
+                    className="field-textarea"
+                    rows={3}
+                    value={cancelReason}
+                    onChange={e => setCancelReason(e.target.value)}
+                    placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
+                    autoFocus
+                  />
+                </label>
+                <div className="inline-actions">
+                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
+                    {t('common.back', 'Geri')}
+                  </Button>
+                  <Button type="button" variant="destructive" disabled={returnSaving || !cancelReason.trim()} onClick={() => void handleCancelTask()}>
+                    {returnSaving ? t('common.loading') : t('tasks.actions.cancelTask', 'İptal Et')}
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {/* ── STEP 2b: İade (Staff → Yönetici seç) ── */}
+            {returnModal.step === 'return' && !isManagerLike && (
+              <>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnToManager', 'Yöneticiye İade')}</h2>
+                <p className="helper-copy">{t('tasks.actions.returnManagerHelp', 'Görevi iade edeceğiniz yöneticiyi seçin.')}</p>
+                <label className="job-field">
+                  <span className="job-field-label">{t('tasks.actions.selectManager', 'Yönetici')}</span>
+                  <select className="field-select" value={returnManagerId} onChange={e => setReturnManagerId(e.target.value)}>
+                    <option value="">{t('common.select', 'Seçiniz...')}</option>
+                    {managerUsers.map(m => (
+                      <option key={m.userId} value={m.userId}>{m.displayName}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="job-field">
+                  <span className="job-field-label">{t('tasks.actions.returnReason', 'İade Açıklaması')}</span>
+                  <textarea
+                    className="field-textarea"
+                    rows={3}
+                    value={returnReason}
+                    onChange={e => setReturnReason(e.target.value)}
+                    placeholder={t('tasks.actions.returnReasonPlaceholder', 'İade nedenini açıklayınız...')}
+                  />
+                </label>
+                <div className="inline-actions">
+                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
+                    {t('common.back', 'Geri')}
+                  </Button>
+                  <Button type="button" variant="destructive" disabled={returnSaving || !returnManagerId || !returnReason.trim()} onClick={() => void handleReturn()}>
+                    {returnSaving ? t('common.loading') : t('tasks.actions.return', 'İade Et')}
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {/* ── STEP 2b: İade (Manager → Birim/Kullanıcı seç) ── */}
+            {returnModal.step === 'return' && isManagerLike && (
+              <>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnToDept', 'Başka Birime İade')}</h2>
+                <p className="helper-copy">{t('tasks.actions.returnDeptHelp', 'Görevi iade edeceğiniz birimi seçin.')}</p>
+                <label className="job-field">
+                  <span className="job-field-label">{t('tasks.department', 'Birim')}</span>
+                  <select className="field-select" value={returnDeptId} onChange={e => { setReturnDeptId(e.target.value); setReturnUserId('') }}>
+                    <option value="">{t('common.select', 'Seçiniz...')}</option>
+                    {departments.map(d => (
+                      <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
+                    ))}
+                  </select>
+                </label>
+                {returnDeptId && (
+                  <label className="job-field">
+                    <span className="job-field-label">{t('tasks.draftUser', 'Kullanıcı (isteğe bağlı)')}</span>
+                    <select className="field-select" value={returnUserId} onChange={e => setReturnUserId(e.target.value)}>
+                      <option value="">{t('tasks.departmentPoolAssignee', 'Birim Havuzu')}</option>
+                      {returnDeptUsers.map(u => (
+                        <option key={u.userId} value={u.userId}>{u.displayName}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                <div className="inline-actions">
+                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
+                    {t('common.back', 'Geri')}
+                  </Button>
+                  <Button type="button" variant="destructive" disabled={returnSaving || !returnDeptId} onClick={() => void handleReturn()}>
+                    {returnSaving ? t('common.loading') : t('tasks.actions.return', 'İade Et')}
+                  </Button>
+                </div>
+              </>
+            )}
+
           </div>
         </div>
       )}
-      <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
 }

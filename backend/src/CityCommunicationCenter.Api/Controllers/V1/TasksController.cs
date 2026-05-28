@@ -90,10 +90,17 @@ public sealed class TasksController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{taskId:guid}/cancel")]
+    public async Task<IActionResult> Cancel(Guid taskId, [FromBody] CancelTaskRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new CancelTaskCommand(taskId, CurrentContext.UserId, request.Reason), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPost("{taskId:guid}/request-revision")]
     public async Task<IActionResult> RequestRevision(Guid taskId, [FromBody] RequestTaskRevisionRequest request, CancellationToken cancellationToken)
     {
-        var ok = await _sender.Send(new RequestTaskRevisionCommand(taskId, CurrentContext.UserId, request.Reason, request.ProposedDueDateUtc), cancellationToken);
+        var ok = await _sender.Send(new RequestTaskRevisionCommand(taskId, CurrentContext.UserId, request.Reason, request.ProposedDueDateUtc, request.TargetManagerUserId), cancellationToken);
         return ok ? NoContent() : NotFound();
     }
 

@@ -2,7 +2,7 @@ using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
 
-public sealed record RequestTaskRevisionCommand(Guid TaskId, Guid? ActorUserId, string Reason, DateTimeOffset? ProposedDueDateUtc) : ICommand<bool>;
+public sealed record RequestTaskRevisionCommand(Guid TaskId, Guid? ActorUserId, string Reason, DateTimeOffset? ProposedDueDateUtc, Guid? TargetManagerUserId) : ICommand<bool>;
 
 public sealed class RequestTaskRevisionCommandValidator : AbstractValidator<RequestTaskRevisionCommand>
 {
@@ -55,7 +55,7 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
             SubjectType = ApprovalSubjectType.TaskRevision,
             SubjectId = task.TaskId,
             StepOrder = stepOrder,
-            ApproverUserId = task.AssigningManagerId ?? Guid.Empty,
+            ApproverUserId = request.TargetManagerUserId ?? task.AssigningManagerId ?? Guid.Empty,
             Decision = ApprovalDecision.Pending,
             Comment = request.Reason,
             CreatedByUserId = request.ActorUserId

@@ -495,11 +495,20 @@ export const api = {
     await ensureOk(response, i18n.t('errors.taskRejectFailed'))
   },
 
-  async requestTaskRevision(taskId: string, reason: string, proposedDueDateUtc?: string | null): Promise<void> {
+  async cancelTask(taskId: string, reason: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/cancel`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    })
+    await ensureOk(response, i18n.t('errors.taskSubmitFailed'))
+  },
+
+  async requestTaskRevision(taskId: string, reason: string, proposedDueDateUtc?: string | null, targetManagerUserId?: string | null): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/request-revision`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ reason, proposedDueDateUtc: proposedDueDateUtc ?? null }),
+      body: JSON.stringify({ reason, proposedDueDateUtc: proposedDueDateUtc ?? null, targetManagerUserId: targetManagerUserId ?? null }),
     })
     await ensureOk(response, i18n.t('errors.taskSubmitFailed'))
   },
@@ -606,6 +615,24 @@ export const api = {
 
   async rejectJobOwner(jobId: string, reason: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/owner-approval/reject`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    })
+    await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
+  },
+
+  async approveJobTarget(jobId: string, departmentId: string, comment?: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/target-approval/${departmentId}/approve`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment: comment || null }),
+    })
+    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
+  },
+
+  async rejectJobTarget(jobId: string, departmentId: string, reason: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/target-approval/${departmentId}/reject`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ reason }),

@@ -9,13 +9,17 @@ function getScopeChipColorClass(value: string): string {
 }
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
-import { SortableTh } from '../components/ui/SortableTh'
+import { FilterableTh } from '../components/ui/FilterableTh'
+import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { PromptDialog } from '../components/ui/prompt-dialog'
+import type { PromptDialogState } from '../components/ui/prompt-dialog'
 import { StatusPill } from '../components/ui/status-pill'
 import { TablePagination } from '../components/ui/table-pagination'
+import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task } from '../types/platform'
 import { getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
@@ -48,6 +52,8 @@ type IncomingRequestRow = {
   dueDateUtc: string | null
   createdAtUtc: string | null
   detailsPath: string
+  /** For PendingExternalApproval jobs: the first pending target department that needs approval */
+  pendingTargetDepartmentId: string | null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -125,10 +131,12 @@ function toInternalRow(task: Task): IncomingRequestRow {
     dueDateUtc: task.dueDateUtc,
     createdAtUtc: task.createdAtUtc ?? null,
     detailsPath: `/tasks?scope=all&taskId=${task.taskId}`,
+    pendingTargetDepartmentId: null,
   }
 }
 
 function toExternalRow(job: JobSummary): IncomingRequestRow {
+  const pendingTarget = job.departments?.find(d => d.role === 'Target' && d.approvalStatus === 'Pending')
   return {
     id: job.jobId,
     displayNumber: formatJobDisplayNumber(job),
@@ -142,6 +150,7 @@ function toExternalRow(job: JobSummary): IncomingRequestRow {
     dueDateUtc: job.dueDateUtc,
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
+    pendingTargetDepartmentId: pendingTarget?.departmentId ?? null,
   }
 }
 
@@ -159,6 +168,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     dueDateUtc: job.dueDateUtc,
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
+    pendingTargetDepartmentId: null,
   }
 }
 
@@ -167,12 +177,15 @@ export function IncomingRequestsPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const locale = getLocale(i18n.language)
+  const { user } = useAuth()
+  const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
   const [incomingPageSize, setIncomingPageSize] = useState(25)
+  const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
 
@@ -193,6 +206,54 @@ export function IncomingRequestsPage() {
 
     return () => { cancelled = true }
   }, [t])
+
+  const reload = async () => {
+    try {
+      const [taskList, jobList] = await Promise.all([
+        api.getTasks('all'),
+        api.getJobs('my-department'),
+      ])
+      setTasks(taskList)
+      setJobs(jobList)
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+
+  const handleApproveOwner = async (jobId: string) => {
+    setError(null)
+    try {
+      await api.approveJobOwner(jobId)
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+
+  const handleApproveTarget = async (jobId: string, departmentId: string) => {
+    setError(null)
+    try {
+      await api.approveJobTarget(jobId, departmentId)
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+
+  const handleCancel = (jobId: string) => {
+    setPromptDialog({
+      title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
+      onConfirm: async (reason) => {
+        try {
+          await api.cancelJob(jobId, reason)
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
+  }
 
   const rows = useMemo(() => {
     const internalRows = tasks
@@ -218,6 +279,14 @@ export function IncomingRequestsPage() {
   [currentKindFilter, currentStatusFilter, rows])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
+  const { filters: incomingFilters, setFilter: setIncomingFilter, matchesFilters: incomingMatchesFilters } = useColumnFilters()
+
+  const columnFilteredRows = useMemo(
+    () => visibleRows.filter(r => incomingMatchesFilters(r)),
+    [visibleRows, incomingMatchesFilters],
+  )
+
+  useEffect(() => { setIncomingPage(1) }, [incomingFilters])
 
   const toggleIncomingSort = (key: string) => {
     _toggleIncomingSort(key)
@@ -225,8 +294,8 @@ export function IncomingRequestsPage() {
   }
 
   const pagedRows = useMemo(
-    () => sortIncoming(visibleRows).slice((incomingPage - 1) * incomingPageSize, incomingPage * incomingPageSize),
-    [visibleRows, incomingPage, incomingPageSize, sortIncoming],
+    () => sortIncoming(columnFilteredRows).slice((incomingPage - 1) * incomingPageSize, incomingPage * incomingPageSize),
+    [columnFilteredRows, incomingPage, incomingPageSize, sortIncoming],
   )
 
   const setStatusFilter = (filter: IncomingStatusFilter) => {
@@ -285,7 +354,7 @@ export function IncomingRequestsPage() {
 
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : visibleRows.length === 0 ? (
+      ) : columnFilteredRows.length === 0 ? (
         <section className="section-card">
           <div className="empty-state">{t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}</div>
         </section>
@@ -297,12 +366,12 @@ export function IncomingRequestsPage() {
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <th>{t('incomingRequests.columns.requestNo', 'Talep No')}</th>
-                  <SortableTh sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</SortableTh>
-                  <SortableTh sortKey="createdByDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</SortableTh>
-                  <SortableTh sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</SortableTh>
-                  <SortableTh sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</SortableTh>
-                  <SortableTh sortKey="priority" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.priority', 'Öncelik')}</SortableTh>
-                  <SortableTh sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</SortableTh>
+                  <FilterableTh filterKey="createdAtUtc" filterValue={incomingFilters['createdAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
+                  <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdByDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
+                  <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
+                  <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
+                  <FilterableTh filterKey="priority" filterValue={incomingFilters['priority'] ?? ''} onFilter={setIncomingFilter} sortKey="priority" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.priority', 'Öncelik')}</FilterableTh>
+                  <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>
                   <th>{t('jobs.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -322,6 +391,21 @@ export function IncomingRequestsPage() {
                         {t('jobs.actions.details', 'Detaylar')}
                         <ArrowRight className="size-3.5" />
                       </Button>
+                      {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
+                        <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
+                          {t('jobs.actions.approveOwner', 'Onayla')}
+                        </Button>
+                      )}
+                      {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingExternalApproval' && row.pendingTargetDepartmentId && (
+                        <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetDepartmentId!)}>
+                          {t('jobs.actions.approveTarget', 'Onayla')}
+                        </Button>
+                      )}
+                      {isManagerLike && row.statusDomain === 'job' && row.status === 'Active' && (
+                        <Button size="sm" variant="destructive" onClick={() => handleCancel(row.id)}>
+                          {t('jobs.actions.cancel', 'İptal')}
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -329,7 +413,7 @@ export function IncomingRequestsPage() {
             </table>
           </div>
           <TablePagination
-            totalCount={visibleRows.length}
+            totalCount={columnFilteredRows.length}
             pageSize={incomingPageSize}
             currentPage={incomingPage}
             onPageSizeChange={setIncomingPageSize}
@@ -337,6 +421,7 @@ export function IncomingRequestsPage() {
           />
         </section>
       )}
+      <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
     </div>
   )
 }

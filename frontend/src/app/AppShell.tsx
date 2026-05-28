@@ -21,12 +21,30 @@ import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '.
 import { getRoleLabel } from '../utils/localization'
 
 
+function useResponsiveZoom() {
+  const compute = () => {
+    const w = window.innerWidth
+    if (w >= 1920) return { sidebar: 1.0, content: 1.0 }
+    if (w >= 1680) return { sidebar: 0.90, content: 0.96 }
+    if (w >= 1440) return { sidebar: 0.84, content: 0.90 }
+    return { sidebar: 0.78, content: 0.84 }
+  }
+  const [zoom, setZoom] = useState(compute)
+  useEffect(() => {
+    const onResize = () => setZoom(compute())
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+  return zoom
+}
+
 export function AppShell() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
   const { appearance } = useTenantTheme()
+  const zoom = useResponsiveZoom()
   const [accessVersion, setAccessVersion] = useState(0)
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -310,7 +328,7 @@ export function AppShell() {
       {/* Main area: sidebar + content — fills remaining height */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
       <aside
-        style={{ zoom: 0.78 }}
+        style={{ zoom: zoom.sidebar }}
         className={`sidebar-shell relative hidden h-full shrink-0 flex-col border-r px-2.5 py-2.5 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[80px]' : 'w-[252px]'}`}
       >
         <div className="flex h-full flex-col gap-2.5 rounded-[var(--radius-2xl)] border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-2.5">
@@ -386,7 +404,7 @@ export function AppShell() {
       </aside>
 
       <div className="flex flex-1 min-w-0 min-h-0 flex-col">
-      <div style={{ zoom: 0.84 }} className="app-content-shell my-2 mr-2 min-w-0 flex-1 overflow-x-clip rounded-2xl border border-[var(--color-border)] bg-white shadow-sm md:flex md:min-h-0 md:flex-col md:overflow-visible">
+      <div style={{ zoom: zoom.content }} className="app-content-shell my-2 mr-2 min-w-0 flex-1 overflow-x-clip rounded-2xl border border-[var(--color-border)] bg-white shadow-sm md:flex md:min-h-0 md:flex-col md:overflow-visible">
         <div className="relative z-40 hidden items-center justify-between border-b border-[var(--color-border)] bg-white/94 px-5 py-2 backdrop-blur lg:flex">
           <nav className="flex min-w-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-1.5 py-1 text-sm text-[color:var(--color-muted-foreground)] shadow-sm" aria-label="Breadcrumb">
             <button type="button" className="inline-flex h-8 min-w-0 items-center gap-1 rounded-full px-2.5 font-semibold text-slate-600 hover:bg-white hover:text-slate-800" onClick={() => navigate('/dashboard')}>

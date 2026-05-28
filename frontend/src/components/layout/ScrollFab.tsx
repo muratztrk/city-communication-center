@@ -86,7 +86,7 @@ export function ScrollFab() {
       onClick={handleClick}
       aria-label={scrolledDown ? 'Sayfanın başına git' : 'Sayfanın sonuna git'}
       title={scrolledDown ? 'Sayfanın başına git' : 'Sayfanın sonuna git'}
-      className="fixed right-5 z-50 flex size-11 cursor-pointer items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-lg transition-all duration-200 hover:scale-110 hover:brightness-110 hover:shadow-xl active:scale-95"
+      className="fixed right-5 z-50 flex size-11 cursor-pointer items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-lg transition-all duration-200 hover:scale-110 hover:bg-[var(--color-secondary)] hover:shadow-xl active:scale-95"
       style={{ bottom: '96px' }}
     >
       <span

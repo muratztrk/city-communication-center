@@ -234,7 +234,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return' } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
   const [returnManagerId, setReturnManagerId] = useState('')
@@ -270,6 +270,12 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }, [activeUsers, managedDepartmentIds, user?.userId])
   const staffUserIds = useMemo(() => new Set(staffUsers.map(item => item.userId)), [staffUsers])
   const managerUsers = useMemo(() => activeUsers.filter(item => item.roleCode === 'Manager'), [activeUsers])
+  // Görevin atandığı birimin müdürleri — iade sadece bu birime yapılabilir
+  const returnManagerUsers = useMemo(() => {
+    const deptId = returnModal?.assignedDepartmentId
+    if (!deptId) return managerUsers
+    return activeUsers.filter(u => u.roleCode === 'Manager' && userBelongsToDepartment(u, deptId))
+  }, [activeUsers, managerUsers, returnModal?.assignedDepartmentId])
   const returnDeptUsers = useMemo(() =>
     returnDeptId ? activeUsers.filter(item => userBelongsToAnyDepartment(item, new Set([returnDeptId]))) : [],
   [activeUsers, returnDeptId])
@@ -443,7 +449,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }
 
   const openReturnModal = (taskId: string) => {
-    setReturnModal({ taskId, step: 'choose' })
+    const task = tasks.find(t => t.taskId === taskId)
+    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')
@@ -990,9 +997,14 @@ const pageKicker = isMyTasksView
                   <Button type="button" variant="destructive" onClick={() => setReturnModal(m => m ? { ...m, step: 'cancel' } : null)}>
                     {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                   </Button>
-                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'return' } : null)}>
+                  <Button type="button" variant="secondary" onClick={() => {
+                    if (isManagerLike && returnModal?.assignedDepartmentId) {
+                      setReturnDeptId(returnModal.assignedDepartmentId)
+                    }
+                    setReturnModal(m => m ? { ...m, step: 'return' } : null)
+                  }}>
                     {isManagerLike
-                      ? t('tasks.actions.returnToDept', 'Başka Birime İade')
+                      ? t('tasks.actions.returnToUnit', 'Birim İçi İade')
                       : t('tasks.actions.returnToManager', 'Yöneticiye İade')}
                   </Button>
                 </div>
@@ -1033,12 +1045,12 @@ const pageKicker = isMyTasksView
             {returnModal.step === 'return' && !isManagerLike && (
               <>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnToManager', 'Yöneticiye İade')}</h2>
-                <p className="helper-copy">{t('tasks.actions.returnManagerHelp', 'Görevi iade edeceğiniz yöneticiyi seçin.')}</p>
+                <p className="helper-copy">{t('tasks.actions.returnManagerHelp', 'Görev sadece birimin yöneticisine iade edilebilir.')}</p>
                 <label className="job-field">
                   <span className="job-field-label">{t('tasks.actions.selectManager', 'Yönetici')}</span>
                   <select className="field-select" value={returnManagerId} onChange={e => setReturnManagerId(e.target.value)}>
                     <option value="">{t('common.select', 'Seçiniz...')}</option>
-                    {managerUsers.map(m => (
+                    {returnManagerUsers.map(m => (
                       <option key={m.userId} value={m.userId}>{m.displayName}</option>
                     ))}
                   </select>
@@ -1064,31 +1076,26 @@ const pageKicker = isMyTasksView
               </>
             )}
 
-            {/* ── STEP 2b: İade (Manager → Birim/Kullanıcı seç) ── */}
+            {/* ── STEP 2b: İade (Manager → Aynı birim içinde kullanıcı seç) ── */}
             {returnModal.step === 'return' && isManagerLike && (
               <>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnToDept', 'Başka Birime İade')}</h2>
-                <p className="helper-copy">{t('tasks.actions.returnDeptHelp', 'Görevi iade edeceğiniz birimi seçin.')}</p>
-                <label className="job-field">
+                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnToUnit', 'Birim İçi İade')}</h2>
+                <p className="helper-copy">{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde iade edilebilir.')}</p>
+                <div className="job-field">
                   <span className="job-field-label">{t('tasks.department', 'Birim')}</span>
-                  <select className="field-select" value={returnDeptId} onChange={e => { setReturnDeptId(e.target.value); setReturnUserId('') }}>
-                    <option value="">{t('common.select', 'Seçiniz...')}</option>
-                    {departments.map(d => (
-                      <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
+                    {departments.find(d => d.departmentId === returnModal.assignedDepartmentId)?.name ?? '—'}
+                  </div>
+                </div>
+                <label className="job-field">
+                  <span className="job-field-label">{t('tasks.draftUser', 'Kullanıcı (isteğe bağlı)')}</span>
+                  <select className="field-select" value={returnUserId} onChange={e => setReturnUserId(e.target.value)}>
+                    <option value="">{t('tasks.departmentPoolAssignee', 'Birim Havuzu')}</option>
+                    {returnDeptUsers.map(u => (
+                      <option key={u.userId} value={u.userId}>{u.displayName}</option>
                     ))}
                   </select>
                 </label>
-                {returnDeptId && (
-                  <label className="job-field">
-                    <span className="job-field-label">{t('tasks.draftUser', 'Kullanıcı (isteğe bağlı)')}</span>
-                    <select className="field-select" value={returnUserId} onChange={e => setReturnUserId(e.target.value)}>
-                      <option value="">{t('tasks.departmentPoolAssignee', 'Birim Havuzu')}</option>
-                      {returnDeptUsers.map(u => (
-                        <option key={u.userId} value={u.userId}>{u.displayName}</option>
-                      ))}
-                    </select>
-                  </label>
-                )}
                 <div className="inline-actions">
                   <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
                     {t('common.back', 'Geri')}

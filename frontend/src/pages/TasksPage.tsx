@@ -11,6 +11,7 @@ import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { Toast } from '../components/ui/toast'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
@@ -243,6 +244,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [returnSaving, setReturnSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
+  const [successToast, setSuccessToast] = useState<string | null>(null)
   const [filterYear, setFilterYear] = useState('')
   const [searchText, setSearchText] = useState('')
 
@@ -430,7 +432,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
         try {
           await api.completeTask(taskId, completionNote.trim() || undefined)
           setCompletionNote('')
+          closeTaskDetail()
           await reload()
+          setSuccessToast(t('tasks.actions.completeSuccess', 'Görev başarıyla tamamlandı!'))
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
         }
@@ -1111,6 +1115,9 @@ const pageKicker = isMyTasksView
         </div>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+      {successToast && (
+        <Toast message={successToast} onClose={() => setSuccessToast(null)} />
+      )}
     </div>
   )
 }

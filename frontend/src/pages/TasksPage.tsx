@@ -697,13 +697,6 @@ const pageKicker = isMyTasksView
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">
-          <button
-            type="button"
-            className={`scope-chip${currentStaffUserId === 'all' ? ' active' : ''}`}
-            onClick={() => setStaffUserFilter('all')}
-          >
-            {t('tasks.staff.allStaff', 'Tüm Personel')}
-          </button>
           {staffUsers.map(item => (
             <button
               key={item.userId}
@@ -714,14 +707,14 @@ const pageKicker = isMyTasksView
               {item.displayName}
             </button>
           ))}
-          <span className="scope-chip-divider" aria-hidden="true">|</span>
           <button
             type="button"
-            className={`scope-chip${currentStaffTaskType === 'all' ? ' active' : ''}`}
-            onClick={() => setStaffTaskTypeFilter('all')}
+            className={`scope-chip${currentStaffUserId === 'all' ? ' active' : ''}`}
+            onClick={() => setStaffUserFilter('all')}
           >
-            {t('tasks.staff.allTasks', 'Tüm Görevleri')}
+            {t('tasks.staff.allStaff', 'Tüm Personel')}
           </button>
+          <span className="scope-chip-divider" aria-hidden="true">|</span>
           <button
             type="button"
             className={`scope-chip${currentStaffTaskType === 'assigned' ? ' active' : ''}`}
@@ -735,6 +728,13 @@ const pageKicker = isMyTasksView
             onClick={() => setStaffTaskTypeFilter('routine')}
           >
             {t('tasks.staff.routineTasks', 'Rutin Görevleri')}
+          </button>
+          <button
+            type="button"
+            className={`scope-chip${currentStaffTaskType === 'all' ? ' active' : ''}`}
+            onClick={() => setStaffTaskTypeFilter('all')}
+          >
+            {t('tasks.staff.allTasks', 'Tüm Görevleri')}
           </button>
           <TaskScopeFilters
             searchText={searchText}

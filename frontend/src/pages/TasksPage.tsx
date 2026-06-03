@@ -1007,6 +1007,8 @@ const pageKicker = isMyTasksView
                   )}
                   <FilterableTh filterKey="priority" filterValue={taskFilters['priority']} onFilter={setTaskFilter} sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <th>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</th>}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <th>{t('tasks.columns.cancelledAt', 'İptal/İade Tarihi')}</th>}
                   <th>{t('tasks.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -1029,6 +1031,8 @@ const pageKicker = isMyTasksView
                     )}
                     <td>{getPriorityLabel(t, task.priority)}</td>
                     <td>{formatDateTime(task.dueDateUtc, locale)}</td>
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td>{formatDateTime(task.completedAtUtc ?? null, locale)}</td>}
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{formatDateTime(task.updatedAtUtc ?? null, locale)}</td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>

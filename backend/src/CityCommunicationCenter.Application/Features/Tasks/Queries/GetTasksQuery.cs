@@ -143,7 +143,9 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     .SelectMany(job => _dbContext.Departments
                         .Where(dept => dept.DepartmentId == job.OwnerDepartmentId)
                         .Select(dept => (string?)dept.Name))
-                    .FirstOrDefault()))
+                    .FirstOrDefault(),
+                task.CompletedAtUtc,
+                task.UpdatedAtUtc))
             .ToListAsync(cancellationToken);
     }
 

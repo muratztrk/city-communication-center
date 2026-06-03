@@ -56,7 +56,9 @@ public sealed record TaskSummaryResponse(
     string? OwnerDisplayName,
     int? TaskNumber,
     int? TaskNumberYear,
-    string? OwnerDepartmentName);
+    string? OwnerDepartmentName,
+    DateTimeOffset? CompletedAtUtc,
+    DateTimeOffset? UpdatedAtUtc);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

@@ -57,6 +57,9 @@ type IncomingRequestRow = {
   detailsPath: string
   /** For PendingExternalApproval jobs: the first pending target department that needs approval */
   pendingTargetDepartmentId: string | null
+  approvedAtUtc: string | null
+  completedAtUtc: string | null
+  updatedAtUtc: string | null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -139,11 +142,15 @@ function toInternalRow(task: Task): IncomingRequestRow {
     createdAtUtc: task.createdAtUtc ?? null,
     detailsPath: `/tasks?scope=all&taskId=${task.taskId}`,
     pendingTargetDepartmentId: null,
+    approvedAtUtc: task.updatedAtUtc ?? null,
+    completedAtUtc: task.completedAtUtc ?? null,
+    updatedAtUtc: task.updatedAtUtc ?? null,
   }
 }
 
 function toExternalRow(job: JobSummary): IncomingRequestRow {
   const pendingTarget = job.departments?.find(d => d.role === 'Target' && d.approvalStatus === 'Pending')
+  const ownerDept = job.departments?.find(d => d.role === 'Owner')
   return {
     id: job.jobId,
     displayNumber: formatJobDisplayNumber(job),
@@ -158,10 +165,14 @@ function toExternalRow(job: JobSummary): IncomingRequestRow {
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
     pendingTargetDepartmentId: pendingTarget?.departmentId ?? null,
+    approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
+    completedAtUtc: job.completedAtUtc,
+    updatedAtUtc: job.updatedAtUtc ?? null,
   }
 }
 
 function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
+  const ownerDept = job.departments?.find(d => d.role === 'Owner')
   return {
     id: job.jobId,
     displayNumber: formatJobDisplayNumber(job),
@@ -176,6 +187,9 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
     pendingTargetDepartmentId: null,
+    approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
+    completedAtUtc: job.completedAtUtc,
+    updatedAtUtc: job.updatedAtUtc ?? null,
   }
 }
 
@@ -440,6 +454,9 @@ export function IncomingRequestsPage() {
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
                   <FilterableTh filterKey="priority" filterValue={incomingFilters['priority'] ?? ''} onFilter={setIncomingFilter} sortKey="priority" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>
+                  {currentStatusFilter === 'approved' && <th>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</th>}
+                  {currentStatusFilter === 'completed' && <th>{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</th>}
+                  {currentStatusFilter === 'cancelled' && <th>{t('incomingRequests.columns.cancelledAt', 'İptal/İade Tarihi')}</th>}
                   <th>{t('jobs.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -453,6 +470,9 @@ export function IncomingRequestsPage() {
                     <td className="font-semibold">{row.title}</td>
                     <td>{getPriorityLabel(t, row.priority)}</td>
                     <td>{formatDateTime(row.dueDateUtc, locale)}</td>
+                    {currentStatusFilter === 'approved' && <td>{formatDateTime(row.approvedAtUtc, locale)}</td>}
+                    {currentStatusFilter === 'completed' && <td>{formatDateTime(row.completedAtUtc, locale)}</td>}
+                    {currentStatusFilter === 'cancelled' && <td>{formatDateTime(row.updatedAtUtc, locale)}</td>}
                     <td className="actions-cell">
                       {/* Detaylar — her zaman */}
                       <Button size="sm" variant="secondary" onClick={() => navigate(row.detailsPath)} className="gap-1.5">

@@ -120,6 +120,7 @@ export interface Task {
   taskNumber?: number | null;
   taskNumberYear?: number | null;
   ownerDepartmentName?: string | null;
+  updatedAtUtc?: string | null;
 }
 
 export interface TaskDetail {
@@ -228,6 +229,7 @@ export interface JobSummary {
   jobNumber: number | null;
   jobNumberYear: number | null;
   createdByDisplayName: string | null;
+  updatedAtUtc?: string | null;
 }
 
 export interface JobDepartmentInfo {

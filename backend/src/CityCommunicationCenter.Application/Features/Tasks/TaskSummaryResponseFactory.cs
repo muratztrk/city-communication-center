@@ -46,7 +46,9 @@ internal static class TaskSummaryResponseFactory
             ownerDisplayName,
             task.TaskNumber,
             task.TaskNumberYear,
-            ownerDepartmentName);
+            ownerDepartmentName,
+            task.CompletedAtUtc,
+            task.UpdatedAtUtc);
     }
 
     private static Task<string?> GetDepartmentNameAsync(

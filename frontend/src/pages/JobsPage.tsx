@@ -307,6 +307,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
   const currentMyRequestsView = getMyRequestsView(searchParams.get('view'))
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
+  const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const currentMyRequestsViewLabel = t(MY_REQUEST_VIEWS.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.pending', 'Bekleyen Taleplerim')
   const currentDepartmentOutgoingViewLabel = t(
@@ -800,6 +801,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
                   <FilterableTh filterKey="dueDateUtc" filterValue={jobFilters['dueDateUtc'] ?? ''} onFilter={setJobFilter} sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</FilterableTh>
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <th>{t('jobs.columns.approvedAt', 'Onay Tarihi')}</th>}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <th>{t('jobs.columns.completedAt', 'Tamamlanma Tarihi')}</th>}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <th>{t('jobs.columns.cancelledAt', 'İptal/İade Tarihi')}</th>}
                   <th>{t('jobs.columns.actions')}</th>
                 </tr>
               </thead>
@@ -822,6 +826,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     <td>{formatDateTime(job.dueDateUtc, locale)}</td>
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td>{formatDateTime(job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null, locale)}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td>{formatDateTime(job.completedAtUtc, locale)}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{formatDateTime(job.updatedAtUtc ?? null, locale)}</td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>

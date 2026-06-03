@@ -172,7 +172,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.CreatedAtUtc,
             r.Job.JobNumber,
             r.Job.JobNumberYear,
-            r.CreatedByDisplayName)).ToArray();
+            r.CreatedByDisplayName,
+            r.Job.UpdatedAtUtc)).ToArray();
     }
 }
 
@@ -284,7 +285,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     .AsNoTracking()
                     .Where(dep => dep.DepartmentId == job.OwnerDepartmentId)
                     .Select(dep => (string?)dep.Name)
-                    .FirstOrDefault()))
+                    .FirstOrDefault(),
+                t.CompletedAtUtc,
+                t.UpdatedAtUtc))
             .ToListAsync(cancellationToken);
 
         var approvals = await _dbContext.Approvals.AsNoTracking()

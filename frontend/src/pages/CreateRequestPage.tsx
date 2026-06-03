@@ -506,6 +506,17 @@ export function CreateRequestPage() {
                 </select>
               </div>
             </div>
+            <div className="job-field">
+              <span className="job-field-label">{t('tasks.newRequest.ownerUser', 'Görev Sahibi Kişi/Birim')}</span>
+              <select
+                className="field-select"
+                value={internalForm.ownerUserIds[0] ?? ''}
+                onChange={e => setInternalForm(current => ({ ...current, ownerUserIds: e.target.value ? [e.target.value] : [''] }))}
+              >
+                <option value="">{t('tasks.newRequest.departmentPool', 'Birim Havuzu')}</option>
+                {user && <option value={user.userId}>{user.displayName}</option>}
+              </select>
+            </div>
             {renderPhotoUpload()}
           </div>
           <div className="grid content-start gap-3">

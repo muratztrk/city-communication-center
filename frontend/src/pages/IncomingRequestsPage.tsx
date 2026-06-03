@@ -264,8 +264,38 @@ export function IncomingRequestsPage() {
     })
   }
 
+  const handleApproveClose = (taskId: string) => {
+    setConfirmDialog({
+      message: t('tasks.approveCloseConfirm', 'Bu görevi tamamlandı olarak onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveTaskClose(taskId)
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
+  }
+
   const openCancelReturn = (row: IncomingRequestRow) => {
-    if (row.status === 'Active') {
+    if (row.statusDomain === 'task') {
+      setPromptDialog({
+        title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
+        onConfirm: async (reason) => {
+          setError(null)
+          try {
+            await api.cancelTask(row.id, reason)
+            await reload()
+          } catch (err) {
+            setError(err instanceof Error ? err.message : t('common.error'))
+          }
+        },
+      })
+    } else if (row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval') {
       setCancelReturnModal({ row })
     } else {
       // Pending approval — reject with reason
@@ -440,11 +470,21 @@ export function IncomingRequestsPage() {
                           {t('jobs.actions.approveTarget', 'Onayla')}
                         </Button>
                       )}
-                      {/* İptal/İade — onay bekleyen ve onaylanmış iş satırlarında */}
-                      {isManagerLike && row.statusDomain === 'job' && (
+                      {/* Onayla — kapanış onayı bekleyen görevlerde */}
+                      {isManagerLike && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
+                        <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
+                          {t('tasks.actions.approveClose', 'Onayla')}
+                        </Button>
+                      )}
+                      {/* İptal/İade — onay bekleyen, onaylanmış ve aktif iş/görev satırlarında */}
+                      {isManagerLike && (
                         row.status === 'PendingOwnerApproval' ||
                         row.status === 'PendingExternalApproval' ||
-                        row.status === 'Active'
+                        row.status === 'Active' ||
+                        row.status === 'Waiting' ||
+                        row.status === 'Assigned' ||
+                        row.status === 'InProgress' ||
+                        row.status === 'PendingCloseApproval'
                       ) && (
                         <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
                           {t('jobs.actions.cancelOrReturn', 'İptal/İade')}

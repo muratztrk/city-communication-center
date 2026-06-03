@@ -358,7 +358,7 @@ export function AppShell() {
           </div>
 
           {/* Sidebar footer: version + WhatsApp support */}
-          <div className="shrink-0 pt-1">
+          <div className="shrink-0 border-t border-white/10 pt-2">
             {!isSidebarCollapsed ? (
               <div className="rounded-[var(--radius-xl)] border border-white/8 bg-white/6 px-3 py-2.5">
                 <p className="mb-2 text-center text-[0.55rem] font-bold tracking-[0.18em] text-white/25 uppercase select-none">
@@ -366,14 +366,14 @@ export function AppShell() {
                 </p>
                 <a
                   href={`mailto:${SUPPORT_EMAIL}`}
-                  className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/10"
+                  className="flex items-start gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/10"
                 >
-                  <Mail className="size-5 shrink-0 text-white/60" />
+                  <Mail className="mt-0.5 size-5 shrink-0 text-white/60" />
                   <div className="min-w-0">
                     <p className="text-[0.58rem] font-bold uppercase tracking-wider text-white/30">
                       {t('shell.supportLine', 'Destek Hattı')}
                     </p>
-                    <p className="truncate text-[0.72rem] font-bold text-white/55">{SUPPORT_EMAIL}</p>
+                    <p className="break-all text-[0.72rem] font-bold text-white/55">{SUPPORT_EMAIL}</p>
                   </div>
                 </a>
               </div>

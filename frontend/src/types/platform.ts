@@ -238,6 +238,7 @@ export interface JobDepartmentInfo {
   approvalStatus: JobApprovalStatus;
   requestedByUserId: string | null;
   approvedByUserId: string | null;
+  approvedByDisplayName: string | null;
   requestedAtUtc: string | null;
   decidedAtUtc: string | null;
   rejectReason: string | null;

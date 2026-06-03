@@ -41,6 +41,7 @@ public sealed record JobDepartmentResponse(
     string ApprovalStatus,
     Guid? RequestedByUserId,
     Guid? ApprovedByUserId,
+    string? ApprovedByDisplayName,
     DateTimeOffset? RequestedAtUtc,
     DateTimeOffset? DecidedAtUtc,
     string? RejectReason,

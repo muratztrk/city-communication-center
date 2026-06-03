@@ -1,12 +1,17 @@
 import { ArrowUp } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-const SCROLL_CONTAINER_ID = 'main-content'
+/** Priority list — first existing element wins */
+const SCROLL_CONTAINER_IDS = ['detail-scroll', 'main-content']
 const SCROLL_THRESHOLD = 80 // px scrolled before showing "up" arrow
 const SCROLL_DURATION = 380 // ms
 
 function getScrollEl(): HTMLElement | null {
-  return document.getElementById(SCROLL_CONTAINER_ID)
+  for (const id of SCROLL_CONTAINER_IDS) {
+    const el = document.getElementById(id)
+    if (el) return el
+  }
+  return null
 }
 
 // easeInOutCubic — smoother than native behavior: 'smooth' on some browsers
@@ -29,40 +34,49 @@ export function ScrollFab() {
   const [scrolledDown, setScrolledDown] = useState(false)
   const [hasScroll, setHasScroll] = useState(false)
   const animatingRef = useRef(false)
+  // Track which container is active so we can re-attach listeners
+  const activeElRef = useRef<HTMLElement | null>(null)
 
-  useEffect(() => {
+  const attach = () => {
+    // Detach old listener
+    if (activeElRef.current) {
+      activeElRef.current.removeEventListener('scroll', update)
+    }
+
     const el = getScrollEl()
-    if (!el) return
+    activeElRef.current = el
 
-    const update = () => {
-      const scrollTop = el.scrollTop
-      const scrollable = el.scrollHeight > el.clientHeight + 10
-      setHasScroll(scrollable)
-      setScrolledDown(scrollTop > SCROLL_THRESHOLD)
+    if (!el) {
+      setHasScroll(false)
+      setScrolledDown(false)
+      return
     }
 
-    update()
+    const scrollable = el.scrollHeight > el.clientHeight + 10
+    setHasScroll(scrollable)
+    setScrolledDown(el.scrollTop > SCROLL_THRESHOLD)
+
     el.addEventListener('scroll', update, { passive: true })
+  }
 
-    const ro = new ResizeObserver(update)
-    ro.observe(el)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  function update() {
+    const el = activeElRef.current
+    if (!el) return
+    const scrollable = el.scrollHeight > el.clientHeight + 10
+    setHasScroll(scrollable)
+    setScrolledDown(el.scrollTop > SCROLL_THRESHOLD)
+  }
 
-    return () => {
-      el.removeEventListener('scroll', update)
-      ro.disconnect()
-    }
-  }, [])
-
-  // Re-attach when route changes (Outlet key changes)
+  // Re-attach on every render tick (catches modal open/close and route changes)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const el = getScrollEl()
-      if (!el) return
-      const scrollable = el.scrollHeight > el.clientHeight + 10
-      setHasScroll(scrollable)
-      setScrolledDown(el.scrollTop > SCROLL_THRESHOLD)
-    }, 150)
-    return () => clearTimeout(timer)
+    const timer = setTimeout(attach, 60)
+    return () => {
+      clearTimeout(timer)
+      if (activeElRef.current) {
+        activeElRef.current.removeEventListener('scroll', update)
+      }
+    }
   })
 
   if (!hasScroll) return null
@@ -86,7 +100,7 @@ export function ScrollFab() {
       onClick={handleClick}
       aria-label={scrolledDown ? 'Sayfanın başına git' : 'Sayfanın sonuna git'}
       title={scrolledDown ? 'Sayfanın başına git' : 'Sayfanın sonuna git'}
-      className="fixed right-5 z-50 flex size-11 cursor-pointer items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-lg transition-all duration-200 hover:scale-110 hover:bg-[var(--color-secondary)] hover:shadow-xl active:scale-95"
+      className="fixed right-5 z-[70] flex size-11 cursor-pointer items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-lg transition-all duration-200 hover:scale-110 hover:bg-[var(--color-secondary)] hover:shadow-xl active:scale-95"
       style={{ bottom: '96px' }}
     >
       <span

@@ -6,7 +6,7 @@ import type React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { ClipboardPlus, Search } from 'lucide-react'
+import { ClipboardPlus, Search, X as XIcon } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
@@ -413,19 +413,22 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }
 
   const columnFilteredJobs = useMemo(
-    () => visibleJobs.filter(job => jobMatchesFilters(job, (key, row) => {
-      if (key === 'destinationText') {
-        const targets = getTargetJobDepartments(row)
-        return targets.length > 0
+    () => visibleJobs
+      .map(job => {
+        const targets = getTargetJobDepartments(job)
+        const destinationText = targets.length > 0
           ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
-          : row.ownerDepartmentName ?? ''
-      }
-      if (key === 'status') return getJobStatusLabel(t, row.status)
-      if (key === 'priority') return getPriorityLabel(t, row.priority)
-      if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc ?? null, locale)
-      if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc ?? null, locale)
-      return String((row as unknown as Record<string, unknown>)[key] ?? '')
-    })),
+          : job.ownerDepartmentName ?? ''
+        return { ...job, destinationText }
+      })
+      .filter(job => jobMatchesFilters(job, (key, row) => {
+        if (key === 'destinationText') return row.destinationText
+        if (key === 'status') return getJobStatusLabel(t, row.status)
+        if (key === 'priority') return getPriorityLabel(t, row.priority)
+        if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc ?? null, locale)
+        if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc ?? null, locale)
+        return String((row as unknown as Record<string, unknown>)[key] ?? '')
+      })),
     [visibleJobs, jobMatchesFilters, t, locale],
   )
 
@@ -490,25 +493,39 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       },
     })
   }
-  const handleApproveOwner = async (jobId: string) => {
-    setError(null)
-    try {
-      await api.approveJobOwner(jobId)
-      await refreshDetail()
-      await reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    }
+  const handleApproveOwner = (jobId: string) => {
+    setConfirmDialog({
+      message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveJobOwner(jobId)
+          await refreshDetail()
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
   }
-  const handleApproveTarget = async (jobId: string, departmentId: string) => {
-    setError(null)
-    try {
-      await api.approveJobTarget(jobId, departmentId)
-      await refreshDetail()
-      await reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    }
+  const handleApproveTarget = (jobId: string, departmentId: string) => {
+    setConfirmDialog({
+      message: t('jobs.approveTargetConfirm', 'Bu birimi onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveJobTarget(jobId, departmentId)
+          await refreshDetail()
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
   }
   const handleRejectOwner = (jobId: string) => {
     setPromptDialog({
@@ -776,10 +793,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
                   {(isMyRequestsView || isDepartmentOutgoingView)
-                    ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
+                    ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
                     : <th>{t('jobs.columns.departments')}</th>
                   }
-                  <FilterableTh filterKey="status" filterValue={jobFilters['status'] ?? ''} onFilter={setJobFilter} sortKey="status" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status')}</FilterableTh>
                   <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
@@ -802,7 +818,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         renderOutgoingDestination(job)
                       ) : renderJobDepartments(job)}
                     </td>
-                    <td><StatusPill>{getJobStatusLabel(t, job.status)}</StatusPill></td>
                     <td>{getPriorityLabel(t, job.priority)}</td>
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
@@ -861,14 +876,23 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {detail && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setDetail(null)}
           role="presentation"
         >
           <section
-            className="max-h-[88dvh] w-full max-w-5xl overflow-y-auto rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            id="detail-scroll"
+            className="relative max-h-[88dvh] w-full max-w-5xl overflow-y-auto rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
+            <button
+              type="button"
+              onClick={() => setDetail(null)}
+              className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+              aria-label="Kapat"
+            >
+              <XIcon className="size-4" />
+            </button>
             <div className="page-header-row mb-4">
               <div className="space-y-1">
                 <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('jobs.detail.title')}</div>
@@ -928,6 +952,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   <tr>
                     <th>{t('departments.name', 'Müdürlük')}</th>
                     <th>{t('jobs.detail.role')}</th>
+                    <th>{t('jobs.detail.approvalStatus', 'Onay Durumu')}</th>
+                    <th>{isDepartmentOutgoingView ? t('jobs.detail.approvalDateOutgoing', 'Talep Sahibi Birim Onay Tarihi') : t('jobs.detail.ownerApprovalDate', 'Talebi Yapan Birim Onay Tarihi')}</th>
+                    <th>{isDepartmentOutgoingView ? t('jobs.detail.approverOutgoing', 'Talep Sahibi Birim Onaycısı') : t('jobs.detail.ownerApprover', 'Talebi Yapan Birim Onaycısı')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -935,6 +962,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <tr key={d.jobDepartmentId}>
                       <td>{d.departmentName ?? '—'}</td>
                       <td>{t(`jobs.roles.${d.role}`, d.role)}</td>
+                      <td>{t(`jobs.approvalStatuses.${d.approvalStatus}`, d.approvalStatus)}</td>
+                      <td>{formatDateTime(d.decidedAtUtc, locale)}</td>
+                      <td>{d.approvedByDisplayName ?? '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1053,7 +1083,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {returnModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setReturnModal(null)}
         >
           <div className="form-card page-stack w-full max-w-md" onClick={event => event.stopPropagation()}>
@@ -1080,7 +1110,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       )}
       {editModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setEditModal(null)}
           role="presentation"
         >

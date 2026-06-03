@@ -539,7 +539,7 @@ export function LoginPage() {
       {/* Privacy Policy Modal */}
       {isPrivacyOpen && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
           onClick={() => setIsPrivacyOpen(false)}
           onKeyDown={e => { if (e.key === 'Escape') setIsPrivacyOpen(false) }}
           role="dialog"

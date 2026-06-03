@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
@@ -272,12 +273,17 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }, [activeUsers, managedDepartmentIds, user?.userId])
   const staffUserIds = useMemo(() => new Set(staffUsers.map(item => item.userId)), [staffUsers])
   const managerUsers = useMemo(() => activeUsers.filter(item => item.roleCode === 'Manager'), [activeUsers])
-  // Görevin atandığı birimin müdürleri — iade sadece bu birime yapılabilir
+  // Kullanıcının kendi birimi (iade hedefi için)
+  const myDepartmentId = useMemo(
+    () => getActiveDepartmentId() || user?.departmentId || '',
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user?.departmentId],
+  )
+  // Staff iade: kendi biriminin müdürleri seçilebilir
   const returnManagerUsers = useMemo(() => {
-    const deptId = returnModal?.assignedDepartmentId
-    if (!deptId) return managerUsers
-    return activeUsers.filter(u => u.roleCode === 'Manager' && userBelongsToDepartment(u, deptId))
-  }, [activeUsers, managerUsers, returnModal?.assignedDepartmentId])
+    if (!myDepartmentId) return managerUsers
+    return activeUsers.filter(u => u.roleCode === 'Manager' && userBelongsToDepartment(u, myDepartmentId))
+  }, [activeUsers, managerUsers, myDepartmentId])
   const returnDeptUsers = useMemo(() =>
     returnDeptId ? activeUsers.filter(item => userBelongsToAnyDepartment(item, new Set([returnDeptId]))) : [],
   [activeUsers, returnDeptId])
@@ -286,6 +292,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const currentStaffUserLabel = currentStaffUserId === 'all'
     ? t('tasks.staff.allStaff', 'Tüm Personel')
     : staffUsers.find(item => item.userId === currentStaffUserId)?.displayName ?? t('tasks.staff.allStaff', 'Tüm Personel')
+  const staffTaskTypeParam = searchParams.get('taskType') ?? 'all'
+  const currentStaffTaskType: 'all' | 'assigned' | 'routine' =
+    staffTaskTypeParam === 'assigned' || staffTaskTypeParam === 'routine' ? staffTaskTypeParam : 'all'
   const availableYears = useMemo(() => {
     const years = new Set<string>()
     for (const task of tasks) {
@@ -300,7 +309,10 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
 
     if (isStaffTasksView) {
       const staffTasks = tasks.filter(task => task.assignedUserId && staffUserIds.has(task.assignedUserId))
-      result = currentStaffUserId === 'all' ? staffTasks : staffTasks.filter(task => task.assignedUserId === currentStaffUserId)
+      let byUser = currentStaffUserId === 'all' ? staffTasks : staffTasks.filter(task => task.assignedUserId === currentStaffUserId)
+      if (currentStaffTaskType === 'routine') byUser = byUser.filter(task => task.jobSourceType === 'Routine')
+      else if (currentStaffTaskType === 'assigned') byUser = byUser.filter(task => task.jobSourceType !== 'Routine')
+      result = byUser
     } else if (isDepartmentTasksView) {
       result = filterMyTasks(tasks, currentMyTaskView).filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
     } else if (!isMyTasksView) {
@@ -321,7 +333,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentStaffUserId, filterYear, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentStaffTaskType, currentStaffUserId, filterYear, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, matchesFilters: taskMatchesFilters } = useColumnFilters()
@@ -340,6 +352,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
       if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
       if (key === 'assignedDepartmentName') return row.assignedDepartmentName ?? row.assignedUserDisplayName ?? ''
+      if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
       return String((row as unknown as Record<string, unknown>)[key] ?? '')
     })),
     [visibleTasks, taskMatchesFilters, t, locale],
@@ -383,6 +396,13 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     const nextParams = new URLSearchParams(searchParams)
     if (userId === 'all') nextParams.delete('userId')
     else nextParams.set('userId', userId)
+    setSearchParams(nextParams)
+  }
+
+  const setStaffTaskTypeFilter = (type: 'all' | 'assigned' | 'routine') => {
+    const nextParams = new URLSearchParams(searchParams)
+    if (type === 'all') nextParams.delete('taskType')
+    else nextParams.set('taskType', type)
     setSearchParams(nextParams)
   }
 
@@ -462,8 +482,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const openReturnModal = (taskId: string) => {
     const task = tasks.find(t => t.taskId === taskId)
     const isRoutine = task?.jobSourceType === 'Routine'
-    // Rutin görevlerde İade seçeneği yok — doğrudan İptal adımına geç
-    setReturnModal({ taskId, step: isRoutine ? 'cancel' : 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine })
+    // Müdür ve rutin görevlerde İade seçeneği yok — doğrudan İptal adımına geç
+    const skipChoose = isManagerLike || isRoutine
+    setReturnModal({ taskId, step: skipChoose ? 'cancel' : 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: skipChoose })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')
@@ -676,15 +697,45 @@ const pageKicker = isMyTasksView
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">
-          <label className="scope-chip-staff-label">
-            <span className="scope-chip-staff-text">{t('tasks.staff.filterLabel', 'Personel')}</span>
-            <select className="scope-chip-year-select" value={currentStaffUserId} onChange={event => setStaffUserFilter(event.target.value)}>
-              <option value="all">{t('tasks.staff.allStaff', 'Tüm Personel')}</option>
-              {staffUsers.map(item => (
-                <option key={item.userId} value={item.userId}>{item.displayName}</option>
-              ))}
-            </select>
-          </label>
+          <button
+            type="button"
+            className={`scope-chip${currentStaffUserId === 'all' ? ' active' : ''}`}
+            onClick={() => setStaffUserFilter('all')}
+          >
+            {t('tasks.staff.allStaff', 'Tüm Personel')}
+          </button>
+          {staffUsers.map(item => (
+            <button
+              key={item.userId}
+              type="button"
+              className={`scope-chip${currentStaffUserId === item.userId ? ' active' : ''}`}
+              onClick={() => setStaffUserFilter(item.userId)}
+            >
+              {item.displayName}
+            </button>
+          ))}
+          <span className="scope-chip-divider" aria-hidden="true">|</span>
+          <button
+            type="button"
+            className={`scope-chip${currentStaffTaskType === 'all' ? ' active' : ''}`}
+            onClick={() => setStaffTaskTypeFilter('all')}
+          >
+            {t('tasks.staff.allTasks', 'Tüm Görevleri')}
+          </button>
+          <button
+            type="button"
+            className={`scope-chip${currentStaffTaskType === 'assigned' ? ' active' : ''}`}
+            onClick={() => setStaffTaskTypeFilter('assigned')}
+          >
+            {t('tasks.staff.assignedTasks', 'Atanmış Görevleri')}
+          </button>
+          <button
+            type="button"
+            className={`scope-chip${currentStaffTaskType === 'routine' ? ' active' : ''}`}
+            onClick={() => setStaffTaskTypeFilter('routine')}
+          >
+            {t('tasks.staff.routineTasks', 'Rutin Görevleri')}
+          </button>
           <TaskScopeFilters
             searchText={searchText}
             filterYear={filterYear}
@@ -951,7 +1002,9 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="createdByDisplayName" filterValue={taskFilters['createdByDisplayName']} onFilter={setTaskFilter} sortKey="createdByDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
                   <FilterableTh filterKey="assignedDepartmentName" filterValue={taskFilters['assignedDepartmentName']} onFilter={setTaskFilter} sortKey="assignedDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.assignedDepartment', 'Gittiği Yer')}</FilterableTh>
-                  <FilterableTh filterKey="currentStatus" filterValue={taskFilters['currentStatus']} onFilter={setTaskFilter} sortKey="currentStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.status', 'Durum')}</FilterableTh>
+                  {isStaffTasksView && (
+                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="jobSourceType" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskType', 'Görev Tipi')}</FilterableTh>
+                  )}
                   <FilterableTh filterKey="priority" filterValue={taskFilters['priority']} onFilter={setTaskFilter} sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>
                   <th>{t('tasks.columns.actions', 'İşlemler')}</th>
@@ -967,7 +1020,13 @@ const pageKicker = isMyTasksView
                     <td>{task.createdByDisplayName ?? '—'}</td>
                     <td>{task.title}</td>
                     <td className="text-slate-600">{task.assignedDepartmentName ?? task.assignedUserDisplayName ?? '—'}</td>
-                    <td><StatusPill>{getTaskStatusLabel(t, task.currentStatus)}</StatusPill></td>
+                    {isStaffTasksView && (
+                      <td>
+                        <StatusPill tone={task.jobSourceType === 'Routine' ? 'info' : 'neutral'}>
+                          {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
+                        </StatusPill>
+                      </td>
+                    )}
                     <td>{getPriorityLabel(t, task.priority)}</td>
                     <td>{formatDateTime(task.dueDateUtc, locale)}</td>
                     <td className="actions-cell">
@@ -977,7 +1036,9 @@ const pageKicker = isMyTasksView
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>{t('tasks.actions.cancelReturn', 'İptal / İade')}</Button>
+                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>
+                            {(task.jobSourceType === 'Routine' || isManagerLike) ? t('common.cancel', 'İptal') : t('tasks.actions.cancelReturn', 'İptal / İade')}
+                          </Button>
                         )}
                       </div>
                     </td>
@@ -998,7 +1059,7 @@ const pageKicker = isMyTasksView
 
       {returnModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={closeReturnModal}
         >
           <div className="form-card page-stack w-full max-w-md" onClick={e => e.stopPropagation()}>
@@ -1009,9 +1070,6 @@ const pageKicker = isMyTasksView
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelReturnTitle', 'Görev İptal / İade')}</h2>
                 <p className="helper-copy">{t('tasks.actions.cancelReturnHelp', 'Göreve ne yapmak istediğinizi seçin.')}</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button type="button" variant="destructive" onClick={() => setReturnModal(m => m ? { ...m, step: 'cancel' } : null)}>
-                    {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
-                  </Button>
                   <Button type="button" variant="secondary" onClick={() => {
                     if (isManagerLike && returnModal?.assignedDepartmentId) {
                       setReturnDeptId(returnModal.assignedDepartmentId)
@@ -1021,6 +1079,9 @@ const pageKicker = isMyTasksView
                     {isManagerLike
                       ? t('tasks.actions.returnToUnit', 'Birim İçi İade')
                       : t('tasks.actions.returnToManager', 'Yöneticiye İade')}
+                  </Button>
+                  <Button type="button" variant="destructive" onClick={() => setReturnModal(m => m ? { ...m, step: 'cancel' } : null)}>
+                    {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                   </Button>
                 </div>
                 <div className="inline-actions justify-end">
@@ -1046,7 +1107,7 @@ const pageKicker = isMyTasksView
                   />
                 </label>
                 <div className="inline-actions">
-                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
+                  <Button type="button" variant="secondary" onClick={() => returnModal?.isRoutine ? closeReturnModal() : setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
                     {t('common.back', 'Geri')}
                   </Button>
                   <Button type="button" variant="destructive" disabled={returnSaving || !cancelReason.trim()} onClick={() => void handleCancelTask()}>

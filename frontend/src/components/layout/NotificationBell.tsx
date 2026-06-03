@@ -288,7 +288,7 @@ export function NotificationBell() {
       {/* Full modal — rendered via portal so it escapes zoom: 0.84 context */}
       {isModalOpen && createPortal(
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
           onClick={() => setIsModalOpen(false)}
           onKeyDown={e => { if (e.key === 'Escape') setIsModalOpen(false) }}
           role="dialog"

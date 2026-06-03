@@ -1,4 +1,4 @@
-import { Building2, MapPin, MessageSquareMore, Paperclip, Plus, Send, Trash2, Workflow, X } from 'lucide-react'
+import { Building2, MapPin, MessageSquareMore, Paperclip, Send, Workflow, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -142,20 +142,6 @@ export function CreateRequestPage() {
     return departments
   }, [departments, myDepartmentId, user?.role, user?.userId])
 
-  const myDepartmentName = useMemo(() => {
-    return departments.find(department => department.departmentId === myDepartmentId)?.name ?? ''
-  }, [departments, myDepartmentId])
-
-  /** Müdürün birimi içindeki aktif personel (birincil veya ek atama) */
-  const deptStaffUsers = useMemo(() => {
-    if (!myDepartmentId) return []
-    return users.filter(u =>
-      u.isActive &&
-      (u.departmentId === myDepartmentId ||
-        u.departments?.some(d => d.departmentId === myDepartmentId))
-    )
-  }, [users, myDepartmentId])
-
   const targetDepartmentOptions = useMemo(() => {
     return departments.filter(department => department.departmentId !== externalForm.ownerDepartmentId)
   }, [departments, externalForm.ownerDepartmentId])
@@ -244,72 +230,6 @@ export function CreateRequestPage() {
       <input id="request-kind" className="field-input bg-slate-50 font-semibold text-slate-700" value={getRequestTypeLabel(selectedKind)} readOnly />
     </div>
   )
-
-  const renderOwnershipFields = () => {
-    if (user?.role !== 'Manager') {
-      return (
-        <div className="job-field">
-          <span className="job-field-label">{t('requests.create.ownerUsers', 'Görev Sahibi Birim')}</span>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-            {t('requests.create.departmentOwnershipHelp', 'Talep müdürlükte kalır; müdür tarafından atama yapılacak.')}
-          </div>
-        </div>
-      )
-    }
-
-    // Müdür: satır bazlı personel atama
-    const rows = internalForm.ownerUserIds
-    const setRow = (idx: number, uid: string) =>
-      setInternalForm(f => {
-        const next = [...f.ownerUserIds]
-        next[idx] = uid
-        return { ...f, ownerUserIds: next }
-      })
-    const addRow = () => setInternalForm(f => ({ ...f, ownerUserIds: [...f.ownerUserIds, ''] }))
-    const removeRow = (idx: number) =>
-      setInternalForm(f => ({ ...f, ownerUserIds: f.ownerUserIds.filter((_, i) => i !== idx) }))
-
-    return (
-      <div className="job-field">
-        <span className="job-field-label">{t('requests.create.taskAssignments', 'Görev Atamaları')}</span>
-        <div className="flex flex-col gap-2">
-          {rows.map((uid, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <select
-                className="field-select flex-1"
-                value={uid}
-                onChange={e => setRow(idx, e.target.value)}
-              >
-                <option value="">{t('requests.create.poolOption', '— Atanmamış (havuz görevi) —')}</option>
-                {deptStaffUsers.map(u => (
-                  <option key={u.userId} value={u.userId}>{u.displayName}</option>
-                ))}
-              </select>
-              {rows.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeRow(idx)}
-                  className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-rose-200 text-rose-500 hover:bg-rose-50"
-                  title={t('common.remove', 'Kaldır')}
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addRow}
-            className="flex items-center gap-1.5 self-start rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-100"
-          >
-            <Plus className="size-3.5" />
-            {t('requests.create.addAssignment', 'Başka personele görev ekle')}
-          </button>
-          <p className="text-xs text-slate-400">{t('requests.create.assignmentHelp', 'Her satır ayrı bir görev oluşturur. Atanmamış bırakılırsa birim havuzuna gider.')}</p>
-        </div>
-      </div>
-    )
-  }
 
   const renderPhotoUpload = () => (
     <div className="job-field">
@@ -564,28 +484,7 @@ export function CreateRequestPage() {
               <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')}</span>
               <input className="field-input" required value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {renderRequestTypeField()}
-              <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.ownerDepartment', 'Sahip Müdürlük')}</span>
-                {(user?.role === 'Staff' || user?.role === 'Manager') ? (
-                  <input className="field-input bg-slate-50 font-semibold text-slate-700" value={myDepartmentName || '-'} readOnly />
-                ) : (
-                  <select
-                    className="field-select"
-                    value={internalForm.ownerDepartmentId}
-                    onChange={e => setInternalForm(current => ({ ...current, ownerDepartmentId: e.target.value }))}
-                    required
-                  >
-                    <option value="">{t('requests.create.selectDepartment', 'Birim seçin')}</option>
-                    {ownerDepartmentOptions.map(d => (
-                      <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            </div>
-            {renderOwnershipFields()}
+            {renderRequestTypeField()}
             <div className="grid gap-3 md:grid-cols-3">
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
@@ -638,24 +537,7 @@ export function CreateRequestPage() {
               <label className="job-field-label" htmlFor="request-title">{t('jobs.form.title')} <span className="text-red-500">*</span></label>
               <input id="request-title" className="field-input" type="text" value={externalForm.title} onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))} required />
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {renderRequestTypeField()}
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="request-owner-dept">{t('jobs.form.ownerDepartment', 'Görev Sahibi Birim')} <span className="text-red-500">*</span></label>
-                <select
-                  id="request-owner-dept"
-                  className="field-select"
-                  value={externalForm.ownerDepartmentId}
-                  onChange={e => setExternalForm(current => ({ ...current, ownerDepartmentId: e.target.value }))}
-                  required
-                >
-                  <option value="">{t('requests.create.selectDepartment', 'Birim seçin')}</option>
-                  {ownerDepartmentOptions.map(d => (
-                    <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            {renderRequestTypeField()}
             <div className="job-field">
               <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
               <select
@@ -670,7 +552,6 @@ export function CreateRequestPage() {
                   <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
                 ))}
               </select>
-              <span className="helper-copy">{t('jobs.form.targetDepartmentHelp', 'Talebin birincil olarak gönderileceği birim.')}</span>
             </div>
             <div className="job-field">
               <label className="job-field-label" htmlFor="request-is-coordinated">{t('jobs.form.isCoordinated', 'Koordineli talep mi?')}</label>

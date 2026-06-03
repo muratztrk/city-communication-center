@@ -1,11 +1,9 @@
-import { ArrowUpRight, BookOpen, Building, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
-import { ChannelIcon } from '../components/ui/channel-icon'
+import { ArrowUpRight, BookOpen, Building, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 
 declare const __APP_VERSION__: string
-const SUPPORT_WHATSAPP_NUMBER = '905320000000'   // TODO: gerçek numara ile güncelle
-const SUPPORT_WHATSAPP_DISPLAY = '+90 532 000 00 00'
+const SUPPORT_EMAIL = 'lumespecsoftware@gmail.com'
 import { useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -306,17 +304,15 @@ export function AppShell() {
                   v{__APP_VERSION__}
                 </p>
                 <a
-                  href={`https://wa.me/${SUPPORT_WHATSAPP_NUMBER}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/10"
                 >
-                  <ChannelIcon channel="WhatsApp" className="size-5 shrink-0" />
+                  <Mail className="size-5 shrink-0 text-white/60" />
                   <div className="min-w-0">
                     <p className="text-[0.58rem] font-bold uppercase tracking-wider text-white/30">
                       {t('shell.supportLine', 'Destek Hattı')}
                     </p>
-                    <p className="text-[0.72rem] font-bold text-white/55">{SUPPORT_WHATSAPP_DISPLAY}</p>
+                    <p className="truncate text-[0.72rem] font-bold text-white/55">{SUPPORT_EMAIL}</p>
                   </div>
                 </a>
               </div>
@@ -329,7 +325,7 @@ export function AppShell() {
       <div className="flex flex-1 min-h-0 overflow-hidden">
       <aside
         style={{ zoom: zoom.sidebar }}
-        className={`sidebar-shell relative hidden h-full shrink-0 flex-col border-r px-2.5 py-2.5 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[80px]' : 'w-[252px]'}`}
+        className={`sidebar-shell relative hidden h-full shrink-0 flex-col border-r px-2.5 py-2.5 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[80px]' : 'w-[272px]'}`}
       >
         <div className="flex h-full flex-col gap-2.5 rounded-[var(--radius-2xl)] border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-2.5">
           <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-2.5">
@@ -369,30 +365,26 @@ export function AppShell() {
                   v{__APP_VERSION__}
                 </p>
                 <a
-                  href={`https://wa.me/${SUPPORT_WHATSAPP_NUMBER}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/10"
                 >
-                  <ChannelIcon channel="WhatsApp" className="size-5 shrink-0" />
+                  <Mail className="size-5 shrink-0 text-white/60" />
                   <div className="min-w-0">
                     <p className="text-[0.58rem] font-bold uppercase tracking-wider text-white/30">
                       {t('shell.supportLine', 'Destek Hattı')}
                     </p>
-                    <p className="text-[0.72rem] font-bold text-white/55">{SUPPORT_WHATSAPP_DISPLAY}</p>
+                    <p className="truncate text-[0.72rem] font-bold text-white/55">{SUPPORT_EMAIL}</p>
                   </div>
                 </a>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-1.5 pb-0.5">
                 <a
-                  href={`https://wa.me/${SUPPORT_WHATSAPP_NUMBER}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   title={t('shell.supportLine', 'Destek Hattı')}
                   className="flex size-9 items-center justify-center rounded-xl transition-colors hover:bg-white/10"
                 >
-                  <ChannelIcon channel="WhatsApp" className="size-5" />
+                  <Mail className="size-5 text-white/60" />
                 </a>
                 <span className="text-[0.5rem] font-bold uppercase tracking-widest text-white/22 select-none">
                   v{__APP_VERSION__}

@@ -33,6 +33,13 @@ internal static class JobSummaryResponseFactory
                 jd.ApprovalStatus.ToString(),
                 jd.RequestedByUserId,
                 jd.ApprovedByUserId,
+                jd.ApprovedByUserId.HasValue
+                    ? dbContext.Users
+                        .AsNoTracking()
+                        .Where(u => u.UserId == jd.ApprovedByUserId.Value)
+                        .Select(u => (string?)u.DisplayName)
+                        .FirstOrDefault()
+                    : null,
                 jd.RequestedAtUtc,
                 jd.DecidedAtUtc,
                 jd.RejectReason,

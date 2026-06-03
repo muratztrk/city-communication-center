@@ -96,6 +96,7 @@ export function FilterableTh({
         sortKey ? 'sortable-th' : '',
         className ?? '',
       ].filter(Boolean).join(' ')}
+      style={sortKey ? { cursor: 'pointer' } : undefined}
       onClick={sortKey && onSort ? () => onSort(sortKey) : undefined}
     >
       <span className="filterable-th-content">

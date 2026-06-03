@@ -4,6 +4,7 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
   if (value === 'approved') return 'scope-chip--approved'
   if (value === 'completed') return 'scope-chip--completed'
+  if (value === 'cancelled') return 'scope-chip--rejected'
   if (value === 'all') return 'scope-chip--all'
   return ''
 }
@@ -15,21 +16,23 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { PromptDialog } from '../components/ui/prompt-dialog'
 import type { PromptDialogState } from '../components/ui/prompt-dialog'
-import { StatusPill } from '../components/ui/status-pill'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task } from '../types/platform'
 import { getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
-type IncomingStatusFilter = 'pending-approval' | 'approved' | 'completed' | 'all'
+type IncomingStatusFilter = 'pending-approval' | 'approved' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'internal' | 'external' | 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApproval', fallback: 'Onay Bekleyen' },
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
   { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanmış Talepler' },
+  { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal/İade Talepler' },
   { value: 'all', labelKey: 'jobs.scopes.all', fallback: 'Tümü' },
 ]
 
@@ -72,7 +75,7 @@ function getJobStatusLabel(t: ReturnType<typeof useTranslation>['t'], status: st
 }
 
 function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
-  return value === 'approved' || value === 'completed' || value === 'all' ? value : 'pending-approval'
+  return value === 'approved' || value === 'completed' || value === 'cancelled' || value === 'all' ? value : 'pending-approval'
 }
 
 function getIncomingKindFilter(value: string | null): IncomingKindFilter {
@@ -88,6 +91,10 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
 
   if (filter === 'completed') {
     return row.status === 'Completed'
+  }
+
+  if (filter === 'cancelled') {
+    return row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
   }
 
   return row.status === 'Active'
@@ -185,7 +192,9 @@ export function IncomingRequestsPage() {
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
   const [incomingPageSize, setIncomingPageSize] = useState(25)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
+  const [cancelReturnModal, setCancelReturnModal] = useState<{ row: IncomingRequestRow } | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
 
@@ -221,38 +230,62 @@ export function IncomingRequestsPage() {
     }
   }
 
-  const handleApproveOwner = async (jobId: string) => {
-    setError(null)
-    try {
-      await api.approveJobOwner(jobId)
-      await reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    }
-  }
-
-  const handleApproveTarget = async (jobId: string, departmentId: string) => {
-    setError(null)
-    try {
-      await api.approveJobTarget(jobId, departmentId)
-      await reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    }
-  }
-
-  const handleCancel = (jobId: string) => {
-    setPromptDialog({
-      title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
-      onConfirm: async (reason) => {
+  const handleApproveOwner = (jobId: string) => {
+    setConfirmDialog({
+      message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
         try {
-          await api.cancelJob(jobId, reason)
+          await api.approveJobOwner(jobId)
           await reload()
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
         }
       },
     })
+  }
+
+  const handleApproveTarget = (jobId: string, departmentId: string) => {
+    setConfirmDialog({
+      message: t('jobs.approveTargetConfirm', 'Bu birimi onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveJobTarget(jobId, departmentId)
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
+  }
+
+  const openCancelReturn = (row: IncomingRequestRow) => {
+    if (row.status === 'Active') {
+      setCancelReturnModal({ row })
+    } else {
+      // Pending approval — reject with reason
+      setPromptDialog({
+        title: t('jobs.actions.rejectReason', 'Reddetme Nedeni'),
+        onConfirm: async (reason) => {
+          setError(null)
+          try {
+            if (row.status === 'PendingOwnerApproval') {
+              await api.rejectJobOwner(row.id, reason)
+            } else if (row.status === 'PendingExternalApproval' && row.pendingTargetDepartmentId) {
+              await api.rejectJobTarget(row.id, row.pendingTargetDepartmentId, reason)
+            }
+            await reload()
+          } catch (err) {
+            setError(err instanceof Error ? err.message : t('common.error'))
+          }
+        },
+      })
+    }
   }
 
   const rows = useMemo(() => {
@@ -375,7 +408,6 @@ export function IncomingRequestsPage() {
                   <FilterableTh filterKey="createdAtUtc" filterValue={incomingFilters['createdAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdBy" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
-                  <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                   <FilterableTh filterKey="priority" filterValue={incomingFilters['priority'] ?? ''} onFilter={setIncomingFilter} sortKey="priority" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>
                   <th>{t('jobs.columns.actions', 'İşlemler')}</th>
@@ -389,14 +421,15 @@ export function IncomingRequestsPage() {
                     <td>{formatDateTime(row.createdAtUtc, locale)}</td>
                     <td>{row.createdBy ?? '—'}</td>
                     <td className="font-semibold">{row.title}</td>
-                    <td><StatusPill>{row.statusDomain === 'task' ? getTaskStatusLabel(t, row.status) : getJobStatusLabel(t, row.status)}</StatusPill></td>
                     <td>{getPriorityLabel(t, row.priority)}</td>
                     <td>{formatDateTime(row.dueDateUtc, locale)}</td>
                     <td className="actions-cell">
+                      {/* Detaylar — her zaman */}
                       <Button size="sm" variant="secondary" onClick={() => navigate(row.detailsPath)} className="gap-1.5">
                         {t('jobs.actions.details', 'Detaylar')}
                         <ArrowRight className="size-3.5" />
                       </Button>
+                      {/* Onayla — onay bekleyen iş satırlarında */}
                       {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                         <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
                           {t('jobs.actions.approveOwner', 'Onayla')}
@@ -407,9 +440,14 @@ export function IncomingRequestsPage() {
                           {t('jobs.actions.approveTarget', 'Onayla')}
                         </Button>
                       )}
-                      {isManagerLike && row.statusDomain === 'job' && row.status === 'Active' && (
-                        <Button size="sm" variant="destructive" onClick={() => handleCancel(row.id)}>
-                          {t('jobs.actions.cancel', 'İptal')}
+                      {/* İptal/İade — onay bekleyen ve onaylanmış iş satırlarında */}
+                      {isManagerLike && row.statusDomain === 'job' && (
+                        row.status === 'PendingOwnerApproval' ||
+                        row.status === 'PendingExternalApproval' ||
+                        row.status === 'Active'
+                      ) && (
+                        <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
+                          {t('jobs.actions.cancelOrReturn', 'İptal/İade')}
                         </Button>
                       )}
                     </td>
@@ -427,6 +465,71 @@ export function IncomingRequestsPage() {
           />
         </section>
       )}
+      {cancelReturnModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setCancelReturnModal(null)}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="mb-1 text-base font-bold text-slate-950">{t('jobs.actions.cancelOrReturn', 'İptal / İade')}</h3>
+            <p className="mb-5 text-sm text-slate-600">{t('jobs.actions.cancelOrReturnHelp', 'Bu talep için ne yapmak istiyorsunuz?')}</p>
+            <div className="flex flex-col gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  const { row } = cancelReturnModal
+                  setCancelReturnModal(null)
+                  setPromptDialog({
+                    title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
+                    onConfirm: async (reason) => {
+                      setError(null)
+                      try {
+                        await api.cancelJob(row.id, reason)
+                        await reload()
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : t('common.error'))
+                      }
+                    },
+                  })
+                }}
+              >
+                {t('jobs.actions.cancel', 'İptal Et')}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  const { row } = cancelReturnModal
+                  setCancelReturnModal(null)
+                  setPromptDialog({
+                    title: t('jobs.actions.returnReason', 'İade Nedeni'),
+                    onConfirm: async (reason) => {
+                      setError(null)
+                      try {
+                        await api.returnJob(row.id, reason)
+                        await reload()
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : t('common.error'))
+                      }
+                    },
+                  })
+                }}
+              >
+                {t('jobs.actions.return', 'İade Et')}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setCancelReturnModal(null)}>
+                {t('common.cancel', 'Vazgeç')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
     </div>
   )

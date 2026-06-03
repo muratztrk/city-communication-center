@@ -74,6 +74,46 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
             Details = request.Reason
         });
 
+        // Rutin olmayan dış birim talebi: tüm görevler iptal olduysa iş tekrar onay beklemeye döner
+        var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
+            e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
+
+        if (parentJob is not null
+            && parentJob.SourceType != JobSourceType.Routine
+            && parentJob.RequestType == JobRequestType.ExternalUnit
+            && parentJob.Status == JobStatus.Active)
+        {
+            var remainingActive = await _dbContext.Tasks
+                .Where(t => t.JobId == parentJob.JobId
+                         && t.TaskId != task.TaskId
+                         && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                         && t.CurrentStatus != WorkflowTaskStatus.Completed
+                         && t.CurrentStatus != WorkflowTaskStatus.Rejected)
+                .AnyAsync(cancellationToken);
+
+            if (!remainingActive)
+            {
+                parentJob.Status = JobStatus.PendingOwnerApproval;
+                parentJob.CompletionPercentage = 0;
+                parentJob.UpdatedAtUtc = utcNow;
+                parentJob.UpdatedByUserId = request.ActorUserId;
+
+                _dbContext.AuditLogs.Add(new AuditLog
+                {
+                    AuditLogId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    EntityType = nameof(Job),
+                    EntityId = parentJob.JobId.ToString(),
+                    Action = "JobReturnedToPending",
+                    ActorUserId = request.ActorUserId,
+                    ActorDisplayName = actor.DisplayName,
+                    StatusAtEvent = JobStatus.PendingOwnerApproval.ToString(),
+                    Notes = "Tüm görevler iptal edildi; talep yeniden onay sürecine döndürüldü.",
+                    Details = request.Reason
+                });
+            }
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

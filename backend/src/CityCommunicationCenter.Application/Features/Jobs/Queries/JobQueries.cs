@@ -132,6 +132,13 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                     jd.ApprovalStatus.ToString(),
                     jd.RequestedByUserId,
                     jd.ApprovedByUserId,
+                    jd.ApprovedByUserId.HasValue
+                        ? _dbContext.Users
+                            .AsNoTracking()
+                            .Where(u => u.UserId == jd.ApprovedByUserId.Value)
+                            .Select(u => (string?)u.DisplayName)
+                            .FirstOrDefault()
+                        : null,
                     jd.RequestedAtUtc,
                     jd.DecidedAtUtc,
                     jd.RejectReason,
@@ -218,6 +225,13 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 jd.ApprovalStatus.ToString(),
                 jd.RequestedByUserId,
                 jd.ApprovedByUserId,
+                jd.ApprovedByUserId.HasValue
+                    ? _dbContext.Users
+                        .AsNoTracking()
+                        .Where(u => u.UserId == jd.ApprovedByUserId.Value)
+                        .Select(u => (string?)u.DisplayName)
+                        .FirstOrDefault()
+                    : null,
                 jd.RequestedAtUtc,
                 jd.DecidedAtUtc,
                 jd.RejectReason,

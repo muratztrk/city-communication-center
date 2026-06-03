@@ -22,7 +22,7 @@ import { PromptDialog } from '../components/ui/prompt-dialog'
 import type { PromptDialogState } from '../components/ui/prompt-dialog'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
-import type { JobSummary, Task } from '../types/platform'
+import type { JobSummary, Task, User } from '../types/platform'
 import { getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
 type IncomingStatusFilter = 'pending-approval' | 'approved' | 'completed' | 'cancelled' | 'all'
@@ -209,6 +209,13 @@ export function IncomingRequestsPage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
   const [cancelReturnModal, setCancelReturnModal] = useState<{ row: IncomingRequestRow } | null>(null)
+  const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
+  const [staffAssignModal, setStaffAssignModal] = useState<{
+    jobId: string
+    approvalType: 'owner' | 'target'
+    pendingTargetDepartmentId?: string
+    selectedUserIds: string[]
+  } | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
 
@@ -217,11 +224,13 @@ export function IncomingRequestsPage() {
     Promise.all([
       api.getTasks('all'),
       api.getJobs('my-department'),
+      api.getUsers(),
     ])
-      .then(([taskList, jobList]) => {
+      .then(([taskList, jobList, userList]) => {
         if (cancelled) return
         setTasks(taskList)
         setJobs(jobList)
+        setDepartmentUsers(userList.filter(u => u.isActive && u.departmentId === user?.departmentId && u.roleCode === 'Staff'))
         setError(null)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
@@ -245,37 +254,37 @@ export function IncomingRequestsPage() {
   }
 
   const handleApproveOwner = (jobId: string) => {
-    setConfirmDialog({
-      message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
-      variant: 'primary',
-      confirmLabel: t('common.approve', 'Onayla'),
-      onConfirm: async () => {
-        setError(null)
-        try {
-          await api.approveJobOwner(jobId)
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
+    setStaffAssignModal({ jobId, approvalType: 'owner', selectedUserIds: [] })
   }
 
   const handleApproveTarget = (jobId: string, departmentId: string) => {
-    setConfirmDialog({
-      message: t('jobs.approveTargetConfirm', 'Bu birimi onaylamak istediğinizden emin misiniz?'),
-      variant: 'primary',
-      confirmLabel: t('common.approve', 'Onayla'),
-      onConfirm: async () => {
-        setError(null)
-        try {
-          await api.approveJobTarget(jobId, departmentId)
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
+    setStaffAssignModal({ jobId, approvalType: 'target', pendingTargetDepartmentId: departmentId, selectedUserIds: [] })
+  }
+
+  const handleStaffAssignConfirm = async () => {
+    if (!staffAssignModal) return
+    const { jobId, approvalType, pendingTargetDepartmentId, selectedUserIds } = staffAssignModal
+    setStaffAssignModal(null)
+    setError(null)
+    try {
+      if (approvalType === 'owner') {
+        await api.approveJobOwner(jobId)
+      } else if (pendingTargetDepartmentId) {
+        await api.approveJobTarget(jobId, pendingTargetDepartmentId)
+      }
+      if (selectedUserIds.length > 0) {
+        const jobDetail = await api.getJobById(jobId)
+        const taskIds = jobDetail.tasks.map(t => t.taskId)
+        await Promise.all(
+          taskIds.map((taskId, i) =>
+            api.assignTask(taskId, undefined, selectedUserIds[i % selectedUserIds.length])
+          )
+        )
+      }
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
   }
 
   const handleApproveClose = (taskId: string) => {
@@ -591,6 +600,54 @@ export function IncomingRequestsPage() {
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
+      {staffAssignModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setStaffAssignModal(null)}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="mb-1 text-base font-bold text-slate-950">{t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}</h3>
+            <p className="mb-4 text-sm text-slate-600">{t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin. Seçim zorunlu değildir.')}</p>
+            {departmentUsers.length === 0 ? (
+              <p className="mb-4 text-sm text-slate-400">{t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}</p>
+            ) : (
+              <div className="mb-4 flex max-h-48 flex-col gap-1 overflow-y-auto">
+                {departmentUsers.map(u => (
+                  <label key={u.userId} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                    <input
+                      type="checkbox"
+                      className="size-4 rounded"
+                      checked={staffAssignModal.selectedUserIds.includes(u.userId)}
+                      onChange={e => {
+                        setStaffAssignModal(prev => {
+                          if (!prev) return prev
+                          const ids = e.target.checked
+                            ? [...prev.selectedUserIds, u.userId]
+                            : prev.selectedUserIds.filter(id => id !== u.userId)
+                          return { ...prev, selectedUserIds: ids }
+                        })
+                      }}
+                    />
+                    <span className="text-sm text-slate-800">{u.displayName}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              <Button type="button" variant="success" onClick={handleStaffAssignConfirm}>
+                {t('common.approve', 'Onayla')}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setStaffAssignModal(null)}>
+                {t('common.cancel', 'Vazgeç')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

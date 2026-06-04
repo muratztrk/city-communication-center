@@ -277,19 +277,8 @@ export function LoginPage() {
             <div className="space-y-5">
               {/* Logo kartı + Başlık yan yana */}
               <div className="flex items-center gap-5">
-                <div className="shrink-0 rounded-[var(--radius-xl)] border border-white/12 bg-white/8 p-3">
-                  <div className="flex items-center gap-3 pr-1">
-                    <img
-                      src={desktopLogoUrl}
-                      alt={`${institutionName} amblemi`}
-                      className="h-12 w-12 shrink-0 rounded-full object-cover"
-                    />
-                    <div className="flex flex-col leading-none text-white">
-                      <span className="text-[0.58rem] font-bold uppercase tracking-[0.18em] opacity-60">T.C.</span>
-                      <span className="text-sm font-black uppercase tracking-wide">{municipalityName}</span>
-                      <span className="text-[0.58rem] font-bold uppercase tracking-[0.1em] opacity-60">Belediyesi</span>
-                    </div>
-                  </div>
+                <div className="shrink-0 rounded-[var(--radius-xl)] border border-white/12 bg-white/8 p-2">
+                  <MunicipalitySeal compact alt={`${institutionName} amblemi`} src={desktopLogoUrl} />
                 </div>
                 <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                   {t('shell.subtitle', { municipalityName })}

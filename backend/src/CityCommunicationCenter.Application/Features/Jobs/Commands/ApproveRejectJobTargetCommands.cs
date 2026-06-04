@@ -65,6 +65,14 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
                 job.JobNumberYear = utcNow.Year;
                 job.JobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken);
             }
+            if (job.DueDateUtc is null)
+            {
+                var settings = await _dbContext.TenantSettings.FirstOrDefaultAsync(cancellationToken);
+                if (settings is not null && settings.DefaultSlaHours > 0)
+                {
+                    job.DueDateUtc = job.CreatedAtUtc.AddHours(settings.DefaultSlaHours);
+                }
+            }
             createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(
                 _dbContext, tenantId, job, actor.UserId, utcNow, cancellationToken);
         }

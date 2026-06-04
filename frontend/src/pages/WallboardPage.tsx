@@ -1,24 +1,25 @@
-import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, Clock3, Monitor, RefreshCw, UserRound } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, Clock3, Monitor, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import type { JobSummary, Task } from '../types/platform'
-import { getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { getLocale, getPriorityLabel } from '../utils/localization'
 
 type WallboardSource = 'internal' | 'external' | 'citizen'
 
 interface WallboardItem {
   id: string
   title: string
-  subtitle: string
   source: WallboardSource
-  status: string
   priority: string | null
-  assignee: string | null
   dueDateUtc: string | null
   createdAtUtc: string | null
+  jobNumber: string | null
+  taskNumber: string | null
+  requestLocation: string | null
+  requestCreator: string | null
 }
 
 const OPEN_TASK_STATUSES = new Set(['Waiting', 'Assigned', 'InProgress', 'RevisionRequested'])
@@ -64,7 +65,12 @@ function getPriorityRank(priority: string | null) {
   return 3
 }
 
-function buildWallboardItems(tasks: Task[], jobs: JobSummary[], t: ReturnType<typeof useTranslation>['t']): WallboardItem[] {
+function formatNumber(num: number | null | undefined, year: number | null | undefined): string | null {
+  if (!num) return null
+  return year ? `${year}/${num}` : String(num)
+}
+
+function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[] {
   const jobsById = new Map(jobs.map(job => [job.jobId, job]))
 
   return tasks
@@ -79,13 +85,14 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[], t: ReturnType<ty
       return {
         id: `task-${task.taskId}`,
         title: task.title,
-        subtitle: task.jobTitle ?? t('wallboard.noJob', 'İş kaydı yok'),
         source,
-        status: getTaskStatusLabel(t, task.currentStatus),
         priority: task.priority,
-        assignee: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,
         dueDateUtc: task.dueDateUtc,
         createdAtUtc: task.createdAtUtc ?? null,
+        jobNumber: formatNumber(job?.jobNumber, job?.jobNumberYear),
+        taskNumber: formatNumber(task.taskNumber, task.taskNumberYear),
+        requestLocation: job?.ownerDepartmentName ?? null,
+        requestCreator: job?.createdByDisplayName ?? null,
       }
     })
     .sort((a, b) => {
@@ -119,7 +126,7 @@ export function WallboardPage() {
         api.getTasks('all'),
         api.getJobs('active'),
       ])
-      setItems(buildWallboardItems(tasks, jobs, t))
+      setItems(buildWallboardItems(tasks, jobs))
       setLastUpdatedAt(new Date())
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
@@ -239,11 +246,13 @@ export function WallboardPage() {
             <thead>
               <tr>
                 <th className="wallboard-number-col">{t('wallboard.columns.number', 'Sıra')}</th>
-                <th>{t('wallboard.columns.source', 'Kaynak')}</th>
+                <th>{t('wallboard.columns.requestNo', 'Talep No')}</th>
+                <th>{t('wallboard.columns.taskNo', 'Görev No')}</th>
+                <th>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</th>
+                <th>{t('wallboard.columns.requestLocation', 'Görevin Talep Yeri')}</th>
+                <th>{t('wallboard.columns.requestCreator', 'Talebi Oluşturan')}</th>
                 <th>{t('wallboard.columns.title', 'Başlık')}</th>
-                <th>{t('wallboard.columns.status', 'Durum')}</th>
                 <th>{t('wallboard.columns.priority', 'Öncelik')}</th>
-                <th>{t('wallboard.columns.assignee', 'Atanan')}</th>
                 <th>{t('wallboard.columns.dueDate', 'Son Tarih')}</th>
               </tr>
             </thead>
@@ -253,22 +262,18 @@ export function WallboardPage() {
                 return (
                   <tr key={item.id} className={`wallboard-row ${item.source}`}>
                     <td className="wallboard-number-cell">{index + 1}</td>
+                    <td>{item.jobNumber ?? '—'}</td>
+                    <td>{item.taskNumber ?? '—'}</td>
                     <td>
-                      <span className="wallboard-source-pill">
-                        {item.source === 'citizen'
-                          ? t('wallboard.citizen', 'Vatandaş')
-                          : item.source === 'external'
-                            ? t('wallboard.external', 'Birim Dışı')
-                            : t('wallboard.internal', 'Birim İçi')}
+                      <span className="wallboard-cell-icon">
+                        <CalendarClock className="size-4" />
+                        {formatDate(item.createdAtUtc, locale)}
                       </span>
                     </td>
-                    <td>
-                      <div className="wallboard-row-title">{item.title}</div>
-                      <div className="wallboard-row-subtitle">{item.subtitle}</div>
-                    </td>
-                    <td><span className="wallboard-status-pill">{item.status}</span></td>
+                    <td>{item.requestLocation ?? '—'}</td>
+                    <td>{item.requestCreator ?? '—'}</td>
+                    <td><div className="wallboard-row-title">{item.title}</div></td>
                     <td>{item.priority ? getPriorityLabel(t, item.priority) : '—'}</td>
-                    <td><span className="wallboard-cell-icon"><UserRound className="size-4" />{item.assignee ?? t('wallboard.unassignedUser', 'Kişi ataması yok')}</span></td>
                     <td>
                       <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>
                         <CalendarClock className="size-4" />

@@ -24,6 +24,7 @@ import { getRoleLabel } from '../utils/localization'
 function useResponsiveZoom() {
   const compute = () => {
     const w = window.innerWidth
+    if (w >= 2560) return { sidebar: 0.92, content: 0.88 }
     if (w >= 1920) return { sidebar: 1.0, content: 1.0 }
     if (w >= 1680) return { sidebar: 0.90, content: 0.96 }
     if (w >= 1440) return { sidebar: 0.84, content: 0.90 }

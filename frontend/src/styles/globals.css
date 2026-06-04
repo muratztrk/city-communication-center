@@ -149,6 +149,18 @@
       margin-inline: auto;
     }
 
+    @media (min-width: 1680px) {
+      .app-content-shell .desktop-page-shell {
+        width: min(100%, 100rem);
+      }
+    }
+
+    @media (min-width: 1920px) {
+      .app-content-shell .desktop-page-shell {
+        width: 100%;
+      }
+    }
+
     .app-content-shell .page-stack {
       gap: 0.8rem;
     }

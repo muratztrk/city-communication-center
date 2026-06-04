@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart } from '../components/ui/PieChart'
 import { useAuth } from '../context/AuthContext'
@@ -28,6 +29,7 @@ export function DashboardPage() {
   const [period, setPeriod] = useState<Period>('monthly')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
+  const activeDeptId = getActiveDepartmentId()
 
   function getPeriodRange(p: Period): { from: string; to: string } {
     const now = new Date()
@@ -63,19 +65,19 @@ export function DashboardPage() {
   )
 
   const dashboardQuery = useQuery({
-    queryKey: ['dashboard', activeFrom, activeTo],
+    queryKey: ['dashboard', activeFrom, activeTo, activeDeptId],
     queryFn: () => api.getDashboard(activeFrom || undefined, activeTo || undefined),
     refetchInterval: 60_000,
   })
   const chartQuery = useQuery({
-    queryKey: ['dashboard-chart', activeFrom, activeTo],
+    queryKey: ['dashboard-chart', activeFrom, activeTo, activeDeptId],
     queryFn: () => api.getDashboardChart(activeFrom || undefined, activeTo || undefined),
     refetchInterval: 60_000,
   })
 
   const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator'
   const citizenChannelQuery = useQuery({
-    queryKey: ['citizen-channel-chart', activeFrom, activeTo],
+    queryKey: ['citizen-channel-chart', activeFrom, activeTo, activeDeptId],
     queryFn: () => api.getCitizenChannelChart(activeFrom || undefined, activeTo || undefined),
     enabled: canSeeCitizenChannels,
     refetchInterval: 60_000,

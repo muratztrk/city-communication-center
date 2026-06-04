@@ -15,6 +15,7 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -230,7 +231,8 @@ export function IncomingRequestsPage() {
         if (cancelled) return
         setTasks(taskList)
         setJobs(jobList)
-        setDepartmentUsers(userList.filter(u => u.isActive && u.departmentId === user?.departmentId && u.roleCode === 'Staff'))
+        const activeDeptId = getActiveDepartmentId() ?? user?.departmentId
+        setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === activeDeptId || u.departments?.some(d => d.departmentId === activeDeptId)) && u.roleCode === 'Staff'))
         setError(null)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })

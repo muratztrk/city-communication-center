@@ -329,11 +329,6 @@ export function AppShell() {
       >
         <div className="flex h-full flex-col gap-2.5 rounded-[var(--radius-2xl)] border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-2.5">
           <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-2.5">
-            <img
-              src="/header-ataturk.png"
-              alt="Atatürk"
-              className="absolute left-0 top-0 h-20 w-auto opacity-80 select-none pointer-events-none"
-            />
             {!isSidebarCollapsed ? (
               <div className="flex flex-col items-center gap-2">
                 <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} />

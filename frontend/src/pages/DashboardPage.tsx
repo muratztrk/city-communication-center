@@ -248,9 +248,9 @@ export function DashboardPage() {
 
   return (
     <div className="page-stack desktop-page-shell">
-      <section className="section-card overflow-hidden p-0">
+      <section className="section-card p-0">
         <div
-          className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto]"
+          className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto] rounded-t-[var(--radius-xl)] lg:rounded-t-[0.85rem]"
           style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
         >
           <div className="space-y-1">

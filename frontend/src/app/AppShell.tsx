@@ -134,7 +134,7 @@ export function AppShell() {
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
-    { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp },
+    { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true },
     { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
     { pageKey: 'users' as const, path: '/users', label: t('nav.users'), icon: Users },
     { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },
@@ -143,7 +143,7 @@ export function AppShell() {
 
   const navItems = navItemConfigs.reduce<SidebarNavItem[]>((items, item) => {
     const canUse = item.requiredRole ? user?.role === item.requiredRole : item.pageKey ? canRoleAccessPage(user?.role, item.pageKey) : false
-    if (canUse) items.push({ path: item.path, label: item.label, icon: item.icon })
+    if (canUse) items.push({ path: item.path, label: item.label, icon: item.icon, newTab: item.newTab })
     return items
   }, [])
   void accessVersion

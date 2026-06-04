@@ -10,6 +10,7 @@ export interface SidebarNavLinkItem {
   path: string
   label: string
   icon: LucideIcon
+  newTab?: boolean
 }
 
 export interface SidebarNavGroupItem {
@@ -84,6 +85,8 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
         to={item.path}
         title={item.label}
         className={className}
+        target={item.newTab ? '_blank' : undefined}
+        rel={item.newTab ? 'noopener noreferrer' : undefined}
         onClick={() => onNavigate?.()}
       >
         <Icon className={cn('shrink-0', nested && !collapsed ? 'size-4' : 'size-4.5')} />

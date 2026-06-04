@@ -485,7 +485,7 @@ export function IncomingRequestsPage() {
                     {currentStatusFilter === 'completed' && <td>{formatDateTime(row.completedAtUtc, locale)}</td>}
                     {currentStatusFilter === 'cancelled' && <td>{formatDateTime(row.updatedAtUtc, locale)}</td>}
                     <td className="actions-cell">
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex gap-2">
                         {/* Detaylar — her zaman */}
                         <Button size="sm" variant="secondary" onClick={() => navigate(row.detailsPath)} className="gap-1.5">
                           {t('jobs.actions.details', 'Detaylar')}

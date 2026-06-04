@@ -256,7 +256,7 @@
     }
 
     .app-content-shell .data-table tbody td.actions-cell {
-      min-width: 10rem;
+      min-width: 16rem;
     }
 
     .app-content-shell .rich-text-toolbar {

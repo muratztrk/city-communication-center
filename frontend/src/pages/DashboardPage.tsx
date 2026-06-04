@@ -247,7 +247,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className="page-stack desktop-page-shell shrink-0">
       <section className="section-card p-0">
         <div
           className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto] rounded-t-[var(--radius-xl)] lg:rounded-t-[0.85rem]"

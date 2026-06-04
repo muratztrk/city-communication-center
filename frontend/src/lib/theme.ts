@@ -136,7 +136,7 @@ export function applyTenantBrowserBranding(appearance: TenantAppearance): void {
     return
   }
 
-  const iconUrl = appearance.logoUrl?.trim() || '/favicon.ico'
+  const iconUrl = appearance.logoUrl?.trim() || '/favicon.png'
   const iconType = iconUrl.endsWith('.svg')
     ? 'image/svg+xml'
     : iconUrl.endsWith('.png')

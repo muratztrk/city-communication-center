@@ -266,7 +266,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col px-3 sm:px-5 lg:px-8">
+    <div className="flex min-h-dvh flex-col">
     <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10"
@@ -277,8 +277,8 @@ export function LoginPage() {
             <div className="space-y-5">
               {/* Logo kartı + Başlık yan yana */}
               <div className="flex items-center gap-5">
-                <div className="shrink-0 rounded-[var(--radius-xl)] border border-white/12 bg-white/8 p-2">
-                  <MunicipalitySeal compact alt={`${institutionName} amblemi`} src={desktopLogoUrl} />
+                <div className="shrink-0 rounded-[var(--radius-2xl)] border border-white/12 bg-white/8 p-3">
+                  <MunicipalitySeal alt={`${institutionName} amblemi`} src={desktopLogoUrl} className="h-32 w-32" />
                 </div>
                 <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                   {t('shell.subtitle', { municipalityName })}
@@ -313,7 +313,7 @@ export function LoginPage() {
         </section>
 
         <section
-          className="flex items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-6 lg:px-8 lg:py-8"
+          className="flex items-center justify-center bg-[color:var(--color-surface)] px-10 py-5 sm:px-16 lg:px-16 lg:py-8"
           style={{
             transition: 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.42s ease',
             transform: loginSuccess ? 'scale(0.78)' : 'scale(1)',
@@ -321,11 +321,11 @@ export function LoginPage() {
           }}
         >
           <div className="w-full max-w-[25rem] space-y-4">
-            <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
+            <div className="flex items-center gap-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
               <MunicipalitySeal
-                compact
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
+                className="h-24 w-24 shrink-0"
               />
               <div className="min-w-0">
                 <div className="truncate text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>

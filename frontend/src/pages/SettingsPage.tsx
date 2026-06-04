@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
+import { Toast } from '../components/ui/toast'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
@@ -283,6 +284,12 @@ export function SettingsPage() {
   const [citizenForm, setCitizenForm] = useState({ channel: 'Other', citizenHandle: '', content: '', category: '' })
   const [citizenFormSaving, setCitizenFormSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  const showToast = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text })
+    setToast({ type, text })
+  }
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [ldapTestStatus, setLdapTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
@@ -575,9 +582,9 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.updateWorkingHours(user.tenantId, workingHoursForm)
-      setMessage({ type: 'success', text: t('settings.workingHours.saved') })
+      showToast('success', t('settings.workingHours.saved'))
     } catch (saveError) {
-      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+      showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
     }
   }
 
@@ -2180,6 +2187,13 @@ export function SettingsPage() {
         </div>
       ) : null}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+      {toast && (
+        <Toast
+          message={toast.text}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   )
 }

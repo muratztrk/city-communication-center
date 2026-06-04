@@ -1,21 +1,23 @@
-import { ArrowUpRight, BookOpen, Building, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'lumespecsoftware@gmail.com'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
-import { DepartmentSwitcher } from '../components/layout/DepartmentSwitcher'
 import { GlobalSearchBar } from '../components/layout/GlobalSearchBar'
 import { NotificationBell } from '../components/layout/NotificationBell'
 import { SidebarNav, type SidebarNavItem, type SidebarNavLinkItem } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
+import { api } from '../api/client'
+import { getActiveDepartmentId, setActiveDepartmentId } from '../api/http'
 import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
+import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 
 
@@ -47,6 +49,48 @@ export function AppShell() {
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [userDepartments, setUserDepartments] = useState<DepartmentSummary[]>([])
+  const [activeDeptId, setActiveDeptId] = useState<string | null>(getActiveDepartmentId)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    api.getMyDepartments()
+      .then(depts => {
+        setUserDepartments(depts)
+        const currentDeptId = getActiveDepartmentId()
+        if (depts.length > 0 && (!currentDeptId || !depts.some(d => d.departmentId === currentDeptId))) {
+          const primary = depts.find(d => d.isPrimary) ?? depts[0]
+          setActiveDepartmentId(primary.departmentId)
+          setActiveDeptId(primary.departmentId)
+        } else {
+          setActiveDeptId(currentDeptId)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const handler = () => setActiveDeptId(getActiveDepartmentId())
+    window.addEventListener('activeDepartmentChanged', handler)
+    return () => window.removeEventListener('activeDepartmentChanged', handler)
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleDeptSelect = (dept: DepartmentSummary) => {
+    setActiveDepartmentId(dept.departmentId)
+    setActiveDeptId(dept.departmentId)
+    setIsUserMenuOpen(false)
+  }
 
   useEffect(() => {
     const updateAccess = () => setAccessVersion(version => version + 1)
@@ -426,7 +470,6 @@ export function AppShell() {
           </nav>
           <div className="flex items-center gap-3">
             <GlobalSearchBar />
-            <DepartmentSwitcher />
             <NotificationBell />
             <a
               href="https://lumespec.com/apps/city-communication-center/guide/"
@@ -437,14 +480,65 @@ export function AppShell() {
             >
               <BookOpen className="size-4" />
             </a>
-            <div className="flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm" title={`${userDisplayName} - ${user?.departmentName || userRoleLabel}`}>
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-xs font-black text-white">
-                {userInitials}
-              </div>
-              <div className="min-w-0">
-                <div className="truncate text-sm font-bold text-slate-900">{userDisplayName}</div>
-                <div className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">{user?.departmentName || userRoleLabel}</div>
-              </div>
+            <div ref={userMenuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => userDepartments.length > 1 && setIsUserMenuOpen(v => !v)}
+                className={`flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm${userDepartments.length > 1 ? ' cursor-pointer transition-colors hover:border-slate-300 hover:shadow-md' : ' cursor-default'}`}
+                title={`${userDisplayName} - ${user?.departmentName || userRoleLabel}`}
+              >
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-xs font-black text-white">
+                  {userInitials}
+                </div>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold text-slate-900">{userDisplayName}</div>
+                  <div className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                    {userDepartments.length > 1
+                      ? (userDepartments.find(d => d.departmentId === activeDeptId)?.name ?? user?.departmentName ?? userRoleLabel)
+                      : (user?.departmentName || userRoleLabel)}
+                  </div>
+                </div>
+                {userDepartments.length > 1 && (
+                  <ChevronDown className={`size-3.5 shrink-0 text-slate-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                )}
+              </button>
+              {isUserMenuOpen && userDepartments.length > 1 && (
+                <div
+                  role="listbox"
+                  aria-label={t('departmentSwitcher.label', 'Birim seçin')}
+                  className="absolute right-0 top-full z-50 mt-1.5 min-w-[220px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5"
+                >
+                  <div className="px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-slate-400">
+                    {t('departmentSwitcher.heading', 'Görev Yaptığım Birimler')}
+                  </div>
+                  <div className="pb-1.5">
+                    {userDepartments.map(dept => {
+                      const isActive = dept.departmentId === activeDeptId
+                      return (
+                        <button
+                          key={dept.departmentId}
+                          role="option"
+                          aria-selected={isActive}
+                          type="button"
+                          onClick={() => handleDeptSelect(dept)}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50"
+                        >
+                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-primary)]/10">
+                            <Building className="size-4 text-[color:var(--color-primary)]" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-semibold text-slate-800">{dept.name}</div>
+                            {dept.isPrimary ? (
+                              <div className="text-xs text-slate-400">{t('departmentSwitcher.primaryLabel', 'Asıl Birim')}</div>
+                            ) : null}
+                          </div>
+                          {isActive ? <Check className="size-4 shrink-0 text-[color:var(--color-primary)]" /> : null}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
               <LogOut className="size-3.5" />

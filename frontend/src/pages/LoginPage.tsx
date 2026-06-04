@@ -266,7 +266,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col px-3 sm:px-5 lg:px-8">
     <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10"

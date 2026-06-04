@@ -483,42 +483,44 @@ export function IncomingRequestsPage() {
                     {currentStatusFilter === 'completed' && <td>{formatDateTime(row.completedAtUtc, locale)}</td>}
                     {currentStatusFilter === 'cancelled' && <td>{formatDateTime(row.updatedAtUtc, locale)}</td>}
                     <td className="actions-cell">
-                      {/* Detaylar — her zaman */}
-                      <Button size="sm" variant="secondary" onClick={() => navigate(row.detailsPath)} className="gap-1.5">
-                        {t('jobs.actions.details', 'Detaylar')}
-                        <ArrowRight className="size-3.5" />
-                      </Button>
-                      {/* Onayla — onay bekleyen iş satırlarında */}
-                      {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
-                        <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
-                          {t('jobs.actions.approveOwner', 'Onayla')}
+                      <div className="flex flex-wrap gap-1.5">
+                        {/* Detaylar — her zaman */}
+                        <Button size="sm" variant="secondary" onClick={() => navigate(row.detailsPath)} className="gap-1.5">
+                          {t('jobs.actions.details', 'Detaylar')}
+                          <ArrowRight className="size-3.5" />
                         </Button>
-                      )}
-                      {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingExternalApproval' && row.pendingTargetDepartmentId && (
-                        <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetDepartmentId!)}>
-                          {t('jobs.actions.approveTarget', 'Onayla')}
-                        </Button>
-                      )}
-                      {/* Onayla — kapanış onayı bekleyen görevlerde */}
-                      {isManagerLike && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
-                        <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
-                          {t('tasks.actions.approveClose', 'Onayla')}
-                        </Button>
-                      )}
-                      {/* İptal/İade — onay bekleyen, onaylanmış ve aktif iş/görev satırlarında */}
-                      {isManagerLike && (
-                        row.status === 'PendingOwnerApproval' ||
-                        row.status === 'PendingExternalApproval' ||
-                        row.status === 'Active' ||
-                        row.status === 'Waiting' ||
-                        row.status === 'Assigned' ||
-                        row.status === 'InProgress' ||
-                        row.status === 'PendingCloseApproval'
-                      ) && (
-                        <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
-                          {t('jobs.actions.cancelOrReturn', 'İptal/İade')}
-                        </Button>
-                      )}
+                        {/* Onayla — onay bekleyen iş satırlarında */}
+                        {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </Button>
+                        )}
+                        {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingExternalApproval' && row.pendingTargetDepartmentId && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetDepartmentId!)}>
+                            {t('jobs.actions.approveTarget', 'Onayla')}
+                          </Button>
+                        )}
+                        {/* Onayla — kapanış onayı bekleyen görevlerde */}
+                        {isManagerLike && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
+                            {t('tasks.actions.approveClose', 'Onayla')}
+                          </Button>
+                        )}
+                        {/* İptal/İade — onay bekleyen, onaylanmış ve aktif iş/görev satırlarında */}
+                        {isManagerLike && (
+                          row.status === 'PendingOwnerApproval' ||
+                          row.status === 'PendingExternalApproval' ||
+                          row.status === 'Active' ||
+                          row.status === 'Waiting' ||
+                          row.status === 'Assigned' ||
+                          row.status === 'InProgress' ||
+                          row.status === 'PendingCloseApproval'
+                        ) && (
+                          <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
+                            {t('jobs.actions.cancelOrReturn', 'İptal/İade')}
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

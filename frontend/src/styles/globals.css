@@ -1884,6 +1884,67 @@
     border-bottom: 0;
   }
 
+  /* Pagination bar inherits wallboard dark theme */
+  .wallboard-table-shell .table-pagination-bar {
+    background: #0c2030;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  .wallboard-table-shell .table-pagination-info {
+    color: rgba(226, 232, 240, 0.65);
+  }
+
+  .wallboard-table-shell .table-pagination-info .text-slate-500 {
+    color: rgba(226, 232, 240, 0.50);
+  }
+
+  .wallboard-table-shell .table-pagination-divider {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .wallboard-table-shell .table-pagination-ellipsis {
+    color: rgba(226, 232, 240, 0.45);
+  }
+
+  .wallboard-table-shell .table-pagination-select {
+    background: #102b39;
+    border-color: rgba(255, 255, 255, 0.18);
+    color: rgba(226, 232, 240, 0.85);
+  }
+
+  .wallboard-table-shell .table-pagination-btn {
+    background: #102b39;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: rgba(226, 232, 240, 0.75);
+  }
+
+  .wallboard-table-shell .table-pagination-btn:hover:not(:disabled) {
+    background: #163544;
+    color: white;
+  }
+
+  .wallboard-table-shell .table-pagination-btn:disabled {
+    opacity: 0.25;
+  }
+
+  .wallboard-table-shell .table-pagination-page {
+    background: transparent;
+    color: rgba(226, 232, 240, 0.70);
+    border-color: transparent;
+  }
+
+  .wallboard-table-shell .table-pagination-page:hover {
+    background: #163544;
+    color: white;
+  }
+
+  .wallboard-table-shell .table-pagination-page.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: transparent;
+  }
+
   .wallboard-row.citizen td:first-child {
     border-left: 0.42rem solid #f59e0b;
   }

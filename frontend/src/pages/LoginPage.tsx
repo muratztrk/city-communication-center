@@ -313,22 +313,22 @@ export function LoginPage() {
         </section>
 
         <section
-          className="flex items-center justify-center bg-[color:var(--color-surface)] px-10 py-5 sm:px-16 lg:px-16 lg:py-8"
+          className="flex items-center justify-center bg-[color:var(--color-surface)] px-[25%] py-5 lg:px-10 lg:py-8"
           style={{
             transition: 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.42s ease',
             transform: loginSuccess ? 'scale(0.78)' : 'scale(1)',
             opacity: loginSuccess ? 0.6 : 1,
           }}
         >
-          <div className="w-full max-w-[25rem] space-y-4">
-            <div className="flex items-center gap-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-3 lg:hidden">
+          <div className="w-full space-y-4">
+            <div className="flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-4 lg:hidden">
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-24 w-24 shrink-0"
+                className="h-48 w-48 border-0"
               />
-              <div className="min-w-0">
-                <div className="truncate text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
+              <div className="min-w-0 text-center">
+                <div className="text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             </div>
 

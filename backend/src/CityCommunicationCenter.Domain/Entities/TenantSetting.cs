@@ -26,6 +26,8 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? SmsSettingsJson { get; set; }
 
+    public string? SyslogSettingsJson { get; set; }
+
     public string? RolePageAccessJson { get; set; }
 
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>

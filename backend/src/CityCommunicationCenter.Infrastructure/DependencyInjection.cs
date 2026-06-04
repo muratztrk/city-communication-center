@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Infrastructure.Persistence.Interceptors;
 using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.SocialMedia;
 using CityCommunicationCenter.Infrastructure.Tenancy;
@@ -25,8 +26,12 @@ public static class DependencyInjection
             throw new InvalidOperationException("Connection string 'CityCommunicationCenter' must be configured.");
         }
 
-        services.AddDbContext<CityCommunicationCenterDbContext>(options =>
-            options.UseNpgsql(connectionString));
+        services.AddSingleton<AuditLogSyslogInterceptor>();
+        services.AddDbContext<CityCommunicationCenterDbContext>((serviceProvider, options) =>
+        {
+            options.UseNpgsql(connectionString);
+            options.AddInterceptors(serviceProvider.GetRequiredService<AuditLogSyslogInterceptor>());
+        });
         services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<CityCommunicationCenterDbContext>());
 
         // Social Media Services
@@ -40,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantAppearanceService, TenantAppearanceService>();
         services.AddScoped<ITenantWorkingHoursService, TenantWorkingHoursService>();
         services.AddScoped<ITenantSmsSettingsService, TenantSmsSettingsService>();
+        services.AddScoped<ISyslogForwarderService, SyslogForwarderService>();
         services.AddScoped<ITenantLdapSettingsService, TenantLdapSettingsService>();
         services.AddScoped<ITenantAuthenticationPolicyService, TenantAuthenticationPolicyService>();
         services.AddScoped<ILdapAuthenticationService, LdapAuthenticationService>();

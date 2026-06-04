@@ -35,6 +35,7 @@ import type {
   WorkingHoursSettings,
   SmsSettings,
   SmsSettingsUpdate,
+  SyslogSettingsUpdate,
 } from '../types/platform'
 import { getDeploymentModeLabel, getRoleLabel } from '../utils/localization'
 
@@ -293,6 +294,9 @@ export function SettingsPage() {
     isEnabled: false, provider: 'NetGSM', apiUrl: null,
     username: null, password: null, clearPassword: false, originator: null,
   })
+  const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
+    isEnabled: false, host: null, port: 514, format: 'Syslog', transport: 'UDP',
+  })
   const [templates, setTemplates] = useState<MessageTemplate[]>(() => {
     try {
       const stored = window.localStorage.getItem(TEMPLATE_STORAGE_KEY)
@@ -325,8 +329,9 @@ export function SettingsPage() {
       api.getDepartments(),
       api.getWorkingHours(user.tenantId),
       api.getSmsSettings(user.tenantId),
+      api.getSyslogSettings(user.tenantId),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, syslogResponse]) => {
         if (!isActive) {
           return
         }
@@ -372,6 +377,13 @@ export function SettingsPage() {
           password: null,
           clearPassword: false,
           originator: smsResponse.originator,
+        })
+        setSyslogForm({
+          isEnabled: syslogResponse.isEnabled,
+          host: syslogResponse.host,
+          port: syslogResponse.port,
+          format: syslogResponse.format,
+          transport: syslogResponse.transport,
         })
       })
       .catch(loadError => {
@@ -573,6 +585,21 @@ export function SettingsPage() {
       setSmsSettings(refreshed)
       setSmsForm(current => ({ ...current, password: null, clearPassword: false }))
       setMessage({ type: 'success', text: t('settings.sms.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveSyslogSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+
+    setMessage(null)
+    try {
+      await api.updateSyslogSettings(user.tenantId, syslogForm)
+      const refreshed = await api.getSyslogSettings(user.tenantId)
+      setSyslogForm({ isEnabled: refreshed.isEnabled, host: refreshed.host, port: refreshed.port, format: refreshed.format, transport: refreshed.transport })
+      setMessage({ type: 'success', text: t('settings.syslog.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -1249,6 +1276,74 @@ export function SettingsPage() {
             )}
             <div className="inline-actions">
               <Button type="submit">{t('settings.sms.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveSyslogSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.syslog.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.syslog.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={syslogForm.isEnabled}
+                onChange={event => setSyslogForm(current => ({ ...current, isEnabled: event.target.checked }))}
+              />
+              {t('settings.syslog.isEnabled')}
+            </label>
+            {syslogForm.isEnabled && (
+              <>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.syslog.host')}</label>
+                  <input
+                    className="field-input"
+                    type="text"
+                    placeholder={t('settings.syslog.hostPlaceholder')}
+                    value={syslogForm.host ?? ''}
+                    onChange={event => setSyslogForm(current => ({ ...current, host: event.target.value || null }))}
+                  />
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.syslog.port')}</label>
+                  <input
+                    className="field-input"
+                    type="number"
+                    min={1}
+                    max={65535}
+                    value={syslogForm.port}
+                    onChange={event => setSyslogForm(current => ({ ...current, port: parseInt(event.target.value, 10) || 514 }))}
+                  />
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.syslog.format')}</label>
+                  <select
+                    className="field-select"
+                    value={syslogForm.format}
+                    onChange={event => setSyslogForm(current => ({ ...current, format: event.target.value as SyslogSettingsUpdate['format'] }))}
+                  >
+                    <option value="Syslog">{t('settings.syslog.formats.Syslog')}</option>
+                    <option value="CEF">{t('settings.syslog.formats.CEF')}</option>
+                  </select>
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.syslog.transport')}</label>
+                  <select
+                    className="field-select"
+                    value={syslogForm.transport}
+                    onChange={event => setSyslogForm(current => ({ ...current, transport: event.target.value as SyslogSettingsUpdate['transport'] }))}
+                  >
+                    <option value="UDP">{t('settings.syslog.transports.UDP')}</option>
+                    <option value="TCP">{t('settings.syslog.transports.TCP')}</option>
+                  </select>
+                </div>
+              </>
+            )}
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.syslog.save')}</Button>
             </div>
           </form>
 

@@ -531,6 +531,25 @@ export interface SmsSettingsUpdate {
 }
 
 
+export type SyslogFormat = 'Syslog' | 'CEF'
+export type SyslogTransport = 'UDP' | 'TCP'
+
+export interface SyslogSettings {
+  isEnabled: boolean
+  host: string | null
+  port: number
+  format: SyslogFormat
+  transport: SyslogTransport
+}
+
+export interface SyslogSettingsUpdate {
+  isEnabled: boolean
+  host: string | null
+  port: number
+  format: SyslogFormat
+  transport: SyslogTransport
+}
+
 export interface AppNotification {
   notificationId: string
   taskId: string | null

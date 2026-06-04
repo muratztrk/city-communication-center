@@ -101,7 +101,9 @@
     "workingHoursLoadFailed": "Mesai saatleri alınamadı.",
     "workingHoursSaveFailed": "Mesai saatleri kaydedilemedi.",
     "smsSettingsLoadFailed": "SMS API ayarları alınamadı.",
-    "smsSettingsSaveFailed": "SMS API ayarları kaydedilemedi."
+    "smsSettingsSaveFailed": "SMS API ayarları kaydedilemedi.",
+    "syslogSettingsLoadFailed": "Syslog ayarları alınamadı.",
+    "syslogSettingsSaveFailed": "Syslog ayarları kaydedilemedi."
   },
   "search": {
     "placeholder": "Sistemde ara...",
@@ -717,6 +719,26 @@
       "originatorHelp": "SMS'lerde görünecek gönderici adı veya numarası (max 11 karakter).",
       "save": "Kaydet",
       "saved": "SMS API ayarları kaydedildi."
+    },
+    "syslog": {
+      "sectionTitle": "Syslog İletimi",
+      "sectionDescription": "Denetim günlüklerini harici bir Syslog sunucusuna iletin.",
+      "isEnabled": "Syslog İletimini Aktif Et",
+      "host": "Sunucu Adresi",
+      "hostPlaceholder": "192.168.1.100 veya syslog.example.com",
+      "port": "Port",
+      "format": "Format",
+      "formats": {
+        "Syslog": "Syslog (RFC 3164)",
+        "CEF": "CEF (Common Event Format)"
+      },
+      "transport": "Aktarım",
+      "transports": {
+        "UDP": "UDP",
+        "TCP": "TCP"
+      },
+      "save": "Kaydet",
+      "saved": "Syslog ayarları kaydedildi."
     },
     "ldapTestConnectivity": "Bağlantı Testi",
     "ldapTestUserCredentials": "Kullanıcı Girişi Testi",

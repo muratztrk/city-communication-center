@@ -275,6 +275,32 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpGet("tenants/{tenantId:guid}/syslog-settings")]
+    public async Task<ActionResult<SyslogSettingsResponse>> GetSyslogSettings(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetSyslogSettingsQuery(tenantId), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/syslog-settings")]
+    public async Task<IActionResult> UpdateSyslogSettings(
+        Guid tenantId,
+        [FromBody] UpdateSyslogSettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateSyslogSettingsCommand(
+                tenantId,
+                request.IsEnabled,
+                request.Host,
+                request.Port,
+                request.Format,
+                request.Transport),
+            cancellationToken);
+
+        return NoContent();
+    }
+
     [HttpPost("workflows/publish")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> PublishWorkflow([FromBody] PublishWorkflowRequest request, CancellationToken cancellationToken)

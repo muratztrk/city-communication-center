@@ -33,6 +33,8 @@ import type {
   WorkingHoursSettings,
   SmsSettings,
   SmsSettingsUpdate,
+  SyslogSettings,
+  SyslogSettingsUpdate,
   AppNotification,
 } from '../types/platform'
 import { API_BASE } from './config'
@@ -392,6 +394,21 @@ export const api = {
       body: JSON.stringify(data),
     })
     await ensureOk(response, i18n.t('errors.smsSettingsSaveFailed'))
+  },
+
+  async getSyslogSettings(tenantId: string): Promise<SyslogSettings> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/syslog-settings`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.syslogSettingsLoadFailed'))
+    return response.json() as Promise<SyslogSettings>
+  },
+
+  async updateSyslogSettings(tenantId: string, data: SyslogSettingsUpdate): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/syslog-settings`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.syslogSettingsSaveFailed'))
   },
 
   async getTasks(scope?: TaskListScope): Promise<Task[]> {

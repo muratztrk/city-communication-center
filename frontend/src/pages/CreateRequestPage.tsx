@@ -95,6 +95,12 @@ function toApiDateTime(value: string) {
   return value ? new Date(value).toISOString() : null
 }
 
+function toApiDateTimeWithSla(value: string, slaHours: number): string | null {
+  if (value) return new Date(value).toISOString()
+  if (slaHours > 0) return new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString()
+  return null
+}
+
 function hasRichTextContent(value: string) {
   return value
     .replace(/<br\s*\/?>/gi, '\n')
@@ -125,6 +131,7 @@ export function CreateRequestPage() {
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
+  const [defaultSlaHours, setDefaultSlaHours] = useState(0)
   const canCreateCitizenRequest = user?.role === 'Operator'
 
   const myDepartmentId = useMemo(() => {
@@ -181,6 +188,13 @@ export function CreateRequestPage() {
     window.addEventListener('activeDepartmentChanged', handler)
     return () => window.removeEventListener('activeDepartmentChanged', handler)
   }, [])
+
+  useEffect(() => {
+    if (!user?.tenantId) return
+    api.getTenantSettings(user.tenantId)
+      .then(settings => setDefaultSlaHours(settings.defaultSlaHours ?? 0))
+      .catch(() => {})
+  }, [user?.tenantId])
 
   useEffect(() => {
     let cancelled = false
@@ -317,7 +331,7 @@ export function CreateRequestPage() {
         priority: internalForm.priority,
         requestType: 'InternalUnit',
         isProject: internalForm.isProject,
-        dueDateUtc: toApiDateTime(internalForm.dueDateUtc),
+        dueDateUtc: toApiDateTimeWithSla(internalForm.dueDateUtc, defaultSlaHours),
         sourceType: 'InternalRequest',
       })
       for (const file of pendingFiles) {
@@ -361,7 +375,7 @@ export function CreateRequestPage() {
         requestType: 'ExternalUnit',
         isProject: externalForm.isProject,
         startDateUtc: toApiDateTime(externalForm.startDateUtc),
-        dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
+        dueDateUtc: toApiDateTimeWithSla(externalForm.dueDateUtc, defaultSlaHours),
         targetDepartmentIds,
         sourceType: 'Manual',
       })

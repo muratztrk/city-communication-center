@@ -61,7 +61,7 @@ export function AppShell() {
         const currentDeptId = getActiveDepartmentId()
         if (depts.length > 0 && (!currentDeptId || !depts.some(d => d.departmentId === currentDeptId))) {
           const primary = depts.find(d => d.isPrimary) ?? depts[0]
-          setActiveDepartmentId(primary.departmentId)
+          setActiveDepartmentId(primary.departmentId, true) // silent: don't trigger Outlet remount on initial load
           setActiveDeptId(primary.departmentId)
         } else {
           setActiveDeptId(currentDeptId)
@@ -87,8 +87,9 @@ export function AppShell() {
   }, [])
 
   const handleDeptSelect = (dept: DepartmentSummary) => {
-    setActiveDepartmentId(dept.departmentId)
+    setActiveDepartmentId(dept.departmentId) // also fires activeDepartmentChanged → setActiveDepartmentVersion
     setActiveDeptId(dept.departmentId)
+    setActiveDepartmentVersion(v => v + 1)   // direct increment ensures Outlet remounts and data re-fetches
     setIsUserMenuOpen(false)
   }
 

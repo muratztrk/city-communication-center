@@ -7,13 +7,15 @@ export function getActiveDepartmentId(): string | null {
   return window.localStorage.getItem(ACTIVE_DEPARTMENT_KEY)
 }
 
-export function setActiveDepartmentId(departmentId: string | null): void {
+export function setActiveDepartmentId(departmentId: string | null, silent = false): void {
   if (departmentId) {
     window.localStorage.setItem(ACTIVE_DEPARTMENT_KEY, departmentId)
   } else {
     window.localStorage.removeItem(ACTIVE_DEPARTMENT_KEY)
   }
-  window.dispatchEvent(new CustomEvent('activeDepartmentChanged'))
+  if (!silent) {
+    window.dispatchEvent(new CustomEvent('activeDepartmentChanged'))
+  }
 }
 
 export async function getAuthHeaders(): Promise<HeadersInit> {

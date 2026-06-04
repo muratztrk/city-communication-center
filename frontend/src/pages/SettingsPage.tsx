@@ -925,16 +925,17 @@ export function SettingsPage() {
 
   return (
     <div className="page-stack desktop-page-shell">
-      <header className="sticky-page-header">
-        <div className="page-header-row">
-          <div className="space-y-1">
-            <div className="page-kicker">{t('nav.settings', 'Yönetim')}</div>
-            <h1 className="page-title">{t('settings.title')}</h1>
-            <p className="page-subtitle">{t('settings.subtitle')}</p>
+      <div className="sticky top-0 z-[12] flex flex-col gap-3">
+        <header className="sticky-page-header" style={{ position: 'relative' }}>
+          <div className="page-header-row">
+            <div className="space-y-1">
+              <div className="page-kicker">{t('nav.settings', 'Yönetim')}</div>
+              <h1 className="page-title">{t('settings.title')}</h1>
+              <p className="page-subtitle">{t('settings.subtitle')}</p>
+            </div>
+            <StatusPill tone="success" className="banner-status-pill">{institutionName}</StatusPill>
           </div>
-          <StatusPill tone="success" className="banner-status-pill">{institutionName}</StatusPill>
-        </div>
-      </header>
+        </header>
 
       <div className="tab-bar">
         <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">
@@ -959,6 +960,7 @@ export function SettingsPage() {
           Taslak Mesajlar
         </button>
       </div>
+      </div>{/* end sticky wrapper */}
 
       {message ? (
         <div className={message.type === 'success' ? 'rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700' : 'rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700'}>

@@ -550,6 +550,16 @@ export interface SyslogSettingsUpdate {
   transport: SyslogTransport
 }
 
+export interface SlaWeekendSettings {
+  excludeWeekends: boolean
+  exemptDepartmentIds: string[]
+}
+
+export interface SlaWeekendSettingsUpdate {
+  excludeWeekends: boolean
+  exemptDepartmentIds: string[]
+}
+
 export interface AppNotification {
   notificationId: string
   taskId: string | null

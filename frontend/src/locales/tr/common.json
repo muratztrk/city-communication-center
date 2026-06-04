@@ -103,7 +103,9 @@
     "smsSettingsLoadFailed": "SMS API ayarları alınamadı.",
     "smsSettingsSaveFailed": "SMS API ayarları kaydedilemedi.",
     "syslogSettingsLoadFailed": "Syslog ayarları alınamadı.",
-    "syslogSettingsSaveFailed": "Syslog ayarları kaydedilemedi."
+    "syslogSettingsSaveFailed": "Syslog ayarları kaydedilemedi.",
+    "slaWeekendSettingsLoadFailed": "SLA hafta sonu ayarları alınamadı.",
+    "slaWeekendSettingsSaveFailed": "SLA hafta sonu ayarları kaydedilemedi."
   },
   "search": {
     "placeholder": "Sistemde ara...",
@@ -739,6 +741,16 @@
       },
       "save": "Kaydet",
       "saved": "Syslog ayarları kaydedildi."
+    },
+    "slaWeekend": {
+      "sectionTitle": "Hafta Sonu SLA",
+      "sectionDescription": "Cumartesi ve Pazar günleri SLA süresinin ilerlemesini durdurun. Hariç tutulan müdürlükler hafta sonlarında da SLA süresine dahil edilir.",
+      "excludeWeekends": "Cumartesi ve Pazar günleri SLA ilerlemesi durdurulsun",
+      "exemptDepartments": "Hariç Tutulan Müdürlükler",
+      "exemptDepartmentsHelp": "Seçilen müdürlükler hafta sonu da çalıştığından SLA süreleri hafta sonlarında da ilerler.",
+      "exemptDepartmentsPlaceholder": "Müdürlük seçin...",
+      "save": "Kaydet",
+      "saved": "SLA hafta sonu ayarları kaydedildi."
     },
     "ldapTestConnectivity": "Bağlantı Testi",
     "ldapTestUserCredentials": "Kullanıcı Girişi Testi",

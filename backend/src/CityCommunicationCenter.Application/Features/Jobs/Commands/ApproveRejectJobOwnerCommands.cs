@@ -6,11 +6,13 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ISlaCalculatorService _slaCalculator;
 
-    public ApproveJobOwnerCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public ApproveJobOwnerCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _slaCalculator = slaCalculator;
     }
 
     public async ValueTask<bool> Handle(ApproveJobOwnerCommand request, CancellationToken cancellationToken)
@@ -72,7 +74,8 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
                 var settings = await _dbContext.TenantSettings.FirstOrDefaultAsync(cancellationToken);
                 if (settings is not null && settings.DefaultSlaHours > 0)
                 {
-                    job.DueDateUtc = job.CreatedAtUtc.AddHours(settings.DefaultSlaHours);
+                    job.DueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                        job.CreatedAtUtc, settings.DefaultSlaHours, tenantId, job.OwnerDepartmentId, cancellationToken);
                 }
             }
             createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(

@@ -35,6 +35,8 @@ import type {
   SmsSettingsUpdate,
   SyslogSettings,
   SyslogSettingsUpdate,
+  SlaWeekendSettings,
+  SlaWeekendSettingsUpdate,
   AppNotification,
 } from '../types/platform'
 import { API_BASE } from './config'
@@ -409,6 +411,21 @@ export const api = {
       body: JSON.stringify(data),
     })
     await ensureOk(response, i18n.t('errors.syslogSettingsSaveFailed'))
+  },
+
+  async getSlaWeekendSettings(tenantId: string): Promise<SlaWeekendSettings> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/sla-weekend-settings`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.slaWeekendSettingsLoadFailed'))
+    return response.json() as Promise<SlaWeekendSettings>
+  },
+
+  async updateSlaWeekendSettings(tenantId: string, data: SlaWeekendSettingsUpdate): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/sla-weekend-settings`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.slaWeekendSettingsSaveFailed'))
   },
 
   async getTasks(scope?: TaskListScope): Promise<Task[]> {

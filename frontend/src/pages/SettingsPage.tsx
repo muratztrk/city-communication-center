@@ -36,6 +36,7 @@ import type {
   SmsSettings,
   SmsSettingsUpdate,
   SyslogSettingsUpdate,
+  SlaWeekendSettingsUpdate,
 } from '../types/platform'
 import { getDeploymentModeLabel, getRoleLabel } from '../utils/localization'
 
@@ -297,6 +298,9 @@ export function SettingsPage() {
   const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
     isEnabled: false, host: null, port: 514, format: 'Syslog', transport: 'UDP',
   })
+  const [slaWeekendForm, setSlaWeekendForm] = useState<SlaWeekendSettingsUpdate>({
+    excludeWeekends: false, exemptDepartmentIds: [],
+  })
   const [templates, setTemplates] = useState<MessageTemplate[]>(() => {
     try {
       const stored = window.localStorage.getItem(TEMPLATE_STORAGE_KEY)
@@ -330,8 +334,9 @@ export function SettingsPage() {
       api.getWorkingHours(user.tenantId),
       api.getSmsSettings(user.tenantId),
       api.getSyslogSettings(user.tenantId),
+      api.getSlaWeekendSettings(user.tenantId),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, syslogResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, syslogResponse, slaWeekendResponse]) => {
         if (!isActive) {
           return
         }
@@ -384,6 +389,10 @@ export function SettingsPage() {
           port: syslogResponse.port,
           format: syslogResponse.format,
           transport: syslogResponse.transport,
+        })
+        setSlaWeekendForm({
+          excludeWeekends: slaWeekendResponse.excludeWeekends,
+          exemptDepartmentIds: slaWeekendResponse.exemptDepartmentIds,
         })
       })
       .catch(loadError => {
@@ -600,6 +609,21 @@ export function SettingsPage() {
       const refreshed = await api.getSyslogSettings(user.tenantId)
       setSyslogForm({ isEnabled: refreshed.isEnabled, host: refreshed.host, port: refreshed.port, format: refreshed.format, transport: refreshed.transport })
       setMessage({ type: 'success', text: t('settings.syslog.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveSlaWeekendSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+
+    setMessage(null)
+    try {
+      await api.updateSlaWeekendSettings(user.tenantId, slaWeekendForm)
+      const refreshed = await api.getSlaWeekendSettings(user.tenantId)
+      setSlaWeekendForm({ excludeWeekends: refreshed.excludeWeekends, exemptDepartmentIds: refreshed.exemptDepartmentIds })
+      setMessage({ type: 'success', text: t('settings.slaWeekend.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -1344,6 +1368,53 @@ export function SettingsPage() {
             )}
             <div className="inline-actions">
               <Button type="submit">{t('settings.syslog.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveSlaWeekendSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.slaWeekend.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.slaWeekend.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={slaWeekendForm.excludeWeekends}
+                onChange={event => setSlaWeekendForm(current => ({ ...current, excludeWeekends: event.target.checked }))}
+              />
+              {t('settings.slaWeekend.excludeWeekends')}
+            </label>
+            {slaWeekendForm.excludeWeekends && departments.length > 0 && (
+              <div className="field-row">
+                <label className="field-label">{t('settings.slaWeekend.exemptDepartments')}</label>
+                <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
+                  {departments.map(dept => (
+                    <label key={dept.departmentId} className="inline-flex items-center gap-2 text-sm text-slate-700">
+                      <input
+                        className="field-checkbox"
+                        type="checkbox"
+                        checked={slaWeekendForm.exemptDepartmentIds.includes(dept.departmentId)}
+                        onChange={event => {
+                          setSlaWeekendForm(current => ({
+                            ...current,
+                            exemptDepartmentIds: event.target.checked
+                              ? [...current.exemptDepartmentIds, dept.departmentId]
+                              : current.exemptDepartmentIds.filter(id => id !== dept.departmentId),
+                          }))
+                        }}
+                      />
+                      {dept.name}
+                    </label>
+                  ))}
+                </div>
+                <p className="helper-copy">{t('settings.slaWeekend.exemptDepartmentsHelp')}</p>
+              </div>
+            )}
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.slaWeekend.save')}</Button>
             </div>
           </form>
 

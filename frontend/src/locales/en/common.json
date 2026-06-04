@@ -103,7 +103,9 @@
     "smsSettingsLoadFailed": "Failed to load SMS API settings.",
     "smsSettingsSaveFailed": "Failed to save SMS API settings.",
     "syslogSettingsLoadFailed": "Failed to load Syslog settings.",
-    "syslogSettingsSaveFailed": "Failed to save Syslog settings."
+    "syslogSettingsSaveFailed": "Failed to save Syslog settings.",
+    "slaWeekendSettingsLoadFailed": "Failed to load SLA weekend settings.",
+    "slaWeekendSettingsSaveFailed": "Failed to save SLA weekend settings."
   },
   "search": {
     "placeholder": "Search system...",
@@ -738,6 +740,16 @@
       },
       "save": "Save",
       "saved": "Syslog settings saved."
+    },
+    "slaWeekend": {
+      "sectionTitle": "Weekend SLA",
+      "sectionDescription": "Pause SLA time on Saturdays and Sundays. Exempt departments still have SLA progress on weekends.",
+      "excludeWeekends": "Pause SLA on Saturday and Sunday",
+      "exemptDepartments": "Exempt Departments",
+      "exemptDepartmentsHelp": "Selected departments work on weekends, so their SLA continues to progress.",
+      "exemptDepartmentsPlaceholder": "Select departments...",
+      "save": "Save",
+      "saved": "SLA weekend settings saved."
     },
     "authTitle": "Authentication Policy",
     "authDescription": "Manage trusted-network automatic sign-in and external-network second-factor rules.",

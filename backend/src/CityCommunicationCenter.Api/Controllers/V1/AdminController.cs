@@ -301,6 +301,25 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpGet("tenants/{tenantId:guid}/sla-weekend-settings")]
+    public async Task<ActionResult<SlaWeekendSettingsResponse>> GetSlaWeekendSettings(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetSlaWeekendSettingsQuery(tenantId), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/sla-weekend-settings")]
+    public async Task<IActionResult> UpdateSlaWeekendSettings(
+        Guid tenantId,
+        [FromBody] UpdateSlaWeekendSettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateSlaWeekendSettingsCommand(tenantId, request.ExcludeWeekends, request.ExemptDepartmentIds),
+            cancellationToken);
+        return NoContent();
+    }
+
     [HttpPost("workflows/publish")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> PublishWorkflow([FromBody] PublishWorkflowRequest request, CancellationToken cancellationToken)

@@ -721,12 +721,12 @@
       "saved": "SMS API ayarları kaydedildi."
     },
     "syslog": {
-      "sectionTitle": "Syslog İletimi",
+      "sectionTitle": "Syslog Sunucusu",
       "sectionDescription": "Denetim günlüklerini harici bir Syslog sunucusuna iletin.",
-      "isEnabled": "Syslog İletimini Aktif Et",
-      "host": "Sunucu Adresi",
+      "isEnabled": "Syslog sunucu kullan",
+      "host": "Ana bilgisayar",
       "hostPlaceholder": "192.168.1.100 veya syslog.example.com",
-      "port": "Port",
+      "port": "Bağlantı noktası",
       "format": "Format",
       "formats": {
         "Syslog": "Syslog (RFC 3164)",

@@ -720,12 +720,12 @@
       "saved": "SMS API settings saved."
     },
     "syslog": {
-      "sectionTitle": "Syslog Forwarding",
+      "sectionTitle": "Syslog Server",
       "sectionDescription": "Forward audit logs to an external Syslog server.",
-      "isEnabled": "Enable Syslog Forwarding",
-      "host": "Server Address",
+      "isEnabled": "Use Syslog server",
+      "host": "Host",
       "hostPlaceholder": "192.168.1.100 or syslog.example.com",
-      "port": "Port",
+      "port": "Connection port",
       "format": "Format",
       "formats": {
         "Syslog": "Syslog (RFC 3164)",

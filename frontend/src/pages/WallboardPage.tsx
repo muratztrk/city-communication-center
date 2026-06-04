@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { FilterableTh } from '../components/ui/FilterableTh'
+import { TablePagination } from '../components/ui/table-pagination'
+import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useSortable } from '../hooks/useSortable'
 import type { JobSummary, Task } from '../types/platform'
 import { getLocale, getPriorityLabel } from '../utils/localization'
 
@@ -116,6 +120,10 @@ export function WallboardPage() {
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null)
   const [refreshIntervalMs, setRefreshIntervalMs] = useState(60_000)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(25)
+  const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
+  const { filters, setFilter, matchesFilters } = useColumnFilters()
 
   const loadBoard = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -167,7 +175,25 @@ export function WallboardPage() {
     external: items.filter(item => item.source === 'external').length,
   }), [items])
 
-  const visibleItems = items.slice(0, 24)
+  // Reset to first page whenever filters change
+  useEffect(() => { setPage(1) }, [filters])
+
+  const filteredItems = useMemo(() => {
+    const sorted = sortItems(items)
+    return sorted.filter(item =>
+      matchesFilters(item, (key, row) => {
+        if (key === 'createdAtUtc') return formatDate(row.createdAtUtc, locale)
+        if (key === 'dueDateUtc') return formatDate(row.dueDateUtc, locale)
+        if (key === 'priority') return row.priority ? getPriorityLabel(t, row.priority) : ''
+        return String((row as unknown as Record<string, unknown>)[key] ?? '')
+      })
+    )
+  }, [items, sortItems, matchesFilters, locale, t])
+
+  const pagedItems = useMemo(
+    () => filteredItems.slice((page - 1) * pageSize, page * pageSize),
+    [filteredItems, page, pageSize],
+  )
 
   return (
     <main ref={wallboardRef} className="wallboard-page">
@@ -238,7 +264,7 @@ export function WallboardPage() {
 
       {loading ? (
         <div className="wallboard-loading">{t('common.loading')}</div>
-      ) : visibleItems.length === 0 ? (
+      ) : items.length === 0 ? (
         <div className="wallboard-empty">{t('wallboard.empty', 'Bekleyen iş bulunmuyor.')}</div>
       ) : (
         <section className="wallboard-table-shell" aria-label={t('wallboard.title', 'Bekleyen İşler')}>
@@ -246,22 +272,22 @@ export function WallboardPage() {
             <thead>
               <tr>
                 <th className="wallboard-number-col">{t('wallboard.columns.number', 'Sıra')}</th>
-                <th>{t('wallboard.columns.requestNo', 'Talep No')}</th>
-                <th>{t('wallboard.columns.taskNo', 'Görev No')}</th>
-                <th>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</th>
-                <th>{t('wallboard.columns.requestLocation', 'Görevin Talep Yeri')}</th>
-                <th>{t('wallboard.columns.requestCreator', 'Talebi Oluşturan')}</th>
-                <th>{t('wallboard.columns.title', 'Başlık')}</th>
-                <th>{t('wallboard.columns.priority', 'Öncelik')}</th>
-                <th>{t('wallboard.columns.dueDate', 'Son Tarih')}</th>
+                <FilterableTh filterKey="jobNumber" filterValue={filters['jobNumber']} onFilter={setFilter} sortKey="jobNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestNo', 'Talep No')}</FilterableTh>
+                <FilterableTh filterKey="taskNumber" filterValue={filters['taskNumber']} onFilter={setFilter} sortKey="taskNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskNo', 'Görev No')}</FilterableTh>
+                <FilterableTh filterKey="createdAtUtc" filterValue={filters['createdAtUtc']} onFilter={setFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
+                <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestLocation', 'Görevin Talep Yeri')}</FilterableTh>
+                <FilterableTh filterKey="requestCreator" filterValue={filters['requestCreator']} onFilter={setFilter} sortKey="requestCreator" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestCreator', 'Talebi Oluşturan')}</FilterableTh>
+                <FilterableTh filterKey="title" filterValue={filters['title']} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.title', 'Başlık')}</FilterableTh>
+                <FilterableTh filterKey="priority" filterValue={filters['priority']} onFilter={setFilter} sortKey="priority" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.priority', 'Öncelik')}</FilterableTh>
+                <FilterableTh filterKey="dueDateUtc" filterValue={filters['dueDateUtc']} onFilter={setFilter} sortKey="dueDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.dueDate', 'Son Tarih')}</FilterableTh>
               </tr>
             </thead>
             <tbody>
-              {visibleItems.map((item, index) => {
+              {pagedItems.map((item, index) => {
                 const dueTone = getDueTone(item.dueDateUtc)
                 return (
                   <tr key={item.id} className={`wallboard-row ${item.source}`}>
-                    <td className="wallboard-number-cell">{index + 1}</td>
+                    <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
                     <td>{item.jobNumber ?? '—'}</td>
                     <td>{item.taskNumber ?? '—'}</td>
                     <td>
@@ -285,6 +311,13 @@ export function WallboardPage() {
               })}
             </tbody>
           </table>
+          <TablePagination
+            totalCount={filteredItems.length}
+            pageSize={pageSize}
+            currentPage={page}
+            onPageSizeChange={size => { setPageSize(size); setPage(1) }}
+            onPageChange={setPage}
+          />
         </section>
       )}
     </main>

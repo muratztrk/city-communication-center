@@ -381,7 +381,7 @@ export function AppShell() {
           <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-2.5">
             {!isSidebarCollapsed ? (
               <div className="flex flex-col items-center gap-2">
-                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} />
+                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="w-full" />
                 <div className="min-w-0 w-full text-center text-xs font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             ) : (

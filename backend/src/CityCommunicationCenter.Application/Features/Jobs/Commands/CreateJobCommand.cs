@@ -19,7 +19,10 @@ public sealed record CreateJobCommand(
     string? SourceType,
     Guid? SourceRefId,
     double? Latitude = null,
-    double? Longitude = null) : ICommand<JobSummaryResponse>;
+    double? Longitude = null,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null) : ICommand<JobSummaryResponse>;
 
 public sealed class CreateJobCommandValidator : AbstractValidator<CreateJobCommand>
 {
@@ -141,6 +144,9 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             SourceRefId = request.SourceRefId,
             Latitude = request.Latitude,
             Longitude = request.Longitude,
+            Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim(),
+            Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
+            OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim(),
             IsCoordinated = targets.Length > 0,
             CreatedByUserId = context.UserId
         };

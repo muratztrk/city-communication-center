@@ -16,7 +16,10 @@ public sealed record CreateJobRequest(
     string? SourceType,
     Guid? SourceRefId,
     double? Latitude,
-    double? Longitude);
+    double? Longitude,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null);
 
 public sealed record UpdateJobRequest(
     string Title,
@@ -96,6 +99,9 @@ public sealed record JobDetailResponse(
     string? CancelReason,
     double? Latitude,
     double? Longitude,
+    string? Neighborhood,
+    string? Street,
+    string? OpenAddress,
     string? CreatedByDisplayName,
     DateTimeOffset CreatedAtUtc,
     IReadOnlyCollection<JobDepartmentResponse> Departments,

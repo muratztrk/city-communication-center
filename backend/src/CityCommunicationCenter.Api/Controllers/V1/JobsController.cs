@@ -44,7 +44,10 @@ public sealed class JobsController : ApiControllerBase
             request.SourceType,
             request.SourceRefId,
             request.Latitude,
-            request.Longitude), cancellationToken);
+            request.Longitude,
+            request.Neighborhood,
+            request.Street,
+            request.OpenAddress), cancellationToken);
         return CreatedAtRoute("GetJobById", new { jobId = response.JobId }, response);
     }
 

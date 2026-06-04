@@ -1214,5 +1214,22 @@
     "mapPreview": "Konum Önizleme",
     "mapSectionTitle": "Konum",
     "mapTitle": "Konum Haritası"
+  },
+  "address": {
+    "sectionTitle": "Adres Bilgisi (İsteğe Bağlı)",
+    "neighborhoodLabel": "Mahalle",
+    "neighborhoodPlaceholder": "Mahalle seçin",
+    "streetLabel": "Cadde / Sokak / Bulvar",
+    "streetPlaceholder": "ör. Atatürk Caddesi",
+    "openAddressLabel": "Açık Adres",
+    "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."
+  },
+  "settings": {
+    "municipalityLocation": {
+      "sectionTitle": "Kurum Konumu",
+      "sectionDescription": "Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.",
+      "districtLabel": "İlçe (İzmir)",
+      "saveSuccess": "Konum ayarı kaydedildi."
+    }
   }
 }

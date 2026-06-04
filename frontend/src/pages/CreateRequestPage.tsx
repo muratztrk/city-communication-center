@@ -10,6 +10,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { useAuth } from '../context/AuthContext'
+import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import type { Department, User } from '../types/platform'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
@@ -23,6 +24,9 @@ interface InternalFormState {
   ownerDepartmentId: string
   /** Her string bir görev-atama satırı; boş string = havuz görevi */
   ownerUserIds: string[]
+  neighborhood: string
+  street: string
+  openAddress: string
 }
 
 interface ExternalFormState extends InternalFormState {
@@ -50,6 +54,9 @@ const EMPTY_INTERNAL_FORM: InternalFormState = {
   isProject: false,
   ownerDepartmentId: '',
   ownerUserIds: [''],
+  neighborhood: '',
+  street: '',
+  openAddress: '',
 }
 
 const EMPTY_EXTERNAL_FORM: ExternalFormState = {
@@ -133,6 +140,7 @@ export function CreateRequestPage() {
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
   const [defaultSlaHours, setDefaultSlaHours] = useState(0)
   const canCreateCitizenRequest = user?.role === 'Operator'
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
 
   const myDepartmentId = useMemo(() => {
     return activeDepartmentId || user?.departmentId || users.find(item => item.userId === user?.userId)?.departmentId || ''
@@ -307,6 +315,50 @@ export function CreateRequestPage() {
     </div>
   )
 
+  const renderAddressFields = (
+    form: { neighborhood: string; street: string; openAddress: string },
+    setField: (field: 'neighborhood' | 'street' | 'openAddress', value: string) => void,
+  ) => (
+    <div className="job-field">
+      <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
+      <div className="grid gap-2">
+        <div className="grid gap-2 md:grid-cols-2">
+          <div className="grid gap-1">
+            <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+            <select
+              className="field-select"
+              value={form.neighborhood}
+              onChange={e => setField('neighborhood', e.target.value)}
+            >
+              <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
+              {neighborhoods.map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+          <div className="grid gap-1">
+            <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+            <input
+              className="field-input"
+              placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+              value={form.street}
+              onChange={e => setField('street', e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="grid gap-1">
+          <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+          <input
+            className="field-input"
+            placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+            value={form.openAddress}
+            onChange={e => setField('openAddress', e.target.value)}
+          />
+        </div>
+      </div>
+    </div>
+  )
+
   const handleCreateInternal = async (event: React.FormEvent) => {
     event.preventDefault()
     const effectiveOwnerDeptId = internalForm.ownerDepartmentId || myDepartmentId
@@ -333,6 +385,9 @@ export function CreateRequestPage() {
         isProject: internalForm.isProject,
         dueDateUtc: toApiDateTimeWithSla(internalForm.dueDateUtc, defaultSlaHours),
         sourceType: 'InternalRequest',
+        neighborhood: internalForm.neighborhood || null,
+        street: internalForm.street || null,
+        openAddress: internalForm.openAddress || null,
       })
       for (const file of pendingFiles) {
         await api.uploadJobAttachment(job.jobId, file)
@@ -378,6 +433,9 @@ export function CreateRequestPage() {
         dueDateUtc: toApiDateTimeWithSla(externalForm.dueDateUtc, defaultSlaHours),
         targetDepartmentIds,
         sourceType: 'Manual',
+        neighborhood: externalForm.neighborhood || null,
+        street: externalForm.street || null,
+        openAddress: externalForm.openAddress || null,
       })
       for (const file of pendingFiles) {
         await api.uploadJobAttachment(job.jobId, file)
@@ -531,6 +589,7 @@ export function CreateRequestPage() {
                 {user && <option value={user.userId}>{user.displayName}</option>}
               </select>
             </div>
+            {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
             {renderPhotoUpload()}
           </div>
           <div className="grid content-start gap-3">
@@ -632,6 +691,7 @@ export function CreateRequestPage() {
                 <DateTimePicker id="request-due-date" value={externalForm.dueDateUtc} onChange={v => setExternalForm(current => ({ ...current, dueDateUtc: v }))} />
               </div>
             </div>
+            {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })))}
             {renderPhotoUpload()}
           </div>
           <div className="grid content-start gap-3">

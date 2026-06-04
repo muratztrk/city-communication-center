@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { Toast } from '../components/ui/toast'
@@ -253,6 +254,7 @@ export function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = readTab(searchParams.get('tab'))
   const [tenantSettings, setTenantSettings] = useState<TenantSettings>(EMPTY_TENANT_SETTINGS)
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>(getSavedDistrictId)
   const [tenantLdapSettings, setTenantLdapSettings] = useState<TenantLdapFormState>(EMPTY_TENANT_LDAP_SETTINGS)
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
@@ -482,6 +484,12 @@ export function SettingsPage() {
 
   const refreshRouting = async () => setRoutingConfig(await api.getRoutingConfig())
   const refreshSocial = async () => setSocialStatus(await api.getSocialSettingsStatus())
+
+  const saveMunicipalityDistrict = (event: FormEvent) => {
+    event.preventDefault()
+    saveDistrictId(selectedDistrictId)
+    showToast('success', t('settings.municipalityLocation.saveSuccess', 'Konum ayarı kaydedildi.'))
+  }
 
   const saveOrganization = async (event: FormEvent) => {
     event.preventDefault()
@@ -1024,6 +1032,30 @@ export function SettingsPage() {
               </form>
             </section>
           </div>
+
+          <form className="section-card page-stack" onSubmit={saveMunicipalityDistrict}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.municipalityLocation.sectionTitle', 'Kurum Konumu')}</h2>
+                <p className="helper-copy">{t('settings.municipalityLocation.sectionDescription', 'Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.')}</p>
+              </div>
+            </div>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+              <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
+              <select
+                className="field-select"
+                value={selectedDistrictId}
+                onChange={event => setSelectedDistrictId(event.target.value)}
+              >
+                {IZMIR_DISTRICTS.map(district => (
+                  <option key={district.id} value={district.id}>{district.name}</option>
+                ))}
+              </select>
+            </label>
+            <div className="inline-actions">
+              <Button type="submit">{t('common.save')}</Button>
+            </div>
+          </form>
 
           <form className="section-card page-stack" onSubmit={event => void saveWorkingHours(event)}>
             <div className="page-header-row">

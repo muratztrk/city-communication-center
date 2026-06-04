@@ -610,6 +610,9 @@ export const api = {
     sourceRefId?: string | null
     latitude?: number | null
     longitude?: number | null
+    neighborhood?: string | null
+    street?: string | null
+    openAddress?: string | null
   }): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs`, {
       method: 'POST',

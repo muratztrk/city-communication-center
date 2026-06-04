@@ -281,6 +281,9 @@ export interface JobDetail {
   cancelReason: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  neighborhood?: string | null;
+  street?: string | null;
+  openAddress?: string | null;
   createdByDisplayName: string | null;
   createdAtUtc: string;
   departments: JobDepartmentInfo[];

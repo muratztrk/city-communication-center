@@ -1190,5 +1190,22 @@
     "mapPreview": "Location Preview",
     "mapSectionTitle": "Location",
     "mapTitle": "Location Map"
+  },
+  "address": {
+    "sectionTitle": "Address Information (Optional)",
+    "neighborhoodLabel": "Neighborhood",
+    "neighborhoodPlaceholder": "Select neighborhood",
+    "streetLabel": "Street / Avenue / Boulevard",
+    "streetPlaceholder": "e.g. Atatürk Avenue",
+    "openAddressLabel": "Full Address",
+    "openAddressPlaceholder": "Building no, floor, apartment..."
+  },
+  "settings": {
+    "municipalityLocation": {
+      "sectionTitle": "Municipality Location",
+      "sectionDescription": "Select a district to determine the neighborhood list shown in the create request screen.",
+      "districtLabel": "District (İzmir)",
+      "saveSuccess": "Location setting saved."
+    }
   }
 }

@@ -21,7 +21,11 @@ export interface SidebarNavGroupItem {
   children: SidebarNavLinkItem[]
 }
 
-export type SidebarNavItem = SidebarNavLinkItem | SidebarNavGroupItem
+export interface SidebarNavSeparatorItem {
+  type: 'separator'
+}
+
+export type SidebarNavItem = SidebarNavLinkItem | SidebarNavGroupItem | SidebarNavSeparatorItem
 
 interface SidebarNavProps {
   items: SidebarNavItem[]
@@ -103,6 +107,10 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           const separator = !isLast ? (
             <div className="mx-2 h-px bg-white/[0.09]" />
           ) : null
+
+          if (item.type === 'separator') {
+            return <div key={`sep-${index}`} className="mx-2 my-1 h-[2px] rounded-full bg-white/[0.18]" />
+          }
 
           if (item.type !== 'group') {
             return (

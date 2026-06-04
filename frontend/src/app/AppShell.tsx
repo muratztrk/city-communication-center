@@ -124,18 +124,20 @@ export function AppShell() {
     .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  const navItemConfigs: NavLinkConfig[] = [
-    { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean }
+
+  const navItemConfigs: NavLinkConfigEx[] = [
+    { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
+    { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
+    { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
+    { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, requiredRole: 'Manager' },
+    { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
+    { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
     { path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban, requiredRole: 'Manager' },
     { path: '/staff-tasks', label: t('nav.staffTasks', 'Personelimin Görevleri'), icon: Users, requiredRole: 'Manager' },
-    { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
-    { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck },
-    { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
-    { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
-    { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
-    { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true },
+    { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true, separatorBefore: true, separatorAfter: true },
     { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
     { pageKey: 'users' as const, path: '/users', label: t('nav.users'), icon: Users },
     { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },
@@ -144,7 +146,11 @@ export function AppShell() {
 
   const navItems = navItemConfigs.reduce<SidebarNavItem[]>((items, item) => {
     const canUse = item.requiredRole ? user?.role === item.requiredRole : item.pageKey ? canRoleAccessPage(user?.role, item.pageKey) : false
-    if (canUse) items.push({ path: item.path, label: item.label, icon: item.icon, newTab: item.newTab })
+    if (canUse) {
+      if (item.separatorBefore && items.length > 0) items.push({ type: 'separator' })
+      items.push({ path: item.path, label: item.label, icon: item.icon, newTab: item.newTab })
+      if (item.separatorAfter) items.push({ type: 'separator' })
+    }
     return items
   }, [])
   void accessVersion

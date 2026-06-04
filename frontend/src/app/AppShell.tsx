@@ -332,7 +332,7 @@ export function AppShell() {
             <img
               src="/header-ataturk.png"
               alt="Atatürk"
-              className="absolute left-1.5 top-1.5 h-10 w-auto opacity-80 select-none pointer-events-none"
+              className="absolute left-0 top-0 h-20 w-auto opacity-80 select-none pointer-events-none"
             />
             {!isSidebarCollapsed ? (
               <div className="flex flex-col items-center gap-2">

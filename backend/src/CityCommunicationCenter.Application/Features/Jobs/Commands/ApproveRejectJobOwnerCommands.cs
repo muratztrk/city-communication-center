@@ -50,6 +50,13 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
             .Where(e => e.JobId == job.JobId && e.Role == JobDepartmentRole.Target)
             .ToListAsync(cancellationToken);
 
+        // Always assign the job number when the owner approves
+        if (job.JobNumber is null)
+        {
+            job.JobNumberYear = utcNow.Year;
+            job.JobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken);
+        }
+
         var createdTaskCount = 0;
         if (targets.Count > 0)
         {
@@ -64,11 +71,6 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
         else
         {
             job.Status = JobStatus.Active;
-            if (job.JobNumber is null)
-            {
-                job.JobNumberYear = utcNow.Year;
-                job.JobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken);
-            }
             if (job.DueDateUtc is null)
             {
                 var settings = await _dbContext.TenantSettings.FirstOrDefaultAsync(cancellationToken);

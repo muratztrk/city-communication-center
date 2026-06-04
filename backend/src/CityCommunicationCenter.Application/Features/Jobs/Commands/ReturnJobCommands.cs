@@ -27,14 +27,18 @@ public sealed class ReturnJobCommandHandler : ICommandHandler<ReturnJobCommand, 
         var job = await _dbContext.Jobs.FirstOrDefaultAsync(j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        // Allow the job creator or a manager of the owner department to return/iade the job
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
 
         var isCreator = job.CreatedByUserId == actor.UserId;
         var isOwnerManager = await _dbContext.Departments
             .AnyAsync(d => d.DepartmentId == job.OwnerDepartmentId && d.TenantId == tenantId && d.ManagerUserId == actor.UserId, cancellationToken);
+        var isTargetManager = !isCreator && !isOwnerManager && job.Status == JobStatus.PendingExternalApproval &&
+            await _dbContext.JobDepartments.AnyAsync(
+                jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target &&
+                      _dbContext.Departments.Any(d => d.TenantId == tenantId && d.DepartmentId == jd.DepartmentId && d.ManagerUserId == actor.UserId),
+                cancellationToken);
 
-        if (!isCreator && !isOwnerManager)
+        if (!isCreator && !isOwnerManager && !isTargetManager)
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "Bu talebi iade etme yetkiniz yok.")

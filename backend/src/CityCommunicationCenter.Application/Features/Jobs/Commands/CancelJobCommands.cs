@@ -27,8 +27,21 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         if (job is null) return false;
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
-        await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
-            _dbContext, actor, job.OwnerDepartmentId, "Is iptal yetkiniz yok.", cancellationToken);
+
+        var isOwnerManager = await _dbContext.Departments
+            .AnyAsync(d => d.TenantId == tenantId && d.DepartmentId == job.OwnerDepartmentId && d.ManagerUserId == actor.UserId, cancellationToken);
+        var isTargetManager = !isOwnerManager && job.Status == JobStatus.PendingExternalApproval &&
+            await _dbContext.JobDepartments.AnyAsync(
+                jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target &&
+                      _dbContext.Departments.Any(d => d.TenantId == tenantId && d.DepartmentId == jd.DepartmentId && d.ManagerUserId == actor.UserId),
+                cancellationToken);
+
+        if (!isOwnerManager && !isTargetManager)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "İş iptal yetkiniz yok.")
+            ]);
+        }
 
         if (job.Status is JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected)
         {

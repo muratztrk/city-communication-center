@@ -1783,7 +1783,7 @@ export function SettingsPage() {
                 <tr>
                   <th>{t('settings.roles.page')}</th>
                   {ROLE_CODES.map(role => (
-                    <th key={role}>{getRoleLabel(t, role)}</th>
+                    <th key={role}>{role === 'Manager' ? t('settings.roles.managerLabel', 'Birim Yöneticisi/Sorumluları') : getRoleLabel(t, role)}</th>
                   ))}
                 </tr>
               </thead>

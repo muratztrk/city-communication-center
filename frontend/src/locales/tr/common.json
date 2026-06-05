@@ -799,7 +799,8 @@
       "note": "Bu matris arayüzdeki sayfa görünürlüğünü yönetir. Kontrol paneli herkes için açık kalır; sistem ayarları yalnızca Sistem Yöneticisi rolüne açıktır.",
       "saveSuccess": "Rol sayfa yetkileri kaydedildi.",
       "resetSuccess": "Rol sayfa yetkileri varsayılanlara döndürüldü.",
-      "resetDefaults": "Varsayılanlara Dön"
+      "resetDefaults": "Varsayılanlara Dön",
+      "managerLabel": "Birim Yöneticisi/Sorumluları"
     },
     "socialConfig": {
       "sectionTitle": "Sosyal Entegrasyonlar",

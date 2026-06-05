@@ -788,7 +788,8 @@
       "note": "This matrix controls page visibility in the user interface. Dashboard remains available to everyone; system settings stay limited to the System Administrator role.",
       "saveSuccess": "Role page permissions saved.",
       "resetSuccess": "Role page permissions reset to defaults.",
-      "resetDefaults": "Reset Defaults"
+      "resetDefaults": "Reset Defaults",
+      "managerLabel": "Unit Manager/Responsible"
     },
     "socialConfig": {
       "sectionTitle": "Social Integrations",

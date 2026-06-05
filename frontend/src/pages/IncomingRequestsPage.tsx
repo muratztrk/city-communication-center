@@ -352,11 +352,12 @@ export function IncomingRequestsPage() {
   }
 
   const rows = useMemo(() => {
-    const internalRows = tasks
-      .filter(task => task.jobRequestType === 'InternalUnit')
-      .map(toInternalRow)
+    const internalTasks = tasks.filter(task => task.jobRequestType === 'InternalUnit')
+    const internalRows = internalTasks.map(toInternalRow)
+    // jobIds that already have task rows — skip the job-level row for these
+    const jobIdsWithTasks = new Set(internalTasks.map(t => t.jobId))
     const pendingInternalJobRows = jobs
-      .filter(job => job.requestType === 'InternalUnit' && job.status === 'PendingOwnerApproval')
+      .filter(job => job.requestType === 'InternalUnit' && !jobIdsWithTasks.has(job.jobId))
       .map(toPendingInternalJobRow)
     const externalRows = jobs
       .filter(job => job.requestType === 'ExternalUnit')

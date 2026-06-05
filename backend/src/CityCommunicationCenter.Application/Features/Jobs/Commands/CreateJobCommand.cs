@@ -187,8 +187,10 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 
         if (!requiresOwnerApproval)
         {
+            var taskYear = utcNow.Year;
             foreach (var ownerUser in ownerUsers)
             {
+                var taskNumber = await SequenceNumberHelper.NextTaskNumberAsync(_dbContext, tenantId, taskYear, cancellationToken);
                 var task = new WorkTask
                 {
                     TaskId = Guid.NewGuid(),
@@ -204,7 +206,9 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                     Priority = job.Priority,
                     StartDateUtc = job.StartDateUtc,
                     DueDateUtc = job.DueDateUtc,
-                    CreatedByUserId = context.UserId
+                    CreatedByUserId = context.UserId,
+                    TaskNumber = taskNumber,
+                    TaskNumberYear = taskYear
                 };
 
                 _dbContext.Tasks.Add(task);

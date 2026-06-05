@@ -1091,6 +1091,16 @@
     color: white;
   }
 
+  .settings-tab-bar {
+    gap: 0.68rem;
+    padding: 0.38rem 0.5rem 0.48rem;
+  }
+
+  .settings-tab-bar .tab-button {
+    min-height: 2.6rem;
+    padding: 0.68rem 1rem;
+  }
+
   .role-matrix-table th,
   .role-matrix-table td {
     text-align: center;

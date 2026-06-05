@@ -946,7 +946,7 @@ export function SettingsPage() {
           <StatusPill tone="success" className="bg-white/12 text-white ring-white/15 self-start">{institutionName}</StatusPill>
         </div>
         <div className="sticky top-0 z-[12]">
-          <div className="tab-bar">
+          <div className="tab-bar settings-tab-bar">
             <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">
               {t('settings.tabs.organization')}
             </button>

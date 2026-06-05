@@ -932,43 +932,45 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
-      <header className="sticky-page-header">
-        <div className="page-header-row">
+    <div className="page-stack desktop-page-shell shrink-0 px-2 sm:px-3 lg:px-4">
+      <section className="section-card p-0">
+        <div
+          className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto] rounded-t-[var(--radius-xl)] lg:rounded-t-[0.85rem]"
+          style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
+        >
           <div className="space-y-1">
-            <div className="page-kicker">{t('nav.settings', 'Yönetim')}</div>
-            <h1 className="page-title">{t('settings.title')}</h1>
-            <p className="page-subtitle">{t('settings.subtitle')}</p>
+            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('nav.settings', 'Yönetim')}</div>
+            <h1 className="page-title !text-white">{t('settings.title')}</h1>
+            <p className="max-w-3xl text-sm leading-6 text-white/82">{t('settings.subtitle')}</p>
           </div>
-          <StatusPill tone="success" className="banner-status-pill">{institutionName}</StatusPill>
+          <StatusPill tone="success" className="bg-white/12 text-white ring-white/15 self-start">{institutionName}</StatusPill>
         </div>
-      </header>
-
-      <div className="sticky top-0 z-[12]">
-        <div className="tab-bar">
-          <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">
-            {t('settings.tabs.organization')}
-          </button>
-          <button className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`} onClick={() => setTab('appearance')} type="button">
-            {t('settings.tabs.appearance')}
-          </button>
-          <button className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setTab('roles')} type="button">
-            {t('settings.tabs.roles')}
-          </button>
-          <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
-            {t('settings.tabs.social')}
-          </button>
-          <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
-            {t('settings.tabs.routing')}
-          </button>
-          <button className={`tab-button ${activeTab === 'citizen' ? 'active' : ''}`} onClick={() => setTab('citizen')} type="button">
-            {t('settings.tabs.citizen')}
-          </button>
-          <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
-            Taslak Mesajlar
-          </button>
+        <div className="sticky top-0 z-[12]">
+          <div className="tab-bar">
+            <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">
+              {t('settings.tabs.organization')}
+            </button>
+            <button className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`} onClick={() => setTab('appearance')} type="button">
+              {t('settings.tabs.appearance')}
+            </button>
+            <button className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setTab('roles')} type="button">
+              {t('settings.tabs.roles')}
+            </button>
+            <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
+              {t('settings.tabs.social')}
+            </button>
+            <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
+              {t('settings.tabs.routing')}
+            </button>
+            <button className={`tab-button ${activeTab === 'citizen' ? 'active' : ''}`} onClick={() => setTab('citizen')} type="button">
+              {t('settings.tabs.citizen')}
+            </button>
+            <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
+              Taslak Mesajlar
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
       {message ? (
         <div className={message.type === 'success' ? 'rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700' : 'rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700'}>

@@ -981,7 +981,7 @@ export function SettingsPage() {
       {activeTab === 'tenant' ? (
         <div className="page-stack desktop-page-shell">
           <div className="grid gap-4">
-            <section className="section-card page-stack">
+            <section className="section-card page-stack p-5 sm:p-6 lg:p-7">
               <div className="page-header-row">
                 <div>
                   <h2 className="text-xl font-extrabold text-slate-950">{t('settings.organizationSectionTitle')}</h2>

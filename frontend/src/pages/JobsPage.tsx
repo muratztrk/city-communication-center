@@ -800,6 +800,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   {(isMyRequestsView || isDepartmentOutgoingView) && <th>{t('jobs.columns.requestNo', 'Talep No')}</th>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
+                  {isDepartmentOutgoingView && <th>{t('jobs.columns.createdBy', 'Oluşturan')}</th>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
                   {(isMyRequestsView || isDepartmentOutgoingView)
                     ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
@@ -824,6 +825,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td className="font-mono text-xs text-slate-500">{formatJobDisplayNumber(job)}</td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td>{formatDateTime(job.createdAtUtc ?? null, locale)}</td>}
+                    {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold">{job.title}</td>
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (

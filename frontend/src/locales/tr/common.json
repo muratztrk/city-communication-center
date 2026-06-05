@@ -479,7 +479,7 @@
     "departmentTasksEmpty": "{{view}} bulunmuyor",
     "summary": {
       "total": "Toplam İş",
-      "pendingApproval": "Onay Bekleyen",
+      "pendingApproval": "Onay Bekleyen Talepler",
       "assigned": "Atanan",
       "completed": "Tamamlanan"
     },

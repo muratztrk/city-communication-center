@@ -31,11 +31,13 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ISlaCalculatorService _slaCalculator;
 
-    public CreateTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public CreateTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _slaCalculator = slaCalculator;
     }
 
     public async ValueTask<TaskSummaryResponse> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
@@ -124,8 +126,21 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         }
 
         var initialStatus = assignedUserId.HasValue ? WorkflowTaskStatus.Assigned : WorkflowTaskStatus.Waiting;
+        var utcNow = DateTimeOffset.UtcNow;
+        var dueDateUtc = request.DueDateUtc;
+        if (initialStatus == WorkflowTaskStatus.Assigned && dueDateUtc is null)
+        {
+            var settings = await _dbContext.TenantSettings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+            if (settings is not null && settings.DefaultSlaHours > 0)
+            {
+                dueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                    utcNow, settings.DefaultSlaHours, tenantId, assignedDepartmentId, cancellationToken);
+            }
+        }
 
-        var taskYear = DateTimeOffset.UtcNow.Year;
+        var taskYear = utcNow.Year;
         var taskNumber = await SequenceNumberHelper.NextTaskNumberAsync(_dbContext, tenantId, taskYear, cancellationToken);
 
         var task = new WorkTask
@@ -142,7 +157,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             CurrentStatus = initialStatus,
             Priority = request.Priority.Trim(),
             StartDateUtc = request.StartDateUtc,
-            DueDateUtc = request.DueDateUtc,
+            DueDateUtc = dueDateUtc,
             EstimatedHours = request.EstimatedHours,
             Notes = request.Notes,
             CreatedByUserId = context.UserId,

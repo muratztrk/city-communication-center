@@ -73,7 +73,7 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
                 if (settings is not null && settings.DefaultSlaHours > 0)
                 {
                     job.DueDateUtc = await _slaCalculator.CalculateDueDateAsync(
-                        job.CreatedAtUtc, settings.DefaultSlaHours, tenantId, request.DepartmentId, cancellationToken);
+                        utcNow, settings.DefaultSlaHours, tenantId, request.DepartmentId, cancellationToken);
                 }
             }
             createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(

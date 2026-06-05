@@ -207,7 +207,7 @@ export function IncomingRequestsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
-  const [incomingPageSize, setIncomingPageSize] = useState(25)
+  const [incomingPageSize, setIncomingPageSize] = useState(10)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
   const [cancelReturnModal, setCancelReturnModal] = useState<{ row: IncomingRequestRow } | null>(null)
@@ -285,11 +285,27 @@ export function IncomingRequestsPage() {
       if (selectedUserIds.length > 0) {
         const jobDetail = await api.getJobById(jobId)
         const taskIds = jobDetail.tasks.map(t => t.taskId)
-        await Promise.all(
-          taskIds.map((taskId, i) =>
-            api.assignTask(taskId, undefined, selectedUserIds[i % selectedUserIds.length])
+        if (taskIds.length === 0) {
+          await Promise.all(
+            selectedUserIds.map(userId =>
+              api.createTask({
+                jobId,
+                title: jobDetail.title,
+                description: jobDetail.description,
+                priority: jobDetail.priority,
+                startDateUtc: jobDetail.startDateUtc,
+                dueDateUtc: null,
+                assignedUserId: userId,
+              })
+            )
           )
-        )
+        } else {
+          await Promise.all(
+            taskIds.map((taskId, i) =>
+              api.assignTask(taskId, undefined, selectedUserIds[i % selectedUserIds.length])
+            )
+          )
+        }
       }
       await reload()
     } catch (err) {

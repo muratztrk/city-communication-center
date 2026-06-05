@@ -276,7 +276,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [jobsPage, setJobsPage] = useState(1)
-  const [jobsPageSize, setJobsPageSize] = useState(25)
+  const [jobsPageSize, setJobsPageSize] = useState(10)
 
   const [detail, setDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)

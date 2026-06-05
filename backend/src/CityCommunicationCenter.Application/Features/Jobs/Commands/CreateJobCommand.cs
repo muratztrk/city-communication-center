@@ -39,11 +39,13 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ISlaCalculatorService _slaCalculator;
 
-    public CreateJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public CreateJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _slaCalculator = slaCalculator;
     }
 
     public async ValueTask<JobSummaryResponse> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -124,6 +126,18 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                     : JobRequestType.InternalUnit;
         var requiresOwnerApproval = actor.RoleCode == RoleCode.Staff;
         var ownerTaskNotes = JobOwnerTaskProvisioning.CreateOwnerTaskNotes(ownerUserIds);
+        var dueDateUtc = request.DueDateUtc;
+        if (!requiresOwnerApproval && dueDateUtc is null)
+        {
+            var settings = await _dbContext.TenantSettings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+            if (settings is not null && settings.DefaultSlaHours > 0)
+            {
+                dueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                    utcNow, settings.DefaultSlaHours, tenantId, request.OwnerDepartmentId, cancellationToken);
+            }
+        }
 
         var job = new Job
         {
@@ -139,7 +153,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             CitizenName = string.IsNullOrWhiteSpace(request.CitizenName) ? null : request.CitizenName.Trim(),
             CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim(),
             StartDateUtc = request.StartDateUtc,
-            DueDateUtc = request.DueDateUtc,
+            DueDateUtc = dueDateUtc,
             SourceType = sourceType,
             SourceRefId = request.SourceRefId,
             Latitude = request.Latitude,

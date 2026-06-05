@@ -23,11 +23,13 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ISlaCalculatorService _slaCalculator;
 
-    public AssignTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public AssignTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _slaCalculator = slaCalculator;
     }
 
     public async ValueTask<bool> Handle(AssignTaskCommand request, CancellationToken cancellationToken)
@@ -93,13 +95,25 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
 
         var previousDepartmentId = task.AssignedDepartmentId;
         var previousUserId = task.AssignedUserId;
+        var utcNow = DateTimeOffset.UtcNow;
 
         task.AssignedDepartmentId = targetDepartment?.DepartmentId;
         task.AssignedUserId = targetUser?.UserId;
         task.AssigningManagerId = request.ActorUserId;
         task.CurrentStatus = WorkflowTaskStatus.Assigned;
         task.UpdatedByUserId = request.ActorUserId;
-        task.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        task.UpdatedAtUtc = utcNow;
+        if (task.DueDateUtc is null)
+        {
+            var settings = await _dbContext.TenantSettings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+            if (settings is not null && settings.DefaultSlaHours > 0)
+            {
+                task.DueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                    utcNow, settings.DefaultSlaHours, tenantId, task.AssignedDepartmentId, cancellationToken);
+            }
+        }
 
         _dbContext.AssignmentHistories.Add(new AssignmentHistory
         {

@@ -1183,20 +1183,20 @@
     box-shadow: 0 1px 4px color-mix(in srgb, var(--color-primary) 35%, transparent);
   }
 
-  /* ── Bekleyen → Sarı ───────────────────────── */
+  /* ── Bekleyen → Çok açık gri ───────────────── */
   .scope-chip--pending.active {
-    background: #eab308;
-    border-color: #eab308;
-    color: white;
-    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.38);
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+    box-shadow: none;
   }
 
-  /* ── Onaylanmış → Açık Yeşil ───────────────── */
+  /* ── Onaylanmış → Sarı ─────────────────────── */
   .scope-chip--approved.active {
-    background: #22c55e;
-    border-color: #22c55e;
-    color: white;
-    box-shadow: 0 1px 4px rgba(34, 197, 94, 0.35);
+    background: #facc15;
+    border-color: #eab308;
+    color: #422006;
+    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
   }
 
   /* ── Tamamlanmış → Yeşil ────────────────────── */
@@ -1227,20 +1227,20 @@
     border-color: #7a8fa3;
   }
 
-  /* ── Birim İçi → Turkuaz ───────────────────── */
+  /* ── Birim İçi → Açık turkuaz ──────────────── */
   .scope-chip--internal.active {
-    background: #0d9488;
-    border-color: #0d9488;
+    background: #14b8a6;
+    border-color: #14b8a6;
     color: white;
-    box-shadow: 0 1px 4px rgba(13, 148, 136, 0.38);
+    box-shadow: 0 1px 4px rgba(20, 184, 166, 0.32);
   }
 
-  /* ── Birim Dışı → Mor ──────────────────────── */
+  /* ── Birim Dışı → Koyu turkuaz ─────────────── */
   .scope-chip--external.active {
-    background: #7c3aed;
-    border-color: #7c3aed;
+    background: #0f766e;
+    border-color: #0f766e;
     color: white;
-    box-shadow: 0 1px 4px rgba(124, 58, 237, 0.38);
+    box-shadow: 0 1px 4px rgba(15, 118, 110, 0.36);
   }
 
   /* ── Yapılmakta Olan → Turuncu ─────────────── */

@@ -121,7 +121,7 @@ export function WallboardPage() {
   const [refreshIntervalMs, setRefreshIntervalMs] = useState(60_000)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(25)
+  const [pageSize, setPageSize] = useState(10)
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
   const { filters, setFilter, matchesFilters } = useColumnFilters()
 

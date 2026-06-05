@@ -9,6 +9,7 @@ import type { TFunction } from 'i18next'
 import { ClipboardPlus, Search, X as XIcon } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
@@ -270,6 +271,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [activeDeptId, setActiveDeptId] = useState(() => getActiveDepartmentId())
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -324,6 +326,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const autoOpenJobId = searchParams.get('jobId')
 
   useEffect(() => {
+    const handler = () => setActiveDeptId(getActiveDepartmentId())
+    window.addEventListener('activeDepartmentChanged', handler)
+    return () => window.removeEventListener('activeDepartmentChanged', handler)
+  }, [])
+
+  useEffect(() => {
     let cancelled = false
     setLoading(true)
     api.getJobs(scope)
@@ -335,7 +343,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [scope, t]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [scope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -354,7 +362,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }, 30000)
 
     return () => window.clearInterval(intervalId)
-  }, [detail?.jobId, scope, t])
+  }, [detail?.jobId, scope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reload = async () => {
     try { setJobs(await api.getJobs(scope)) }

@@ -201,6 +201,7 @@ export function IncomingRequestsPage() {
   const locale = getLocale(i18n.language)
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -221,7 +222,14 @@ export function IncomingRequestsPage() {
   const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
 
   useEffect(() => {
+    const handler = () => setActiveDeptIdState(getActiveDepartmentId())
+    window.addEventListener('activeDepartmentChanged', handler)
+    return () => window.removeEventListener('activeDepartmentChanged', handler)
+  }, [])
+
+  useEffect(() => {
     let cancelled = false
+    setLoading(true)
     Promise.all([
       api.getTasks('all'),
       api.getJobs('my-department'),
@@ -231,15 +239,15 @@ export function IncomingRequestsPage() {
         if (cancelled) return
         setTasks(taskList)
         setJobs(jobList)
-        const activeDeptId = getActiveDepartmentId() ?? user?.departmentId
-        setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === activeDeptId || u.departments?.some(d => d.departmentId === activeDeptId)) && u.roleCode === 'Staff'))
+        const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
+        setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === currentDeptId || u.departments?.some(d => d.departmentId === currentDeptId)) && u.roleCode === 'Staff'))
         setError(null)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [t])
+  }, [t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reload = async () => {
     try {

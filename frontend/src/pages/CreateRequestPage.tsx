@@ -556,7 +556,6 @@ export function CreateRequestPage() {
               <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')}</span>
               <input className="field-input" required value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
             </div>
-            {renderRequestTypeField()}
             <div className="grid gap-3 md:grid-cols-3">
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
@@ -621,7 +620,6 @@ export function CreateRequestPage() {
               <label className="job-field-label" htmlFor="request-title">{t('jobs.form.title')} <span className="text-red-500">*</span></label>
               <input id="request-title" className="field-input" type="text" value={externalForm.title} onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))} required />
             </div>
-            {renderRequestTypeField()}
             <div className="job-field">
               <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
               <select

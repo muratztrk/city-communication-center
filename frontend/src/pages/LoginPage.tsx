@@ -278,7 +278,12 @@ export function LoginPage() {
               {/* Logo kartı + Başlık yan yana */}
               <div className="flex items-center gap-5">
                 <div className="shrink-0">
-                  <MunicipalitySeal alt={`${institutionName} amblemi`} src={desktopLogoUrl} className="h-64 w-64" />
+                  <MunicipalitySeal
+                    alt={`${institutionName} amblemi`}
+                    src={desktopLogoUrl}
+                    className="h-40 w-64 rounded-[2rem]"
+                    imageClassName="h-[58%] w-[78%]"
+                  />
                 </div>
                 <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                   {t('shell.subtitle', { municipalityName })}
@@ -286,7 +291,7 @@ export function LoginPage() {
               </div>
               <p className="max-w-2xl text-base leading-7 text-white/86 xl:text-lg xl:leading-8">{t('login.subtitle')}</p>
             </div>
-            <ul className="grid max-w-3xl gap-3 sm:grid-cols-2">
+            <ul className="grid max-w-[36rem] gap-2.5 sm:grid-cols-2">
               {[
                 { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
                 { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
@@ -295,12 +300,12 @@ export function LoginPage() {
                 return (
                   <li
                     key={item.title}
-                    className="flex min-h-[108px] items-center gap-4 rounded-[1.3rem] border border-white/14 bg-white/9 px-5 py-4 shadow-[0_18px_55px_rgba(0,0,0,0.14)] backdrop-blur"
+                    className="flex min-h-[82px] items-center gap-3 rounded-[1.05rem] border border-white/14 bg-white/9 px-4 py-3 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur"
                   >
-                    <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-white/14 bg-white/12 text-white">
-                      <Icon className="size-6" />
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white">
+                      <Icon className="size-5" />
                     </span>
-                    <span className="text-base font-semibold leading-snug text-white/95">{item.title}</span>
+                    <span className="text-sm font-semibold leading-snug text-white/95">{item.title}</span>
                   </li>
                 )
               })}

@@ -304,7 +304,7 @@ export function AppShell() {
   const CurrentBreadcrumbIcon = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? requestKindIcons[requestKindParam] : breadcrumbIcon[currentBreadcrumbSegment]) : null
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[color:var(--color-background)]">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[color:var(--color-sidebar)]">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg">
         Skip to content
       </a>

@@ -933,42 +933,42 @@ export function SettingsPage() {
 
   return (
     <div className="page-stack desktop-page-shell">
-      <div className="sticky top-0 z-[12] flex flex-col gap-3">
-        <header className="sticky-page-header" style={{ position: 'relative' }}>
-          <div className="page-header-row">
-            <div className="space-y-1">
-              <div className="page-kicker">{t('nav.settings', 'Yönetim')}</div>
-              <h1 className="page-title">{t('settings.title')}</h1>
-              <p className="page-subtitle">{t('settings.subtitle')}</p>
-            </div>
-            <StatusPill tone="success" className="banner-status-pill">{institutionName}</StatusPill>
+      <header className="sticky-page-header">
+        <div className="page-header-row">
+          <div className="space-y-1">
+            <div className="page-kicker">{t('nav.settings', 'Yönetim')}</div>
+            <h1 className="page-title">{t('settings.title')}</h1>
+            <p className="page-subtitle">{t('settings.subtitle')}</p>
           </div>
-        </header>
+          <StatusPill tone="success" className="banner-status-pill">{institutionName}</StatusPill>
+        </div>
+      </header>
 
-      <div className="tab-bar">
-        <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">
-          {t('settings.tabs.organization')}
-        </button>
-        <button className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`} onClick={() => setTab('appearance')} type="button">
-          {t('settings.tabs.appearance')}
-        </button>
-        <button className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setTab('roles')} type="button">
-          {t('settings.tabs.roles')}
-        </button>
-        <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
-          {t('settings.tabs.social')}
-        </button>
-        <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
-          {t('settings.tabs.routing')}
-        </button>
-        <button className={`tab-button ${activeTab === 'citizen' ? 'active' : ''}`} onClick={() => setTab('citizen')} type="button">
-          {t('settings.tabs.citizen')}
-        </button>
-        <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
-          Taslak Mesajlar
-        </button>
+      <div className="sticky top-0 z-[12]">
+        <div className="tab-bar">
+          <button className={`tab-button ${activeTab === 'tenant' ? 'active' : ''}`} onClick={() => setTab('tenant')} type="button">
+            {t('settings.tabs.organization')}
+          </button>
+          <button className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`} onClick={() => setTab('appearance')} type="button">
+            {t('settings.tabs.appearance')}
+          </button>
+          <button className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setTab('roles')} type="button">
+            {t('settings.tabs.roles')}
+          </button>
+          <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
+            {t('settings.tabs.social')}
+          </button>
+          <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
+            {t('settings.tabs.routing')}
+          </button>
+          <button className={`tab-button ${activeTab === 'citizen' ? 'active' : ''}`} onClick={() => setTab('citizen')} type="button">
+            {t('settings.tabs.citizen')}
+          </button>
+          <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
+            Taslak Mesajlar
+          </button>
+        </div>
       </div>
-      </div>{/* end sticky wrapper */}
 
       {message ? (
         <div className={message.type === 'success' ? 'rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700' : 'rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700'}>

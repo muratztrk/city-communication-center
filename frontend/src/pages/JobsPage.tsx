@@ -414,7 +414,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterYear, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
-  const { filters: jobFilters, setFilter: setJobFilter, matchesFilters: jobMatchesFilters } = useColumnFilters()
+  const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()
 
   const toggleJobsSort = (key: string) => {
     _toggleJobsSort(key)
@@ -442,6 +442,21 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   )
 
   useEffect(() => { setJobsPage(1) }, [jobFilters])
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setJobsPage(1)
+      setFilterYear('')
+      setSearchText('')
+      clearJobFilters()
+      setDetail(null)
+      setReturnModal(null)
+      setEditModal(null)
+      setConfirmDialog(null)
+      setPromptDialog(null)
+      setError(null)
+    })
+  }, [activeDeptId, clearJobFilters])
 
   const pagedJobs = useMemo(
     () => sortJobs(columnFilteredJobs).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize),

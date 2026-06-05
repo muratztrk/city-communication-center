@@ -376,7 +376,7 @@ export function IncomingRequestsPage() {
   [currentKindFilter, currentStatusFilter, rows])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
-  const { filters: incomingFilters, setFilter: setIncomingFilter, matchesFilters: incomingMatchesFilters } = useColumnFilters()
+  const { filters: incomingFilters, setFilter: setIncomingFilter, clearFilters: clearIncomingFilters, matchesFilters: incomingMatchesFilters } = useColumnFilters()
 
   const columnFilteredRows = useMemo(
     () => visibleRows.filter(row => incomingMatchesFilters(row, (key, r) => {
@@ -390,6 +390,18 @@ export function IncomingRequestsPage() {
   )
 
   useEffect(() => { setIncomingPage(1) }, [incomingFilters])
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setIncomingPage(1)
+      clearIncomingFilters()
+      setConfirmDialog(null)
+      setPromptDialog(null)
+      setCancelReturnModal(null)
+      setStaffAssignModal(null)
+      setError(null)
+    })
+  }, [activeDeptId, clearIncomingFilters])
 
   const toggleIncomingSort = (key: string) => {
     _toggleIncomingSort(key)

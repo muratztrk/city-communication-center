@@ -14,6 +14,8 @@ export function useColumnFilters() {
     })
   }, [])
 
+  const clearFilters = useCallback(() => setFilters({}), [])
+
   /**
    * Returns true when `item` passes all active column filters.
    * @param item        The data row object.
@@ -33,5 +35,5 @@ export function useColumnFilters() {
     [filters],
   )
 
-  return { filters, setFilter, matchesFilters }
+  return { filters, setFilter, clearFilters, matchesFilters }
 }

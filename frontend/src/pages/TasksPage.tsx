@@ -263,8 +263,14 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
   const managedDepartmentIds = useMemo(() => {
-    return new Set(departments.filter(department => department.managerUserId === user?.userId).map(department => department.departmentId))
-  }, [departments, user?.userId])
+    const ids = departments
+      .filter(department => department.managerUserId === user?.userId)
+      .map(department => department.departmentId)
+
+    return activeDeptId && ids.includes(activeDeptId)
+      ? new Set([activeDeptId])
+      : new Set(ids)
+  }, [activeDeptId, departments, user?.userId])
   const staffUsers = useMemo(() => {
     return activeUsers.filter(item =>
       userBelongsToAnyDepartment(item, managedDepartmentIds) &&
@@ -337,7 +343,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }, [currentMyTaskView, currentRequestFlowFilter, currentStaffTaskType, currentStaffUserId, filterYear, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
-  const { filters: taskFilters, setFilter: setTaskFilter, matchesFilters: taskMatchesFilters } = useColumnFilters()
+  const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()
 
   const toggleTasksSort = (key: string) => {
     _toggleTasksSort(key)
@@ -345,6 +351,22 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }
 
   useEffect(() => { setTasksPage(1) }, [taskFilters])
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setTasksPage(1)
+      setFilterYear('')
+      setSearchText('')
+      clearTaskFilters()
+      setSelectedTask(null)
+      setTaskDetail(null)
+      setAssignmentDraft({ departmentId: '', userId: '' })
+      setReturnModal(null)
+      setConfirmDialog(null)
+      setSuccessToast(null)
+      setError(null)
+    })
+  }, [activeDeptId, clearTaskFilters])
 
   const columnFilteredTasks = useMemo(
     () => visibleTasks.filter(task => taskMatchesFilters(task, (key, row) => {

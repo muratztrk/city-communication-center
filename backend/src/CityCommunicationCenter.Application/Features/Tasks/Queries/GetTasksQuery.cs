@@ -60,7 +60,14 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                 },
             TaskQueryScope.Mine => actor is null
                 ? tasks.Where(_ => false)
-                : tasks.Where(entity => entity.AssignedUserId == actor.UserId),
+                : context.ActiveDepartmentId.HasValue
+                    ? accessibleDepartmentIds.Length == 0
+                        ? tasks.Where(_ => false)
+                        : tasks.Where(entity =>
+                            entity.AssignedUserId == actor.UserId &&
+                            ((entity.AssignedDepartmentId.HasValue && accessibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value)) ||
+                             _dbContext.Jobs.Any(job => job.JobId == entity.JobId && accessibleDepartmentIds.Contains(job.OwnerDepartmentId))))
+                    : tasks.Where(entity => entity.AssignedUserId == actor.UserId),
             TaskQueryScope.DepartmentPool => actor is null
                 ? tasks.Where(_ => false)
                 : tasks.Where(entity =>

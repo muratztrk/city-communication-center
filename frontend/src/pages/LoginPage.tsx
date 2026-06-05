@@ -267,7 +267,7 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-    <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_440px]">
+    <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_440px] lg:mx-[12.5%]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10"
           style={loginHeroBackgroundStyle}
@@ -277,8 +277,8 @@ export function LoginPage() {
             <div className="space-y-5">
               {/* Logo kartı + Başlık yan yana */}
               <div className="flex items-center gap-5">
-                <div className="shrink-0 rounded-[var(--radius-2xl)] border border-white/12 bg-white/8 p-3">
-                  <MunicipalitySeal alt={`${institutionName} amblemi`} src={desktopLogoUrl} className="h-32 w-32" />
+                <div className="shrink-0">
+                  <MunicipalitySeal alt={`${institutionName} amblemi`} src={desktopLogoUrl} className="h-64 w-64" />
                 </div>
                 <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
                   {t('shell.subtitle', { municipalityName })}

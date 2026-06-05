@@ -217,6 +217,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const navigate = useNavigate()
   const locale = getLocale(i18n.language)
   const [searchParams, setSearchParams] = useSearchParams()
+  const [activeDeptId, setActiveDeptId] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -277,7 +278,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const myDepartmentId = useMemo(
     () => getActiveDepartmentId() || user?.departmentId || '',
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user?.departmentId],
+    [user?.departmentId, activeDeptId],
   )
   // Staff iade: kendi biriminin müdürleri seçilebilir
   const returnManagerUsers = useMemo(() => {
@@ -407,6 +408,12 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }
 
   useEffect(() => {
+    const handler = () => setActiveDeptId(getActiveDepartmentId())
+    window.addEventListener('activeDepartmentChanged', handler)
+    return () => window.removeEventListener('activeDepartmentChanged', handler)
+  }, [])
+
+  useEffect(() => {
     let cancelled = false
     setLoading(true)
     Promise.all([
@@ -423,7 +430,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [currentScope, t])
+  }, [currentScope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -436,7 +443,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     }, 30000)
 
     return () => window.clearInterval(intervalId)
-  }, [currentScope, t])
+  }, [currentScope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reload = async () => {
     try {

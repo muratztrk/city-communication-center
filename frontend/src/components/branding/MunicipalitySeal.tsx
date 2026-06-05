@@ -39,8 +39,6 @@ export function MunicipalitySeal({ className, imageClassName, compact = false, b
         className,
       )}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.32),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.18),transparent_44%)]" />
-      <div className="absolute inset-[10%] rounded-[1.2rem] bg-white/14" />
       <img
         alt={alt}
         className={cn(

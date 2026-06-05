@@ -917,6 +917,12 @@
         "WhatsApp": "WhatsApp",
         "Other": "Diğer"
       }
+    },
+    "municipalityLocation": {
+      "sectionTitle": "Kurum Konumu",
+      "sectionDescription": "Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.",
+      "districtLabel": "İlçe (İzmir)",
+      "saveSuccess": "Konum ayarı kaydedildi."
     }
   },
   "pwa": {
@@ -1223,13 +1229,5 @@
     "streetPlaceholder": "ör. Atatürk Caddesi",
     "openAddressLabel": "Açık Adres",
     "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."
-  },
-  "settings": {
-    "municipalityLocation": {
-      "sectionTitle": "Kurum Konumu",
-      "sectionDescription": "Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.",
-      "districtLabel": "İlçe (İzmir)",
-      "saveSuccess": "Konum ayarı kaydedildi."
-    }
   }
 }

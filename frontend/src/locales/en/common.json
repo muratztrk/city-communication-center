@@ -893,6 +893,12 @@
         "WhatsApp": "WhatsApp",
         "Other": "Other"
       }
+    },
+    "municipalityLocation": {
+      "sectionTitle": "Municipality Location",
+      "sectionDescription": "Select a district to determine the neighborhood list shown in the create request screen.",
+      "districtLabel": "District (İzmir)",
+      "saveSuccess": "Location setting saved."
     }
   },
   "pwa": {
@@ -1199,13 +1205,5 @@
     "streetPlaceholder": "e.g. Atatürk Avenue",
     "openAddressLabel": "Full Address",
     "openAddressPlaceholder": "Building no, floor, apartment..."
-  },
-  "settings": {
-    "municipalityLocation": {
-      "sectionTitle": "Municipality Location",
-      "sectionDescription": "Select a district to determine the neighborhood list shown in the create request screen.",
-      "districtLabel": "District (İzmir)",
-      "saveSuccess": "Location setting saved."
-    }
   }
 }

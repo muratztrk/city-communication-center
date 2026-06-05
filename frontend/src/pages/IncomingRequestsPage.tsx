@@ -143,7 +143,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     createdAtUtc: task.createdAtUtc ?? null,
     detailsPath: `/tasks?scope=all&taskId=${task.taskId}`,
     pendingTargetDepartmentId: null,
-    approvedAtUtc: task.updatedAtUtc ?? null,
+    approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,
     updatedAtUtc: task.updatedAtUtc ?? null,
   }

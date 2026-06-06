@@ -6,6 +6,7 @@ import {
   logoutSession,
   restoreSessionFromCookie,
 } from '../api/auth'
+import { setActiveDepartmentId } from '../api/http'
 import type { AuthSession, AuthUser } from '../types/platform'
 
 interface AuthContextValue {
@@ -51,16 +52,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [])
 
   const signIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
+    setActiveDepartmentId(null, true)
     const nextSession = await loginWithPassword(username, password, tenantId, tenantName)
     setSession(nextSession)
   }
 
   const completeInteractiveSignIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
+    setActiveDepartmentId(null, true)
     const nextSession = await exchangeInteractiveGrant(username, password, tenantId, tenantName)
     setSession(nextSession)
   }
 
   const logout = async () => {
+    setActiveDepartmentId(null, true)
     await logoutSession()
     setSession(null)
   }

@@ -58,6 +58,8 @@ type IncomingRequestRow = {
   detailsPath: string
   /** For PendingExternalApproval jobs: the first pending target department that needs approval */
   pendingTargetDepartmentId: string | null
+  /** For Active external jobs where the active department is a target with no tasks yet: the target dept to assign staff for */
+  assignTargetDepartmentId: string | null
   approvedAtUtc: string | null
   completedAtUtc: string | null
   updatedAtUtc: string | null
@@ -143,15 +145,23 @@ function toInternalRow(task: Task): IncomingRequestRow {
     createdAtUtc: task.createdAtUtc ?? null,
     detailsPath: `/tasks?scope=all&taskId=${task.taskId}`,
     pendingTargetDepartmentId: null,
+    assignTargetDepartmentId: null,
     approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,
     updatedAtUtc: task.updatedAtUtc ?? null,
   }
 }
 
-function toExternalRow(job: JobSummary): IncomingRequestRow {
+function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRequestRow {
   const pendingTarget = job.departments?.find(d => d.role === 'Target' && d.approvalStatus === 'Pending')
   const ownerDept = job.departments?.find(d => d.role === 'Owner')
+  // Active external job that landed in this department's pool and still needs staff assigned
+  const activeTarget = activeDeptId
+    ? job.departments?.find(d => d.role === 'Target' && d.departmentId === activeDeptId)
+    : undefined
+  const assignTargetDepartmentId = activeTarget && job.status === 'Active' && job.taskCount === 0
+    ? activeTarget.departmentId
+    : null
   return {
     id: job.jobId,
     displayNumber: formatJobDisplayNumber(job),
@@ -166,10 +176,22 @@ function toExternalRow(job: JobSummary): IncomingRequestRow {
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
     pendingTargetDepartmentId: pendingTarget?.departmentId ?? null,
+    assignTargetDepartmentId,
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
   }
+}
+
+/** An external job belongs in *this department's* incoming list only when the active
+ *  department is one of its targets AND the owner department has already approved it.
+ *  This keeps a department's own outgoing requests out of its incoming list, and hides
+ *  external requests that are still waiting on owner approval. */
+function isIncomingExternalForActiveDept(job: JobSummary, activeDeptId: string | null): boolean {
+  const ownerApproved = job.departments?.some(d => d.role === 'Owner' && d.approvalStatus === 'Approved') ?? false
+  if (!ownerApproved) return false
+  if (!activeDeptId) return true // admins / no active department: show all owner-approved external requests
+  return job.departments?.some(d => d.role === 'Target' && d.departmentId === activeDeptId) ?? false
 }
 
 function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
@@ -188,6 +210,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
     pendingTargetDepartmentId: null,
+    assignTargetDepartmentId: null,
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
@@ -214,7 +237,7 @@ export function IncomingRequestsPage() {
   const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
-    approvalType: 'owner' | 'target'
+    approvalType: 'owner' | 'target' | 'assign'
     pendingTargetDepartmentId?: string
     selectedUserIds: string[]
   } | null>(null)
@@ -269,6 +292,12 @@ export function IncomingRequestsPage() {
 
   const handleApproveTarget = (jobId: string, departmentId: string) => {
     setStaffAssignModal({ jobId, approvalType: 'target', pendingTargetDepartmentId: departmentId, selectedUserIds: [] })
+  }
+
+  // One-step external flow: the job is already Active in this department's pool —
+  // just assign staff (create tasks), no approval call needed.
+  const handleAssignStaff = (jobId: string) => {
+    setStaffAssignModal({ jobId, approvalType: 'assign', selectedUserIds: [] })
   }
 
   const handleStaffAssignConfirm = async () => {
@@ -376,15 +405,15 @@ export function IncomingRequestsPage() {
       .filter(job => job.requestType === 'InternalUnit' && !jobIdsWithTasks.has(job.jobId))
       .map(toPendingInternalJobRow)
     const externalRows = jobs
-      .filter(job => job.requestType === 'ExternalUnit')
-      .map(toExternalRow)
+      .filter(job => job.requestType === 'ExternalUnit' && isIncomingExternalForActiveDept(job, activeDeptId))
+      .map(job => toExternalRow(job, activeDeptId))
 
     return [...internalRows, ...pendingInternalJobRows, ...externalRows].sort((a, b) => {
       const aTime = a.createdAtUtc ? new Date(a.createdAtUtc).getTime() : 0
       const bTime = b.createdAtUtc ? new Date(b.createdAtUtc).getTime() : 0
       return bTime - aTime
     })
-  }, [jobs, tasks])
+  }, [jobs, tasks, activeDeptId])
 
   const visibleRows = useMemo(() => rows
     .filter(row => matchesStatusFilter(row, currentStatusFilter))
@@ -539,6 +568,12 @@ export function IncomingRequestsPage() {
                             {t('jobs.actions.approveTarget', 'Onayla')}
                           </Button>
                         )}
+                        {/* Personel Ata — birime düşen (Active) birim dışı taleplerde */}
+                        {isManagerLike && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
+                          <Button size="sm" variant="success" onClick={() => handleAssignStaff(row.id)}>
+                            {t('jobs.actions.assignStaff', 'Personel Ata')}
+                          </Button>
+                        )}
                         {/* Onayla — kapanış onayı bekleyen görevlerde */}
                         {isManagerLike && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
@@ -651,8 +686,16 @@ export function IncomingRequestsPage() {
             className="w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="mb-1 text-base font-bold text-slate-950">{t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}</h3>
-            <p className="mb-4 text-sm text-slate-600">{t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin. Seçim zorunlu değildir.')}</p>
+            <h3 className="mb-1 text-base font-bold text-slate-950">
+              {staffAssignModal.approvalType === 'assign'
+                ? t('jobs.actions.assignStaff', 'Personel Ata')
+                : t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
+            </h3>
+            <p className="mb-4 text-sm text-slate-600">
+              {staffAssignModal.approvalType === 'assign'
+                ? t('jobs.actions.assignStaffHelp', 'Bu talebe görev atayacağınız personeli seçin. Seçim zorunlu değildir.')
+                : t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin. Seçim zorunlu değildir.')}
+            </p>
             {departmentUsers.length === 0 ? (
               <p className="mb-4 text-sm text-slate-400">{t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}</p>
             ) : (
@@ -680,7 +723,7 @@ export function IncomingRequestsPage() {
             )}
             <div className="flex flex-col gap-2">
               <Button type="button" variant="success" onClick={handleStaffAssignConfirm}>
-                {t('common.approve', 'Onayla')}
+                {staffAssignModal.approvalType === 'assign' ? t('jobs.actions.assign', 'Ata') : t('common.approve', 'Onayla')}
               </Button>
               <Button type="button" variant="secondary" onClick={() => setStaffAssignModal(null)}>
                 {t('common.cancel', 'Vazgeç')}

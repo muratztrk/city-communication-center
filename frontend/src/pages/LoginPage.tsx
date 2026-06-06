@@ -280,8 +280,8 @@ export function LoginPage() {
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
-                  className="h-24 w-48 shrink-0 rounded-[1.5rem] 2xl:h-32 2xl:w-64"
-                  imageClassName="h-[58%] w-[88%]"
+                  className="h-20 w-44 shrink-0 rounded-[1.25rem] 2xl:h-24 2xl:w-52"
+                  imageClassName="h-[80%] w-[96%]"
                 />
                 <h1 className="whitespace-nowrap text-2xl font-extrabold leading-[1.1] text-white 2xl:text-4xl">
                   {t('shell.subtitle', { municipalityName })}
@@ -289,7 +289,7 @@ export function LoginPage() {
               </div>
               <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7 2xl:text-lg 2xl:leading-8">{t('login.subtitle')}</p>
             </div>
-            <ul className="grid max-w-[36rem] gap-2.5 sm:grid-cols-2 2xl:max-w-[44rem] 2xl:gap-4">
+            <ul className="grid max-w-[27rem] gap-2.5 sm:grid-cols-2 2xl:max-w-[31rem] 2xl:gap-4">
               {[
                 { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
                 { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
@@ -298,7 +298,7 @@ export function LoginPage() {
                 return (
                   <li
                     key={item.title}
-                    className="flex min-h-[82px] items-center gap-3 rounded-[1.05rem] border border-white/14 bg-white/9 px-4 py-3 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur 2xl:min-h-[104px] 2xl:gap-4 2xl:px-6 2xl:py-5"
+                    className="flex min-h-[56px] items-center gap-3 rounded-[1.05rem] border border-white/14 bg-white/9 px-4 py-1.5 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur 2xl:min-h-[68px] 2xl:gap-4 2xl:px-6 2xl:py-2"
                   >
                     <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white 2xl:size-12">
                       <Icon className="size-5 2xl:size-7" />

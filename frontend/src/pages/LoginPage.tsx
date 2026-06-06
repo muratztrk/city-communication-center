@@ -267,29 +267,29 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-    <div className="flex flex-1 flex-col overflow-hidden lg:grid lg:grid-cols-[minmax(0,1fr)_440px] lg:mx-[12.5%] lg:my-4 lg:rounded-3xl lg:shadow-2xl">
+    <div className="flex flex-1 flex-col overflow-hidden lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:mx-4 lg:my-4 lg:rounded-3xl lg:shadow-2xl xl:grid-cols-[minmax(0,1fr)_440px] xl:mx-[12.5%]">
         <section
-          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10"
+          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10 2xl:px-14 2xl:py-12"
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
-          <div className="relative grid gap-5 pt-2">
-            <div className="space-y-4">
+          <div className="relative grid gap-5 pt-2 2xl:gap-8 2xl:pt-6">
+            <div className="space-y-4 2xl:space-y-6">
               {/* Logo solda, başlık sağında — tek satır, bölünmez */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 2xl:gap-6">
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
-                  className="h-24 w-48 shrink-0 rounded-[1.5rem]"
+                  className="h-24 w-48 shrink-0 rounded-[1.5rem] 2xl:h-32 2xl:w-64"
                   imageClassName="h-[58%] w-[88%]"
                 />
-                <h1 className="whitespace-nowrap text-2xl font-extrabold leading-[1.1] text-white">
+                <h1 className="whitespace-nowrap text-2xl font-extrabold leading-[1.1] text-white 2xl:text-4xl">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
               </div>
-              <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7">{t('login.subtitle')}</p>
+              <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7 2xl:text-lg 2xl:leading-8">{t('login.subtitle')}</p>
             </div>
-            <ul className="grid max-w-[36rem] gap-2.5 sm:grid-cols-2">
+            <ul className="grid max-w-[36rem] gap-2.5 sm:grid-cols-2 2xl:max-w-[44rem] 2xl:gap-4">
               {[
                 { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
                 { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
@@ -298,12 +298,12 @@ export function LoginPage() {
                 return (
                   <li
                     key={item.title}
-                    className="flex min-h-[82px] items-center gap-3 rounded-[1.05rem] border border-white/14 bg-white/9 px-4 py-3 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur"
+                    className="flex min-h-[82px] items-center gap-3 rounded-[1.05rem] border border-white/14 bg-white/9 px-4 py-3 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur 2xl:min-h-[104px] 2xl:gap-4 2xl:px-6 2xl:py-5"
                   >
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white">
-                      <Icon className="size-5" />
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white 2xl:size-12">
+                      <Icon className="size-5 2xl:size-7" />
                     </span>
-                    <span className="text-sm font-semibold leading-snug text-white/95">{item.title}</span>
+                    <span className="text-sm font-semibold leading-snug text-white/95 2xl:text-lg">{item.title}</span>
                   </li>
                 )
               })}

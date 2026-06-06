@@ -280,7 +280,7 @@ export function LoginPage() {
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
-                  className="h-20 w-44 shrink-0 rounded-[1.25rem] 2xl:h-24 2xl:w-52"
+                  className="h-20 w-52 shrink-0 rounded-[1.25rem] 2xl:h-24 2xl:w-64"
                   imageClassName="h-[80%] w-[96%]"
                 />
                 <h1 className="whitespace-nowrap text-2xl font-extrabold leading-[1.1] text-white 2xl:text-4xl">

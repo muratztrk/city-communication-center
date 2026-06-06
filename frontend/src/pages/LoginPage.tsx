@@ -289,7 +289,7 @@ export function LoginPage() {
               </div>
               <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7 2xl:text-lg 2xl:leading-8">{t('login.subtitle')}</p>
             </div>
-            <ul className="grid max-w-[27rem] gap-2.5 sm:grid-cols-2 2xl:max-w-[31rem] 2xl:gap-4">
+            <ul className="grid max-w-[44rem] gap-2.5 sm:grid-cols-2 2xl:max-w-[52rem] 2xl:gap-4">
               {[
                 { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
                 { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
@@ -303,7 +303,7 @@ export function LoginPage() {
                     <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white 2xl:size-12">
                       <Icon className="size-5 2xl:size-7" />
                     </span>
-                    <span className="text-sm font-semibold leading-snug text-white/95 2xl:text-lg">{item.title}</span>
+                    <span className="whitespace-nowrap text-sm font-semibold leading-snug text-white/95 2xl:text-lg">{item.title}</span>
                   </li>
                 )
               })}

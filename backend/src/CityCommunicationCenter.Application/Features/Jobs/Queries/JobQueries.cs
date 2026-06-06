@@ -53,11 +53,10 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             q = q.Where(j => j.CreatedByUserId == userId);
             if (context.ActiveDepartmentId.HasValue)
             {
-                q = accessibleDepartmentIds.Length == 0
-                    ? q.Where(_ => false)
-                    : q.Where(j =>
-                        accessibleDepartmentIds.Contains(j.OwnerDepartmentId) ||
-                        _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId && accessibleDepartmentIds.Contains(jd.DepartmentId)));
+                var activeDepartmentId = context.ActiveDepartmentId.Value;
+                q = accessibleDepartmentIds.Contains(activeDepartmentId)
+                    ? q.Where(j => j.OwnerDepartmentId == activeDepartmentId)
+                    : q.Where(_ => false);
             }
         }
         else if ((scope == "my-department" || scope == "department-pool") && actor is not null)

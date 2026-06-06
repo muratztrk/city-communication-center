@@ -1133,8 +1133,6 @@
     "actions": {
       "approveOwner": "Onayla",
       "rejectOwner": "Reddet",
-      "approveTarget": "Hedef Onayla",
-      "rejectTarget": "Hedef Reddet",
       "assignStaff": "Personel Ata",
       "assign": "Ata",
       "assignStaffHelp": "Bu talebe görev atayacağınız personeli seçin. Seçim zorunlu değildir.",

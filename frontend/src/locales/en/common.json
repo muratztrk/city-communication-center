@@ -1109,8 +1109,6 @@
     "actions": {
       "approveOwner": "Approve",
       "rejectOwner": "Reject",
-      "approveTarget": "Approve Target",
-      "rejectTarget": "Reject Target",
       "assignStaff": "Assign Staff",
       "assign": "Assign",
       "assignStaffHelp": "Select the staff to assign this request to. Selection is optional.",

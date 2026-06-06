@@ -56,8 +56,6 @@ type IncomingRequestRow = {
   dueDateUtc: string | null
   createdAtUtc: string | null
   detailsPath: string
-  /** For PendingExternalApproval jobs: the first pending target department that needs approval */
-  pendingTargetDepartmentId: string | null
   /** For Active external jobs where the active department is a target with no tasks yet: the target dept to assign staff for */
   assignTargetDepartmentId: string | null
   approvedAtUtc: string | null
@@ -144,7 +142,6 @@ function toInternalRow(task: Task): IncomingRequestRow {
     dueDateUtc: task.dueDateUtc,
     createdAtUtc: task.createdAtUtc ?? null,
     detailsPath: `/tasks?scope=all&taskId=${task.taskId}`,
-    pendingTargetDepartmentId: null,
     assignTargetDepartmentId: null,
     approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,
@@ -153,7 +150,6 @@ function toInternalRow(task: Task): IncomingRequestRow {
 }
 
 function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRequestRow {
-  const pendingTarget = job.departments?.find(d => d.role === 'Target' && d.approvalStatus === 'Pending')
   const ownerDept = job.departments?.find(d => d.role === 'Owner')
   // Active external job that landed in this department's pool and still needs staff assigned
   const activeTarget = activeDeptId
@@ -175,7 +171,6 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     dueDateUtc: job.dueDateUtc,
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
-    pendingTargetDepartmentId: pendingTarget?.departmentId ?? null,
     assignTargetDepartmentId,
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
@@ -209,7 +204,6 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     dueDateUtc: job.dueDateUtc,
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/jobs?jobId=${job.jobId}`,
-    pendingTargetDepartmentId: null,
     assignTargetDepartmentId: null,
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
@@ -237,8 +231,7 @@ export function IncomingRequestsPage() {
   const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
-    approvalType: 'owner' | 'target' | 'assign'
-    pendingTargetDepartmentId?: string
+    approvalType: 'owner' | 'assign'
     selectedUserIds: string[]
   } | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
@@ -290,10 +283,6 @@ export function IncomingRequestsPage() {
     setStaffAssignModal({ jobId, approvalType: 'owner', selectedUserIds: [] })
   }
 
-  const handleApproveTarget = (jobId: string, departmentId: string) => {
-    setStaffAssignModal({ jobId, approvalType: 'target', pendingTargetDepartmentId: departmentId, selectedUserIds: [] })
-  }
-
   // One-step external flow: the job is already Active in this department's pool —
   // just assign staff (create tasks), no approval call needed.
   const handleAssignStaff = (jobId: string) => {
@@ -302,14 +291,12 @@ export function IncomingRequestsPage() {
 
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
-    const { jobId, approvalType, pendingTargetDepartmentId, selectedUserIds } = staffAssignModal
+    const { jobId, approvalType, selectedUserIds } = staffAssignModal
     setStaffAssignModal(null)
     setError(null)
     try {
       if (approvalType === 'owner') {
         await api.approveJobOwner(jobId)
-      } else if (pendingTargetDepartmentId) {
-        await api.approveJobTarget(jobId, pendingTargetDepartmentId)
       }
       if (selectedUserIds.length > 0) {
         const jobDetail = await api.getJobById(jobId)
@@ -384,8 +371,6 @@ export function IncomingRequestsPage() {
           try {
             if (row.status === 'PendingOwnerApproval') {
               await api.rejectJobOwner(row.id, reason)
-            } else if (row.status === 'PendingExternalApproval' && row.pendingTargetDepartmentId) {
-              await api.rejectJobTarget(row.id, row.pendingTargetDepartmentId, reason)
             }
             await reload()
           } catch (err) {
@@ -561,11 +546,6 @@ export function IncomingRequestsPage() {
                         {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
-                          </Button>
-                        )}
-                        {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingExternalApproval' && row.pendingTargetDepartmentId && (
-                          <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetDepartmentId!)}>
-                            {t('jobs.actions.approveTarget', 'Onayla')}
                           </Button>
                         )}
                         {/* Personel Ata — birime düşen (Active) birim dışı taleplerde */}

@@ -534,23 +534,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       },
     })
   }
-  const handleApproveTarget = (jobId: string, departmentId: string) => {
-    setConfirmDialog({
-      message: t('jobs.approveTargetConfirm', 'Bu birimi onaylamak istediğinizden emin misiniz?'),
-      variant: 'primary',
-      confirmLabel: t('common.approve', 'Onayla'),
-      onConfirm: async () => {
-        setError(null)
-        try {
-          await api.approveJobTarget(jobId, departmentId)
-          await refreshDetail()
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
-  }
   const handleRejectOwner = (jobId: string) => {
     setPromptDialog({
       title: t('jobs.actions.rejectReason'),
@@ -954,14 +937,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <Button type="button" variant="destructive" onClick={() => handleRejectOwner(detail.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
                   </>
                 )}
-                {isManagerLike && detail.status === 'PendingExternalApproval' && detail.departments
-                  .filter(d => d.role === 'Target' && d.approvalStatus === 'Pending')
-                  .map(d => (
-                    <Button key={d.jobDepartmentId} type="button" variant="success" onClick={() => handleApproveTarget(detail.jobId, d.departmentId)}>
-                      {t('jobs.actions.approveTarget', 'Onayla')} — {d.departmentName ?? d.departmentId}
-                    </Button>
-                  ))
-                }
                 {canMutatePreApprovalJob(detail) && (
                   <Button type="button" variant="secondary" onClick={() => void openEditModal(detail)}>
                     {t('jobs.actions.edit', 'Düzenle')}

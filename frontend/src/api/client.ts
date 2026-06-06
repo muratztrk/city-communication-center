@@ -659,24 +659,6 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
   },
 
-  async approveJobTarget(jobId: string, departmentId: string, comment?: string | null): Promise<void> {
-    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/target-approval/${departmentId}/approve`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ comment: comment || null }),
-    })
-    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
-  },
-
-  async rejectJobTarget(jobId: string, departmentId: string, reason: string): Promise<void> {
-    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/target-approval/${departmentId}/reject`, {
-      method: 'POST',
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ reason }),
-    })
-    await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
-  },
-
   async deleteJob(jobId: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}`, {
       method: 'DELETE',

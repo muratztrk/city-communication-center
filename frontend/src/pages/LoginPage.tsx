@@ -43,7 +43,7 @@ const EMPTY_SECURITY_STATE: SecurityState = {
   secondFactorRequiredOnSuccess: false,
 }
 
-const LOGIN_LOGO_LIGHT_SRC = '/favicon.jpeg'
+const LOGIN_LOGO_LIGHT_SRC = '/logo-wordmark-white.png'
 const LOGIN_LOGO_DARK_SRC = '/favicon.jpeg'
 
 export function LoginPage() {
@@ -273,23 +273,21 @@ export function LoginPage() {
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
-          <div className="relative grid gap-6 pt-8">
-            <div className="space-y-5">
-              {/* Logo kartı + Başlık yan yana */}
-              <div className="flex items-center gap-5">
-                <div className="shrink-0">
-                  <MunicipalitySeal
-                    alt={`${institutionName} amblemi`}
-                    src={desktopLogoUrl}
-                    className="h-40 w-64 rounded-[2rem]"
-                    imageClassName="h-[58%] w-[78%]"
-                  />
-                </div>
-                <h1 className="max-w-xl text-4xl font-extrabold leading-[1.08] text-white xl:text-5xl">
+          <div className="relative grid gap-5 pt-2">
+            <div className="space-y-4">
+              {/* Logo solda, başlık sağında — tek satır, bölünmez */}
+              <div className="flex items-center gap-4">
+                <MunicipalitySeal
+                  alt={`${institutionName} amblemi`}
+                  src={desktopLogoUrl}
+                  className="h-24 w-48 shrink-0 rounded-[1.5rem]"
+                  imageClassName="h-[58%] w-[88%]"
+                />
+                <h1 className="whitespace-nowrap text-2xl font-extrabold leading-[1.1] text-white">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
               </div>
-              <p className="max-w-2xl text-base leading-7 text-white/86 xl:text-lg xl:leading-8">{t('login.subtitle')}</p>
+              <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7">{t('login.subtitle')}</p>
             </div>
             <ul className="grid max-w-[36rem] gap-2.5 sm:grid-cols-2">
               {[
@@ -342,7 +340,7 @@ export function LoginPage() {
                 <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
                   {t('login.organization')}
                 </div>
-                <h2 className="text-2xl font-extrabold text-slate-950 sm:text-[2rem]">{t('login.formTitle')}</h2>
+                <h2 className="text-xl font-extrabold text-slate-950 sm:text-2xl">{t('login.formTitle')}</h2>
                 <p className="text-sm leading-6 text-[color:var(--color-muted-foreground)]">{t('login.formDescription')}</p>
               </div>
 

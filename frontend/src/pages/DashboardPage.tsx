@@ -1,4 +1,4 @@
-import { ArrowUpRight, Building2, ChartBarBig, ClipboardList, FolderKanban, ListChecks, MessageSquareMore, SquareKanban, Users, XCircle } from 'lucide-react'
+import { ArrowUpRight, ChartBarBig, ClipboardList, ListChecks, MessageSquareMore, SquareKanban } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -88,7 +88,7 @@ export function DashboardPage() {
   const managerRow1: MetricCard[] = isManagerOrAdmin && dashboardQuery.data
     ? [
         {
-          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim (İçi/Dışı)'),
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim (Birim İçi/Dışı)'),
           value: dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
           path: '/my-requests?view=pending',
@@ -120,7 +120,7 @@ export function DashboardPage() {
           iconColor: 'text-violet-600',
         },
         {
-          label: t('dashboard.cards.deptPendingTasks', 'Birimdeki Bekleyen Görevler'),
+          label: t('dashboard.cards.deptPendingTasks', 'Birimde Bekleyen Görevler'),
           value: dashboardQuery.data.deptPendingTaskCount,
           icon: SquareKanban,
           path: '/department-tasks?flow=all',
@@ -140,66 +140,26 @@ export function DashboardPage() {
           iconBg: 'bg-rose-100',
           iconColor: 'text-rose-600',
         },
-        {
-          label: t('dashboard.cards.myTotalRequests', 'Tüm Taleplerim'),
-          value: dashboardQuery.data.myTotalRequestCount,
-          icon: FolderKanban,
-          path: '/my-requests?view=all',
-          iconBg: 'bg-slate-100',
-          iconColor: 'text-slate-600',
-        },
-        {
-          label: t('dashboard.cards.incomingTotal', 'Birime Gelen Tüm Talepler'),
-          value: dashboardQuery.data.incomingTotalCount,
-          icon: Building2,
-          path: '/incoming-requests?kind=all',
-          iconBg: 'bg-cyan-100',
-          iconColor: 'text-cyan-600',
-        },
-        {
-          label: t('dashboard.cards.outgoingTotal', 'Birimden Giden Tüm Talepler'),
-          value: dashboardQuery.data.outgoingTotalCount,
-          icon: ArrowUpRight,
-          path: '/outgoing-requests',
-          iconBg: 'bg-indigo-100',
-          iconColor: 'text-indigo-600',
-        },
-        {
-          label: t('dashboard.cards.deptTotalTasks', 'Birimde Oluşan Tüm Görevler'),
-          value: dashboardQuery.data.deptTotalTaskCount,
-          icon: Users,
-          path: '/department-tasks?flow=all',
-          iconBg: 'bg-teal-100',
-          iconColor: 'text-teal-600',
-        },
       ]
     : []
 
   const staffMetrics: MetricCard[] = !isManagerOrAdmin && dashboardQuery.data
     ? [
         {
-          label: t('dashboard.cards.openTasks'),
-          value: dashboardQuery.data.openTaskCount,
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim (Birim İçi/Dışı)'),
+          value: dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
-          path: '/tasks',
+          path: '/my-requests?view=pending',
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
         },
         {
-          label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
-          value: dashboardQuery.data.activeSocialMessageCount,
-          icon: MessageSquareMore,
-          path: '/social',
-          iconBg: 'bg-rose-100',
-          iconColor: 'text-rose-600',
-        },
-        {
-          label: t('dashboard.cards.rejectedOrCancelled'),
-          value: dashboardQuery.data.rejectedOrCancelledRequestCount,
-          icon: XCircle,
-          path: '/jobs?scope=rejected',
-          iconBg: 'bg-red-100',
-          iconColor: 'text-red-600',
+          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (İçi/Dışı)'),
+          value: dashboardQuery.data.myPendingTaskCount,
+          icon: ListChecks,
+          path: '/my-tasks?view=pending',
+          iconBg: 'bg-violet-100',
+          iconColor: 'text-violet-600',
         },
       ]
     : []
@@ -269,7 +229,7 @@ export function DashboardPage() {
           <span className="text-xs font-semibold text-[color:var(--color-muted-foreground)] uppercase tracking-wide mr-1">
             {t('dashboard.period.label', 'Dönem')}:
           </span>
-          {(['daily', 'weekly', 'monthly', 'yearly'] as const).map(p => (
+          {(['daily', 'weekly', 'monthly'] as const).map(p => (
             <button
               key={p}
               type="button"

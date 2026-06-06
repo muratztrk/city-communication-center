@@ -487,6 +487,7 @@
       "mine": "My Tasks",
       "departmentPool": "Approved Requests",
       "pendingApproval": "Pending Approvals",
+      "pendingApprovalRequests": "Pending Approval Requests",
       "all": "All",
       "pendingCloseApproval": "Pending Close Approval"
     },

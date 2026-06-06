@@ -30,7 +30,7 @@ type IncomingStatusFilter = 'pending-approval' | 'approved' | 'completed' | 'can
 type IncomingKindFilter = 'internal' | 'external' | 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
-  { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApproval', fallback: 'Onay Bekleyen' },
+  { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
   { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanmış Talepler' },
   { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal/İade Talepler' },

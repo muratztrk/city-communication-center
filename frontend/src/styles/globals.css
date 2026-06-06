@@ -1183,10 +1183,10 @@
     box-shadow: 0 1px 4px color-mix(in srgb, var(--color-primary) 35%, transparent);
   }
 
-  /* ── Bekleyen → Çok açık gri ───────────────── */
+  /* ── Bekleyen → Açık gri (Tümü'den daha açık) ── */
   .scope-chip--pending.active {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: #e2e8f0;
+    border-color: #b8c4d2;
     color: #334155;
     box-shadow: none;
   }

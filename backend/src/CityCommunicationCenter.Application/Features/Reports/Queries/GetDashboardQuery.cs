@@ -44,6 +44,32 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
         int outgoingTotalCount = 0;
         int deptTotalTaskCount = 0;
 
+        if (userId.HasValue)
+        {
+            // Card 1: My pending requests (internal + external combined) — for every user
+            myPendingRequestCount = await _dbContext.Jobs.CountAsync(
+                j => j.TenantId == tenantId
+                    && j.CreatedByUserId == userId
+                    && j.Status != JobStatus.Completed
+                    && j.Status != JobStatus.Cancelled
+                    && j.Status != JobStatus.Rejected
+                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                cancellationToken);
+
+            // Card 4: My pending tasks — for every user
+            myPendingTaskCount = await _dbContext.Tasks.CountAsync(
+                t => t.TenantId == tenantId
+                    && t.AssignedUserId == userId
+                    && t.CurrentStatus != WorkflowTaskStatus.Completed
+                    && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && t.CurrentStatus != WorkflowTaskStatus.Rejected
+                    && t.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                    && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
+                cancellationToken);
+        }
+
         if (isManagerOrAdmin && userId.HasValue)
         {
             var actor = await _dbContext.Users
@@ -75,17 +101,6 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             rejectedOrCancelledRequests = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId
                     && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled)
-                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
-                cancellationToken);
-
-            // Card 1: My pending requests (internal + external combined)
-            myPendingRequestCount = await _dbContext.Jobs.CountAsync(
-                j => j.TenantId == tenantId
-                    && j.CreatedByUserId == userId
-                    && j.Status != JobStatus.Completed
-                    && j.Status != JobStatus.Cancelled
-                    && j.Status != JobStatus.Rejected
                     && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
                     && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
                 cancellationToken);
@@ -151,18 +166,6 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                         && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
                     cancellationToken);
             }
-
-            // Card 4: My pending tasks
-            myPendingTaskCount = await _dbContext.Tasks.CountAsync(
-                t => t.TenantId == tenantId
-                    && t.AssignedUserId == userId
-                    && t.CurrentStatus != WorkflowTaskStatus.Completed
-                    && t.CurrentStatus != WorkflowTaskStatus.Cancelled
-                    && t.CurrentStatus != WorkflowTaskStatus.Rejected
-                    && t.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
-                    && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
-                cancellationToken);
         }
 
         var openSocialMessages = await _dbContext.SocialMessages.CountAsync(

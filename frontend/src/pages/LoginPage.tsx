@@ -289,7 +289,7 @@ export function LoginPage() {
               </div>
               <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7 2xl:text-lg 2xl:leading-8">{t('login.subtitle')}</p>
             </div>
-            <ul className="grid max-w-[44rem] gap-2.5 sm:grid-cols-2 2xl:max-w-[52rem] 2xl:gap-4">
+            <ul className="grid w-full gap-2.5 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] 2xl:max-w-[52rem] 2xl:gap-4">
               {[
                 { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
                 { icon: SquareKanban, title: t('login.heroCardInternalTracking') },

@@ -1025,18 +1025,6 @@ const pageKicker = isMyTasksView
       {error && <div className="alert alert-error">{error}</div>}
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : columnFilteredTasks.length === 0 ? (
-        <section className="section-card">
-          <div className="empty-state">
-            {isMyTasksView
-              ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
-              : isDepartmentTasksView
-                ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
-                : isStaffTasksView
-                  ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
-                  : t('tasks.empty', 'No tasks')}
-          </div>
-        </section>
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
@@ -1059,6 +1047,19 @@ const pageKicker = isMyTasksView
                 </tr>
               </thead>
               <tbody>
+                {pagedTasks.length === 0 && (
+                  <tr>
+                    <td colSpan={99} className="empty-state text-center">
+                      {isMyTasksView
+                        ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
+                        : isDepartmentTasksView
+                          ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
+                          : isStaffTasksView
+                            ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
+                            : t('tasks.empty', 'No tasks')}
+                    </td>
+                  </tr>
+                )}
                 {pagedTasks.map((task, index) => (
                   <tr key={task.taskId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>

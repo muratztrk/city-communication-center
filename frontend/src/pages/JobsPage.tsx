@@ -785,16 +785,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : columnFilteredJobs.length === 0 ? (
-        <section className="section-card">
-          <div className="empty-state">
-            {isMyRequestsView
-              ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
-              : isDepartmentOutgoingView
-                ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
-                : t('jobs.empty')}
-          </div>
-        </section>
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
@@ -821,6 +811,17 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </tr>
               </thead>
               <tbody>
+                {pagedJobs.length === 0 && (
+                  <tr>
+                    <td colSpan={99} className="empty-state text-center">
+                      {isMyRequestsView
+                        ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
+                        : isDepartmentOutgoingView
+                          ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
+                          : t('jobs.empty')}
+                    </td>
+                  </tr>
+                )}
                 {pagedJobs.map((job, index) => {
                   const isOutgoingTargetApproved = isDepartmentOutgoingView &&
                     job.departments.some(d => d.role === 'Target' && d.approvalStatus === 'Approved')

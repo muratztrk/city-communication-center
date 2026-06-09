@@ -545,10 +545,6 @@ export function IncomingRequestsPage() {
 
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
-      ) : columnFilteredRows.length === 0 ? (
-        <section className="section-card">
-          <div className="empty-state">{t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}</div>
-        </section>
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
@@ -568,6 +564,11 @@ export function IncomingRequestsPage() {
                 </tr>
               </thead>
               <tbody>
+                {pagedRows.length === 0 && (
+                  <tr>
+                    <td colSpan={99} className="empty-state text-center">{t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}</td>
+                  </tr>
+                )}
                 {pagedRows.map((row, index) => (
                   <tr key={`${row.kind}-${row.id}`}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>

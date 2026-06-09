@@ -275,8 +275,7 @@ export function WallboardPage() {
                 <FilterableTh filterKey="jobNumber" filterValue={filters['jobNumber']} onFilter={setFilter} sortKey="jobNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestNo', 'Talep No')}</FilterableTh>
                 <FilterableTh filterKey="taskNumber" filterValue={filters['taskNumber']} onFilter={setFilter} sortKey="taskNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskNo', 'Görev No')}</FilterableTh>
                 <FilterableTh filterKey="createdAtUtc" filterValue={filters['createdAtUtc']} onFilter={setFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
-                <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestLocation', 'Görevin Talep Yeri')}</FilterableTh>
-                <FilterableTh filterKey="requestCreator" filterValue={filters['requestCreator']} onFilter={setFilter} sortKey="requestCreator" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestCreator', 'Talebi Oluşturan')}</FilterableTh>
+                <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestLocationCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
                 <FilterableTh filterKey="title" filterValue={filters['title']} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.title', 'Başlık')}</FilterableTh>
                 <FilterableTh filterKey="dueDateUtc" filterValue={filters['dueDateUtc']} onFilter={setFilter} sortKey="dueDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.dueDate', 'Son Tarih')}</FilterableTh>
               </tr>
@@ -300,8 +299,10 @@ export function WallboardPage() {
                         {formatDate(item.createdAtUtc, locale)}
                       </span>
                     </td>
-                    <td>{item.requestLocation ?? '—'}</td>
-                    <td>{item.requestCreator ?? '—'}</td>
+                    <td>
+                      <div>{item.requestLocation ?? '—'}</div>
+                      <div className="text-[0.82rem] opacity-80">{item.requestCreator ?? '—'}</div>
+                    </td>
                     <td><div className="wallboard-row-title">{item.title}</div></td>
                     <td>
                       <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>

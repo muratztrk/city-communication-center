@@ -655,6 +655,7 @@ export function IncomingRequestsPage() {
                   setCancelReturnModal(null)
                   setPromptDialog({
                     title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
+                    confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
                     onConfirm: async (reason) => {
                       setError(null)
                       try {

@@ -530,6 +530,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const handleCancel = (jobId: string) => {
     setPromptDialog({
       title: t('jobs.actions.cancelReason'),
+      confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
       onConfirm: async (reason) => {
         try {
           await api.cancelJob(jobId, reason)

@@ -24,7 +24,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import { canRoleAccessPage } from '../lib/rolePageAccess'
 import type { JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
 interface ScopeChipFiltersProps {
@@ -809,7 +809,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
                     : <th>{t('jobs.columns.departments')}</th>
                   }
-                  <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>
+                  {!(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
                   <FilterableTh filterKey="dueDateUtc" filterValue={jobFilters['dueDateUtc'] ?? ''} onFilter={setJobFilter} sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</FilterableTh>
@@ -826,7 +826,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   return (
                   <tr key={job.jobId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
-                    {(isMyRequestsView || isDepartmentOutgoingView) && <td className="font-mono text-xs text-slate-500">{formatJobDisplayNumber(job)}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && (
+                      <td className="font-mono text-xs text-slate-500">
+                        <div>{formatJobDisplayNumber(job)}</div>
+                        <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(job.priority)}`}>({getPriorityLabel(t, job.priority)})</div>
+                      </td>
+                    )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold">{job.title}</td>
@@ -835,7 +840,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         renderOutgoingDestination(job)
                       ) : renderJobDepartments(job)}
                     </td>
-                    <td>{getPriorityLabel(t, job.priority)}</td>
+                    {!(isMyRequestsView || isDepartmentOutgoingView) && <td>{getPriorityLabel(t, job.priority)}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     <td><DueDatePill value={job.dueDateUtc} locale={locale} /></td>

@@ -17,8 +17,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a2669a1` — Dashboard: added outgoingInProgressCount box after outgoing-pending (BE GetDashboardQuery + contract + FE type + i18n); pending tightened to approval-only. Pushed. Moved to Done.
 - [x] `6a266a85` — Dashboard chart section md:grid-cols-2 lg:grid-cols-3 (was lg:grid-cols-2). Pushed. Moved to Done.
 - [x] `6a266b79` — Removed pending-approval scope from /jobs (chips + default→department-pool); ?scope=pending-approval redirects to /incoming-requests. Pushed. Moved to Done.
+- [x] `6a266bd3` — Renamed dashboard label → "Birime Gelen Onay Bekleyen Talepler" (tr/en) + repointed link to /incoming-requests. Pushed. Moved to Done.
 
 ## Pending (top → bottom)
-- [ ] `6a266bd3` — Rename "Birime Gelen Onay Bekleyenler" → "...Talepler"; link to default Birime Gelen page
 - [ ] `6a2687a6` — 2-department user: Birim İçi/Dışı request not appearing in Taleplerim
 - [ ] `6a26885e` — Manager-only Birim İçi: "Görev Sahibi Kişi/Birim" dropdown lists all dept staff incl. self

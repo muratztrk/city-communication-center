@@ -50,14 +50,10 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
 
         if (scope == "mine" && userId.HasValue)
         {
+            // Taleplerim kişisel bir listedir: aktif birimden bağımsız olarak kullanıcının
+            // oluşturduğu tüm talepler görünür. Birden fazla birim yetkisi olan kullanıcı
+            // farklı bir birim adına talep oluşturduğunda da kaydı Taleplerim'de görür.
             q = q.Where(j => j.CreatedByUserId == userId);
-            if (context.ActiveDepartmentId.HasValue)
-            {
-                var activeDepartmentId = context.ActiveDepartmentId.Value;
-                q = accessibleDepartmentIds.Contains(activeDepartmentId)
-                    ? q.Where(j => j.OwnerDepartmentId == activeDepartmentId)
-                    : q.Where(_ => false);
-            }
         }
         else if ((scope == "my-department" || scope == "department-pool") && actor is not null)
         {

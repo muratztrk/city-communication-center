@@ -284,7 +284,7 @@ export function LoginPage() {
                   className="h-14 w-36 shrink-0 rounded-[1.1rem] border-0 bg-transparent 2xl:h-16 2xl:w-44"
                   imageClassName="h-[82%] w-[90%] drop-shadow-none"
                 />
-                <h1 className="whitespace-nowrap text-xl font-extrabold leading-[1.1] text-white 2xl:text-3xl">
+                <h1 className="whitespace-nowrap text-xl font-semibold leading-[1.1] text-white 2xl:text-3xl">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
               </div>

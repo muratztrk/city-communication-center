@@ -287,9 +287,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     queryFn: () => api.getJobAuditLog(detail!.jobId),
     enabled: !!detail?.jobId,
   })
-  const [returnModal, setReturnModal] = useState<{ jobId: string } | null>(null)
-  const [returnReason, setReturnReason] = useState('')
-  const [returnSaving, setReturnSaving] = useState(false)
 
   const [editModal, setEditModal] = useState<{
     jobId: string
@@ -463,7 +460,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       setSearchText('')
       clearJobFilters()
       setDetail(null)
-      setReturnModal(null)
       setEditModal(null)
       setConfirmDialog(null)
       setPromptDialog(null)
@@ -577,11 +573,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     })
   }
 
-  const openReturnModal = (jobId: string) => {
-    setReturnModal({ jobId })
-    setReturnReason('')
-  }
-
   const openEditModal = async (job: JobSummary | JobDetail) => {
     const editableJob = 'description' in job ? job : await api.getJobById(job.jobId)
     setEditModal({
@@ -611,22 +602,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       if (detail?.jobId === editModal.jobId) await refreshDetail()
     } finally {
       setEditSaving(false)
-    }
-  }
-
-  const handleReturn = async () => {
-    if (!returnModal || !returnReason.trim()) return
-    setReturnSaving(true)
-    try {
-      await api.returnJob(returnModal.jobId, returnReason.trim())
-      setReturnModal(null)
-      setReturnReason('')
-      if (detail?.jobId === returnModal.jobId) await refreshDetail()
-      await reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    } finally {
-      setReturnSaving(false)
     }
   }
 
@@ -881,13 +856,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                             </Button>
                           )
                         )}
+                        {/* Talebi oluşturan kullanıcı talebini iade edemez; yalnızca iptal edebilir. */}
                         {isMyRequestsView && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active') && (
-                          <>
-                            <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel', 'İptal')}</Button>
-                            {isManagerLike && job.requestType !== 'InternalUnit' && (
-                              <Button size="sm" variant="destructive" onClick={() => openReturnModal(job.jobId)}>{t('jobs.actions.return', 'İade Et')}</Button>
-                            )}
-                          </>
+                          <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel', 'İptal')}</Button>
                         )}
                       </div>
                     </td>
@@ -1106,33 +1077,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         </div>
       )}
 
-      {returnModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setReturnModal(null)}
-        >
-          <div className="form-card page-stack w-full max-w-md" onClick={event => event.stopPropagation()}>
-            <h2 className="text-xl font-extrabold text-slate-950">{t('jobs.actions.returnTitle', 'Talebi İade Et')}</h2>
-            <p className="helper-copy">{t('jobs.actions.returnHelp', 'Talebi iade etmek için açıklama yazınız.')}</p>
-            <label className="job-field">
-              <span className="job-field-label">{t('jobs.actions.returnReason', 'İade Açıklaması')}</span>
-              <textarea
-                className="field-textarea"
-                rows={4}
-                value={returnReason}
-                onChange={event => setReturnReason(event.target.value)}
-                placeholder={t('jobs.actions.returnReasonPlaceholder', 'İade nedenini açıklayınız...')}
-              />
-            </label>
-            <div className="inline-actions">
-              <Button type="button" variant="secondary" onClick={() => setReturnModal(null)}>{t('common.cancel', 'İptal')}</Button>
-              <Button type="button" variant="destructive" disabled={returnSaving || !returnReason.trim()} onClick={() => void handleReturn()}>
-                {returnSaving ? t('common.loading') : t('jobs.actions.return', 'İade Et')}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
       {editModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"

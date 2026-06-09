@@ -19,7 +19,7 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
 interface TaskScopeFiltersProps {
@@ -1052,7 +1052,6 @@ const pageKicker = isMyTasksView
                   {(isStaffTasksView || isMyTasksView) && (
                     <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="jobSourceType" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskType', 'Görev Tipi')}</FilterableTh>
                   )}
-                  <FilterableTh filterKey="priority" filterValue={taskFilters['priority']} onFilter={setTaskFilter} sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={taskFilters['completedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="completedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={taskFilters['updatedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="updatedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.cancelledAt', 'İptal/İade Tarihi')}</FilterableTh>}
@@ -1063,7 +1062,10 @@ const pageKicker = isMyTasksView
                 {pagedTasks.map((task, index) => (
                   <tr key={task.taskId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
-                    <td className="font-mono text-xs text-slate-500">{formatTaskDisplayNumber(task)}</td>
+                    <td className="font-mono text-xs text-slate-500">
+                      <div>{formatTaskDisplayNumber(task)}</div>
+                      <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(task.priority)}`}>({getPriorityLabel(t, task.priority)})</div>
+                    </td>
                     <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
                     {/* Rutin görevde talep yeri, görevi oluşturan kişidir. */}
                     <td className="font-semibold text-slate-700">{task.jobSourceType === 'Routine' ? (task.createdByDisplayName ?? '—') : (task.ownerDepartmentName ?? '—')}</td>
@@ -1077,7 +1079,6 @@ const pageKicker = isMyTasksView
                         </StatusPill>
                       </td>
                     )}
-                    <td>{getPriorityLabel(t, task.priority)}</td>
                     <td><DueDatePill value={task.dueDateUtc} locale={locale} /></td>
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}

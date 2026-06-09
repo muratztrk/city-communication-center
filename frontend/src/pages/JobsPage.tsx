@@ -855,6 +855,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
                         )}
+                        {/* Birimden Giden → Bekleyen: Yönetici onayı. Onaylanınca hedef birimin havuzuna düşer. */}
+                        {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && isManagerLike && job.status === 'PendingOwnerApproval' && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner', 'Onayla')}</Button>
+                        )}
                         {/* Birimden Giden → Bekleyen: İptal butonu */}
                         {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && (
                           isOutgoingTargetApproved ? (

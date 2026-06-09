@@ -1045,8 +1045,7 @@ const pageKicker = isMyTasksView
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <th>{t('tasks.columns.taskNo', 'Görev No')}</th>
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
-                  <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</FilterableTh>
-                  <FilterableTh filterKey="createdByDisplayName" filterValue={taskFilters['createdByDisplayName']} onFilter={setTaskFilter} sortKey="createdByDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.createdBy', 'Oluşturan')}</FilterableTh>
+                  <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
                   <FilterableTh filterKey="assignedDepartmentName" filterValue={taskFilters['assignedDepartmentName']} onFilter={setTaskFilter} sortKey="assignedDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.assignedDepartment', 'Gittiği Yer')}</FilterableTh>
                   {(isStaffTasksView || isMyTasksView) && (
@@ -1067,9 +1066,11 @@ const pageKicker = isMyTasksView
                       <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(task.priority)}`}>({getPriorityLabel(t, task.priority)})</div>
                     </td>
                     <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
-                    {/* Rutin görevde talep yeri, görevi oluşturan kişidir. */}
-                    <td className="font-semibold text-slate-700">{task.jobSourceType === 'Routine' ? (task.createdByDisplayName ?? '—') : (task.ownerDepartmentName ?? '—')}</td>
-                    <td>{task.createdByDisplayName ?? '—'}</td>
+                    {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt). */}
+                    <td>
+                      <div className="font-semibold text-slate-700">{task.ownerDepartmentName ?? '—'}</div>
+                      <div className="text-xs text-slate-500">{task.createdByDisplayName ?? '—'}</div>
+                    </td>
                     <td>{task.title}</td>
                     <td className="text-slate-600">{task.assignedDepartmentName ?? task.assignedUserDisplayName ?? '—'}</td>
                     {(isStaffTasksView || isMyTasksView) && (

@@ -668,6 +668,16 @@ const pageKicker = isMyTasksView
             <h1 className="page-title">{pageTitle}</h1>
             <p className="page-subtitle">{pageSubtitle}</p>
           </div>
+          <div className="ml-auto mt-auto shrink-0">
+            <TaskScopeFilters
+              searchText={searchText}
+              filterFrom={filterFrom}
+              filterTo={filterTo}
+              onSearch={setSearchText}
+              onFromChange={setFilterFrom}
+              onToChange={setFilterTo}
+            />
+          </div>
         </div>
       </header>
 
@@ -698,14 +708,6 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
-          <TaskScopeFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-            filterTo={filterTo}
-            onSearch={setSearchText}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-          />
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>
@@ -730,14 +732,6 @@ const pageKicker = isMyTasksView
               {t(flow.labelKey)}
             </button>
           ))}
-          <TaskScopeFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-            filterTo={filterTo}
-            onSearch={setSearchText}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-          />
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">
@@ -780,14 +774,6 @@ const pageKicker = isMyTasksView
           >
             {t('tasks.staff.allTasks', 'Tüm Görevleri')}
           </button>
-          <TaskScopeFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-            filterTo={filterTo}
-            onSearch={setSearchText}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-          />
         </nav>
       ) : (
         <nav className="scope-chips">
@@ -801,14 +787,6 @@ const pageKicker = isMyTasksView
               {t(SCOPES.find(s => s.value === scope)!.labelKey)}
             </button>
           ))}
-          <TaskScopeFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-            filterTo={filterTo}
-            onSearch={setSearchText}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-          />
         </nav>
       )}
 

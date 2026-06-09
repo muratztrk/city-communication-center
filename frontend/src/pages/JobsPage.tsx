@@ -694,6 +694,16 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
             </p>
           </div>
+          <div className="ml-auto mt-auto shrink-0">
+            <ScopeChipFilters
+              searchText={searchText}
+              filterFrom={filterFrom}
+              filterTo={filterTo}
+              onSearch={setSearchText}
+              onFromChange={setFilterFrom}
+              onToChange={setFilterTo}
+            />
+          </div>
         </div>
       </header>
 
@@ -724,14 +734,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               ))}
             </>
           ) : null}
-          <ScopeChipFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-            filterTo={filterTo}
-            onSearch={setSearchText}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-          />
         </nav>
       ) : isDepartmentOutgoingView ? (
         <nav className="scope-chips" aria-label={t('nav.outgoingRequests', 'Birimden Giden Talepler')}>
@@ -745,14 +747,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               {t(view.labelKey)}
             </button>
           ))}
-          <ScopeChipFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-                filterTo={filterTo}
-                onSearch={setSearchText}
-                onFromChange={setFilterFrom}
-                onToChange={setFilterTo}
-          />
         </nav>
       ) : !fixedScope ? (
         <nav className="scope-chips">
@@ -766,14 +760,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               {t(s.labelKey, s.value)}
             </button>
           ))}
-          <ScopeChipFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-                filterTo={filterTo}
-                onSearch={setSearchText}
-                onFromChange={setFilterFrom}
-                onToChange={setFilterTo}
-          />
         </nav>
       ) : null}
 

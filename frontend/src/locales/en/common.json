@@ -496,6 +496,7 @@
       "pending": "Pending My Tasks",
       "completed": "Completed My Tasks",
       "rejected": "Rejected/Cancelled/Returned My Tasks",
+      "overdue": "My Overdue Tasks",
       "all": "All My Tasks",
       "empty": "No {{view}}"
     },

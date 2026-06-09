@@ -60,7 +60,7 @@ const SCOPES: { value: TaskListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'tasks.scopes.all' },
 ]
 
-type MyTaskView = 'pending' | 'completed' | 'rejected' | 'all'
+type MyTaskView = 'pending' | 'completed' | 'rejected' | 'overdue' | 'all'
 type RequestFlowFilter = 'internal' | 'external' | 'all'
 type TasksPageMode = 'default' | 'departmentTasks' | 'staffTasks'
 
@@ -68,6 +68,7 @@ const MY_TASK_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.myViews.pending' },
   { value: 'completed', labelKey: 'tasks.myViews.completed' },
   { value: 'rejected', labelKey: 'tasks.myViews.rejected' },
+  { value: 'overdue', labelKey: 'tasks.myViews.overdue' },
   { value: 'all', labelKey: 'tasks.myViews.all' },
 ]
 
@@ -87,6 +88,7 @@ const DEPARTMENT_STATUS_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.departmentViews.pending' },
   { value: 'completed', labelKey: 'tasks.departmentViews.completed' },
   { value: 'rejected', labelKey: 'tasks.departmentViews.rejected' },
+  { value: 'overdue', labelKey: 'tasks.myViews.overdue' },
   { value: 'all', labelKey: 'tasks.departmentViews.all' },
 ]
 
@@ -168,7 +170,7 @@ function formatTaskDisplayNumber(task: Task): string {
 
 function getMyTaskView(value: string | null): MyTaskView {
   if (value === 'returned') return 'rejected'
-  return value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+  return value === 'completed' || value === 'rejected' || value === 'overdue' || value === 'all' ? value : 'pending'
 }
 
 function getRequestFlowFilter(value: string | null): RequestFlowFilter {
@@ -181,6 +183,8 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'in-progress') return 'scope-chip--in-progress'
   if (value === 'completed') return 'scope-chip--completed'
   if (value === 'rejected') return 'scope-chip--rejected'
+  // Son Tarihi Geçmiş: Yapılmakta Olan ile aynı turuncu renk.
+  if (value === 'overdue') return 'scope-chip--in-progress'
   if (value === 'all') return 'scope-chip--all'
   return ''
 }
@@ -208,6 +212,14 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
 
   if (view === 'rejected') {
     return tasks.filter(task => task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected' || task.currentStatus === 'RevisionRequested')
+  }
+
+  if (view === 'overdue') {
+    const now = Date.now()
+    return tasks.filter(task =>
+      task.dueDateUtc != null &&
+      new Date(task.dueDateUtc).getTime() < now &&
+      !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(task.currentStatus))
   }
 
   return tasks.filter(task => !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(task.currentStatus))

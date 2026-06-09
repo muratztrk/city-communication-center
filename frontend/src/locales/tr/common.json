@@ -497,6 +497,7 @@
       "pending": "Bekleyen Görevlerim",
       "completed": "Tamamlanmış Görevlerim",
       "rejected": "İptal/İade Görevlerim",
+      "overdue": "Son Tarihi Geçmiş Görevlerim",
       "all": "Tüm Görevlerim",
       "empty": "{{view}} bulunmuyor"
     },

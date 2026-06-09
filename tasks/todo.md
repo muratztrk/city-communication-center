@@ -12,9 +12,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a266007` — Shared DueDatePill (yellow=last day, red=overdue) in Jobs/Tasks/IncomingRequests Son Tarih columns; CSS in globals.css. Pushed. Moved to Done.
 - [x] `6a26624e` — Shared DateCell (calendar icon + date) on all date columns in Jobs/Tasks/IncomingRequests grids. Pushed. Moved to Done.
 - [x] `6a26631b` — Onay/Tamamlanma/İptal-İade date columns → FilterableTh (sort+filter) in Jobs/Tasks/IncomingRequests; flattened ownerDecidedAtUtc for sort. Pushed. Moved to Done.
+- [x] `6a2665f4` — 401 in ensureOk → clearAuthSession + SESSION_EXPIRED_EVENT → drop to login; AuthContext storage listener auto-logs-out other tabs. Pushed. Moved to Done.
 
 ## Pending (top → bottom)
-- [ ] `6a2665f4` — Multi-tab logout: session drop across tabs (screenshot)
 - [ ] `6a26673e` — Taleplerim İşlem column: only İptal/İade for manager; standard user only "İptal"
 - [ ] `6a2669a1` — Manager Dashboard: add "Birimden Giden Yapılmakta Olan Talepler" box (screenshot)
 - [ ] `6a266a85` — Control panel pie charts 3-per-row (currently 2)

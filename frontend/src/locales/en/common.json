@@ -301,6 +301,7 @@
       "myPendingRequests": "My Pending Requests (Int/Ext)",
       "incomingPendingApproval": "Incoming Dept — Pending Approval",
       "outgoingPending": "Outgoing Dept — Pending Requests",
+      "outgoingInProgress": "Outgoing Dept — In-Progress Requests",
       "myPendingTasks": "My Pending Tasks (Int/Ext)",
       "deptPendingTasks": "Dept Pending Tasks",
       "myTotalRequests": "All My Requests",

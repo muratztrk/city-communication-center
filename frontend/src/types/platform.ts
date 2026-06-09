@@ -7,6 +7,7 @@ export interface DashboardSnapshot {
   // Manager-specific metrics
   myPendingRequestCount: number;
   outgoingPendingCount: number;
+  outgoingInProgressCount: number;
   myPendingTaskCount: number;
   deptPendingTaskCount: number;
   myTotalRequestCount: number;

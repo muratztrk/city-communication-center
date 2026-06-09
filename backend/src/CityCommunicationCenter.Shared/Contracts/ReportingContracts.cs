@@ -9,6 +9,7 @@ public sealed record DashboardResponse(
     // Manager-specific metrics
     int MyPendingRequestCount,
     int OutgoingPendingCount,
+    int OutgoingInProgressCount,
     int MyPendingTaskCount,
     int DeptPendingTaskCount,
     int MyTotalRequestCount,

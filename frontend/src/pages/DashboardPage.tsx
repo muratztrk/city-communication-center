@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChartBarBig, ClipboardList, ListChecks, MessageSquareMore, SquareKanban } from 'lucide-react'
+import { ArrowUpRight, ChartBarBig, ClipboardList, ListChecks, Loader, MessageSquareMore, SquareKanban } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -107,9 +107,17 @@ export function DashboardPage() {
           label: t('dashboard.cards.outgoingPending', 'Birimden Giden Bekleyen Talepler'),
           value: dashboardQuery.data.outgoingPendingCount,
           icon: ArrowUpRight,
-          path: '/outgoing-requests',
+          path: '/outgoing-requests?view=pending',
           iconBg: 'bg-sky-100',
           iconColor: 'text-sky-600',
+        },
+        {
+          label: t('dashboard.cards.outgoingInProgress', 'Birimden Giden Yapılmakta Olan Talepler'),
+          value: dashboardQuery.data.outgoingInProgressCount,
+          icon: Loader,
+          path: '/outgoing-requests?view=in-progress',
+          iconBg: 'bg-cyan-100',
+          iconColor: 'text-cyan-600',
         },
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (İçi/Dışı)'),

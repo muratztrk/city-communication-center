@@ -37,6 +37,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
         int rejectedOrCancelledRequests = 0;
         int myPendingRequestCount = 0;
         int outgoingPendingCount = 0;
+        int outgoingInProgressCount = 0;
         int myPendingTaskCount = 0;
         int deptPendingTaskCount = 0;
         int myTotalRequestCount = 0;
@@ -115,13 +116,22 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
 
             if (scopedDepartmentIds.Length > 0)
             {
-                // Card 3: Outgoing pending = external jobs created by dept users that are pending
+                // Card 3: Outgoing pending = external jobs from this dept still awaiting approval
                 outgoingPendingCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.RequestType == JobRequestType.ExternalUnit
-                        && j.Status != JobStatus.Completed
-                        && j.Status != JobStatus.Cancelled
-                        && j.Status != JobStatus.Rejected
+                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                        && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                    cancellationToken);
+
+                // Outgoing in-progress = approved external jobs that already have tasks in flight
+                outgoingInProgressCount = await _dbContext.Jobs.CountAsync(
+                    j => j.TenantId == tenantId
+                        && j.RequestType == JobRequestType.ExternalUnit
+                        && j.Status == JobStatus.Active
+                        && _dbContext.Tasks.Any(t => t.JobId == j.JobId)
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
                         && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
                         && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
@@ -183,6 +193,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             0,
             myPendingRequestCount,
             outgoingPendingCount,
+            outgoingInProgressCount,
             myPendingTaskCount,
             deptPendingTaskCount,
             myTotalRequestCount,

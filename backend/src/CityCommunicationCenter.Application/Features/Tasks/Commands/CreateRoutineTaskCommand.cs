@@ -25,11 +25,13 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ISlaCalculatorService _slaCalculator;
 
-    public CreateRoutineTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public CreateRoutineTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _slaCalculator = slaCalculator;
     }
 
     public async ValueTask<TaskSummaryResponse> Handle(CreateRoutineTaskCommand request, CancellationToken cancellationToken)
@@ -42,7 +44,23 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
         var departmentId = await UserDepartmentAccess.GetDefaultDepartmentIdAsync(
             _dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
 
-        var year = DateTimeOffset.UtcNow.Year;
+        var utcNow = DateTimeOffset.UtcNow;
+
+        // Son tarih girilmezse varsayılan SLA süresi eklenerek otomatik son tarih oluşturulur.
+        var dueDateUtc = request.DueDateUtc;
+        if (dueDateUtc is null)
+        {
+            var settings = await _dbContext.TenantSettings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+            if (settings is not null && settings.DefaultSlaHours > 0)
+            {
+                dueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                    utcNow, settings.DefaultSlaHours, tenantId, departmentId, cancellationToken);
+            }
+        }
+
+        var year = utcNow.Year;
         var jobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, year, cancellationToken);
         var taskNumber = await SequenceNumberHelper.NextTaskNumberAsync(_dbContext, tenantId, year, cancellationToken);
 
@@ -57,7 +75,7 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             Priority = request.Priority.Trim(),
             RequestType = Domain.Enums.JobRequestType.InternalUnit,
             SourceType = Domain.Enums.JobSourceType.Routine,
-            DueDateUtc = request.DueDateUtc,
+            DueDateUtc = dueDateUtc,
             CreatedByUserId = context.UserId,
             JobNumber = jobNumber,
             JobNumberYear = year
@@ -92,7 +110,7 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             OwnerUserId = actor.UserId,
             CurrentStatus = WorkflowTaskStatus.Assigned,
             Priority = request.Priority.Trim(),
-            DueDateUtc = request.DueDateUtc,
+            DueDateUtc = dueDateUtc,
             Notes = request.Notes,
             CreatedByUserId = context.UserId,
             TaskNumber = taskNumber,

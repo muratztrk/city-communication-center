@@ -28,12 +28,13 @@ import { TablePagination } from '../components/ui/table-pagination'
 
 interface ScopeChipFiltersProps {
   searchText: string
-  filterYear: string
-  availableYears: string[]
+  filterFrom: string
+  filterTo: string
   onSearch: (v: string) => void
-  onYearChange: (v: string) => void
+  onFromChange: (v: string) => void
+  onToChange: (v: string) => void
 }
-function ScopeChipFilters({ searchText, filterYear, onSearch, onYearChange }: ScopeChipFiltersProps) {
+function ScopeChipFilters({ searchText, filterFrom, filterTo, onSearch, onFromChange, onToChange }: ScopeChipFiltersProps) {
   return (
     <div className="scope-chips-filters">
       <div className="scope-chip-search-wrap">
@@ -46,15 +47,10 @@ function ScopeChipFilters({ searchText, filterYear, onSearch, onYearChange }: Sc
           onChange={e => onSearch(e.target.value)}
         />
       </div>
-      {/* Takvimli tarih seçimi (Talep Oluştur'daki tarih seçici gibi) */}
-      <input
-        type="date"
-        className="scope-chip-year-select"
-        value={filterYear}
-        onChange={e => onYearChange(e.target.value)}
-        title="Tarih seçimi"
-        aria-label="Tarih seçimi"
-      />
+      {/* Takvimli tarih aralığı seçimi (saat içermez) */}
+      <input type="date" className="scope-chip-year-select" value={filterFrom} onChange={e => onFromChange(e.target.value)} title="Başlangıç tarihi" aria-label="Başlangıç tarihi" />
+      <span className="text-xs text-slate-400">–</span>
+      <input type="date" className="scope-chip-year-select" value={filterTo} onChange={e => onToChange(e.target.value)} title="Bitiş tarihi" aria-label="Bitiş tarihi" />
     </div>
   )
 }
@@ -314,7 +310,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
-  const [filterYear, setFilterYear] = useState('')
+  const [filterFrom, setFilterFrom] = useState('')
+  const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
 
   const isMyRequestsView = mode === 'myRequests'
@@ -401,14 +398,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const scopeLabel = scope === 'rejected'
     ? t('jobs.scopes.rejected', 'İptal/Red Edilen')
     : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Onaylanmış Talepler')
-  const availableYears = useMemo(() => {
-    const years = new Set<string>()
-    for (const job of jobs) {
-      const y = job.createdAtUtc?.slice(0, 4)
-      if (y) years.add(y)
-    }
-    return [...years].sort().reverse()
-  }, [jobs])
 
   const visibleJobs = useMemo(() => {
     let result: typeof jobs
@@ -425,7 +414,15 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         : externalJobs
     }
 
-    if (filterYear) result = result.filter(job => job.createdAtUtc?.startsWith(filterYear))
+    if (filterFrom || filterTo) {
+      result = result.filter(job => {
+        const d = job.createdAtUtc?.slice(0, 10)
+        if (!d) return false
+        if (filterFrom && d < filterFrom) return false
+        if (filterTo && d > filterTo) return false
+        return true
+      })
+    }
 
     if (searchText.trim()) {
       const q = searchText.toLowerCase()
@@ -433,7 +430,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }
 
     return result
-  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterYear, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters])
+  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()
@@ -473,7 +470,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   useEffect(() => {
     queueMicrotask(() => {
       setJobsPage(1)
-      setFilterYear('')
+      setFilterFrom('')
+      setFilterTo('')
       setSearchText('')
       clearJobFilters()
       setDetail(null)
@@ -698,10 +696,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
             <div className="ml-auto mt-auto shrink-0">
               <ScopeChipFilters
                 searchText={searchText}
-                filterYear={filterYear}
-                availableYears={availableYears}
+                filterFrom={filterFrom}
+                filterTo={filterTo}
                 onSearch={setSearchText}
-                onYearChange={setFilterYear}
+                onFromChange={setFilterFrom}
+                onToChange={setFilterTo}
               />
             </div>
           ) : null}
@@ -750,10 +749,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           ))}
           <ScopeChipFilters
             searchText={searchText}
-            filterYear={filterYear}
-            availableYears={availableYears}
-            onSearch={setSearchText}
-            onYearChange={setFilterYear}
+            filterFrom={filterFrom}
+                filterTo={filterTo}
+                onSearch={setSearchText}
+                onFromChange={setFilterFrom}
+                onToChange={setFilterTo}
           />
         </nav>
       ) : !fixedScope ? (
@@ -770,10 +770,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           ))}
           <ScopeChipFilters
             searchText={searchText}
-            filterYear={filterYear}
-            availableYears={availableYears}
-            onSearch={setSearchText}
-            onYearChange={setFilterYear}
+            filterFrom={filterFrom}
+                filterTo={filterTo}
+                onSearch={setSearchText}
+                onFromChange={setFilterFrom}
+                onToChange={setFilterTo}
           />
         </nav>
       ) : null}

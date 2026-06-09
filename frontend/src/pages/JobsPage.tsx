@@ -663,7 +663,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     return (
       <div className="flex min-w-[12rem] max-w-[24rem] flex-wrap gap-1.5">
         {visibleTargets.map(department => (
-          <StatusPill key={department.jobDepartmentId} tone={department.approvalStatus === 'Rejected' ? 'danger' : department.approvalStatus === 'Approved' ? 'success' : 'info'} className="max-w-[12rem]">
+          <StatusPill key={department.jobDepartmentId} tone="success" className="max-w-[12rem]">
             <span className="truncate">{department.departmentName ?? '—'}</span>
           </StatusPill>
         ))}

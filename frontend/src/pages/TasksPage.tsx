@@ -66,9 +66,9 @@ type TasksPageMode = 'default' | 'departmentTasks' | 'staffTasks'
 
 const MY_TASK_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.myViews.pending' },
+  { value: 'overdue', labelKey: 'tasks.myViews.overdue' },
   { value: 'completed', labelKey: 'tasks.myViews.completed' },
   { value: 'rejected', labelKey: 'tasks.myViews.rejected' },
-  { value: 'overdue', labelKey: 'tasks.myViews.overdue' },
   { value: 'all', labelKey: 'tasks.myViews.all' },
 ]
 
@@ -86,9 +86,9 @@ const DEPARTMENT_TASK_FLOWS: { value: RequestFlowFilter; labelKey: string }[] = 
 
 const DEPARTMENT_STATUS_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.departmentViews.pending' },
+  { value: 'overdue', labelKey: 'tasks.departmentViews.overdue' },
   { value: 'completed', labelKey: 'tasks.departmentViews.completed' },
   { value: 'rejected', labelKey: 'tasks.departmentViews.rejected' },
-  { value: 'overdue', labelKey: 'tasks.departmentViews.overdue' },
   { value: 'all', labelKey: 'tasks.departmentViews.all' },
 ]
 

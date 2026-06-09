@@ -39,10 +39,13 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a27ea8d` — Merged dashboard managerRow1+managerRow2 into one grid so Vatandaş Talepleri sits beside Birimde Bekleyen Görevler (no 3rd-row overflow). Pushed. Moved to Done.
 - [x] `6a27ed5e` — Description editor font 18px→16px (base 15px→13px). Pushed. Moved to Done.
 
-## Pending (round 4)
-- [ ] `6a265d9b` — RE-OPENED again: Yönetici Birim İçi/Dışı Talep İptal button (new feedback)
-- [ ] `6a27f408` — Rutin Görev: Görevin Talep Yeri sütunu … (…)
-- [ ] `6a27fef4` — Görevlerim: "Tamamla" button next to Detaylar (…)
+## Round 4 (drained back-to-back)
+- [x] `6a265d9b` (reopened #3) — Removed duplicate İptal in Taleplerim: scoped manager approve/cancel buttons to jobs view only. Pushed. Moved to Done.
+- [x] `6a27f408` — Routine task "Görevin Talep Yeri" column shows creator (not dept). Pushed. Moved to Done.
+- [x] `6a27fef4` — Görevlerim: green "Tamamla" button next to Detaylar → completeTask → Completed; job auto-recomputes to Tamamlanmış Talepler. Pushed. Moved to Done.
+- [x] `6a27ff91` — Department Tasks overdue chip label → "Son Tarihi Geçmiş Görevler" (non-possessive, departmentViews.overdue). Pushed. Moved to Done.
+
+## STATUS: Doing list empty — queue fully drained.
 
 ## Pending (round 3 — fetch full text + attachments when processing)
 - [ ] `6a27d915` — Only manager/responsible can create Birim İçi talep (…)

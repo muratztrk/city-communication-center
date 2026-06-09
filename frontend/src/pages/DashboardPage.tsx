@@ -320,7 +320,7 @@ export function DashboardPage() {
         )}
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {(chartQuery.isLoading || dashboardQuery.isLoading) && chartCards.length === 0
           ? Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="section-card p-4 sm:p-5">

@@ -386,6 +386,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     () => visibleTasks.filter(task => taskMatchesFilters(task, (key, row) => {
       if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)
       if (key === 'priority') return getPriorityLabel(t, row.priority)
+      if (key === 'taskNumber') return formatTaskDisplayNumber(row)
       if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
       if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
       if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
@@ -1043,7 +1044,7 @@ const pageKicker = isMyTasksView
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                  <th>{t('tasks.columns.taskNo', 'Görev No')}</th>
+                  <FilterableTh filterKey="taskNumber" filterValue={taskFilters['taskNumber'] ?? ''} onFilter={setTaskFilter} sortKey="taskNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskNo', 'Görev No')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>

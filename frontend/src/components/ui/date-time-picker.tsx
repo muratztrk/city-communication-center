@@ -8,6 +8,8 @@ interface DateTimePickerProps {
   placeholder?: string
   id?: string
   className?: string
+  /** Takvimi her zaman aşağıya doğru aç (yukarı kaydırma yapma). */
+  forceDown?: boolean
 }
 
 const DROPDOWN_WIDTH = 288  // w-72
@@ -46,7 +48,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -92,15 +94,15 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
       style.left = rect.left
     }
 
-    // Vertical: prefer below; flip above if it would overflow
-    if (rect.bottom + DROPDOWN_HEIGHT + MARGIN > vh) {
+    // Vertical: prefer below; flip above only if it would overflow and not forced down
+    if (!forceDown && rect.bottom + DROPDOWN_HEIGHT + MARGIN > vh) {
       style.bottom = vh - rect.top + 4
     } else {
       style.top = rect.bottom + 4
     }
 
     setDropdownStyle(style)
-  }, [open, viewMonth, viewYear])
+  }, [open, viewMonth, viewYear, forceDown])
 
   const handleConfirm = () => {
     if (draft.date) {

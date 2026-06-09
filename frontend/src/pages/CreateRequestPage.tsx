@@ -161,6 +161,24 @@ export function CreateRequestPage() {
     )
   }, [departments, externalForm.ownerDepartmentId, externalForm.targetDepartmentId])
 
+  // Birim İçi talepte "Görev Sahibi Kişi/Birim": yalnızca birim yöneticisi/sorumlusu,
+  // kendisi dahil birimin tüm personellerini görev sahibi olarak seçebilir.
+  const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const internalOwnerUserOptions = useMemo(() => {
+    const deptId = internalForm.ownerDepartmentId || myDepartmentId
+    if (!isManagerLike || !deptId) {
+      return user ? [{ userId: user.userId, displayName: user.displayName }] : []
+    }
+    const inDepartment = users.filter(item =>
+      item.isActive &&
+      (item.departmentId === deptId || item.departments?.some(department => department.departmentId === deptId)))
+    const options = inDepartment.map(item => ({ userId: item.userId, displayName: item.displayName }))
+    if (user && !options.some(option => option.userId === user.userId)) {
+      options.unshift({ userId: user.userId, displayName: user.displayName })
+    }
+    return options
+  }, [internalForm.ownerDepartmentId, myDepartmentId, isManagerLike, users, user])
+
 
   const requestTypeOptions = useMemo(() => {
     const options: { value: RequestKind; label: string }[] = [
@@ -571,7 +589,9 @@ export function CreateRequestPage() {
                 onChange={e => setInternalForm(current => ({ ...current, ownerUserIds: e.target.value ? [e.target.value] : [''] }))}
               >
                 <option value="">{t('tasks.newRequest.departmentPool', 'Birim Havuzu')}</option>
-                {user && <option value={user.userId}>{user.displayName}</option>}
+                {internalOwnerUserOptions.map(option => (
+                  <option key={option.userId} value={option.userId}>{option.displayName}</option>
+                ))}
               </select>
             </div>
             {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}

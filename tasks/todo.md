@@ -15,9 +15,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a2665f4` — 401 in ensureOk → clearAuthSession + SESSION_EXPIRED_EVENT → drop to login; AuthContext storage listener auto-logs-out other tabs. Pushed. Moved to Done.
 - [x] `6a26673e` — İade shown only for managers (non-internal); standard user gets İptal only. Pushed. Moved to Done.
 - [x] `6a2669a1` — Dashboard: added outgoingInProgressCount box after outgoing-pending (BE GetDashboardQuery + contract + FE type + i18n); pending tightened to approval-only. Pushed. Moved to Done.
+- [x] `6a266a85` — Dashboard chart section md:grid-cols-2 lg:grid-cols-3 (was lg:grid-cols-2). Pushed. Moved to Done.
 
 ## Pending (top → bottom)
-- [ ] `6a266a85` — Control panel pie charts 3-per-row (currently 2)
 - [ ] `6a266b79` — Remove /jobs?scope=pending-approval page (duplicate of Birime Gelen Talepler default)
 - [ ] `6a266bd3` — Rename "Birime Gelen Onay Bekleyenler" → "...Talepler"; link to default Birime Gelen page
 - [ ] `6a2687a6` — 2-department user: Birim İçi/Dışı request not appearing in Taleplerim

@@ -60,7 +60,6 @@ function ScopeChipFilters({ searchText, filterYear, availableYears, onSearch, on
 }
 
 const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
-  { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApproval' },
   { value: 'department-pool', labelKey: 'jobs.scopes.departmentPool' },
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
@@ -320,9 +319,17 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   )
   const scope = useMemo<JobListScope>(() => {
     if (fixedScope) return fixedScope
-    const raw = (searchParams.get('scope') as JobListScope | null) ?? 'pending-approval'
-    return EXTERNAL_SCOPES.some(s => s.value === raw) || raw === 'rejected' ? raw : 'pending-approval'
+    const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'
+    return EXTERNAL_SCOPES.some(s => s.value === raw) || raw === 'rejected' ? raw : 'department-pool'
   }, [fixedScope, searchParams])
+
+  // "pending-approval" görünümü "Birime Gelen Talepler" varsayılan sayfasının kopyasıydı;
+  // bu eski bağlantılar artık Birime Gelen Talepler'e yönlendirilir.
+  useEffect(() => {
+    if (!fixedScope && searchParams.get('scope') === 'pending-approval') {
+      navigate('/incoming-requests', { replace: true })
+    }
+  }, [fixedScope, searchParams, navigate])
 
   // auto-open detail drawer when ?jobId=... is in the URL (e.g. linked from social messages)
   const autoOpenJobId = searchParams.get('jobId')

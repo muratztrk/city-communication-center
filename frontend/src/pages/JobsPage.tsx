@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { ClipboardPlus, Search, X as XIcon } from 'lucide-react'
+import { DueDatePill } from '../components/ui/due-date-pill'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { getActiveDepartmentId } from '../api/http'
@@ -833,7 +834,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <td>{getPriorityLabel(t, job.priority)}</td>
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
-                    <td>{formatDateTime(job.dueDateUtc, locale)}</td>
+                    <td><DueDatePill value={job.dueDateUtc} locale={locale} /></td>
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td>{formatDateTime(job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null, locale)}</td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td>{formatDateTime(job.completedAtUtc, locale)}</td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{formatDateTime(job.updatedAtUtc ?? null, locale)}</td>}

@@ -1,4 +1,5 @@
 import { ClipboardCheck, Search } from 'lucide-react'
+import { DueDatePill } from '../components/ui/due-date-pill'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -1059,7 +1060,7 @@ const pageKicker = isMyTasksView
                       </td>
                     )}
                     <td>{getPriorityLabel(t, task.priority)}</td>
-                    <td>{formatDateTime(task.dueDateUtc, locale)}</td>
+                    <td><DueDatePill value={task.dueDateUtc} locale={locale} /></td>
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td>{formatDateTime(task.completedAtUtc ?? null, locale)}</td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{formatDateTime(task.updatedAtUtc ?? null, locale)}</td>}
                     <td className="actions-cell">

@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import { DueDatePill } from '../components/ui/due-date-pill'
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
@@ -531,7 +532,7 @@ export function IncomingRequestsPage() {
                     <td>{row.createdBy ?? '—'}</td>
                     <td className="font-semibold">{row.title}</td>
                     <td>{getPriorityLabel(t, row.priority)}</td>
-                    <td>{formatDateTime(row.dueDateUtc, locale)}</td>
+                    <td><DueDatePill value={row.dueDateUtc} locale={locale} /></td>
                     {currentStatusFilter === 'approved' && <td>{formatDateTime(row.approvedAtUtc, locale)}</td>}
                     {currentStatusFilter === 'completed' && <td>{formatDateTime(row.completedAtUtc, locale)}</td>}
                     {currentStatusFilter === 'cancelled' && <td>{formatDateTime(row.updatedAtUtc, locale)}</td>}

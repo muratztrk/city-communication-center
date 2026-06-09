@@ -666,7 +666,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     const visibleTargets = targetDepartments.slice(0, 3)
     const hiddenTargetCount = targetDepartments.length - visibleTargets.length
     return (
-      <div className="flex min-w-[12rem] max-w-[24rem] flex-wrap gap-1.5">
+      <div className="mx-auto flex min-w-[12rem] max-w-[24rem] flex-wrap justify-center gap-1.5">
         {visibleTargets.map(department => (
           <StatusPill key={department.jobDepartmentId} tone="success" className="max-w-[12rem]">
             <span className="truncate">{department.departmentName ?? '—'}</span>

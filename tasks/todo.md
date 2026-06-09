@@ -51,13 +51,4 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 - [x] `6a280332` — Moved overdue chip to 2nd position (after pending) in My Tasks + Dept Tasks. Pushed. Moved to Done.
 
-## STATUS: Doing list empty — queue fully drained.
-
-## Pending (round 3 — fetch full text + attachments when processing)
-- [ ] `6a27d915` — Only manager/responsible can create Birim İçi talep (…)
-- [ ] `6a27dab1` — Birim İçi Talep Oluştur: Talep Başlığı, Açıklama … (…)
-- [ ] `6a27ba60` — RE-OPENED: after create, return to previous page (my navigate(-1) fix may need revisit)
-- [ ] `6a27c22a` — Only manager/responsible authority for … Ta… (…)
-- [ ] `6a27c123` — Birimdeki Görevler/Görevlerim: "Son Tarihi Geç…" (…)
-- [ ] `6a27ea8d` — Manager Kontrol Paneli … (…)
-- [ ] `6a27ed5e` — Reduce description-field font size by 2pt
+## STATUS: Doing list empty — queue fully drained (all rounds complete).

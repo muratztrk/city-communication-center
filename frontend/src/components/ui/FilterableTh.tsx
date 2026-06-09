@@ -137,7 +137,11 @@ export function FilterableTh({
             className="col-filter-input"
             placeholder="İçerik..."
             value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
+            onChange={e => {
+              // Tarih sütunlarında (…Utc) yalnızca rakam ve . : boşluk karakterlerine izin ver.
+              const raw = e.target.value
+              setInputValue(filterKey.endsWith('Utc') ? raw.replace(/[^0-9.: ]/g, '') : raw)
+            }}
             onKeyDown={e => {
               if (e.key === 'Enter') applyFilter()
               if (e.key === 'Escape') setOpen(false)

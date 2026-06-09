@@ -7,10 +7,10 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a265aaf` — "Görev Tipi" column in Görevlerim grid (matched Personelimin Görevleri). Pushed.
 - [x] `6a265b44` — Gittiği Yer destination pills uniform green (was tinted by approval status). Pushed. Moved to Done.
 - [x] `6a265c3e` — Creator can cancel own job (CancelJobCommand isCreator) + cascade non-terminal tasks to Cancelled; İptal button in Taleplerim. Pushed. Moved to Done.
+- [x] `6a265d9b` — Auto-approved create now assigns JobNumber (was "Onay Bekleyen" in approved list); İade hidden for manager's own InternalUnit in Taleplerim. Pushed. Moved to Done.
+- [x] `6a265ea9` — Manager Birim Dışı number fix: SAME root cause as 6a265d9b, resolved by that commit (JobNumber assigned at creation for all !requiresOwnerApproval). No new code. Moved to Done.
 
 ## Pending (top → bottom)
-- [ ] `6a265d9b` — Manager Birim İçi request should get number (self-approver); İptal/İade → İptal only
-- [ ] `6a265ea9` — Manager Birim Dışı request number/approval state fix
 - [ ] `6a266007` — Son Tarih button styling: yellow if last day, red if overdue (screenshot)
 - [ ] `6a26624e` — Calendar icon before dates in all date gridviews (Ekrana Yansıt parity)
 - [ ] `6a26631b` — Onay/Tamamlanma/İptal-İade Tarihi columns sortable+filterable

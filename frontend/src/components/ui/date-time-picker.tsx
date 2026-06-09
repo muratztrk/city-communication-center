@@ -1,5 +1,6 @@
 import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
 
 interface DateTimePickerProps {
@@ -136,7 +137,10 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      const inTrigger = containerRef.current?.contains(target)
+      const inDropdown = dropdownRef.current?.contains(target)
+      if (!inTrigger && !inDropdown) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -177,7 +181,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         <span className="flex-1 truncate">{display || placeholder}</span>
       </button>
 
-      {open ? (
+      {open ? createPortal((
         <div
           ref={dropdownRef}
           style={dropdownStyle}
@@ -279,7 +283,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
           </div>
 
         </div>
-      ) : null}
+      ), document.body) : null}
     </div>
   )
 }

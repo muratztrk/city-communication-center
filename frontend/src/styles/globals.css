@@ -1852,7 +1852,7 @@
     color: rgba(226, 232, 240, 0.72);
     font-size: clamp(0.8rem, 0.9vw, 1rem);
     font-weight: 900;
-    text-align: left;
+    text-align: center;
     text-transform: uppercase;
   }
 
@@ -1874,6 +1874,7 @@
     color: rgba(226, 232, 240, 0.88);
     font-size: clamp(0.95rem, 1.05vw, 1.18rem);
     font-weight: 800;
+    text-align: center;
     vertical-align: middle;
   }
 

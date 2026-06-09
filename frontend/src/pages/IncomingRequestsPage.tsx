@@ -495,6 +495,24 @@ export function IncomingRequestsPage() {
             <h1 className="page-title">{t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler')}</h1>
             <p className="page-subtitle">{t('incomingRequests.subtitle', 'Birim içi ve birim dışı gelen talepleri tek listede takip edin.')}</p>
           </div>
+          <div className="ml-auto mt-auto shrink-0">
+            <div className="scope-chips-filters">
+              <div className="scope-chip-search-wrap">
+                <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
+                <input
+                  type="search"
+                  className="scope-chip-search-input"
+                  placeholder={t('common.search', 'Ara...')}
+                  value={searchText}
+                  onChange={e => setSearchText(e.target.value)}
+                />
+              </div>
+              {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
+              <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
+              <span className="text-xs text-white/60">–</span>
+              <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
+            </div>
+          </div>
         </div>
       </header>
 
@@ -520,22 +538,6 @@ export function IncomingRequestsPage() {
             {t(filter.labelKey, filter.fallback)}
           </button>
         ))}
-        <div className="scope-chips-filters">
-          <div className="scope-chip-search-wrap">
-            <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
-            <input
-              type="search"
-              className="scope-chip-search-input"
-              placeholder={t('common.search', 'Ara...')}
-              value={searchText}
-              onChange={e => setSearchText(e.target.value)}
-            />
-          </div>
-          {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
-          <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-          <span className="text-xs text-slate-400">–</span>
-          <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
-        </div>
       </nav>
 
       {error ? <div className="error">{error}</div> : null}

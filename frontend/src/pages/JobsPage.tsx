@@ -845,10 +845,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
-                        {isManagerLike && job.status === 'PendingOwnerApproval' && (
+                        {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
                         )}
-                        {isManagerLike && job.status === 'Active' && (
+                        {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
                         )}
                         {/* Birimden Giden → Bekleyen: İptal butonu */}

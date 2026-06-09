@@ -37,6 +37,12 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a27c22a` — Manager Taleplerim: replaced Bekleyen+Onaylanmış with single "Yapılmakta Olan Taleplerim" (pending+active); non-managers unchanged. Pushed. Moved to Done.
 - [x] `6a27c123` — Added "Son Tarihi Geçmiş Görevlerim" overdue chip (orange) to My Tasks + Dept Tasks, after İptal/İade; filters active past-due tasks. Pushed. Moved to Done.
 - [x] `6a27ea8d` — Merged dashboard managerRow1+managerRow2 into one grid so Vatandaş Talepleri sits beside Birimde Bekleyen Görevler (no 3rd-row overflow). Pushed. Moved to Done.
+- [x] `6a27ed5e` — Description editor font 18px→16px (base 15px→13px). Pushed. Moved to Done.
+
+## Pending (round 4)
+- [ ] `6a265d9b` — RE-OPENED again: Yönetici Birim İçi/Dışı Talep İptal button (new feedback)
+- [ ] `6a27f408` — Rutin Görev: Görevin Talep Yeri sütunu … (…)
+- [ ] `6a27fef4` — Görevlerim: "Tamamla" button next to Detaylar (…)
 
 ## Pending (round 3 — fetch full text + attachments when processing)
 - [ ] `6a27d915` — Only manager/responsible can create Birim İçi talep (…)

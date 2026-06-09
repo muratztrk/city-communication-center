@@ -571,7 +571,7 @@ export function IncomingRequestsPage() {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">
                       <div>{row.displayNumber}</div>
-                      <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(row.priority)}`}>({getPriorityLabel(t, row.priority)})</div>
+                      <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td>{row.createdBy ?? '—'}</td>

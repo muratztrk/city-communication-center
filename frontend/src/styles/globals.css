@@ -1176,7 +1176,13 @@
   .sticky-page-header .scope-chip-date .field-input {
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
-    color: white;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Tarih seçici takvim ikonu, "Ara" alanındaki ikonla aynı renkte ve net. */
+  .sticky-page-header .scope-chip-date .field-input svg {
+    color: rgba(255, 255, 255, 0.75);
+    opacity: 1;
   }
 
   .scope-chip {

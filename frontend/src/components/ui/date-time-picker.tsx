@@ -1,4 +1,4 @@
-import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
+import { CalendarClock, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
@@ -177,7 +177,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
           !display && 'text-[color:var(--color-muted-foreground)]',
         )}
       >
-        <Calendar className="size-4 shrink-0 opacity-60" />
+        <CalendarClock className="size-4 shrink-0 opacity-60" />
         <span className="flex-1 truncate">{display || placeholder}</span>
       </button>
 

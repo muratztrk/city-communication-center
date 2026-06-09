@@ -195,9 +195,9 @@ export function CreateRequestPage() {
 
   const selectRequestKind = (kind: RequestKind) => {
     setError(null)
-    // Sekme değişimini geçmişe eklemiyoruz; böylece talep oluşturulduktan sonra
-    // bir önceki gerçek sayfaya (talep formuna gelmeden önceki) dönülebilir.
-    navigate(`/requests/new?kind=${kind}`, { replace: true })
+    // Geçmişe yeni kayıt ekleriz; böylece "Geri" butonu 1 önceki sayfa olan
+    // talep tipi seçim ekranına (/requests/new) döner, Kontrol Paneli'ne değil.
+    navigate(`/requests/new?kind=${kind}`)
   }
 
   const getRequestTypeLabel = (kind: RequestKind | null) => {
@@ -405,7 +405,7 @@ export function CreateRequestPage() {
       }
       setInternalForm(EMPTY_INTERNAL_FORM)
       setPendingFiles([])
-      navigate(-1)
+      navigate('/requests/new')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -453,7 +453,7 @@ export function CreateRequestPage() {
       }
       setExternalForm(EMPTY_EXTERNAL_FORM)
       setPendingFiles([])
-      navigate(-1)
+      navigate('/requests/new')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -480,7 +480,7 @@ export function CreateRequestPage() {
         longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
       })
       setCitizenForm(EMPTY_CITIZEN_FORM)
-      navigate(-1)
+      navigate('/requests/new')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {

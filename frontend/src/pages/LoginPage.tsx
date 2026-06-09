@@ -93,9 +93,10 @@ export function LoginPage() {
     ?? tenantContext?.resolvedTenant?.municipalityName
     ?? t('login.organizationFallback')
   const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
-  const logoUrl = tenantContext?.appearance?.logoUrl?.trim() || null
-  const desktopLogoUrl = logoUrl ?? LOGIN_LOGO_LIGHT_SRC
-  const compactLogoUrl = logoUrl ?? LOGIN_LOGO_DARK_SRC
+  // Login sayfasında her zaman resmi Tire Belediyesi logosu kullanılır
+  // (tenant görünüm logosu burada geçersiz kılınır).
+  const desktopLogoUrl = LOGIN_LOGO_LIGHT_SRC
+  const compactLogoUrl = LOGIN_LOGO_DARK_SRC
   const loginBackgroundImageUrl = tenantContext?.appearance?.loginBackgroundImageUrl?.trim() || null
   const loginHeroBackgroundStyle = loginBackgroundImageUrl
     ? {

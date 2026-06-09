@@ -625,7 +625,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <label className="job-field-label" htmlFor="request-title">{t('jobs.form.title')} <span className="text-red-500">*</span></label>
+              <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-red-500">*</span></label>
               <input id="request-title" className="field-input" type="text" value={externalForm.title} onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))} required />
             </div>
             <div className="job-field">

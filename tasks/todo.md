@@ -27,9 +27,14 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a27bb7c` — Removed İade Et button entirely from Taleplerim (creator can only İptal) + deleted dead return modal. SUPERSEDES card 10. Pushed. Moved to Done.
 - [x] `6a265d9b` (reopened) — Görevlerim button: İptal/İade + return choice only for ExternalUnit tasks; internal/routine → İptal-only (drives label + skipChoose by jobRequestType, not role). Pushed. Moved to Done.
 - [x] `6a27c07f` — Routine task: apply tenant default SLA to compute due date when none given (job + task); was "Belirsiz". Pushed. Moved to Done.
+- [x] `6a27c24d` — Birime Gelen Talepler: added title search + year filter in scope-chips bar (mirrors Taleplerim). Pushed. Moved to Done.
 
-## Pending (NEW cards added to Doing — names truncated, fetch full text + attachments when processing)
-- [ ] `6a27bb7c` — Request creator cannot İade, only İptal (…) [overlaps card 10/3 — verify]
-- [ ] `6a265d9b` — RE-OPENED: Yönetici Birim İçi Talep İptal/İade button … (new feedback on prior card)
-- [ ] `6a27c07f` — Routine task: if no due date, default SLA (…)
-- [ ] `6a27c24d` — Birime Gelen Talepler: year filter + searching (…)
+## Pending (round 3 — fetch full text + attachments when processing)
+- [ ] `6a27db3a` — Birim Dışı Talep Oluştur "İş Başlığı" text … (…)
+- [ ] `6a27d915` — Only manager/responsible can create Birim İçi talep (…)
+- [ ] `6a27dab1` — Birim İçi Talep Oluştur: Talep Başlığı, Açıklama … (…)
+- [ ] `6a27ba60` — RE-OPENED: after create, return to previous page (my navigate(-1) fix may need revisit)
+- [ ] `6a27c22a` — Only manager/responsible authority for … Ta… (…)
+- [ ] `6a27c123` — Birimdeki Görevler/Görevlerim: "Son Tarihi Geç…" (…)
+- [ ] `6a27ea8d` — Manager Kontrol Paneli … (…)
+- [ ] `6a27ed5e` — Reduce description-field font size by 2pt

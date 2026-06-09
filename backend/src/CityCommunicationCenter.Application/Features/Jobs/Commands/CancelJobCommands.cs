@@ -1,3 +1,5 @@
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
+
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record CancelJobCommand(Guid JobId, Guid? ActorUserId, string Reason) : ICommand<bool>;
@@ -28,15 +30,16 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
 
-        var isOwnerManager = await _dbContext.Departments
+        var isCreator = job.CreatedByUserId == actor.UserId;
+        var isOwnerManager = !isCreator && await _dbContext.Departments
             .AnyAsync(d => d.TenantId == tenantId && d.DepartmentId == job.OwnerDepartmentId && d.ManagerUserId == actor.UserId, cancellationToken);
-        var isTargetManager = !isOwnerManager && job.Status == JobStatus.PendingExternalApproval &&
+        var isTargetManager = !isCreator && !isOwnerManager && job.Status == JobStatus.PendingExternalApproval &&
             await _dbContext.JobDepartments.AnyAsync(
                 jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target &&
                       _dbContext.Departments.Any(d => d.TenantId == tenantId && d.DepartmentId == jd.DepartmentId && d.ManagerUserId == actor.UserId),
                 cancellationToken);
 
-        if (!isOwnerManager && !isTargetManager)
+        if (!isCreator && !isOwnerManager && !isTargetManager)
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "İş iptal yetkiniz yok.")
@@ -52,6 +55,7 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
 
         job.Status = JobStatus.Cancelled;
         job.CancelReason = request.Reason;
+        job.CompletionPercentage = 0;
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
 
@@ -68,6 +72,36 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
             Notes = request.Reason,
             Details = request.Reason
         });
+
+        // Talep iptal edildiğinde, onaylanmış olsa bile devam eden tüm görevler de iptale düşer.
+        var activeTasks = await _dbContext.Tasks
+            .Where(t => t.JobId == job.JobId && t.TenantId == tenantId
+                     && t.CurrentStatus != WorkflowTaskStatus.Completed
+                     && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                     && t.CurrentStatus != WorkflowTaskStatus.Rejected)
+            .ToListAsync(cancellationToken);
+
+        foreach (var task in activeTasks)
+        {
+            task.CurrentStatus = WorkflowTaskStatus.Cancelled;
+            task.RevisionReason = request.Reason;
+            task.UpdatedAtUtc = utcNow;
+            task.UpdatedByUserId = actor.UserId;
+
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(WorkTask),
+                EntityId = task.TaskId.ToString(),
+                Action = "TaskCancelled",
+                ActorUserId = actor.UserId,
+                ActorDisplayName = actor.DisplayName,
+                StatusAtEvent = WorkflowTaskStatus.Cancelled.ToString(),
+                Notes = "Bağlı talep iptal edildiği için görev iptal edildi.",
+                Details = request.Reason
+            });
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

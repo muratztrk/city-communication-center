@@ -5,9 +5,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Done
 - [x] `6a265aaf` — "Görev Tipi" column in Görevlerim grid (matched Personelimin Görevleri). Pushed.
+- [x] `6a265b44` — Gittiği Yer destination pills uniform green (was tinted by approval status). Pushed. Moved to Done.
 
 ## Pending (top → bottom)
-- [ ] `6a265b44` — Birim Dışı talep row green-highlighted in gridview (screenshot)
 - [ ] `6a265c3e` — Requester can cancel own request; cancel cascades all processes even if approved
 - [ ] `6a265d9b` — Manager Birim İçi request should get number (self-approver); İptal/İade → İptal only
 - [ ] `6a265ea9` — Manager Birim Dışı request number/approval state fix

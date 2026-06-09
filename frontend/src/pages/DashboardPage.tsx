@@ -96,10 +96,10 @@ export function DashboardPage() {
           iconColor: 'text-amber-600',
         },
         {
-          label: t('dashboard.cards.incomingPendingApproval', 'Birime Gelen Onay Bekleyenler'),
+          label: t('dashboard.cards.incomingPendingApproval', 'Birime Gelen Onay Bekleyen Talepler'),
           value: dashboardQuery.data.pendingApprovalCount,
           icon: ChartBarBig,
-          path: '/jobs?scope=pending-approval',
+          path: '/incoming-requests',
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
         },

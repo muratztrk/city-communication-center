@@ -299,7 +299,7 @@
       "activeMessages": "Citizen Requests",
       "rejectedOrCancelled": "Cancelled/Rejected Requests",
       "myPendingRequests": "My Pending Requests (Int/Ext)",
-      "incomingPendingApproval": "Incoming Dept — Pending Approval",
+      "incomingPendingApproval": "Incoming Dept — Pending Approval Requests",
       "outgoingPending": "Outgoing Dept — Pending Requests",
       "outgoingInProgress": "Outgoing Dept — In-Progress Requests",
       "myPendingTasks": "My Pending Tasks (Int/Ext)",

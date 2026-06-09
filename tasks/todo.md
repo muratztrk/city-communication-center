@@ -29,8 +29,10 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a27c07f` — Routine task: apply tenant default SLA to compute due date when none given (job + task); was "Belirsiz". Pushed. Moved to Done.
 - [x] `6a27c24d` — Birime Gelen Talepler: added title search + year filter in scope-chips bar (mirrors Taleplerim). Pushed. Moved to Done.
 
+## Round 3
+- [x] `6a27db3a` — External create form title label "İş Başlığı" → "Talep Başlığı" (uses tasks.newRequest.title). Pushed. Moved to Done.
+
 ## Pending (round 3 — fetch full text + attachments when processing)
-- [ ] `6a27db3a` — Birim Dışı Talep Oluştur "İş Başlığı" text … (…)
 - [ ] `6a27d915` — Only manager/responsible can create Birim İçi talep (…)
 - [ ] `6a27dab1` — Birim İçi Talep Oluştur: Talep Başlığı, Açıklama … (…)
 - [ ] `6a27ba60` — RE-OPENED: after create, return to previous page (my navigate(-1) fix may need revisit)

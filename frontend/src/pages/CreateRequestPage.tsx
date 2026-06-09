@@ -376,6 +376,11 @@ export function CreateRequestPage() {
       setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
       return
     }
+    // Yönetici/sorumlu için personel seçimi zorunludur (en az bir kişi).
+    if (isManagerLike && internalForm.ownerUserIds.filter(id => id.trim() !== '').length === 0) {
+      setError(t('tasks.newRequest.ownerUserRequired', 'Lütfen en az bir personel seçiniz.'))
+      return
+    }
 
     setSaving(true)
     setError(null)
@@ -584,17 +589,31 @@ export function CreateRequestPage() {
               </div>
             </div>
             <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.ownerUser', 'Görev Sahibi Kişi/Birim')}</span>
-              <select
-                className="field-select"
-                value={internalForm.ownerUserIds[0] ?? ''}
-                onChange={e => setInternalForm(current => ({ ...current, ownerUserIds: e.target.value ? [e.target.value] : [''] }))}
-              >
-                <option value="">{t('tasks.newRequest.departmentPool', 'Birim Havuzu')}</option>
-                {internalOwnerUserOptions.map(option => (
-                  <option key={option.userId} value={option.userId}>{option.displayName}</option>
-                ))}
-              </select>
+              <span className="job-field-label">
+                {t('tasks.newRequest.ownerUser', 'Görev Sahibi Kişi/Birim')}
+                {isManagerLike && <span className="text-red-500"> *</span>}
+              </span>
+              {isManagerLike ? (
+                // Yönetici/sorumlu birden fazla personel seçebilir (1 talep → birden çok görev).
+                <MultiSelectDropdown
+                  options={internalOwnerUserOptions.map(option => ({ value: option.userId, label: option.displayName }))}
+                  value={internalForm.ownerUserIds.filter(id => id.trim() !== '')}
+                  onChange={ids => setInternalForm(current => ({ ...current, ownerUserIds: ids.length > 0 ? ids : [''] }))}
+                  placeholder={t('tasks.newRequest.selectStaff', 'Personel seçiniz')}
+                  emptyText={t('tasks.newRequest.noStaff', 'Personel bulunamadı')}
+                />
+              ) : (
+                <select
+                  className="field-select"
+                  value={internalForm.ownerUserIds[0] ?? ''}
+                  onChange={e => setInternalForm(current => ({ ...current, ownerUserIds: e.target.value ? [e.target.value] : [''] }))}
+                >
+                  <option value="">{t('tasks.newRequest.departmentPool', 'Birim Havuzu')}</option>
+                  {internalOwnerUserOptions.map(option => (
+                    <option key={option.userId} value={option.userId}>{option.displayName}</option>
+                  ))}
+                </select>
+              )}
             </div>
             {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
             {renderPhotoUpload()}

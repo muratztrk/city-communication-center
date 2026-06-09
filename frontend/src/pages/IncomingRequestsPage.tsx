@@ -1,4 +1,4 @@
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Search } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 
@@ -227,6 +227,8 @@ export function IncomingRequestsPage() {
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
   const [incomingPageSize, setIncomingPageSize] = useState(10)
+  const [filterYear, setFilterYear] = useState('')
+  const [searchText, setSearchText] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
   const [cancelReturnModal, setCancelReturnModal] = useState<{ row: IncomingRequestRow } | null>(null)
@@ -402,10 +404,28 @@ export function IncomingRequestsPage() {
     })
   }, [jobs, tasks, activeDeptId])
 
-  const visibleRows = useMemo(() => rows
-    .filter(row => matchesStatusFilter(row, currentStatusFilter))
-    .filter(row => matchesKindFilter(row, currentKindFilter)),
-  [currentKindFilter, currentStatusFilter, rows])
+  const availableYears = useMemo(() => {
+    const years = new Set<string>()
+    for (const row of rows) {
+      const y = row.createdAtUtc?.slice(0, 4)
+      if (y) years.add(y)
+    }
+    return [...years].sort().reverse()
+  }, [rows])
+
+  const visibleRows = useMemo(() => {
+    let result = rows
+      .filter(row => matchesStatusFilter(row, currentStatusFilter))
+      .filter(row => matchesKindFilter(row, currentKindFilter))
+    if (filterYear) result = result.filter(row => row.createdAtUtc?.startsWith(filterYear))
+    if (searchText.trim()) {
+      const q = searchText.toLowerCase()
+      result = result.filter(row => row.title.toLowerCase().includes(q))
+    }
+    return result
+  }, [currentKindFilter, currentStatusFilter, rows, filterYear, searchText])
+
+  useEffect(() => { setIncomingPage(1) }, [filterYear, searchText])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
   const { filters: incomingFilters, setFilter: setIncomingFilter, clearFilters: clearIncomingFilters, matchesFilters: incomingMatchesFilters } = useColumnFilters()
@@ -498,6 +518,26 @@ export function IncomingRequestsPage() {
             {t(filter.labelKey, filter.fallback)}
           </button>
         ))}
+        <div className="scope-chips-filters">
+          <div className="scope-chip-search-wrap">
+            <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
+            <input
+              type="search"
+              className="scope-chip-search-input"
+              placeholder={t('common.search', 'Ara...')}
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+            />
+          </div>
+          <select
+            className="scope-chip-year-select"
+            value={filterYear}
+            onChange={e => setFilterYear(e.target.value)}
+          >
+            <option value="">{t('common.yearSelect', 'Yıl Seçimi')}</option>
+            {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
       </nav>
 
       {error ? <div className="error">{error}</div> : null}

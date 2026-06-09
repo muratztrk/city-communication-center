@@ -26,6 +26,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a27ba60` — After create, navigate(-1) to previous page instead of fixed list/dashboard; kind switches use replace. Pushed. Moved to Done.
 - [x] `6a27bb7c` — Removed İade Et button entirely from Taleplerim (creator can only İptal) + deleted dead return modal. SUPERSEDES card 10. Pushed. Moved to Done.
 - [x] `6a265d9b` (reopened) — Görevlerim button: İptal/İade + return choice only for ExternalUnit tasks; internal/routine → İptal-only (drives label + skipChoose by jobRequestType, not role). Pushed. Moved to Done.
+- [x] `6a27c07f` — Routine task: apply tenant default SLA to compute due date when none given (job + task); was "Belirsiz". Pushed. Moved to Done.
 
 ## Pending (NEW cards added to Doing — names truncated, fetch full text + attachments when processing)
 - [ ] `6a27bb7c` — Request creator cannot İade, only İptal (…) [overlaps card 10/3 — verify]

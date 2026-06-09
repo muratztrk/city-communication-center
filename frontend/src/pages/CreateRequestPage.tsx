@@ -195,7 +195,9 @@ export function CreateRequestPage() {
 
   const selectRequestKind = (kind: RequestKind) => {
     setError(null)
-    navigate(`/requests/new?kind=${kind}`)
+    // Sekme değişimini geçmişe eklemiyoruz; böylece talep oluşturulduktan sonra
+    // bir önceki gerçek sayfaya (talep formuna gelmeden önceki) dönülebilir.
+    navigate(`/requests/new?kind=${kind}`, { replace: true })
   }
 
   const getRequestTypeLabel = (kind: RequestKind | null) => {
@@ -398,7 +400,7 @@ export function CreateRequestPage() {
       }
       setInternalForm(EMPTY_INTERNAL_FORM)
       setPendingFiles([])
-      navigate('/tasks')
+      navigate(-1)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -446,7 +448,7 @@ export function CreateRequestPage() {
       }
       setExternalForm(EMPTY_EXTERNAL_FORM)
       setPendingFiles([])
-      navigate('/jobs')
+      navigate(-1)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -473,7 +475,7 @@ export function CreateRequestPage() {
         longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
       })
       setCitizenForm(EMPTY_CITIZEN_FORM)
-      navigate('/social')
+      navigate(-1)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {

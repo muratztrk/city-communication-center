@@ -20,5 +20,11 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a266bd3` — Renamed dashboard label → "Birime Gelen Onay Bekleyen Talepler" (tr/en) + repointed link to /incoming-requests. Pushed. Moved to Done.
 - [x] `6a2687a6` — Removed active-department filter from "mine" scope in JobQueries so multi-dept user sees all own requests in Taleplerim. Pushed. Moved to Done.
 
-## Pending (top → bottom)
-- [ ] `6a26885e` — Manager-only Birim İçi: "Görev Sahibi Kişi/Birim" dropdown lists all dept staff incl. self
+- [x] `6a26885e` — Internal owner dropdown lists all active dept staff (incl. self) for managers; non-managers keep pool+self. Pushed. Moved to Done.
+
+## Pending (NEW cards added to Doing — names truncated, fetch full text + attachments when processing)
+- [ ] `6a27ba60` — After clicking Talep Oluştur, go to control panel page (…)
+- [ ] `6a27bb7c` — Request creator cannot İade, only İptal (…) [overlaps card 10/3 — verify]
+- [ ] `6a265d9b` — RE-OPENED: Yönetici Birim İçi Talep İptal/İade button … (new feedback on prior card)
+- [ ] `6a27c07f` — Routine task: if no due date, default SLA (…)
+- [ ] `6a27c24d` — Birime Gelen Talepler: year filter + searching (…)

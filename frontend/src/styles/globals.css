@@ -297,7 +297,7 @@
 
     .app-content-shell .rich-text-editable {
       padding: 0.72rem;
-      font-size: 18px;
+      font-size: 16px;
       line-height: 1.55;
     }
 
@@ -502,7 +502,7 @@
     min-height: 14rem;
     overflow: auto;
     padding: 1rem;
-    font-size: 15px;
+    font-size: 13px;
     color: #0f172a;
     line-height: 1.6;
     outline: none;

@@ -1105,6 +1105,7 @@
       "created": "Oluşturduğum Talepler",
       "pending": "Bekleyen Taleplerim",
       "approved": "Onaylanmış Taleplerim",
+      "inProgress": "Yapılmakta Olan Taleplerim",
       "completed": "Tamamlanmış Taleplerim",
       "rejected": "İptal/İade Taleplerim",
       "all": "Tüm Taleplerim",

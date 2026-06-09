@@ -64,11 +64,12 @@ const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
 
-type MyRequestsView = 'pending' | 'approved' | 'completed' | 'rejected' | 'all'
+type MyRequestsView = 'pending' | 'approved' | 'in-progress' | 'completed' | 'rejected' | 'all'
 type RequestFlowFilter = 'internal' | 'external' | 'all'
 type DepartmentOutgoingView = 'pending' | 'approved' | 'in-progress' | 'completed' | 'rejected' | 'all'
 
 const MY_REQUEST_VIEWS: { value: MyRequestsView; labelKey: string }[] = [
+  { value: 'in-progress', labelKey: 'jobs.myViews.inProgress' },
   { value: 'pending', labelKey: 'jobs.myViews.pending' },
   { value: 'approved', labelKey: 'jobs.myViews.approved' },
   { value: 'completed', labelKey: 'jobs.myViews.completed' },
@@ -200,8 +201,13 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   win.document.close()
 }
 
-function getMyRequestsView(value: string | null): MyRequestsView {
+function getMyRequestsView(value: string | null, isManager: boolean): MyRequestsView {
   if (value === 'returned') return 'rejected'
+  if (isManager) {
+    // Yönetici/sorumlu için Bekleyen+Onaylanmış tek "Yapılmakta Olan" görünümünde birleşti.
+    if (value === 'completed' || value === 'rejected' || value === 'all') return value
+    return 'in-progress'
+  }
   return value === 'approved' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
 
@@ -230,6 +236,13 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView): JobSummary[
 
   if (view === 'approved') {
     return jobs.filter(job => job.status === 'Active')
+  }
+
+  // Yapılmakta Olan Taleplerim: bekleyen (onay) + onaylanmış (aktif) talepler birlikte.
+  if (view === 'in-progress') {
+    return jobs.filter(job =>
+      job.status === 'Draft' || job.status === 'PendingOwnerApproval' ||
+      job.status === 'PendingExternalApproval' || job.status === 'Active')
   }
 
   if (view === 'completed') {
@@ -269,6 +282,7 @@ interface JobsPageProps {
 export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
+  const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -305,11 +319,15 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
   const isMyRequestsView = mode === 'myRequests'
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
-  const currentMyRequestsView = getMyRequestsView(searchParams.get('view'))
+  const currentMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike)
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
-  const currentMyRequestsViewLabel = t(MY_REQUEST_VIEWS.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.pending', 'Bekleyen Taleplerim')
+  // Yönetici/sorumlu: Bekleyen + Onaylanmış yerine tek "Yapılmakta Olan Taleplerim".
+  const myRequestViews = isManagerLike
+    ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
+    : MY_REQUEST_VIEWS.filter(view => view.value !== 'in-progress')
+  const currentMyRequestsViewLabel = t(myRequestViews.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.pending', 'Bekleyen Taleplerim')
   const currentDepartmentOutgoingViewLabel = t(
     DEPARTMENT_OUTGOING_VIEWS.find(view => view.value === currentDepartmentOutgoingView)?.labelKey ?? 'jobs.outgoingViews.pending',
     'Bekleyen Talepler',
@@ -375,7 +393,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     catch (err) { setError(err instanceof Error ? err.message : t('common.error')) }
   }
 
-  const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const showRequestFlowFilters = isMyRequestsView && user?.role !== 'SystemAdmin'
   const canCreateRequest = canRoleAccessPage(user?.role, 'createRequest')
   const canMutatePreApprovalJob = (job: JobSummary | JobDetail) => (
@@ -688,7 +705,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {isMyRequestsView ? (
         <nav className="scope-chips" aria-label={t('nav.myRequests', 'Taleplerim')}>
-          {MY_REQUEST_VIEWS.map(view => (
+          {myRequestViews.map(view => (
             <button
               key={view.value}
               type="button"

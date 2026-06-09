@@ -2,13 +2,15 @@ import { createContext, useContext, useEffect, useState, type PropsWithChildren 
 import {
   clearAuthSession,
   exchangeInteractiveGrant,
-  getStoredSession,
   loginWithPassword,
   logoutSession,
   restoreSessionFromCookie,
 } from '../api/auth'
 import { setActiveDepartmentId, SESSION_EXPIRED_EVENT } from '../api/http'
 import type { AuthSession, AuthUser } from '../types/platform'
+
+// Sekmeler arası gerçek logout sinyali için ayrılmış localStorage anahtarı.
+const LOGOUT_BROADCAST_KEY = 'ccc_logout_broadcast'
 
 interface AuthContextValue {
   isAuthenticated: boolean
@@ -52,14 +54,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [])
 
-  // Oturum başka bir sekmede kapatıldığında ya da bir istek 401 döndüğünde
-  // bu sekmeyi de otomatik olarak login ekranına düşür.
+  // Oturum başka bir sekmede GERÇEKTEN kapatıldığında (logout) ya da bir istek 401
+  // döndüğünde bu sekmeyi de login ekranına düşür. Yalnızca özel logout sinyalini
+  // dinleriz; başka sekmenin açılışında storage'ın geçici değişmesi oturumu DÜŞÜRMEZ.
   useEffect(() => {
     const handleSessionExpired = () => setSession(null)
-    const handleStorage = () => {
-      // localStorage tüm sekmelerce paylaşılır; başka sekmede logout olunca
-      // saklı oturum kalmaz, bu sekme de düşmelidir.
-      if (!getStoredSession()) {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === LOGOUT_BROADCAST_KEY && event.newValue) {
         setSession(null)
       }
     }
@@ -88,6 +89,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setActiveDepartmentId(null, true)
     await logoutSession()
     setSession(null)
+    // Diğer sekmelere gerçek logout sinyali gönder.
+    try { localStorage.setItem(LOGOUT_BROADCAST_KEY, String(Date.now())) } catch { /* yok say */ }
   }
 
   const value: AuthContextValue = {

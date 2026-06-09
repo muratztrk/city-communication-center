@@ -302,7 +302,7 @@
       "incomingPendingApproval": "Incoming Dept — Pending Approval Requests",
       "outgoingPending": "Outgoing Dept — Pending Requests",
       "outgoingInProgress": "Outgoing Dept — In-Progress Requests",
-      "myPendingTasks": "My Pending Tasks (Int/Ext)",
+      "myPendingTasks": "My Pending Tasks (Internal/External)",
       "deptPendingTasks": "Dept Pending Tasks",
       "myTotalRequests": "All My Requests",
       "incomingTotal": "All Incoming Dept Requests",

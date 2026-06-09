@@ -302,7 +302,7 @@
       "incomingPendingApproval": "Birime Gelen Onay Bekleyen Talepler",
       "outgoingPending": "Birimden Giden Bekleyen Talepler",
       "outgoingInProgress": "Birimden Giden Yapılmakta Olan Talepler",
-      "myPendingTasks": "Bekleyen Görevlerim (İçi/Dışı)",
+      "myPendingTasks": "Bekleyen Görevlerim (Birim İçi/Birim Dışı)",
       "deptPendingTasks": "Birimde Bekleyen Görevler",
       "myTotalRequests": "Tüm Taleplerim",
       "incomingTotal": "Birime Gelen Tüm Talepler",

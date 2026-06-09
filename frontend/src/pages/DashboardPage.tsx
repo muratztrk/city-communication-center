@@ -120,7 +120,7 @@ export function DashboardPage() {
           iconColor: 'text-cyan-600',
         },
         {
-          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (İçi/Dışı)'),
+          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingTaskCount,
           icon: ListChecks,
           path: '/my-tasks?view=pending',
@@ -162,7 +162,7 @@ export function DashboardPage() {
           iconColor: 'text-amber-600',
         },
         {
-          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (İçi/Dışı)'),
+          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingTaskCount,
           icon: ListChecks,
           path: '/my-tasks?view=pending',

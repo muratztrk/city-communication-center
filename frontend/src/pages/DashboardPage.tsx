@@ -299,14 +299,11 @@ export function DashboardPage() {
                 </>
               )
               : (
-                <>
-                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
-                    {managerRow1.map(renderCard)}
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
-                    {managerRow2.map(renderCard)}
-                  </div>
-                </>
+                // Tek grid: Vatandaş Talepleri ayrı satıra taşmadan Birimde Bekleyen
+                // Görevler'in yanında akar.
+                <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                  {[...managerRow1, ...managerRow2].map(renderCard)}
+                </div>
               )}
           </div>
         ) : (

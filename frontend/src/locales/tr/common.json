@@ -298,16 +298,17 @@
       "pendingApprovals": "Onay Bekleyen",
       "activeMessages": "Vatandaş Talepleri",
       "rejectedOrCancelled": "İptal/Red Edilen Talep",
-      "myPendingRequests": "Bekleyen Taleplerim (Birim İçi/Dışı)",
+      "myPendingRequests": "Bekleyen Taleplerim",
       "incomingPendingApproval": "Birime Gelen Onay Bekleyen Talepler",
       "outgoingPending": "Birimden Giden Bekleyen Talepler",
       "outgoingInProgress": "Birimden Giden Yapılmakta Olan Talepler",
-      "myPendingTasks": "Bekleyen Görevlerim (Birim İçi/Birim Dışı)",
+      "myPendingTasks": "Bekleyen Görevlerim",
       "deptPendingTasks": "Birimde Bekleyen Görevler",
       "myTotalRequests": "Tüm Taleplerim",
       "incomingTotal": "Birime Gelen Tüm Talepler",
       "outgoingTotal": "Birimden Giden Tüm Talepler",
-      "deptTotalTasks": "Birimde Oluşan Tüm Görevler"
+      "deptTotalTasks": "Birimde Oluşan Tüm Görevler",
+      "internalExternalSub": "(Birim İçi/Birim Dışı)"
     },
     "chart": {
       "titleDept": "Müdürlüklere Göre İş Dağılımı",

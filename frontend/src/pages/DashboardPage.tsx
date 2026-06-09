@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext'
 
 interface MetricCard {
   label: string
+  sublabel?: string
   value: number | undefined
   icon: React.ElementType
   path: string
@@ -88,7 +89,8 @@ export function DashboardPage() {
   const managerRow1: MetricCard[] = isManagerOrAdmin && dashboardQuery.data
     ? [
         {
-          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim (Birim İçi/Dışı)'),
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
           path: '/my-requests?view=pending',
@@ -120,7 +122,8 @@ export function DashboardPage() {
           iconColor: 'text-cyan-600',
         },
         {
-          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (Birim İçi/Birim Dışı)'),
+          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingTaskCount,
           icon: ListChecks,
           path: '/my-tasks?view=pending',
@@ -154,7 +157,8 @@ export function DashboardPage() {
   const staffMetrics: MetricCard[] = !isManagerOrAdmin && dashboardQuery.data
     ? [
         {
-          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim (Birim İçi/Dışı)'),
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
           path: '/my-requests?view=pending',
@@ -162,7 +166,8 @@ export function DashboardPage() {
           iconColor: 'text-amber-600',
         },
         {
-          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim (Birim İçi/Birim Dışı)'),
+          label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingTaskCount,
           icon: ListChecks,
           path: '/my-tasks?view=pending',
@@ -203,6 +208,7 @@ export function DashboardPage() {
           <div>
             <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
               {metric.label}
+              {metric.sublabel ? <span className="block normal-case tracking-normal">{metric.sublabel}</span> : null}
             </div>
             <div className="mt-0.5 text-2xl font-extrabold text-slate-950">{metric.value ?? '...'}</div>
           </div>

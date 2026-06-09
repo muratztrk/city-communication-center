@@ -298,16 +298,17 @@
       "pendingApprovals": "Pending Approvals",
       "activeMessages": "Citizen Requests",
       "rejectedOrCancelled": "Cancelled/Rejected Requests",
-      "myPendingRequests": "My Pending Requests (Int/Ext)",
+      "myPendingRequests": "Pending My Requests",
       "incomingPendingApproval": "Incoming Dept — Pending Approval Requests",
       "outgoingPending": "Outgoing Dept — Pending Requests",
       "outgoingInProgress": "Outgoing Dept — In-Progress Requests",
-      "myPendingTasks": "My Pending Tasks (Internal/External)",
+      "myPendingTasks": "My Pending Tasks",
       "deptPendingTasks": "Dept Pending Tasks",
       "myTotalRequests": "All My Requests",
       "incomingTotal": "All Incoming Dept Requests",
       "outgoingTotal": "All Outgoing Dept Requests",
-      "deptTotalTasks": "All Dept Tasks"
+      "deptTotalTasks": "All Dept Tasks",
+      "internalExternalSub": "(Internal/External)"
     },
     "chart": {
       "titleDept": "Task Distribution by Department",

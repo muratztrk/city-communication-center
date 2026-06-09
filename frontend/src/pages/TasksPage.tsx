@@ -1065,7 +1065,8 @@ const pageKicker = isMyTasksView
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">{formatTaskDisplayNumber(task)}</td>
                     <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
-                    <td className="font-semibold text-slate-700">{task.ownerDepartmentName ?? '—'}</td>
+                    {/* Rutin görevde talep yeri, görevi oluşturan kişidir. */}
+                    <td className="font-semibold text-slate-700">{task.jobSourceType === 'Routine' ? (task.createdByDisplayName ?? '—') : (task.ownerDepartmentName ?? '—')}</td>
                     <td>{task.createdByDisplayName ?? '—'}</td>
                     <td>{task.title}</td>
                     <td className="text-slate-600">{task.assignedDepartmentName ?? task.assignedUserDisplayName ?? '—'}</td>

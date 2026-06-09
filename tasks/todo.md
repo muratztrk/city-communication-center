@@ -51,4 +51,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 - [x] `6a280332` — Moved overdue chip to 2nd position (after pending) in My Tasks + Dept Tasks. Pushed. Moved to Done.
 
+## Round 6
+- [x] `6a280836` — Task grids: priority shown (colored) under Görev No; removed Öncelik column. Pushed. Moved to Done.
+- [x] `6a2809cd` — Merged task grid "Görevin Talep Yeri" + "Oluşturan" into "Görevin Talep Yeri/Oluşturan" (dept top, creator below). Pushed. Moved to Done.
+
 ## STATUS: Doing list empty — queue fully drained (all rounds complete).

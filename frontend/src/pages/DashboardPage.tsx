@@ -196,7 +196,7 @@ export function DashboardPage() {
       <button
         key={metric.label}
         type="button"
-        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-2 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => navigate(metric.path)}
       >
         <div className="flex items-start justify-between gap-3">
@@ -204,10 +204,10 @@ export function DashboardPage() {
             <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
               {metric.label}
             </div>
-            <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{metric.value ?? '...'}</div>
+            <div className="mt-0.5 text-2xl font-extrabold text-slate-950">{metric.value ?? '...'}</div>
           </div>
-          <div className={`flex size-10 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
-            <Icon className="size-4.5" />
+          <div className={`flex size-9 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
+            <Icon className="size-4" />
           </div>
         </div>
       </button>

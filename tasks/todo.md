@@ -49,6 +49,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a243164` — Shrink login page logo only (desktop seal h-20/w-52→h-16/w-40; compact h-48→h-36). Pushed. Moved to Done.
 - [x] `6a2687a6` (reopened) — Taleplerim now separates by active department for multi-dept users (mine scope filters OwnerDepartmentId == activeDept; all when none). REVERSES card-15 no-filter approach. Pushed. Moved to Done.
 
+- [x] `6a280332` — Moved overdue chip to 2nd position (after pending) in My Tasks + Dept Tasks. Pushed. Moved to Done.
+
 ## STATUS: Doing list empty — queue fully drained.
 
 ## Pending (round 3 — fetch full text + attachments when processing)

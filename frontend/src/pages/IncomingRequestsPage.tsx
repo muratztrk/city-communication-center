@@ -416,6 +416,9 @@ export function IncomingRequestsPage() {
       if (key === 'priority') return getPriorityLabel(t, r.priority)
       if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
       if (key === 'dueDateUtc') return formatDateTime(r.dueDateUtc, locale)
+      if (key === 'approvedAtUtc') return formatDateTime(r.approvedAtUtc, locale)
+      if (key === 'completedAtUtc') return formatDateTime(r.completedAtUtc, locale)
+      if (key === 'updatedAtUtc') return formatDateTime(r.updatedAtUtc, locale)
       return String((r as unknown as Record<string, unknown>)[key] ?? '')
     })),
     [visibleRows, incomingMatchesFilters, t, locale],
@@ -518,9 +521,9 @@ export function IncomingRequestsPage() {
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
                   <FilterableTh filterKey="priority" filterValue={incomingFilters['priority'] ?? ''} onFilter={setIncomingFilter} sortKey="priority" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>
-                  {currentStatusFilter === 'approved' && <th>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</th>}
-                  {currentStatusFilter === 'completed' && <th>{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</th>}
-                  {currentStatusFilter === 'cancelled' && <th>{t('incomingRequests.columns.cancelledAt', 'İptal/İade Tarihi')}</th>}
+                  {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
+                  {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
+                  {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="updatedAtUtc" filterValue={incomingFilters['updatedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="updatedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelledAt', 'İptal/İade Tarihi')}</FilterableTh>}
                   <th>{t('jobs.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>

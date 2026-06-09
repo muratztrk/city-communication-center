@@ -376,6 +376,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       if (key === 'priority') return getPriorityLabel(t, row.priority)
       if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
       if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
+      if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
+      if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
       if (key === 'assignedDepartmentName') return row.assignedDepartmentName ?? row.assignedUserDisplayName ?? ''
       if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
       return String((row as unknown as Record<string, unknown>)[key] ?? '')
@@ -1038,8 +1040,8 @@ const pageKicker = isMyTasksView
                   )}
                   <FilterableTh filterKey="priority" filterValue={taskFilters['priority']} onFilter={setTaskFilter} sortKey="priority" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.priority', 'Öncelik')}</FilterableTh>
                   <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>
-                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <th>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</th>}
-                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <th>{t('tasks.columns.cancelledAt', 'İptal/İade Tarihi')}</th>}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={taskFilters['completedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="completedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={taskFilters['updatedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="updatedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.cancelledAt', 'İptal/İade Tarihi')}</FilterableTh>}
                   <th>{t('tasks.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>

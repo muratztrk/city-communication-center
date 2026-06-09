@@ -1,4 +1,4 @@
-import { ClipboardCheck, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { useEffect, useMemo, useState } from 'react'
@@ -29,7 +29,7 @@ interface TaskScopeFiltersProps {
   onSearch: (v: string) => void
   onYearChange: (v: string) => void
 }
-function TaskScopeFilters({ searchText, filterYear, availableYears, onSearch, onYearChange }: TaskScopeFiltersProps) {
+function TaskScopeFilters({ searchText, filterYear, onSearch, onYearChange }: TaskScopeFiltersProps) {
   return (
     <div className="scope-chips-filters">
       <div className="scope-chip-search-wrap">
@@ -42,14 +42,15 @@ function TaskScopeFilters({ searchText, filterYear, availableYears, onSearch, on
           onChange={e => onSearch(e.target.value)}
         />
       </div>
-      <select
+      {/* Takvimli tarih seçimi (Talep Oluştur'daki tarih seçici gibi) */}
+      <input
+        type="date"
         className="scope-chip-year-select"
         value={filterYear}
         onChange={e => onYearChange(e.target.value)}
-      >
-        <option value="">Yıl Seçimi</option>
-        {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-      </select>
+        title="Tarih seçimi"
+        aria-label="Tarih seçimi"
+      />
     </div>
   )
 }
@@ -669,10 +670,15 @@ const pageKicker = isMyTasksView
             <p className="page-subtitle">{pageSubtitle}</p>
           </div>
           {isMyTasksView ? (
-            <Button onClick={() => navigate('/routine-tasks/new')} className="shrink-0 gap-2">
-              <ClipboardCheck className="size-4" />
-              {t('nav.createRoutineTask', 'Rutin Görev Oluştur')}
-            </Button>
+            <div className="ml-auto mt-auto shrink-0">
+              <TaskScopeFilters
+                searchText={searchText}
+                filterYear={filterYear}
+                availableYears={availableYears}
+                onSearch={setSearchText}
+                onYearChange={setFilterYear}
+              />
+            </div>
           ) : null}
         </div>
       </header>
@@ -704,13 +710,6 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
-          <TaskScopeFilters
-            searchText={searchText}
-            filterYear={filterYear}
-            availableYears={availableYears}
-            onSearch={setSearchText}
-            onYearChange={setFilterYear}
-          />
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>

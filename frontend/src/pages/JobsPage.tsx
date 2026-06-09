@@ -6,7 +6,7 @@ import type React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { ClipboardPlus, Search, X as XIcon } from 'lucide-react'
+import { Search, X as XIcon } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -22,7 +22,6 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import { canRoleAccessPage } from '../lib/rolePageAccess'
 import type { JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -34,7 +33,7 @@ interface ScopeChipFiltersProps {
   onSearch: (v: string) => void
   onYearChange: (v: string) => void
 }
-function ScopeChipFilters({ searchText, filterYear, availableYears, onSearch, onYearChange }: ScopeChipFiltersProps) {
+function ScopeChipFilters({ searchText, filterYear, onSearch, onYearChange }: ScopeChipFiltersProps) {
   return (
     <div className="scope-chips-filters">
       <div className="scope-chip-search-wrap">
@@ -47,14 +46,15 @@ function ScopeChipFilters({ searchText, filterYear, availableYears, onSearch, on
           onChange={e => onSearch(e.target.value)}
         />
       </div>
-      <select
+      {/* Takvimli tarih seçimi (Talep Oluştur'daki tarih seçici gibi) */}
+      <input
+        type="date"
         className="scope-chip-year-select"
         value={filterYear}
         onChange={e => onYearChange(e.target.value)}
-      >
-        <option value="">Yıl Seçimi</option>
-        {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-      </select>
+        title="Tarih seçimi"
+        aria-label="Tarih seçimi"
+      />
     </div>
   )
 }
@@ -394,7 +394,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }
 
   const showRequestFlowFilters = isMyRequestsView && user?.role !== 'SystemAdmin'
-  const canCreateRequest = canRoleAccessPage(user?.role, 'createRequest')
   const canMutatePreApprovalJob = (job: JobSummary | JobDetail) => (
     isPreApprovalStatus(job.status) &&
     (user?.role === 'SystemAdmin' || isManagerLike || isMyRequestsView)
@@ -695,11 +694,16 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
             </p>
           </div>
-          {isMyRequestsView && canCreateRequest ? (
-            <Button type="button" variant="secondary" className="shrink-0" onClick={() => navigate('/requests/new')}>
-              <ClipboardPlus aria-hidden="true" className="size-4" />
-              {t('nav.createRequest', 'Talep Oluştur')}
-            </Button>
+          {isMyRequestsView ? (
+            <div className="ml-auto mt-auto shrink-0">
+              <ScopeChipFilters
+                searchText={searchText}
+                filterYear={filterYear}
+                availableYears={availableYears}
+                onSearch={setSearchText}
+                onYearChange={setFilterYear}
+              />
+            </div>
           ) : null}
         </div>
       </header>
@@ -731,13 +735,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               ))}
             </>
           ) : null}
-          <ScopeChipFilters
-            searchText={searchText}
-            filterYear={filterYear}
-            availableYears={availableYears}
-            onSearch={setSearchText}
-            onYearChange={setFilterYear}
-          />
         </nav>
       ) : isDepartmentOutgoingView ? (
         <nav className="scope-chips" aria-label={t('nav.outgoingRequests', 'Birimden Giden Talepler')}>

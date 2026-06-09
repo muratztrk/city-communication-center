@@ -1088,6 +1088,9 @@ const pageKicker = isMyTasksView
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
+                          <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
+                        )}
+                        {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>
                             {/* İade yalnızca farklı birimden gelen (Birim Dışı) talepte; Birim İçi/Rutin'de sadece İptal */}
                             {task.jobRequestType === 'ExternalUnit' && task.jobSourceType !== 'Routine'

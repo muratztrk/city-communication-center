@@ -515,8 +515,10 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const openReturnModal = (taskId: string) => {
     const task = tasks.find(t => t.taskId === taskId)
     const isRoutine = task?.jobSourceType === 'Routine'
-    // Müdür ve rutin görevlerde İade seçeneği yok — doğrudan İptal adımına geç
-    const skipChoose = isManagerLike || isRoutine
+    // İade yalnızca farklı birimden gelen (Birim Dışı) talepte sunulur; Birim İçi ve
+    // rutin görevlerde İade seçeneği yoktur — doğrudan İptal adımına geçilir.
+    const canReturn = task?.jobRequestType === 'ExternalUnit' && !isRoutine
+    const skipChoose = !canReturn
     setReturnModal({ taskId, step: skipChoose ? 'cancel' : 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: skipChoose })
     setCancelReason('')
     setReturnReason('')
@@ -1074,7 +1076,10 @@ const pageKicker = isMyTasksView
                         )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>
-                            {(task.jobSourceType === 'Routine' || isManagerLike) ? t('common.cancel', 'İptal') : t('tasks.actions.cancelReturn', 'İptal / İade')}
+                            {/* İade yalnızca farklı birimden gelen (Birim Dışı) talepte; Birim İçi/Rutin'de sadece İptal */}
+                            {task.jobRequestType === 'ExternalUnit' && task.jobSourceType !== 'Routine'
+                              ? t('tasks.actions.cancelReturn', 'İptal / İade')
+                              : t('common.cancel', 'İptal')}
                           </Button>
                         )}
                       </div>

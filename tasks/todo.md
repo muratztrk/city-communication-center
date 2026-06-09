@@ -24,6 +24,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Done (round 2 — new cards)
 - [x] `6a27ba60` — After create, navigate(-1) to previous page instead of fixed list/dashboard; kind switches use replace. Pushed. Moved to Done.
+- [x] `6a27bb7c` — Removed İade Et button entirely from Taleplerim (creator can only İptal) + deleted dead return modal. SUPERSEDES card 10. Pushed. Moved to Done.
 
 ## Pending (NEW cards added to Doing — names truncated, fetch full text + attachments when processing)
 - [ ] `6a27bb7c` — Request creator cannot İade, only İptal (…) [overlaps card 10/3 — verify]

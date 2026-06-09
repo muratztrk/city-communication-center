@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
+import { DateCell } from '../components/ui/date-cell'
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
@@ -528,14 +529,14 @@ export function IncomingRequestsPage() {
                   <tr key={`${row.kind}-${row.id}`}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">{row.displayNumber}</td>
-                    <td>{formatDateTime(row.createdAtUtc, locale)}</td>
+                    <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td>{row.createdBy ?? '—'}</td>
                     <td className="font-semibold">{row.title}</td>
                     <td>{getPriorityLabel(t, row.priority)}</td>
                     <td><DueDatePill value={row.dueDateUtc} locale={locale} /></td>
-                    {currentStatusFilter === 'approved' && <td>{formatDateTime(row.approvedAtUtc, locale)}</td>}
-                    {currentStatusFilter === 'completed' && <td>{formatDateTime(row.completedAtUtc, locale)}</td>}
-                    {currentStatusFilter === 'cancelled' && <td>{formatDateTime(row.updatedAtUtc, locale)}</td>}
+                    {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
+                    {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}
+                    {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} /></td>}
                     <td className="actions-cell">
                       <div className="flex gap-3">
                         {/* Detaylar — her zaman */}

@@ -1,5 +1,6 @@
 import { ClipboardCheck, Search } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
+import { DateCell } from '../components/ui/date-cell'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -1047,7 +1048,7 @@ const pageKicker = isMyTasksView
                   <tr key={task.taskId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">{formatTaskDisplayNumber(task)}</td>
-                    <td>{formatDateTime(task.createdAtUtc, locale)}</td>
+                    <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
                     <td className="font-semibold text-slate-700">{task.ownerDepartmentName ?? '—'}</td>
                     <td>{task.createdByDisplayName ?? '—'}</td>
                     <td>{task.title}</td>
@@ -1061,8 +1062,8 @@ const pageKicker = isMyTasksView
                     )}
                     <td>{getPriorityLabel(t, task.priority)}</td>
                     <td><DueDatePill value={task.dueDateUtc} locale={locale} /></td>
-                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td>{formatDateTime(task.completedAtUtc ?? null, locale)}</td>}
-                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{formatDateTime(task.updatedAtUtc ?? null, locale)}</td>}
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>

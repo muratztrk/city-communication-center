@@ -2063,6 +2063,14 @@
     font-weight: 700;
   }
 
+  /* Takvim ikonlu tarih hücresi (Son Tarih dışındaki tüm tarih sütunları). */
+  .date-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+  }
+
   .theme-preset-grid {
     display: grid;
     gap: 0.75rem;

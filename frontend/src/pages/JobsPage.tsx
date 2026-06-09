@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { ClipboardPlus, Search, X as XIcon } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
+import { DateCell } from '../components/ui/date-cell'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { getActiveDepartmentId } from '../api/http'
@@ -823,7 +824,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   <tr key={job.jobId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td className="font-mono text-xs text-slate-500">{formatJobDisplayNumber(job)}</td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && <td>{formatDateTime(job.createdAtUtc ?? null, locale)}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold">{job.title}</td>
                     <td>
@@ -835,9 +836,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     <td><DueDatePill value={job.dueDateUtc} locale={locale} /></td>
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td>{formatDateTime(job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null, locale)}</td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td>{formatDateTime(job.completedAtUtc, locale)}</td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{formatDateTime(job.updatedAtUtc ?? null, locale)}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null} locale={locale} /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} /></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>

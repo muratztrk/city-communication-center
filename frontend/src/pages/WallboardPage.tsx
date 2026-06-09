@@ -220,8 +220,8 @@ export function WallboardPage() {
               </Button>
               <div className="wallboard-kicker">{t('wallboard.kicker', 'Canlı Ekran')}</div>
             </div>
-            <h1>{t('wallboard.title', 'Bekleyen İşler')}</h1>
-            <p>{t('wallboard.subtitle', 'Birim İçi ve Birim Dışı gelen yönetici onaylı tüm işler')}</p>
+            <h1>{t('wallboard.title', 'Bekleyen Görevler')}</h1>
+            <p>{t('wallboard.subtitle', 'Birim İçi ve Birim Dışı gelen yönetici onaylı tüm görevler')}</p>
           </div>
         </div>
         <div className="wallboard-actions">
@@ -267,7 +267,7 @@ export function WallboardPage() {
       ) : items.length === 0 ? (
         <div className="wallboard-empty">{t('wallboard.empty', 'Bekleyen iş bulunmuyor.')}</div>
       ) : (
-        <section className="wallboard-table-shell" aria-label={t('wallboard.title', 'Bekleyen İşler')}>
+        <section className="wallboard-table-shell" aria-label={t('wallboard.title', 'Bekleyen Görevler')}>
           <table className="wallboard-table">
             <thead>
               <tr>

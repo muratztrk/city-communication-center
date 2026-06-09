@@ -164,8 +164,8 @@
   },
   "wallboard": {
     "kicker": "Live Display",
-    "title": "Pending Work",
-    "subtitle": "All manager-approved work from internal and external units",
+    "title": "Pending Tasks",
+    "subtitle": "All manager-approved tasks from internal and external units",
     "summary": "Summary",
     "totalWaiting": "Total Pending",
     "internal": "Internal Unit",

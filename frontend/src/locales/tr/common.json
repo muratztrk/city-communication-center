@@ -164,8 +164,8 @@
   },
   "wallboard": {
     "kicker": "Canlı Ekran",
-    "title": "Bekleyen İşler",
-    "subtitle": "Birim İçi ve Birim Dışı gelen yönetici onaylı tüm işler",
+    "title": "Bekleyen Görevler",
+    "subtitle": "Birim İçi ve Birim Dışı gelen yönetici onaylı tüm görevler",
     "summary": "Özet",
     "totalWaiting": "Toplam Bekleyen",
     "internal": "Birim İçi",

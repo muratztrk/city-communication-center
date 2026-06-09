@@ -1,6 +1,7 @@
 import { ArrowRight, Search } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
+import { DateTimePicker } from '../components/ui/date-time-picker'
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
@@ -413,8 +414,8 @@ export function IncomingRequestsPage() {
       result = result.filter(row => {
         const d = row.createdAtUtc?.slice(0, 10)
         if (!d) return false
-        if (filterFrom && d < filterFrom) return false
-        if (filterTo && d > filterTo) return false
+        if (filterFrom && d < filterFrom.slice(0, 10)) return false
+        if (filterTo && d > filterTo.slice(0, 10)) return false
         return true
       })
     }
@@ -530,10 +531,10 @@ export function IncomingRequestsPage() {
               onChange={e => setSearchText(e.target.value)}
             />
           </div>
-          {/* Takvimli tarih aralığı seçimi (saat içermez) */}
-          <input type="date" className="scope-chip-year-select" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} title="Başlangıç tarihi" aria-label="Başlangıç tarihi" />
+          {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
+          <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" />
           <span className="text-xs text-slate-400">–</span>
-          <input type="date" className="scope-chip-year-select" value={filterTo} onChange={e => setFilterTo(e.target.value)} title="Bitiş tarihi" aria-label="Bitiş tarihi" />
+          <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder="Bitiş tarihi" className="scope-chip-date" />
         </div>
       </nav>
 

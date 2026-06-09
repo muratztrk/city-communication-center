@@ -1,6 +1,7 @@
 import { Search } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
+import { DateTimePicker } from '../components/ui/date-time-picker'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -43,10 +44,10 @@ function TaskScopeFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
           onChange={e => onSearch(e.target.value)}
         />
       </div>
-      {/* Takvimli tarih aralığı seçimi (saat içermez) */}
-      <input type="date" className="scope-chip-year-select" value={filterFrom} onChange={e => onFromChange(e.target.value)} title="Başlangıç tarihi" aria-label="Başlangıç tarihi" />
+      {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
+      <DateTimePicker value={filterFrom} onChange={onFromChange} placeholder="Başlangıç tarihi" className="scope-chip-date" />
       <span className="text-xs text-slate-400">–</span>
-      <input type="date" className="scope-chip-year-select" value={filterTo} onChange={e => onToChange(e.target.value)} title="Bitiş tarihi" aria-label="Bitiş tarihi" />
+      <DateTimePicker value={filterTo} onChange={onToChange} placeholder="Bitiş tarihi" className="scope-chip-date" />
     </div>
   )
 }
@@ -337,8 +338,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       result = result.filter(task => {
         const d = task.createdAtUtc?.slice(0, 10)
         if (!d) return false
-        if (filterFrom && d < filterFrom) return false
-        if (filterTo && d > filterTo) return false
+        if (filterFrom && d < filterFrom.slice(0, 10)) return false
+        if (filterTo && d > filterTo.slice(0, 10)) return false
         return true
       })
     }

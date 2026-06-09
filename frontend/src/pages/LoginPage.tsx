@@ -269,25 +269,25 @@ export function LoginPage() {
     <div className="flex min-h-dvh flex-col">
     <div className="flex flex-1 flex-col overflow-hidden lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:mx-4 lg:my-4 lg:rounded-3xl lg:shadow-2xl xl:grid-cols-[minmax(0,1fr)_440px] xl:mx-[12.5%]">
         <section
-          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-8 lg:py-8 xl:px-10 2xl:px-14 2xl:py-12"
+          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-6 xl:px-8 2xl:px-12 2xl:py-9"
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
-          <div className="relative grid gap-5 pt-2 2xl:gap-8 2xl:pt-6">
-            <div className="space-y-4 2xl:space-y-6">
+          <div className="relative grid gap-4 pt-2 2xl:gap-6 2xl:pt-4">
+            <div className="space-y-3 2xl:space-y-5">
               {/* Logo solda, başlık sağında — tek satır, bölünmez */}
-              <div className="flex items-center gap-4 2xl:gap-6">
+              <div className="flex items-center gap-3 2xl:gap-5">
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
-                  className="h-16 w-40 shrink-0 rounded-[1.25rem] 2xl:h-20 2xl:w-52"
+                  className="h-14 w-36 shrink-0 rounded-[1.1rem] 2xl:h-16 2xl:w-44"
                   imageClassName="h-[88%] w-[94%] drop-shadow-none"
                 />
-                <h1 className="whitespace-nowrap text-2xl font-extrabold leading-[1.1] text-white 2xl:text-4xl">
+                <h1 className="whitespace-nowrap text-xl font-extrabold leading-[1.1] text-white 2xl:text-3xl">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
               </div>
-              <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7 2xl:text-lg 2xl:leading-8">{t('login.subtitle')}</p>
+              <p className="max-w-2xl text-[0.82rem] leading-6 text-white/86 xl:text-sm xl:leading-6 2xl:text-base 2xl:leading-7">{t('login.subtitle')}</p>
             </div>
             <ul className="grid w-full gap-2.5 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] 2xl:max-w-[52rem] 2xl:gap-4">
               {[
@@ -300,11 +300,11 @@ export function LoginPage() {
                     key={item.title}
                     className="rounded-[1.2rem] border border-white/14 bg-white/[0.05] p-1.5 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur 2xl:p-2"
                   >
-                    <div className="flex min-h-[52px] items-center gap-3 rounded-[0.95rem] border border-white/14 bg-white/9 px-4 py-1.5 2xl:min-h-[64px] 2xl:gap-4 2xl:px-6 2xl:py-2">
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white 2xl:size-12">
-                        <Icon className="size-5 2xl:size-7" />
+                    <div className="flex min-h-[46px] items-center gap-2.5 rounded-[0.85rem] border border-white/14 bg-white/9 px-3.5 py-1.5 2xl:min-h-[56px] 2xl:gap-3.5 2xl:px-5">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/14 bg-white/12 text-white 2xl:size-10">
+                        <Icon className="size-4 2xl:size-6" />
                       </span>
-                      <span className="whitespace-nowrap text-sm font-semibold leading-snug text-white/95 2xl:text-lg">{item.title}</span>
+                      <span className="whitespace-nowrap text-[0.8rem] font-semibold leading-snug text-white/95 2xl:text-base">{item.title}</span>
                     </div>
                   </li>
                 )

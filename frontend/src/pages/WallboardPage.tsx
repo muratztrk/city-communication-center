@@ -9,7 +9,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { JobSummary, Task } from '../types/platform'
-import { getLocale, getPriorityLabel } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 
 type WallboardSource = 'internal' | 'external' | 'citizen'
 
@@ -278,7 +278,6 @@ export function WallboardPage() {
                 <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestLocation', 'Görevin Talep Yeri')}</FilterableTh>
                 <FilterableTh filterKey="requestCreator" filterValue={filters['requestCreator']} onFilter={setFilter} sortKey="requestCreator" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestCreator', 'Talebi Oluşturan')}</FilterableTh>
                 <FilterableTh filterKey="title" filterValue={filters['title']} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.title', 'Başlık')}</FilterableTh>
-                <FilterableTh filterKey="priority" filterValue={filters['priority']} onFilter={setFilter} sortKey="priority" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.priority', 'Öncelik')}</FilterableTh>
                 <FilterableTh filterKey="dueDateUtc" filterValue={filters['dueDateUtc']} onFilter={setFilter} sortKey="dueDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.dueDate', 'Son Tarih')}</FilterableTh>
               </tr>
             </thead>
@@ -289,7 +288,12 @@ export function WallboardPage() {
                   <tr key={item.id} className={`wallboard-row ${item.source}`}>
                     <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
                     <td>{item.jobNumber ?? '—'}</td>
-                    <td>{item.taskNumber ?? '—'}</td>
+                    <td>
+                      <div>{item.taskNumber ?? '—'}</div>
+                      {item.priority ? (
+                        <div className={`text-[0.78rem] font-bold ${getPriorityColorClass(item.priority)}`}>({getPriorityLabel(t, item.priority)})</div>
+                      ) : null}
+                    </td>
                     <td>
                       <span className="wallboard-cell-icon">
                         <CalendarClock className="size-4" />
@@ -299,7 +303,6 @@ export function WallboardPage() {
                     <td>{item.requestLocation ?? '—'}</td>
                     <td>{item.requestCreator ?? '—'}</td>
                     <td><div className="wallboard-row-title">{item.title}</div></td>
-                    <td>{item.priority ? getPriorityLabel(t, item.priority) : '—'}</td>
                     <td>
                       <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>
                         <CalendarClock className="size-4" />

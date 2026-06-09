@@ -14,10 +14,10 @@ export function getPriorityLabel(t: TFunction, priority: string): string {
 
 // Öncelik renkleri: Normal sarı, Yüksek turuncu, Çok Yüksek kırmızı.
 export function getPriorityColorClass(priority: string): string {
-  if (priority === 'VeryHigh') return 'text-red-600'
+  if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
   if (priority === 'High') return 'text-orange-500'
   if (priority === 'Normal') return 'text-yellow-500'
-  return 'text-slate-500'
+  return 'text-slate-400'
 }
 
 export function getSocialStatusLabel(t: TFunction, status: string): string {

@@ -564,7 +564,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')}</span>
+              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-red-500">*</span></span>
               <input className="field-input" required value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
             </div>
             <div className="grid gap-3 md:grid-cols-3">
@@ -620,7 +620,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')}</span>
+              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={internalForm.description}
                 onChange={description => setInternalForm(current => ({ ...current, description }))}

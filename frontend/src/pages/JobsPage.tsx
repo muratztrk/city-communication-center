@@ -871,7 +871,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         {isMyRequestsView && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active') && (
                           <>
                             <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel', 'İptal')}</Button>
-                            <Button size="sm" variant="destructive" onClick={() => openReturnModal(job.jobId)}>{t('jobs.actions.return', 'İade Et')}</Button>
+                            {!(isManagerLike && job.requestType === 'InternalUnit') && (
+                              <Button size="sm" variant="destructive" onClick={() => openReturnModal(job.jobId)}>{t('jobs.actions.return', 'İade Et')}</Button>
+                            )}
                           </>
                         )}
                       </div>

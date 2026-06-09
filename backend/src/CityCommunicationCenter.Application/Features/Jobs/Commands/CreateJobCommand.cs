@@ -165,6 +165,14 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             CreatedByUserId = context.UserId
         };
 
+        // Onay gerektirmeyen (yönetici/yönetim kaynaklı) talepler oluşturulurken numara alır;
+        // çünkü oluşturan zaten onaycıdır ve talep doğrudan onaylanmış sayılır.
+        if (!requiresOwnerApproval)
+        {
+            job.JobNumberYear = utcNow.Year;
+            job.JobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken);
+        }
+
         _dbContext.Jobs.Add(job);
 
         _dbContext.JobDepartments.Add(new JobDepartment

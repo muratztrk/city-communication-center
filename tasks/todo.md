@@ -11,9 +11,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a265ea9` — Manager Birim Dışı number fix: SAME root cause as 6a265d9b, resolved by that commit (JobNumber assigned at creation for all !requiresOwnerApproval). No new code. Moved to Done.
 - [x] `6a266007` — Shared DueDatePill (yellow=last day, red=overdue) in Jobs/Tasks/IncomingRequests Son Tarih columns; CSS in globals.css. Pushed. Moved to Done.
 - [x] `6a26624e` — Shared DateCell (calendar icon + date) on all date columns in Jobs/Tasks/IncomingRequests grids. Pushed. Moved to Done.
+- [x] `6a26631b` — Onay/Tamamlanma/İptal-İade date columns → FilterableTh (sort+filter) in Jobs/Tasks/IncomingRequests; flattened ownerDecidedAtUtc for sort. Pushed. Moved to Done.
 
 ## Pending (top → bottom)
-- [ ] `6a26631b` — Onay/Tamamlanma/İptal-İade Tarihi columns sortable+filterable
 - [ ] `6a2665f4` — Multi-tab logout: session drop across tabs (screenshot)
 - [ ] `6a26673e` — Taleplerim İşlem column: only İptal/İade for manager; standard user only "İptal"
 - [ ] `6a2669a1` — Manager Dashboard: add "Birimden Giden Yapılmakta Olan Talepler" box (screenshot)

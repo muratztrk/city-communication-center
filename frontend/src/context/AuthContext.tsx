@@ -2,11 +2,12 @@ import { createContext, useContext, useEffect, useState, type PropsWithChildren 
 import {
   clearAuthSession,
   exchangeInteractiveGrant,
+  getStoredSession,
   loginWithPassword,
   logoutSession,
   restoreSessionFromCookie,
 } from '../api/auth'
-import { setActiveDepartmentId } from '../api/http'
+import { setActiveDepartmentId, SESSION_EXPIRED_EVENT } from '../api/http'
 import type { AuthSession, AuthUser } from '../types/platform'
 
 interface AuthContextValue {
@@ -48,6 +49,26 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     return () => {
       isMounted = false
+    }
+  }, [])
+
+  // Oturum başka bir sekmede kapatıldığında ya da bir istek 401 döndüğünde
+  // bu sekmeyi de otomatik olarak login ekranına düşür.
+  useEffect(() => {
+    const handleSessionExpired = () => setSession(null)
+    const handleStorage = () => {
+      // localStorage tüm sekmelerce paylaşılır; başka sekmede logout olunca
+      // saklı oturum kalmaz, bu sekme de düşmelidir.
+      if (!getStoredSession()) {
+        setSession(null)
+      }
+    }
+
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired)
+    window.addEventListener('storage', handleStorage)
+    return () => {
+      window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired)
+      window.removeEventListener('storage', handleStorage)
     }
   }, [])
 

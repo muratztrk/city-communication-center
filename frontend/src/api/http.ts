@@ -1,7 +1,18 @@
 import i18n from '../i18n'
-import { getStoredSession, getValidAccessToken } from './auth'
+import { clearAuthSession, getStoredSession, getValidAccessToken } from './auth'
 
 const ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_id'
+
+// Oturum başka bir sekmede sonlandığında (logout) ya da sunucu 401 döndüğünde
+// tüm sekmelerin login ekranına düşmesi için yayınlanan olay.
+export const SESSION_EXPIRED_EVENT = 'ccc:session-expired'
+
+function notifySessionExpired(): void {
+  clearAuthSession()
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+  }
+}
 
 export function getActiveDepartmentId(): string | null {
   return window.localStorage.getItem(ACTIVE_DEPARTMENT_KEY)
@@ -86,6 +97,10 @@ export async function getErrorMessage(response: Response, fallbackMessage: strin
 }
 
 export async function ensureOk(response: Response, fallbackMessage: string): Promise<Response> {
+  if (response.status === 401) {
+    notifySessionExpired()
+  }
+
   if (!response.ok) {
     throw new Error(await getErrorMessage(response, fallbackMessage))
   }

@@ -280,7 +280,7 @@ export function LoginPage() {
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
-                  className="h-20 w-52 shrink-0 rounded-[1.25rem] 2xl:h-24 2xl:w-64"
+                  className="h-16 w-40 shrink-0 rounded-[1.25rem] 2xl:h-20 2xl:w-52"
                   imageClassName="h-[88%] w-[94%] drop-shadow-none"
                 />
                 <h1 className="whitespace-nowrap text-2xl font-extrabold leading-[1.1] text-white 2xl:text-4xl">
@@ -328,7 +328,7 @@ export function LoginPage() {
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-48 w-48 border-0"
+                className="h-36 w-36 border-0"
               />
               <div className="min-w-0 text-center">
                 <div className="text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>

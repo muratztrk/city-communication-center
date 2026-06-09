@@ -289,7 +289,7 @@ export function LoginPage() {
               </div>
               <p className="max-w-2xl text-sm leading-6 text-white/86 xl:text-base xl:leading-7 2xl:text-lg 2xl:leading-8">{t('login.subtitle')}</p>
             </div>
-            <ul className="grid w-full gap-2.5 rounded-[1.4rem] border border-white/14 bg-white/[0.04] p-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] 2xl:max-w-[52rem] 2xl:gap-4 2xl:p-3.5">
+            <ul className="grid w-full gap-2.5 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] 2xl:max-w-[52rem] 2xl:gap-4">
               {[
                 { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
                 { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
@@ -298,12 +298,14 @@ export function LoginPage() {
                 return (
                   <li
                     key={item.title}
-                    className="flex min-h-[56px] items-center gap-3 rounded-[1.05rem] border border-white/14 bg-white/9 px-4 py-1.5 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur 2xl:min-h-[68px] 2xl:gap-4 2xl:px-6 2xl:py-2"
+                    className="rounded-[1.2rem] border border-white/14 bg-white/[0.05] p-1.5 shadow-[0_14px_42px_rgba(0,0,0,0.14)] backdrop-blur 2xl:p-2"
                   >
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white 2xl:size-12">
-                      <Icon className="size-5 2xl:size-7" />
-                    </span>
-                    <span className="whitespace-nowrap text-sm font-semibold leading-snug text-white/95 2xl:text-lg">{item.title}</span>
+                    <div className="flex min-h-[52px] items-center gap-3 rounded-[0.95rem] border border-white/14 bg-white/9 px-4 py-1.5 2xl:min-h-[64px] 2xl:gap-4 2xl:px-6 2xl:py-2">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/14 bg-white/12 text-white 2xl:size-12">
+                        <Icon className="size-5 2xl:size-7" />
+                      </span>
+                      <span className="whitespace-nowrap text-sm font-semibold leading-snug text-white/95 2xl:text-lg">{item.title}</span>
+                    </div>
                   </li>
                 )
               })}

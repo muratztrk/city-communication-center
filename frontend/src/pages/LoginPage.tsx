@@ -43,8 +43,8 @@ const EMPTY_SECURITY_STATE: SecurityState = {
   secondFactorRequiredOnSuccess: false,
 }
 
-const LOGIN_LOGO_LIGHT_SRC = '/logo-wordmark-white.png'
-const LOGIN_LOGO_DARK_SRC = '/favicon.jpeg'
+const LOGIN_LOGO_LIGHT_SRC = '/tire-belediyesi-logo.png'
+const LOGIN_LOGO_DARK_SRC = '/tire-belediyesi-logo.png'
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -280,8 +280,8 @@ export function LoginPage() {
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
-                  className="h-14 w-36 shrink-0 rounded-[1.1rem] 2xl:h-16 2xl:w-44"
-                  imageClassName="h-[88%] w-[94%] drop-shadow-none"
+                  className="h-14 w-36 shrink-0 rounded-[1.1rem] bg-white 2xl:h-16 2xl:w-44"
+                  imageClassName="h-[82%] w-[90%] drop-shadow-none"
                 />
                 <h1 className="whitespace-nowrap text-xl font-extrabold leading-[1.1] text-white 2xl:text-3xl">
                   {t('shell.subtitle', { municipalityName })}

@@ -1066,10 +1066,12 @@ const pageKicker = isMyTasksView
                       <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(task.priority)}`}>({getPriorityLabel(t, task.priority)})</div>
                     </td>
                     <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
-                    {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt). */}
+                    {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}
                     <td>
-                      <div className="font-semibold text-slate-700">{task.ownerDepartmentName ?? '—'}</div>
-                      <div className="text-xs text-slate-500">{task.createdByDisplayName ?? '—'}</div>
+                      <div className="mx-auto max-w-[11rem] text-center">
+                        <div className="truncate font-semibold text-slate-700">{task.ownerDepartmentName ?? '—'}</div>
+                        <div className="truncate text-xs text-slate-500">{task.createdByDisplayName ?? '—'}</div>
+                      </div>
                     </td>
                     <td>{task.title}</td>
                     <td className="text-slate-600">{task.assignedDepartmentName ?? task.assignedUserDisplayName ?? '—'}</td>

@@ -668,18 +668,6 @@ const pageKicker = isMyTasksView
             <h1 className="page-title">{pageTitle}</h1>
             <p className="page-subtitle">{pageSubtitle}</p>
           </div>
-          {isMyTasksView ? (
-            <div className="ml-auto mt-auto shrink-0">
-              <TaskScopeFilters
-                searchText={searchText}
-                filterFrom={filterFrom}
-            filterTo={filterTo}
-            onSearch={setSearchText}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-              />
-            </div>
-          ) : null}
         </div>
       </header>
 
@@ -710,6 +698,14 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
+          <TaskScopeFilters
+            searchText={searchText}
+            filterFrom={filterFrom}
+            filterTo={filterTo}
+            onSearch={setSearchText}
+            onFromChange={setFilterFrom}
+            onToChange={setFilterTo}
+          />
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>

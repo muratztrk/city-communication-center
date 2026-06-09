@@ -694,18 +694,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
             </p>
           </div>
-          {isMyRequestsView ? (
-            <div className="ml-auto mt-auto shrink-0">
-              <ScopeChipFilters
-                searchText={searchText}
-                filterFrom={filterFrom}
-                filterTo={filterTo}
-                onSearch={setSearchText}
-                onFromChange={setFilterFrom}
-                onToChange={setFilterTo}
-              />
-            </div>
-          ) : null}
         </div>
       </header>
 
@@ -736,6 +724,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               ))}
             </>
           ) : null}
+          <ScopeChipFilters
+            searchText={searchText}
+            filterFrom={filterFrom}
+            filterTo={filterTo}
+            onSearch={setSearchText}
+            onFromChange={setFilterFrom}
+            onToChange={setFilterTo}
+          />
         </nav>
       ) : isDepartmentOutgoingView ? (
         <nav className="scope-chips" aria-label={t('nav.outgoingRequests', 'Birimden Giden Talepler')}>

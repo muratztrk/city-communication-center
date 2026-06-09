@@ -88,7 +88,7 @@ const DEPARTMENT_STATUS_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.departmentViews.pending' },
   { value: 'completed', labelKey: 'tasks.departmentViews.completed' },
   { value: 'rejected', labelKey: 'tasks.departmentViews.rejected' },
-  { value: 'overdue', labelKey: 'tasks.myViews.overdue' },
+  { value: 'overdue', labelKey: 'tasks.departmentViews.overdue' },
   { value: 'all', labelKey: 'tasks.departmentViews.all' },
 ]
 

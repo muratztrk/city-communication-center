@@ -504,6 +504,7 @@
       "pending": "Pending Tasks",
       "completed": "Completed Tasks",
       "rejected": "Rejected/Cancelled Tasks",
+      "overdue": "Overdue Tasks",
       "all": "All Tasks"
     },
     "scopeDescriptions": {

@@ -505,6 +505,7 @@
       "pending": "Bekleyen Görevler",
       "completed": "Tamamlanmış Görevler",
       "rejected": "İptal/İade Görevler",
+      "overdue": "Son Tarihi Geçmiş Görevler",
       "all": "Tüm Görevler"
     },
     "scopeDescriptions": {

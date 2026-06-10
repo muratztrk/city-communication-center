@@ -172,3 +172,4 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 17
 - [x] `z5IXBmo1` (reopened #2) — Login logo height was too tall (h-20/2xl:h-24); reduced to middle ground h-[4.5rem]/2xl:h-20. Pushed. Moved to Done.
+- [x] `z5IXBmo1` (reopened #3) — Reverted login logo height to original h-14/2xl:h-16 ("eski haline getir"). Pushed. Moved to Done.

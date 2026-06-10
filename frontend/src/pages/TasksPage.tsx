@@ -361,6 +361,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
           formatDateTime(task.updatedAtUtc ?? null, locale),
           task.ownerDepartmentName ?? '',
           task.createdByDisplayName ?? '',
+          task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
           task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış'),
         ].join(' ').toLocaleLowerCase('tr')
         return haystack.includes(q)
@@ -399,18 +400,23 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   }, [activeDeptId, clearTaskFilters])
 
   const columnFilteredTasks = useMemo(
-    () => visibleTasks.filter(task => taskMatchesFilters(task, (key, row) => {
-      if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)
-      if (key === 'priority') return getPriorityLabel(t, row.priority)
-      if (key === 'taskNumber') return formatTaskDisplayNumber(row)
-      if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
-      if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
-      if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
-      if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
-      if (key === 'assignedDepartmentName') return row.assignedDepartmentName ?? row.assignedUserDisplayName ?? ''
-      if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
-      return String((row as unknown as Record<string, unknown>)[key] ?? '')
-    })),
+    () => visibleTasks
+      .map(task => ({
+        ...task,
+        taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
+      }))
+      .filter(task => taskMatchesFilters(task, (key, row) => {
+        if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)
+        if (key === 'priority') return getPriorityLabel(t, row.priority)
+        if (key === 'taskNumber') return formatTaskDisplayNumber(row)
+        if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
+        if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
+        if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
+        if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
+        if (key === 'assignedDepartmentName') return row.assignedDepartmentName ?? row.assignedUserDisplayName ?? ''
+        if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
+        return String((row as unknown as Record<string, unknown>)[key] ?? '')
+      })),
     [visibleTasks, taskMatchesFilters, t, locale],
   )
 
@@ -1028,6 +1034,9 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
+                  {isDepartmentTasksView && (
+                    <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
+                  )}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
                     <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="jobSourceType" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskType', 'Görev Tipi')}</FilterableTh>
                   )}
@@ -1067,6 +1076,9 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td>{task.title}</td>
+                    {isDepartmentTasksView && (
+                      <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
+                    )}
                     {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
                       <td>
                         <StatusPill tone={task.jobSourceType === 'Routine' ? 'info' : 'neutral'}>

@@ -114,4 +114,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 - [x] `Zm3d6Xu9` (reopened) — Banner search now covers date columns too: Jobs added owner-decided/completed/updated dates, Tasks added completed/updated dates (Incoming already had all). Same formatDateTime as displayed cells. Pushed. Moved to Done.
 
+- [x] `4nERM5Az` (reopened) — Wallboard stat buttons: changed yellow (#fef08a) numbers + active border/tint to priority orange #f97316 (text-orange-500, same as Görev No priority text). Confirmed via card image. Pushed. Moved to Done.
+
 ## STATUS: Round 9 complete — Doing list drained.

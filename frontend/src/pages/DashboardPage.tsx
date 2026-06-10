@@ -85,6 +85,8 @@ export function DashboardPage() {
   })
 
   const isManagerOrAdmin = role === 'Manager' || role === 'SystemAdmin'
+  // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
+  const isReporter = role === 'Reporter'
 
   const managerRow1: MetricCard[] = isManagerOrAdmin && dashboardQuery.data
     ? [
@@ -165,7 +167,7 @@ export function DashboardPage() {
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
         },
-        {
+        ...(isReporter ? [] : [{
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingTaskCount,
@@ -173,7 +175,7 @@ export function DashboardPage() {
           path: '/my-tasks?view=pending',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
-        },
+        }]),
       ]
     : []
 

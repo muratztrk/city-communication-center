@@ -170,6 +170,7 @@
     "totalWaiting": "Total Pending",
     "internal": "Internal Unit",
     "external": "External Unit",
+    "overdue": "Overdue Tasks",
     "citizen": "Citizen",
     "urgent": "Priority",
     "approvedJob": "Manager-approved job",

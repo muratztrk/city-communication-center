@@ -170,6 +170,7 @@
     "totalWaiting": "Toplam Bekleyen",
     "internal": "Birim İçi",
     "external": "Birim Dışı",
+    "overdue": "Son Tarihi Geçmiş Görevler",
     "citizen": "Vatandaş",
     "urgent": "Öncelikli",
     "approvedJob": "Müdür onaylı iş",

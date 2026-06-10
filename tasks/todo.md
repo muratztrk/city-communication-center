@@ -104,7 +104,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `z9PpTlId` — Dept Tasks: added "Görev Tipi" column (header+cell now include isDepartmentTasksView, after Başlık). Pushed. Moved to Done.
 - [x] `Zm3d6Xu9` — Banner search now scans all columns (number/priority/dates/dept/creator/status/type), not just Başlık, in Jobs/Tasks/Incoming. Incoming reuses extracted getColumnValue accessor. Wallboard has no banner search. Pushed. Moved to Done.
 - [x] `uuyCK0cw` — Wallboard default order now createdAtUtc desc (newest first) as primary sort; priority/due-date demoted to tiebreakers. Column-header sort still overrides. Pushed. Moved to Done.
-- [ ] `4nERM5Az` — Wallboard: 4 clickable hover stat buttons (Toplam Bekleyen/Birim İçi/Birim Dışı/Son Tarihi Geçmiş), pointer cursor, default Toplam Bekleyen.
+- [x] `4nERM5Az` — Wallboard stats now 4 clickable filter buttons (Toplam Bekleyen/Birim İçi/Birim Dışı/Son Tarihi Geçmiş Görevler), hover+pointer, active highlight, default 'total'; filters the list. Added overdue count + wallboard.overdue i18n (tr/en). Pushed. Moved to Done.
 - [ ] `ydzQ2PI7` — Manager internal request: show assigned staff name under "Gittiği Yer".
 - [ ] `zKMGZt6C` — Birime Gelen: rename "Oluşturan" column → "Talep Yeri/Oluşturan".
 

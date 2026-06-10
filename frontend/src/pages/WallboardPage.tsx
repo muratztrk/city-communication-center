@@ -111,6 +111,13 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[]
     })
 }
 
+type WallboardStatFilter = 'total' | 'internal' | 'external' | 'overdue'
+
+function isOverdueItem(item: WallboardItem): boolean {
+  if (!item.dueDateUtc) return false
+  return new Date(item.dueDateUtc).getTime() < Date.now()
+}
+
 export function WallboardPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -124,6 +131,7 @@ export function WallboardPage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [statFilter, setStatFilter] = useState<WallboardStatFilter>('total')
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
   const { filters, setFilter, matchesFilters } = useColumnFilters()
 
@@ -175,14 +183,21 @@ export function WallboardPage() {
     total: items.length,
     internal: items.filter(item => item.source === 'internal').length,
     external: items.filter(item => item.source === 'external').length,
+    overdue: items.filter(isOverdueItem).length,
   }), [items])
 
-  // Reset to first page whenever filters change
-  useEffect(() => { setPage(1) }, [filters])
+  // Reset to first page whenever filters or the stat filter change
+  useEffect(() => { setPage(1) }, [filters, statFilter])
 
   const filteredItems = useMemo(() => {
     const sorted = sortItems(items)
-    return sorted.filter(item =>
+    const byStat = sorted.filter(item => {
+      if (statFilter === 'internal') return item.source === 'internal'
+      if (statFilter === 'external') return item.source === 'external'
+      if (statFilter === 'overdue') return isOverdueItem(item)
+      return true
+    })
+    return byStat.filter(item =>
       matchesFilters(item, (key, row) => {
         if (key === 'createdAtUtc') return formatDate(row.createdAtUtc, locale)
         if (key === 'dueDateUtc') return formatDate(row.dueDateUtc, locale)
@@ -190,7 +205,7 @@ export function WallboardPage() {
         return String((row as unknown as Record<string, unknown>)[key] ?? '')
       })
     )
-  }, [items, sortItems, matchesFilters, locale, t])
+  }, [items, sortItems, matchesFilters, locale, t, statFilter])
 
   const pagedItems = useMemo(
     () => filteredItems.slice((page - 1) * pageSize, page * pageSize),
@@ -252,9 +267,18 @@ export function WallboardPage() {
       </header>
 
       <section className="wallboard-stats" aria-label={t('wallboard.summary', 'Özet')}>
-        <div><span>{summary.total}</span><p>{t('wallboard.totalWaiting', 'Toplam Bekleyen')}</p></div>
-        <div><span>{summary.internal}</span><p>{t('wallboard.internal', 'Birim İçi')}</p></div>
-        <div><span>{summary.external}</span><p>{t('wallboard.external', 'Birim Dışı')}</p></div>
+        <button type="button" className={statFilter === 'total' ? 'active' : ''} aria-pressed={statFilter === 'total'} onClick={() => setStatFilter('total')}>
+          <span>{summary.total}</span><p>{t('wallboard.totalWaiting', 'Toplam Bekleyen')}</p>
+        </button>
+        <button type="button" className={statFilter === 'internal' ? 'active' : ''} aria-pressed={statFilter === 'internal'} onClick={() => setStatFilter('internal')}>
+          <span>{summary.internal}</span><p>{t('wallboard.internal', 'Birim İçi')}</p>
+        </button>
+        <button type="button" className={statFilter === 'external' ? 'active' : ''} aria-pressed={statFilter === 'external'} onClick={() => setStatFilter('external')}>
+          <span>{summary.external}</span><p>{t('wallboard.external', 'Birim Dışı')}</p>
+        </button>
+        <button type="button" className={statFilter === 'overdue' ? 'active' : ''} aria-pressed={statFilter === 'overdue'} onClick={() => setStatFilter('overdue')}>
+          <span>{summary.overdue}</span><p>{t('wallboard.overdue', 'Son Tarihi Geçmiş Görevler')}</p>
+        </button>
       </section>
 
       {error ? (

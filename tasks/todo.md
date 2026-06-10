@@ -125,3 +125,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `4nERM5Az` (reopened #2) — Lightened wallboard stat numbers + active border/tint orange #f97316→#fb923c (orange-400). Pushed. Moved to Done.
 
 ## STATUS: Round 10 complete — Doing list drained.
+
+## Round 11
+- [x] `iInXSSPd` — Sidebar nav.departments "Müdürlükler"→"Departmanlar"; rebranded departments.* page strings Müdürlük(ler)→Departman(lar) (kept "Müdür"=manager + type-value options); added "Yönetim" (value Administration, existing enum label) to both create/edit type dropdowns. Pushed. Moved to Done.

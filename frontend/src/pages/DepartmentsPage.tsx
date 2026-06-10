@@ -261,6 +261,7 @@ export function DepartmentsPage() {
                 <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
                 <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
                 <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
+                <option value="Administration">{getDepartmentTypeLabel(t, 'Administration')}</option>
               </select>
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -414,6 +415,7 @@ export function DepartmentsPage() {
                   <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
                   <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
                   <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
+                  <option value="Administration">{getDepartmentTypeLabel(t, 'Administration')}</option>
                 </select>
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">

@@ -140,3 +140,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `jgdkgrz4` — Departments İşlemler button "Müdür Ata"→"Yönetici Ata" (departments.assignManager tr + fallbacks); Users grid header + new-user form label "Müdürlük"→"Departman" (users.department tr, shared key). Pushed. Moved to Done.
 - [x] `zvlsKa8U` — Allow Üst Düzey Yönetici (Reporter) to create requests: CreateJobCommand role guard now permits RoleCode.Reporter (no owner-dept restriction). Frontend already routes them to external form + lists all depts as owner. Pushed. Moved to Done.
 - [x] `whhWlZfI` — Dashboard: hide "Bekleyen Görevlerim" card for Reporter (Üst Düzey Yönetici); staffMetrics omits myPendingTasks when isReporter (Staff/Operator unchanged). Pushed. Moved to Done.
+- [x] `Z3zAkoW0` — Wallboard: Toplam Bekleyen/Birim İçi/Birim Dışı numbers turn white when 0 (added is-zero class + general `.is-zero span{color:#fff}`); non-zero stays orange, overdue rules unchanged. Pushed. Moved to Done.
+
+## STATUS: Round 13 complete — Doing list drained.

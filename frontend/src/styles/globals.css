@@ -1176,7 +1176,8 @@
   .sticky-page-header .scope-chip-date .field-input {
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
-    color: rgba(255, 255, 255, 0.7);
+    /* "Ara" placeholder ile aynı renk; boş haldeki muted utility'yi (utilities layer) ezmek için !important. */
+    color: rgba(255, 255, 255, 0.7) !important;
   }
 
   /* Tarih seçici takvim ikonu, "Ara" alanındaki ikonla aynı renkte ve net. */

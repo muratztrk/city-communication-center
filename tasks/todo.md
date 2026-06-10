@@ -108,4 +108,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `ydzQ2PI7` — Internal request "Gittiği Yer" now shows owner dept + assigned staff name below. Added optional AssignedUserDisplayName to JobSummaryResponse (populated in JobQueries list from job tasks' AssignedUserId), FE type + renderOutgoingDestination. Pushed. Moved to Done.
 - [x] `zKMGZt6C` — Birime Gelen: renamed "Oluşturan" → "Talep Yeri/Oluşturan" (new i18n key tr/en); cell now shows departmentName (top) + creator (below). Pushed. Moved to Done.
 
-## STATUS: Round 8 complete — 10/10 done. Doing list drained.
+## Round 9 (cards arriving during round 8)
+- [x] `pcK6CiqA` (reopened) — MultiSelectDropdown now flex-col with max-h-72; only the options list scrolls (flex-1 overflow-y-auto), "Seç" footer pinned at bottom (shrink-0). Pushed. Moved to Done.
+- [ ] `lUimEurb` — Üst Düzey Yönetici role only: "Talep Oluştur" opens external (Birim Dışı) request page directly; remove "Birim Dışı" wording on that page.
+
+## STATUS: Round 9 in progress.

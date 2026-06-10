@@ -88,7 +88,7 @@ export function MultiSelectDropdown({
       </button>
 
       {open ? (
-        <div className="absolute left-0 right-0 z-40 mt-2 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+        <div className="absolute left-0 right-0 z-40 mt-2 flex max-h-72 flex-col rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
           <div className="mb-1 flex items-center justify-between gap-2 px-1">
             <span className="text-xs font-semibold text-slate-500">{selectedOptions.length} / {options.length}</span>
             {selectedOptions.length > 0 ? (
@@ -97,10 +97,11 @@ export function MultiSelectDropdown({
               </button>
             ) : null}
           </div>
+          {/* Sadece personel listesi kayar; "Seç" butonu altta sabit kalır. */}
           {options.length === 0 ? (
             <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
           ) : (
-            <div className="grid gap-1">
+            <div className="grid flex-1 gap-1 overflow-y-auto">
               {options.map(option => {
                 const checked = selectedSet.has(option.value)
                 return (
@@ -120,8 +121,8 @@ export function MultiSelectDropdown({
               })}
             </div>
           )}
-          {/* Sağ altta yeşil "Seç" butonu; basınca dropdown kapanır. */}
-          <div className="mt-1 flex justify-end border-t border-slate-100 pt-2">
+          {/* Sağ altta yeşil "Seç" butonu; her zaman görünür (sabit), basınca dropdown kapanır. */}
+          <div className="mt-1 flex shrink-0 justify-end border-t border-slate-100 pt-2">
             <button
               type="button"
               className="rounded-lg bg-[color:var(--color-primary)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"

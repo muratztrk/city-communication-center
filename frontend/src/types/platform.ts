@@ -232,6 +232,7 @@ export interface JobSummary {
   createdByDisplayName: string | null;
   updatedAtUtc?: string | null;
   assignedUserDisplayName?: string | null;
+  createdByRoleCode?: string | null;
 }
 
 export interface JobDepartmentInfo {

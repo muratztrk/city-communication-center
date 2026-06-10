@@ -66,6 +66,7 @@ type IncomingRequestRow = {
   approvedAtUtc: string | null
   completedAtUtc: string | null
   updatedAtUtc: string | null
+  createdByRoleCode: string | null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -175,6 +176,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,
     updatedAtUtc: task.updatedAtUtc ?? null,
+    createdByRoleCode: null,
   }
 }
 
@@ -204,6 +206,7 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
+    createdByRoleCode: job.createdByRoleCode ?? null,
   }
 }
 
@@ -237,6 +240,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
+    createdByRoleCode: job.createdByRoleCode ?? null,
   }
 }
 
@@ -725,28 +729,31 @@ export function IncomingRequestsPage() {
               >
                 {t('jobs.actions.cancel', 'İptal Et')}
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  const { row } = cancelReturnModal
-                  setCancelReturnModal(null)
-                  setPromptDialog({
-                    title: t('jobs.actions.returnReason', 'İade Nedeni'),
-                    onConfirm: async (reason) => {
-                      setError(null)
-                      try {
-                        await api.returnJob(row.id, reason)
-                        await reload()
-                      } catch (err) {
-                        setError(err instanceof Error ? err.message : t('common.error'))
-                      }
-                    },
-                  })
-                }}
-              >
-                {t('jobs.actions.return', 'İade Et')}
-              </Button>
+              {/* Üst Düzey Yönetici'den gelen talepte İade Et gösterilmez (iade edilecek bir sahip birim yok). */}
+              {cancelReturnModal.row.createdByRoleCode !== 'Reporter' && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    const { row } = cancelReturnModal
+                    setCancelReturnModal(null)
+                    setPromptDialog({
+                      title: t('jobs.actions.returnReason', 'İade Nedeni'),
+                      onConfirm: async (reason) => {
+                        setError(null)
+                        try {
+                          await api.returnJob(row.id, reason)
+                          await reload()
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : t('common.error'))
+                        }
+                      },
+                    })
+                  }}
+                >
+                  {t('jobs.actions.return', 'İade Et')}
+                </Button>
+              )}
               <Button type="button" variant="secondary" onClick={() => setCancelReturnModal(null)}>
                 {t('common.cancel', 'Vazgeç')}
               </Button>

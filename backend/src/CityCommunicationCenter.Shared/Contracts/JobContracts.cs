@@ -75,7 +75,8 @@ public sealed record JobSummaryResponse(
     int? JobNumberYear,
     string? CreatedByDisplayName,
     DateTimeOffset? UpdatedAtUtc,
-    string? AssignedUserDisplayName = null);
+    string? AssignedUserDisplayName = null,
+    string? CreatedByRoleCode = null);
 
 public sealed record JobDetailResponse(
     Guid JobId,

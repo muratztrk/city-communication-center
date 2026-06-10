@@ -176,3 +176,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 18
 - [x] `YsCh570U` — "Görevin Talep Yeri/Oluşturan" column now shows the request creator (job.CreatedByUserId), not the approver. task.createdByDisplayName was the TASK creator, which for manager-assigned external tasks is the approver. Fixed projection in GetTasksQuery + GetTaskByIdQuery to resolve from the job's creator. Pushed. Moved to Done.
+
+## Round 19
+- [x] `gjVHpVxO` — Hide "İade Et" in the İptal/İade popup for Reporter-originated requests. Added CreatedByRoleCode to JobSummaryResponse (populated in JobQueries from creator's RoleCode) + FE JobSummary type + IncomingRequestRow.createdByRoleCode; modal hides İade Et when row.createdByRoleCode === 'Reporter'. Pushed. Moved to Done.
+
+## STATUS: Round 19 complete — Doing list drained.

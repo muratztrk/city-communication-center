@@ -117,6 +117,13 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                         .Select(u => (string?)u.DisplayName)
                         .FirstOrDefault()
                     : null,
+                CreatedByRoleCode = j.CreatedByUserId.HasValue
+                    ? _dbContext.Users
+                        .AsNoTracking()
+                        .Where(u => u.UserId == j.CreatedByUserId.Value)
+                        .Select(u => (string?)u.RoleCode.ToString())
+                        .FirstOrDefault()
+                    : null,
             })
             .ToListAsync(cancellationToken);
 
@@ -206,7 +213,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.JobNumberYear,
             r.CreatedByDisplayName,
             r.Job.UpdatedAtUtc,
-            assignedUsersMap.GetValueOrDefault(r.Job.JobId))).ToArray();
+            assignedUsersMap.GetValueOrDefault(r.Job.JobId),
+            r.CreatedByRoleCode)).ToArray();
     }
 }
 

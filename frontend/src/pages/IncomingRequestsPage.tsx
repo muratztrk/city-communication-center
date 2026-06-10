@@ -800,7 +800,7 @@ export function IncomingRequestsPage() {
                       {u.displayName}
                       {staffAssignModal.selfRequestedOwnerUserId === u.userId && (
                         <span className="ml-1 font-semibold text-emerald-700">
-                          {t('jobs.actions.selfRequestedOwner', '(Görevi kendisi yapmak istiyor)')}
+                          {t('jobs.actions.selfRequestedOwner', '(Görevi kendisi yapmak istiyor.)')}
                         </span>
                       )}
                     </span>

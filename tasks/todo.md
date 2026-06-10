@@ -151,3 +151,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## STATUS: Round 14 complete — Doing list drained.
 - [x] `z5IXBmo1` — Login desktop hero logo box height bumped slightly (h-14→h-16, 2xl:h-16→2xl:h-[4.5rem]); widths unchanged. Pushed. Moved to Done.
+- [x] `b4NKnv5X` (reopened) — Self-requested-owner flow already implemented in edebad3 (approve-owner popup flags the creator who picked themselves). Aligned label text to card exactly: "(Görevi kendisi yapmak istiyor.)" (added period, tr+en+fallback). Pushed. Moved to Done.
+- [x] `vHn5mTdW` (reopened) — Already implemented this session (commit 7928260): assignTargetDepartmentId rows → Onay Bekleyen (not Onaylanmış), full-yellow .row-attention. Verified intact on main; no code change needed. Moved to Done.
+
+## STATUS: Round 14 (extended) complete — Doing list drained.

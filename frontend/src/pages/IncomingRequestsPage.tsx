@@ -773,8 +773,8 @@ export function IncomingRequestsPage() {
             </h3>
             <p className="mb-4 text-sm text-slate-600">
               {staffAssignModal.approvalType === 'assign'
-                ? t('jobs.actions.assignStaffHelp', 'Bu talebe görev atayacağınız personeli seçin. Seçim zorunlu değildir.')
-                : t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin. Seçim zorunlu değildir.')}
+                ? t('jobs.actions.assignStaffHelp', 'Bu talebe görev atayacağınız personeli seçin.')
+                : t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}
             </p>
             {departmentUsers.length === 0 ? (
               <p className="mb-4 text-sm text-slate-400">{t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}</p>

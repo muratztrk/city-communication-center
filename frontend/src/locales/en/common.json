@@ -1121,7 +1121,7 @@
       "rejectOwner": "Reject",
       "assignStaff": "Assign Staff",
       "assign": "Assign",
-      "assignStaffHelp": "Select the staff to assign this request to. Selection is optional.",
+      "assignStaffHelp": "Select the staff to assign this request to.",
       "selfRequestedOwner": "(Wants to do the task personally.)",
       "cancel": "Cancel",
       "return": "Return",

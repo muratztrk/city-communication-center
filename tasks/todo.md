@@ -163,3 +163,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `z5IXBmo1` (reopened) — Increased login hero logo box height more (h-16→h-20, 2xl:h-[4.5rem]→2xl:h-24); widths unchanged. Pushed. Moved to Done.
 
 ## STATUS: Round 15 complete — Doing list drained.
+
+## Round 16
+- [x] `TcXvxFyf` — Removed "Seçim zorunlu değildir." from the assign/approve staff popup help text (assignStaffHelp tr/en + both inline fallbacks). Pushed. Moved to Done.
+- [x] `mr3mhNbq` (reopened) — Increased login hero top/bottom spacing more (lg:py-10→py-16, 2xl:py-14→py-20) per arrow. Pushed. Moved to Done.
+
+## STATUS: Round 16 complete — Doing list drained.

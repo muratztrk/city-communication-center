@@ -346,14 +346,27 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
 
     if (searchText.trim()) {
       const q = searchText.toLowerCase()
-      result = result.filter(task =>
-        task.title.toLowerCase().includes(q) ||
-        (task.jobTitle?.toLowerCase().includes(q) ?? false)
-      )
+      // Banner araması tüm sütunlarda arar (sadece Başlık değil).
+      result = result.filter(task => {
+        const haystack = [
+          formatTaskDisplayNumber(task),
+          task.title,
+          task.jobTitle ?? '',
+          getTaskStatusLabel(t, task.currentStatus),
+          getPriorityLabel(t, task.priority),
+          formatDateTime(task.createdAtUtc, locale),
+          formatDateTime(task.dueDateUtc, locale),
+          task.ownerDepartmentName ?? '',
+          task.createdByDisplayName ?? '',
+          task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış'),
+        ].join(' ').toLowerCase()
+        return haystack.includes(q)
+      })
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentStaffTaskType, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMyTaskView, currentRequestFlowFilter, currentStaffTaskType, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()

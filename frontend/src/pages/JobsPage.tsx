@@ -427,11 +427,29 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
     if (searchText.trim()) {
       const q = searchText.toLowerCase()
-      result = result.filter(job => job.title.toLowerCase().includes(q))
+      // Banner araması tüm sütunlarda arar (sadece Başlık değil).
+      result = result.filter(job => {
+        const targets = getTargetJobDepartments(job)
+        const destinationText = targets.length > 0
+          ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
+          : job.ownerDepartmentName ?? ''
+        const haystack = [
+          formatJobDisplayNumber(job),
+          job.title,
+          getJobStatusLabel(t, job.status),
+          getPriorityLabel(t, job.priority),
+          formatDateTime(job.createdAtUtc ?? null, locale),
+          formatDateTime(job.dueDateUtc ?? null, locale),
+          destinationText,
+          job.ownerDepartmentName ?? '',
+        ].join(' ').toLowerCase()
+        return haystack.includes(q)
+      })
     }
 
     return result
-  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters, t, locale])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()

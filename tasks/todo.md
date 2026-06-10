@@ -102,7 +102,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `YlC2hK7H` — Wallboard: removed Talep No (jobNumber) column header + cell. Pushed. Moved to Done.
 - [x] `pcK6CiqA` — MultiSelectDropdown: added green "Seç" button (bottom-right footer) that closes the dropdown; applies to manager owner picker. Pushed. Moved to Done.
 - [x] `z9PpTlId` — Dept Tasks: added "Görev Tipi" column (header+cell now include isDepartmentTasksView, after Başlık). Pushed. Moved to Done.
-- [ ] `Zm3d6Xu9` — Banner search must match all columns, not just Başlık.
+- [x] `Zm3d6Xu9` — Banner search now scans all columns (number/priority/dates/dept/creator/status/type), not just Başlık, in Jobs/Tasks/Incoming. Incoming reuses extracted getColumnValue accessor. Wallboard has no banner search. Pushed. Moved to Done.
 - [ ] `uuyCK0cw` — Wallboard: sort newest task first.
 - [ ] `4nERM5Az` — Wallboard: 4 clickable hover stat buttons (Toplam Bekleyen/Birim İçi/Birim Dışı/Son Tarihi Geçmiş), pointer cursor, default Toplam Bekleyen.
 - [ ] `ydzQ2PI7` — Manager internal request: show assigned staff name under "Gittiği Yer".

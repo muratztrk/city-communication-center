@@ -11,7 +11,7 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'all') return 'scope-chip--all'
   return ''
 }
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -406,6 +406,22 @@ export function IncomingRequestsPage() {
     })
   }, [jobs, tasks, activeDeptId])
 
+  // Bir satırın bir sütunundaki görünen metni döndürür; hem kolon filtreleri hem banner araması kullanır.
+  const getColumnValue = useCallback((key: string, r: IncomingRequestRow): string => {
+    if (key === 'status') return r.statusDomain === 'task' ? getTaskStatusLabel(t, r.status) : getJobStatusLabel(t, r.status)
+    if (key === 'displayNumber') return r.displayNumber
+    if (key === 'priority') return getPriorityLabel(t, r.priority)
+    if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
+    if (key === 'dueDateUtc') return formatDateTime(r.dueDateUtc, locale)
+    if (key === 'approvedAtUtc') return formatDateTime(r.approvedAtUtc, locale)
+    if (key === 'completedAtUtc') return formatDateTime(r.completedAtUtc, locale)
+    if (key === 'updatedAtUtc') return formatDateTime(r.updatedAtUtc, locale)
+    return String((r as unknown as Record<string, unknown>)[key] ?? '')
+  }, [t, locale])
+
+  // Banner aramasının tarayacağı tüm sütunlar (sadece Başlık değil).
+  const SEARCH_COLUMN_KEYS = ['displayNumber', 'priority', 'createdAtUtc', 'createdBy', 'title', 'dueDateUtc', 'approvedAtUtc', 'completedAtUtc', 'updatedAtUtc', 'status']
+
   const visibleRows = useMemo(() => {
     let result = rows
       .filter(row => matchesStatusFilter(row, currentStatusFilter))
@@ -421,10 +437,11 @@ export function IncomingRequestsPage() {
     }
     if (searchText.trim()) {
       const q = searchText.toLowerCase()
-      result = result.filter(row => row.title.toLowerCase().includes(q))
+      result = result.filter(row => SEARCH_COLUMN_KEYS.some(key => getColumnValue(key, row).toLowerCase().includes(q)))
     }
     return result
-  }, [currentKindFilter, currentStatusFilter, rows, filterFrom, filterTo, searchText])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentKindFilter, currentStatusFilter, rows, filterFrom, filterTo, searchText, getColumnValue])
 
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 
@@ -432,18 +449,8 @@ export function IncomingRequestsPage() {
   const { filters: incomingFilters, setFilter: setIncomingFilter, clearFilters: clearIncomingFilters, matchesFilters: incomingMatchesFilters } = useColumnFilters()
 
   const columnFilteredRows = useMemo(
-    () => visibleRows.filter(row => incomingMatchesFilters(row, (key, r) => {
-      if (key === 'status') return r.statusDomain === 'task' ? getTaskStatusLabel(t, r.status) : getJobStatusLabel(t, r.status)
-      if (key === 'displayNumber') return r.displayNumber
-      if (key === 'priority') return getPriorityLabel(t, r.priority)
-      if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
-      if (key === 'dueDateUtc') return formatDateTime(r.dueDateUtc, locale)
-      if (key === 'approvedAtUtc') return formatDateTime(r.approvedAtUtc, locale)
-      if (key === 'completedAtUtc') return formatDateTime(r.completedAtUtc, locale)
-      if (key === 'updatedAtUtc') return formatDateTime(r.updatedAtUtc, locale)
-      return String((r as unknown as Record<string, unknown>)[key] ?? '')
-    })),
-    [visibleRows, incomingMatchesFilters, t, locale],
+    () => visibleRows.filter(row => incomingMatchesFilters(row, getColumnValue)),
+    [visibleRows, incomingMatchesFilters, getColumnValue],
   )
 
   useEffect(() => { setIncomingPage(1) }, [incomingFilters])

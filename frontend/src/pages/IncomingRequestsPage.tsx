@@ -110,6 +110,13 @@ function getSelfRequestedOwnerUserId(job: JobSummary): string | null {
   }
 }
 
+// Sarı (dikkat) satırlarda öncelik metni rengi: Çok Yüksek = standart kırmızı, Yüksek = açık kırmızı, diğeri beyaz.
+function attentionPriorityColorClass(priority: string): string {
+  if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
+  if (priority === 'High') return 'text-red-400'
+  return 'text-white'
+}
+
 function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilter): boolean {
   if (filter === 'all') return true
 
@@ -626,8 +633,8 @@ export function IncomingRequestsPage() {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">
                       <div>{row.displayNumber}</div>
-                      {/* Sarı (dikkat) satırda öncelik metni beyaz ve daha kalın; diğerlerinde öncelik rengi. */}
-                      <div className={`font-sans text-[0.7rem] ${row.kind === 'external' && row.status === 'Active' ? 'font-extrabold text-white' : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
+                      {/* Sarı (dikkat) satırda öncelik metni kalın; Çok Yüksek=kırmızı, Yüksek=açık kırmızı, diğeri beyaz. Diğer satırlarda öncelik rengi. */}
+                      <div className={`font-sans text-[0.7rem] ${row.kind === 'external' && row.status === 'Active' ? `font-extrabold ${attentionPriorityColorClass(row.priority)}` : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td>

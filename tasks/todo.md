@@ -112,4 +112,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `pcK6CiqA` (reopened) — MultiSelectDropdown now flex-col with max-h-72; only the options list scrolls (flex-1 overflow-y-auto), "Seç" footer pinned at bottom (shrink-0). Pushed. Moved to Done.
 - [x] `lUimEurb` — Üst Düzey Yönetici = Reporter role. Reporter landing on /requests/new auto-redirects to ?kind=external (skips type selection); external form title/desc swapped to neutral "Talep Oluştur" wording (reporterFormTitle/Description i18n tr+en) so "Birim Dışı" is hidden for them. Pushed. Moved to Done.
 
+- [x] `Zm3d6Xu9` (reopened) — Banner search now covers date columns too: Jobs added owner-decided/completed/updated dates, Tasks added completed/updated dates (Incoming already had all). Same formatDateTime as displayed cells. Pushed. Moved to Done.
+
 ## STATUS: Round 9 complete — Doing list drained.

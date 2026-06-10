@@ -356,6 +356,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
           getPriorityLabel(t, task.priority),
           formatDateTime(task.createdAtUtc, locale),
           formatDateTime(task.dueDateUtc, locale),
+          formatDateTime(task.completedAtUtc ?? null, locale),
+          formatDateTime(task.updatedAtUtc ?? null, locale),
           task.ownerDepartmentName ?? '',
           task.createdByDisplayName ?? '',
           task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış'),

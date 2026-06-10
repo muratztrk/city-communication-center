@@ -433,6 +433,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         const destinationText = targets.length > 0
           ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
           : job.ownerDepartmentName ?? ''
+        const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
         const haystack = [
           formatJobDisplayNumber(job),
           job.title,
@@ -440,6 +441,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           getPriorityLabel(t, job.priority),
           formatDateTime(job.createdAtUtc ?? null, locale),
           formatDateTime(job.dueDateUtc ?? null, locale),
+          formatDateTime(ownerDecidedAtUtc, locale),
+          formatDateTime(job.completedAtUtc ?? null, locale),
+          formatDateTime(job.updatedAtUtc ?? null, locale),
           destinationText,
           job.ownerDepartmentName ?? '',
         ].join(' ').toLowerCase()

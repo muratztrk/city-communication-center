@@ -167,7 +167,7 @@
     "title": "Pending Tasks",
     "subtitle": "All manager-approved tasks from internal and external units",
     "summary": "Summary",
-    "totalWaiting": "Total Pending",
+    "totalWaiting": "Total Pending (Internal + External)",
     "internal": "Internal Unit",
     "external": "External Unit",
     "overdue": "Overdue Tasks",

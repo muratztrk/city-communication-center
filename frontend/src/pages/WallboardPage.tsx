@@ -268,7 +268,7 @@ export function WallboardPage() {
 
       <section className="wallboard-stats" aria-label={t('wallboard.summary', 'Özet')}>
         <button type="button" className={`${summary.total === 0 ? 'is-zero' : ''}${statFilter === 'total' ? ' active' : ''}`} aria-pressed={statFilter === 'total'} onClick={() => setStatFilter('total')}>
-          <span>{summary.total}</span><p>{t('wallboard.totalWaiting', 'Toplam Bekleyen')}</p>
+          <span>{summary.total}</span><p>{t('wallboard.totalWaiting', 'Toplam Bekleyen (Birim İçi + Birim Dışı)')}</p>
         </button>
         <button type="button" className={`${summary.internal === 0 ? 'is-zero' : ''}${statFilter === 'internal' ? ' active' : ''}`} aria-pressed={statFilter === 'internal'} onClick={() => setStatFilter('internal')}>
           <span>{summary.internal}</span><p>{t('wallboard.internal', 'Birim İçi')}</p>

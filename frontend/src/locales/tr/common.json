@@ -167,7 +167,7 @@
     "title": "Bekleyen Görevler",
     "subtitle": "Birim İçi ve Birim Dışı gelen yönetici onaylı tüm görevler",
     "summary": "Özet",
-    "totalWaiting": "Toplam Bekleyen",
+    "totalWaiting": "Toplam Bekleyen (Birim İçi + Birim Dışı)",
     "internal": "Birim İçi",
     "external": "Birim Dışı",
     "overdue": "Son Tarihi Geçmiş Görevler",

@@ -272,7 +272,6 @@ export function WallboardPage() {
             <thead>
               <tr>
                 <th className="wallboard-number-col">{t('wallboard.columns.number', 'Sıra')}</th>
-                <FilterableTh filterKey="jobNumber" filterValue={filters['jobNumber']} onFilter={setFilter} sortKey="jobNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestNo', 'Talep No')}</FilterableTh>
                 <FilterableTh filterKey="taskNumber" filterValue={filters['taskNumber']} onFilter={setFilter} sortKey="taskNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskNo', 'Görev No')}</FilterableTh>
                 <FilterableTh filterKey="createdAtUtc" filterValue={filters['createdAtUtc']} onFilter={setFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                 <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestLocationCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
@@ -286,7 +285,6 @@ export function WallboardPage() {
                 return (
                   <tr key={item.id} className={`wallboard-row ${item.source}`}>
                     <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
-                    <td>{item.jobNumber ?? '—'}</td>
                     <td>
                       <div>{item.taskNumber ?? '—'}</div>
                       {item.priority ? (

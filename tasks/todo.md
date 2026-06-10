@@ -99,7 +99,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 8 (new cards, Jun 10)
 - [x] `ykH6nKxa` — Banner date filter text was unreadable: empty-state muted-foreground Tailwind utility (utilities layer) overrode banner white (components layer); forced `.sticky-page-header .scope-chip-date .field-input` color `!important` to match "Ara". Pushed. Moved to Done.
 - [ ] `fuMAFjia` — Login: center only "Tire İletişim Merkezi" title in green hero.
-- [ ] `YlC2hK7H` — Ekrana Yansıt (wallboard): remove Talep No column.
+- [x] `YlC2hK7H` — Wallboard: removed Talep No (jobNumber) column header + cell. Pushed. Moved to Done.
 - [ ] `pcK6CiqA` — Manager internal-request owner dropdown: green "Seç" button bottom-right; closes dropdown on click.
 - [ ] `z9PpTlId` — Birimdeki Görevler (Dept Tasks): add "Görev Tipi" column after Başlık.
 - [ ] `Zm3d6Xu9` — Banner search must match all columns, not just Başlık.

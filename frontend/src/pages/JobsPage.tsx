@@ -336,7 +336,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       : MY_REQUEST_VIEWS.filter(view => view.value !== 'in-progress')
   const reporterDepartmentParam = searchParams.get('departmentId')
   const reporterDepartmentId = isReporter
-    ? reporterDepartmentParam === 'all' ? '' : reporterDepartmentParam ?? activeDeptId ?? ''
+    ? reporterDepartmentParam === 'all' ? '' : reporterDepartmentParam ?? ''
     : ''
   const currentMyRequestsViewLabel = t(myRequestViews.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.pending', 'Bekleyen Taleplerim')
   const currentDepartmentOutgoingViewLabel = t(
@@ -817,11 +817,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 onChange={event => setReporterDepartment(event.target.value)}
               >
                 <option value="">{t('jobs.allDepartments', 'Tüm Departmanlar')}</option>
-                {departments.map(department => (
-                  <option key={department.departmentId} value={department.departmentId}>
-                    {department.name}
-                  </option>
-                ))}
+                {departments
+                  .filter(department => department.departmentId !== user?.departmentId)
+                  .map(department => (
+                    <option key={department.departmentId} value={department.departmentId}>
+                      {department.name}
+                    </option>
+                  ))}
               </select>
             </>
           ) : null}

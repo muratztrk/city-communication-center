@@ -276,17 +276,18 @@ export function LoginPage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
           <div className="relative grid gap-4 pt-2 2xl:gap-6 2xl:pt-4">
             <div className="space-y-3 2xl:space-y-5">
-              {/* Logo solda; yalnızca başlık metni layout'ta ortalanır */}
-              <div className="flex items-center gap-3 2xl:gap-5">
+              {/* Logo solda; başlık tüm yeşil alana göre ortalanır (logoyu sağdaki eş genişlikte boşluk dengeler). */}
+              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 2xl:gap-5">
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
                   className="h-14 w-36 shrink-0 rounded-[1.1rem] border-0 bg-transparent 2xl:h-16 2xl:w-44"
                   imageClassName="h-[82%] w-[90%] drop-shadow-none"
                 />
-                <h1 className="flex-1 text-center text-xl font-semibold leading-[1.1] text-white 2xl:text-3xl">
+                <h1 className="text-center text-xl font-semibold leading-[1.1] text-white 2xl:text-3xl">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
+                <span aria-hidden className="h-14 w-36 shrink-0 2xl:h-16 2xl:w-44" />
               </div>
               <p className="max-w-2xl text-[0.82rem] leading-6 text-white/86 xl:text-sm xl:leading-6 2xl:text-base 2xl:leading-7">{t('login.subtitle')}</p>
             </div>

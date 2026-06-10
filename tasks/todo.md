@@ -96,4 +96,16 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6a280dc9` — Narrowed "Görevin Talep Yeri/Oluşturan" cell (max-w-11rem, truncate) and centered dept + creator lines. Pushed. Moved to Done.
 - [x] `6a280836` (extended) — Applied priority-under-Görev-No + removed Öncelik column to the Ekrana Yansıt wallboard too. Pushed. Moved to Done.
 
-## STATUS: Doing list empty — queue fully drained (all rounds complete).
+## Round 8 (new cards, Jun 10)
+- [x] `ykH6nKxa` — Banner date filter text was unreadable: empty-state muted-foreground Tailwind utility (utilities layer) overrode banner white (components layer); forced `.sticky-page-header .scope-chip-date .field-input` color `!important` to match "Ara". Pushed. Moved to Done.
+- [ ] `fuMAFjia` — Login: center only "Tire İletişim Merkezi" title in green hero.
+- [ ] `YlC2hK7H` — Ekrana Yansıt (wallboard): remove Talep No column.
+- [ ] `pcK6CiqA` — Manager internal-request owner dropdown: green "Seç" button bottom-right; closes dropdown on click.
+- [ ] `z9PpTlId` — Birimdeki Görevler (Dept Tasks): add "Görev Tipi" column after Başlık.
+- [ ] `Zm3d6Xu9` — Banner search must match all columns, not just Başlık.
+- [ ] `uuyCK0cw` — Wallboard: sort newest task first.
+- [ ] `4nERM5Az` — Wallboard: 4 clickable hover stat buttons (Toplam Bekleyen/Birim İçi/Birim Dışı/Son Tarihi Geçmiş), pointer cursor, default Toplam Bekleyen.
+- [ ] `ydzQ2PI7` — Manager internal request: show assigned staff name under "Gittiği Yer".
+- [ ] `zKMGZt6C` — Birime Gelen: rename "Oluşturan" column → "Talep Yeri/Oluşturan".
+
+## STATUS: Round 8 in progress — 1/10 done.

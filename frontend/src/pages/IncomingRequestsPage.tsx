@@ -652,10 +652,10 @@ export function IncomingRequestsPage() {
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {/* Personel Ata — birime düşen (Active) birim dışı taleplerde */}
+                        {/* Personel Ata — birime düşen (Active) birim dışı taleplerde. Üst Düzey Yönetici talebinde "Onayla". */}
                         {isManagerLike && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
                           <Button size="sm" variant="success" onClick={() => handleAssignStaff(row.id)}>
-                            {t('jobs.actions.assignStaff', 'Personel Ata')}
+                            {row.createdByRoleCode === 'Reporter' ? t('jobs.actions.approveOwner', 'Onayla') : t('jobs.actions.assignStaff', 'Personel Ata')}
                           </Button>
                         )}
                         {/* Onayla — kapanış onayı bekleyen görevlerde */}

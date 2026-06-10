@@ -192,3 +192,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 21
 - [x] `yyuspqnm` (reopened #3) — Made wallboard a fixed-height flex column (height:100dvh, overflow hidden); hero+stats flex-shrink:0; table-shell flex:1 1 auto min-height:0 (was hardcoded max-height calc(100dvh-18rem) which mismatched header+stats height and caused a document scrollbar). Table scrolls internally with hidden scrollbar; pagination pinned at bottom. Pushed. Moved to Done.
+
+## Round 22
+- [x] `lSO8pWbJ` — Reporter-originated request in Onay Bekleyen: İşlemler button label is "Onayla" instead of "Personel Ata" (same assign action); other active external rows keep "Personel Ata". Pushed. Moved to Done.

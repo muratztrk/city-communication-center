@@ -268,7 +268,7 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-    <div className="flex flex-1 flex-col overflow-hidden lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:mx-4 lg:my-4 lg:rounded-3xl lg:shadow-2xl xl:grid-cols-[minmax(0,1fr)_440px] xl:mx-[12.5%]">
+    <div className="flex flex-1 flex-col overflow-hidden lg:mt-4 lg:mb-8 lg:mx-4 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:rounded-3xl lg:shadow-2xl xl:mx-[12.5%] xl:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-10 xl:px-8 2xl:px-12 2xl:py-14"
           style={loginHeroBackgroundStyle}

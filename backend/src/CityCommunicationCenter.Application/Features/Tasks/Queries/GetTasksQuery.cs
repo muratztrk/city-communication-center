@@ -131,10 +131,13 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                 task.CompletionPercentage,
                 task.EstimatedHours,
                 task.ActualHours,
-                _dbContext.Users
+                // "Oluşturan" = talebi oluşturan kişi (işin sahibi), görevi onaylayan/atayan değil.
+                _dbContext.Jobs
                     .AsNoTracking()
-                    .Where(createdByUser => createdByUser.UserId == task.CreatedByUserId)
-                    .Select(createdByUser => (string?)createdByUser.DisplayName)
+                    .Where(job => job.JobId == task.JobId)
+                    .SelectMany(job => _dbContext.Users
+                        .Where(createdByUser => createdByUser.UserId == job.CreatedByUserId)
+                        .Select(createdByUser => (string?)createdByUser.DisplayName))
                     .FirstOrDefault(),
                 task.CreatedAtUtc,
                 _dbContext.Users

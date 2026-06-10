@@ -32,9 +32,14 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             })
             .FirstOrDefaultAsync(cancellationToken);
 
-        var createdByName = task.CreatedByUserId.HasValue
+        // "Oluşturan" = talebi oluşturan kişi (işin sahibi), görevi onaylayan/atayan değil.
+        var jobCreatedByUserId = await _dbContext.Jobs.AsNoTracking()
+            .Where(j => j.JobId == task.JobId)
+            .Select(j => j.CreatedByUserId)
+            .FirstOrDefaultAsync(cancellationToken);
+        var createdByName = jobCreatedByUserId.HasValue
             ? await _dbContext.Users.AsNoTracking()
-                .Where(u => u.UserId == task.CreatedByUserId.Value && u.TenantId == tenantId)
+                .Where(u => u.UserId == jobCreatedByUserId.Value && u.TenantId == tenantId)
                 .Select(u => u.DisplayName)
                 .FirstOrDefaultAsync(cancellationToken)
             : null;

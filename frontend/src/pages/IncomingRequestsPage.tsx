@@ -113,7 +113,10 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
   if (filter === 'all') return true
 
   if (filter === 'pending-approval') {
+    // Personel ataması bekleyen aktif birim dışı talepler (ör. Üst Düzey Yönetici'nin oluşturduğu)
+    // de yöneticinin aksiyonunu beklediği için "Onay Bekleyen Talepler" altında listelenir.
     return row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval' || row.status === 'PendingApproval'
+      || row.assignTargetDepartmentId != null
   }
 
   if (filter === 'completed') {
@@ -124,11 +127,14 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
     return row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
   }
 
-  return row.status === 'Active'
+  // Personel ataması bekleyenler yukarıda "Onay Bekleyen" altında gösterildi; burada tekrar etmesin.
+  return row.assignTargetDepartmentId == null && (
+    row.status === 'Active'
     || row.status === 'Waiting'
     || row.status === 'Assigned'
     || row.status === 'InProgress'
     || row.status === 'PendingCloseApproval'
+  )
 }
 
 function matchesKindFilter(row: IncomingRequestRow, filter: IncomingKindFilter): boolean {
@@ -283,7 +289,8 @@ export function IncomingRequestsPage() {
         setTasks(taskList)
         setJobs(jobList)
         const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
-        setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === currentDeptId || u.departments?.some(d => d.departmentId === currentDeptId)) && u.roleCode === 'Staff'))
+        // Personel listesi + atamayı yapan yöneticinin kendisi (görevi kendine atayabilsin).
+        setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === currentDeptId || u.departments?.some(d => d.departmentId === currentDeptId)) && (u.roleCode === 'Staff' || u.userId === user?.userId)))
         setError(null)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
@@ -609,7 +616,9 @@ export function IncomingRequestsPage() {
                   </tr>
                 )}
                 {pagedRows.map((row, index) => (
-                  <tr key={`${row.kind}-${row.id}`}>
+                  // Personel ataması bekleyen talepler dikkat çekmesi için satır arka planı sarı.
+                  <tr key={`${row.kind}-${row.id}`} className={row.assignTargetDepartmentId != null ? 'row-attention' : undefined}>
+
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">
                       <div>{row.displayNumber}</div>

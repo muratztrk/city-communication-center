@@ -578,7 +578,8 @@
     "subtitle": "Birim içi ve birim dışı gelen talepleri tek listede takip edin.",
     "empty": "Birime gelen talep bulunmuyor.",
     "columns": {
-      "type": "Tip"
+      "type": "Tip",
+      "requestLocationCreator": "Talep Yeri/Oluşturan"
     }
   },
   "social": {

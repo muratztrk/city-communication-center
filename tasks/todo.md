@@ -106,6 +106,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `uuyCK0cw` — Wallboard default order now createdAtUtc desc (newest first) as primary sort; priority/due-date demoted to tiebreakers. Column-header sort still overrides. Pushed. Moved to Done.
 - [x] `4nERM5Az` — Wallboard stats now 4 clickable filter buttons (Toplam Bekleyen/Birim İçi/Birim Dışı/Son Tarihi Geçmiş Görevler), hover+pointer, active highlight, default 'total'; filters the list. Added overdue count + wallboard.overdue i18n (tr/en). Pushed. Moved to Done.
 - [x] `ydzQ2PI7` — Internal request "Gittiği Yer" now shows owner dept + assigned staff name below. Added optional AssignedUserDisplayName to JobSummaryResponse (populated in JobQueries list from job tasks' AssignedUserId), FE type + renderOutgoingDestination. Pushed. Moved to Done.
-- [ ] `zKMGZt6C` — Birime Gelen: rename "Oluşturan" column → "Talep Yeri/Oluşturan".
+- [x] `zKMGZt6C` — Birime Gelen: renamed "Oluşturan" → "Talep Yeri/Oluşturan" (new i18n key tr/en); cell now shows departmentName (top) + creator (below). Pushed. Moved to Done.
 
-## STATUS: Round 8 in progress — 1/10 done.
+## STATUS: Round 8 complete — 10/10 done. Doing list drained.

@@ -577,7 +577,8 @@
     "subtitle": "Track internal and external incoming unit requests in one list.",
     "empty": "No incoming unit requests.",
     "columns": {
-      "type": "Type"
+      "type": "Type",
+      "requestLocationCreator": "Request Location/Creator"
     }
   },
   "social": {

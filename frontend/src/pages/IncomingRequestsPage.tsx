@@ -113,7 +113,7 @@ function getSelfRequestedOwnerUserId(job: JobSummary): string | null {
 // Sarı (dikkat) satırlarda öncelik metni rengi: Çok Yüksek = standart kırmızı, Yüksek = açık kırmızı, diğeri beyaz.
 function attentionPriorityColorClass(priority: string): string {
   if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
-  if (priority === 'High') return 'text-red-400'
+  if (priority === 'High') return 'text-red-500'
   return 'text-white'
 }
 

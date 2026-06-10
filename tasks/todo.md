@@ -201,3 +201,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 23
 - [x] `yyuspqnm` (reopened #4) — Reversed: now show the standard app scrollbar on the wallboard grid. Removed scrollbar-hiding (scrollbar-width:none + webkit display:none) so the global *::-webkit-scrollbar style applies; fixed-height layout (pinned pagination + internal scroll) kept. Pushed. Moved to Done.
+
+## Round 24
+- [x] `iLOr9Q5y` (reopened) — High-priority light red was too light (red-400) on yellow rows; darkened to red-500 (still distinct from VeryHigh red-600). Pushed. Moved to Done.

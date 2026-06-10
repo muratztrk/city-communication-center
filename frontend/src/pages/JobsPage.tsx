@@ -426,14 +426,16 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }
 
     if (searchText.trim()) {
-      const q = searchText.toLowerCase()
-      // Banner araması tüm sütunlarda arar (sadece Başlık değil).
+      // Türkçe büyük "İ" -> "i" doğru eşleşsin diye tr-locale lowercase (birim adları için kritik).
+      const q = searchText.toLocaleLowerCase('tr')
+      // Banner araması tüm sütunlarda arar (sadece Başlık değil; Gittiği Yer/Oluşturan birimleri dahil).
       result = result.filter(job => {
         const targets = getTargetJobDepartments(job)
         const destinationText = targets.length > 0
           ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
           : job.ownerDepartmentName ?? ''
         const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
+        const deptNames = (job.departments ?? []).map(d => d.departmentName ?? '').filter(Boolean)
         const haystack = [
           formatJobDisplayNumber(job),
           job.title,
@@ -446,7 +448,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           formatDateTime(job.updatedAtUtc ?? null, locale),
           destinationText,
           job.ownerDepartmentName ?? '',
-        ].join(' ').toLowerCase()
+          job.assignedUserDisplayName ?? '',
+          job.createdByDisplayName ?? '',
+          ...deptNames,
+        ].join(' ').toLocaleLowerCase('tr')
         return haystack.includes(q)
       })
     }

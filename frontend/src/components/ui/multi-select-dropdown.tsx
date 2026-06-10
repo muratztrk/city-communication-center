@@ -125,7 +125,7 @@ export function MultiSelectDropdown({
           <div className="mt-1 flex shrink-0 justify-end gap-2 border-t border-slate-100 pt-2">
             <button
               type="button"
-              className="rounded-lg bg-red-600 px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+              className="rounded-lg bg-[var(--color-destructive)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-[filter] hover:brightness-95"
               onClick={() => setOpen(false)}
             >
               Çıkış

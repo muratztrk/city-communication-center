@@ -128,3 +128,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 11
 - [x] `iInXSSPd` — Sidebar nav.departments "Müdürlükler"→"Departmanlar"; rebranded departments.* page strings Müdürlük(ler)→Departman(lar) (kept "Müdür"=manager + type-value options); added "Yönetim" (value Administration, existing enum label) to both create/edit type dropdowns. Pushed. Moved to Done.
+
+## Round 12
+- [x] `XLzwexhd` (reopened) — Çıkış button red now matches İptal Et: bg-[var(--color-destructive)] + hover:brightness-95 (was bg-red-600). Pushed. Moved to Done.
+- [x] `Zm3d6Xu9` (reopened #3, root cause) — Department names under Gittiği Yer/Talep Yeri/Oluşturan weren't searchable because default toLowerCase() turns Turkish "İ" into "i"+combining-dot, breaking includes(). Switched all 3 banner searches (Jobs/Tasks/Incoming) to toLocaleLowerCase('tr') for query+haystack; also added createdByDisplayName/assignedUserDisplayName + all job.departments names to Jobs haystack (Oluşturan column). Pushed. Moved to Done.

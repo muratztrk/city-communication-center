@@ -436,8 +436,9 @@ export function IncomingRequestsPage() {
       })
     }
     if (searchText.trim()) {
-      const q = searchText.toLowerCase()
-      result = result.filter(row => SEARCH_COLUMN_KEYS.some(key => getColumnValue(key, row).toLowerCase().includes(q)))
+      // Türkçe "İ" eşleşmesi için tr-locale lowercase (Talep Yeri birim adları için kritik).
+      const q = searchText.toLocaleLowerCase('tr')
+      result = result.filter(row => SEARCH_COLUMN_KEYS.some(key => getColumnValue(key, row).toLocaleLowerCase('tr').includes(q)))
     }
     return result
     // eslint-disable-next-line react-hooks/exhaustive-deps

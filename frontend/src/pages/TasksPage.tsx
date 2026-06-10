@@ -345,7 +345,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     }
 
     if (searchText.trim()) {
-      const q = searchText.toLowerCase()
+      // Türkçe "İ" eşleşmesi için tr-locale lowercase (birim/oluşturan adları için kritik).
+      const q = searchText.toLocaleLowerCase('tr')
       // Banner araması tüm sütunlarda arar (sadece Başlık değil).
       result = result.filter(task => {
         const haystack = [
@@ -361,7 +362,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
           task.ownerDepartmentName ?? '',
           task.createdByDisplayName ?? '',
           task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış'),
-        ].join(' ').toLowerCase()
+        ].join(' ').toLocaleLowerCase('tr')
         return haystack.includes(q)
       })
     }

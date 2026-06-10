@@ -198,3 +198,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `iLOr9Q5y` — Yellow incoming row priority text now colour-coded by level: Çok Yüksek/Critical = standard red (text-red-600), Yüksek = light red (text-red-400), others white. Added attentionPriorityColorClass helper. Pushed. Moved to Done.
 
 ## STATUS: Round 22 complete — Doing list drained.
+
+## Round 23
+- [x] `yyuspqnm` (reopened #4) — Reversed: now show the standard app scrollbar on the wallboard grid. Removed scrollbar-hiding (scrollbar-width:none + webkit display:none) so the global *::-webkit-scrollbar style applies; fixed-height layout (pinned pagination + internal scroll) kept. Pushed. Moved to Done.

@@ -1936,17 +1936,11 @@
 
   /* Sayfalama satırı her zaman görünsün (shell yüksekliği sınırlı, sayfalama altta sabit).
      Tablo içeride kayar ama sağdaki scroll çubuğu gizlenir. */
+  /* Diğer sayfalarla aynı scroll çubuğu görünsün (global *::-webkit-scrollbar stili). */
   .wallboard-table-scroll {
     min-height: 0;
     flex: 1 1 auto;
     overflow: auto;
-    scrollbar-width: none;
-  }
-
-  .wallboard-table-scroll::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    display: none;
   }
 
   .wallboard-table {

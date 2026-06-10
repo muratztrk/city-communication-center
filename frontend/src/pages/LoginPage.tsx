@@ -274,7 +274,7 @@ export function LoginPage() {
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
-          <div className="relative grid gap-4 pt-2 2xl:gap-6 2xl:pt-4">
+          <div className="relative grid gap-4 2xl:gap-6">
             <div className="space-y-3 2xl:space-y-5">
               {/* Logo solda; başlık tüm yeşil alana göre ortalanır (logoyu sağdaki eş genişlikte boşluk dengeler). */}
               <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 2xl:gap-5">

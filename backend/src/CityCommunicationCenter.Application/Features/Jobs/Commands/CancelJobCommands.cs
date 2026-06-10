@@ -33,7 +33,9 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         var isCreator = job.CreatedByUserId == actor.UserId;
         var isOwnerManager = !isCreator && await _dbContext.Departments
             .AnyAsync(d => d.TenantId == tenantId && d.DepartmentId == job.OwnerDepartmentId && d.ManagerUserId == actor.UserId, cancellationToken);
-        var isTargetManager = !isCreator && !isOwnerManager && job.Status == JobStatus.PendingExternalApproval &&
+        // Hedef birim yöneticisi, onay bekleyen veya aktif (ör. Üst Düzey Yönetici'den gelen) birim dışı talebi iptal edebilir.
+        var isTargetManager = !isCreator && !isOwnerManager &&
+            (job.Status == JobStatus.PendingExternalApproval || job.Status == JobStatus.Active) &&
             await _dbContext.JobDepartments.AnyAsync(
                 jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target &&
                       _dbContext.Departments.Any(d => d.TenantId == tenantId && d.DepartmentId == jd.DepartmentId && d.ManagerUserId == actor.UserId),

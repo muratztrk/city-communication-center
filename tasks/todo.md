@@ -182,3 +182,10 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## STATUS: Round 19 complete — Doing list drained.
 - [x] `GGxFLaip` (reopened) — On yellow attention rows, priority text under Talep No was unreadable (priority color near amber bg); now dark + extrabold (text-slate-900 font-extrabold) on those rows, priority color kept elsewhere. Pushed. Moved to Done.
+
+## Round 20
+- [x] `GGxFLaip` (reopened #2) — Priority text on yellow incoming rows changed from black to white (text-slate-900→text-white, font-extrabold). Pushed. Moved to Done.
+- [x] `CSxXwjKS` — Target dept manager can now cancel an active Reporter request: CancelJobCommand isTargetManager now allows JobStatus.Active (was only PendingExternalApproval), removing the false "İş iptal yetkiniz yok." Pushed. Moved to Done.
+- [x] `Zak5yDHj` — Login hero: removed content grid's extra top padding (pt-2 2xl:pt-4) so the gap above "Tire İletişim Merkezi" equals the gap below the footer note box (symmetric py). Pushed. Moved to Done.
+
+## STATUS: Round 20 complete — Doing list drained.

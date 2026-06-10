@@ -626,8 +626,8 @@ export function IncomingRequestsPage() {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">
                       <div>{row.displayNumber}</div>
-                      {/* Sarı (dikkat) satırda öncelik metni okunabilsin diye koyu ve daha kalın; diğerlerinde öncelik rengi. */}
-                      <div className={`font-sans text-[0.7rem] ${row.kind === 'external' && row.status === 'Active' ? 'font-extrabold text-slate-900' : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
+                      {/* Sarı (dikkat) satırda öncelik metni beyaz ve daha kalın; diğerlerinde öncelik rengi. */}
+                      <div className={`font-sans text-[0.7rem] ${row.kind === 'external' && row.status === 'Active' ? 'font-extrabold text-white' : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td>

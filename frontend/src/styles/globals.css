@@ -904,13 +904,13 @@
     background: #f8fafc;
   }
 
-  /* Personel ataması bekleyen talep satırı: tüm hücreler sarı (zebra çizgisini ezer). */
+  /* Birime gelen aktif birim dışı talep satırı: turuncuya yakın sarı (zebra çizgisini ezer). */
   .data-table tbody tr.row-attention td {
-    background: #fde68a !important;
+    background: #fbbf24 !important;
   }
 
   .data-table tbody tr.row-attention:hover td {
-    background: #fcd34d !important;
+    background: #f59e0b !important;
   }
 
   .data-table--zebra tbody tr:nth-child(even):hover td {

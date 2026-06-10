@@ -616,8 +616,8 @@ export function IncomingRequestsPage() {
                   </tr>
                 )}
                 {pagedRows.map((row, index) => (
-                  // Personel ataması bekleyen talepler dikkat çekmesi için satır arka planı sarı.
-                  <tr key={`${row.kind}-${row.id}`} className={row.assignTargetDepartmentId != null ? 'row-attention' : undefined}>
+                  // Birime gelen aktif birim dışı talepler (personel atanmadan önce de, atanıp görev oluştuktan sonra da) sarı.
+                  <tr key={`${row.kind}-${row.id}`} className={row.kind === 'external' && row.status === 'Active' ? 'row-attention' : undefined}>
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">

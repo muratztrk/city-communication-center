@@ -164,6 +164,8 @@ export function CreateRequestPage() {
   // Birim İçi talepte "Görev Sahibi Kişi/Birim": yalnızca birim yöneticisi/sorumlusu,
   // kendisi dahil birimin tüm personellerini görev sahibi olarak seçebilir.
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  // Üst Düzey Yönetici (Reporter) yalnızca birim dışı talep oluşturur; tip seçimi atlanır.
+  const isReporter = user?.role === 'Reporter'
   const internalOwnerUserOptions = useMemo(() => {
     const deptId = internalForm.ownerDepartmentId || myDepartmentId
     if (!isManagerLike || !deptId) {
@@ -250,6 +252,13 @@ export function CreateRequestPage() {
       navigate('/requests/new', { replace: true })
     }
   }, [canCreateCitizenRequest, kindParam, navigate, rawKindParam])
+
+  // Üst Düzey Yönetici "Talep Oluştur"a tıkladığında doğrudan Birim Dışı formu açılır.
+  useEffect(() => {
+    if (isReporter && !selectedKind) {
+      navigate('/requests/new?kind=external', { replace: true })
+    }
+  }, [isReporter, selectedKind, navigate])
 
 
   const renderRequestTypeField = () => (
@@ -639,8 +648,8 @@ export function CreateRequestPage() {
       {selectedKind === 'external' ? (
         <form className="section-card grid gap-4 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
-            <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}</h2>
-            <p className="helper-copy">{t('requests.create.externalFormDescription', 'Birim dışı talep kaydını başlatmak için temel bilgileri girin.')}</p>
+            <h2 className="text-xl font-extrabold text-slate-950">{isReporter ? t('requests.create.reporterFormTitle', 'Talep Oluştur') : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}</h2>
+            <p className="helper-copy">{isReporter ? t('requests.create.reporterFormDescription', 'Talep kaydını başlatmak için temel bilgileri girin.') : t('requests.create.externalFormDescription', 'Birim dışı talep kaydını başlatmak için temel bilgileri girin.')}</p>
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">

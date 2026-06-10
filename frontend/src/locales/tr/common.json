@@ -470,6 +470,8 @@
       "internalFormTitle": "Birim İçi Talep Oluştur",
       "externalFormTitle": "Birim Dışı Talep Oluştur",
       "externalFormDescription": "Birim dışı talep kaydını başlatmak için temel bilgileri girin.",
+      "reporterFormTitle": "Talep Oluştur",
+      "reporterFormDescription": "Talep kaydını başlatmak için temel bilgileri girin.",
       "citizenFormTitle": "Vatandaş Talebi Oluştur"
     }
   },

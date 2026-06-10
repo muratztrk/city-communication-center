@@ -1846,8 +1846,8 @@
   }
 
   .wallboard-stats > button.active {
-    background: rgba(249, 115, 22, 0.18);
-    border-color: #f97316;
+    background: rgba(251, 146, 60, 0.18);
+    border-color: #fb923c;
   }
 
   .wallboard-stats span {
@@ -1855,8 +1855,8 @@
     font-size: clamp(1.8rem, 3.2vw, 3.4rem);
     line-height: 1;
     font-weight: 900;
-    /* Görev No altındaki öncelik turuncusuyla (text-orange-500) aynı. */
-    color: #f97316;
+    /* Öncelik turuncusunun biraz açık tonu (text-orange-400). */
+    color: #fb923c;
   }
 
   .wallboard-stats p {

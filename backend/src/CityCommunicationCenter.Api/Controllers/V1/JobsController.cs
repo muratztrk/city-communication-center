@@ -13,8 +13,11 @@ public sealed class JobsController : ApiControllerBase
     public JobsController(IMediator sender) { _sender = sender; }
 
     [HttpGet("")]
-    public async Task<ActionResult<IEnumerable<JobSummaryResponse>>> GetAll([FromQuery] string? scope, CancellationToken cancellationToken)
-        => Ok(await _sender.Send(new GetJobsQuery(scope), cancellationToken));
+    public async Task<ActionResult<IEnumerable<JobSummaryResponse>>> GetAll(
+        [FromQuery] string? scope,
+        [FromQuery] Guid? departmentId,
+        CancellationToken cancellationToken)
+        => Ok(await _sender.Send(new GetJobsQuery(scope, departmentId), cancellationToken));
 
     [HttpGet("{jobId:guid}", Name = "GetJobById")]
     public async Task<ActionResult<JobDetailResponse>> GetById(Guid jobId, CancellationToken cancellationToken)

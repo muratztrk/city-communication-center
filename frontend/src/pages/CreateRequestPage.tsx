@@ -462,7 +462,7 @@ export function CreateRequestPage() {
       }
       setExternalForm(EMPTY_EXTERNAL_FORM)
       setPendingFiles([])
-      navigate('/requests/new')
+      navigate(isReporter ? '/my-requests?view=pending' : '/requests/new')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {

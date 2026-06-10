@@ -2,7 +2,7 @@ using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
-public sealed record GetJobsQuery(string? Scope) : IQuery<IReadOnlyList<JobSummaryResponse>>;
+public sealed record GetJobsQuery(string? Scope, Guid? DepartmentId = null) : IQuery<IReadOnlyList<JobSummaryResponse>>;
 
 public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyList<JobSummaryResponse>>
 {
@@ -50,11 +50,17 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
 
         if (scope == "mine" && userId.HasValue)
         {
-            // Taleplerim: kullanıcının oluşturduğu talepler. Birden fazla birim yetkisi olan
-            // kullanıcı için liste aktif birime göre ayrışır — aktif birim seçiliyken yalnızca
-            // o birim adına oluşturulan talepler listelenir. Aktif birim yoksa tümü görünür.
+            // Taleplerim: kullanıcının oluşturduğu talepler. Reporter, ekranındaki departman
+            // seçimiyle tüm departmanlar arasında gezebilir; diğer roller aktif departmana bağlıdır.
             q = q.Where(j => j.CreatedByUserId == userId);
-            if (context.ActiveDepartmentId.HasValue)
+            if (actor?.RoleCode == RoleCode.Reporter)
+            {
+                if (request.DepartmentId.HasValue)
+                {
+                    q = q.Where(j => j.OwnerDepartmentId == request.DepartmentId.Value);
+                }
+            }
+            else if (context.ActiveDepartmentId.HasValue)
             {
                 var activeDepartmentId = context.ActiveDepartmentId.Value;
                 q = q.Where(j => j.OwnerDepartmentId == activeDepartmentId);

@@ -23,7 +23,7 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import type { JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
+import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
@@ -198,12 +198,15 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   win.document.close()
 }
 
-function getMyRequestsView(value: string | null, isManager: boolean): MyRequestsView {
+function getMyRequestsView(value: string | null, isManager: boolean, isReporter: boolean): MyRequestsView {
   if (value === 'returned') return 'rejected'
   if (isManager) {
     // Yönetici/sorumlu için Bekleyen+Onaylanmış tek "Yapılmakta Olan" görünümünde birleşti.
     if (value === 'completed' || value === 'rejected' || value === 'all') return value
     return 'in-progress'
+  }
+  if (isReporter) {
+    return value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
   }
   return value === 'approved' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
@@ -224,11 +227,13 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
   return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
 }
 
-function filterMyRequests(jobs: JobSummary[], view: MyRequestsView): JobSummary[] {
+function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, includeActiveInPending = false): JobSummary[] {
   if (view === 'all') return jobs
 
   if (view === 'pending') {
-    return jobs.filter(job => job.status === 'Draft' || job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
+    return jobs.filter(job =>
+      job.status === 'Draft' || job.status === 'PendingOwnerApproval' ||
+      job.status === 'PendingExternalApproval' || (includeActiveInPending && job.status === 'Active'))
   }
 
   if (view === 'approved') {
@@ -280,6 +285,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const isReporter = user?.role === 'Reporter'
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -289,6 +295,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [error, setError] = useState<string | null>(null)
   const [jobsPage, setJobsPage] = useState(1)
   const [jobsPageSize, setJobsPageSize] = useState(10)
+  const [departments, setDepartments] = useState<Department[]>([])
 
   const [detail, setDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -317,14 +324,20 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
   const isMyRequestsView = mode === 'myRequests'
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
-  const currentMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike)
+  const currentMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   // Yönetici/sorumlu: Bekleyen + Onaylanmış yerine tek "Yapılmakta Olan Taleplerim".
   const myRequestViews = isManagerLike
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
-    : MY_REQUEST_VIEWS.filter(view => view.value !== 'in-progress')
+    : isReporter
+      ? MY_REQUEST_VIEWS.filter(view => view.value !== 'in-progress' && view.value !== 'approved')
+      : MY_REQUEST_VIEWS.filter(view => view.value !== 'in-progress')
+  const reporterDepartmentParam = searchParams.get('departmentId')
+  const reporterDepartmentId = isReporter
+    ? reporterDepartmentParam === 'all' ? '' : reporterDepartmentParam ?? activeDeptId ?? ''
+    : ''
   const currentMyRequestsViewLabel = t(myRequestViews.find(view => view.value === currentMyRequestsView)?.labelKey ?? 'jobs.myViews.pending', 'Bekleyen Taleplerim')
   const currentDepartmentOutgoingViewLabel = t(
     DEPARTMENT_OUTGOING_VIEWS.find(view => view.value === currentDepartmentOutgoingView)?.labelKey ?? 'jobs.outgoingViews.pending',
@@ -354,9 +367,24 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }, [])
 
   useEffect(() => {
+    if (!isReporter) return
+
+    let cancelled = false
+    api.getDepartments()
+      .then(items => {
+        if (!cancelled) setDepartments(items)
+      })
+      .catch(() => {
+        if (!cancelled) setDepartments([])
+      })
+
+    return () => { cancelled = true }
+  }, [isReporter])
+
+  useEffect(() => {
     let cancelled = false
     setLoading(true)
-    api.getJobs(scope)
+    api.getJobs(scope, reporterDepartmentId)
       .then(jobList => {
         if (cancelled) return
         setJobs(jobList)
@@ -365,11 +393,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [scope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [scope, t, activeDeptId, reporterDepartmentId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      api.getJobs(scope)
+      api.getJobs(scope, reporterDepartmentId)
         .then(jobList => {
           setJobs(jobList)
           setError(null)
@@ -384,14 +412,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }, 30000)
 
     return () => window.clearInterval(intervalId)
-  }, [detail?.jobId, scope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [detail?.jobId, scope, t, activeDeptId, reporterDepartmentId])
 
   const reload = async () => {
-    try { setJobs(await api.getJobs(scope)) }
+    try { setJobs(await api.getJobs(scope, reporterDepartmentId)) }
     catch (err) { setError(err instanceof Error ? err.message : t('common.error')) }
   }
 
-  const showRequestFlowFilters = isMyRequestsView && user?.role !== 'SystemAdmin'
+  const showRequestFlowFilters = isMyRequestsView && user?.role !== 'SystemAdmin' && !isReporter
   const canMutatePreApprovalJob = (job: JobSummary | JobDetail) => (
     isPreApprovalStatus(job.status) &&
     (user?.role === 'SystemAdmin' || isManagerLike || isMyRequestsView)
@@ -404,7 +432,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     let result: typeof jobs
 
     if (isMyRequestsView) {
-      const myJobs = filterMyRequests(jobs, currentMyRequestsView)
+      const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter)
       result = showRequestFlowFilters ? myJobs.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter)) : myJobs
     } else if (isDepartmentOutgoingView) {
       result = filterDepartmentOutgoingRequests(jobs, currentDepartmentOutgoingView)
@@ -457,8 +485,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }
 
     return result
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isMyRequestsView, jobs, scope, searchText, showRequestFlowFilters, t, locale])
+  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()
@@ -526,6 +553,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     const nextParams = new URLSearchParams(searchParams)
     if (filter === 'all') nextParams.delete('flow')
     else nextParams.set('flow', filter)
+    setSearchParams(nextParams)
+    setJobsPage(1)
+  }
+
+  const setReporterDepartment = (departmentId: string) => {
+    const nextParams = new URLSearchParams(searchParams)
+    if (departmentId) nextParams.set('departmentId', departmentId)
+    else nextParams.set('departmentId', 'all')
     setSearchParams(nextParams)
     setJobsPage(1)
   }
@@ -767,6 +802,27 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   {t(filter.labelKey)}
                 </button>
               ))}
+            </>
+          ) : null}
+          {isReporter ? (
+            <>
+              <span className="scope-chip-divider" aria-hidden="true">|</span>
+              <label className="sr-only" htmlFor="reporter-department-filter">
+                {t('jobs.departmentFilter', 'Departman Seçimi')}
+              </label>
+              <select
+                id="reporter-department-filter"
+                className="field-select h-[1.95rem] min-h-0 w-auto min-w-52 py-1 text-xs"
+                value={reporterDepartmentId}
+                onChange={event => setReporterDepartment(event.target.value)}
+              >
+                <option value="">{t('jobs.allDepartments', 'Tüm Departmanlar')}</option>
+                {departments.map(department => (
+                  <option key={department.departmentId} value={department.departmentId}>
+                    {department.name}
+                  </option>
+                ))}
+              </select>
             </>
           ) : null}
         </nav>

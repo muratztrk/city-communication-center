@@ -1122,6 +1122,7 @@
       "assignStaff": "Assign Staff",
       "assign": "Assign",
       "assignStaffHelp": "Select the staff to assign this request to. Selection is optional.",
+      "selfRequestedOwner": "(Wants to do the task personally)",
       "cancel": "Cancel",
       "return": "Return",
       "returnTitle": "Return Request",

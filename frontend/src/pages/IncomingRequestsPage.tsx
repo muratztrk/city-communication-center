@@ -32,6 +32,8 @@ import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel 
 type IncomingStatusFilter = 'pending-approval' | 'approved' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'internal' | 'external' | 'all'
 
+const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
+
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
@@ -87,6 +89,24 @@ function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
 
 function getIncomingKindFilter(value: string | null): IncomingKindFilter {
   return value === 'internal' || value === 'external' ? value : 'all'
+}
+
+function getSelfRequestedOwnerUserId(job: JobSummary): string | null {
+  const ownerDepartment = job.departments?.find(department => department.role === 'Owner')
+  const requestedByUserId = ownerDepartment?.requestedByUserId
+  const notes = ownerDepartment?.notes
+  if (!requestedByUserId || !notes?.startsWith(OWNER_TASK_NOTES_PREFIX)) return null
+
+  try {
+    const payload = JSON.parse(notes.slice(OWNER_TASK_NOTES_PREFIX.length)) as {
+      OwnerUserIds?: string[]
+      ownerUserIds?: string[]
+    }
+    const requestedOwnerUserIds = payload.OwnerUserIds ?? payload.ownerUserIds ?? []
+    return requestedOwnerUserIds.includes(requestedByUserId) ? requestedByUserId : null
+  } catch {
+    return null
+  }
 }
 
 function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilter): boolean {
@@ -239,6 +259,7 @@ export function IncomingRequestsPage() {
     jobId: string
     approvalType: 'owner' | 'assign'
     selectedUserIds: string[]
+    selfRequestedOwnerUserId: string | null
   } | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
@@ -286,13 +307,24 @@ export function IncomingRequestsPage() {
   }
 
   const handleApproveOwner = (jobId: string) => {
-    setStaffAssignModal({ jobId, approvalType: 'owner', selectedUserIds: [] })
+    const job = jobs.find(item => item.jobId === jobId)
+    setStaffAssignModal({
+      jobId,
+      approvalType: 'owner',
+      selectedUserIds: [],
+      selfRequestedOwnerUserId: job ? getSelfRequestedOwnerUserId(job) : null,
+    })
   }
 
   // One-step external flow: the job is already Active in this department's pool —
   // just assign staff (create tasks), no approval call needed.
   const handleAssignStaff = (jobId: string) => {
-    setStaffAssignModal({ jobId, approvalType: 'assign', selectedUserIds: [] })
+    setStaffAssignModal({
+      jobId,
+      approvalType: 'assign',
+      selectedUserIds: [],
+      selfRequestedOwnerUserId: null,
+    })
   }
 
   const handleStaffAssignConfirm = async () => {
@@ -755,7 +787,14 @@ export function IncomingRequestsPage() {
                         })
                       }}
                     />
-                    <span className="text-sm text-slate-800">{u.displayName}</span>
+                    <span className="text-sm text-slate-800">
+                      {u.displayName}
+                      {staffAssignModal.selfRequestedOwnerUserId === u.userId && (
+                        <span className="ml-1 font-semibold text-emerald-700">
+                          {t('jobs.actions.selfRequestedOwner', '(Görevi kendisi yapmak istiyor)')}
+                        </span>
+                      )}
+                    </span>
                   </label>
                 ))}
               </div>

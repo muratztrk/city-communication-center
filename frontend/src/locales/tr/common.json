@@ -1146,6 +1146,7 @@
       "assignStaff": "Personel Ata",
       "assign": "Ata",
       "assignStaffHelp": "Bu talebe görev atayacağınız personeli seçin. Seçim zorunlu değildir.",
+      "selfRequestedOwner": "(Görevi kendisi yapmak istiyor)",
       "cancel": "İptal Et",
       "return": "İade Et",
       "returnTitle": "Talebi İade Et",

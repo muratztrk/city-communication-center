@@ -100,12 +100,14 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[]
       }
     })
     .sort((a, b) => {
+      // En yeni görev en üstte: birincil sıralama oluşturulma tarihine göre azalan.
+      const createdDelta = new Date(b.createdAtUtc ?? 0).getTime() - new Date(a.createdAtUtc ?? 0).getTime()
+      if (createdDelta !== 0) return createdDelta
       const priorityDelta = getPriorityRank(a.priority) - getPriorityRank(b.priority)
       if (priorityDelta !== 0) return priorityDelta
       const aDue = a.dueDateUtc ? new Date(a.dueDateUtc).getTime() : Number.MAX_SAFE_INTEGER
       const bDue = b.dueDateUtc ? new Date(b.dueDateUtc).getTime() : Number.MAX_SAFE_INTEGER
-      if (aDue !== bDue) return aDue - bDue
-      return new Date(b.createdAtUtc ?? 0).getTime() - new Date(a.createdAtUtc ?? 0).getTime()
+      return aDue - bDue
     })
 }
 

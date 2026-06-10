@@ -270,7 +270,7 @@ export function LoginPage() {
     <div className="flex min-h-dvh flex-col">
     <div className="flex flex-1 flex-col overflow-hidden lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:mx-4 lg:my-4 lg:rounded-3xl lg:shadow-2xl xl:grid-cols-[minmax(0,1fr)_440px] xl:mx-[12.5%]">
         <section
-          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-6 xl:px-8 2xl:px-12 2xl:py-9"
+          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-10 xl:px-8 2xl:px-12 2xl:py-14"
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />

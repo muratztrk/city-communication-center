@@ -156,3 +156,4 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## STATUS: Round 14 (extended) complete — Doing list drained.
 - [x] `lKLORn9n` (reopened) — Department Tasks grid owner column "Sahip" → "Görev Sahibi" (tasks.columns.owner tr; en "Owner"→"Task Owner"). Pushed. Moved to Done.
+- [x] `yyuspqnm` (reopened #2) — Restored bounded wallboard-table-shell (max-height calc(100dvh-18rem)) so the pagination row stays pinned/visible without page-scrolling; table scrolls inside but the right scrollbar is hidden (scrollbar-width:none + webkit display:none). Prior attempt had removed the bound, causing a document scrollbar + pagination below the fold. Pushed. Moved to Done.

@@ -101,7 +101,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [ ] `fuMAFjia` — Login: center only "Tire İletişim Merkezi" title in green hero.
 - [x] `YlC2hK7H` — Wallboard: removed Talep No (jobNumber) column header + cell. Pushed. Moved to Done.
 - [x] `pcK6CiqA` — MultiSelectDropdown: added green "Seç" button (bottom-right footer) that closes the dropdown; applies to manager owner picker. Pushed. Moved to Done.
-- [ ] `z9PpTlId` — Birimdeki Görevler (Dept Tasks): add "Görev Tipi" column after Başlık.
+- [x] `z9PpTlId` — Dept Tasks: added "Görev Tipi" column (header+cell now include isDepartmentTasksView, after Başlık). Pushed. Moved to Done.
 - [ ] `Zm3d6Xu9` — Banner search must match all columns, not just Başlık.
 - [ ] `uuyCK0cw` — Wallboard: sort newest task first.
 - [ ] `4nERM5Az` — Wallboard: 4 clickable hover stat buttons (Toplam Bekleyen/Birim İçi/Birim Dışı/Son Tarihi Geçmiş), pointer cursor, default Toplam Bekleyen.

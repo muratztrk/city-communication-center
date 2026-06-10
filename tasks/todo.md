@@ -169,3 +169,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `mr3mhNbq` (reopened) — Increased login hero top/bottom spacing more (lg:py-10→py-16, 2xl:py-14→py-20) per arrow. Pushed. Moved to Done.
 
 ## STATUS: Round 16 complete — Doing list drained.
+
+## Round 17
+- [x] `z5IXBmo1` (reopened #2) — Login logo height was too tall (h-20/2xl:h-24); reduced to middle ground h-[4.5rem]/2xl:h-20. Pushed. Moved to Done.

@@ -316,7 +316,7 @@ export function DepartmentsPage() {
                     <td>
                       {isManagerAssigning ? (
                         <select
-                          aria-label={t('departments.assignManager', 'Müdür Ata')}
+                          aria-label={t('departments.assignManager', 'Yönetici Ata')}
                           className="field-select min-w-52"
                           value={department.managerUserId ?? ''}
                           disabled={isManagerSaving}
@@ -363,7 +363,7 @@ export function DepartmentsPage() {
                                   </Button>
                                 ) : (
                                   <Button size="sm" variant="secondary" onClick={() => { setManagerAssignId(department.departmentId); setEditId(null); setDeleteConfirmId(null) }}>
-                                    {t('departments.assignManager', 'Müdür Ata')}
+                                    {t('departments.assignManager', 'Yönetici Ata')}
                                   </Button>
                                 )}
                                 <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>

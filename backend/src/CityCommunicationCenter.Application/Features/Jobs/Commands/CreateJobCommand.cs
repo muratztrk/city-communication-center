@@ -70,7 +70,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             {
                 throw new ForbiddenAccessException("Mudur sadece yonettigi mudurluk icin is olusturabilir.");
             }
-            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager)
+            // Üst Düzey Yönetici (Reporter) talep oluşturabilir; sahip müdürlük kısıtı uygulanmaz.
+            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager && actor.RoleCode != RoleCode.Reporter)
             {
                 throw new ForbiddenAccessException("Bu rol is olusturamaz.");
             }

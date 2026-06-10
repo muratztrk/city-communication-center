@@ -121,8 +121,15 @@ export function MultiSelectDropdown({
               })}
             </div>
           )}
-          {/* Sağ altta yeşil "Seç" butonu; her zaman görünür (sabit), basınca dropdown kapanır. */}
-          <div className="mt-1 flex shrink-0 justify-end border-t border-slate-100 pt-2">
+          {/* Sağ altta sabit: kırmızı "Çıkış" (seçim yapmadan kapat) + yeşil "Seç" butonu. */}
+          <div className="mt-1 flex shrink-0 justify-end gap-2 border-t border-slate-100 pt-2">
+            <button
+              type="button"
+              className="rounded-lg bg-red-600 px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+              onClick={() => setOpen(false)}
+            >
+              Çıkış
+            </button>
             <button
               type="button"
               className="rounded-lg bg-[color:var(--color-primary)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"

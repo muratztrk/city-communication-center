@@ -117,3 +117,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `4nERM5Az` (reopened) — Wallboard stat buttons: changed yellow (#fef08a) numbers + active border/tint to priority orange #f97316 (text-orange-500, same as Görev No priority text). Confirmed via card image. Pushed. Moved to Done.
 
 ## STATUS: Round 9 complete — Doing list drained.
+
+## Round 10 (cards arriving during round 9 polling)
+- [x] `XLzwexhd` — MultiSelectDropdown: added red "Çıkış" button left of "Seç"; both close the dropdown (Çıkış = exit without picking). Pushed. Moved to Done.

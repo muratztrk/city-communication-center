@@ -24,6 +24,7 @@ interface WallboardItem {
   taskNumber: string | null
   requestLocation: string | null
   requestCreator: string | null
+  taskOwner: string | null
 }
 
 const OPEN_TASK_STATUSES = new Set(['Waiting', 'Assigned', 'InProgress', 'RevisionRequested'])
@@ -97,6 +98,7 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[]
         taskNumber: formatNumber(task.taskNumber, task.taskNumberYear),
         requestLocation: job?.ownerDepartmentName ?? null,
         requestCreator: job?.createdByDisplayName ?? null,
+        taskOwner: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,
       }
     })
     .sort((a, b) => {
@@ -294,51 +296,55 @@ export function WallboardPage() {
         <div className="wallboard-empty">{t('wallboard.empty', 'Bekleyen iş bulunmuyor.')}</div>
       ) : (
         <section className="wallboard-table-shell" aria-label={t('wallboard.title', 'Bekleyen Görevler')}>
-          <table className="wallboard-table">
-            <thead>
-              <tr>
-                <th className="wallboard-number-col">{t('wallboard.columns.number', 'Sıra')}</th>
-                <FilterableTh filterKey="taskNumber" filterValue={filters['taskNumber']} onFilter={setFilter} sortKey="taskNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskNo', 'Görev No')}</FilterableTh>
-                <FilterableTh filterKey="createdAtUtc" filterValue={filters['createdAtUtc']} onFilter={setFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
-                <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestLocationCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
-                <FilterableTh filterKey="title" filterValue={filters['title']} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.title', 'Başlık')}</FilterableTh>
-                <FilterableTh filterKey="dueDateUtc" filterValue={filters['dueDateUtc']} onFilter={setFilter} sortKey="dueDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.dueDate', 'Son Tarih')}</FilterableTh>
-              </tr>
-            </thead>
-            <tbody>
-              {pagedItems.map((item, index) => {
-                const dueTone = getDueTone(item.dueDateUtc)
-                return (
-                  <tr key={item.id} className={`wallboard-row ${item.source}`}>
-                    <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
-                    <td>
-                      <div>{item.taskNumber ?? '—'}</div>
-                      {item.priority ? (
-                        <div className={`text-[0.78rem] font-bold ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
-                      ) : null}
-                    </td>
-                    <td>
-                      <span className="wallboard-cell-icon">
-                        <CalendarClock className="size-4" />
-                        {formatDate(item.createdAtUtc, locale)}
-                      </span>
-                    </td>
-                    <td>
-                      <div>{item.requestLocation ?? '—'}</div>
-                      <div className="text-[0.82rem] opacity-80">{item.requestCreator ?? '—'}</div>
-                    </td>
-                    <td><div className="wallboard-row-title">{item.title}</div></td>
-                    <td>
-                      <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>
-                        <CalendarClock className="size-4" />
-                        {formatDate(item.dueDateUtc, locale)}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <div className="wallboard-table-scroll">
+            <table className="wallboard-table">
+              <thead>
+                <tr>
+                  <th className="wallboard-number-col">{t('wallboard.columns.number', 'Sıra')}</th>
+                  <FilterableTh filterKey="taskNumber" filterValue={filters['taskNumber']} onFilter={setFilter} sortKey="taskNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskNo', 'Görev No')}</FilterableTh>
+                  <FilterableTh filterKey="createdAtUtc" filterValue={filters['createdAtUtc']} onFilter={setFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
+                  <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestLocationCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
+                  <FilterableTh filterKey="title" filterValue={filters['title']} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.title', 'Başlık')}</FilterableTh>
+                  <FilterableTh filterKey="taskOwner" filterValue={filters['taskOwner']} onFilter={setFilter} sortKey="taskOwner" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.owner', 'Görev Sahibi')}</FilterableTh>
+                  <FilterableTh filterKey="dueDateUtc" filterValue={filters['dueDateUtc']} onFilter={setFilter} sortKey="dueDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.dueDate', 'Son Tarih')}</FilterableTh>
+                </tr>
+              </thead>
+              <tbody>
+                {pagedItems.map((item, index) => {
+                  const dueTone = getDueTone(item.dueDateUtc)
+                  return (
+                    <tr key={item.id} className={`wallboard-row ${item.source}`}>
+                      <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
+                      <td>
+                        <div>{item.taskNumber ?? '—'}</div>
+                        {item.priority ? (
+                          <div className={`text-[0.78rem] font-bold ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
+                        ) : null}
+                      </td>
+                      <td>
+                        <span className="wallboard-cell-icon">
+                          <CalendarClock className="size-4" />
+                          {formatDate(item.createdAtUtc, locale)}
+                        </span>
+                      </td>
+                      <td>
+                        <div>{item.requestLocation ?? '—'}</div>
+                        <div className="text-[0.82rem] opacity-80">{item.requestCreator ?? '—'}</div>
+                      </td>
+                      <td><div className="wallboard-row-title">{item.title}</div></td>
+                      <td>{item.taskOwner ?? '—'}</td>
+                      <td>
+                        <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>
+                          <CalendarClock className="size-4" />
+                          {formatDate(item.dueDateUtc, locale)}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
           <TablePagination
             totalCount={filteredItems.length}
             pageSize={pageSize}

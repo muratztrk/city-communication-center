@@ -1909,11 +1909,21 @@
   }
 
   .wallboard-table-shell {
-    overflow: auto;
+    display: flex;
+    max-height: calc(100dvh - 18rem);
+    min-height: 18rem;
+    flex-direction: column;
+    overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 1rem;
     background: #0f2430;
     box-shadow: 0 24px 44px rgba(0, 0, 0, 0.28);
+  }
+
+  .wallboard-table-scroll {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
   }
 
   .wallboard-table {
@@ -1924,6 +1934,9 @@
   }
 
   .wallboard-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     padding: 0.95rem 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     background: #102b39;

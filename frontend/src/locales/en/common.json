@@ -192,6 +192,7 @@
       "status": "Status",
       "priority": "Priority",
       "assignee": "Assigned",
+      "owner": "Task Owner",
       "dueDate": "Due"
     }
   },

@@ -192,6 +192,7 @@
       "status": "Durum",
       "priority": "Öncelik",
       "assignee": "Atanan",
+      "owner": "Görev Sahibi",
       "dueDate": "Son Tarih"
     }
   },

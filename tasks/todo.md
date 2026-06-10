@@ -120,3 +120,4 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 10 (cards arriving during round 9 polling)
 - [x] `XLzwexhd` — MultiSelectDropdown: added red "Çıkış" button left of "Seç"; both close the dropdown (Çıkış = exit without picking). Pushed. Moved to Done.
+- [x] `Zm3d6Xu9` (reopened #2) — Added missing 'departmentName' (Talep Yeri) to Birime Gelen SEARCH_COLUMN_KEYS so request-location is searchable. Jobs/Tasks/Incoming already cover number/title/status/priority/dept/creator/type + all date columns. Pushed. Moved to Done.

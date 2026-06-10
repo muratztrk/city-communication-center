@@ -231,6 +231,7 @@ export interface JobSummary {
   jobNumberYear: number | null;
   createdByDisplayName: string | null;
   updatedAtUtc?: string | null;
+  assignedUserDisplayName?: string | null;
 }
 
 export interface JobDepartmentInfo {

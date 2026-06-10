@@ -678,7 +678,15 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const renderOutgoingDestination = (job: JobSummary) => {
     const targetDepartments = getTargetJobDepartments(job)
     if (targetDepartments.length === 0) {
-      return <span className="font-medium text-slate-700">{job.ownerDepartmentName ?? '—'}</span>
+      // Birim içi talep: müdürlük üstte, görevin atandığı personel altında.
+      return (
+        <div className="text-center">
+          <div className="font-medium text-slate-700">{job.ownerDepartmentName ?? '—'}</div>
+          {job.assignedUserDisplayName ? (
+            <div className="text-xs text-slate-500">{job.assignedUserDisplayName}</div>
+          ) : null}
+        </div>
+      )
     }
 
     const visibleTargets = targetDepartments.slice(0, 3)

@@ -122,6 +122,24 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             .Select(g => new { JobId = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
         var countsMap = counts.ToDictionary(x => x.JobId, x => x.Count);
+        // Birim içi taleplerde "Gittiği Yer" altında gösterilecek atanan personel ad(lar)ı.
+        var assignedUsers = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(t => jobIds.Contains(t.JobId) && t.AssignedUserId != null)
+            .Select(t => new
+            {
+                t.JobId,
+                DisplayName = _dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => u.UserId == t.AssignedUserId!.Value)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+            })
+            .ToListAsync(cancellationToken);
+        var assignedUsersMap = assignedUsers
+            .Where(x => !string.IsNullOrWhiteSpace(x.DisplayName))
+            .GroupBy(x => x.JobId)
+            .ToDictionary(g => g.Key, g => (string?)string.Join(", ", g.Select(x => x.DisplayName!).Distinct()));
         var departments = await _dbContext.JobDepartments
             .AsNoTracking()
             .Where(jd => jobIds.Contains(jd.JobId))
@@ -181,7 +199,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.JobNumber,
             r.Job.JobNumberYear,
             r.CreatedByDisplayName,
-            r.Job.UpdatedAtUtc)).ToArray();
+            r.Job.UpdatedAtUtc,
+            assignedUsersMap.GetValueOrDefault(r.Job.JobId))).ToArray();
     }
 }
 

@@ -1866,6 +1866,19 @@
     color: rgba(255, 255, 255, 0.74);
   }
 
+  /* Son Tarihi Geçmiş Görevler: sayı 0 ise beyaz, değilse kırmızı; etiket her zaman kırmızı. */
+  .wallboard-stats > button.stat-overdue span {
+    color: #ef4444;
+  }
+
+  .wallboard-stats > button.stat-overdue.is-zero span {
+    color: #ffffff;
+  }
+
+  .wallboard-stats > button.stat-overdue p {
+    color: #ef4444;
+  }
+
   .wallboard-error,
   .wallboard-loading,
   .wallboard-empty {

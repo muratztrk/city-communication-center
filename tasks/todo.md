@@ -132,3 +132,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 12
 - [x] `XLzwexhd` (reopened) — Çıkış button red now matches İptal Et: bg-[var(--color-destructive)] + hover:brightness-95 (was bg-red-600). Pushed. Moved to Done.
 - [x] `Zm3d6Xu9` (reopened #3, root cause) — Department names under Gittiği Yer/Talep Yeri/Oluşturan weren't searchable because default toLowerCase() turns Turkish "İ" into "i"+combining-dot, breaking includes(). Switched all 3 banner searches (Jobs/Tasks/Incoming) to toLocaleLowerCase('tr') for query+haystack; also added createdByDisplayName/assignedUserDisplayName + all job.departments names to Jobs haystack (Oluşturan column). Pushed. Moved to Done.
+- [x] `gQtqAh9g` — Wallboard "Son Tarihi Geçmiş Görevler" button: number white when 0 else red #ef4444; label always red. CSS via .stat-overdue/.is-zero classes. Pushed. Moved to Done.
+
+## STATUS: Round 12 complete — Doing list drained.

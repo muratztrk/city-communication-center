@@ -155,3 +155,4 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `vHn5mTdW` (reopened) — Already implemented this session (commit 7928260): assignTargetDepartmentId rows → Onay Bekleyen (not Onaylanmış), full-yellow .row-attention. Verified intact on main; no code change needed. Moved to Done.
 
 ## STATUS: Round 14 (extended) complete — Doing list drained.
+- [x] `lKLORn9n` (reopened) — Department Tasks grid owner column "Sahip" → "Görev Sahibi" (tasks.columns.owner tr; en "Owner"→"Task Owner"). Pushed. Moved to Done.

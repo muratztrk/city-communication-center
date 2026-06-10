@@ -525,7 +525,7 @@
       "status": "Status",
       "priority": "Priority",
       "assignedTo": "Assigned",
-      "owner": "Owner",
+      "owner": "Task Owner",
       "createdBy": "Created By",
       "progress": "Progress",
       "dueDate": "Due",

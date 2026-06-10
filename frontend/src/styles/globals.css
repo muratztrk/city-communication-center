@@ -1919,7 +1919,6 @@
 
   .wallboard-table-shell {
     display: flex;
-    max-height: calc(100dvh - 18rem);
     min-height: 18rem;
     flex-direction: column;
     overflow: hidden;
@@ -1929,10 +1928,12 @@
     box-shadow: 0 24px 44px rgba(0, 0, 0, 0.28);
   }
 
+  /* Birimdeki Görevler gibi: dikey iç scroll yok, tablo tam yükseklikte; sayfalama hemen altında. */
   .wallboard-table-scroll {
     min-height: 0;
     flex: 1 1 auto;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: visible;
   }
 
   .wallboard-table {

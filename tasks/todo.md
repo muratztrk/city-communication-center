@@ -160,3 +160,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 15
 - [x] `GGxFLaip` — Yellow incoming row now persists after staff assigned: .row-attention triggers on active external incoming rows (kind external && status Active) instead of only assignTargetDepartmentId (which clears once a task is created). Darkened the yellow #fde68a→#fbbf24 (amber-400, orange-leaning), hover #f59e0b. Pushed. Moved to Done.
+- [x] `z5IXBmo1` (reopened) — Increased login hero logo box height more (h-16→h-20, 2xl:h-[4.5rem]→2xl:h-24); widths unchanged. Pushed. Moved to Done.
+
+## STATUS: Round 15 complete — Doing list drained.

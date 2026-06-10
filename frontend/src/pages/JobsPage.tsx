@@ -206,7 +206,7 @@ function getMyRequestsView(value: string | null, isManager: boolean, isReporter:
     return 'in-progress'
   }
   if (isReporter) {
-    return value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+    return value === 'in-progress' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
   }
   return value === 'approved' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
@@ -227,21 +227,26 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
   return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
 }
 
-function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, includeActiveInPending = false): JobSummary[] {
+function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false): JobSummary[] {
   if (view === 'all') return jobs
 
   if (view === 'pending') {
+    // Üst Düzey Yönetici: oluşturulmuş ama henüz personel atanmamış (görev yok) talepler bekliyor sayılır.
     return jobs.filter(job =>
       job.status === 'Draft' || job.status === 'PendingOwnerApproval' ||
-      job.status === 'PendingExternalApproval' || (includeActiveInPending && job.status === 'Active'))
+      job.status === 'PendingExternalApproval' || (isReporter && job.status === 'Active' && job.taskCount === 0))
   }
 
   if (view === 'approved') {
     return jobs.filter(job => job.status === 'Active')
   }
 
-  // Yapılmakta Olan Taleplerim: bekleyen (onay) + onaylanmış (aktif) talepler birlikte.
   if (view === 'in-progress') {
+    // Üst Düzey Yönetici: hedef birim yöneticisi personel atayıp görev oluşturunca "Yapılmakta Olan"a düşer.
+    if (isReporter) {
+      return jobs.filter(job => job.status === 'Active' && job.taskCount > 0)
+    }
+    // Yönetici/sorumlu: bekleyen (onay) + onaylanmış (aktif) talepler birlikte.
     return jobs.filter(job =>
       job.status === 'Draft' || job.status === 'PendingOwnerApproval' ||
       job.status === 'PendingExternalApproval' || job.status === 'Active')
@@ -332,7 +337,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const myRequestViews = isManagerLike
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
     : isReporter
-      ? MY_REQUEST_VIEWS.filter(view => view.value !== 'in-progress' && view.value !== 'approved')
+      // Üst Düzey Yönetici: "Bekleyen Taleplerim"den sonra "Yapılmakta Olan Taleplerim".
+      ? (['pending', 'in-progress', 'completed', 'rejected', 'all'] as MyRequestsView[])
+          .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
       : MY_REQUEST_VIEWS.filter(view => view.value !== 'in-progress')
   const reporterDepartmentParam = searchParams.get('departmentId')
   const reporterDepartmentId = isReporter

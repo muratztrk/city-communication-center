@@ -147,3 +147,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 14
 - [x] `vHn5mTdW` — Reporter's external request now shows in target dept's "Onay Bekleyen Talepler": rows awaiting staff assignment (assignTargetDepartmentId) routed to pending-approval filter (and out of active), full-yellow row via .row-attention (overrides zebra), and Personel Ata list now includes the manager themselves (departmentUsers += current user). FE-only (owner is auto-approved for non-Staff). Pushed. Moved to Done.
 - [x] `yyuspqnm` (reopened) — Wallboard table no longer has an inner vertical scroll: removed wallboard-table-shell max-height and set table-scroll overflow-y visible (overflow-x auto kept). Table renders full height, pagination sits right below (page scrolls like Birimdeki Görevler). Pushed. Moved to Done.
+- [x] `VcbxO7g2` — Reporter Taleplerim: added "Yapılmakta Olan Taleplerim" chip after "Bekleyen Taleplerim". getMyRequestsView accepts in-progress; chip order [pending,in-progress,completed,rejected,all]; filterMyRequests split for Reporter — pending=Active&taskCount0, in-progress=Active&taskCount>0 (so once target mgr assigns staff/task created it moves to Yapılmakta Olan). Pushed. Moved to Done.
+
+## STATUS: Round 14 complete — Doing list drained.

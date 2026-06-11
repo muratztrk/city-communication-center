@@ -318,7 +318,7 @@ export function WallboardPage() {
                       <td>
                         <div>{item.taskNumber ?? '—'}</div>
                         {item.priority ? (
-                          <div className={`text-[0.78rem] font-bold ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
+                          <div className={`wallboard-priority-text ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
                         ) : null}
                       </td>
                       <td>
@@ -329,7 +329,7 @@ export function WallboardPage() {
                       </td>
                       <td>
                         <div>{item.requestLocation ?? '—'}</div>
-                        <div className="text-[0.82rem] opacity-80">{item.requestCreator ?? '—'}</div>
+                        <div className="wallboard-secondary-text">{item.requestCreator ?? '—'}</div>
                       </td>
                       <td><div className="wallboard-row-title">{item.title}</div></td>
                       <td>{item.taskOwner ?? '—'}</td>

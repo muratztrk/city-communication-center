@@ -249,7 +249,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
   const [returnManagerId, setReturnManagerId] = useState('')
@@ -553,8 +553,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     // İade yalnızca farklı birimden gelen (Birim Dışı) talepte sunulur; Birim İçi ve
     // rutin görevlerde İade seçeneği yoktur — doğrudan İptal adımına geçilir.
     const canReturn = task?.jobRequestType === 'ExternalUnit' && !isRoutine
-    const skipChoose = !canReturn
-    setReturnModal({ taskId, step: skipChoose ? 'cancel' : 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: skipChoose })
+    // Her zaman seçim adımı gösterilir; İade yapılamayan görevlerde İade butonu pasiftir.
+    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')
@@ -1100,10 +1100,8 @@ const pageKicker = isMyTasksView
                         )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>
-                            {/* İade yalnızca farklı birimden gelen (Birim Dışı) talepte; Birim İçi/Rutin'de sadece İptal */}
-                            {task.jobRequestType === 'ExternalUnit' && task.jobSourceType !== 'Routine'
-                              ? t('tasks.actions.cancelReturn', 'İptal / İade')
-                              : t('common.cancel', 'İptal')}
+                            {/* Tüm görevlerde tek tip "İptal/İade"; İade yapılamayan (Birim İçi/Rutin) görevlerde popup'ta İade pasif olur. */}
+                            {t('tasks.actions.cancelReturn', 'İptal/İade')}
                           </Button>
                         )}
                       </div>
@@ -1136,12 +1134,20 @@ const pageKicker = isMyTasksView
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelReturnTitle', 'Görev İptal / İade')}</h2>
                 <p className="helper-copy">{t('tasks.actions.cancelReturnHelp', 'Göreve ne yapmak istediğinizi seçin.')}</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button type="button" variant="secondary" onClick={() => {
-                    if (isManagerLike && returnModal?.assignedDepartmentId) {
-                      setReturnDeptId(returnModal.assignedDepartmentId)
-                    }
-                    setReturnModal(m => m ? { ...m, step: 'return' } : null)
-                  }}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    aria-disabled={!returnModal.canReturn}
+                    title={!returnModal.canReturn ? t('tasks.actions.returnNotAllowed', 'İade yapılamaz') : undefined}
+                    className={!returnModal.canReturn ? 'cursor-not-allowed opacity-60' : undefined}
+                    onClick={() => {
+                      if (!returnModal.canReturn) return
+                      if (isManagerLike && returnModal?.assignedDepartmentId) {
+                        setReturnDeptId(returnModal.assignedDepartmentId)
+                      }
+                      setReturnModal(m => m ? { ...m, step: 'return' } : null)
+                    }}
+                  >
                     {isManagerLike
                       ? t('tasks.actions.returnToUnit', 'Birim İçi İade')
                       : t('tasks.actions.returnToManager', 'Yöneticiye İade')}
@@ -1173,7 +1179,7 @@ const pageKicker = isMyTasksView
                   />
                 </label>
                 <div className="inline-actions">
-                  <Button type="button" variant="secondary" onClick={() => returnModal?.isRoutine ? closeReturnModal() : setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
+                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
                     {t('common.back', 'Geri')}
                   </Button>
                   <Button type="button" variant="destructive" disabled={returnSaving || !cancelReason.trim()} onClick={() => void handleCancelTask()}>

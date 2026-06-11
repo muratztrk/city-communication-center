@@ -737,31 +737,33 @@ export function IncomingRequestsPage() {
               >
                 {t('jobs.actions.cancel', 'İptal Et')}
               </Button>
-              {/* Üst Düzey Yönetici'den gelen talepte İade Et gösterilmez (iade edilecek bir sahip birim yok). */}
-              {cancelReturnModal.row.createdByRoleCode !== 'Reporter' && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    const { row } = cancelReturnModal
-                    setCancelReturnModal(null)
-                    setPromptDialog({
-                      title: t('jobs.actions.returnReason', 'İade Nedeni'),
-                      onConfirm: async (reason) => {
-                        setError(null)
-                        try {
-                          await api.returnJob(row.id, reason)
-                          await reload()
-                        } catch (err) {
-                          setError(err instanceof Error ? err.message : t('common.error'))
-                        }
-                      },
-                    })
-                  }}
-                >
-                  {t('jobs.actions.return', 'İade Et')}
-                </Button>
-              )}
+              {/* Üst Düzey Yönetici'den gelen talepte İade yapılamaz: buton pasif görünür + "İade yapılamaz" ipucu (pointer-events korunur ki title görünsün). */}
+              <Button
+                type="button"
+                variant="secondary"
+                aria-disabled={cancelReturnModal.row.createdByRoleCode === 'Reporter'}
+                title={cancelReturnModal.row.createdByRoleCode === 'Reporter' ? t('jobs.actions.returnNotAllowed', 'İade yapılamaz') : undefined}
+                className={cancelReturnModal.row.createdByRoleCode === 'Reporter' ? 'cursor-not-allowed opacity-60' : undefined}
+                onClick={() => {
+                  if (cancelReturnModal.row.createdByRoleCode === 'Reporter') return
+                  const { row } = cancelReturnModal
+                  setCancelReturnModal(null)
+                  setPromptDialog({
+                    title: t('jobs.actions.returnReason', 'İade Nedeni'),
+                    onConfirm: async (reason) => {
+                      setError(null)
+                      try {
+                        await api.returnJob(row.id, reason)
+                        await reload()
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : t('common.error'))
+                      }
+                    },
+                  })
+                }}
+              >
+                {t('jobs.actions.return', 'İade Et')}
+              </Button>
               <Button type="button" variant="secondary" onClick={() => setCancelReturnModal(null)}>
                 {t('common.cancel', 'Vazgeç')}
               </Button>

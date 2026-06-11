@@ -1122,7 +1122,7 @@ const pageKicker = isMyTasksView
                           task.currentStatus === 'InProgress' ||
                           task.currentStatus === 'PendingCloseApproval'
                         ) && (
-                          <Button size="sm" onClick={() => openDepartmentRouteModal(task)}>
+                          <Button size="sm" className="task-route-button" onClick={() => openDepartmentRouteModal(task)}>
                             {t('tasks.actions.routeTask', 'Görevi Yönlendir')}
                           </Button>
                         )}

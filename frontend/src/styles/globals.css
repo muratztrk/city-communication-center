@@ -1042,6 +1042,17 @@
     white-space: nowrap;
   }
 
+  .task-route-button {
+    border: 1px solid #7dd3fc;
+    background: #e0f2fe;
+    color: #075985;
+    box-shadow: none;
+  }
+
+  .task-route-button:hover {
+    background: #bae6fd;
+  }
+
   .table-stack {
     display: grid;
     gap: 0.4rem;

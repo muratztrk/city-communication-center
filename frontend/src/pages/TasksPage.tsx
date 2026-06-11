@@ -553,8 +553,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     // İade yalnızca farklı birimden gelen (Birim Dışı) talepte sunulur; Birim İçi ve
     // rutin görevlerde İade seçeneği yoktur — doğrudan İptal adımına geçilir.
     const canReturn = task?.jobRequestType === 'ExternalUnit' && !isRoutine
-    // Üst Düzey Yönetici'den gelen görevde personelin iptal/iade yetkisi yoktur.
-    const isReporterTask = task?.createdByRoleCode === 'Reporter'
+    // Üst Düzey Yönetici'den gelen görevde personelin iptal/iade yetkisi yoktur;
+    // ancak görevi kendine atayan yönetici iptal/iade edebilir (yönetici hariç tutulur).
+    const isReporterTask = task?.createdByRoleCode === 'Reporter' && !isManagerLike
     // Her zaman seçim adımı gösterilir; yetki yoksa ilgili butonlar pasiftir.
     setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask })
     setCancelReason('')

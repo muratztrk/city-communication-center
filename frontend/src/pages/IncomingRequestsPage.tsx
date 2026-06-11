@@ -412,9 +412,9 @@ export function IncomingRequestsPage() {
     } else if (row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval') {
       setCancelReturnModal({ row })
     } else {
-      // Pending approval — reject with reason
+      // Pending approval — İptal/İade ile reddedilir; başlık "İptal Nedeni:" gösterilir.
       setPromptDialog({
-        title: t('jobs.actions.rejectReason', 'Reddetme Nedeni'),
+        title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
         onConfirm: async (reason) => {
           setError(null)
           try {

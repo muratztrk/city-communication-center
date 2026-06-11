@@ -222,3 +222,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `Zr0yIf3d` — Clarifies pBpL8KSA: grid İptal/İade button now opens the popup (reverted grid-button disable), and inside the popup the "Görevi İptal Et" + İade options are passive (opacity/cursor + onClick guard + "İptal/İade yetkiniz yok" tooltip) for Reporter-originated tasks. Yellow row kept. (Depends on round-25 TaskSummary.createdByRoleCode → needs API rebuild.) Pushed. Moved to Done.
 
 ## STATUS: Round 26 complete — Doing list drained.
+
+## Round 27
+- [x] `TwGPN6Jv` (reopened) — Reversed: green (success) tone now on "Atanmış", neutral on "Rutin". Pushed. Moved to Done.
+- [x] `Zg7XTWZx` (reopened) — Warning date pill now amber #fbbf24/border #f59e0b matching the wallboard Son Tarih yellow (was chip #facc15). Pushed. Moved to Done.

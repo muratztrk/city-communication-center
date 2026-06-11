@@ -12,7 +12,8 @@ function getDueTone(value: string | null | undefined): 'normal' | 'warning' | 'd
 }
 
 function formatDueDate(value: string | null | undefined, locale: string): string {
-  if (!value) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
+  // Son tarih girilmemiş talepler henüz onay beklediği için "Onay Bekleyen" gösterilir.
+  if (!value) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
   return new Date(value).toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',

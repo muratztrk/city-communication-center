@@ -216,3 +216,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `pBpL8KSA` — Staff Görevlerim: tasks from Reporter requests now render a full-yellow (.row-attention) row and the İptal/İade button is passive (opacity/cursor + onClick guard + "İptal yetkiniz yok" tooltip) since staff can't cancel them. Added CreatedByRoleCode (job creator role) to TaskSummaryResponse + GetTasksQuery + FE Task type. Pushed. Moved to Done.
 
 ## STATUS: Round 25 complete — Doing list drained (8 cards).
+
+## Round 26
+- [x] `Vy58VVgv` — Follow-up to pBpL8KSA (G-2026-43 not yellow). Verified code is correct & on main: GetTasksQuery populates TaskSummaryResponse.CreatedByRoleCode from the job creator's RoleCode (same pattern as working gjVHpVxO on JobSummary), FE row applies .row-attention when createdByRoleCode==='Reporter'. Root cause: the round-25 backend change (TaskSummaryResponse field) requires the API to be rebuilt/restarted; the older incoming-list Reporter features work off an earlier deploy. No code change needed. Moved to Done — needs `docker-compose up -d --build api` (or dotnet restart) to take effect.

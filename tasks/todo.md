@@ -204,3 +204,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 24
 - [x] `iLOr9Q5y` (reopened) — High-priority light red was too light (red-400) on yellow rows; darkened to red-500 (still distinct from VeryHigh red-600). Pushed. Moved to Done.
+
+## Round 25
+- [x] `L2NCcB6x` — Removed "Düşük" (Low) option from Rutin Görev Oluştur priority dropdown. Pushed. Moved to Done.
+- [x] `at3oWVCQ` — Updated Talep Oluştur kind descriptions: internal→"Kendi biriminizde birim içi talep sürecini oluşturun.", external→"Başka bir birime gidecek talep sürecini oluşturun." (tr locale + fallbacks). Pushed. Moved to Done.
+- [x] `q12UV1ZH` — Son Tarih DueDatePill empty value now "Onay Bekleyen" (was "Belirsiz"). Pushed. Moved to Done.
+- [x] `TwGPN6Jv` — Görev Tipi pill: green (success) tone on "Rutin", neutral on "Atanmış". Pushed. Moved to Done.

@@ -524,7 +524,7 @@ export function CreateRequestPage() {
               </span>
               <div>
                 <h2 className="text-lg font-extrabold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
-                <p className="mt-1 text-sm leading-5 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizden başlayan kurum içi talep oluşturun.')}</p>
+                <p className="mt-1 text-sm leading-5 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
               </div>
             </div>
           </button>
@@ -540,7 +540,7 @@ export function CreateRequestPage() {
               </span>
               <div>
                 <h2 className="text-lg font-extrabold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
-                <p className="mt-1 text-sm leading-5 text-slate-600">{t('requests.create.externalDescription', 'Başka bir müdürlüğe gidecek talep oluşturun.')}</p>
+                <p className="mt-1 text-sm leading-5 text-slate-600">{t('requests.create.externalDescription', 'Başka bir birime gidecek talep sürecini oluşturun.')}</p>
               </div>
             </div>
           </button>

@@ -122,6 +122,7 @@ export interface Task {
   taskNumberYear?: number | null;
   ownerDepartmentName?: string | null;
   updatedAtUtc?: string | null;
+  createdByRoleCode?: string | null;
 }
 
 export interface TaskDetail {

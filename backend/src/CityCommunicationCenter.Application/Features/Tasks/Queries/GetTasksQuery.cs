@@ -155,7 +155,15 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                         .Select(dept => (string?)dept.Name))
                     .FirstOrDefault(),
                 task.CompletedAtUtc,
-                task.UpdatedAtUtc))
+                task.UpdatedAtUtc,
+                // Talebi oluşturan kullanıcının rolü (ör. Üst Düzey Yönetici = Reporter).
+                _dbContext.Jobs
+                    .AsNoTracking()
+                    .Where(job => job.JobId == task.JobId)
+                    .SelectMany(job => _dbContext.Users
+                        .Where(u => u.UserId == job.CreatedByUserId)
+                        .Select(u => (string?)u.RoleCode.ToString()))
+                    .FirstOrDefault()))
             .ToListAsync(cancellationToken);
     }
 

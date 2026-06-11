@@ -213,3 +213,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `f9lbGfbT` — Reduced wallboard stat button height ~30% (padding 0.85→0.55rem, number font clamp ~2.4rem max, smaller label) to free vertical space for 10 rows. Pushed. Moved to Done.
 - [x] `Zg7XTWZx` — Warning (last-day) DueDatePill now solid yellow #facc15/border #eab308/text #422006 matching the "Onaylanmış Talepler" chip (was pale cream). Pushed. Moved to Done.
 - [x] `ZsEvcCnJ` — Unified cancel buttons to "İptal/İade" in Görevlerim (TasksPage now always shows choose step) + Birime Gelen. İade option shown but passive (opacity/cursor + onClick guard, pointer-events kept) with "İade yapılamaz" hover tooltip when not returnable: TasksPage internal/routine (canReturn false), Incoming Reporter rows (supersedes gjVHpVxO hide→disable). Pushed. Moved to Done.
+- [x] `pBpL8KSA` — Staff Görevlerim: tasks from Reporter requests now render a full-yellow (.row-attention) row and the İptal/İade button is passive (opacity/cursor + onClick guard + "İptal yetkiniz yok" tooltip) since staff can't cancel them. Added CreatedByRoleCode (job creator role) to TaskSummaryResponse + GetTasksQuery + FE Task type. Pushed. Moved to Done.
+
+## STATUS: Round 25 complete — Doing list drained (8 cards).

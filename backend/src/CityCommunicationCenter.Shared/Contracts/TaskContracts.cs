@@ -58,7 +58,8 @@ public sealed record TaskSummaryResponse(
     int? TaskNumberYear,
     string? OwnerDepartmentName,
     DateTimeOffset? CompletedAtUtc,
-    DateTimeOffset? UpdatedAtUtc);
+    DateTimeOffset? UpdatedAtUtc,
+    string? CreatedByRoleCode = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

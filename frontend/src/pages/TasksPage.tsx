@@ -1061,7 +1061,8 @@ const pageKicker = isMyTasksView
                   </tr>
                 )}
                 {pagedTasks.map((task, index) => (
-                  <tr key={task.taskId}>
+                  // Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (dikkat).
+                  <tr key={task.taskId} className={task.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">
                       <div>{formatTaskDisplayNumber(task)}</div>
@@ -1099,7 +1100,15 @@ const pageKicker = isMyTasksView
                           <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                         )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            /* Üst Düzey Yönetici talebinin görevini personel iptal edemez: buton pasif + ipucu. */
+                            aria-disabled={task.createdByRoleCode === 'Reporter'}
+                            title={task.createdByRoleCode === 'Reporter' ? t('tasks.actions.cancelNotAllowed', 'İptal yetkiniz yok') : undefined}
+                            className={task.createdByRoleCode === 'Reporter' ? 'cursor-not-allowed opacity-60' : undefined}
+                            onClick={() => { if (task.createdByRoleCode === 'Reporter') return; openReturnModal(task.taskId) }}
+                          >
                             {/* Tüm görevlerde tek tip "İptal/İade"; İade yapılamayan (Birim İçi/Rutin) görevlerde popup'ta İade pasif olur. */}
                             {t('tasks.actions.cancelReturn', 'İptal/İade')}
                           </Button>

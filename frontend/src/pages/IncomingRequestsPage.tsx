@@ -620,8 +620,8 @@ export function IncomingRequestsPage() {
                   </tr>
                 )}
                 {pagedRows.map((row, index) => (
-                  // Birime gelen aktif birim dışı talepler (personel atanmadan önce de, atanıp görev oluştuktan sonra da) sarı.
-                  <tr key={`${row.kind}-${row.id}`} className={row.kind === 'external' && row.status === 'Active' ? 'row-attention' : undefined}>
+                  // Yalnızca Üst Düzey Yönetici'den gelen aktif birim dışı talepler sarı.
+                  <tr key={`${row.kind}-${row.id}`} className={row.kind === 'external' && row.status === 'Active' && row.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">

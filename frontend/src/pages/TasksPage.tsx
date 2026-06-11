@@ -249,7 +249,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
   const [returnManagerId, setReturnManagerId] = useState('')
@@ -553,8 +553,10 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     // İade yalnızca farklı birimden gelen (Birim Dışı) talepte sunulur; Birim İçi ve
     // rutin görevlerde İade seçeneği yoktur — doğrudan İptal adımına geçilir.
     const canReturn = task?.jobRequestType === 'ExternalUnit' && !isRoutine
-    // Her zaman seçim adımı gösterilir; İade yapılamayan görevlerde İade butonu pasiftir.
-    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn })
+    // Üst Düzey Yönetici'den gelen görevde personelin iptal/iade yetkisi yoktur.
+    const isReporterTask = task?.createdByRoleCode === 'Reporter'
+    // Her zaman seçim adımı gösterilir; yetki yoksa ilgili butonlar pasiftir.
+    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')
@@ -1100,16 +1102,8 @@ const pageKicker = isMyTasksView
                           <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                         )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            /* Üst Düzey Yönetici talebinin görevini personel iptal edemez: buton pasif + ipucu. */
-                            aria-disabled={task.createdByRoleCode === 'Reporter'}
-                            title={task.createdByRoleCode === 'Reporter' ? t('tasks.actions.cancelNotAllowed', 'İptal yetkiniz yok') : undefined}
-                            className={task.createdByRoleCode === 'Reporter' ? 'cursor-not-allowed opacity-60' : undefined}
-                            onClick={() => { if (task.createdByRoleCode === 'Reporter') return; openReturnModal(task.taskId) }}
-                          >
-                            {/* Tüm görevlerde tek tip "İptal/İade"; İade yapılamayan (Birim İçi/Rutin) görevlerde popup'ta İade pasif olur. */}
+                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>
+                            {/* Tüm görevlerde tek tip "İptal/İade"; popup'ta İptal/İade seçenekleri yetkiye göre pasif olur. */}
                             {t('tasks.actions.cancelReturn', 'İptal/İade')}
                           </Button>
                         )}
@@ -1146,11 +1140,11 @@ const pageKicker = isMyTasksView
                   <Button
                     type="button"
                     variant="secondary"
-                    aria-disabled={!returnModal.canReturn}
-                    title={!returnModal.canReturn ? t('tasks.actions.returnNotAllowed', 'İade yapılamaz') : undefined}
-                    className={!returnModal.canReturn ? 'cursor-not-allowed opacity-60' : undefined}
+                    aria-disabled={!returnModal.canReturn || returnModal.isReporterTask}
+                    title={returnModal.isReporterTask ? t('tasks.actions.cancelNotAllowed', 'İade yetkiniz yok') : (!returnModal.canReturn ? t('tasks.actions.returnNotAllowed', 'İade yapılamaz') : undefined)}
+                    className={!returnModal.canReturn || returnModal.isReporterTask ? 'cursor-not-allowed opacity-60' : undefined}
                     onClick={() => {
-                      if (!returnModal.canReturn) return
+                      if (!returnModal.canReturn || returnModal.isReporterTask) return
                       if (isManagerLike && returnModal?.assignedDepartmentId) {
                         setReturnDeptId(returnModal.assignedDepartmentId)
                       }
@@ -1161,7 +1155,15 @@ const pageKicker = isMyTasksView
                       ? t('tasks.actions.returnToUnit', 'Birim İçi İade')
                       : t('tasks.actions.returnToManager', 'Yöneticiye İade')}
                   </Button>
-                  <Button type="button" variant="destructive" onClick={() => setReturnModal(m => m ? { ...m, step: 'cancel' } : null)}>
+                  {/* Üst Düzey Yönetici talebinin görevini personel iptal edemez: "Görevi İptal Et" pasif. */}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    aria-disabled={returnModal.isReporterTask}
+                    title={returnModal.isReporterTask ? t('tasks.actions.cancelNotAllowed', 'İptal yetkiniz yok') : undefined}
+                    className={returnModal.isReporterTask ? 'cursor-not-allowed opacity-60' : undefined}
+                    onClick={() => { if (returnModal.isReporterTask) return; setReturnModal(m => m ? { ...m, step: 'cancel' } : null) }}
+                  >
                     {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                   </Button>
                 </div>

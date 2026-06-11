@@ -1774,13 +1774,20 @@
   }
 
   .wallboard-back-button {
-    min-height: 2rem;
-    padding-inline: 0.75rem;
+    height: 1.75rem;
+    min-height: 1.75rem;
+    padding-inline: 0.6rem;
     border-color: rgba(255, 255, 255, 0.24);
     background: rgba(255, 255, 255, 0.92);
     color: #102033;
+    font-size: 0.7rem;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
     flex-shrink: 0;
+  }
+
+  .wallboard-back-button svg {
+    width: 0.72rem;
+    height: 0.72rem;
   }
 
   .wallboard-hero h1 {
@@ -1964,12 +1971,12 @@
     position: sticky;
     top: 0;
     z-index: 2;
-    padding: 0.95rem 1rem;
+    padding: 0.68rem 0.8rem;
     border-right: 1px solid rgba(255, 255, 255, 0.24);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     background: #102b39;
     color: rgba(226, 232, 240, 0.72);
-    font-size: clamp(0.8rem, 0.9vw, 1rem);
+    font-size: clamp(0.64rem, 0.72vw, 0.8rem);
     font-weight: 900;
     text-align: center;
     text-transform: uppercase;

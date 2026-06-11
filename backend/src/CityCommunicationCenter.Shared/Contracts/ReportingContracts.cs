@@ -37,3 +37,40 @@ public sealed record WorkloadReportItemResponse(
 public sealed record SocialTrendReportItemResponse(
     string Channel,
     int MessageCount);
+
+// ── Executive Report ─────────────────────────────────────────────────────
+
+public sealed record ExecutiveReportResponse(
+    ExecutiveKpiResponse Kpi,
+    IReadOnlyList<TimeSeriesPointResponse> TimeSeries,
+    IReadOnlyList<ChannelStatResponse> ByChannel,
+    IReadOnlyList<DepartmentStatResponse> ByDepartment);
+
+public sealed record ExecutiveKpiResponse(
+    int TotalRequests,
+    int CompletedRequests,
+    double CompletionRate,
+    double AvgResolutionHours,
+    double SlaComplianceRate,
+    int OverdueCount,
+    int PendingApprovals,
+    int OpenSocialMessages);
+
+public sealed record TimeSeriesPointResponse(
+    string Label,
+    int Created,
+    int Completed);
+
+public sealed record ChannelStatResponse(
+    string Channel,
+    int Count,
+    string ColorKey);
+
+public sealed record DepartmentStatResponse(
+    Guid DepartmentId,
+    string Name,
+    int Total,
+    int Completed,
+    double CompletionRate,
+    int OverdueCount,
+    double AvgResolutionHours);

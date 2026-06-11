@@ -63,4 +63,15 @@ public sealed class ReportsController : ApiControllerBase
         var response = await _sender.Send(new GetSocialTrendReportQuery(), cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("executive")]
+    public async Task<ActionResult<ExecutiveReportResponse>> GetExecutiveReport(
+        [FromQuery] string period = "monthly",
+        [FromQuery] DateTimeOffset? from = null,
+        [FromQuery] DateTimeOffset? to = null,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await _sender.Send(new GetExecutiveReportQuery(period, from, to), cancellationToken);
+        return Ok(response);
+    }
 }

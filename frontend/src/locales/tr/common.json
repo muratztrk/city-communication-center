@@ -590,7 +590,8 @@
     "empty": "Birime gelen talep bulunmuyor.",
     "columns": {
       "type": "Tip",
-      "requestLocationCreator": "Talep Yeri/Oluşturan"
+      "requestLocationCreator": "Talep Yeri/Oluşturan",
+      "cancelReturnStatus": "Durum"
     }
   },
   "social": {

@@ -589,7 +589,8 @@
     "empty": "No incoming unit requests.",
     "columns": {
       "type": "Type",
-      "requestLocationCreator": "Request Location/Creator"
+      "requestLocationCreator": "Request Location/Creator",
+      "cancelReturnStatus": "Status"
     }
   },
   "social": {

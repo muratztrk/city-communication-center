@@ -878,6 +878,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
                   {isDepartmentOutgoingView && <th>{t('jobs.columns.createdBy', 'Oluşturan')}</th>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <th>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</th>}
                   {(isMyRequestsView || isDepartmentOutgoingView)
                     ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
                     : <th>{t('jobs.columns.departments')}</th>
@@ -919,6 +920,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold">{job.title}</td>
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{job.status === 'Cancelled' ? t('jobs.actions.cancel', 'İptal') : t('jobs.actions.return', 'İade')}</td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
                         renderOutgoingDestination(job)

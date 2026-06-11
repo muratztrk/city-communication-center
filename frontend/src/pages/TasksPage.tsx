@@ -1064,6 +1064,7 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <th>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</th>}
                   {isDepartmentTasksView && (
                     <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
                   )}
@@ -1107,6 +1108,7 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td>{task.title}</td>
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{task.currentStatus === 'Cancelled' ? t('jobs.actions.cancel', 'İptal') : t('jobs.actions.return', 'İade')}</td>}
                     {isDepartmentTasksView && (
                       <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
                     )}

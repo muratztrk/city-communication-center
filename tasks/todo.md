@@ -237,3 +237,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 29 (manual check)
 - [x] `8xnSiTR5` — Görevi Yönlendir user dropdown now excludes the current task assignee (returnDeptUsers filters out the routed task's assignedUserId when directRoute). Pushed. Moved to Done.
+
+## Round 30 (manual check)
+- [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.
+- [x] `7RspesWl` — Added "Durum" column after Başlık in the İptal/İade Talepler (cancelled/rejected) views of Incoming/Jobs/Tasks grids, showing İptal (Cancelled) vs İade (Rejected/RevisionRequested). Added cancelReturnStatus i18n key (tr/en). Pushed. Moved to Done.

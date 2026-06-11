@@ -229,3 +229,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `taOkj8Gu` — İptal/İade not passive when a manager assigned the Reporter task to themselves: isReporterTask now `createdByRoleCode==='Reporter' && !isManagerLike`, so managers keep cancel/return; only staff are restricted. Pushed. Moved to Done.
 
 ## STATUS: Round 27 complete — Doing list drained.
+
+## Round 28 (manual check after stop request)
+- [x] `QGCJLtWm` — "Görevi Yönlendir" (task-route-button) forced light-blue with !important (Button primary variant's green bg utility was overriding the components-layer class). Pushed. Moved to Done.
+- [x] `EH7MK87u` — Incoming "Personel Ata" → "Onayla" for all active external (from another dept) requests, not just Reporter. Pushed. Moved to Done.
+- [x] `ZsEvcCnJ` (reopened) — Standard-user requests now show active İade in the popup: TasksPage choose-step İade passive only for Reporter tasks (removed the internal/routine !canReturn restriction); IncomingRequests already showed active İptal Et + İade Et for non-Reporter. Pushed. Moved to Done.

@@ -1178,11 +1178,11 @@ const pageKicker = isMyTasksView
                   <Button
                     type="button"
                     variant="secondary"
-                    aria-disabled={!returnModal.canReturn || returnModal.isReporterTask}
-                    title={returnModal.isReporterTask ? t('tasks.actions.cancelNotAllowed', 'İade yetkiniz yok') : (!returnModal.canReturn ? t('tasks.actions.returnNotAllowed', 'İade yapılamaz') : undefined)}
-                    className={!returnModal.canReturn || returnModal.isReporterTask ? 'cursor-not-allowed opacity-60' : undefined}
+                    aria-disabled={returnModal.isReporterTask}
+                    title={returnModal.isReporterTask ? t('tasks.actions.cancelNotAllowed', 'İade yetkiniz yok') : undefined}
+                    className={returnModal.isReporterTask ? 'cursor-not-allowed opacity-60' : undefined}
                     onClick={() => {
-                      if (!returnModal.canReturn || returnModal.isReporterTask) return
+                      if (returnModal.isReporterTask) return
                       if (isManagerLike && returnModal?.assignedDepartmentId) {
                         setReturnDeptId(returnModal.assignedDepartmentId)
                       }

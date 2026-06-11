@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -1169,7 +1169,16 @@ const pageKicker = isMyTasksView
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={closeReturnModal}
         >
-          <div className="form-card page-stack w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+            {/* Sağ üstte kapatma (X) ikonu. */}
+            <button
+              type="button"
+              onClick={closeReturnModal}
+              aria-label={t('common.close', 'Kapat')}
+              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+            >
+              <X className="size-4" />
+            </button>
 
             {/* ── STEP 1: seçim ── */}
             {returnModal.step === 'choose' && (

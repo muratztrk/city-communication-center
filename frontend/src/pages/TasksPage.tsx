@@ -1084,7 +1084,7 @@ const pageKicker = isMyTasksView
                     )}
                     {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
                       <td>
-                        <StatusPill tone={task.jobSourceType === 'Routine' ? 'success' : 'neutral'}>
+                        <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'}>
                           {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                         </StatusPill>
                       </td>

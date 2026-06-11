@@ -1042,15 +1042,16 @@
     white-space: nowrap;
   }
 
+  /* Açık mavi; Button primary variant'ının yeşil bg utility'sini (utilities layer) ezmek için !important. */
   .task-route-button {
-    border: 1px solid #7dd3fc;
-    background: #e0f2fe;
-    color: #075985;
+    border: 1px solid #7dd3fc !important;
+    background: #e0f2fe !important;
+    color: #075985 !important;
     box-shadow: none;
   }
 
   .task-route-button:hover {
-    background: #bae6fd;
+    background: #bae6fd !important;
   }
 
   .table-stack {

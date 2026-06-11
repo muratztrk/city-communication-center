@@ -304,9 +304,16 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     if (!myDepartmentId) return managerUsers
     return activeUsers.filter(u => u.roleCode === 'Manager' && userBelongsToDepartment(u, myDepartmentId))
   }, [activeUsers, managerUsers, myDepartmentId])
-  const returnDeptUsers = useMemo(() =>
-    returnDeptId ? activeUsers.filter(item => userBelongsToAnyDepartment(item, new Set([returnDeptId]))) : [],
-  [activeUsers, returnDeptId])
+  const returnDeptUsers = useMemo(() => {
+    if (!returnDeptId) return []
+    // Görevi Yönlendir: hedef listede mevcut görev sahibi personel gösterilmez.
+    const currentAssigneeId = returnModal?.directRoute
+      ? tasks.find(item => item.taskId === returnModal.taskId)?.assignedUserId ?? null
+      : null
+    return activeUsers
+      .filter(item => userBelongsToAnyDepartment(item, new Set([returnDeptId])))
+      .filter(item => item.userId !== currentAssigneeId)
+  }, [activeUsers, returnDeptId, returnModal, tasks])
   const staffUserParam = searchParams.get('userId') ?? 'all'
   const currentStaffUserId = staffUserParam !== 'all' && staffUserIds.has(staffUserParam) ? staffUserParam : 'all'
   const currentStaffUserLabel = currentStaffUserId === 'all'

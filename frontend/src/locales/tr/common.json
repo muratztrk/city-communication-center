@@ -554,6 +554,7 @@
       "cancelTask": "Görevi İptal Et",
       "cancelReason": "İptal Nedeni:",
       "routeTask": "Görevi Yönlendir",
+      "route": "Yönlendir",
       "redirectReporterTaskWithinUnit": "Görevi Birim İçi Yönlendir",
       "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz."
     },

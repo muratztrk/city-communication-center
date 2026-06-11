@@ -1313,8 +1313,17 @@ const pageKicker = isMyTasksView
                   >
                     {t('common.back', 'Geri')}
                   </Button>
-                  <Button type="button" variant="destructive" disabled={returnSaving || !returnDeptId} onClick={() => void handleReturn()}>
-                    {returnSaving ? t('common.loading') : t('tasks.actions.return', 'İade Et')}
+                  <Button
+                    type="button"
+                    variant={returnModal.directRoute ? 'success' : 'destructive'}
+                    disabled={returnSaving || !returnDeptId}
+                    onClick={() => void handleReturn()}
+                  >
+                    {returnSaving
+                      ? t('common.loading')
+                      : returnModal.directRoute
+                        ? t('tasks.actions.route', 'Yönlendir')
+                        : t('tasks.actions.return', 'İade Et')}
                   </Button>
                 </div>
               </>

@@ -920,7 +920,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold">{job.title}</td>
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{job.status === 'Cancelled' ? t('jobs.actions.cancel', 'İptal') : t('jobs.actions.return', 'İade')}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{job.status === 'Cancelled' ? 'İptal' : 'İade'}</td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
                         renderOutgoingDestination(job)

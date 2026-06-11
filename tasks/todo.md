@@ -242,3 +242,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.
 - [x] `7RspesWl` — Added "Durum" column after Başlık in the İptal/İade Talepler (cancelled/rejected) views of Incoming/Jobs/Tasks grids, showing İptal (Cancelled) vs İade (Rejected/RevisionRequested). Added cancelReturnStatus i18n key (tr/en). Pushed. Moved to Done.
 - [x] `X705MbI5` — Added top-right X close icon to the task İptal/İade/Yönlendir modal (closeReturnModal). Pushed. Moved to Done.
+
+## Round 31 (manual check)
+- [x] `X705MbI5` (reopened) — Route/return modal X close icon hover now red (hover:bg-red-50 hover:text-red-600); for directRoute (Görevi Birim İçi Yönlendir) the "Geri" button reads "Çıkış" and closes. Added common.exit (tr/en). Pushed. Moved to Done.
+- [x] `7RspesWl` (reopened) — Durum column now shows plain "İptal"/"İade" (was "İptal Et"/"İade Et" from jobs.actions keys) in Incoming/Jobs/Tasks. Pushed. Moved to Done.

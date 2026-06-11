@@ -636,7 +636,7 @@ export function IncomingRequestsPage() {
                       <div className="text-xs text-slate-500">{row.createdBy ?? '—'}</div>
                     </td>
                     <td className="font-semibold">{row.title}</td>
-                    {currentStatusFilter === 'cancelled' && <td>{row.status === 'Cancelled' ? t('jobs.actions.cancel', 'İptal') : t('jobs.actions.return', 'İade')}</td>}
+                    {currentStatusFilter === 'cancelled' && <td>{row.status === 'Cancelled' ? 'İptal' : 'İade'}</td>}
                     <td><DueDatePill value={row.dueDateUtc} locale={locale} /></td>
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}

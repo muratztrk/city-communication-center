@@ -50,6 +50,7 @@ const KIND_FILTERS: { value: IncomingKindFilter; labelKey: string; fallback: str
 
 type IncomingRequestRow = {
   id: string
+  jobId: string
   displayNumber: string
   kind: 'internal' | 'external'
   statusDomain: 'task' | 'job'
@@ -168,6 +169,7 @@ function formatTaskDisplayNumber(task: Task): string {
 function toInternalRow(task: Task): IncomingRequestRow {
   return {
     id: task.taskId,
+    jobId: task.jobId,
     displayNumber: formatTaskDisplayNumber(task),
     kind: 'internal',
     statusDomain: 'task',
@@ -183,7 +185,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,
     updatedAtUtc: task.updatedAtUtc ?? null,
-    createdByRoleCode: null,
+    createdByRoleCode: task.createdByRoleCode ?? null,
   }
 }
 
@@ -198,6 +200,7 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     : null
   return {
     id: job.jobId,
+    jobId: job.jobId,
     displayNumber: formatJobDisplayNumber(job),
     kind: 'external',
     statusDomain: 'job',
@@ -232,6 +235,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
   const ownerDept = job.departments?.find(d => d.role === 'Owner')
   return {
     id: job.jobId,
+    jobId: job.jobId,
     displayNumber: formatJobDisplayNumber(job),
     kind: 'internal',
     statusDomain: 'job',
@@ -404,18 +408,7 @@ export function IncomingRequestsPage() {
 
   const openCancelReturn = (row: IncomingRequestRow) => {
     if (row.statusDomain === 'task') {
-      setPromptDialog({
-        title: t('tasks.actions.cancelReason', 'İptal Nedeni:'),
-        onConfirm: async (reason) => {
-          setError(null)
-          try {
-            await api.cancelTask(row.id, reason)
-            await reload()
-          } catch (err) {
-            setError(err instanceof Error ? err.message : t('common.error'))
-          }
-        },
-      })
+      setCancelReturnModal({ row })
     } else if (row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval') {
       setCancelReturnModal({ row })
     } else {
@@ -726,7 +719,11 @@ export function IncomingRequestsPage() {
                     onConfirm: async (reason) => {
                       setError(null)
                       try {
-                        await api.cancelJob(row.id, reason)
+                        if (row.statusDomain === 'task') {
+                          await api.cancelTask(row.id, reason)
+                        } else {
+                          await api.cancelJob(row.id, reason)
+                        }
                         await reload()
                       } catch (err) {
                         setError(err instanceof Error ? err.message : t('common.error'))
@@ -753,7 +750,7 @@ export function IncomingRequestsPage() {
                     onConfirm: async (reason) => {
                       setError(null)
                       try {
-                        await api.returnJob(row.id, reason)
+                        await api.returnJob(row.jobId, reason)
                         await reload()
                       } catch (err) {
                         setError(err instanceof Error ? err.message : t('common.error'))

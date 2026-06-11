@@ -2162,10 +2162,11 @@
     color: var(--color-text-muted, #475569);
   }
 
+  /* "Onaylanmış Talepler" chip'iyle aynı sarı (krem değil). */
   .due-date-pill.warning {
-    background: rgba(251, 191, 36, 0.16);
-    border: 1px solid rgba(251, 191, 36, 0.4);
-    color: #b45309;
+    background: #facc15;
+    border: 1px solid #eab308;
+    color: #422006;
     font-weight: 700;
   }
 

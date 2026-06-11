@@ -211,3 +211,4 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `q12UV1ZH` — Son Tarih DueDatePill empty value now "Onay Bekleyen" (was "Belirsiz"). Pushed. Moved to Done.
 - [x] `TwGPN6Jv` — Görev Tipi pill: green (success) tone on "Rutin", neutral on "Atanmış". Pushed. Moved to Done.
 - [x] `f9lbGfbT` — Reduced wallboard stat button height ~30% (padding 0.85→0.55rem, number font clamp ~2.4rem max, smaller label) to free vertical space for 10 rows. Pushed. Moved to Done.
+- [x] `Zg7XTWZx` — Warning (last-day) DueDatePill now solid yellow #facc15/border #eab308/text #422006 matching the "Onaylanmış Talepler" chip (was pale cream). Pushed. Moved to Done.

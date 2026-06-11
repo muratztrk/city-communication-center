@@ -1845,9 +1845,10 @@
 
   .wallboard-stats > button {
     min-width: 0;
-    padding: 0.85rem 1rem;
+    /* Buton yüksekliği ~%30 azaltıldı (gridview'da 10 kayıt scroll'suz sığsın). */
+    padding: 0.55rem 1rem;
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 1rem;
+    border-radius: 0.85rem;
     background: rgba(255, 255, 255, 0.1);
     text-align: left;
     cursor: pointer;
@@ -1866,7 +1867,7 @@
 
   .wallboard-stats span {
     display: block;
-    font-size: clamp(1.8rem, 3.2vw, 3.4rem);
+    font-size: clamp(1.3rem, 2.3vw, 2.4rem);
     line-height: 1;
     font-weight: 900;
     /* Öncelik turuncusunun biraz açık tonu (text-orange-400). */
@@ -1874,8 +1875,8 @@
   }
 
   .wallboard-stats p {
-    margin: 0.35rem 0 0;
-    font-size: clamp(0.82rem, 1vw, 1.1rem);
+    margin: 0.2rem 0 0;
+    font-size: clamp(0.74rem, 0.9vw, 1rem);
     font-weight: 800;
     color: rgba(255, 255, 255, 0.74);
   }

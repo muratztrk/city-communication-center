@@ -452,6 +452,7 @@ export function IncomingRequestsPage() {
   // Bir satırın bir sütunundaki görünen metni döndürür; hem kolon filtreleri hem banner araması kullanır.
   const getColumnValue = useCallback((key: string, r: IncomingRequestRow): string => {
     if (key === 'status') return r.statusDomain === 'task' ? getTaskStatusLabel(t, r.status) : getJobStatusLabel(t, r.status)
+    if (key === 'cancelReturnStatus') return r.status === 'Cancelled' ? 'İptal' : 'İade'
     if (key === 'displayNumber') return r.displayNumber
     if (key === 'priority') return getPriorityLabel(t, r.priority)
     if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
@@ -606,8 +607,8 @@ export function IncomingRequestsPage() {
                   <FilterableTh filterKey="createdAtUtc" filterValue={incomingFilters['createdAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdBy" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestLocationCreator', 'Talep Yeri/Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
-                  {currentStatusFilter === 'cancelled' && <th>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</th>}
-                  <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>
+                  {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="cancelReturnStatus" filterValue={incomingFilters['cancelReturnStatus'] ?? ''} onFilter={setIncomingFilter} sortKey="cancelReturnStatus" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</FilterableTh>}
+                  {currentStatusFilter !== 'cancelled' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="updatedAtUtc" filterValue={incomingFilters['updatedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="updatedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelledAt', 'İptal/İade Tarihi')}</FilterableTh>}
@@ -637,7 +638,7 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold">{row.title}</td>
                     {currentStatusFilter === 'cancelled' && <td>{row.status === 'Cancelled' ? 'İptal' : 'İade'}</td>}
-                    <td><DueDatePill value={row.dueDateUtc} locale={locale} /></td>
+                    {currentStatusFilter !== 'cancelled' && <td><DueDatePill value={row.dueDateUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} /></td>}
@@ -734,7 +735,7 @@ export function IncomingRequestsPage() {
                   })
                 }}
               >
-                {t('jobs.actions.cancel', 'İptal Et')}
+                {t('common.cancel', 'İptal')}
               </Button>
               {/* Üst Düzey Yönetici'den gelen talepte İade yapılamaz: buton pasif görünür + "İade yapılamaz" ipucu (pointer-events korunur ki title görünsün). */}
               <Button
@@ -764,7 +765,7 @@ export function IncomingRequestsPage() {
                 {t('jobs.actions.return', 'İade Et')}
               </Button>
               <Button type="button" variant="secondary" onClick={() => setCancelReturnModal(null)}>
-                {t('common.cancel', 'Vazgeç')}
+                {t('common.dismiss', 'Vazgeç')}
               </Button>
             </div>
           </div>

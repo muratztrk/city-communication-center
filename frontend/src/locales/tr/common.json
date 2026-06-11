@@ -28,7 +28,8 @@
     "yes": "Evet",
     "no": "Hayır",
     "unspecified": "Belirsiz",
-    "exit": "Çıkış"
+    "exit": "Çıkış",
+    "dismiss": "Vazgeç"
   },
   "filters": {
     "requestFlow": {
@@ -557,7 +558,8 @@
       "routeTask": "Görevi Yönlendir",
       "route": "Yönlendir",
       "redirectReporterTaskWithinUnit": "Görevi Birim İçi Yönlendir",
-      "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz."
+      "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.",
+      "returnTask": "Görevi İade Et"
     },
     "return": "İade Et",
     "returnTitle": "Görevi İade Et",

@@ -246,3 +246,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 31 (manual check)
 - [x] `X705MbI5` (reopened) — Route/return modal X close icon hover now red (hover:bg-red-50 hover:text-red-600); for directRoute (Görevi Birim İçi Yönlendir) the "Geri" button reads "Çıkış" and closes. Added common.exit (tr/en). Pushed. Moved to Done.
 - [x] `7RspesWl` (reopened) — Durum column now shows plain "İptal"/"İade" (was "İptal Et"/"İade Et" from jobs.actions keys) in Incoming/Jobs/Tasks. Pushed. Moved to Done.
+
+## Round 32 (manual check)
+- [x] `7RspesWl` (reopened) — Durum column now a FilterableTh (sort + filter) in Incoming/Jobs/Tasks; added cancelReturnStatus to each grid's column accessor (İptal/İade). Pushed. Moved to Done.
+- [x] `pE3EAIQ7` — Removed Son Tarih column from the İptal/İade (cancelled/rejected) views in Incoming/Jobs/Tasks. Pushed. Moved to Done.
+- [x] `8J3uzZuF` — Görevlerim choose popup İade button relabeled "Görevi İade Et" (İptal already "Görevi İptal Et"); routing redirect label kept. Pushed. Moved to Done.
+- [x] `ZsEvcCnJ` (reopened) — Incoming İptal/İade popup buttons: cancel action "İptal" (was "İptal Et"), dismiss "Vazgeç" (common.dismiss, was colliding with common.cancel="İptal"); İade Et unchanged. Added common.dismiss + tasks.actions.returnTask (tr/en). Pushed. Moved to Done.

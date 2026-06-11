@@ -414,6 +414,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       }))
       .filter(task => taskMatchesFilters(task, (key, row) => {
         if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)
+        if (key === 'cancelReturnStatus') return row.currentStatus === 'Cancelled' ? 'İptal' : 'İade'
         if (key === 'priority') return getPriorityLabel(t, row.priority)
         if (key === 'taskNumber') return formatTaskDisplayNumber(row)
         if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
@@ -1064,14 +1065,14 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
-                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <th>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</th>}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="cancelReturnStatus" filterValue={taskFilters['cancelReturnStatus'] ?? ''} onFilter={setTaskFilter} sortKey="cancelReturnStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</FilterableTh>}
                   {isDepartmentTasksView && (
                     <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
                   )}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
                     <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="jobSourceType" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskType', 'Görev Tipi')}</FilterableTh>
                   )}
-                  <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>
+                  {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={taskFilters['completedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="completedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={taskFilters['updatedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="updatedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.cancelledAt', 'İptal/İade Tarihi')}</FilterableTh>}
                   <th>{t('tasks.columns.actions', 'İşlemler')}</th>
@@ -1119,7 +1120,7 @@ const pageKicker = isMyTasksView
                         </StatusPill>
                       </td>
                     )}
-                    <td><DueDatePill value={task.dueDateUtc} locale={locale} /></td>
+                    {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <td><DueDatePill value={task.dueDateUtc} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
                     <td className="actions-cell">
@@ -1207,11 +1208,9 @@ const pageKicker = isMyTasksView
                       setReturnModal(m => m ? { ...m, step: 'return' } : null)
                     }}
                   >
-                    {isManagerLike
-                      ? returnModal.useManagerReporterRedirectLabel
-                        ? t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')
-                        : t('tasks.actions.returnToUnit', 'Birim İçi İade')
-                      : t('tasks.actions.returnToManager', 'Yöneticiye İade')}
+                    {isManagerLike && returnModal.useManagerReporterRedirectLabel
+                      ? t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')
+                      : t('tasks.actions.returnTask', 'Görevi İade Et')}
                   </Button>
                   {/* Üst Düzey Yönetici talebinin görevini personel iptal edemez: "Görevi İptal Et" pasif. */}
                   <Button

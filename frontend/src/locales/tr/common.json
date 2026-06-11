@@ -550,6 +550,10 @@
     "assign": "Ata",
     "claim": "Üstlen",
     "complete": "Tamamla",
+    "actions": {
+      "cancelTask": "Görevi İptal Et",
+      "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz."
+    },
     "return": "İade Et",
     "returnTitle": "Görevi İade Et",
     "returnHelp": "Görevi iade etmek için açıklama yazınız.",
@@ -1149,7 +1153,6 @@
       "selfRequestedOwner": "(Görevi kendisi yapmak istiyor.)",
       "cancel": "İptal Et",
       "return": "İade Et",
-      "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.",
       "returnTitle": "Talebi İade Et",
       "returnHelp": "Talebi iade etmek için açıklama yazınız.",
       "returnReason": "İade Açıklaması",

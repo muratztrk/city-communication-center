@@ -549,6 +549,10 @@
     "assign": "Assign",
     "claim": "Claim",
     "complete": "Complete",
+    "actions": {
+      "cancelTask": "Cancel Task",
+      "reporterTaskCancelReturnDenied": "You are not authorized to cancel a task requested by a Senior Executive. Contact your manager to return the task."
+    },
     "return": "Return",
     "returnTitle": "Return Task",
     "returnHelp": "Please write a description to return this task.",
@@ -1125,7 +1129,6 @@
       "selfRequestedOwner": "(Wants to do the task personally.)",
       "cancel": "Cancel",
       "return": "Return",
-      "reporterTaskCancelReturnDenied": "You are not authorized to cancel a task requested by a Senior Executive. Contact your manager to return the task.",
       "returnTitle": "Return Request",
       "returnHelp": "Please write a description to return this request.",
       "returnReason": "Return Description",

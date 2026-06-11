@@ -405,7 +405,7 @@ export function IncomingRequestsPage() {
   const openCancelReturn = (row: IncomingRequestRow) => {
     if (row.statusDomain === 'task') {
       setPromptDialog({
-        title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
+        title: t('tasks.actions.cancelTask', 'Görevi İptal Et'),
         onConfirm: async (reason) => {
           setError(null)
           try {

@@ -113,7 +113,6 @@ export function RoutineTaskPage() {
                 <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
                 <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
                 <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
               </select>
             </div>
 

@@ -1125,6 +1125,7 @@
       "selfRequestedOwner": "(Wants to do the task personally.)",
       "cancel": "Cancel",
       "return": "Return",
+      "reporterTaskCancelReturnDenied": "You are not authorized to cancel a task requested by a Senior Executive. Contact your manager to return the task.",
       "returnTitle": "Return Request",
       "returnHelp": "Please write a description to return this request.",
       "returnReason": "Return Description",

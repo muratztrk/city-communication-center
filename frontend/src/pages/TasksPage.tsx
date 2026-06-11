@@ -1136,7 +1136,14 @@ const pageKicker = isMyTasksView
             {returnModal.step === 'choose' && (
               <>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelReturnTitle', 'Görev İptal / İade')}</h2>
-                <p className="helper-copy">{t('tasks.actions.cancelReturnHelp', 'Göreve ne yapmak istediğinizi seçin.')}</p>
+                <p className="helper-copy">
+                  {returnModal.isReporterTask
+                    ? t(
+                        'tasks.actions.reporterTaskCancelReturnDenied',
+                        "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.",
+                      )
+                    : t('tasks.actions.cancelReturnHelp', 'Göreve ne yapmak istediğinizi seçin.')}
+                </p>
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     type="button"

@@ -249,7 +249,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
   const [returnManagerId, setReturnManagerId] = useState('')
@@ -556,8 +556,12 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     // Üst Düzey Yönetici'den gelen görevde personelin iptal/iade yetkisi yoktur;
     // ancak görevi kendine atayan yönetici iptal/iade edebilir (yönetici hariç tutulur).
     const isReporterTask = task?.createdByRoleCode === 'Reporter' && !isManagerLike
+    const useManagerReporterRedirectLabel =
+      task?.createdByRoleCode === 'Reporter' &&
+      isManagerLike &&
+      task.assignedUserId === user?.userId
     // Her zaman seçim adımı gösterilir; yetki yoksa ilgili butonlar pasiftir.
-    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask })
+    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask, useManagerReporterRedirectLabel })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')
@@ -1160,7 +1164,9 @@ const pageKicker = isMyTasksView
                     }}
                   >
                     {isManagerLike
-                      ? t('tasks.actions.returnToUnit', 'Birim İçi İade')
+                      ? returnModal.useManagerReporterRedirectLabel
+                        ? t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')
+                        : t('tasks.actions.returnToUnit', 'Birim İçi İade')
                       : t('tasks.actions.returnToManager', 'Yöneticiye İade')}
                   </Button>
                   {/* Üst Düzey Yönetici talebinin görevini personel iptal edemez: "Görevi İptal Et" pasif. */}
@@ -1246,7 +1252,11 @@ const pageKicker = isMyTasksView
             {/* ── STEP 2b: İade (Manager → Aynı birim içinde kullanıcı seç) ── */}
             {returnModal.step === 'return' && isManagerLike && (
               <>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnToUnit', 'Birim İçi İade')}</h2>
+                <h2 className="text-xl font-extrabold text-slate-950">
+                  {returnModal.useManagerReporterRedirectLabel
+                    ? t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')
+                    : t('tasks.actions.returnToUnit', 'Birim İçi İade')}
+                </h2>
                 <p className="helper-copy">{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde iade edilebilir.')}</p>
                 <div className="job-field">
                   <span className="job-field-label">{t('tasks.department', 'Birim')}</span>

@@ -552,6 +552,7 @@
     "complete": "Tamamla",
     "actions": {
       "cancelTask": "Görevi İptal Et",
+      "cancelReason": "İptal Nedeni:",
       "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz."
     },
     "return": "İade Et",

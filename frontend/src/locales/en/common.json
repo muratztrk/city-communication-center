@@ -551,6 +551,7 @@
     "complete": "Complete",
     "actions": {
       "cancelTask": "Cancel Task",
+      "cancelReason": "Cancellation Reason:",
       "reporterTaskCancelReturnDenied": "You are not authorized to cancel a task requested by a Senior Executive. Contact your manager to return the task."
     },
     "return": "Return",

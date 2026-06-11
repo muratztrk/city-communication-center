@@ -1871,7 +1871,6 @@
   }
 
   .wallboard-stats > button.active {
-    background: rgba(251, 146, 60, 0.18);
     border-color: #fb923c;
   }
 

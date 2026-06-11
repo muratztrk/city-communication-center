@@ -1108,7 +1108,7 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td>{task.title}</td>
-                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{task.currentStatus === 'Cancelled' ? t('jobs.actions.cancel', 'İptal') : t('jobs.actions.return', 'İade')}</td>}
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{task.currentStatus === 'Cancelled' ? 'İptal' : 'İade'}</td>}
                     {isDepartmentTasksView && (
                       <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
                     )}
@@ -1175,7 +1175,7 @@ const pageKicker = isMyTasksView
               type="button"
               onClick={closeReturnModal}
               aria-label={t('common.close', 'Kapat')}
-              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
             >
               <X className="size-4" />
             </button>
@@ -1329,7 +1329,7 @@ const pageKicker = isMyTasksView
                       setReturnModal(m => m ? { ...m, step: 'choose' } : null)
                     }}
                   >
-                    {t('common.back', 'Geri')}
+                    {returnModal.directRoute ? t('common.exit', 'Çıkış') : t('common.back', 'Geri')}
                   </Button>
                   <Button
                     type="button"

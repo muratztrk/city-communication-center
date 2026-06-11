@@ -27,7 +27,8 @@
     "disabled": "Pasif",
     "yes": "Evet",
     "no": "Hayır",
-    "unspecified": "Belirsiz"
+    "unspecified": "Belirsiz",
+    "exit": "Çıkış"
   },
   "filters": {
     "requestFlow": {

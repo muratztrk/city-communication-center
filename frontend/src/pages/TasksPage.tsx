@@ -249,7 +249,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
   const [returnManagerId, setReturnManagerId] = useState('')
@@ -561,12 +561,28 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       isManagerLike &&
       task.assignedUserId === user?.userId
     // Her zaman seçim adımı gösterilir; yetki yoksa ilgili butonlar pasiftir.
-    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask, useManagerReporterRedirectLabel })
+    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask, useManagerReporterRedirectLabel, directRoute: false })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')
     setReturnDeptId('')
     setReturnUserId('')
+  }
+
+  const openDepartmentRouteModal = (task: Task) => {
+    setReturnModal({
+      taskId: task.taskId,
+      step: 'return',
+      assignedDepartmentId: task.assignedDepartmentId,
+      isRoutine: false,
+      canReturn: true,
+      isReporterTask: false,
+      useManagerReporterRedirectLabel: true,
+      directRoute: true,
+    })
+    setReturnDeptId(task.assignedDepartmentId ?? '')
+    setReturnUserId('')
+    setReturnReason('')
   }
 
   const closeReturnModal = () => {
@@ -1100,6 +1116,16 @@ const pageKicker = isMyTasksView
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
+                        {isDepartmentTasksView && isManagerLike && task.assignedDepartmentId && (
+                          task.currentStatus === 'Waiting' ||
+                          task.currentStatus === 'Assigned' ||
+                          task.currentStatus === 'InProgress' ||
+                          task.currentStatus === 'PendingCloseApproval'
+                        ) && (
+                          <Button size="sm" onClick={() => openDepartmentRouteModal(task)}>
+                            {t('tasks.actions.routeTask', 'Görevi Yönlendir')}
+                          </Button>
+                        )}
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
@@ -1274,7 +1300,17 @@ const pageKicker = isMyTasksView
                   </select>
                 </label>
                 <div className="inline-actions">
-                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      if (returnModal.directRoute) {
+                        closeReturnModal()
+                        return
+                      }
+                      setReturnModal(m => m ? { ...m, step: 'choose' } : null)
+                    }}
+                  >
                     {t('common.back', 'Geri')}
                   </Button>
                   <Button type="button" variant="destructive" disabled={returnSaving || !returnDeptId} onClick={() => void handleReturn()}>

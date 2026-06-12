@@ -1,4 +1,4 @@
-import { ArrowRight, Search } from 'lucide-react'
+import { ArrowRight, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -68,6 +68,7 @@ type IncomingRequestRow = {
   completedAtUtc: string | null
   updatedAtUtc: string | null
   createdByRoleCode: string | null
+  cancelReturnStatus?: string
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -412,9 +413,10 @@ export function IncomingRequestsPage() {
     } else if (row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval') {
       setCancelReturnModal({ row })
     } else {
-      // Pending approval — İptal/İade ile reddedilir; başlık "İptal Nedeni:" gösterilir.
+      // Pending approval — İptal/İade ile reddedilir; başlık "İptal Nedeni:", onay butonu "İptali Onayla".
       setPromptDialog({
         title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
+        confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
         onConfirm: async (reason) => {
           setError(null)
           try {
@@ -494,7 +496,10 @@ export function IncomingRequestsPage() {
   const { filters: incomingFilters, setFilter: setIncomingFilter, clearFilters: clearIncomingFilters, matchesFilters: incomingMatchesFilters } = useColumnFilters()
 
   const columnFilteredRows = useMemo(
-    () => visibleRows.filter(row => incomingMatchesFilters(row, getColumnValue)),
+    // cancelReturnStatus'u satıra ekle ki sıralama (obj[sortKey]) çalışsın; filtre getColumnValue ile.
+    () => visibleRows
+      .map(row => ({ ...row, cancelReturnStatus: row.status === 'Cancelled' ? 'İptal' : 'İade' }))
+      .filter(row => incomingMatchesFilters(row, getColumnValue)),
     [visibleRows, incomingMatchesFilters, getColumnValue],
   )
 
@@ -704,9 +709,12 @@ export function IncomingRequestsPage() {
           role="presentation"
         >
           <div
-            className="w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
+            <button type="button" onClick={() => setCancelReturnModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <X className="size-4" />
+            </button>
             <h3 className="mb-1 text-base font-bold text-slate-950">{t('jobs.actions.cancelOrReturn', 'İptal / İade')}</h3>
             <p className="mb-5 text-sm text-slate-600">{t('jobs.actions.cancelOrReturnHelp', 'Bu talep için ne yapmak istiyorsunuz?')}</p>
             <div className="flex flex-col gap-2">
@@ -780,9 +788,12 @@ export function IncomingRequestsPage() {
           role="presentation"
         >
           <div
-            className="w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
+            <button type="button" onClick={() => setStaffAssignModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <X className="size-4" />
+            </button>
             <h3 className="mb-1 text-base font-bold text-slate-950">
               {staffAssignModal.approvalType === 'assign'
                 ? t('jobs.actions.assignStaff', 'Personel Ata')

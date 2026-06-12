@@ -411,6 +411,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       .map(task => ({
         ...task,
         taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
+        cancelReturnStatus: task.currentStatus === 'Cancelled' ? 'İptal' : 'İade',
       }))
       .filter(task => taskMatchesFilters(task, (key, row) => {
         if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)

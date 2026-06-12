@@ -510,7 +510,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
           : job.ownerDepartmentName ?? ''
         const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
-        return { ...job, destinationText, ownerDecidedAtUtc }
+        const cancelReturnStatus = job.status === 'Cancelled' ? 'İptal' : 'İade'
+        return { ...job, destinationText, ownerDecidedAtUtc, cancelReturnStatus }
       })
       .filter(job => jobMatchesFilters(job, (key, row) => {
         if (key === 'destinationText') return row.destinationText

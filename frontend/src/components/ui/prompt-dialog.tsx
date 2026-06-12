@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type React from 'react'
 import { useTranslation } from 'react-i18next'
+import { X } from 'lucide-react'
 import { Button } from './button'
 
 export interface PromptDialogState {
@@ -52,9 +53,17 @@ export function PromptDialog({ state, onClose }: PromptDialogProps) {
       role="presentation"
     >
       <div
-        className="w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
+        <button
+          type="button"
+          onClick={handleClose}
+          aria-label={t('common.close', 'Kapat')}
+          className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+        >
+          <X className="size-4" />
+        </button>
         <h3 className="mb-4 text-base font-semibold text-slate-900">{state.title}</h3>
         {state.label && <label className="mb-1 block text-sm font-medium text-slate-700">{state.label}</label>}
         <textarea

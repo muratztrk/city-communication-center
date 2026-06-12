@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { X } from 'lucide-react'
 import { Button } from './button'
 
 export interface ConfirmDialogState {
@@ -30,10 +31,18 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
       role="presentation"
     >
       <div
-        className="w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <p className="mb-6 text-sm text-slate-700">{state.message}</p>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t('common.close', 'Kapat')}
+          className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+        >
+          <X className="size-4" />
+        </button>
+        <p className="mb-6 mt-2 text-sm text-slate-700">{state.message}</p>
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             {state.cancelLabel ?? t('common.cancel', 'İptal')}

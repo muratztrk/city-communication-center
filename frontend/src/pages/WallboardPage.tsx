@@ -324,7 +324,7 @@ export function WallboardPage() {
                       <td>
                         <div>{item.taskNumber ?? '—'}</div>
                         {item.priority ? (
-                          <div className={`wallboard-priority-text ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
+                          <div className={`wallboard-priority-text ${item.isReporterRequest && item.priority === 'Normal' ? 'text-white' : getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
                         ) : null}
                       </td>
                       <td>

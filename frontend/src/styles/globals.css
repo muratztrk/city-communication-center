@@ -923,6 +923,11 @@
     background: #f59e0b !important;
   }
 
+  /* Art arda gelen sarı satırlarda ayırıcı çizgiyi belirginleştir. */
+  .data-table tbody tr.row-attention + tr.row-attention td {
+    border-top: 1px solid rgba(120, 53, 15, 0.42) !important;
+  }
+
   .data-table--zebra tbody tr:nth-child(even):hover td {
     background: rgba(241, 245, 249, 0.9);
   }
@@ -2019,9 +2024,8 @@
     border-left: 1px solid rgba(0, 0, 0, 0.1);
   }
 
-  .wallboard-table tbody tr.reporter-row .wallboard-priority-text,
-  .wallboard-table tbody tr.reporter-row .wallboard-priority-text.text-yellow-500 {
-    color: white;
+  .wallboard-table tbody tr.reporter-row + tr.reporter-row td {
+    border-top: 1px solid rgba(66, 32, 6, 0.42);
   }
 
   .wallboard-table tbody td {

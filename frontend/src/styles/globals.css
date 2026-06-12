@@ -1799,20 +1799,21 @@
   }
 
   .wallboard-back-button {
-    height: 1.5rem;
-    min-height: 1.5rem;
-    padding-inline: 0.5rem;
+    height: 1.35rem;
+    min-height: 1.35rem;
+    padding-inline: 0.4rem;
     border-color: rgba(255, 255, 255, 0.24);
     background: rgba(255, 255, 255, 0.92);
     color: #102033;
-    font-size: 0.66rem;
+    font-size: 0.62rem;
+    line-height: 1;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
     flex-shrink: 0;
   }
 
   .wallboard-back-button svg {
-    width: 0.64rem;
-    height: 0.64rem;
+    width: 0.58rem;
+    height: 0.58rem;
   }
 
   .wallboard-hero h1 {
@@ -2037,6 +2038,7 @@
   }
 
   .wallboard-table tbody tr.reporter-row .wallboard-cell-icon {
+    color: #000;
     border-color: rgba(255, 255, 255, 0.9);
   }
 

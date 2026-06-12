@@ -235,8 +235,8 @@ export function WallboardPage() {
           </button>
           <div>
             <div className="wallboard-kicker-row">
-              <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')} className="wallboard-back-button gap-1.5">
-                <ArrowLeft className="size-3.5" />
+              <Button type="button" size="sm" variant="secondary" onClick={() => navigate('/dashboard')} className="wallboard-back-button gap-1">
+                <ArrowLeft className="size-3" />
                 {t('common.back', 'Geri')}
               </Button>
               <div className="wallboard-kicker">{t('wallboard.kicker', 'Canlı Ekran')}</div>

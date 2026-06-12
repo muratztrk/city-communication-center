@@ -275,8 +275,7 @@ export function IncomingRequestsPage() {
   const [searchText, setSearchText] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
-  const [cancelReturnModal, setCancelReturnModal] = useState<{ row: IncomingRequestRow } | null>(null)
-  const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
+const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
     approvalType: 'owner' | 'assign'
@@ -454,7 +453,7 @@ export function IncomingRequestsPage() {
   // Bir satırın bir sütunundaki görünen metni döndürür; hem kolon filtreleri hem banner araması kullanır.
   const getColumnValue = useCallback((key: string, r: IncomingRequestRow): string => {
     if (key === 'status') return r.statusDomain === 'task' ? getTaskStatusLabel(t, r.status) : getJobStatusLabel(t, r.status)
-    if (key === 'cancelReturnStatus') return r.status === 'Cancelled' ? 'İptal' : 'İade'
+    if (key === 'cancelReturnStatus') return 'İptal'
     if (key === 'displayNumber') return r.displayNumber
     if (key === 'priority') return getPriorityLabel(t, r.priority)
     if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
@@ -498,7 +497,7 @@ export function IncomingRequestsPage() {
   const columnFilteredRows = useMemo(
     // cancelReturnStatus'u satıra ekle ki sıralama (obj[sortKey]) çalışsın; filtre getColumnValue ile.
     () => visibleRows
-      .map(row => ({ ...row, cancelReturnStatus: row.status === 'Cancelled' ? 'İptal' : 'İade' }))
+      .map(row => ({ ...row, cancelReturnStatus: 'İptal' }))
       .filter(row => incomingMatchesFilters(row, getColumnValue)),
     [visibleRows, incomingMatchesFilters, getColumnValue],
   )
@@ -511,7 +510,6 @@ export function IncomingRequestsPage() {
       clearIncomingFilters()
       setConfirmDialog(null)
       setPromptDialog(null)
-      setCancelReturnModal(null)
       setStaffAssignModal(null)
       setError(null)
     })
@@ -701,85 +699,6 @@ export function IncomingRequestsPage() {
             onPageChange={setIncomingPage}
           />
         </section>
-      )}
-      {cancelReturnModal && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setCancelReturnModal(null)}
-          role="presentation"
-        >
-          <div
-            className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <button type="button" onClick={() => setCancelReturnModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
-              <X className="size-4" />
-            </button>
-            <h3 className="mb-1 text-base font-bold text-slate-950">
-              {cancelReturnModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
-            </h3>
-            <p className="mb-5 text-sm text-slate-600">{t('jobs.actions.cancelOrReturnHelp', 'Bu talep için ne yapmak istiyorsunuz?')}</p>
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => {
-                  const { row } = cancelReturnModal
-                  setCancelReturnModal(null)
-                  setPromptDialog({
-                    title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
-                    confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
-                    onConfirm: async (reason) => {
-                      setError(null)
-                      try {
-                        if (row.statusDomain === 'task') {
-                          await api.cancelTask(row.id, reason)
-                        } else {
-                          await api.cancelJob(row.id, reason)
-                        }
-                        await reload()
-                      } catch (err) {
-                        setError(err instanceof Error ? err.message : t('common.error'))
-                      }
-                    },
-                  })
-                }}
-              >
-                {t('common.cancel', 'İptal')}
-              </Button>
-              {/* Üst Düzey Yönetici'den gelen talepte İade yapılamaz: buton pasif görünür + "İade yapılamaz" ipucu (pointer-events korunur ki title görünsün). */}
-              <Button
-                type="button"
-                variant="secondary"
-                aria-disabled={cancelReturnModal.row.createdByRoleCode === 'Reporter'}
-                title={cancelReturnModal.row.createdByRoleCode === 'Reporter' ? t('jobs.actions.returnNotAllowed', 'İade yapılamaz') : undefined}
-                className={cancelReturnModal.row.createdByRoleCode === 'Reporter' ? 'cursor-not-allowed opacity-60' : undefined}
-                onClick={() => {
-                  if (cancelReturnModal.row.createdByRoleCode === 'Reporter') return
-                  const { row } = cancelReturnModal
-                  setCancelReturnModal(null)
-                  setPromptDialog({
-                    title: t('jobs.actions.returnReason', 'İade Nedeni'),
-                    onConfirm: async (reason) => {
-                      setError(null)
-                      try {
-                        await api.returnJob(row.jobId, reason)
-                        await reload()
-                      } catch (err) {
-                        setError(err instanceof Error ? err.message : t('common.error'))
-                      }
-                    },
-                  })
-                }}
-              >
-                {t('jobs.actions.return', 'İade Et')}
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => setCancelReturnModal(null)}>
-                {t('common.dismiss', 'Vazgeç')}
-              </Button>
-            </div>
-          </div>
-        </div>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />

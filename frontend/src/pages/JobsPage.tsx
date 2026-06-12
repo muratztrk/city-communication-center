@@ -510,12 +510,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
           : job.ownerDepartmentName ?? ''
         const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
-        const cancelReturnStatus = job.status === 'Cancelled' ? 'İptal' : 'İade'
+        const cancelReturnStatus = 'İptal'
         return { ...job, destinationText, ownerDecidedAtUtc, cancelReturnStatus }
       })
       .filter(job => jobMatchesFilters(job, (key, row) => {
         if (key === 'destinationText') return row.destinationText
-        if (key === 'cancelReturnStatus') return row.status === 'Cancelled' ? 'İptal' : 'İade'
+        if (key === 'cancelReturnStatus') return 'İptal'
         if (key === 'jobNumber') return formatJobDisplayNumber(row)
         if (key === 'status') return getJobStatusLabel(t, row.status)
         if (key === 'priority') return getPriorityLabel(t, row.priority)
@@ -922,7 +922,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold">{job.title}</td>
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{job.status === 'Cancelled' ? 'İptal' : 'İade'}</td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{'İptal'}</td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
                         renderOutgoingDestination(job)

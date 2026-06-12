@@ -249,10 +249,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return' | 'returnOwner'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
-  const [returnReason, setReturnReason] = useState('')
-  const [returnManagerId, setReturnManagerId] = useState('')
   const [returnDeptId, setReturnDeptId] = useState('')
   const [returnUserId, setReturnUserId] = useState('')
   const [returnSaving, setReturnSaving] = useState(false)
@@ -292,18 +290,6 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       item.roleCode !== 'SystemAdmin')
   }, [activeUsers, managedDepartmentIds, user?.userId])
   const staffUserIds = useMemo(() => new Set(staffUsers.map(item => item.userId)), [staffUsers])
-  const managerUsers = useMemo(() => activeUsers.filter(item => item.roleCode === 'Manager'), [activeUsers])
-  // Kullanıcının kendi birimi (iade hedefi için)
-  const myDepartmentId = useMemo(
-    () => getActiveDepartmentId() || user?.departmentId || '',
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user?.departmentId, activeDeptId],
-  )
-  // Staff iade: kendi biriminin müdürleri seçilebilir
-  const returnManagerUsers = useMemo(() => {
-    if (!myDepartmentId) return managerUsers
-    return activeUsers.filter(u => u.roleCode === 'Manager' && userBelongsToDepartment(u, myDepartmentId))
-  }, [activeUsers, managerUsers, myDepartmentId])
   const returnDeptUsers = useMemo(() => {
     if (!returnDeptId) return []
     // Görevi Yönlendir: hedef listede mevcut görev sahibi personel gösterilmez.
@@ -411,7 +397,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       .map(task => ({
         ...task,
         taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
-        cancelReturnStatus: task.currentStatus === 'Cancelled' ? 'İptal' : 'İade',
+        cancelReturnStatus: 'İptal',
       }))
       .filter(task => taskMatchesFilters(task, (key, row) => {
         if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)
@@ -558,22 +544,11 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
 
   const openReturnModal = (taskId: string) => {
     const task = tasks.find(t => t.taskId === taskId)
-    const isRoutine = task?.jobSourceType === 'Routine'
-    // İade yalnızca farklı birimden gelen (Birim Dışı) talepte sunulur; Birim İçi ve
-    // rutin görevlerde İade seçeneği yoktur — doğrudan İptal adımına geçilir.
-    const canReturn = task?.jobRequestType === 'ExternalUnit' && !isRoutine
-    // Üst Düzey Yönetici'den gelen görevde personelin iptal/iade yetkisi yoktur;
-    // ancak görevi kendine atayan yönetici iptal/iade edebilir (yönetici hariç tutulur).
     const isReporterTask = task?.createdByRoleCode === 'Reporter' && !isManagerLike
     const useManagerReporterRedirectLabel =
-      task?.createdByRoleCode === 'Reporter' &&
-      isManagerLike &&
-      task.assignedUserId === user?.userId
-    // İade kaldırıldı: doğrudan İptal nedeni adımına geçilir (seçim/iade adımı yok).
-    setReturnModal({ taskId, step: 'cancel', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask, useManagerReporterRedirectLabel, directRoute: false })
+      task?.createdByRoleCode === 'Reporter' && isManagerLike && task.assignedUserId === user?.userId
+    setReturnModal({ taskId, step: 'cancel', assignedDepartmentId: task?.assignedDepartmentId ?? null, isReporterTask, useManagerReporterRedirectLabel, directRoute: false })
     setCancelReason('')
-    setReturnReason('')
-    setReturnManagerId('')
     setReturnDeptId('')
     setReturnUserId('')
   }
@@ -583,22 +558,17 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       taskId: task.taskId,
       step: 'return',
       assignedDepartmentId: task.assignedDepartmentId,
-      isRoutine: false,
-      canReturn: true,
       isReporterTask: false,
       useManagerReporterRedirectLabel: true,
       directRoute: true,
     })
     setReturnDeptId(task.assignedDepartmentId ?? '')
     setReturnUserId('')
-    setReturnReason('')
   }
 
   const closeReturnModal = () => {
     setReturnModal(null)
     setCancelReason('')
-    setReturnReason('')
-    setReturnManagerId('')
     setReturnDeptId('')
     setReturnUserId('')
   }
@@ -621,30 +591,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     if (!returnModal) return
     setReturnSaving(true)
     try {
-      if (isManagerLike) {
-        // Manager: reassign task to another dept/user
-        await api.assignTask(returnModal.taskId, returnDeptId || undefined, returnUserId || undefined)
-      } else {
-        // Staff: send revision request to selected manager
-        if (!returnReason.trim() || !returnManagerId) return
-        await api.requestTaskRevision(returnModal.taskId, returnReason.trim(), undefined, returnManagerId)
-      }
-      closeReturnModal()
-      await reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    } finally {
-      setReturnSaving(false)
-    }
-  }
-
-  const handleReturnToOwner = async () => {
-    if (!returnModal || !returnReason.trim()) return
-    const task = tasks.find(item => item.taskId === returnModal.taskId)
-    setReturnSaving(true)
-    try {
-      // Görev Sahibi'ne iade: görev sahibi onaycı olacak şekilde revizyon talebi (RevisionRequested).
-      await api.requestTaskRevision(returnModal.taskId, returnReason.trim(), undefined, task?.ownerUserId ?? undefined)
+      await api.assignTask(returnModal.taskId, returnDeptId || undefined, returnUserId || undefined)
       closeReturnModal()
       await reload()
     } catch (err) {
@@ -1126,7 +1073,7 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td>{task.title}</td>
-                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{task.currentStatus === 'Cancelled' ? 'İptal' : 'İade'}</td>}
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{'İptal'}</td>}
                     {isDepartmentTasksView && (
                       <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
                     )}
@@ -1159,11 +1106,10 @@ const pageKicker = isMyTasksView
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                         )}
-                        {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
+                        {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (!isManagerLike || task.createdByRoleCode === 'Reporter') && (
                           <Button
                             size="sm"
                             variant="destructive"
-                            /* İade kaldırıldı: sadece "İptal" → doğrudan iptal nedeni popup'ı. Üst Düzey Yönetici görevini personel iptal edemez (pasif). */
                             aria-disabled={task.createdByRoleCode === 'Reporter' && !isManagerLike}
                             title={task.createdByRoleCode === 'Reporter' && !isManagerLike ? t('tasks.actions.cancelNotAllowed', 'İptal yetkiniz yok') : undefined}
                             className={task.createdByRoleCode === 'Reporter' && !isManagerLike ? 'cursor-not-allowed opacity-60' : undefined}
@@ -1205,87 +1151,6 @@ const pageKicker = isMyTasksView
               <X className="size-4" />
             </button>
 
-            {/* ── STEP 1: seçim ── */}
-            {returnModal.step === 'choose' && (
-              <>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelReturnTitle', 'Görev İptal')}</h2>
-                <p className="helper-copy">
-                  {returnModal.isReporterTask
-                    ? t(
-                        'tasks.actions.reporterTaskCancelReturnDenied',
-                        "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.",
-                      )
-                    : t('tasks.actions.cancelReturnHelp', 'Göreve ne yapmak istediğinizi seçin.')}
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    aria-disabled={returnModal.isReporterTask}
-                    title={returnModal.isReporterTask ? t('tasks.actions.cancelNotAllowed', 'İade yetkiniz yok') : undefined}
-                    className={returnModal.isReporterTask ? 'cursor-not-allowed opacity-60' : undefined}
-                    onClick={() => {
-                      if (returnModal.isReporterTask) return
-                      // Üst Düzey Yönetici yönlendirme (routing) hariç: doğrudan Görev Sahibi'ne İade adımına geç.
-                      if (isManagerLike && returnModal.useManagerReporterRedirectLabel) {
-                        if (returnModal.assignedDepartmentId) setReturnDeptId(returnModal.assignedDepartmentId)
-                        setReturnModal(m => m ? { ...m, step: 'return' } : null)
-                        return
-                      }
-                      setReturnReason('')
-                      setReturnModal(m => m ? { ...m, step: 'returnOwner' } : null)
-                    }}
-                  >
-                    {isManagerLike && returnModal.useManagerReporterRedirectLabel
-                      ? t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')
-                      : t('tasks.actions.returnTask', 'Görevi İade Et')}
-                  </Button>
-                  {/* Üst Düzey Yönetici talebinin görevini personel iptal edemez: "Görevi İptal Et" pasif. */}
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    aria-disabled={returnModal.isReporterTask}
-                    title={returnModal.isReporterTask ? t('tasks.actions.cancelNotAllowed', 'İptal yetkiniz yok') : undefined}
-                    className={returnModal.isReporterTask ? 'cursor-not-allowed opacity-60' : undefined}
-                    onClick={() => { if (returnModal.isReporterTask) return; setReturnModal(m => m ? { ...m, step: 'cancel' } : null) }}
-                  >
-                    {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
-                  </Button>
-                </div>
-                <div className="inline-actions justify-end">
-                  <Button type="button" variant="secondary" onClick={closeReturnModal}>{t('common.close', 'Kapat')}</Button>
-                </div>
-              </>
-            )}
-
-            {/* ── STEP 2a: İptal ── */}
-            {/* Görev Sahibi'ne İade: yönlendirme ekranı açılmadan doğrudan iade. */}
-            {returnModal.step === 'returnOwner' && (
-              <>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnTask', 'Görevi İade Et')}</h2>
-                <p className="helper-copy">{t('tasks.actions.returnToOwnerHelp', 'Görev, talebi oluşturan görev sahibine iade edilecektir. Lütfen iade nedenini belirtiniz.')}</p>
-                <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.returnReason', 'İade Açıklaması')}</span>
-                  <textarea
-                    className="field-textarea"
-                    rows={3}
-                    value={returnReason}
-                    onChange={e => setReturnReason(e.target.value)}
-                    placeholder={t('tasks.actions.returnReasonPlaceholder', 'İade nedenini açıklayınız...')}
-                    autoFocus
-                  />
-                </label>
-                <div className="inline-actions">
-                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
-                    {t('common.back', 'Geri')}
-                  </Button>
-                  <Button type="button" variant="destructive" disabled={returnSaving || !returnReason.trim()} onClick={() => void handleReturnToOwner()}>
-                    {returnSaving ? t('common.loading') : t('tasks.actions.return', 'İade Et')}
-                  </Button>
-                </div>
-              </>
-            )}
-
             {returnModal.step === 'cancel' && (
               <>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelTask', 'Görevi İptal Et')}</h2>
@@ -1312,50 +1177,13 @@ const pageKicker = isMyTasksView
               </>
             )}
 
-            {/* ── STEP 2b: İade (Staff → Yönetici seç) ── */}
-            {returnModal.step === 'return' && !isManagerLike && (
-              <>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnToManager', 'Yöneticiye İade')}</h2>
-                <p className="helper-copy">{t('tasks.actions.returnManagerHelp', 'Görev sadece birimin yöneticisine iade edilebilir.')}</p>
-                <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.selectManager', 'Yönetici')}</span>
-                  <select className="field-select" value={returnManagerId} onChange={e => setReturnManagerId(e.target.value)}>
-                    <option value="">{t('common.select', 'Seçiniz...')}</option>
-                    {returnManagerUsers.map(m => (
-                      <option key={m.userId} value={m.userId}>{m.displayName}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.returnReason', 'İade Açıklaması')}</span>
-                  <textarea
-                    className="field-textarea"
-                    rows={3}
-                    value={returnReason}
-                    onChange={e => setReturnReason(e.target.value)}
-                    placeholder={t('tasks.actions.returnReasonPlaceholder', 'İade nedenini açıklayınız...')}
-                  />
-                </label>
-                <div className="inline-actions">
-                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
-                    {t('common.back', 'Geri')}
-                  </Button>
-                  <Button type="button" variant="destructive" disabled={returnSaving || !returnManagerId || !returnReason.trim()} onClick={() => void handleReturn()}>
-                    {returnSaving ? t('common.loading') : t('tasks.actions.return', 'İade Et')}
-                  </Button>
-                </div>
-              </>
-            )}
-
-            {/* ── STEP 2b: İade (Manager → Aynı birim içinde kullanıcı seç) ── */}
-            {returnModal.step === 'return' && isManagerLike && (
+            {/* ── Görev Yönlendir (Manager) ── */}
+            {returnModal.step === 'return' && (
               <>
                 <h2 className="text-xl font-extrabold text-slate-950">
-                  {returnModal.useManagerReporterRedirectLabel
-                    ? t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')
-                    : t('tasks.actions.returnToUnit', 'Birim İçi İade')}
+                  {t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')}
                 </h2>
-                <p className="helper-copy">{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde iade edilebilir.')}</p>
+                <p className="helper-copy">{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde yönlendirilebilir.')}</p>
                 <div className="job-field">
                   <span className="job-field-label">{t('tasks.department', 'Birim')}</span>
                   <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
@@ -1372,30 +1200,16 @@ const pageKicker = isMyTasksView
                   </select>
                 </label>
                 <div className="inline-actions">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                      if (returnModal.directRoute) {
-                        closeReturnModal()
-                        return
-                      }
-                      setReturnModal(m => m ? { ...m, step: 'choose' } : null)
-                    }}
-                  >
-                    {returnModal.directRoute ? t('common.exit', 'Çıkış') : t('common.back', 'Geri')}
+                  <Button type="button" variant="secondary" onClick={closeReturnModal}>
+                    {t('common.exit', 'Çıkış')}
                   </Button>
                   <Button
                     type="button"
-                    variant={returnModal.directRoute ? 'success' : 'destructive'}
+                    variant="success"
                     disabled={returnSaving || !returnDeptId}
                     onClick={() => void handleReturn()}
                   >
-                    {returnSaving
-                      ? t('common.loading')
-                      : returnModal.directRoute
-                        ? t('tasks.actions.route', 'Yönlendir')
-                        : t('tasks.actions.return', 'İade Et')}
+                    {returnSaving ? t('common.loading') : t('tasks.actions.route', 'Yönlendir')}
                   </Button>
                 </div>
               </>

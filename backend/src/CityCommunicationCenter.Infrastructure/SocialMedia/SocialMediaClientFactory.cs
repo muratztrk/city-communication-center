@@ -108,6 +108,7 @@ public sealed class DatabaseSocialMediaSettingsProvider : ISocialMediaSettingsPr
     public SocialMediaSettings? GetSettings(Guid tenantId)
     {
         var tenantSetting = _dbContext.TenantSettings
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .SingleOrDefault(entity => entity.TenantId == tenantId);
 

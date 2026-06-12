@@ -98,6 +98,7 @@ public sealed record WhatsAppSettingsRequest(
     string? BusinessAccountId,
     string? PhoneNumberId,
     string? AccessToken,
+    string? AppSecret,
     string? WebhookVerifyToken);
 
 public sealed record EDevletSettingsRequest(

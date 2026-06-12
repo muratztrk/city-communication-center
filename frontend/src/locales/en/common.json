@@ -826,6 +826,8 @@
       "instagram": "Instagram",
       "whatsapp": "WhatsApp",
       "edevlet": "e-Government",
+      "whatsappWebhookUrl": "Meta callback URL",
+      "whatsappWebhookHelp": "Use this URL in WhatsApp > Configuration, enter the same verify token, then subscribe to the messages field. The URL must be publicly reachable over HTTPS.",
       "descriptions": {
         "x": "Manage complaint, mention, and DM flows coming from X.",
         "facebook": "Configure credentials for Facebook page messages and comments.",
@@ -857,6 +859,7 @@
           "businessAccountId": "Business Account ID",
           "phoneNumberId": "Phone Number ID",
           "accessToken": "Access Token",
+          "appSecret": "Meta App Secret",
           "webhookVerifyToken": "Webhook Verify Token"
         },
         "edevlet": {

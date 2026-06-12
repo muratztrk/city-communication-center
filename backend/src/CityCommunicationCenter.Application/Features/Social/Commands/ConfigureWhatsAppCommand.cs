@@ -22,6 +22,7 @@ public sealed class ConfigureWhatsAppCommandHandler : ICommandHandler<ConfigureW
             BusinessAccountId = request.Request.BusinessAccountId,
             PhoneNumberId = request.Request.PhoneNumberId,
             AccessToken = request.Request.AccessToken,
+            AppSecret = request.Request.AppSecret,
             WebhookVerifyToken = request.Request.WebhookVerifyToken
         };
 

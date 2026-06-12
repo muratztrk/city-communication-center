@@ -64,6 +64,7 @@ public sealed class WhatsAppSettings
     public string? BusinessAccountId { get; set; }
     public string? PhoneNumberId { get; set; }
     public string? AccessToken { get; set; }
+    public string? AppSecret { get; set; }
     public string? WebhookVerifyToken { get; set; }
 }
 
@@ -107,6 +108,7 @@ public sealed class PostRequest
 public sealed class ReplyRequest
 {
     public required string OriginalMessageId { get; init; }
+    public required string RecipientId { get; init; }
     public required string Content { get; init; }
     public List<string>? MediaUrls { get; init; }
 }

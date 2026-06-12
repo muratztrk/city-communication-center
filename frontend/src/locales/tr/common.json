@@ -838,6 +838,8 @@
       "whatsapp": "WhatsApp",
       "edevlet": "e-Devlet",
       "email": "E-posta (IMAP/SMTP)",
+      "whatsappWebhookUrl": "Meta callback URL",
+      "whatsappWebhookHelp": "Bu URL'yi WhatsApp > Yapılandırma alanında kullanın, aynı doğrulama belirtecini girin ve messages alanına abone olun. URL internetten HTTPS üzerinden erişilebilir olmalıdır.",
       "descriptions": {
         "x": "X üzerinden gelen şikayet, mention ve DM akışlarını yönetin.",
         "facebook": "Facebook sayfa mesajları ve yorumları için erişim bilgilerini yapılandırın.",
@@ -870,6 +872,7 @@
           "businessAccountId": "Business Account ID",
           "phoneNumberId": "Phone Number ID",
           "accessToken": "Access Token",
+          "appSecret": "Meta App Secret",
           "webhookVerifyToken": "Webhook Verify Token"
         },
         "edevlet": {

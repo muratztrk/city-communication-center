@@ -32,7 +32,11 @@ public sealed class GetSocialSettingsStatusQueryHandler : IQueryHandler<GetSocia
                 !string.IsNullOrEmpty(settings?.Instagram?.AccountId),
                 !string.IsNullOrEmpty(settings?.Instagram?.LinkedPageId)),
             new SocialChannelStatusResponse(
-                !string.IsNullOrEmpty(settings?.WhatsApp?.AccessToken),
+                !string.IsNullOrEmpty(settings?.WhatsApp?.AccessToken) &&
+                !string.IsNullOrEmpty(settings?.WhatsApp?.PhoneNumberId) &&
+                !string.IsNullOrEmpty(settings?.WhatsApp?.BusinessAccountId) &&
+                !string.IsNullOrEmpty(settings?.WhatsApp?.AppSecret) &&
+                !string.IsNullOrEmpty(settings?.WhatsApp?.WebhookVerifyToken),
                 !string.IsNullOrEmpty(settings?.WhatsApp?.PhoneNumberId),
                 !string.IsNullOrEmpty(settings?.WhatsApp?.BusinessAccountId)),
             new SocialChannelStatusResponse(

@@ -11,7 +11,7 @@ public class WhatsAppClient : ISocialMediaClient
 {
     private readonly HttpClient _httpClient;
     private readonly WhatsAppSettings _settings;
-    private const string ApiBase = "https://graph.facebook.com/v18.0";
+    private const string ApiBase = "https://graph.facebook.com/v25.0";
 
     public string Platform => "WhatsApp";
 
@@ -60,7 +60,7 @@ public class WhatsAppClient : ISocialMediaClient
         {
             messaging_product = "whatsapp",
             recipient_type = "individual",
-            to = request.OriginalMessageId.Split(':')[0], // Extract phone number from message context
+            to = request.RecipientId,
             type = "text",
             context = new { message_id = request.OriginalMessageId },
             text = new { body = request.Content }

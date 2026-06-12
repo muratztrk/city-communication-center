@@ -63,6 +63,7 @@ public class SocialMediaService : ISocialMediaService
         var result = await client.ReplyAsync(new ReplyRequest
         {
             OriginalMessageId = originalMessage.ExternalMessageId ?? originalMessage.SocialMessageId.ToString(),
+            RecipientId = originalMessage.CitizenHandle,
             Content = replyContent
         }, ct);
 

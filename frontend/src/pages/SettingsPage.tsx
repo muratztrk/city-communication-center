@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { API_ORIGIN } from '../api/config'
 import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
@@ -102,6 +103,7 @@ const CHANNELS: ChannelConfig[] = [
       { key: 'businessAccountId', labelKey: 'settings.socialConfig.fields.whatsapp.businessAccountId' },
       { key: 'phoneNumberId', labelKey: 'settings.socialConfig.fields.whatsapp.phoneNumberId' },
       { key: 'accessToken', labelKey: 'settings.socialConfig.fields.whatsapp.accessToken', secret: true },
+      { key: 'appSecret', labelKey: 'settings.socialConfig.fields.whatsapp.appSecret', secret: true },
       { key: 'webhookVerifyToken', labelKey: 'settings.socialConfig.fields.whatsapp.webhookVerifyToken' },
     ],
   },
@@ -194,7 +196,7 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
   x: { apiKey: '', apiSecret: '', accessToken: '', accessTokenSecret: '', bearerToken: '' },
   facebook: { appId: '', appSecret: '', pageAccessToken: '', pageId: '', webhookVerifyToken: '' },
   instagram: { accountId: '', accessToken: '', linkedPageId: '' },
-  whatsapp: { businessAccountId: '', phoneNumberId: '', accessToken: '', webhookVerifyToken: '' },
+  whatsapp: { businessAccountId: '', phoneNumberId: '', accessToken: '', appSecret: '', webhookVerifyToken: '' },
   edevlet: { clientId: '', clientSecret: '', redirectUri: '', authorizationEndpoint: '', tokenEndpoint: '', scope: '' },
   email: { imapHost: '', imapPort: '', imapUser: '', imapPassword: '', folder: '', smtpHost: '', smtpPort: '', smtpUser: '', smtpPassword: '' },
 }
@@ -422,6 +424,9 @@ export function SettingsPage() {
 
   const previewAppearance = resolveTenantAppearance({ ...appearanceForm, isCustomized: true })
   const institutionName = tenantSettings.displayName || tenantSettings.municipalityName || user?.tenantName || 'Tire Belediyesi'
+  const whatsAppWebhookUrl = user?.tenantId
+    ? `${API_ORIGIN}/api/v1/social/webhooks/whatsapp/${user.tenantId}`
+    : ''
 
   const organizationStats = useMemo(() => [
     { label: t('settings.organizationName'), value: institutionName },
@@ -1853,6 +1858,13 @@ export function SettingsPage() {
                           <input className="field-input" type={field.secret ? 'password' : 'text'} value={socialForms[channel.id][field.key] ?? ''} onChange={event => updateSocialField(channel.id, field.key, event.target.value)} />
                         </label>
                       ))}
+                      {channel.id === 'whatsapp' && whatsAppWebhookUrl ? (
+                        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                          <span>{t('settings.socialConfig.whatsappWebhookUrl')}</span>
+                          <input className="field-input font-mono text-xs" type="text" readOnly value={whatsAppWebhookUrl} />
+                          <span className="helper-copy">{t('settings.socialConfig.whatsappWebhookHelp')}</span>
+                        </label>
+                      ) : null}
                       <div className="inline-actions">
                         <Button type="submit">{t('common.save')}</Button>
                       </div>

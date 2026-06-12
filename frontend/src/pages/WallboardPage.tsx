@@ -25,6 +25,7 @@ interface WallboardItem {
   requestLocation: string | null
   requestCreator: string | null
   taskOwner: string | null
+  isReporterRequest: boolean
 }
 
 const OPEN_TASK_STATUSES = new Set(['Waiting', 'Assigned', 'InProgress', 'RevisionRequested'])
@@ -99,6 +100,7 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[]
         requestLocation: job?.ownerDepartmentName ?? null,
         requestCreator: job?.createdByDisplayName ?? null,
         taskOwner: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,
+        isReporterRequest: job?.createdByRoleCode === 'Reporter',
       }
     })
     .sort((a, b) => {
@@ -265,6 +267,10 @@ export function WallboardPage() {
             <RefreshCw className="size-4" />
             {t('common.refresh', 'Yenile')}
           </Button>
+          {/* Kırmızı "Çıkış": ana sayfaya yönlendirir. */}
+          <Button type="button" variant="destructive" onClick={() => navigate('/')} className="gap-2">
+            {t('common.exit', 'Çıkış')}
+          </Button>
         </div>
       </header>
 
@@ -313,7 +319,7 @@ export function WallboardPage() {
                 {pagedItems.map((item, index) => {
                   const dueTone = getDueTone(item.dueDateUtc)
                   return (
-                    <tr key={item.id} className={`wallboard-row ${item.source}`}>
+                    <tr key={item.id} className={`wallboard-row ${item.source}${item.isReporterRequest ? ' reporter-row' : ''}`}>
                       <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
                       <td>
                         <div>{item.taskNumber ?? '—'}</div>

@@ -2006,6 +2006,17 @@
     background: #0b2230;
   }
 
+  /* Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (amber), koyu metin. */
+  .wallboard-table tbody tr.reporter-row,
+  .wallboard-table tbody tr.reporter-row:nth-child(odd),
+  .wallboard-table tbody tr.reporter-row:nth-child(even) {
+    background: #fbbf24;
+  }
+
+  .wallboard-table tbody tr.reporter-row td {
+    color: #422006;
+  }
+
   .wallboard-table tbody td {
     padding: 0.72rem 0.8rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);

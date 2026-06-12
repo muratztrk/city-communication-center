@@ -168,7 +168,7 @@ export function AppShell() {
   const myRequestsViewLabels: Record<string, string> = {
     pending: t('nav.myRequestsPending', 'Bekleyen Taleplerim'),
     approved: t('nav.myRequestsApproved', 'Onaylanmış Taleplerim'),
-    rejected: t('nav.myRequestsRejected', 'İptal/İade Taleplerim'),
+    rejected: t('nav.myRequestsRejected', 'İptal Taleplerim'),
     all: t('nav.myRequestsAll', 'Tüm Taleplerim'),
   }
   const myRequestsViewIcons: Record<string, typeof LayoutDashboard> = {
@@ -181,7 +181,7 @@ export function AppShell() {
   const myTasksViewLabels: Record<string, string> = {
     pending: t('nav.myTasksPending', 'Bekleyen Görevlerim'),
     completed: t('nav.myTasksCompleted', 'Tamamlanmış Görevlerim'),
-    rejected: t('nav.myTasksRejected', 'İptal/İade Görevlerim'),
+    rejected: t('nav.myTasksRejected', 'İptal Görevlerim'),
     all: t('nav.myTasksAll', 'Tüm Görevlerim'),
   }
   const myTasksViewIcons: Record<string, typeof LayoutDashboard> = {

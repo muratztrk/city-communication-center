@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, Clock3, Monitor, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, Clock3, LogOut, Monitor, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -267,8 +267,8 @@ export function WallboardPage() {
             <RefreshCw className="size-4" />
             {t('common.refresh', 'Yenile')}
           </Button>
-          {/* Kırmızı "Çıkış": ana sayfaya yönlendirir. */}
-          <Button type="button" variant="destructive" onClick={() => navigate('/')} className="gap-2">
+          <Button type="button" size="sm" variant="destructive" onClick={() => navigate('/')} className="gap-1.5">
+            <LogOut className="size-3.5" />
             {t('common.exit', 'Çıkış')}
           </Button>
         </div>

@@ -38,7 +38,7 @@ const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback:
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
   { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanmış Talepler' },
-  { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal/İade Talepler' },
+  { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal Talepler' },
   { value: 'all', labelKey: 'jobs.scopes.all', fallback: 'Tümü' },
 ]
 
@@ -616,7 +616,7 @@ export function IncomingRequestsPage() {
                   {currentStatusFilter !== 'cancelled' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
-                  {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="updatedAtUtc" filterValue={incomingFilters['updatedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="updatedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelledAt', 'İptal/İade Tarihi')}</FilterableTh>}
+                  {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="updatedAtUtc" filterValue={incomingFilters['updatedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="updatedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
                   <th>{t('jobs.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -715,7 +715,9 @@ export function IncomingRequestsPage() {
             <button type="button" onClick={() => setCancelReturnModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <X className="size-4" />
             </button>
-            <h3 className="mb-1 text-base font-bold text-slate-950">{t('jobs.actions.cancelOrReturn', 'İptal / İade')}</h3>
+            <h3 className="mb-1 text-base font-bold text-slate-950">
+              {cancelReturnModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
+            </h3>
             <p className="mb-5 text-sm text-slate-600">{t('jobs.actions.cancelOrReturnHelp', 'Bu talep için ne yapmak istiyorsunuz?')}</p>
             <div className="flex flex-col gap-2">
               <Button

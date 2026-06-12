@@ -1091,7 +1091,7 @@ const pageKicker = isMyTasksView
                   )}
                   {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={taskFilters['completedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="completedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
-                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={taskFilters['updatedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="updatedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.cancelledAt', 'İptal/İade Tarihi')}</FilterableTh>}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={taskFilters['updatedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="updatedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
                   <th>{t('tasks.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -1208,7 +1208,7 @@ const pageKicker = isMyTasksView
             {/* ── STEP 1: seçim ── */}
             {returnModal.step === 'choose' && (
               <>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelReturnTitle', 'Görev İptal / İade')}</h2>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelReturnTitle', 'Görev İptal')}</h2>
                 <p className="helper-copy">
                   {returnModal.isReporterTask
                     ? t(

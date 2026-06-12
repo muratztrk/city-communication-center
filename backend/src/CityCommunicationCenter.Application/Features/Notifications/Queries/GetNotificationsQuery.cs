@@ -45,17 +45,19 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
             // Talep ve görev aşamalarındaki tüm değişiklikler denetim kaydından (AuditLog) bildirim olarak yansıtılır:
             // kullanıcının oluşturduğu talepler + atandığı / sahibi olduğu / oluşturduğu görevler.
-            var jobIds = await _dbContext.Jobs.AsNoTracking()
+            var jobRecords = await _dbContext.Jobs.AsNoTracking()
                 .Where(j => j.TenantId == tenantId && j.CreatedByUserId == userId)
-                .Select(j => j.JobId.ToString())
+                .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
                 .ToListAsync(cancellationToken);
-            var taskIds = await _dbContext.Tasks.AsNoTracking()
+            var taskRecords = await _dbContext.Tasks.AsNoTracking()
                 .Where(t => t.TenantId == tenantId && (t.AssignedUserId == userId || t.OwnerUserId == userId || t.CreatedByUserId == userId))
-                .Select(t => t.TaskId.ToString())
+                .Select(t => new { TaskId = t.TaskId.ToString(), t.Title, t.TaskNumber, t.TaskNumberYear })
                 .ToListAsync(cancellationToken);
 
-            var taskIdSet = taskIds.ToHashSet();
-            var entityIds = jobIds.Concat(taskIds).Distinct().ToList();
+            var jobsById = jobRecords.ToDictionary(j => j.JobId);
+            var tasksById = taskRecords.ToDictionary(t => t.TaskId);
+            var taskIdSet = taskRecords.Select(t => t.TaskId).ToHashSet();
+            var entityIds = jobRecords.Select(j => j.JobId).Concat(taskRecords.Select(t => t.TaskId)).Distinct().ToList();
 
             if (entityIds.Count > 0)
             {
@@ -69,13 +71,28 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 {
                     var isTask = taskIdSet.Contains(a.EntityId);
                     Guid? taskId = isTask && Guid.TryParse(a.EntityId, out var g) ? g : null;
-                    var message = !string.IsNullOrWhiteSpace(a.Notes) ? a.Notes
-                        : !string.IsNullOrWhiteSpace(a.Details) ? a.Details
-                        : null;
-                    if (!string.IsNullOrWhiteSpace(a.ActorDisplayName))
+
+                    string? entityTitle = null;
+                    string? entityNumber = null;
+                    if (isTask && tasksById.TryGetValue(a.EntityId, out var taskRec))
                     {
-                        message = string.IsNullOrWhiteSpace(message) ? a.ActorDisplayName : $"{a.ActorDisplayName} — {message}";
+                        entityTitle = taskRec.Title;
+                        if (taskRec.TaskNumber.HasValue)
+                            entityNumber = $"Görev No: {FormatNumber(taskRec.TaskNumber.Value, taskRec.TaskNumberYear)}";
                     }
+                    else if (!isTask && jobsById.TryGetValue(a.EntityId, out var jobRec))
+                    {
+                        entityTitle = jobRec.Title;
+                        if (jobRec.JobNumber.HasValue)
+                            entityNumber = $"Talep No: {FormatNumber(jobRec.JobNumber.Value, jobRec.JobNumberYear)}";
+                    }
+
+                    var messageParts = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
+                    if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
+                    if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
+                    var noteDetail = !string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details;
+                    if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
 
                     feed.Add(new NotificationResponse(
                         a.AuditLogId,
@@ -84,7 +101,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         "InApp",
                         "Sent",
                         ActionTitle(a.Action),
-                        message ?? string.Empty,
+                        string.Join(" — ", messageParts),
                         true,
                         isTask ? $"/my-tasks?taskId={a.EntityId}" : $"/my-requests?jobId={a.EntityId}",
                         a.EventTimeUtc));
@@ -110,6 +127,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         "JobTargetRejected" => "Hedef birim reddetti",
         "JobReturnRequested" => "Talep iade edildi",
         "JobReturnedToPending" => "Talep onaya geri döndü",
+        "JobSupportAdded" => "Destek kaydı eklendi",
         "TaskCreated" => "Görev oluşturuldu",
         "RoutineTaskCreated" => "Rutin görev oluşturuldu",
         "TaskAssigned" => "Görev atandı",
@@ -117,11 +135,14 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         "TaskProgressUpdated" => "Görev ilerlemesi güncellendi",
         "TaskCompleted" => "Görev tamamlandı",
         "TaskCancelled" => "Görev iptal edildi",
-        "TaskRevisionRequested" => "Görev iade edildi (revizyon)",
+        "TaskRevisionRequested" => "Görev iade edildi",
         "TaskRevisionApproved" => "Revizyon onaylandı",
         "TaskRevisionRejected" => "Revizyon reddedildi",
         "TaskCloseApproved" => "Görev kapatma onaylandı",
         "TaskCloseRejected" => "Görev kapatma reddedildi",
-        _ => action,
+        _ => "İşlem gerçekleşti",
     };
+
+    private static string FormatNumber(int number, int? year) =>
+        year.HasValue ? $"{year}/{number}" : number.ToString();
 }

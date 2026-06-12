@@ -121,13 +121,13 @@
     "myTasks": "Görevlerim",
     "myTasksPending": "Bekleyen Görevlerim",
     "myTasksCompleted": "Tamamlanmış Görevlerim",
-    "myTasksRejected": "İptal/İade Görevlerim",
+    "myTasksRejected": "İptal Görevlerim",
     "myTasksAll": "Tüm Görevlerim",
     "myRequests": "Taleplerim",
     "myRequestsCreated": "Oluşturduğum Talepler",
     "myRequestsPending": "Bekleyen Taleplerim",
     "myRequestsApproved": "Onaylanmış Taleplerim",
-    "myRequestsRejected": "İptal/İade Taleplerim",
+    "myRequestsRejected": "İptal Taleplerim",
     "myRequestsAll": "Tüm Taleplerim",
     "incomingRequests": "Birime Gelen Talepler",
     "incomingRequestsInternal": "Birim İçi Gelen Talepler",
@@ -503,7 +503,7 @@
     "myViews": {
       "pending": "Bekleyen Görevlerim",
       "completed": "Tamamlanmış Görevlerim",
-      "rejected": "İptal/İade Görevlerim",
+      "rejected": "İptal Görevlerim",
       "overdue": "Son Tarihi Geçmiş Görevlerim",
       "all": "Tüm Görevlerim",
       "empty": "{{view}} bulunmuyor"
@@ -511,7 +511,7 @@
     "departmentViews": {
       "pending": "Bekleyen Görevler",
       "completed": "Tamamlanmış Görevler",
-      "rejected": "İptal/İade Görevler",
+      "rejected": "İptal Görevler",
       "overdue": "Son Tarihi Geçmiş Görevler",
       "all": "Tüm Görevler"
     },
@@ -1115,7 +1115,7 @@
       "myDepartment": "Müdürlüğüm",
       "pendingApproval": "Onay Bekleyen",
       "departmentPool": "Onaylanmış Talepler",
-      "rejected": "İptal/İade Talepler",
+      "rejected": "İptal Talepler",
       "pendingOwnerApproval": "Yönetici Onayı Bekleyen",
       "pendingExternalApproval": "Hedef Onayı Bekleyen",
       "active": "Aktif",
@@ -1127,7 +1127,7 @@
       "approved": "Onaylanmış Taleplerim",
       "inProgress": "Yapılmakta Olan Taleplerim",
       "completed": "Tamamlanmış Taleplerim",
-      "rejected": "İptal/İade Taleplerim",
+      "rejected": "İptal Taleplerim",
       "all": "Tüm Taleplerim",
       "empty": "{{view}} bulunmuyor"
     },

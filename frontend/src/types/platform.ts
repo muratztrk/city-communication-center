@@ -123,6 +123,7 @@ export interface Task {
   ownerDepartmentName?: string | null;
   updatedAtUtc?: string | null;
   createdByRoleCode?: string | null;
+  ownerUserId?: string | null;
 }
 
 export interface TaskDetail {

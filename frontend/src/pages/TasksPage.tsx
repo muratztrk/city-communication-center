@@ -249,7 +249,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'choose' | 'cancel' | 'return' | 'returnOwner'; assignedDepartmentId: string | null; isRoutine: boolean; canReturn: boolean; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnReason, setReturnReason] = useState('')
   const [returnManagerId, setReturnManagerId] = useState('')
@@ -629,6 +629,22 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
         if (!returnReason.trim() || !returnManagerId) return
         await api.requestTaskRevision(returnModal.taskId, returnReason.trim(), undefined, returnManagerId)
       }
+      closeReturnModal()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setReturnSaving(false)
+    }
+  }
+
+  const handleReturnToOwner = async () => {
+    if (!returnModal || !returnReason.trim()) return
+    const task = tasks.find(item => item.taskId === returnModal.taskId)
+    setReturnSaving(true)
+    try {
+      // Görev Sahibi'ne iade: görev sahibi onaycı olacak şekilde revizyon talebi (RevisionRequested).
+      await api.requestTaskRevision(returnModal.taskId, returnReason.trim(), undefined, task?.ownerUserId ?? undefined)
       closeReturnModal()
       await reload()
     } catch (err) {
@@ -1203,10 +1219,14 @@ const pageKicker = isMyTasksView
                     className={returnModal.isReporterTask ? 'cursor-not-allowed opacity-60' : undefined}
                     onClick={() => {
                       if (returnModal.isReporterTask) return
-                      if (isManagerLike && returnModal?.assignedDepartmentId) {
-                        setReturnDeptId(returnModal.assignedDepartmentId)
+                      // Üst Düzey Yönetici yönlendirme (routing) hariç: doğrudan Görev Sahibi'ne İade adımına geç.
+                      if (isManagerLike && returnModal.useManagerReporterRedirectLabel) {
+                        if (returnModal.assignedDepartmentId) setReturnDeptId(returnModal.assignedDepartmentId)
+                        setReturnModal(m => m ? { ...m, step: 'return' } : null)
+                        return
                       }
-                      setReturnModal(m => m ? { ...m, step: 'return' } : null)
+                      setReturnReason('')
+                      setReturnModal(m => m ? { ...m, step: 'returnOwner' } : null)
                     }}
                   >
                     {isManagerLike && returnModal.useManagerReporterRedirectLabel
@@ -1232,6 +1252,33 @@ const pageKicker = isMyTasksView
             )}
 
             {/* ── STEP 2a: İptal ── */}
+            {/* Görev Sahibi'ne İade: yönlendirme ekranı açılmadan doğrudan iade. */}
+            {returnModal.step === 'returnOwner' && (
+              <>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.returnTask', 'Görevi İade Et')}</h2>
+                <p className="helper-copy">{t('tasks.actions.returnToOwnerHelp', 'Görev, talebi oluşturan görev sahibine iade edilecektir. Lütfen iade nedenini belirtiniz.')}</p>
+                <label className="job-field">
+                  <span className="job-field-label">{t('tasks.actions.returnReason', 'İade Açıklaması')}</span>
+                  <textarea
+                    className="field-textarea"
+                    rows={3}
+                    value={returnReason}
+                    onChange={e => setReturnReason(e.target.value)}
+                    placeholder={t('tasks.actions.returnReasonPlaceholder', 'İade nedenini açıklayınız...')}
+                    autoFocus
+                  />
+                </label>
+                <div className="inline-actions">
+                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
+                    {t('common.back', 'Geri')}
+                  </Button>
+                  <Button type="button" variant="destructive" disabled={returnSaving || !returnReason.trim()} onClick={() => void handleReturnToOwner()}>
+                    {returnSaving ? t('common.loading') : t('tasks.actions.return', 'İade Et')}
+                  </Button>
+                </div>
+              </>
+            )}
+
             {returnModal.step === 'cancel' && (
               <>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelTask', 'Görevi İptal Et')}</h2>

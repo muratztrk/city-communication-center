@@ -163,7 +163,8 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     .SelectMany(job => _dbContext.Users
                         .Where(u => u.UserId == job.CreatedByUserId)
                         .Select(u => (string?)u.RoleCode.ToString()))
-                    .FirstOrDefault()))
+                    .FirstOrDefault(),
+                task.OwnerUserId))
             .ToListAsync(cancellationToken);
     }
 

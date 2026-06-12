@@ -59,7 +59,8 @@ public sealed record TaskSummaryResponse(
     string? OwnerDepartmentName,
     DateTimeOffset? CompletedAtUtc,
     DateTimeOffset? UpdatedAtUtc,
-    string? CreatedByRoleCode = null);
+    string? CreatedByRoleCode = null,
+    Guid? OwnerUserId = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

@@ -257,3 +257,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `11N4MFvZ` — Pending-approval İptal prompt confirm button now "İptali Onayla" (was default "Onayla"). Pushed. Moved to Done.
 - [x] `7RspesWl` (reopened #2) — Durum column now sortable: injected cancelReturnStatus property onto rows (Incoming/Jobs/Tasks) so useSortable obj[sortKey] works; filter already via column accessor. Pushed. Moved to Done.
 - [x] `u5coQlbm` — Added red-hover X close icon (top-right) to shared PromptDialog + ConfirmDialog and the Incoming cancel/return + staff-assign modals (route modal already had it). Pushed. Moved to Done.
+- [x] `qpgXDcLh` — "Görevi İade Et" now returns directly to the task owner (görev sahibi) without the routing screen: new 'returnOwner' step (reason only) → requestTaskRevision(taskId, reason, ownerUserId) → RevisionRequested with owner as approver. Added OwnerUserId to TaskSummaryResponse + GetTasksQuery + FE Task type. Reporter routing case keeps the 'return' (Görevi Birim İçi Yönlendir) screen. Pushed. Moved to Done.
+
+## STATUS: Round 33 complete — Doing list drained.

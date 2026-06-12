@@ -1059,7 +1059,7 @@ const pageKicker = isMyTasksView
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
                     <td className="font-mono text-xs text-slate-500">
                       <div>{formatTaskDisplayNumber(task)}</div>
-                      <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
+                      <div className={`font-sans text-[0.7rem] font-bold ${task.createdByRoleCode === 'Reporter' && task.priority === 'Normal' ? 'text-white' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
                     </td>
                     <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}
@@ -1102,7 +1102,7 @@ const pageKicker = isMyTasksView
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                         )}
-                        {(isMyTasksView || isDepartmentTasksView) && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
+                        {(isDepartmentTasksView || (isMyTasksView && isAssignee(task))) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button
                             size="sm"
                             variant="destructive"

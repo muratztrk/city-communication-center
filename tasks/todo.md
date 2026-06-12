@@ -267,3 +267,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 35 (manual check)
 - [x] `7RspesWl` (reopened #3, filter) — Column filters were case-broken for Turkish "İ" (İptal/İade) because useColumnFilters.matchesFilters used default toLowerCase(); switched to toLocaleLowerCase('tr'). Fixes Durum filter (and all column filters) for Turkish text. Pushed. Moved to Done.
+- [x] `MrqUHoyC` — Bildirimler bell now reflects all request/task lifecycle changes: GetNotificationsQuery merges real (push) notifications with an audit-log-derived feed for the current user's own jobs + assigned/owned/created tasks. AuditLog Action mapped to Turkish titles (Talep/Görev oluşturuldu/onaylandı/iptal/iade vb.), message from Notes/Details + actor, link to /my-requests|/my-tasks. Audit entries marked read so they don't inflate the unread badge. Backend-only (bell renders the contract). Pushed. Moved to Done.
+
+## STATUS: Round 35 complete — Doing list drained.

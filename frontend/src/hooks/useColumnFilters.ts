@@ -28,7 +28,8 @@ export function useColumnFilters() {
         const raw = getDisplay
           ? getDisplay(key, item)
           : String((item as Record<string, unknown>)[key] ?? '')
-        if (!raw.toLowerCase().includes(value.toLowerCase())) return false
+        // Türkçe "İ"/"I" eşleşmesi için tr-locale lowercase (ör. "İptal"/"İade" filtreleri).
+        if (!raw.toLocaleLowerCase('tr').includes(value.toLocaleLowerCase('tr'))) return false
       }
       return true
     },

@@ -264,3 +264,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 34 (manual check)
 - [x] `IM1wf1dA` — Wallboard: added red "Çıkış" button next to "Yenile" → navigates to home (/). Pushed. Moved to Done.
 - [x] `eXTCjF9l` — Wallboard rows for Reporter-originated tasks now amber (#fbbf24, dark text) via .reporter-row (item.isReporterRequest from job.createdByRoleCode). Pushed. Moved to Done.
+
+## Round 35 (manual check)
+- [x] `7RspesWl` (reopened #3, filter) — Column filters were case-broken for Turkish "İ" (İptal/İade) because useColumnFilters.matchesFilters used default toLowerCase(); switched to toLocaleLowerCase('tr'). Fixes Durum filter (and all column filters) for Turkish text. Pushed. Moved to Done.

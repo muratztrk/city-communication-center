@@ -267,8 +267,8 @@ export function WallboardPage() {
             <RefreshCw className="size-4" />
             {t('common.refresh', 'Yenile')}
           </Button>
-          <Button type="button" size="sm" variant="destructive" onClick={() => navigate('/')} className="gap-1.5">
-            <LogOut className="size-3.5" />
+          <Button type="button" variant="destructive" onClick={() => navigate('/')} className="gap-2">
+            <LogOut className="size-4" />
             {t('common.exit', 'Çıkış')}
           </Button>
         </div>

@@ -928,6 +928,14 @@
     border-top: 1px solid rgba(120, 53, 15, 0.42) !important;
   }
 
+  /* Sarı satırlı gridlerde tarih alanlarının çerçevesi beyaz görünür. */
+  .data-table tbody tr.row-attention .date-cell,
+  .data-table tbody tr.row-attention .due-date-pill {
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+  }
+
   .data-table--zebra tbody tr:nth-child(even):hover td {
     background: rgba(241, 245, 249, 0.9);
   }
@@ -1791,20 +1799,20 @@
   }
 
   .wallboard-back-button {
-    height: 1.75rem;
-    min-height: 1.75rem;
-    padding-inline: 0.6rem;
+    height: 1.5rem;
+    min-height: 1.5rem;
+    padding-inline: 0.5rem;
     border-color: rgba(255, 255, 255, 0.24);
     background: rgba(255, 255, 255, 0.92);
     color: #102033;
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
     flex-shrink: 0;
   }
 
   .wallboard-back-button svg {
-    width: 0.72rem;
-    height: 0.72rem;
+    width: 0.64rem;
+    height: 0.64rem;
   }
 
   .wallboard-hero h1 {
@@ -2026,6 +2034,10 @@
 
   .wallboard-table tbody tr.reporter-row + tr.reporter-row td {
     border-top: 1px solid rgba(66, 32, 6, 0.42);
+  }
+
+  .wallboard-table tbody tr.reporter-row .wallboard-cell-icon {
+    border-color: rgba(255, 255, 255, 0.9);
   }
 
   .wallboard-table tbody td {

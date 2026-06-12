@@ -24,7 +24,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
 interface ScopeChipFiltersProps {
@@ -151,7 +151,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   if (!win) return
   const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const deptRows = detail.departments.map(d => `<tr><td>${escHtml(d.departmentName ?? '—')}</td><td>${escHtml(d.role)}</td></tr>`).join('')
-  const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.currentStatus)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td><td>${escHtml(tk.ownerDisplayName ?? '—')}</td></tr>`).join('')
+  const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td><td>${escHtml(tk.ownerDisplayName ?? '—')}</td></tr>`).join('')
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(detail.title)}</title><style>
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
@@ -189,7 +189,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   </div>
   <div class="section">
     <div class="section-title">Görevler (${detail.tasks.length})</div>
-    ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Durum</th><th>Atanan</th><th>Sahip</th></tr></thead><tbody>${taskRows}</tbody></table>`}
+    ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Atanan</th><th>Sahip</th></tr></thead><tbody>${taskRows}</tbody></table>`}
   </div>
   ${attachItems ? `<div class="section"><div class="section-title">Ekler (${(detail.attachments ?? []).length})</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul></div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -880,7 +880,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
                   {isDepartmentOutgoingView && <th>{t('jobs.columns.createdBy', 'Oluşturan')}</th>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
-                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <FilterableTh filterKey="cancelReturnStatus" filterValue={jobFilters['cancelReturnStatus'] ?? ''} onFilter={setJobFilter} sortKey="cancelReturnStatus" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView)
                     ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
                     : <th>{t('jobs.columns.departments')}</th>
@@ -922,7 +921,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold">{job.title}</td>
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td>{'İptal'}</td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
                         renderOutgoingDestination(job)
@@ -1112,7 +1110,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   <thead>
                     <tr>
                       <th>{t('tasks.columns.title', 'Başlık')}</th>
-                      <th>{t('tasks.columns.status', 'Durum')}</th>
                       <th>{t('tasks.columns.assignedTo', 'Atanan')}</th>
                       <th>{t('tasks.columns.owner', 'Sahip')}</th>
                     </tr>
@@ -1121,7 +1118,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {detail.tasks.map(tk => (
                       <tr key={tk.taskId}>
                         <td>{tk.title}</td>
-                        <td><StatusPill>{t(`enum.taskStatus.${tk.currentStatus}`, tk.currentStatus)}</StatusPill></td>
                         <td>{tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—'}</td>
                         <td>{tk.ownerDisplayName ?? '—'}</td>
                       </tr>
@@ -1169,7 +1165,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       <th>{t('auditLog.columns.date', 'Tarih')}</th>
                       <th>{t('auditLog.columns.action', 'İşlem')}</th>
                       <th>{t('auditLog.columns.actor', 'Kullanıcı')}</th>
-                      <th>{t('auditLog.columns.status', 'Durum')}</th>
                       <th>{t('auditLog.columns.notes', 'Notlar')}</th>
                     </tr>
                   </thead>
@@ -1179,7 +1174,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         <td className="text-xs text-slate-500">{new Date(entry.eventTimeUtc).toLocaleString(locale)}</td>
                         <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
                         <td>{entry.actorDisplayName}</td>
-                        <td>{entry.statusAtEvent ? getAuditStatusLabel(t, entry.statusAtEvent) : '—'}</td>
                         <td className="text-xs text-slate-500">{entry.notes ? formatAuditNotes(t, entry.notes) : '—'}</td>
                       </tr>
                     ))}

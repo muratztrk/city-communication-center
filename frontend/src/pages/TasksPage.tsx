@@ -20,7 +20,7 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getAuditStatusLabel, getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
 interface TaskScopeFiltersProps {
@@ -992,7 +992,6 @@ const pageKicker = isMyTasksView
                         <th>{t('auditLog.columns.date', 'Tarih')}</th>
                         <th>{t('auditLog.columns.action', 'İşlem')}</th>
                         <th>{t('auditLog.columns.actor', 'Kullanıcı')}</th>
-                        <th>{t('auditLog.columns.status', 'Durum')}</th>
                         <th>{t('auditLog.columns.notes', 'Notlar')}</th>
                       </tr>
                     </thead>
@@ -1002,7 +1001,6 @@ const pageKicker = isMyTasksView
                           <td className="text-xs text-slate-500">{new Date(entry.eventTimeUtc).toLocaleString(locale)}</td>
                           <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
                           <td>{entry.actorDisplayName}</td>
-                          <td>{entry.statusAtEvent ? getAuditStatusLabel(t, entry.statusAtEvent) : '—'}</td>
                           <td className="text-xs text-slate-500">{entry.notes ? formatAuditNotes(t, entry.notes) : '—'}</td>
                         </tr>
                       ))}
@@ -1029,7 +1027,6 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
-                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="cancelReturnStatus" filterValue={taskFilters['cancelReturnStatus'] ?? ''} onFilter={setTaskFilter} sortKey="cancelReturnStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('incomingRequests.columns.cancelReturnStatus', 'Durum')}</FilterableTh>}
                   {isDepartmentTasksView && (
                     <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
                   )}
@@ -1073,7 +1070,6 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td>{task.title}</td>
-                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td>{'İptal'}</td>}
                     {isDepartmentTasksView && (
                       <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
                     )}
@@ -1115,7 +1111,7 @@ const pageKicker = isMyTasksView
                             className={task.createdByRoleCode === 'Reporter' && !isManagerLike ? 'cursor-not-allowed opacity-60' : undefined}
                             onClick={() => { if (task.createdByRoleCode === 'Reporter' && !isManagerLike) return; openReturnModal(task.taskId) }}
                           >
-                            {t('common.cancel', 'İptal')}
+                            {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
                         )}
                       </div>

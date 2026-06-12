@@ -13,14 +13,7 @@ import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
 import type { Department, SocialMessage } from '../types/platform'
-import { getLocale, getSocialChannelLabel, getSocialStatusLabel } from '../utils/localization'
-
-function getStatusTone(status: string) {
-  if (status === 'ConvertedToTask') return 'success' as const
-  if (status === 'Routed') return 'info' as const
-  if (status === 'Closed') return 'neutral' as const
-  return 'warning' as const
-}
+import { getLocale, getSocialChannelLabel } from '../utils/localization'
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
@@ -239,7 +232,6 @@ export function SocialMessagesPage() {
                 <FilterableTh filterKey="citizenHandle" filterValue={socialFilters['citizenHandle'] ?? ''} onFilter={setSocialFilter} sortKey="citizenHandle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.sender')}</FilterableTh>
                 <FilterableTh filterKey="category" filterValue={socialFilters['category'] ?? ''} onFilter={setSocialFilter} sortKey="category" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.category')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.assignedDepartment', 'Sahip Müdürlük')}</FilterableTh>
-                <FilterableTh filterKey="status" filterValue={socialFilters['status'] ?? ''} onFilter={setSocialFilter} sortKey="status" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('common.status')}</FilterableTh>
                 <th>{t('location.mapSectionTitle', 'Konum')}</th>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.date')}</FilterableTh>
                 <th>{t('common.actions')}</th>
@@ -258,7 +250,6 @@ export function SocialMessagesPage() {
                     <td className="font-semibold">@{message.citizenHandle}</td>
                     <td>{message.category || t('common.none')}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
-                    <td><StatusPill tone={getStatusTone(message.status)}>{getSocialStatusLabel(t, message.status)}</StatusPill></td>
                     <td>
                       {hasLocation(message) ? (
                         <StatusPill tone="success">

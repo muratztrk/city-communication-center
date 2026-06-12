@@ -323,6 +323,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
+  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
@@ -600,19 +601,21 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }
 
   const handleCancel = (jobId: string) => {
-    setPromptDialog({
-      title: t('jobs.actions.cancelReason'),
-      confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
-      onConfirm: async (reason) => {
-        try {
-          await api.cancelJob(jobId, reason)
-          await refreshDetail()
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
+    setCancelModal({ jobId, reason: '', saving: false })
+  }
+
+  const handleCancelConfirm = async () => {
+    if (!cancelModal || !cancelModal.reason.trim()) return
+    setCancelModal(m => m ? { ...m, saving: true } : null)
+    try {
+      await api.cancelJob(cancelModal.jobId, cancelModal.reason.trim())
+      setCancelModal(null)
+      await refreshDetail()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setCancelModal(m => m ? { ...m, saving: false } : null)
+    }
   }
   const handleApproveOwner = (jobId: string) => {
     setConfirmDialog({
@@ -1262,6 +1265,36 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
+      {cancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)}>
+          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <XIcon className="size-4" />
+            </button>
+            <h2 className="text-xl font-extrabold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
+            <p className="helper-copy">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+              <textarea
+                className="field-textarea"
+                rows={3}
+                value={cancelModal.reason}
+                onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value } : null)}
+                placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
+                autoFocus
+              />
+            </label>
+            <div className="inline-actions">
+              <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
+                {t('common.dismiss', 'Vazgeç')}
+              </Button>
+              <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
+                {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

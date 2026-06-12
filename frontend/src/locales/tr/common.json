@@ -1160,6 +1160,8 @@
       "assignStaffHelp": "Bu talebe görev atayacağınız personeli seçin.",
       "selfRequestedOwner": "(Görevi kendisi yapmak istiyor.)",
       "cancel": "İptal Et",
+      "cancelJob": "Talebi İptal Et",
+      "cancelJobHelp": "Talebi iptal etmek için neden belirtiniz.",
       "return": "İade Et",
       "returnTitle": "Talebi İade Et",
       "returnHelp": "Talebi iade etmek için açıklama yazınız.",

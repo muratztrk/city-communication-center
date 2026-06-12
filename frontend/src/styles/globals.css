@@ -2019,8 +2019,9 @@
     border-left: 1px solid rgba(0, 0, 0, 0.1);
   }
 
-  .wallboard-table tbody tr.reporter-row .wallboard-priority-text {
-    color: #78350f;
+  .wallboard-table tbody tr.reporter-row .wallboard-priority-text,
+  .wallboard-table tbody tr.reporter-row .wallboard-priority-text.text-yellow-500 {
+    color: white;
   }
 
   .wallboard-table tbody td {

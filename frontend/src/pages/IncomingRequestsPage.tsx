@@ -22,8 +22,6 @@ import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
-import { PromptDialog } from '../components/ui/prompt-dialog'
-import type { PromptDialogState } from '../components/ui/prompt-dialog'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User } from '../types/platform'
@@ -274,7 +272,7 @@ export function IncomingRequestsPage() {
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
+  const [cancelModal, setCancelModal] = useState<{ row: IncomingRequestRow; reason: string; saving: boolean } | null>(null)
 const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
@@ -407,28 +405,27 @@ const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
   }
 
   const openCancelReturn = (row: IncomingRequestRow) => {
-    // İade kaldırıldı: doğrudan iptal nedeni popup'ı. Görev satırında "Görev", talep satırında "Talep".
-    const isTaskRow = row.statusDomain === 'task'
+    setCancelModal({ row, reason: '', saving: false })
+  }
+
+  const handleCancelConfirm = async () => {
+    if (!cancelModal || !cancelModal.reason.trim()) return
+    const { row, reason } = cancelModal
     const isPending = !(row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval')
-    setPromptDialog({
-      title: isTaskRow ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : 'Talebi İptal Et',
-      label: t('jobs.actions.cancelReason', 'İptal Nedeni'),
-      placeholder: t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...'),
-      confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
-      onConfirm: async (reason) => {
-        setError(null)
-        try {
-          if (isPending && row.status === 'PendingOwnerApproval') {
-            await api.rejectJobOwner(row.id, reason)
-          } else {
-            await api.cancelJob(row.id, reason)
-          }
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
+    setCancelModal(m => m ? { ...m, saving: true } : null)
+    try {
+      setError(null)
+      if (isPending && row.status === 'PendingOwnerApproval') {
+        await api.rejectJobOwner(row.id, reason.trim())
+      } else {
+        await api.cancelJob(row.id, reason.trim())
+      }
+      setCancelModal(null)
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setCancelModal(m => m ? { ...m, saving: false } : null)
+    }
   }
 
   const rows = useMemo(() => {
@@ -509,7 +506,7 @@ const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
       setIncomingPage(1)
       clearIncomingFilters()
       setConfirmDialog(null)
-      setPromptDialog(null)
+      setCancelModal(null)
       setStaffAssignModal(null)
       setError(null)
     })
@@ -699,7 +696,42 @@ const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
         </section>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
-      <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
+      {cancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)}>
+          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <X className="size-4" />
+            </button>
+            <h2 className="text-xl font-extrabold text-slate-950">
+              {cancelModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
+            </h2>
+            <p className="helper-copy">
+              {cancelModal.row.statusDomain === 'task'
+                ? t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')
+                : t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
+            </p>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+              <textarea
+                className="field-textarea"
+                rows={3}
+                value={cancelModal.reason}
+                onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value } : null)}
+                placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
+                autoFocus
+              />
+            </label>
+            <div className="inline-actions">
+              <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
+                {t('common.dismiss', 'Vazgeç')}
+              </Button>
+              <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
+                {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       {staffAssignModal && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"

@@ -16,7 +16,7 @@ export function getPriorityLabel(t: TFunction, priority: string): string {
 export function getPriorityColorClass(priority: string): string {
   if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
   if (priority === 'High') return 'text-orange-500'
-  if (priority === 'Normal') return 'bg-yellow-400 text-white rounded px-1'
+  if (priority === 'Normal') return 'text-yellow-500'
   return 'text-slate-400'
 }
 

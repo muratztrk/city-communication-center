@@ -569,8 +569,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       task?.createdByRoleCode === 'Reporter' &&
       isManagerLike &&
       task.assignedUserId === user?.userId
-    // Her zaman seçim adımı gösterilir; yetki yoksa ilgili butonlar pasiftir.
-    setReturnModal({ taskId, step: 'choose', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask, useManagerReporterRedirectLabel, directRoute: false })
+    // İade kaldırıldı: doğrudan İptal nedeni adımına geçilir (seçim/iade adımı yok).
+    setReturnModal({ taskId, step: 'cancel', assignedDepartmentId: task?.assignedDepartmentId ?? null, isRoutine: !canReturn, canReturn, isReporterTask, useManagerReporterRedirectLabel, directRoute: false })
     setCancelReason('')
     setReturnReason('')
     setReturnManagerId('')
@@ -1160,9 +1160,16 @@ const pageKicker = isMyTasksView
                           <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                         )}
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button size="sm" variant="destructive" onClick={() => openReturnModal(task.taskId)}>
-                            {/* Tüm görevlerde tek tip "İptal/İade"; popup'ta İptal/İade seçenekleri yetkiye göre pasif olur. */}
-                            {t('tasks.actions.cancelReturn', 'İptal/İade')}
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            /* İade kaldırıldı: sadece "İptal" → doğrudan iptal nedeni popup'ı. Üst Düzey Yönetici görevini personel iptal edemez (pasif). */
+                            aria-disabled={task.createdByRoleCode === 'Reporter' && !isManagerLike}
+                            title={task.createdByRoleCode === 'Reporter' && !isManagerLike ? t('tasks.actions.cancelNotAllowed', 'İptal yetkiniz yok') : undefined}
+                            className={task.createdByRoleCode === 'Reporter' && !isManagerLike ? 'cursor-not-allowed opacity-60' : undefined}
+                            onClick={() => { if (task.createdByRoleCode === 'Reporter' && !isManagerLike) return; openReturnModal(task.taskId) }}
+                          >
+                            {t('common.cancel', 'İptal')}
                           </Button>
                         )}
                       </div>
@@ -1295,8 +1302,8 @@ const pageKicker = isMyTasksView
                   />
                 </label>
                 <div className="inline-actions">
-                  <Button type="button" variant="secondary" onClick={() => setReturnModal(m => m ? { ...m, step: 'choose' } : null)}>
-                    {t('common.back', 'Geri')}
+                  <Button type="button" variant="secondary" onClick={closeReturnModal}>
+                    {t('common.dismiss', 'Vazgeç')}
                   </Button>
                   <Button type="button" variant="destructive" disabled={returnSaving || !cancelReason.trim()} onClick={() => void handleCancelTask()}>
                     {returnSaving ? t('common.loading') : t('tasks.actions.cancelTask', 'İptal Et')}

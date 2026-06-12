@@ -408,28 +408,28 @@ export function IncomingRequestsPage() {
   }
 
   const openCancelReturn = (row: IncomingRequestRow) => {
-    if (row.statusDomain === 'task') {
-      setCancelReturnModal({ row })
-    } else if (row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval') {
-      setCancelReturnModal({ row })
-    } else {
-      // Pending approval — İptal/İade ile reddedilir; başlık "İptal Nedeni:", onay butonu "İptali Onayla".
-      setPromptDialog({
-        title: t('jobs.actions.cancelReason', 'İptal Nedeni'),
-        confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
-        onConfirm: async (reason) => {
-          setError(null)
-          try {
-            if (row.status === 'PendingOwnerApproval') {
-              await api.rejectJobOwner(row.id, reason)
-            }
-            await reload()
-          } catch (err) {
-            setError(err instanceof Error ? err.message : t('common.error'))
+    // İade kaldırıldı: doğrudan iptal nedeni popup'ı. Görev satırında "Görev", talep satırında "Talep".
+    const isTaskRow = row.statusDomain === 'task'
+    const isPending = !(row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval')
+    setPromptDialog({
+      title: isTaskRow ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : 'Talebi İptal Et',
+      label: t('jobs.actions.cancelReason', 'İptal Nedeni'),
+      placeholder: t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...'),
+      confirmLabel: t('jobs.actions.confirmCancel', 'İptali Onayla'),
+      onConfirm: async (reason) => {
+        setError(null)
+        try {
+          if (isPending && row.status === 'PendingOwnerApproval') {
+            await api.rejectJobOwner(row.id, reason)
+          } else {
+            await api.cancelJob(row.id, reason)
           }
-        },
-      })
-    }
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
   }
 
   const rows = useMemo(() => {
@@ -683,7 +683,7 @@ export function IncomingRequestsPage() {
                           row.status === 'PendingCloseApproval'
                         ) && (
                           <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
-                            {t('jobs.actions.cancelOrReturn', 'İptal/İade')}
+                            {t('common.cancel', 'İptal')}
                           </Button>
                         )}
                       </div>

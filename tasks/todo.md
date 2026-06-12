@@ -270,3 +270,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `MrqUHoyC` — Bildirimler bell now reflects all request/task lifecycle changes: GetNotificationsQuery merges real (push) notifications with an audit-log-derived feed for the current user's own jobs + assigned/owned/created tasks. AuditLog Action mapped to Turkish titles (Talep/Görev oluşturuldu/onaylandı/iptal/iade vb.), message from Notes/Details + actor, link to /my-requests|/my-tasks. Audit entries marked read so they don't inflate the unread badge. Backend-only (bell renders the contract). Pushed. Moved to Done.
 
 ## STATUS: Round 35 complete — Doing list drained.
+
+## Round 36 (manual check)
+- [x] `UWHsvfFj` — Removed İade from the cancel flow: grid "İptal/İade" buttons → "İptal" in TasksPage + IncomingRequests; clicking goes straight to the cancel-reason popup (TasksPage openReturnModal → 'cancel' step; IncomingRequests openCancelReturn → prompt). Task popup keeps "Görev" wording; request popup says "Talebi İptal Et" (Talep, not Görev). Reporter cancel restriction preserved (staff button passive). Choose/İade-Et UI now unreachable. Pushed. Moved to Done.
+
+## STATUS: Round 36 complete — Doing list drained.

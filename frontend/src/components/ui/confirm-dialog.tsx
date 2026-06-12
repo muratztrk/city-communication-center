@@ -3,10 +3,12 @@ import { X } from 'lucide-react'
 import { Button } from './button'
 
 export interface ConfirmDialogState {
+  title?: string
   message: string
   confirmLabel?: string
   cancelLabel?: string
   variant?: 'destructive' | 'primary'
+  hideCancel?: boolean
   onConfirm: () => void | Promise<void>
 }
 
@@ -42,11 +44,14 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
         >
           <X className="size-4" />
         </button>
+        {state.title && <h2 className="mb-2 text-lg font-bold text-slate-950">{state.title}</h2>}
         <p className="mb-6 mt-2 text-sm text-slate-700">{state.message}</p>
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {state.cancelLabel ?? t('common.cancel', 'İptal')}
-          </Button>
+          {!state.hideCancel && (
+            <Button type="button" variant="secondary" onClick={onClose}>
+              {state.cancelLabel ?? t('common.cancel', 'İptal')}
+            </Button>
+          )}
           <Button type="button" variant={state.variant ?? 'destructive'} onClick={handleConfirm}>
             {state.confirmLabel ?? t('common.yes', 'Evet')}
           </Button>

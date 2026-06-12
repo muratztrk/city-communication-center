@@ -1102,14 +1102,23 @@ const pageKicker = isMyTasksView
                         {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                         )}
-                        {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (!isManagerLike || task.createdByRoleCode === 'Reporter') && (
+                        {(isMyTasksView || isDepartmentTasksView) && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
                           <Button
                             size="sm"
                             variant="destructive"
-                            aria-disabled={task.createdByRoleCode === 'Reporter' && !isManagerLike}
-                            title={task.createdByRoleCode === 'Reporter' && !isManagerLike ? t('tasks.actions.cancelNotAllowed', 'İptal yetkiniz yok') : undefined}
-                            className={task.createdByRoleCode === 'Reporter' && !isManagerLike ? 'cursor-not-allowed opacity-60' : undefined}
-                            onClick={() => { if (task.createdByRoleCode === 'Reporter' && !isManagerLike) return; openReturnModal(task.taskId) }}
+                            onClick={() => {
+                              if (task.createdByRoleCode === 'Reporter' && !isManagerLike) {
+                                setConfirmDialog({
+                                  title: t('tasks.actions.cancelNotAllowed', 'İptal Yetkiniz Yok'),
+                                  message: t('tasks.actions.cancelManagerTaskNotAllowed', 'Üst Düzey Yönetici\'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.'),
+                                  onConfirm: () => setConfirmDialog(null),
+                                  confirmLabel: t('common.ok', 'Tamam'),
+                                  hideCancel: true
+                                })
+                              } else {
+                                openReturnModal(task.taskId)
+                              }
+                            }}
                           >
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
@@ -1189,7 +1198,6 @@ const pageKicker = isMyTasksView
                 <label className="job-field">
                   <span className="job-field-label">{t('tasks.draftUser', 'Kullanıcı (isteğe bağlı)')}</span>
                   <select className="field-select" value={returnUserId} onChange={e => setReturnUserId(e.target.value)}>
-                    <option value="">{t('tasks.departmentPoolAssignee', 'Birim Havuzu')}</option>
                     {returnDeptUsers.map(u => (
                       <option key={u.userId} value={u.userId}>{u.displayName}</option>
                     ))}

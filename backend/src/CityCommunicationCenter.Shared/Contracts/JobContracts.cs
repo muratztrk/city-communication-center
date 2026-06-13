@@ -106,6 +106,8 @@ public sealed record JobDetailResponse(
     string? OpenAddress,
     string? CreatedByDisplayName,
     DateTimeOffset CreatedAtUtc,
+    int? JobNumber,
+    int? JobNumberYear,
     IReadOnlyCollection<JobDepartmentResponse> Departments,
     IReadOnlyCollection<TaskSummaryResponse> Tasks,
     IReadOnlyCollection<ApprovalStepResponse> Approvals,

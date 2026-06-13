@@ -291,6 +291,8 @@ export interface JobDetail {
   openAddress?: string | null;
   createdByDisplayName: string | null;
   createdAtUtc: string;
+  jobNumber: number | null;
+  jobNumberYear: number | null;
   departments: JobDepartmentInfo[];
   tasks: Task[];
   approvals: JobApprovalStep[];

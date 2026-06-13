@@ -358,6 +358,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.Latitude, job.Longitude,
             job.Neighborhood, job.Street, job.OpenAddress,
             createdByName, job.CreatedAtUtc,
+            job.JobNumber, job.JobNumberYear,
             depts, tasks, approvals, attachments);
     }
 }

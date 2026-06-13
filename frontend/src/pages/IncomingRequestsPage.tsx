@@ -616,12 +616,17 @@ export function IncomingRequestsPage() {
               <div className="scope-chip-search-wrap">
                 <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
                 <input
-                  type="search"
+                  type="text"
                   className="scope-chip-search-input"
                   placeholder={t('common.search', 'Ara...')}
                   value={searchText}
                   onChange={e => setSearchText(e.target.value)}
                 />
+                {searchText && (
+                  <button type="button" onClick={() => setSearchText('')} className="shrink-0 text-red-500 hover:text-red-600 transition-colors" aria-label="Temizle">
+                    <X className="size-3" />
+                  </button>
+                )}
               </div>
               {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
               <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />

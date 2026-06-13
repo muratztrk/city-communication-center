@@ -37,12 +37,17 @@ function TaskScopeFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
       <div className="scope-chip-search-wrap">
         <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
         <input
-          type="search"
+          type="text"
           className="scope-chip-search-input"
           placeholder="Ara..."
           value={searchText}
           onChange={e => onSearch(e.target.value)}
         />
+        {searchText && (
+          <button type="button" onClick={() => onSearch('')} className="shrink-0 text-red-500 hover:text-red-600 transition-colors" aria-label="Temizle">
+            <X className="size-3" />
+          </button>
+        )}
       </div>
       {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
       <DateTimePicker value={filterFrom} onChange={onFromChange} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
@@ -822,7 +827,7 @@ const pageKicker = isMyTasksView
           role="presentation"
         >
           <section
-            className="relative max-h-[88dvh] w-full max-w-5xl overflow-y-auto rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            className="relative max-h-[90dvh] w-full max-w-7xl overflow-y-auto rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <button
@@ -855,22 +860,49 @@ const pageKicker = isMyTasksView
             <div className="loading">{t('common.loading')}</div>
           ) : taskDetail ? (
             <>
-              <div className="info-grid">
-                <div className="info-item"><label>{t('tasks.columns.status')}</label><strong>{getTaskStatusLabel(t, taskDetail.currentStatus)}</strong></div>
-                <div className="info-item"><label>{t('tasks.columns.priority')}</label><strong>{getPriorityLabel(t, taskDetail.priority)}</strong></div>
-                <div className="info-item"><label>{t('tasks.columns.dueDate')}</label><strong>{formatDateTime(taskDetail.dueDateUtc, locale)}</strong></div>
-                <div className="info-item"><label>{t('tasks.columns.owner')}</label><strong>{taskDetail.ownerDisplayName ?? '—'}</strong></div>
-                <div className="info-item"><label>{t('tasks.columns.createdBy')}</label><strong>{taskDetail.createdByDisplayName ?? '—'}</strong></div>
-              </div>
-
-              <div className="job-field">
-                <span className="job-field-label">{t('tasks.description', 'Açıklama')}</span>
-                <RichTextContent
-                  value={taskDetail.description}
-                  emptyText={t('common.none')}
-                  className="rich-text-content rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700"
-                />
-              </div>
+              {/* Gridview 1: Görev Detayları */}
+              <section className="mb-5">
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('tasks.detail.kicker', 'Görev Detayları')}</h3>
+                <div className="overflow-x-auto">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>{t('tasks.columns.title', 'Başlık')}</th>
+                        <th>{t('tasks.columns.status', 'Durum')}</th>
+                        <th>{t('tasks.columns.priority', 'Öncelik')}</th>
+                        <th>{t('tasks.columns.owner', 'Sahip')}</th>
+                        <th>{t('tasks.department', 'Birim')}</th>
+                        <th>{t('tasks.columns.assignedUser', 'Atanan')}</th>
+                        <th>{t('tasks.columns.dueDate', 'Termin')}</th>
+                        <th>{t('tasks.columns.createdBy', 'Oluşturan')}</th>
+                        <th>{t('tasks.columns.taskDate', 'Oluşturma Tarihi')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="font-semibold">{taskDetail.title}</td>
+                        <td><StatusPill tone={taskDetail.currentStatus === 'Completed' ? 'success' : taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected' ? 'warning' : 'info'}>{getTaskStatusLabel(t, taskDetail.currentStatus)}</StatusPill></td>
+                        <td><StatusPill tone="info">{getPriorityLabel(t, taskDetail.priority)}</StatusPill></td>
+                        <td>{taskDetail.ownerDisplayName ?? '—'}</td>
+                        <td>{taskDetail.assignedDepartmentId ? getDepartmentName(taskDetail.assignedDepartmentId) : '—'}</td>
+                        <td>{taskDetail.assignedUserId ? getUserName(taskDetail.assignedUserId) : t('tasks.departmentPoolAssignee', 'Havuz')}</td>
+                        <td>{formatDateTime(taskDetail.dueDateUtc, locale)}</td>
+                        <td>{taskDetail.createdByDisplayName ?? '—'}</td>
+                        <td>{formatDateTime(taskDetail.createdAtUtc, locale)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                {taskDetail.description && (
+                  <div className="mt-3">
+                    <RichTextContent
+                      value={taskDetail.description}
+                      emptyText=""
+                      className="rich-text-content rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700"
+                    />
+                  </div>
+                )}
+              </section>
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <section className="form-card page-stack">
@@ -1032,46 +1064,45 @@ const pageKicker = isMyTasksView
             </>
           ) : null}
 
-          {/* Parent job detail section */}
+          {/* Gridview 2: İlgili Talep Detayları */}
           {parentJobDetail && (
-            <section className="mt-6 border-t border-slate-200 pt-6">
-              <div className="mb-3">
-                <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
-                  {t('tasks.detail.parentJobTitle', 'Oluşturan Talep')}
-                </div>
-                <h3 className="text-lg font-extrabold text-slate-950">{parentJobDetail.title}</h3>
-                {parentJobDetail.description && (
-                  <RichTextContent value={parentJobDetail.description} emptyText="" className="rich-text-content mt-1 text-sm text-slate-600" />
-                )}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill>
-                  <StatusPill tone="info">{getPriorityLabel(t, parentJobDetail.priority)}</StatusPill>
-                  <StatusPill tone="neutral">{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}: {parentJobDetail.ownerDepartmentName ?? '—'}</StatusPill>
-                  {parentJobDetail.isProject && <StatusPill tone="warning">{t('jobs.columns.project', 'Proje')}</StatusPill>}
-                </div>
+            <section className="mt-6 border-t border-slate-200 pt-5">
+              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}</h3>
+              <div className="overflow-x-auto">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
+                      <th>{t('jobs.columns.title', 'Başlık')}</th>
+                      <th>{t('tasks.columns.status', 'Durum')}</th>
+                      <th>{t('tasks.columns.priority', 'Öncelik')}</th>
+                      <th>{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}</th>
+                      <th>{t('common.createdBy', 'Oluşturan')}</th>
+                      <th>{t('tasks.columns.dueDate', 'Termin')}</th>
+                      <th>{t('jobs.columns.completedAt', 'Tamamlanma')}</th>
+                      <th>{t('jobs.columns.taskCount', 'Görev Sayısı')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="font-mono text-xs text-slate-500">{parentJobDetail.jobNumber ? `T-${parentJobDetail.jobNumberYear}-${parentJobDetail.jobNumber}` : '—'}</td>
+                      <td className="font-semibold">{parentJobDetail.title}</td>
+                      <td><StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill></td>
+                      <td><StatusPill tone="info">{getPriorityLabel(t, parentJobDetail.priority)}</StatusPill></td>
+                      <td>{parentJobDetail.ownerDepartmentName ?? '—'}</td>
+                      <td>{parentJobDetail.createdByDisplayName ?? '—'}</td>
+                      <td>{formatDateTime(parentJobDetail.dueDateUtc, locale)}</td>
+                      <td>{formatDateTime(parentJobDetail.completedAtUtc, locale)}</td>
+                      <td className="text-center">{parentJobDetail.tasks.length}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <table className="data-table mt-3">
-                <thead>
-                  <tr>
-                    <th>{t('jobs.columns.title', 'Başlık')}</th>
-                    <th>{t('common.createdBy', 'Oluşturan')}</th>
-                    <th>{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}</th>
-                    <th>{t('tasks.columns.dueDate', 'Termin')}</th>
-                    <th>{t('tasks.columns.status', 'Durum')}</th>
-                    <th>{t('jobs.columns.taskCount', 'Görev Sayısı')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="font-semibold">{parentJobDetail.title}</td>
-                    <td>{parentJobDetail.createdByDisplayName ?? '—'}</td>
-                    <td>{parentJobDetail.ownerDepartmentName ?? '—'}</td>
-                    <td>{formatDateTime(parentJobDetail.dueDateUtc, locale)}</td>
-                    <td><StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill></td>
-                    <td className="text-center">{parentJobDetail.tasks.length}</td>
-                  </tr>
-                </tbody>
-              </table>
+              {parentJobDetail.description && (
+                <div className="mt-3">
+                  <RichTextContent value={parentJobDetail.description} emptyText="" className="rich-text-content rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600" />
+                </div>
+              )}
             </section>
           )}
           </section>

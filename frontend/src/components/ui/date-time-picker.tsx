@@ -1,4 +1,4 @@
-import { CalendarClock, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
+import { CalendarClock, ChevronLeft, ChevronRight, Clock, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
@@ -175,11 +175,22 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         className={cn(
           'field-input flex w-full items-center gap-2 text-left',
           !display && 'text-[color:var(--color-muted-foreground)]',
+          value && 'pr-7',
         )}
       >
         <CalendarClock className="size-4 shrink-0 opacity-60" />
         <span className="flex-1 truncate">{display || placeholder}</span>
       </button>
+      {value && (
+        <button
+          type="button"
+          onClick={e => { e.stopPropagation(); onChange('') }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 flex size-4 items-center justify-center rounded-full text-red-500 transition-colors hover:text-red-600"
+          aria-label="Temizle"
+        >
+          <X className="size-3" />
+        </button>
+      )}
 
       {open ? createPortal((
         <div
@@ -255,7 +266,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
               <button
                 type="button"
                 onClick={handleClear}
-                className="shrink-0 text-xs font-semibold text-slate-400 transition-colors hover:text-slate-600"
+                className="shrink-0 text-xs font-semibold text-yellow-500 transition-colors hover:text-yellow-600"
               >
                 Temizle
               </button>

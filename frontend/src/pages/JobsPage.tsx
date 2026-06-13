@@ -41,12 +41,17 @@ function ScopeChipFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
       <div className="scope-chip-search-wrap">
         <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
         <input
-          type="search"
+          type="text"
           className="scope-chip-search-input"
           placeholder="Ara..."
           value={searchText}
           onChange={e => onSearch(e.target.value)}
         />
+        {searchText && (
+          <button type="button" onClick={() => onSearch('')} className="shrink-0 text-red-500 hover:text-red-600 transition-colors" aria-label="Temizle">
+            <XIcon className="size-3" />
+          </button>
+        )}
       </div>
       {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
       <DateTimePicker value={filterFrom} onChange={onFromChange} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />

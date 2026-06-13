@@ -1,0 +1,24 @@
+namespace CityCommunicationCenter.Domain.Entities;
+
+public sealed class SocialConversationEntry
+{
+    public Guid EntryId { get; set; }
+
+    public Guid SocialMessageId { get; set; }
+
+    public ConversationEntryDirection Direction { get; set; }
+
+    public string Content { get; set; } = string.Empty;
+
+    /// <summary>WhatsApp media object ID — used by the media proxy endpoint to download the file.</summary>
+    public string? MediaId { get; set; }
+
+    public string? MediaMimeType { get; set; }
+
+    public DateTimeOffset SentAt { get; set; } = DateTimeOffset.UtcNow;
+
+    /// <summary>WhatsApp message ID (wamid.xxx) for deduplication.</summary>
+    public string? ExternalEntryId { get; set; }
+
+    public SocialMessage SocialMessage { get; set; } = null!;
+}

@@ -121,6 +121,16 @@ public sealed record EmailSettingsRequest(
     string? SmtpUser,
     string? SmtpPassword);
 
+public sealed record SocialConversationEntryDto(
+    Guid EntryId,
+    string Direction,
+    string Content,
+    string? MediaId,
+    string? MediaMimeType,
+    DateTimeOffset SentAt);
+
+public sealed record SocialReplyRequest(string Content);
+
 public sealed record SocialSettingsSaveResponse(
     string Message,
     bool Configured);

@@ -1,5 +1,5 @@
 import { MapPin, MessageSquare } from 'lucide-react'
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState, useCallback } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -14,6 +14,7 @@ import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
 import type { Department, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
+import { ConversationPanel } from '../components/ConversationPanel'
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
@@ -33,6 +34,11 @@ export function SocialMessagesPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [activeConversation, setActiveConversation] = useState<{ id: string; handle: string } | null>(null)
+
+  const openConversation = useCallback((msg: SocialMessage) => {
+    setActiveConversation({ id: msg.socialMessageId, handle: msg.citizenHandle })
+  }, [])
   const [routeDrafts, setRouteDrafts] = useState<Record<string, { departmentId: string }>>({})
   const [taskTitles, setTaskTitles] = useState<Record<string, string>>({})
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
@@ -319,11 +325,12 @@ export function SocialMessagesPage() {
                     </td>
                   </tr>
                   {message.content ? (
-                    <tr className="bg-slate-50/70">
+                    <tr className="bg-slate-50/70 cursor-pointer hover:bg-slate-100/80 transition-colors" onClick={() => openConversation(message)}>
                       <td colSpan={8}>
-                        <div className="flex items-start gap-2 py-0.5">
+                        <div className="flex items-center gap-2 py-0.5">
                           <MessageSquare className="mt-0.5 size-4 shrink-0 text-[color:var(--color-primary)]" />
-                          <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">{message.content}</p>
+                          <p className="text-sm text-slate-700 truncate max-w-xl">{message.content}</p>
+                          <span className="ml-auto text-xs font-semibold text-[color:var(--color-primary)] shrink-0 pr-2">{t('social.openConversation', 'Konuşmayı Aç →')}</span>
                         </div>
                       </td>
                     </tr>
@@ -362,6 +369,29 @@ export function SocialMessagesPage() {
         </div>
       </section>
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+
+      {/* Conversation slide-in panel */}
+      {activeConversation && (
+        <div
+          className="fixed inset-0 z-40 flex justify-end"
+          onClick={() => setActiveConversation(null)}
+        >
+          <div
+            className="relative z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <ConversationPanel
+              socialMessageId={activeConversation.id}
+              citizenHandle={activeConversation.handle}
+              onClose={() => setActiveConversation(null)}
+              onReplySent={() => {
+                api.getSocialMessages().then(setMessages).catch(() => {})
+              }}
+            />
+          </div>
+          <div className="fixed inset-0 bg-black/30 -z-10" />
+        </div>
+      )}
     </div>
   )
 }

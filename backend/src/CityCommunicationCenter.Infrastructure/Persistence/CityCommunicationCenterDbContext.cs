@@ -30,6 +30,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
     public DbSet<SocialMessage> SocialMessages => Set<SocialMessage>();
+    public DbSet<SocialConversationEntry> ConversationEntries => Set<SocialConversationEntry>();
     public DbSet<Job> Jobs => Set<Job>();
     public DbSet<JobDepartment> JobDepartments => Set<JobDepartment>();
     public DbSet<WorkTask> Tasks => Set<WorkTask>();
@@ -85,6 +86,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureDepartment(modelBuilder.Entity<Department>());
         ConfigureApplicationUser(modelBuilder.Entity<ApplicationUser>());
         ConfigureSocialMessage(modelBuilder.Entity<SocialMessage>());
+        ConfigureSocialConversationEntry(modelBuilder.Entity<SocialConversationEntry>());
         ConfigureJob(modelBuilder.Entity<Job>());
         ConfigureJobDepartment(modelBuilder.Entity<JobDepartment>());
         ConfigureTask(modelBuilder.Entity<WorkTask>());
@@ -410,6 +412,20 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
             .WithMany()
             .HasForeignKey(entity => entity.JobId)
             .OnDelete(DeleteBehavior.SetNull);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureSocialConversationEntry(EntityTypeBuilder<SocialConversationEntry> builder)
+    {
+        builder.ToTable("socialconversationentries");
+        builder.HasKey(e => e.EntryId);
+        builder.Property(e => e.Direction).HasConversion<string>();
+        builder.HasOne(e => e.SocialMessage)
+            .WithMany()
+            .HasForeignKey(e => e.SocialMessageId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(e => e.SocialMessageId);
+        builder.HasIndex(e => e.ExternalEntryId).HasFilter("externalentryid IS NOT NULL");
         ApplyLowerCaseColumnNames(builder);
     }
 

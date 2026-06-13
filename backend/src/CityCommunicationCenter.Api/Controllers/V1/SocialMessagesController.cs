@@ -1,4 +1,6 @@
+using System.Net.Http.Headers;
 using CityCommunicationCenter.Application.Features.Social;
+using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -8,10 +10,17 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 public sealed class SocialMessagesController : ApiControllerBase
 {
     private readonly IMediator _sender;
+    private readonly ISocialMediaSettingsProvider _settingsProvider;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public SocialMessagesController(IMediator sender)
+    public SocialMessagesController(
+        IMediator sender,
+        ISocialMediaSettingsProvider settingsProvider,
+        IHttpClientFactory httpClientFactory)
     {
         _sender = sender;
+        _settingsProvider = settingsProvider;
+        _httpClientFactory = httpClientFactory;
     }
 
     [HttpGet("")]
@@ -118,5 +127,73 @@ public sealed class SocialMessagesController : ApiControllerBase
             cancellationToken);
         if (!deleted) return NotFound();
         return NoContent();
+    }
+
+    [HttpGet("{messageId:guid}/conversation")]
+    [ProducesResponseType<IReadOnlyList<SocialConversationEntryDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<SocialConversationEntryDto>>> GetConversation(
+        Guid messageId,
+        CancellationToken cancellationToken)
+    {
+        var entries = await _sender.Send(new GetSocialConversationQuery(messageId), cancellationToken);
+        return Ok(entries);
+    }
+
+    [HttpPost("{messageId:guid}/reply")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Reply(
+        Guid messageId,
+        [FromBody] SocialReplyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new ReplyToSocialMessageCommand(messageId, CurrentContext.UserId, request.Content),
+            cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
+    /// <summary>Proxies WhatsApp media (image/video/audio/document) through the server.</summary>
+    [HttpGet("{messageId:guid}/conversation/media/{entryId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetMedia(
+        Guid messageId,
+        Guid entryId,
+        CancellationToken cancellationToken)
+    {
+        var tenantId = CurrentContext.TenantId!.Value;
+        var settings = _settingsProvider.GetSettings(tenantId)?.WhatsApp;
+        if (string.IsNullOrWhiteSpace(settings?.AccessToken))
+            return NotFound();
+
+        var entry = await _sender.Send(new GetSocialConversationQuery(messageId), cancellationToken);
+        var target = entry.FirstOrDefault(e => e.EntryId == entryId);
+        if (target is null || string.IsNullOrWhiteSpace(target.MediaId))
+            return NotFound();
+
+        var httpClient = _httpClientFactory.CreateClient("WhatsAppMedia");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.AccessToken);
+
+        // Step 1: Get download URL from Graph API
+        var metaResp = await httpClient.GetAsync(
+            $"https://graph.facebook.com/v25.0/{target.MediaId}",
+            cancellationToken);
+
+        if (!metaResp.IsSuccessStatusCode) return NotFound();
+
+        var metaJson = await metaResp.Content.ReadAsStringAsync(cancellationToken);
+        using var doc = System.Text.Json.JsonDocument.Parse(metaJson);
+        var downloadUrl = doc.RootElement.TryGetProperty("url", out var urlProp) ? urlProp.GetString() : null;
+        if (string.IsNullOrWhiteSpace(downloadUrl)) return NotFound();
+
+        // Step 2: Download and stream
+        var fileResp = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        if (!fileResp.IsSuccessStatusCode) return NotFound();
+
+        var contentType = target.MediaMimeType ?? fileResp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+        var stream = await fileResp.Content.ReadAsStreamAsync(cancellationToken);
+        return File(stream, contentType);
     }
 }

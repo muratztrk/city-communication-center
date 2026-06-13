@@ -7,6 +7,7 @@ public interface IApplicationDbContext
     DbSet<Department> Departments { get; }
     DbSet<ApplicationUser> Users { get; }
     DbSet<SocialMessage> SocialMessages { get; }
+    DbSet<SocialConversationEntry> ConversationEntries { get; }
     DbSet<Job> Jobs { get; }
     DbSet<JobDepartment> JobDepartments { get; }
     DbSet<WorkTask> Tasks { get; }

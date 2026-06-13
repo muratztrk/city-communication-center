@@ -297,6 +297,15 @@ export interface JobDetail {
   attachments: Attachment[];
 }
 
+export interface SocialConversationEntry {
+  entryId: string;
+  direction: 'Inbound' | 'Outbound';
+  content: string;
+  mediaId: string | null;
+  mediaMimeType: string | null;
+  sentAt: string;
+}
+
 export interface SocialMessage {
   socialMessageId: string;
   channel: string;

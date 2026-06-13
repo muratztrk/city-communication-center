@@ -13,6 +13,7 @@ import type {
   RoutingTestResult,
   SocialConnectionTestResult,
   SocialMessage,
+  SocialConversationEntry,
   SocialSettingsSaveResult,
   SocialSettingsStatus,
   Task,
@@ -735,6 +736,25 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.socialDeleteFailed'))
+  },
+
+  async getSocialConversation(socialMessageId: string): Promise<SocialConversationEntry[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/conversation`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.socialMessagesLoadFailed'))
+    return response.json() as Promise<SocialConversationEntry[]>
+  },
+
+  async replySocialMessage(socialMessageId: string, content: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/reply`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    })
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
+  getSocialMediaUrl(socialMessageId: string, entryId: string): string {
+    return `${API_BASE}/social/messages/${socialMessageId}/conversation/media/${entryId}`
   },
 
   async getAuditLogs(): Promise<AuditLog[]> {

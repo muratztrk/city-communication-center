@@ -150,10 +150,25 @@ internal static class TaskWorkflowAuthorization
             t.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (t.CompletionPercentage ?? 0));
         job.CompletionPercentage = total / tasks.Count;
 
-        if (tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Completed))
+        var allTerminal = tasks.All(t =>
+            t.CurrentStatus is WorkflowTaskStatus.Completed
+                or WorkflowTaskStatus.Cancelled
+                or WorkflowTaskStatus.Rejected);
+
+        if (!allTerminal) return;
+
+        var hasCompleted = tasks.Any(t => t.CurrentStatus == WorkflowTaskStatus.Completed);
+        var allCancelled = tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Cancelled);
+
+        if (hasCompleted)
         {
             job.Status = Domain.Enums.JobStatus.Completed;
             job.CompletedAtUtc = DateTimeOffset.UtcNow;
+        }
+        else if (allCancelled && job.Status == Domain.Enums.JobStatus.Active)
+        {
+            job.Status = Domain.Enums.JobStatus.Cancelled;
+            job.CompletionPercentage = 0;
         }
     }
 }

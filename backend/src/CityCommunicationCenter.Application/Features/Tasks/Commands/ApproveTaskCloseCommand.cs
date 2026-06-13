@@ -69,6 +69,7 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
             Details = request.Comment
         });
 
+        await _dbContext.SaveChangesAsync(cancellationToken);
         await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

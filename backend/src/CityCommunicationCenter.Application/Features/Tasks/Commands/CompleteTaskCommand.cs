@@ -55,8 +55,8 @@ public sealed class CompleteTaskCommandHandler : ICommandHandler<CompleteTaskCom
             Details = request.ResultNote
         });
 
+        await _dbContext.SaveChangesAsync(cancellationToken);
         await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
-
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

@@ -8,6 +8,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart } from '../components/ui/PieChart'
 import { useAuth } from '../context/AuthContext'
+import { DateTimePicker } from '../components/ui/date-time-picker'
 
 interface MetricCard {
   label: string
@@ -272,19 +273,9 @@ export function DashboardPage() {
           </button>
           {period === 'custom' && (
             <>
-              <input
-                type="date"
-                className="input text-xs px-2 py-1 h-auto"
-                value={customFrom}
-                onChange={e => setCustomFrom(e.target.value)}
-              />
+              <DateTimePicker value={customFrom} onChange={setCustomFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
               <span className="text-xs text-slate-400">–</span>
-              <input
-                type="date"
-                className="input text-xs px-2 py-1 h-auto"
-                value={customTo}
-                onChange={e => setCustomTo(e.target.value)}
-              />
+              <DateTimePicker value={customTo} onChange={setCustomTo} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
             </>
           )}
         </div>

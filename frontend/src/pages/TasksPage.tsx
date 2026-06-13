@@ -8,7 +8,7 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
@@ -19,7 +19,7 @@ import { Toast } from '../components/ui/toast'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import type { Department, Task, TaskDetail, TaskListScope, User } from '../types/platform'
+import type { Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
@@ -226,7 +226,7 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
 export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
-  const navigate = useNavigate()
+
   const locale = getLocale(i18n.language)
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeDeptId, setActiveDeptId] = useState(() => getActiveDepartmentId())
@@ -239,6 +239,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [tasksPageSize, setTasksPageSize] = useState(10)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
+  const [parentJobDetail, setParentJobDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
   const taskAuditLogQuery = useQuery({
@@ -384,6 +385,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       clearTaskFilters()
       setSelectedTask(null)
       setTaskDetail(null)
+      setParentJobDetail(null)
       setAssignmentDraft({ departmentId: '', userId: '' })
       setReturnModal(null)
       setConfirmDialog(null)
@@ -629,14 +631,19 @@ const pageKicker = isMyTasksView
   const openTaskDetail = async (task: Task) => {
     setSelectedTask(task)
     setTaskDetail(null)
+    setParentJobDetail(null)
     setDetailLoading(true)
     setAssignmentDraft({
       departmentId: task.assignedDepartmentId ?? '',
       userId: task.assignedUserId ?? '',
     })
     try {
-      const detail = await api.getTaskById(task.taskId)
+      const [detail, jobDetail] = await Promise.all([
+        api.getTaskById(task.taskId),
+        task.jobId ? api.getJobById(task.jobId).catch(() => null) : Promise.resolve(null),
+      ])
       setTaskDetail(detail)
+      setParentJobDetail(jobDetail)
       setAssignmentDraft({
         departmentId: detail.assignedDepartmentId ?? '',
         userId: detail.assignedUserId ?? '',
@@ -659,6 +666,7 @@ const pageKicker = isMyTasksView
   const closeTaskDetail = () => {
     setSelectedTask(null)
     setTaskDetail(null)
+    setParentJobDetail(null)
     setAssignmentDraft({ departmentId: '', userId: '' })
   }
 
@@ -807,18 +815,31 @@ const pageKicker = isMyTasksView
         </nav>
       )}
 
-      {selectedTask ? (
-        <section className="section-card page-stack">
-          <div className="page-header-row">
-            <div>
+      {selectedTask && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={closeTaskDetail}
+          role="presentation"
+        >
+          <section
+            className="relative max-h-[88dvh] w-full max-w-5xl overflow-y-auto rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={closeTaskDetail}
+              className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+              aria-label={t('common.close', 'Kapat')}
+            >
+              <X className="size-4" />
+            </button>
+          <div className="page-header-row mb-4">
+            <div className="space-y-1">
               <div className="page-kicker">{t('tasks.detail.kicker', 'Görev Detayı')}</div>
-              <h2 className="text-2xl font-extrabold text-slate-950">{taskDetail?.title ?? selectedTask.title}</h2>
+              <h2 className="text-xl font-extrabold text-slate-950">{taskDetail?.title ?? selectedTask.title}</h2>
               <p className="helper-copy">{taskDetail?.jobTitle ?? selectedTask.jobTitle ?? t('common.none')}</p>
             </div>
-            <div className="inline-actions">
-              <Button type="button" variant="secondary" onClick={() => navigate(`/jobs?jobId=${selectedTask.jobId}`)}>
-                {t('tasks.actions.viewJob', 'İşi Görüntüle')}
-              </Button>
+            <div className="inline-actions ml-auto">
               {taskDetail && (
                 <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, locale)}>
                   {t('common.print', 'Yazdır')}
@@ -1010,8 +1031,52 @@ const pageKicker = isMyTasksView
               </section>
             </>
           ) : null}
-        </section>
-      ) : null}
+
+          {/* Parent job detail section */}
+          {parentJobDetail && (
+            <section className="mt-6 border-t border-slate-200 pt-6">
+              <div className="mb-3">
+                <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+                  {t('tasks.detail.parentJobTitle', 'Oluşturan Talep')}
+                </div>
+                <h3 className="text-lg font-extrabold text-slate-950">{parentJobDetail.title}</h3>
+                {parentJobDetail.description && (
+                  <RichTextContent value={parentJobDetail.description} emptyText="" className="rich-text-content mt-1 text-sm text-slate-600" />
+                )}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill>
+                  <StatusPill tone="info">{getPriorityLabel(t, parentJobDetail.priority)}</StatusPill>
+                  <StatusPill tone="neutral">{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}: {parentJobDetail.ownerDepartmentName ?? '—'}</StatusPill>
+                  {parentJobDetail.isProject && <StatusPill tone="warning">{t('jobs.columns.project', 'Proje')}</StatusPill>}
+                </div>
+              </div>
+              <table className="data-table mt-3">
+                <thead>
+                  <tr>
+                    <th>{t('jobs.columns.title', 'Başlık')}</th>
+                    <th>{t('common.createdBy', 'Oluşturan')}</th>
+                    <th>{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}</th>
+                    <th>{t('tasks.columns.dueDate', 'Termin')}</th>
+                    <th>{t('tasks.columns.status', 'Durum')}</th>
+                    <th>{t('jobs.columns.taskCount', 'Görev Sayısı')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="font-semibold">{parentJobDetail.title}</td>
+                    <td>{parentJobDetail.createdByDisplayName ?? '—'}</td>
+                    <td>{parentJobDetail.ownerDepartmentName ?? '—'}</td>
+                    <td>{formatDateTime(parentJobDetail.dueDateUtc, locale)}</td>
+                    <td><StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill></td>
+                    <td className="text-center">{parentJobDetail.tasks.length}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+          )}
+          </section>
+        </div>
+      )}
 
       {error && <div className="alert alert-error">{error}</div>}
       {loading ? (

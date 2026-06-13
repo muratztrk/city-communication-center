@@ -74,10 +74,10 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
             Details = request.Reason
         });
 
-        // Rutin olmayan dış birim talebi: tüm görevler iptal olduysa iş tekrar onay beklemeye döner
         var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
             e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
 
+        // Rutin olmayan dış birim talebi: tüm görevler iptal olduysa iş tekrar onay beklemeye döner
         if (parentJob is not null
             && parentJob.SourceType != JobSourceType.Routine
             && parentJob.RequestType == JobRequestType.ExternalUnit
@@ -115,6 +115,14 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        // İç birim / vatandaş talepleri: tüm görevler iptal/tamamlandıysa talep durumunu güncelle
+        if (parentJob is not null && parentJob.RequestType != JobRequestType.ExternalUnit)
+        {
+            await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
         return true;
     }
 }

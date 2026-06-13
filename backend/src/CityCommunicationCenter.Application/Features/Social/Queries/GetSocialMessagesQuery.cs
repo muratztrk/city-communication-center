@@ -51,6 +51,7 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                 entity.SocialMessageId,
                 entity.Channel.ToString(),
                 entity.CitizenHandle,
+                entity.Content,
                 entity.Category,
                 entity.Status.ToString(),
                 entity.AssignedDepartmentId,

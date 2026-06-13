@@ -301,6 +301,7 @@ export interface SocialMessage {
   socialMessageId: string;
   channel: string;
   citizenHandle: string;
+  content: string | null;
   category: string | null;
   status: string;
   assignedDepartmentId: string | null;

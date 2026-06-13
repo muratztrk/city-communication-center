@@ -36,6 +36,7 @@ public sealed record SocialMessageSummaryResponse(
     Guid SocialMessageId,
     string Channel,
     string CitizenHandle,
+    string? Content,
     string? Category,
     string Status,
     Guid? AssignedDepartmentId,

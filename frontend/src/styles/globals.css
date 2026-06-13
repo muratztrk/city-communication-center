@@ -265,10 +265,11 @@
     .app-content-shell .request-actions {
       gap: 0.32rem;
       min-width: 8.8rem;
+      flex-wrap: nowrap;
     }
 
     .app-content-shell .data-table tbody td.actions-cell {
-      min-width: 16rem;
+      min-width: 18rem;
     }
 
     .app-content-shell .rich-text-toolbar {

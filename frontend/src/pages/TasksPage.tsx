@@ -874,7 +874,7 @@ const pageKicker = isMyTasksView
                             <div className="text-sm font-semibold text-emerald-600">
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1fr)_14rem]">
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1fr)_18rem]">
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
@@ -890,6 +890,9 @@ const pageKicker = isMyTasksView
                                       ? t('tasks.type.routine', 'Rutin')
                                       : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
                                   },
+                                  { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                                  { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
+                                  { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
                                 ].map(({ label, value }) => (
                                   <div key={label} className="flex items-start gap-2 px-3 py-2">
                                     <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
@@ -897,26 +900,18 @@ const pageKicker = isMyTasksView
                                   </div>
                                 ))}
                               </div>
-                              <div className="divide-y divide-slate-100 border-t border-slate-200 lg:border-l lg:border-t-0">
-                                {[
-                                  { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
-                                  { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
-                                  { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
-                                ].map(({ label, value }) => (
-                                  <div key={label} className="flex flex-col gap-0.5 px-3 py-2">
-                                    <span className="text-xs font-semibold text-slate-500">{label}</span>
-                                    <span className="text-sm text-slate-900">{value}</span>
+                              <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
+                                <div className="border-b border-slate-200 px-4 py-2">
+                                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                    {t('tasks.detail.description', 'Açıklama')}
+                                  </span>
+                                </div>
+                                <div className="px-4 py-3">
+                                  <div className="whitespace-pre-wrap text-sm leading-6 text-slate-900">
+                                    {stripHtmlTags(taskDetail.description) || t('tasks.detail.noDescription', 'Açıklama yok')}
                                   </div>
-                                ))}
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                              {t('tasks.detail.description', 'Açıklama')}
-                            </div>
-                            <div className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-900">
-                              {stripHtmlTags(taskDetail.description) || t('tasks.detail.noDescription', 'Açıklama yok')}
                             </div>
                           </div>
                         </div>
@@ -943,7 +938,7 @@ const pageKicker = isMyTasksView
                               placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
                             />
                           </label>
-                          <div className="inline-actions">
+                          <div className="inline-actions justify-end">
                             <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
                               {t('tasks.actions.complete', 'Tamamla')}
                             </Button>

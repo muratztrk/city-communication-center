@@ -124,6 +124,7 @@ export function NotificationBell() {
   const [filter, setFilter] = useState<NotifFilter>('all')
   const [modalFilter, setModalFilter] = useState<NotifFilter>('all')
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
+  const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const unreadQuery = useQuery({
@@ -140,9 +141,13 @@ export function NotificationBell() {
 
   const notifications = notifQuery.data ?? []
   const unreadCount = unreadQuery.data ?? 0
+  const displayNotifications = notifications.map(notification => ({
+    ...notification,
+    isRead: viewedNotificationIds.has(notification.notificationId),
+  }))
 
-  const filteredDropdown = filter === 'unread' ? notifications.filter(n => !n.isRead) : notifications
-  const filteredModal = modalFilter === 'unread' ? notifications.filter(n => !n.isRead) : notifications
+  const filteredDropdown = filter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications
+  const filteredModal = modalFilter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications
   const previewItems = filteredDropdown.slice(0, 5)
 
   const handleNotification = useCallback(
@@ -178,14 +183,20 @@ export function NotificationBell() {
   }, [isOpen])
 
   const markRead = async (id: string) => {
+    setViewedNotificationIds(prev => new Set(prev).add(id))
     await api.markNotificationRead(id)
     queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
     queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
   }
 
   const markAllRead = async () => {
-    const unread = notifications.filter(n => !n.isRead)
+    const unread = displayNotifications.filter(n => !n.isRead)
     if (unread.length === 0) return
+    setViewedNotificationIds(prev => {
+      const next = new Set(prev)
+      unread.forEach(notification => next.add(notification.notificationId))
+      return next
+    })
     await api.markAllNotificationsRead(unread.map(n => n.notificationId))
     queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
     queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
@@ -227,7 +238,7 @@ export function NotificationBell() {
         >
           <Bell className="size-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex size-4.5 min-w-[1.1rem] items-center justify-center rounded-full bg-red-500 px-0.5 text-[0.6rem] font-bold text-white">
+            <span className="absolute -right-2 -top-1 text-[0.65rem] font-bold text-red-500">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

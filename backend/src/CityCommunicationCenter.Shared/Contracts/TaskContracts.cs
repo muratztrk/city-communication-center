@@ -107,4 +107,5 @@ public sealed record TaskDetailResponse(
     IReadOnlyCollection<ApprovalStepResponse> Approvals,
     IReadOnlyCollection<AssignmentHistoryResponse> AssignmentHistory,
     string? OwnerDisplayName,
-    IReadOnlyCollection<AttachmentResponse> Attachments);
+    IReadOnlyCollection<AttachmentResponse> Attachments,
+    string? AssigningManagerDisplayName);

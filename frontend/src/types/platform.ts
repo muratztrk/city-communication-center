@@ -153,6 +153,7 @@ export interface TaskDetail {
   assignmentHistory: AssignmentHistory[];
   ownerDisplayName: string | null;
   attachments: Attachment[];
+  assigningManagerDisplayName: string | null;
 }
 
 export interface AssignmentHistory {

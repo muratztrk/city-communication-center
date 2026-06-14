@@ -867,7 +867,7 @@ const pageKicker = isMyTasksView
                 <>
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
-                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.6fr)_minmax(24rem,0.9fr)]' : ''}`}>
+                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(15rem,0.48fr)]' : ''}`}>
                       <div className="form-card page-stack min-w-0">
                         <div className="space-y-4">
                           <div className="space-y-3">
@@ -890,9 +890,6 @@ const pageKicker = isMyTasksView
                                       ? t('tasks.type.routine', 'Rutin')
                                       : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
                                   },
-                                  { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
-                                  { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
-                                  { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
                                 ].map(({ label, value }) => (
                                   <div key={label} className="flex items-start gap-2 px-3 py-2">
                                     <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
@@ -901,6 +898,18 @@ const pageKicker = isMyTasksView
                                 ))}
                               </div>
                               <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
+                                <div className="divide-y divide-slate-100 border-b border-slate-200">
+                                  {[
+                                    { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                                    { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
+                                    { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
+                                  ].map(({ label, value }) => (
+                                    <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
+                                      <span className="text-xs font-semibold text-slate-500">{label}</span>
+                                      <span className="text-sm text-slate-900">{value}</span>
+                                    </div>
+                                  ))}
+                                </div>
                                 <div className="border-b border-slate-200 px-4 py-2">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                     {t('tasks.detail.description', 'Açıklama')}
@@ -917,7 +926,7 @@ const pageKicker = isMyTasksView
                         </div>
                       </div>
                       {canCompleteTask && (
-                        <section className="form-card page-stack">
+                        <section className="form-card flex flex-col gap-3 min-w-0 self-start">
                           <div>
                             <h3 className="text-lg font-extrabold text-slate-950">
                               {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
@@ -931,8 +940,8 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.completionNote', 'Tamamlama Notu')}
                             </span>
                             <textarea
-                              className="field-textarea"
-                              rows={3}
+                              className="field-textarea min-h-24"
+                              rows={2}
                               value={completionNote}
                               onChange={e => setCompletionNote(e.target.value)}
                               placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
@@ -1092,7 +1101,7 @@ const pageKicker = isMyTasksView
                                 ? getUserName(taskDetail.assignedUserId)
                                 : taskDetail.assignedDepartmentId
                                   ? getDepartmentName(taskDetail.assignedDepartmentId)
-                                  : t('tasks.departmentPoolAssignee')}
+                                : t('tasks.unassigned', 'Atanmamış')}
                             </p>
                           </div>
                           <div className="grid gap-3">
@@ -1103,7 +1112,7 @@ const pageKicker = isMyTasksView
                                 value={assignmentDraft.departmentId}
                                 onChange={e => setAssignmentDraft({ departmentId: e.target.value, userId: '' })}
                               >
-                                <option value="">{t('tasks.departmentPoolAssignee')}</option>
+                                <option value="">{t('tasks.departmentSelection', 'Müdürlük seç')}</option>
                                 {departments.map(d => (
                                   <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
                                 ))}
@@ -1123,14 +1132,14 @@ const pageKicker = isMyTasksView
                                   }))
                                 }}
                               >
-                                <option value="">{t('tasks.departmentPoolAssignee')}</option>
+                                <option value="">{t('tasks.userSelection', 'Kullanıcı seç')}</option>
                                 {assignmentUsers.map(u => (
                                   <option key={u.userId} value={u.userId}>{u.displayName}</option>
                                 ))}
                               </select>
                             </label>
                           </div>
-                          <div className="inline-actions">
+                          <div className="inline-actions justify-end">
                             <Button
                               type="button"
                               size="sm"
@@ -1149,37 +1158,13 @@ const pageKicker = isMyTasksView
                               ? getUserName(taskDetail.assignedUserId)
                               : taskDetail.assignedDepartmentId
                                 ? getDepartmentName(taskDetail.assignedDepartmentId)
-                                : t('tasks.departmentPoolAssignee')}
+                                : t('tasks.unassigned', 'Atanmamış')}
                           </div>
                         </>
                       )}
                     </section>
 
-                    {/* Sütun 2: Ekler / Fotoğraflar (card 5, 7) */}
-                    <section className="form-card page-stack">
-                      <h3 className="text-lg font-extrabold text-slate-950">
-                        {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                      </h3>
-                      <AttachmentSection
-                        attachments={taskDetail.attachments ?? []}
-                        onUpload={async file => {
-                          setAttachmentUploading(true)
-                          try {
-                            await api.uploadTaskAttachment(taskDetail.taskId, file)
-                            setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                          } finally {
-                            setAttachmentUploading(false)
-                          }
-                        }}
-                        onDelete={async id => {
-                          await api.deleteAttachment(id)
-                          setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                        }}
-                        disabled={attachmentUploading}
-                      />
-                    </section>
-
-                    {/* Sütun 3: Atama Geçmişi (card 5) */}
+                    {/* Sütun 2: Atama Geçmişi (card 5) */}
                     <section className="form-card page-stack">
                       <h3 className="text-lg font-extrabold text-slate-950">
                         {t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}
@@ -1207,6 +1192,28 @@ const pageKicker = isMyTasksView
                       )}
                     </section>
                   </div>
+                  <section className="form-card page-stack mb-5">
+                    <h3 className="text-lg font-extrabold text-slate-950">
+                      {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                    </h3>
+                    <AttachmentSection
+                      attachments={taskDetail.attachments ?? []}
+                      onUpload={async file => {
+                        setAttachmentUploading(true)
+                        try {
+                          await api.uploadTaskAttachment(taskDetail.taskId, file)
+                          setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                        } finally {
+                          setAttachmentUploading(false)
+                        }
+                      }}
+                      onDelete={async id => {
+                        await api.deleteAttachment(id)
+                        setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                      }}
+                      disabled={attachmentUploading}
+                    />
+                  </section>
                 </>
               ) : null}
             </div>

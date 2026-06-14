@@ -1226,6 +1226,7 @@
 
   .sticky-page-header .scope-chip-search-clear {
     color: #ef4444;
+    font-weight: 800;
   }
 
   .sticky-page-header .scope-chip-search-clear:hover {

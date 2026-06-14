@@ -1136,7 +1136,7 @@ const pageKicker = isMyTasksView
                                 }}
                               >
                                 <option value="" disabled hidden>
-                                  {t('tasks.userSelection', 'Kullanıcı seç')}
+                                  {t('tasks.userSelection', 'Personel seçiniz')}
                                 </option>
                                 {assignmentUsers.map(u => (
                                   <option key={u.userId} value={u.userId}>{u.displayName}</option>
@@ -1412,6 +1412,9 @@ const pageKicker = isMyTasksView
                 <label className="job-field">
                   <span className="job-field-label">{t('tasks.draftUser', 'Kullanıcı (isteğe bağlı)')}</span>
                   <select className="field-select" value={returnUserId} onChange={e => setReturnUserId(e.target.value)}>
+                    <option value="" disabled hidden>
+                      {t('tasks.userSelection', 'Personel seçiniz')}
+                    </option>
                     {returnDeptUsers.map(u => (
                       <option key={u.userId} value={u.userId}>{u.displayName}</option>
                     ))}

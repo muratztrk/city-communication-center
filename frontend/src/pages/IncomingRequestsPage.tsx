@@ -614,7 +614,7 @@ export function IncomingRequestsPage() {
           <div className="ml-auto mt-auto shrink-0">
             <div className="scope-chips-filters">
               <div className="scope-chip-search-wrap">
-                <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
+                <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
                 <input
                   type="text"
                   className="scope-chip-search-input"
@@ -623,7 +623,7 @@ export function IncomingRequestsPage() {
                   onChange={e => setSearchText(e.target.value)}
                 />
                 {searchText && (
-                  <button type="button" onClick={() => setSearchText('')} className="shrink-0 text-red-500 hover:text-red-600 transition-colors" aria-label="Temizle">
+                  <button type="button" onClick={() => setSearchText('')} className="scope-chip-search-clear shrink-0 transition-colors" aria-label="Temizle">
                     <X className="size-3" />
                   </button>
                 )}

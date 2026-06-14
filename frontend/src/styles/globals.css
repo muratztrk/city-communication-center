@@ -215,13 +215,13 @@
     }
 
     .app-content-shell .scope-chip {
-      height: 1.55rem;
-      padding-inline: 0.58rem;
+      min-height: 1.55rem;
+      padding: 0.08rem 0.58rem;
       font-size: 0.66rem;
     }
 
     .app-content-shell .scope-chip-search-wrap {
-      height: 1.55rem;
+      min-height: 1.55rem;
       padding: 0 0.5rem;
     }
 
@@ -231,7 +231,7 @@
     }
 
     .app-content-shell .scope-chip-year-select {
-      height: 1.55rem;
+      min-height: 1.55rem;
       font-size: 0.66rem;
       padding: 0 0.5rem;
     }
@@ -1220,8 +1220,16 @@
     color: rgba(255, 255, 255, 0.7);
   }
 
-  .sticky-page-header .scope-chip-search-wrap svg {
+  .sticky-page-header .scope-chip-search-icon {
     color: rgba(255, 255, 255, 0.75);
+  }
+
+  .sticky-page-header .scope-chip-search-clear {
+    color: #ef4444;
+  }
+
+  .sticky-page-header .scope-chip-search-clear:hover {
+    color: #dc2626;
   }
 
   .sticky-page-header .scope-chip-date .field-input {
@@ -1240,16 +1248,18 @@
   .scope-chip {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.35rem;
     flex: 0 0 auto;
     border: 1px solid var(--color-border);
     background: white;
     color: #475569;
-    height: 1.875rem;
+    min-height: 1.875rem;
     border-radius: 999px;
-    padding: 0 0.75rem;
+    padding: 0.1rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
+    line-height: 1.1;
     letter-spacing: 0.01em;
     cursor: pointer;
     transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
@@ -1371,11 +1381,12 @@
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    height: 1.875rem;
+    min-height: 1.875rem;
     border: 1px solid var(--color-border);
     border-radius: 999px;
     background: white;
     padding: 0 0.65rem;
+    line-height: 1.1;
     transition: border-color 140ms ease;
   }
 
@@ -1391,6 +1402,7 @@
     background: transparent;
     width: 6rem;
     min-width: 0;
+    line-height: 1.1;
   }
 
   .scope-chip-search-input::placeholder {

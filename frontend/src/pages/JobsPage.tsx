@@ -39,7 +39,7 @@ function ScopeChipFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
   return (
     <div className="scope-chips-filters">
       <div className="scope-chip-search-wrap">
-        <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
+      <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
         <input
           type="text"
           className="scope-chip-search-input"
@@ -48,7 +48,7 @@ function ScopeChipFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
           onChange={e => onSearch(e.target.value)}
         />
         {searchText && (
-          <button type="button" onClick={() => onSearch('')} className="shrink-0 text-red-500 hover:text-red-600 transition-colors" aria-label="Temizle">
+        <button type="button" onClick={() => onSearch('')} className="scope-chip-search-clear shrink-0 transition-colors" aria-label="Temizle">
             <XIcon className="size-3" />
           </button>
         )}

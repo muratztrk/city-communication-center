@@ -73,7 +73,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
           {n.actionUrl && onNavigate && (
             <button
               type="button"
-              onClick={e => { e.stopPropagation(); onNavigate(n.actionUrl!) }}
+              onClick={e => { e.stopPropagation(); onNavigate(n.actionUrl!); }}
               className="rounded-md bg-emerald-500 px-2 py-1 text-[0.7rem] font-bold text-white shadow-sm transition-colors hover:bg-emerald-600 ml-auto"
             >
               {t('common.detail', 'Detay')}

@@ -881,7 +881,7 @@ const pageKicker = isMyTasksView
                 <>
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
-                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(12rem,0.5fr)_minmax(10rem,0.7fr)]' : ''} lg:items-stretch`}>
+                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,0.6fr)_minmax(8rem,0.6fr)]' : ''} lg:items-stretch`}>
                       <div className="form-card page-stack min-w-0">
                         <div className="space-y-4">
                           <div className="space-y-3">
@@ -915,6 +915,7 @@ const pageKicker = isMyTasksView
                                 <div className="divide-y divide-slate-100">
                                   {[
                                     { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                                    { label: 'Durum', value: t(`enum.taskStatus.${taskDetail.currentStatus}`, taskDetail.currentStatus) },
                                     { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
                                     { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
                                   ].map(({ label, value }) => (

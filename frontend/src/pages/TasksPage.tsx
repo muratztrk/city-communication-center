@@ -115,6 +115,13 @@ function formatDateTime(value: string | null | undefined, locale: string) {
   })
 }
 
+function stripHtmlTags(value: string | null | undefined) {
+  if (!value) return ''
+  const parser = new DOMParser()
+  const parsed = parser.parseFromString(value, 'text/html')
+  return (parsed.body.innerText || parsed.body.textContent || '').trim()
+}
+
 function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
@@ -123,6 +130,7 @@ function printTaskDetail(taskDetail: TaskDetail, locale: string) {
   const win = window.open('', '_blank', 'width=820,height=900')
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+  const description = stripHtmlTags(taskDetail.description)
   const historyItems = taskDetail.assignmentHistory.map(h =>
     `<li>${escHtml(h.toDepartmentId ?? '—')} · ${escHtml(h.toUserId ?? '—')} — ${fd(h.actionDateUtc)}</li>`
   ).join('')
@@ -151,7 +159,7 @@ function printTaskDetail(taskDetail: TaskDetail, locale: string) {
   </div>
   <div class="section">
     <div class="section-title">Açıklama</div>
-    <div class="desc">${taskDetail.description ?? '<em>Açıklama yok</em>'}</div>
+    <div class="desc">${description ? escHtml(description).replace(/\n/g, '<br/>') : '<em>Açıklama yok</em>'}</div>
   </div>
   ${historyItems ? `<div class="section"><div class="section-title">Atama Geçmişi</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${historyItems}</ul></div>` : ''}
   ${attachItems ? `<div class="section"><div class="section-title">Ekler (${(taskDetail.attachments ?? []).length})</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul></div>` : ''}
@@ -270,6 +278,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
+  const canCompleteTask = !!taskDetail && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && taskDetail.assignedUserId === user?.userId
 
   const scopes = useMemo(() => fixedScope ? [fixedScope] : availableScopes(user?.role), [fixedScope, user?.role])
   const scopeParam = (searchParams.get('scope') as TaskListScope | null) ?? scopes[0]
@@ -372,7 +381,6 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     }
 
     return result
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMyTaskView, currentRequestFlowFilter, currentStaffTaskType, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
@@ -497,7 +505,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [currentScope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentScope, t, activeDeptId])
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -510,7 +518,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     }, 30000)
 
     return () => window.clearInterval(intervalId)
-  }, [currentScope, t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentScope, t, activeDeptId])
 
   const reload = async () => {
     try {
@@ -857,60 +865,91 @@ const pageKicker = isMyTasksView
                 <div className="loading">{t('common.loading')}</div>
               ) : taskDetail ? (
                 <>
-                  {/* Görev bilgi kutusu — 3 sütun: [sol alan | orta alan] + [açıklama kutusu] */}
+                  {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
-                    <div className="flex gap-3">
-                      {/* Sol + orta: iki sütunlu bilgi kartı */}
-                      <div className="flex min-w-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                        {/* Sütun 1 */}
-                        <div className="min-w-0 flex-1 divide-y divide-slate-100">
-                          {[
-                            { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
-                            { label: 'Görev Başlığı', value: taskDetail.title },
-                            {
-                              label: 'Talep Yeri / Oluşturan',
-                              value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
-                            },
-                            { label: 'Görev Sahibi', value: taskDetail.ownerDisplayName || '—' },
-                            {
-                              label: 'Görev Tipi',
-                              value: taskDetail.jobSourceType === 'Routine'
-                                ? t('tasks.type.routine', 'Rutin')
-                                : t('tasks.type.assigned', 'Atanmış'),
-                            },
-                            { label: 'Görevi Atayan Yönetici', value: taskDetail.assigningManagerDisplayName || '—' },
-                          ].map(({ label, value }) => (
-                            <div key={label} className="flex items-start gap-2 px-3 py-2">
-                              <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                              <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.6fr)_minmax(24rem,0.9fr)]' : ''}`}>
+                      <div className="form-card page-stack min-w-0">
+                        <div className="space-y-4">
+                          <div className="space-y-3">
+                            <div className="text-sm font-semibold text-emerald-600">
+                              {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                          ))}
-                        </div>
-                        {/* Dikey ayırıcı */}
-                        <div className="w-px self-stretch bg-slate-200" />
-                        {/* Sütun 2 */}
-                        <div className="w-44 shrink-0 divide-y divide-slate-100">
-                          {[
-                            { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
-                            { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
-                            { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
-                          ].map(({ label, value }) => (
-                            <div key={label} className="flex flex-col gap-0.5 px-3 py-2">
-                              <span className="text-xs font-semibold text-slate-500">{label}</span>
-                              <span className="text-sm text-slate-900">{value}</span>
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1fr)_14rem]">
+                              <div className="min-w-0 divide-y divide-slate-100">
+                                {[
+                                  { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
+                                  { label: 'Görev Başlığı', value: taskDetail.title },
+                                  {
+                                    label: 'Talep Yeri / Oluşturan',
+                                    value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                                  },
+                                  { label: 'Görev Sahibi', value: taskDetail.ownerDisplayName || '—' },
+                                  {
+                                    label: 'Görev Tipi',
+                                    value: `${taskDetail.jobSourceType === 'Routine'
+                                      ? t('tasks.type.routine', 'Rutin')
+                                      : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
+                                  },
+                                ].map(({ label, value }) => (
+                                  <div key={label} className="flex items-start gap-2 px-3 py-2">
+                                    <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                                    <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="divide-y divide-slate-100 border-t border-slate-200 lg:border-l lg:border-t-0">
+                                {[
+                                  { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                                  { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
+                                  { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
+                                ].map(({ label, value }) => (
+                                  <div key={label} className="flex flex-col gap-0.5 px-3 py-2">
+                                    <span className="text-xs font-semibold text-slate-500">{label}</span>
+                                    <span className="text-sm text-slate-900">{value}</span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          ))}
+                          </div>
+                          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              {t('tasks.detail.description', 'Açıklama')}
+                            </div>
+                            <div className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-900">
+                              {stripHtmlTags(taskDetail.description) || t('tasks.detail.noDescription', 'Açıklama yok')}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      {/* Sütun 3: Açıklama kutusu */}
-                      <div className="w-56 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                        <div className="border-b border-slate-200 px-3 py-2">
-                          <span className="text-xs font-semibold text-slate-500">Açıklama</span>
-                        </div>
-                        <div className="px-3 py-2 text-sm text-slate-900 whitespace-pre-wrap">
-                          {taskDetail.description || '—'}
-                        </div>
-                      </div>
+                      {canCompleteTask && (
+                        <section className="form-card page-stack">
+                          <div>
+                            <h3 className="text-lg font-extrabold text-slate-950">
+                              {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
+                            </h3>
+                            <p className="helper-copy">
+                              {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
+                            </p>
+                          </div>
+                          <label className="job-field">
+                            <span className="job-field-label">
+                              {t('tasks.actions.completionNote', 'Tamamlama Notu')}
+                            </span>
+                            <textarea
+                              className="field-textarea"
+                              rows={3}
+                              value={completionNote}
+                              onChange={e => setCompletionNote(e.target.value)}
+                              placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                            />
+                          </label>
+                          <div className="inline-actions">
+                            <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
+                              {t('tasks.actions.complete', 'Tamamla')}
+                            </Button>
+                          </div>
+                        </section>
+                      )}
                     </div>
                   </section>
 
@@ -1043,40 +1082,8 @@ const pageKicker = isMyTasksView
                     </section>
                   )}
 
-                  {/* Görevi Tamamla — atanan personele özel standalone section */}
-                  {(taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')
-                    && taskDetail.assignedUserId === user?.userId && (
-                    <section className="form-card page-stack mb-5">
-                      <div>
-                        <h3 className="text-lg font-extrabold text-slate-950">
-                          {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
-                        </h3>
-                        <p className="helper-copy">
-                          {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
-                        </p>
-                      </div>
-                      <label className="job-field">
-                        <span className="job-field-label">
-                          {t('tasks.actions.completionNote', 'Tamamlama Notu')}
-                        </span>
-                        <textarea
-                          className="field-textarea"
-                          rows={3}
-                          value={completionNote}
-                          onChange={e => setCompletionNote(e.target.value)}
-                          placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
-                        />
-                      </label>
-                      <div className="inline-actions">
-                        <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
-                          {t('tasks.actions.complete', 'Tamamla')}
-                        </Button>
-                      </div>
-                    </section>
-                  )}
-
                   {/* Alt 3 sütun: Görevi Yönlendir | Ekler/Fotoğraflar | Atama Geçmişi (card 5, 7) */}
-                  <div className="grid gap-4 lg:grid-cols-3">
+                  <div className="grid gap-4 lg:grid-cols-2">
 
                     {/* Sütun 1: Görevi Yönlendir */}
                     <section className="form-card page-stack">

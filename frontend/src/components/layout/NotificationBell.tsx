@@ -36,9 +36,10 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
 
   return (
     <li
-      className={`group relative flex cursor-pointer gap-3 px-4 py-3 transition-all duration-150
-        hover:bg-[color:var(--color-primary)]/6
-        ${!n.isRead ? 'bg-[color:var(--color-primary)]/5' : 'bg-white'}`}
+      className={`group relative flex cursor-pointer gap-3 rounded-xl border px-4 py-3 transition-all duration-150 hover:shadow-sm
+        ${!n.isRead
+          ? 'border-amber-300 bg-amber-50/80 hover:bg-amber-50'
+          : 'border-emerald-300 bg-emerald-50/80 hover:bg-emerald-50'}`}
       onClick={handleClick}
       role="button"
       tabIndex={0}

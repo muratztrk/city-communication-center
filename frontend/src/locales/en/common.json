@@ -585,6 +585,13 @@
       "internalIncoming": "Internal Incoming",
       "externalIncoming": "External Incoming",
       "citizenIncoming": "Citizen Incoming"
+    },
+    "detail": {
+      "title": "Task Details",
+      "description": "Description",
+      "noDescription": "No description",
+      "assignmentHistory": "Assignment History",
+      "noAssignmentHistory": "No assignment history"
     }
   },
   "incomingRequests": {

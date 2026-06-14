@@ -586,6 +586,13 @@
       "internalIncoming": "Birim İçi Gelen",
       "externalIncoming": "Birim Dışı Gelen",
       "citizenIncoming": "Vatandaştan Gelen"
+    },
+    "detail": {
+      "title": "Görev Detayları",
+      "description": "Açıklama",
+      "noDescription": "Açıklama yok",
+      "assignmentHistory": "Atama Geçmişi",
+      "noAssignmentHistory": "Atama geçmişi yok"
     }
   },
   "incomingRequests": {

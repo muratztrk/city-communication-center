@@ -43,8 +43,8 @@ function TaskScopeFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
           onChange={e => onSearch(e.target.value)}
         />
         {searchText && (
-          <button type="button" onClick={() => onSearch('')} className="scope-chip-search-clear shrink-0 transition-colors" aria-label="Temizle">
-            <X className="size-3" />
+          <button type="button" onClick={() => onSearch('')} className="scope-chip-search-clear shrink-0 font-extrabold transition-colors" aria-label="Temizle">
+            <X className="size-3.5" strokeWidth={3} />
           </button>
         )}
       </div>
@@ -867,14 +867,14 @@ const pageKicker = isMyTasksView
                 <>
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
-                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(15rem,0.48fr)]' : ''}`}>
+                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(15rem,0.48fr)]' : ''} lg:items-stretch`}>
                       <div className="form-card page-stack min-w-0">
                         <div className="space-y-4">
                           <div className="space-y-3">
                             <div className="text-sm font-semibold text-emerald-600">
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1fr)_18rem]">
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1fr)_18rem_22rem]">
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
@@ -898,7 +898,7 @@ const pageKicker = isMyTasksView
                                 ))}
                               </div>
                               <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                                <div className="divide-y divide-slate-100 border-b border-slate-200">
+                                <div className="divide-y divide-slate-100">
                                   {[
                                     { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
                                     { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
@@ -910,6 +910,8 @@ const pageKicker = isMyTasksView
                                     </div>
                                   ))}
                                 </div>
+                              </div>
+                              <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
                                 <div className="border-b border-slate-200 px-4 py-2">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                     {t('tasks.detail.description', 'Açıklama')}
@@ -926,7 +928,7 @@ const pageKicker = isMyTasksView
                         </div>
                       </div>
                       {canCompleteTask && (
-                        <section className="form-card flex flex-col gap-3 min-w-0 self-start">
+                        <section className="form-card flex h-full min-w-0 flex-col gap-2.5 self-stretch">
                           <div>
                             <h3 className="text-lg font-extrabold text-slate-950">
                               {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
@@ -1087,7 +1089,7 @@ const pageKicker = isMyTasksView
                   )}
 
                   {/* Alt 3 sütun: Görevi Yönlendir | Ekler/Fotoğraflar | Atama Geçmişi (card 5, 7) */}
-                  <div className="grid gap-4 lg:grid-cols-2">
+                  <div className="grid gap-4 lg:grid-cols-3">
 
                     {/* Sütun 1: Görevi Yönlendir */}
                     <section className="form-card page-stack">
@@ -1132,7 +1134,9 @@ const pageKicker = isMyTasksView
                                   }))
                                 }}
                               >
-                                <option value="">{t('tasks.userSelection', 'Kullanıcı seç')}</option>
+                                <option value="" disabled hidden>
+                                  {t('tasks.userSelection', 'Kullanıcı seç')}
+                                </option>
                                 {assignmentUsers.map(u => (
                                   <option key={u.userId} value={u.userId}>{u.displayName}</option>
                                 ))}
@@ -1164,7 +1168,7 @@ const pageKicker = isMyTasksView
                       )}
                     </section>
 
-                    {/* Sütun 2: Atama Geçmişi (card 5) */}
+                    {/* Sütun 2: Atama Geçmişi */}
                     <section className="form-card page-stack">
                       <h3 className="text-lg font-extrabold text-slate-950">
                         {t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}
@@ -1191,29 +1195,30 @@ const pageKicker = isMyTasksView
                         </div>
                       )}
                     </section>
-                  </div>
-                  <section className="form-card page-stack mb-5">
-                    <h3 className="text-lg font-extrabold text-slate-950">
-                      {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                    </h3>
-                    <AttachmentSection
-                      attachments={taskDetail.attachments ?? []}
-                      onUpload={async file => {
-                        setAttachmentUploading(true)
-                        try {
-                          await api.uploadTaskAttachment(taskDetail.taskId, file)
+                    {/* Sütun 3: Ekler / Fotoğraflar */}
+                    <section className="form-card page-stack">
+                      <h3 className="text-lg font-extrabold text-slate-950">
+                        {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                      </h3>
+                      <AttachmentSection
+                        attachments={taskDetail.attachments ?? []}
+                        onUpload={async file => {
+                          setAttachmentUploading(true)
+                          try {
+                            await api.uploadTaskAttachment(taskDetail.taskId, file)
+                            setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                          } finally {
+                            setAttachmentUploading(false)
+                          }
+                        }}
+                        onDelete={async id => {
+                          await api.deleteAttachment(id)
                           setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                        } finally {
-                          setAttachmentUploading(false)
-                        }
-                      }}
-                      onDelete={async id => {
-                        await api.deleteAttachment(id)
-                        setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                      }}
-                      disabled={attachmentUploading}
-                    />
-                  </section>
+                        }}
+                        disabled={attachmentUploading}
+                      />
+                    </section>
+                  </div>
                 </>
               ) : null}
             </div>

@@ -48,8 +48,8 @@ function ScopeChipFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
           onChange={e => onSearch(e.target.value)}
         />
         {searchText && (
-        <button type="button" onClick={() => onSearch('')} className="scope-chip-search-clear shrink-0 transition-colors" aria-label="Temizle">
-            <XIcon className="size-3" />
+        <button type="button" onClick={() => onSearch('')} className="scope-chip-search-clear shrink-0 font-extrabold transition-colors" aria-label="Temizle">
+            <XIcon className="size-3.5" strokeWidth={3} />
           </button>
         )}
       </div>

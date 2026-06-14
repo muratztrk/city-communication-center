@@ -623,8 +623,8 @@ export function IncomingRequestsPage() {
                   onChange={e => setSearchText(e.target.value)}
                 />
                 {searchText && (
-                  <button type="button" onClick={() => setSearchText('')} className="scope-chip-search-clear shrink-0 transition-colors" aria-label="Temizle">
-                    <X className="size-3" />
+                  <button type="button" onClick={() => setSearchText('')} className="scope-chip-search-clear shrink-0 font-extrabold transition-colors" aria-label="Temizle">
+                    <X className="size-3.5" strokeWidth={3} />
                   </button>
                 )}
               </div>

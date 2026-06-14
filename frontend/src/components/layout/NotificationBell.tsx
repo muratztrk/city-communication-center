@@ -47,7 +47,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
     >
       {/* Unread accent bar */}
       <div className={`mt-1 w-1 shrink-0 self-stretch rounded-full transition-colors
-        ${!n.isRead ? 'bg-[color:var(--color-primary)]' : 'bg-transparent group-hover:bg-slate-200'}`} />
+        ${!n.isRead ? 'bg-slate-300 group-hover:bg-slate-400' : 'bg-emerald-500'}`} />
 
       <div className="min-w-0 flex-1">
         <p className={`text-sm leading-snug ${!n.isRead ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
@@ -56,9 +56,20 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
         {n.message && (
           <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">{n.message}</p>
         )}
-        <p className="mt-1 text-[0.68rem] text-slate-400">
-          {formatNotifDate(n.sentAtUtc, locale)}
-        </p>
+        <div className="mt-1 flex items-end justify-between gap-3">
+          <p className="text-[0.68rem] text-slate-400">
+            {formatNotifDate(n.sentAtUtc, locale)}
+          </p>
+          {n.actionUrl && onNavigate && (
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); onNavigate(n.actionUrl!) }}
+              className="text-[0.7rem] font-extrabold text-red-500 transition-colors hover:text-red-600"
+            >
+              {t('common.detail', 'Detay')}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Actions on hover */}
@@ -203,8 +214,6 @@ export function NotificationBell() {
   }
 
   const handleNavigate = (url: string) => {
-    setIsOpen(false)
-    setIsModalOpen(false)
     navigate(url)
   }
 

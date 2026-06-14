@@ -91,7 +91,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
                     if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
                     if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
-                    var noteDetail = !string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details;
+                    var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
                     if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
 
                     feed.Add(new NotificationResponse(
@@ -145,4 +145,32 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
     private static string FormatNumber(int number, int? year) =>
         year.HasValue ? $"{year}/{number}" : number.ToString();
+
+    // Bildirim mesajlarında kullanıcıya gösterilen denetim notlarını sadeleştirir:
+    // teknik/hata ayıklama notlarını gizler, İngilizce ifadeleri Türkçeye çevirir (card 308).
+    private static string? FormatNote(string? note)
+    {
+        if (string.IsNullOrWhiteSpace(note)) return null;
+        var trimmed = note.Trim();
+
+        // Saf teknik/debug notlarını kullanıcıya gösterme.
+        if (trimmed.StartsWith("Targets=", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("Status=", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        // İngilizce ifadeleri Türkçeleştir.
+        if (trimmed.StartsWith("Assigned to:", StringComparison.OrdinalIgnoreCase))
+            return "Atanan:" + trimmed["Assigned to:".Length..];
+
+        if (trimmed.StartsWith("Assigned to user", StringComparison.OrdinalIgnoreCase))
+            return "Bir personele atandı";
+
+        if (trimmed.Equals("Unassigned (pool)", StringComparison.OrdinalIgnoreCase))
+            return "Havuza eklendi";
+
+        if (trimmed.StartsWith("Routine task created", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        return trimmed;
+    }
 }

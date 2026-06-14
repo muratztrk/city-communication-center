@@ -14,12 +14,20 @@ type NotifFilter = 'all' | 'unread'
 
 function localizeNotificationText(value: string): string {
   return value
+    .replace(/routine task created/gi, 'Rutin görev oluşturuldu')
     .replace(/created task/gi, 'Görev oluşturuldu')
     .replace(/task created/gi, 'Görev oluşturuldu')
-    .replace(/routine task created/gi, 'Rutin görev oluşturuldu')
     .replace(/task assigned/gi, 'Görev atandı')
     .replace(/job created/gi, 'Talep oluşturuldu')
     .replace(/job updated/gi, 'Talep güncellendi')
+    // Teknik/İngilizce ifadeleri temizle (card 308).
+    .replace(/\s*—?\s*Targets=\d+,?\s*OwnerUsers=\d+/gi, '')
+    .replace(/\s*—?\s*Status=[^—]*/gi, '')
+    .replace(/Assigned to user\s+[0-9a-f-]+/gi, 'Bir personele atandı')
+    .replace(/Assigned to:/gi, 'Atanan:')
+    .replace(/Unassigned \(pool\)/gi, 'Havuza eklendi')
+    .replace(/\s+—\s*$/, '')
+    .trim()
 }
 
 function formatNotifDate(value: string | null | undefined, locale: string) {

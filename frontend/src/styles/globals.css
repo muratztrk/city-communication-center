@@ -222,7 +222,7 @@
     }
 
     .app-content-shell .scope-chip-search-wrap {
-      min-height: 1.55rem;
+      min-height: 1.875rem;
       padding: 0 0.5rem;
     }
 
@@ -244,6 +244,12 @@
 
     .app-content-shell .jobs-table {
       min-width: 56rem;
+    }
+
+    /* Birimdeki Görevler tablosu yatay scroll yerine kullanılabilir genişliğe sığsın (card 397). */
+    .app-content-shell .department-tasks-table {
+      min-width: 0;
+      width: 100%;
     }
 
     .app-content-shell .users-table {

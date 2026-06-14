@@ -873,14 +873,14 @@ const pageKicker = isMyTasksView
                 <>
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
-                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(12rem,0.5fr)_minmax(10rem,0.7fr)]' : ''} lg:items-stretch`}>
+                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)]' : ''} lg:items-stretch`}>
                       <div className="form-card page-stack min-w-0">
                         <div className="space-y-4">
                           <div className="space-y-3">
                             <div className="text-sm font-semibold text-emerald-600">
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]">
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
@@ -966,8 +966,9 @@ const pageKicker = isMyTasksView
                     </div>
                   </section>
 
-                  {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388) */}
-                  {parentJobDetail && (() => {
+                  {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388).
+                      Rutin görevlerde talep olmadığı için bu bölüm gösterilmez (card 395). */}
+                  {parentJobDetail && taskDetail.jobSourceType !== 'Routine' && (() => {
                     const ownerJobDepartment = parentJobDetail.departments.find(
                       dept => dept.departmentId === parentJobDetail.ownerDepartmentId,
                     )
@@ -1152,7 +1153,7 @@ const pageKicker = isMyTasksView
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table jobs-table data-table--zebra">
+            <table className={`data-table jobs-table data-table--zebra${isDepartmentTasksView ? ' department-tasks-table' : ''}`}>
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>

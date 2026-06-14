@@ -1044,8 +1044,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         label: 'Talep Yeri / Oluşturan',
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
-                      { label: 'Talep Tipi', value: t(`jobs.requestTypes.${detail.requestType}`, detail.requestType) },
-                      { label: 'Proje', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
+                      {
+                        label: 'Gittiği Yer',
+                        value: detail.departments.filter(d => d.role !== 'Owner').map(d => d.departmentName).filter(Boolean).join(', ') || '—',
+                      },
+                      { label: 'Proje mi', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
                     ].map(({ label, value }) => (
                       <div key={label} className="flex items-start gap-2 px-3 py-2">
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
@@ -1057,7 +1060,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <div className="divide-y divide-slate-100">
                       {[
                         { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
-                        { label: 'Durum', value: getJobStatusLabel(t, detail.status) },
+                        {
+                          label: 'Durum',
+                          value: detail.status === 'Active'
+                            ? 'Yapılmakta Olan'
+                            : detail.status === 'Completed'
+                              ? 'Tamamlanmış'
+                              : getJobStatusLabel(t, detail.status),
+                        },
                         { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
                         { label: 'Son Tarih', value: formatDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (

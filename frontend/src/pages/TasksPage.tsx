@@ -855,9 +855,6 @@ const pageKicker = isMyTasksView
                 <div className="text-[0.65rem] font-extrabold uppercase tracking-[0.18em] text-slate-500">
                   {detailScopeLabel}
                 </div>
-                <div className="text-base font-extrabold text-slate-950">
-                  {t('tasks.detail.title', 'Görev Detayları')}
-                </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 {taskDetail && (
@@ -954,7 +951,7 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
                             </p>
                           </div>
-                          <label className="job-field mt-2">
+                          <label className="job-field mt-3">
                             <span className="job-field-label">
                               {t('tasks.actions.completionNote', 'Tamamlama Notu')}
                             </span>

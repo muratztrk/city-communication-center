@@ -12,6 +12,16 @@ import { getLocale } from '../../utils/localization'
 
 type NotifFilter = 'all' | 'unread'
 
+function localizeNotificationText(value: string): string {
+  return value
+    .replace(/created task/gi, 'Görev oluşturuldu')
+    .replace(/task created/gi, 'Görev oluşturuldu')
+    .replace(/routine task created/gi, 'Rutin görev oluşturuldu')
+    .replace(/task assigned/gi, 'Görev atandı')
+    .replace(/job created/gi, 'Talep oluşturuldu')
+    .replace(/job updated/gi, 'Talep güncellendi')
+}
+
 function formatNotifDate(value: string | null | undefined, locale: string) {
   if (!value) return ''
   return new Date(value).toLocaleString(locale, {
@@ -154,6 +164,8 @@ export function NotificationBell() {
   const unreadCount = unreadQuery.data ?? 0
   const displayNotifications = notifications.map(notification => ({
     ...notification,
+    title: localizeNotificationText(notification.title),
+    message: localizeNotificationText(notification.message),
     isRead: viewedNotificationIds.has(notification.notificationId),
   }))
 
@@ -247,7 +259,7 @@ export function NotificationBell() {
         >
           <Bell className="size-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 text-[0.7rem] font-black leading-none text-red-600">
+            <span className="pointer-events-none absolute right-0 top-0 translate-x-1/2 -translate-y-1/2 text-[0.7rem] font-black leading-none text-red-600">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

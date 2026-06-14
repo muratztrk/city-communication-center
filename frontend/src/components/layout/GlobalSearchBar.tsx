@@ -242,8 +242,8 @@ export function GlobalSearchBar() {
           spellCheck={false}
         />
         {query ? (
-          <button type="button" onClick={clear} className="shrink-0 text-slate-400 hover:text-slate-600" aria-label="Temizle">
-            <X className="size-3.5" />
+          <button type="button" onClick={clear} className="shrink-0 font-extrabold text-red-500 hover:text-red-600" aria-label="Temizle">
+            <X className="size-3.5" strokeWidth={3} />
           </button>
         ) : null}
       </div>

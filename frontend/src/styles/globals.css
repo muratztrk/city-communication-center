@@ -215,9 +215,10 @@
     }
 
     .app-content-shell .scope-chip {
-      min-height: 1.55rem;
-      padding: 0.08rem 0.58rem;
-      font-size: 0.66rem;
+      min-height: 1.72rem;
+      padding: 0.14rem 0.62rem;
+      font-size: 0.68rem;
+      line-height: 1.2;
     }
 
     .app-content-shell .scope-chip-search-wrap {
@@ -1229,6 +1230,10 @@
     font-weight: 800;
   }
 
+  .sticky-page-header .scope-chip-search-clear svg {
+    stroke-width: 3;
+  }
+
   .sticky-page-header .scope-chip-search-clear:hover {
     color: #dc2626;
   }
@@ -1255,12 +1260,12 @@
     border: 1px solid var(--color-border);
     background: white;
     color: #475569;
-    min-height: 1.875rem;
+    min-height: 2rem;
     border-radius: 999px;
-    padding: 0.1rem 0.75rem;
+    padding: 0.16rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
-    line-height: 1.1;
+    line-height: 1.2;
     letter-spacing: 0.01em;
     cursor: pointer;
     transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;

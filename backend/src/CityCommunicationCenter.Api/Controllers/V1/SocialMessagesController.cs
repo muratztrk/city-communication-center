@@ -156,6 +156,7 @@ public sealed class SocialMessagesController : ApiControllerBase
 
     /// <summary>Proxies WhatsApp media (image/video/audio/document) through the server.</summary>
     [HttpGet("{messageId:guid}/conversation/media/{entryId:guid}")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMedia(
@@ -163,7 +164,9 @@ public sealed class SocialMessagesController : ApiControllerBase
         Guid entryId,
         CancellationToken cancellationToken)
     {
-        var tenantId = CurrentContext.TenantId!.Value;
+        var tenantId = CurrentContext.TenantId ?? Guid.Empty;
+        if (tenantId == Guid.Empty)
+            return Unauthorized();
         var settings = _settingsProvider.GetSettings(tenantId)?.WhatsApp;
         if (string.IsNullOrWhiteSpace(settings?.AccessToken))
             return NotFound();

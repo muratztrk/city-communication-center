@@ -578,10 +578,10 @@
     "department": "Department",
     "departmentPoolAssignee": "Unit pool",
     "departmentSelection": "Select department",
-    "userSelection": "Select user",
+    "userSelection": "Select staff",
     "empty": "No tasks found yet",
     "draftDepartment": "Department",
-    "draftUser": "User",
+    "draftUser": "Staff",
     "userSearchPlaceholder": "Search user",
     "userSearchEmpty": "No matching user found",
     "staff": {

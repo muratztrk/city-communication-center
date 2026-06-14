@@ -215,8 +215,8 @@
     }
 
     .app-content-shell .scope-chip {
-      min-height: 1.45rem;
-      padding: 0.26rem 0.62rem;
+      min-height: 1.15rem;
+      padding: 0.14rem 0.62rem;
       font-size: 0.68rem;
       line-height: 1.2;
     }
@@ -1260,9 +1260,9 @@
     border: 1px solid var(--color-border);
     background: white;
     color: #475569;
-    min-height: 1.6rem;
+    min-height: 1.3rem;
     border-radius: 999px;
-    padding: 0.3rem 0.8rem;
+    padding: 0.16rem 0.8rem;
     font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.2;

@@ -579,10 +579,10 @@
     "department": "Müdürlük",
     "departmentPoolAssignee": "Müdürlük havuzu",
     "departmentSelection": "Müdürlük seç",
-    "userSelection": "Kullanıcı seç",
+    "userSelection": "Personel seçiniz",
     "empty": "Henüz iş bulunmuyor",
     "draftDepartment": "Müdürlük",
-    "draftUser": "Kullanıcı",
+    "draftUser": "Personel",
     "userSearchPlaceholder": "Kullanıcı ara",
     "userSearchEmpty": "Eşleşen kullanıcı bulunamadı",
     "staff": {

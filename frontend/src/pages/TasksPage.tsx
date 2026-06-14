@@ -223,15 +223,18 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
     return tasks.filter(task => task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected' || task.currentStatus === 'RevisionRequested')
   }
 
+  const isClosedStatus = (status: string) =>
+    ['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(status)
+  const isOverdue = (task: Task) =>
+    task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now()
+
   if (view === 'overdue') {
-    const now = Date.now()
-    return tasks.filter(task =>
-      task.dueDateUtc != null &&
-      new Date(task.dueDateUtc).getTime() < now &&
-      !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(task.currentStatus))
+    return tasks.filter(task => !isClosedStatus(task.currentStatus) && isOverdue(task))
   }
 
-  return tasks.filter(task => !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(task.currentStatus))
+  // "Bekleyen" görünümü: aktif görevler — son tarihi geçmiş görevler hariç (onlar
+  // "Son Tarihi Geçmiş" görünümünde gösterilir, card 393/394).
+  return tasks.filter(task => !isClosedStatus(task.currentStatus) && !isOverdue(task))
 }
 
 export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
@@ -835,7 +838,7 @@ const pageKicker = isMyTasksView
           role="presentation"
         >
           <section
-            className="flex max-h-[90dvh] w-full max-w-7xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="flex max-h-[90dvh] w-full max-w-5xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}

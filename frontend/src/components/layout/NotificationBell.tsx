@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCheck, ExternalLink, X } from 'lucide-react'
+import { Bell, CheckCheck, X } from 'lucide-react'
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
@@ -88,25 +88,6 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
             </button>
           )}
         </div>
-      </div>
-
-      {/* Actions on hover */}
-      <div className="flex shrink-0 flex-col items-end gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
-        {!n.isRead && (
-          <button
-            type="button"
-            onClick={e => { e.stopPropagation(); onMarkRead(n.notificationId) }}
-            title={t('notifications.markRead', 'Okundu işaretle')}
-            className="rounded-md p-1 hover:bg-[color:var(--color-primary)]/10"
-          >
-            <Check className="size-3.5 text-[color:var(--color-primary)]" />
-          </button>
-        )}
-        {n.actionUrl && (
-          <span className="rounded-md p-1 text-slate-400">
-            <ExternalLink className="size-3" />
-          </span>
-        )}
       </div>
     </li>
   )
@@ -267,7 +248,7 @@ export function NotificationBell() {
         >
           <Bell className="size-4" />
           {unreadCount > 0 && (
-            <span className="pointer-events-none absolute right-0 top-0 translate-x-1/2 -translate-y-1/2 text-[0.7rem] font-black leading-none text-red-600">
+            <span className="pointer-events-none absolute right-1 top-1 text-[0.7rem] font-black leading-none text-red-600">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

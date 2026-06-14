@@ -680,6 +680,9 @@ const pageKicker = isMyTasksView
   }, [autoOpenTaskId, selectedTask?.taskId, tasks]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const closeTaskDetail = () => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('taskId')
+    setSearchParams(nextParams, { replace: true })
     setSelectedTask(null)
     setTaskDetail(null)
     setParentJobDetail(null)

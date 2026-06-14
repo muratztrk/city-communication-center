@@ -74,7 +74,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
             <button
               type="button"
               onClick={e => { e.stopPropagation(); onNavigate(n.actionUrl!) }}
-              className="text-[0.7rem] font-extrabold text-red-500 transition-colors hover:text-red-600"
+              className="rounded-md bg-emerald-500 px-2 py-1 text-[0.7rem] font-bold text-white shadow-sm transition-colors hover:bg-emerald-600"
             >
               {t('common.detail', 'Detay')}
             </button>

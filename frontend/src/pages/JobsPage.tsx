@@ -1046,7 +1046,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       },
                       {
                         label: 'Gittiği Yer',
-                        value: detail.departments.filter(d => d.role !== 'Owner').map(d => d.departmentName).filter(Boolean).join(', ') || '—',
+                        value: detail.departments
+                          .filter(d => d.role === 'Target' || d.role === 'Coordinating')
+                          .map(d => d.departmentName)
+                          .filter(Boolean)
+                          .join(', ') || detail.ownerDepartmentName || '—',
                       },
                       { label: 'Proje mi', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
                     ].map(({ label, value }) => (

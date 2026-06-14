@@ -651,7 +651,7 @@ const pageKicker = isMyTasksView
     setDetailLoading(true)
     setAssignmentDraft({
       departmentId: task.assignedDepartmentId ?? '',
-      userId: task.assignedUserId ?? '',
+      userId: '',
     })
     try {
       const [detail, jobDetail] = await Promise.all([
@@ -662,7 +662,7 @@ const pageKicker = isMyTasksView
       setParentJobDetail(jobDetail)
       setAssignmentDraft({
         departmentId: detail.assignedDepartmentId ?? '',
-        userId: detail.assignedUserId ?? '',
+        userId: '',
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))

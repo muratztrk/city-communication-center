@@ -1005,61 +1005,71 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           role="presentation"
         >
           <section
-            id="detail-scroll"
-            className="relative max-h-[88dvh] w-full max-w-5xl overflow-y-auto rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            className="flex max-h-[90dvh] w-full max-w-5xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <button
-              type="button"
-              onClick={() => setDetail(null)}
-              className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-              aria-label="Kapat"
-            >
-              <XIcon className="size-4" />
-            </button>
-            <div className="page-header-row mb-4">
-              <div className="space-y-1">
-                <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('jobs.detail.title')}</div>
-                <h2 className="text-xl font-extrabold text-slate-950">{detail.title}</h2>
-                <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content text-sm text-slate-600" />
-                <div className="inline-actions pt-1">
+            {/* Fixed header */}
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+              <div className="min-w-0">
+                <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
+                  {t('jobs.detail.title')}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale)}>{t('common.print', 'Yazdır')}</Button>
+                <button
+                  type="button"
+                  onClick={() => setDetail(null)}
+                  className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  aria-label={t('common.close', 'Kapat')}
+                >
+                  <XIcon className="size-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div>
+                <h2 className="mb-1 text-xl font-extrabold text-slate-950">{detail.title}</h2>
+                <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content text-sm text-slate-600 mb-3" />
+                <div className="inline-actions pb-3">
                   <StatusPill>{getJobStatusLabel(t, detail.status)}</StatusPill>
                   <StatusPill tone="info">{getPriorityLabel(t, detail.priority)}</StatusPill>
                   {detail.isProject && <StatusPill tone="warning">{t('jobs.columns.project', 'Proje')}</StatusPill>}
                 </div>
                 {detail.createdByDisplayName && (
-                  <p className="text-xs text-[color:var(--color-muted-foreground)] pt-1">
+                  <p className="text-xs text-slate-500 pb-3">
                     {t('common.createdBy', 'Oluşturan')}: <span className="font-semibold text-slate-700">{detail.createdByDisplayName}</span>
                     {' · '}{formatDateTime(detail.createdAtUtc, locale)}
                   </p>
                 )}
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mb-4 flex flex-wrap gap-2">
                   <StatusPill tone="info">{t('requests.create.typeLabel', 'Talep Tipi')}: {t(`jobs.requestTypes.${detail.requestType}`, detail.requestType)}</StatusPill>
                   <StatusPill tone="neutral">{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}: {detail.ownerDepartmentName ?? '—'}</StatusPill>
                   <StatusPill tone="success">{t('jobs.columns.taskCount', 'Görevler')}: {detail.tasks.length}</StatusPill>
                 </div>
+                {(isManagerLike || canMutatePreApprovalJob(detail)) && (
+                  <div className="mb-6 flex flex-wrap gap-2">
+                    {isManagerLike && detail.status === 'PendingOwnerApproval' && (
+                      <>
+                        <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>{t('jobs.actions.approveOwner')}</Button>
+                        <Button type="button" variant="destructive" onClick={() => handleRejectOwner(detail.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
+                      </>
+                    )}
+                    {canMutatePreApprovalJob(detail) && (
+                      <Button type="button" variant="secondary" onClick={() => void openEditModal(detail)}>
+                        {t('jobs.actions.edit', 'Düzenle')}
+                      </Button>
+                    )}
+                    {canMutatePreApprovalJob(detail) && (
+                      <Button type="button" variant="destructive" onClick={() => handleDelete(detail.jobId)}>{t('jobs.actions.delete')}</Button>
+                    )}
+                  </div>
+                )}
               </div>
-              <div className="inline-actions ml-auto">
-                {isManagerLike && detail.status === 'PendingOwnerApproval' && (
-                  <>
-                    <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>{t('jobs.actions.approveOwner')}</Button>
-                    <Button type="button" variant="destructive" onClick={() => handleRejectOwner(detail.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
-                  </>
-                )}
-                {canMutatePreApprovalJob(detail) && (
-                  <Button type="button" variant="secondary" onClick={() => void openEditModal(detail)}>
-                    {t('jobs.actions.edit', 'Düzenle')}
-                  </Button>
-                )}
-                {canMutatePreApprovalJob(detail) && (
-                  <Button type="button" variant="destructive" onClick={() => handleDelete(detail.jobId)}>{t('jobs.actions.delete')}</Button>
-                )}
-                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale)}>{t('common.print', 'Yazdır')}</Button>
-                <Button type="button" variant="secondary" onClick={() => setDetail(null)}>{t('jobs.actions.close')}</Button>
-              </div>
-            </div>
-
-            {detailLoading && <div className="loading">{t('common.loading')}</div>}
+               
+              {detailLoading && <div className="loading">{t('common.loading')}</div>}
 
             <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.departments')}</h3>
@@ -1189,6 +1199,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </table>
               )}
             </section>
+           </div>
           </section>
         </div>
       )}

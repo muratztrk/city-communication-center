@@ -850,9 +850,9 @@ const pageKicker = isMyTasksView
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}
-            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-4 py-3">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
               <div className="min-w-0">
-                <div className="text-[0.65rem] font-extrabold uppercase tracking-[0.18em] text-slate-500">
+                <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
                   {detailScopeLabel}
                 </div>
               </div>
@@ -881,14 +881,14 @@ const pageKicker = isMyTasksView
                 <>
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
-                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(15rem,0.48fr)]' : ''} lg:items-stretch`}>
+                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(12rem,0.5fr)_minmax(10rem,0.7fr)]' : ''} lg:items-stretch`}>
                       <div className="form-card page-stack min-w-0">
                         <div className="space-y-4">
                           <div className="space-y-3">
                             <div className="text-sm font-semibold text-emerald-600">
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.3fr)_minmax(12rem,0.7fr)_22rem]">
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },

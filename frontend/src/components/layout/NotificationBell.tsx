@@ -66,7 +66,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
         {n.message && (
           <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">{n.message}</p>
         )}
-        <div className="mt-1 flex items-end justify-between gap-3">
+        <div className="mt-1 flex items-center justify-between gap-3">
           <p className="text-[0.68rem] text-slate-400">
             {formatNotifDate(n.sentAtUtc, locale)}
           </p>
@@ -74,7 +74,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
             <button
               type="button"
               onClick={e => { e.stopPropagation(); onNavigate(n.actionUrl!) }}
-              className="rounded-md bg-emerald-500 px-2 py-1 text-[0.7rem] font-bold text-white shadow-sm transition-colors hover:bg-emerald-600"
+              className="rounded-md bg-emerald-500 px-2 py-1 text-[0.7rem] font-bold text-white shadow-sm transition-colors hover:bg-emerald-600 ml-auto"
             >
               {t('common.detail', 'Detay')}
             </button>

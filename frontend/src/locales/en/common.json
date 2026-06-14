@@ -619,6 +619,24 @@
     "delete": "Delete",
     "deleteConfirm": "Are you sure you want to delete this message?"
   },
+  "whatsapp": {
+    "title": "WhatsApp Conversations",
+    "subtitle": "Manage incoming WhatsApp messages from citizens.",
+    "searchPlaceholder": "Search by phone number…",
+    "empty": "No conversations yet",
+    "emptyDetail": "Select a conversation",
+    "unread": "unread",
+    "openTickets": "Open tickets",
+    "noTickets": "No linked tickets",
+    "blocked": "Blocked",
+    "newTicket": "Open New Ticket",
+    "viewTicket": "View Ticket",
+    "tickets": "Linked Tickets",
+    "ticketStatus": "Status",
+    "replyPlaceholder": "Type a reply…",
+    "replySent": "Message sent",
+    "replyFailed": "Failed to send message"
+  },
   "audit": {
     "title": "Audit",
     "subtitle": "Review actions and movement details.",
@@ -828,6 +846,8 @@
       "edevlet": "e-Government",
       "whatsappWebhookUrl": "Meta callback URL",
       "whatsappWebhookHelp": "Use this URL in WhatsApp > Configuration, enter the same verify token, then subscribe to the messages field. The URL must be publicly reachable over HTTPS.",
+      "whatsappAutoNotify": "Notify citizens via WhatsApp on job status changes",
+      "whatsappAutoNotifyHelp": "Sends an automatic WhatsApp message when a job becomes active, completed, or cancelled.",
       "descriptions": {
         "x": "Manage complaint, mention, and DM flows coming from X.",
         "facebook": "Configure credentials for Facebook page messages and comments.",

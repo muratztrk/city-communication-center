@@ -323,6 +323,61 @@ export interface SocialMessage {
   longitude?: number | null;
 }
 
+export interface CitizenConversationSummary {
+  citizenConversationId: string;
+  citizenPhone: string;
+  citizenName: string | null;
+  lastMessageAt: string;
+  unreadCount: number;
+  isBlocked: boolean;
+  lastMessagePreview: string | null;
+  openTicketCount: number;
+}
+
+export interface CitizenConversationTimelineEntry {
+  entryId: string;
+  direction: 'Inbound' | 'Outbound';
+  content: string;
+  mediaId: string | null;
+  mediaMimeType: string | null;
+  sentAt: string;
+  socialMessageId: string;
+}
+
+export interface CitizenConversationTicket {
+  socialMessageId: string;
+  status: string;
+  receivedAtUtc: string;
+  jobId: string | null;
+  category: string | null;
+}
+
+export interface CitizenConversationDetail {
+  citizenConversationId: string;
+  citizenPhone: string;
+  citizenName: string | null;
+  lastMessageAt: string;
+  unreadCount: number;
+  isBlocked: boolean;
+  lastInboundAt: string | null;
+  timeline: CitizenConversationTimelineEntry[];
+  tickets: CitizenConversationTicket[];
+}
+
+export interface WhatsAppMessageTemplate {
+  templateId: string;
+  name: string;
+  content: string;
+  isActive: boolean;
+  channel: string;
+  isGeneral: boolean;
+  autoReply: boolean;
+  replyDelaySecs: number;
+  hasKeyword: boolean;
+  queryType: string;
+  keywords: string[];
+}
+
 export interface AuditLog {
   auditLogId: string;
   tenantId: string;
@@ -491,6 +546,7 @@ export interface SocialSettingsStatus {
   whatsApp: SocialChannelStatus;
   eDevlet: SocialChannelStatus;
   email: SocialChannelStatus;
+  whatsAppAutoNotify: boolean;
 }
 
 export interface SocialSettingsSaveResult {

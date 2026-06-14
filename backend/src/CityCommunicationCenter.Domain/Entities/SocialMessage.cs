@@ -18,6 +18,8 @@ public sealed class SocialMessage : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public SocialMessageStatus Status { get; set; } = SocialMessageStatus.New;
 
+    public Guid? CitizenConversationId { get; set; }
+
     public Guid? AssignedDepartmentId { get; set; }
 
     public Guid? JobId { get; set; }
@@ -33,6 +35,8 @@ public sealed class SocialMessage : AuditableTenantEntity, IHasDatabaseIndexDefi
     public DateTimeOffset? RespondedAtUtc { get; set; }
 
     public Tenant Tenant { get; set; } = null!;
+
+    public CitizenConversation? CitizenConversation { get; set; }
 
     public Department? AssignedDepartment { get; set; }
 

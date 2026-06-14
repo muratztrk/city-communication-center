@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Abstractions;
+
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record ApproveJobOwnerCommand(Guid JobId, Guid? ActorUserId, string? Comment) : ICommand<bool>;
@@ -7,12 +9,14 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public ApproveJobOwnerCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
+    public ApproveJobOwnerCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator, IWhatsAppJobNotifier whatsAppNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(ApproveJobOwnerCommand request, CancellationToken cancellationToken)
@@ -111,6 +115,7 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await _whatsAppNotifier.NotifyJobActivatedAsync(tenantId, job.JobId, cancellationToken);
         return true;
     }
 }

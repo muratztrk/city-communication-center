@@ -46,6 +46,7 @@ public sealed class GetSocialSettingsStatusQueryHandler : IQueryHandler<GetSocia
             new SocialChannelStatusResponse(
                 !string.IsNullOrEmpty(settings?.Email?.ImapHost) && !string.IsNullOrEmpty(settings?.Email?.ImapUser),
                 !string.IsNullOrEmpty(settings?.Email?.ImapHost),
-                !string.IsNullOrEmpty(settings?.Email?.ImapUser))));
+                !string.IsNullOrEmpty(settings?.Email?.ImapUser)),
+            WhatsAppAutoNotify: settings?.WhatsApp?.AutoNotify ?? false));
     }
 }

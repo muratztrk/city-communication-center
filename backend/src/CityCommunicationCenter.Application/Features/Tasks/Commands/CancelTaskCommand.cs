@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -16,11 +17,13 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public CancelTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public CancelTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, IWhatsAppJobNotifier whatsAppNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(CancelTaskCommand request, CancellationToken cancellationToken)
@@ -84,7 +87,7 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
         if (parentJob is not null)
         {
             var previousStatus = parentJob.Status;
-            await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
+            var newJobStatus = await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
             if (parentJob.Status != previousStatus)
             {
                 _dbContext.AuditLogs.Add(new AuditLog
@@ -102,6 +105,11 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
                 });
             }
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            if (newJobStatus == JobStatus.Completed)
+                await _whatsAppNotifier.NotifyJobCompletedAsync(tenantId, task.JobId, cancellationToken);
+            else if (newJobStatus == JobStatus.Cancelled)
+                await _whatsAppNotifier.NotifyJobCancelledAsync(tenantId, task.JobId, null, cancellationToken);
         }
 
         return true;

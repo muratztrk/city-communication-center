@@ -29,6 +29,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<TenantSetting> TenantSettings => Set<TenantSetting>();
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
+    public DbSet<CitizenConversation> CitizenConversations => Set<CitizenConversation>();
+    public DbSet<WhatsAppMessageTemplate> WhatsAppTemplates => Set<WhatsAppMessageTemplate>();
     public DbSet<SocialMessage> SocialMessages => Set<SocialMessage>();
     public DbSet<SocialConversationEntry> ConversationEntries => Set<SocialConversationEntry>();
     public DbSet<Job> Jobs => Set<Job>();
@@ -85,6 +87,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureTenantSetting(modelBuilder.Entity<TenantSetting>());
         ConfigureDepartment(modelBuilder.Entity<Department>());
         ConfigureApplicationUser(modelBuilder.Entity<ApplicationUser>());
+        ConfigureCitizenConversation(modelBuilder.Entity<CitizenConversation>());
+        ConfigureWhatsAppMessageTemplate(modelBuilder.Entity<WhatsAppMessageTemplate>());
         ConfigureSocialMessage(modelBuilder.Entity<SocialMessage>());
         ConfigureSocialConversationEntry(modelBuilder.Entity<SocialConversationEntry>());
         ConfigureJob(modelBuilder.Entity<Job>());
@@ -104,6 +108,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<TenantSetting>());
         ApplyTenantFilter(modelBuilder.Entity<Department>());
         ApplyTenantFilter(modelBuilder.Entity<ApplicationUser>());
+        ApplyTenantFilter(modelBuilder.Entity<CitizenConversation>());
+        ApplyTenantFilter(modelBuilder.Entity<WhatsAppMessageTemplate>());
         ApplyTenantFilter(modelBuilder.Entity<SocialMessage>());
         ApplyTenantFilter(modelBuilder.Entity<Job>());
         ApplyTenantFilter(modelBuilder.Entity<JobDepartment>());
@@ -394,6 +400,29 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyLowerCaseColumnNames(builder);
     }
 
+    private static void ConfigureCitizenConversation(EntityTypeBuilder<CitizenConversation> builder)
+    {
+        builder.ToTable("citizenconversations");
+        builder.HasKey(entity => entity.CitizenConversationId);
+        builder.HasOne(entity => entity.Tenant)
+            .WithMany()
+            .HasForeignKey(entity => entity.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureWhatsAppMessageTemplate(EntityTypeBuilder<WhatsAppMessageTemplate> builder)
+    {
+        builder.ToTable("whatsapptemplates");
+        builder.HasKey(e => e.TemplateId);
+        builder.Property(e => e.KeywordsJson).HasColumnType("text");
+        builder.HasOne(e => e.Tenant)
+            .WithMany()
+            .HasForeignKey(e => e.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
     private static void ConfigureSocialMessage(EntityTypeBuilder<SocialMessage> builder)
     {
         builder.ToTable("socialmessages");
@@ -404,6 +433,10 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
             .WithMany(tenant => tenant.SocialMessages)
             .HasForeignKey(entity => entity.TenantId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(entity => entity.CitizenConversation)
+            .WithMany(c => c.SocialMessages)
+            .HasForeignKey(entity => entity.CitizenConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(entity => entity.AssignedDepartment)
             .WithMany()
             .HasForeignKey(entity => entity.AssignedDepartmentId)

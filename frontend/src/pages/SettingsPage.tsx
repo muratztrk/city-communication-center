@@ -35,6 +35,7 @@ import type {
   TenantAuthenticationPolicy,
   TenantLdapSettings,
   TenantSettings,
+  WhatsAppMessageTemplate,
   WorkingHoursSettings,
   SmsSettings,
   SmsSettingsUpdate,
@@ -52,7 +53,7 @@ interface ChannelConfig {
   id: ChannelType
   titleKey: string
   descriptionKey: string
-  statusKey: keyof SocialSettingsStatus
+  statusKey: keyof Omit<SocialSettingsStatus, 'whatsAppAutoNotify'>
   fields: { key: string; labelKey: string; secret?: boolean }[]
 }
 
@@ -201,42 +202,14 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
   email: { imapHost: '', imapPort: '', imapUser: '', imapPassword: '', folder: '', smtpHost: '', smtpPort: '', smtpUser: '', smtpPassword: '' },
 }
 
-interface MessageTemplate {
-  id: string
-  name: string
-  content: string
-  isActive: boolean
-  channel: string
-  isGeneral: boolean
-  autoReply: boolean
-  replyDelaySecs: number
-  hasKeyword: boolean
-  queryType: string
-  keywords: string[]
-}
-
 const TEMPLATE_CHANNEL_OPTIONS = ['Genel', 'WhatsApp', 'Facebook', 'Instagram', 'X', 'Phone', 'Other']
 const TEMPLATE_REPLY_DELAY_OPTIONS = [10, 30, 60, 120, 300]
 
-const EMPTY_TEMPLATE_FORM: Omit<MessageTemplate, 'id'> = {
+const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
   name: '', content: '', isActive: true, channel: 'Genel',
   isGeneral: false, autoReply: false, replyDelaySecs: 30,
   hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [],
 }
-
-const TEMPLATE_STORAGE_KEY = 'ccc_message_templates'
-
-const SEED_TEMPLATES: MessageTemplate[] = [
-  { id: 'seed-1', name: 'KVKK Hoşgeldiniz', channel: 'Genel', isActive: true, isGeneral: true, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Tire Belediyesi İletişim Merkezine hoşgeldiniz. Tire Belediyesi olarak kişisel verilerinizi önemsiyoruz. KVKK bilgilendirmesi için "https://tire.bel.tr/tr/Kurumsal/AydinlatmaMetni" linkine tıklayarak KVKK Aydınlatma Metnine ulaşabilirsiniz. İstek, talep ve şikâyetlerinizin kayıt altına alınabilmesi için Ad, Soyad, Telefon ve adres bilgilerinizi yazabilir misiniz?' },
-  { id: 'seed-2', name: 'Eksik Bilgi', channel: 'Genel', isActive: true, isGeneral: false, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Değerli hemşehrimiz, taleplerinizde adınız soyadınız telefon numaranız talebinizin bulunduğu açık adresi ile birlikte talebinizi belirtmeniz gerektiğini lütfen unutmayınız. Eksik bilgi nedeniyle talebiniz oluşturulamamış olup, lütfen yeniden talep oluşturunuz.' },
-  { id: 'seed-3', name: 'Talep İletildi', channel: 'Genel', isActive: true, isGeneral: false, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Merhaba, talebiniz ilgili Birime iletilmiştir. İlginize teşekkür eder. İyi günler dileriz.' },
-  { id: 'seed-4', name: 'Mesai Saati', channel: 'Genel', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['mesai', 'çalışma saati', 'saat'], content: 'Tire Belediyesi İletişim Merkezi\'ne hoş geldiniz. İletişim Merkezi, hafta içi her gün 08:30 - 17:30 saatleri arasında hizmet vermektedir. Acil durumlar için 444 35 03 numaramızı arayarak talebinizi bize 7/24 iletebilirsiniz. İyi günler dileriz.' },
-  { id: 'seed-5', name: 'Nöbetçi Eczane', channel: 'Genel', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['eczane', 'nöbetçi eczane'], content: 'Merhaba, nöbetçi eczane listesine https://tire.bel.tr/tr/HizmetRehberi/NobetciEczaneler linkinden ulaşabilirsiniz. Geçmiş olsun dileklerimizi iletir, iyi günler dileriz.' },
-  { id: 'seed-6', name: 'Toptepe Rezervasyon', channel: 'WhatsApp', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['toptepe aile restaurant', 'Toptepe Aile Gazinosu', 'toptepe restoran', 'toptepe restorant'], content: 'Merhabalar mesajınız için teşekkür ederiz. Toptepe Aile Restoranımızın bilgi alma ve rezervasyon numarası: 0232 270 1261. Bizimle iletişime geçtiğiniz için teşekkür ederiz. Tekrar görüşmek dileğiyle.' },
-  { id: 'seed-7', name: 'Gölet Restoran', channel: 'WhatsApp', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['gölet restoran', 'gölet'], content: 'Merhabalar mesajınız için teşekkür ederiz. Gölet Restoran\'ımızın bilgi alma ve rezervasyon numarası: 0232 270 1260. Bizimle iletişime geçtiğiniz için teşekkür ederiz. Tekrar görüşmek dileğiyle.' },
-  { id: 'seed-8', name: 'Derekahve Kafe', channel: 'WhatsApp', isActive: true, isGeneral: false, autoReply: true, replyDelaySecs: 30, hasKeyword: true, queryType: '(LIKE) İçerikte Geçsin', keywords: ['derekahve', 'dere kahve', 'kafe'], content: 'Merhabalar mesajınız için teşekkür ederiz. Derekahve Kafe için bilgi alma ve rezervasyon numarası: 0232 270 1262. Bizimle iletişime geçtiğiniz için teşekkür ederiz. Tekrar görüşmek dileğiyle.' },
-  { id: 'seed-9', name: 'Acil İletişim', channel: 'Genel', isActive: true, isGeneral: false, autoReply: false, replyDelaySecs: 30, hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [], content: 'Tire Belediyesi İletişim Merkezi\'ne hoş geldiniz. İletişim Merkezi, hafta içi her gün 08:30 - 17:30 saatleri arasında hizmet vermektedir. Acil durumlar için 444 35 03 numaramızı arayarak talebinizi bize 7/24 iletebilirsiniz. İyi günler dileriz.' },
-]
 
 function readTab(tab: string | null): SettingsTab {
   return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'citizen' || tab === 'templates' ? tab : 'tenant'
@@ -279,6 +252,7 @@ export function SettingsPage() {
   })
   const [loadedAppearance, setLoadedAppearance] = useState<TenantAppearanceInput>(appearanceForm)
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
+  const [whatsAppAutoNotify, setWhatsAppAutoNotify] = useState(false)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
   const [showRuleForm, setShowRuleForm] = useState(false)
   const [editingRuleId, setEditingRuleId] = useState<string | null>(null)
@@ -312,17 +286,9 @@ export function SettingsPage() {
   const [slaWeekendForm, setSlaWeekendForm] = useState<SlaWeekendSettingsUpdate>({
     excludeWeekends: false, exemptDepartmentIds: [],
   })
-  const [templates, setTemplates] = useState<MessageTemplate[]>(() => {
-    try {
-      const stored = window.localStorage.getItem(TEMPLATE_STORAGE_KEY)
-      if (stored) return JSON.parse(stored) as MessageTemplate[]
-    } catch {
-      return SEED_TEMPLATES
-    }
-    return SEED_TEMPLATES
-  })
+  const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
-  const [templateForm, setTemplateForm] = useState<Omit<MessageTemplate, 'id'>>(EMPTY_TEMPLATE_FORM)
+  const [templateForm, setTemplateForm] = useState<Omit<WhatsAppMessageTemplate, 'templateId'>>(EMPTY_TEMPLATE_FORM)
   const [isNewTemplate, setIsNewTemplate] = useState(false)
   const [keywordInput, setKeywordInput] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
@@ -346,8 +312,9 @@ export function SettingsPage() {
       api.getSmsSettings(user.tenantId),
       api.getSyslogSettings(user.tenantId),
       api.getSlaWeekendSettings(user.tenantId),
+      api.getWhatsAppTemplates(),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, syslogResponse, slaWeekendResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
         if (!isActive) {
           return
         }
@@ -381,6 +348,7 @@ export function SettingsPage() {
         setAppearanceForm(nextAppearance)
         setLoadedAppearance(nextAppearance)
         setSocialStatus(socialResponse)
+        setWhatsAppAutoNotify(socialResponse.whatsAppAutoNotify ?? false)
         setRoutingConfig(routingResponse)
         setDepartments(departmentResponse)
         setWorkingHoursForm(workingHoursResponse)
@@ -405,6 +373,7 @@ export function SettingsPage() {
           excludeWeekends: slaWeekendResponse.excludeWeekends,
           exemptDepartmentIds: slaWeekendResponse.exemptDepartmentIds,
         })
+        setTemplates(templatesResponse)
       })
       .catch(loadError => {
         if (isActive) {
@@ -488,7 +457,11 @@ export function SettingsPage() {
   }
 
   const refreshRouting = async () => setRoutingConfig(await api.getRoutingConfig())
-  const refreshSocial = async () => setSocialStatus(await api.getSocialSettingsStatus())
+  const refreshSocial = async () => {
+    const status = await api.getSocialSettingsStatus()
+    setSocialStatus(status)
+    setWhatsAppAutoNotify(status.whatsAppAutoNotify ?? false)
+  }
 
   const saveMunicipalityDistrict = (event: FormEvent) => {
     event.preventDefault()
@@ -835,7 +808,10 @@ export function SettingsPage() {
     setMessage(null)
 
     try {
-      await api.saveSocialSettings(channel, socialForms[channel])
+      const payload = channel === 'whatsapp'
+        ? { ...socialForms[channel], autoNotify: whatsAppAutoNotify }
+        : socialForms[channel]
+      await api.saveSocialSettings(channel, payload)
       await refreshSocial()
       setActiveChannel(null)
       setMessage({ type: 'success', text: t('settings.socialConfig.saved') })
@@ -865,14 +841,9 @@ export function SettingsPage() {
     }
   }
 
-  const persistTemplates = (next: MessageTemplate[]) => {
-    setTemplates(next)
-    window.localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(next))
-  }
-
-  const selectTemplate = (tpl: MessageTemplate) => {
-    setSelectedTemplateId(tpl.id)
-    const { id: _id, ...rest } = tpl
+  const selectTemplate = (tpl: WhatsAppMessageTemplate) => {
+    setSelectedTemplateId(tpl.templateId)
+    const { templateId: _id, ...rest } = tpl
     void _id
     setTemplateForm(rest)
     setKeywordInput('')
@@ -897,33 +868,47 @@ export function SettingsPage() {
     setTemplateForm(cur => ({ ...cur, keywords: cur.keywords.filter(k => k !== kw) }))
   }
 
-  const saveTemplate = (event: FormEvent) => {
+  const saveTemplate = async (event: FormEvent) => {
     event.preventDefault()
     setMessage(null)
     if (!templateForm.name.trim() || !templateForm.content.trim()) return
-    if (isNewTemplate) {
-      const newTpl: MessageTemplate = { id: `tpl-${Date.now()}`, ...templateForm, name: templateForm.name.trim(), content: templateForm.content.trim() }
-      persistTemplates([...templates, newTpl])
-      setSelectedTemplateId(newTpl.id)
-      setIsNewTemplate(false)
-    } else if (selectedTemplateId) {
-      persistTemplates(templates.map(t => t.id === selectedTemplateId ? { ...t, ...templateForm, name: templateForm.name.trim(), content: templateForm.content.trim() } : t))
+    try {
+      const data = { ...templateForm, name: templateForm.name.trim(), content: templateForm.content.trim() }
+      if (isNewTemplate) {
+        await api.createWhatsAppTemplate(data)
+      } else if (selectedTemplateId) {
+        await api.updateWhatsAppTemplate(selectedTemplateId, data)
+      }
+      const updated = await api.getWhatsAppTemplates()
+      setTemplates(updated)
+      setMessage({ type: 'success', text: 'Şablon kaydedildi.' })
+      if (isNewTemplate) {
+        setIsNewTemplate(false)
+        setSelectedTemplateId(updated.find(t => t.name === data.name)?.templateId ?? null)
+      }
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : 'Şablon kaydedilemedi.' })
     }
-    setMessage({ type: 'success', text: 'Şablon kaydedildi.' })
   }
 
   const deleteTemplate = (id: string) => {
     setConfirmDialog({
       message: 'Bu şablonu silmek istediğinizden emin misiniz?',
       variant: 'destructive',
-      onConfirm: () => {
-        persistTemplates(templates.filter(tmpl => tmpl.id !== id))
-        if (selectedTemplateId === id) {
-          setSelectedTemplateId(null)
-          setTemplateForm(EMPTY_TEMPLATE_FORM)
-          setIsNewTemplate(false)
+      onConfirm: async () => {
+        try {
+          await api.deleteWhatsAppTemplate(id)
+          const updated = await api.getWhatsAppTemplates()
+          setTemplates(updated)
+          if (selectedTemplateId === id) {
+            setSelectedTemplateId(null)
+            setTemplateForm(EMPTY_TEMPLATE_FORM)
+            setIsNewTemplate(false)
+          }
+          setMessage({ type: 'success', text: 'Şablon silindi.' })
+        } catch (deleteError) {
+          setMessage({ type: 'error', text: deleteError instanceof Error ? deleteError.message : 'Şablon silinemedi.' })
         }
-        setMessage({ type: 'success', text: 'Şablon silindi.' })
       },
     })
   }
@@ -1865,6 +1850,18 @@ export function SettingsPage() {
                           <span className="helper-copy">{t('settings.socialConfig.whatsappWebhookHelp')}</span>
                         </label>
                       ) : null}
+                      {channel.id === 'whatsapp' ? (
+                        <label className="flex items-center gap-3 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-slate-300 accent-[var(--color-primary)]"
+                            checked={whatsAppAutoNotify}
+                            onChange={e => setWhatsAppAutoNotify(e.target.checked)}
+                          />
+                          <span className="text-sm font-semibold text-slate-700">{t('settings.socialConfig.whatsappAutoNotify')}</span>
+                          <span className="helper-copy">{t('settings.socialConfig.whatsappAutoNotifyHelp')}</span>
+                        </label>
+                      ) : null}
                       <div className="inline-actions">
                         <Button type="submit">{t('common.save')}</Button>
                       </div>
@@ -2062,10 +2059,10 @@ export function SettingsPage() {
             <div className="flex flex-col gap-0.5 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
               {templates.map(tpl => (
                 <button
-                  key={tpl.id}
+                  key={tpl.templateId}
                   type="button"
                   onClick={() => selectTemplate(tpl)}
-                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${selectedTemplateId === tpl.id ? 'bg-[color:var(--color-primary)]/10 font-bold text-[color:var(--color-primary)]' : 'font-medium text-slate-700 hover:bg-slate-50'}`}
+                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${selectedTemplateId === tpl.templateId ? 'bg-[color:var(--color-primary)]/10 font-bold text-[color:var(--color-primary)]' : 'font-medium text-slate-700 hover:bg-slate-50'}`}
                 >
                   <span className="min-w-0 truncate">{tpl.name}</span>
                 </button>

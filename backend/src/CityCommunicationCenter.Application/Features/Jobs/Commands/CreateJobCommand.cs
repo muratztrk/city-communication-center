@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
@@ -40,12 +41,14 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public CreateJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
+    public CreateJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator, IWhatsAppJobNotifier whatsAppNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<JobSummaryResponse> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -266,6 +269,10 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (job.Status == JobStatus.Active)
+            await _whatsAppNotifier.NotifyJobActivatedAsync(tenantId, job.JobId, cancellationToken);
+
         return await JobSummaryResponseFactory.CreateAsync(_dbContext, job, cancellationToken);
     }
 

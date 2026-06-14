@@ -128,13 +128,17 @@ internal static class TaskWorkflowAuthorization
             && task.CurrentStatus == WorkflowTaskStatus.Waiting;
     }
 
-    public static async Task RecomputeJobCompletionAsync(
+    /// <summary>
+    /// Recomputes job completion/status based on its tasks.
+    /// Returns the new terminal JobStatus if it changed, null otherwise.
+    /// </summary>
+    public static async Task<Domain.Enums.JobStatus?> RecomputeJobCompletionAsync(
         IApplicationDbContext dbContext,
         Guid jobId,
         CancellationToken cancellationToken)
     {
         var job = await dbContext.Jobs.FirstOrDefaultAsync(entity => entity.JobId == jobId, cancellationToken);
-        if (job is null) return;
+        if (job is null) return null;
 
         var tasks = await dbContext.Tasks
             .Where(entity => entity.JobId == jobId)
@@ -143,7 +147,7 @@ internal static class TaskWorkflowAuthorization
         if (tasks.Count == 0)
         {
             job.CompletionPercentage = 0;
-            return;
+            return null;
         }
 
         var total = tasks.Sum(t =>
@@ -155,7 +159,7 @@ internal static class TaskWorkflowAuthorization
                 or WorkflowTaskStatus.Cancelled
                 or WorkflowTaskStatus.Rejected);
 
-        if (!allTerminal) return;
+        if (!allTerminal) return null;
 
         var hasCompleted = tasks.Any(t => t.CurrentStatus == WorkflowTaskStatus.Completed);
         var allCancelled = tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Cancelled);
@@ -164,8 +168,10 @@ internal static class TaskWorkflowAuthorization
         {
             job.Status = Domain.Enums.JobStatus.Completed;
             job.CompletedAtUtc = DateTimeOffset.UtcNow;
+            return Domain.Enums.JobStatus.Completed;
         }
-        else if (allCancelled
+
+        if (allCancelled
             && job.Status is not Domain.Enums.JobStatus.Completed
                 and not Domain.Enums.JobStatus.Cancelled
                 and not Domain.Enums.JobStatus.Rejected)
@@ -173,6 +179,9 @@ internal static class TaskWorkflowAuthorization
             // Tüm görevler iptal edildiğinde talebi de iptal et (Active, PendingOwnerApproval, vb.)
             job.Status = Domain.Enums.JobStatus.Cancelled;
             job.CompletionPercentage = 0;
+            return Domain.Enums.JobStatus.Cancelled;
         }
+
+        return null;
     }
 }

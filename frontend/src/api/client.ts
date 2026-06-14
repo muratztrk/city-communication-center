@@ -39,6 +39,9 @@ import type {
   SlaWeekendSettings,
   SlaWeekendSettingsUpdate,
   AppNotification,
+  CitizenConversationSummary,
+  CitizenConversationDetail,
+  WhatsAppMessageTemplate,
 } from '../types/platform'
 import { API_BASE } from './config'
 import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
@@ -755,6 +758,58 @@ export const api = {
 
   getSocialMediaUrl(socialMessageId: string, entryId: string): string {
     return `${API_BASE}/social/messages/${socialMessageId}/conversation/media/${entryId}`
+  },
+
+  async getCitizenConversations(): Promise<CitizenConversationSummary[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.socialMessagesLoadFailed'))
+    return response.json() as Promise<CitizenConversationSummary[]>
+  },
+
+  async getCitizenConversationDetail(conversationId: string): Promise<CitizenConversationDetail> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/${conversationId}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.socialMessagesLoadFailed'))
+    return response.json() as Promise<CitizenConversationDetail>
+  },
+
+  async markConversationRead(conversationId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/${conversationId}/mark-read`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
+  async getWhatsAppTemplates(): Promise<WhatsAppMessageTemplate[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/whatsapp-templates`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.socialSettingsLoadFailed'))
+    return response.json() as Promise<WhatsAppMessageTemplate[]>
+  },
+
+  async createWhatsAppTemplate(data: Omit<WhatsAppMessageTemplate, 'templateId'>): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/whatsapp-templates`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.socialSettingsSaveFailed'))
+  },
+
+  async updateWhatsAppTemplate(templateId: string, data: Omit<WhatsAppMessageTemplate, 'templateId'>): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/whatsapp-templates/${templateId}`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.socialSettingsSaveFailed'))
+  },
+
+  async deleteWhatsAppTemplate(templateId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/whatsapp-templates/${templateId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.socialSettingsDeleteFailed'))
   },
 
   async getAuditLogs(): Promise<AuditLog[]> {

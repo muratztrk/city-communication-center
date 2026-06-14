@@ -18,6 +18,7 @@ const UsersPage = lazy(() => import('../pages/UsersPage').then(module => ({ defa
 const JobsPage = lazy(() => import('../pages/JobsPage').then(module => ({ default: module.JobsPage })))
 const WallboardPage = lazy(() => import('../pages/WallboardPage').then(module => ({ default: module.WallboardPage })))
 const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(module => ({ default: module.RoutineTaskPage })))
+const WhatsAppConversationsPage = lazy(() => import('../pages/WhatsAppConversationsPage').then(module => ({ default: module.WhatsAppConversationsPage })))
 
 function LoadingScreen() {
   const { t } = useTranslation()
@@ -77,6 +78,7 @@ export default function App() {
           <Route path="/jobs" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" role={user?.role}><IncomingRequestsPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" role={user?.role}><SocialMessagesPage /></PageAccessGate>} />
+          <Route path="/whatsapp" element={<PageAccessGate pageKey="social" role={user?.role}><WhatsAppConversationsPage /></PageAccessGate>} />
           <Route path="/departments" element={<PageAccessGate pageKey="departments" role={user?.role}><DepartmentsPage /></PageAccessGate>} />
           <Route path="/users" element={<PageAccessGate pageKey="users" role={user?.role}><UsersPage /></PageAccessGate>} />
           <Route path="/audit" element={<PageAccessGate pageKey="audit" role={user?.role}><AuditLogsPage /></PageAccessGate>} />

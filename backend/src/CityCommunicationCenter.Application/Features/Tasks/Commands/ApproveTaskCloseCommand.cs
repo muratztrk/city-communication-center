@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -8,11 +9,13 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public ApproveTaskCloseCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public ApproveTaskCloseCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, IWhatsAppJobNotifier whatsAppNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(ApproveTaskCloseCommand request, CancellationToken cancellationToken)
@@ -70,8 +73,14 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
+        var newJobStatus = await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (newJobStatus == Domain.Enums.JobStatus.Completed)
+            await _whatsAppNotifier.NotifyJobCompletedAsync(tenantId, task.JobId, cancellationToken);
+        else if (newJobStatus == Domain.Enums.JobStatus.Cancelled)
+            await _whatsAppNotifier.NotifyJobCancelledAsync(tenantId, task.JobId, null, cancellationToken);
+
         return true;
     }
 

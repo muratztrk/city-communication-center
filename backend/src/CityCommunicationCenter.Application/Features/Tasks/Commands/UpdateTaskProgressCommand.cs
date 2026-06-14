@@ -60,7 +60,7 @@ public sealed class UpdateTaskProgressCommandHandler : ICommandHandler<UpdateTas
             Details = request.CompletionPercentage?.ToString()
         });
 
-        await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
+        _ = await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

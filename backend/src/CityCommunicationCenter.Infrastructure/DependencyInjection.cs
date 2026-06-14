@@ -39,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<ISocialMediaSettingsProvider, DatabaseSocialMediaSettingsProvider>();
         services.AddScoped<ISocialMediaClientFactory, SocialMediaClientFactory>();
         services.AddScoped<ISocialMediaService, SocialMediaService>();
+        services.AddScoped<IWhatsAppJobNotifier, WhatsAppJobNotifier>();
 
         // Routing Service
         services.AddScoped<IRoutingService, RoutingService>();

@@ -46,15 +46,46 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
         if (newMessages.Length == 0) return 0;
 
-        // Group by citizen so we can find/create conversation threads
+        // Group by citizen phone so we can find/create conversation threads
         var byCitizen = newMessages.GroupBy(m => m.CitizenHandle);
         var savedCount = 0;
+
+        // Load existing CitizenConversations for all phones in this batch
+        var allPhones = byCitizen.Select(g => g.Key).ToArray();
+        var existingConversations = await _dbContext.CitizenConversations
+            .IgnoreQueryFilters()
+            .Where(c => c.TenantId == request.TenantId && allPhones.Contains(c.CitizenPhone))
+            .ToDictionaryAsync(c => c.CitizenPhone, cancellationToken);
 
         foreach (var citizenGroup in byCitizen)
         {
             var citizenHandle = citizenGroup.Key;
+            var orderedMsgs = citizenGroup.OrderBy(m => m.ReceivedAtUtc).ToArray();
+            var latestAt = orderedMsgs[^1].ReceivedAtUtc;
 
-            // Find the most recent open conversation thread for this citizen
+            // Find or create CitizenConversation for this phone
+            if (!existingConversations.TryGetValue(citizenHandle, out var conversation))
+            {
+                conversation = new CitizenConversation
+                {
+                    CitizenConversationId = Guid.NewGuid(),
+                    TenantId = request.TenantId,
+                    CitizenPhone = citizenHandle,
+                    LastMessageAt = latestAt,
+                    UnreadCount = 0,
+                };
+                _dbContext.CitizenConversations.Add(conversation);
+                existingConversations[citizenHandle] = conversation;
+            }
+            else
+            {
+                if (latestAt > conversation.LastMessageAt)
+                    conversation.LastMessageAt = latestAt;
+            }
+
+            conversation.UnreadCount += orderedMsgs.Length;
+
+            // Find the most recent open SocialMessage thread for this citizen
             var thread = await _dbContext.SocialMessages
                 .IgnoreQueryFilters()
                 .Where(m => m.TenantId == request.TenantId &&
@@ -64,11 +95,11 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 .OrderByDescending(m => m.ReceivedAtUtc)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            foreach (var msg in citizenGroup.OrderBy(m => m.ReceivedAtUtc))
+            foreach (var msg in orderedMsgs)
             {
                 if (thread is null)
                 {
-                    // Start a new conversation thread
+                    // Start a new SocialMessage thread linked to the CitizenConversation
                     thread = new SocialMessage
                     {
                         SocialMessageId = Guid.NewGuid(),
@@ -80,13 +111,14 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         Latitude = msg.Latitude,
                         Longitude = msg.Longitude,
                         ReceivedAtUtc = msg.ReceivedAtUtc,
-                        Status = SocialMessageStatus.New
+                        Status = SocialMessageStatus.New,
+                        CitizenConversationId = conversation.CitizenConversationId,
                     };
                     _dbContext.SocialMessages.Add(thread);
                 }
                 else
                 {
-                    // Update thread's ReceivedAtUtc to latest message time so it sorts correctly
+                    // Update thread to latest message time so it sorts correctly
                     thread.ReceivedAtUtc = msg.ReceivedAtUtc;
                     // Carry through location if not already set
                     if (thread.Latitude is null && msg.Latitude is not null)
@@ -94,6 +126,9 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         thread.Latitude = msg.Latitude;
                         thread.Longitude = msg.Longitude;
                     }
+                    // Link to conversation if not yet set (backfill for existing threads)
+                    if (thread.CitizenConversationId is null)
+                        thread.CitizenConversationId = conversation.CitizenConversationId;
                 }
 
                 _dbContext.ConversationEntries.Add(new SocialConversationEntry

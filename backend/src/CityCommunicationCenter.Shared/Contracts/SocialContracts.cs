@@ -74,7 +74,8 @@ public sealed record SocialSettingsStatusResponse(
     SocialChannelStatusResponse Instagram,
     SocialChannelStatusResponse WhatsApp,
     SocialChannelStatusResponse EDevlet,
-    SocialChannelStatusResponse Email);
+    SocialChannelStatusResponse Email,
+    bool WhatsAppAutoNotify = false);
 
 public sealed record XSettingsRequest(
     string? ApiKey,
@@ -100,7 +101,8 @@ public sealed record WhatsAppSettingsRequest(
     string? PhoneNumberId,
     string? AccessToken,
     string? AppSecret,
-    string? WebhookVerifyToken);
+    string? WebhookVerifyToken,
+    bool AutoNotify = false);
 
 public sealed record EDevletSettingsRequest(
     string? ClientId,
@@ -130,6 +132,69 @@ public sealed record SocialConversationEntryDto(
     DateTimeOffset SentAt);
 
 public sealed record SocialReplyRequest(string Content);
+
+public sealed record CitizenConversationSummaryDto(
+    Guid CitizenConversationId,
+    string CitizenPhone,
+    string? CitizenName,
+    DateTimeOffset LastMessageAt,
+    int UnreadCount,
+    bool IsBlocked,
+    string? LastMessagePreview,
+    int OpenTicketCount);
+
+public sealed record CitizenConversationDetailDto(
+    Guid CitizenConversationId,
+    string CitizenPhone,
+    string? CitizenName,
+    DateTimeOffset LastMessageAt,
+    int UnreadCount,
+    bool IsBlocked,
+    /// <summary>When the last inbound message arrived — used for 24h window check.</summary>
+    DateTimeOffset? LastInboundAt,
+    IReadOnlyList<CitizenConversationTimelineEntryDto> Timeline,
+    IReadOnlyList<CitizenConversationTicketDto> Tickets);
+
+public sealed record CitizenConversationTimelineEntryDto(
+    Guid EntryId,
+    string Direction,
+    string Content,
+    string? MediaId,
+    string? MediaMimeType,
+    DateTimeOffset SentAt,
+    Guid SocialMessageId);
+
+public sealed record CitizenConversationTicketDto(
+    Guid SocialMessageId,
+    string Status,
+    DateTimeOffset ReceivedAtUtc,
+    Guid? JobId,
+    string? Category);
+
+public sealed record WhatsAppMessageTemplateDto(
+    Guid TemplateId,
+    string Name,
+    string Content,
+    bool IsActive,
+    string Channel,
+    bool IsGeneral,
+    bool AutoReply,
+    int ReplyDelaySecs,
+    bool HasKeyword,
+    string QueryType,
+    IReadOnlyList<string> Keywords);
+
+public sealed record WhatsAppMessageTemplateRequest(
+    string Name,
+    string Content,
+    bool IsActive,
+    string Channel,
+    bool IsGeneral,
+    bool AutoReply,
+    int ReplyDelaySecs,
+    bool HasKeyword,
+    string QueryType,
+    IReadOnlyList<string> Keywords);
 
 public sealed record SocialSettingsSaveResponse(
     string Message,

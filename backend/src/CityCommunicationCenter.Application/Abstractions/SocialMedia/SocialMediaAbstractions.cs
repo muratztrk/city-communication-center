@@ -66,6 +66,7 @@ public sealed class WhatsAppSettings
     public string? AccessToken { get; set; }
     public string? AppSecret { get; set; }
     public string? WebhookVerifyToken { get; set; }
+    public bool AutoNotify { get; set; }
 }
 
 public sealed class EDevletSettings

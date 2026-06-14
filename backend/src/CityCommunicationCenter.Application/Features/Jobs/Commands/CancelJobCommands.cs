@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
@@ -13,11 +14,13 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public CancelJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public CancelJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, IWhatsAppJobNotifier whatsAppNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(CancelJobCommand request, CancellationToken cancellationToken)
@@ -106,6 +109,7 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await _whatsAppNotifier.NotifyJobCancelledAsync(tenantId, job.JobId, request.Reason, cancellationToken);
         return true;
     }
 }

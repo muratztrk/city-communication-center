@@ -3,6 +3,7 @@ using System;
 using CityCommunicationCenter.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CityCommunicationCenterDbContext))]
-    partial class CityCommunicationCenterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260614085155_AddCitizenConversations")]
+    partial class AddCitizenConversations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1402,85 +1405,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.ToTable("userdepartmentassignments", (string)null);
                 });
 
-            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WhatsAppMessageTemplate", b =>
-                {
-                    b.Property<Guid>("TemplateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("templateid");
-
-                    b.Property<bool>("AutoReply")
-                        .HasColumnType("boolean")
-                        .HasColumnName("autoreply");
-
-                    b.Property<string>("Channel")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("channel");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("createdatutc");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("createdbyuserid");
-
-                    b.Property<bool>("HasKeyword")
-                        .HasColumnType("boolean")
-                        .HasColumnName("haskeyword");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isactive");
-
-                    b.Property<bool>("IsGeneral")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isgeneral");
-
-                    b.Property<string>("KeywordsJson")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("keywordsjson");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<string>("QueryType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("querytype");
-
-                    b.Property<int>("ReplyDelaySecs")
-                        .HasColumnType("integer")
-                        .HasColumnName("replydelaysecs");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenantid");
-
-                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updatedatutc");
-
-                    b.Property<Guid?>("UpdatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updatedbyuserid");
-
-                    b.HasKey("TemplateId");
-
-                    b.HasIndex("TenantId", "Channel", "IsActive");
-
-                    b.ToTable("whatsapptemplates", (string)null);
-                });
-
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkTask", b =>
                 {
                     b.Property<Guid>("TaskId")
@@ -1846,17 +1770,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WhatsAppMessageTemplate", b =>
-                {
-                    b.HasOne("CityCommunicationCenter.Domain.Entities.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.WorkTask", b =>

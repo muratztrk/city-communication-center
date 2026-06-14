@@ -620,6 +620,24 @@
     "delete": "Sil",
     "deleteConfirm": "Bu mesajı silmek istediğinizden emin misiniz?"
   },
+  "whatsapp": {
+    "title": "WhatsApp Konuşmaları",
+    "subtitle": "Vatandaşlardan gelen WhatsApp mesajlarını yönetin.",
+    "searchPlaceholder": "Telefon numarasıyla ara…",
+    "empty": "Henüz konuşma bulunmuyor",
+    "emptyDetail": "Bir konuşma seçin",
+    "unread": "okunmadı",
+    "openTickets": "Açık talep",
+    "noTickets": "Bağlı talep yok",
+    "blocked": "Engellendi",
+    "newTicket": "Yeni Talep Aç",
+    "viewTicket": "Talebi Görüntüle",
+    "tickets": "Bağlı Talepler",
+    "ticketStatus": "Durum",
+    "replyPlaceholder": "Yanıt yaz…",
+    "replySent": "Mesaj gönderildi",
+    "replyFailed": "Mesaj gönderilemedi"
+  },
   "audit": {
     "title": "Log",
     "subtitle": "Yapılan işlemleri ve hareket detaylarını izleyin.",
@@ -840,6 +858,8 @@
       "email": "E-posta (IMAP/SMTP)",
       "whatsappWebhookUrl": "Meta callback URL",
       "whatsappWebhookHelp": "Bu URL'yi WhatsApp > Yapılandırma alanında kullanın, aynı doğrulama belirtecini girin ve messages alanına abone olun. URL internetten HTTPS üzerinden erişilebilir olmalıdır.",
+      "whatsappAutoNotify": "İş durum değişikliklerini WhatsApp ile bildir",
+      "whatsappAutoNotifyHelp": "İş aktif, tamamlandı veya iptal edildiğinde vatandaşa otomatik WhatsApp mesajı gönderilir.",
       "descriptions": {
         "x": "X üzerinden gelen şikayet, mention ve DM akışlarını yönetin.",
         "facebook": "Facebook sayfa mesajları ve yorumları için erişim bilgilerini yapılandırın.",

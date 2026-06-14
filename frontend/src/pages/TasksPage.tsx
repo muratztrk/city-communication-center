@@ -327,6 +327,13 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const staffTaskTypeParam = searchParams.get('taskType') ?? 'all'
   const currentStaffTaskType: 'all' | 'assigned' | 'routine' =
     staffTaskTypeParam === 'assigned' || staffTaskTypeParam === 'routine' ? staffTaskTypeParam : 'all'
+  const detailScopeLabel = isMyTasksView
+    ? t('nav.myTasks', 'Görevlerim')
+    : isDepartmentTasksView
+      ? t('nav.departmentTasks', 'Birimdeki Görevler')
+      : isStaffTasksView
+        ? t('nav.staffTasks', 'Personelimin Görevleri')
+        : t('tasks.detail.title', 'Görev Detayları')
 
   const visibleTasks = useMemo(() => {
     let result: typeof tasks
@@ -843,20 +850,30 @@ const pageKicker = isMyTasksView
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}
-            <div className="flex shrink-0 items-center justify-end gap-2 border-b border-slate-100 px-4 py-3">
-              {taskDetail && (
-                <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, locale)}>
-                  {t('common.print', 'Yazdır')}
-                </Button>
-              )}
-              <button
-                type="button"
-                onClick={closeTaskDetail}
-                className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-                aria-label={t('common.close', 'Kapat')}
-              >
-                <X className="size-4" />
-              </button>
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-4 py-3">
+              <div className="min-w-0">
+                <div className="text-[0.65rem] font-extrabold uppercase tracking-[0.18em] text-slate-500">
+                  {detailScopeLabel}
+                </div>
+                <div className="text-base font-extrabold text-slate-950">
+                  {t('tasks.detail.title', 'Görev Detayları')}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {taskDetail && (
+                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, locale)}>
+                    {t('common.print', 'Yazdır')}
+                  </Button>
+                )}
+                <button
+                  type="button"
+                  onClick={closeTaskDetail}
+                  className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  aria-label={t('common.close', 'Kapat')}
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
             </div>
 
             {/* Kaydırılabilir içerik alanı */}
@@ -949,7 +966,7 @@ const pageKicker = isMyTasksView
                               placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
                             />
                           </label>
-                          <div className="inline-actions justify-end">
+                          <div className="inline-actions justify-end pt-2">
                             <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
                               {t('tasks.actions.complete', 'Tamamla')}
                             </Button>
@@ -1108,19 +1125,6 @@ const pageKicker = isMyTasksView
                           </div>
                           <div className="grid gap-3">
                             <label className="job-field">
-                              <span className="job-field-label">{t('tasks.department')}</span>
-                              <select
-                                className="field-select"
-                                value={assignmentDraft.departmentId}
-                                onChange={e => setAssignmentDraft({ departmentId: e.target.value, userId: '' })}
-                              >
-                                <option value="">{t('tasks.departmentSelection', 'Müdürlük seç')}</option>
-                                {departments.map(d => (
-                                  <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
-                                ))}
-                              </select>
-                            </label>
-                            <label className="job-field">
                               <span className="job-field-label">{t('tasks.draftUser')}</span>
                               <select
                                 className="field-select"
@@ -1143,7 +1147,7 @@ const pageKicker = isMyTasksView
                               </select>
                             </label>
                           </div>
-                          <div className="inline-actions justify-end">
+                          <div className="inline-actions justify-end pt-2">
                             <Button
                               type="button"
                               size="sm"

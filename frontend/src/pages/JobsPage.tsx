@@ -1030,27 +1030,57 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-6">
-              <div>
-                <h2 className="mb-1 text-xl font-extrabold text-slate-950">{detail.title}</h2>
-                <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content text-sm text-slate-600 mb-3" />
-                <div className="inline-actions pb-3">
-                  <StatusPill>{getJobStatusLabel(t, detail.status)}</StatusPill>
-                  <StatusPill tone="info">{getPriorityLabel(t, detail.priority)}</StatusPill>
-                  {detail.isProject && <StatusPill tone="warning">{t('jobs.columns.project', 'Proje')}</StatusPill>}
+              {/* Talep Detayları — Görevlerim popup' undaki Görev Detayları kutusuyla aynı tasarım (card 386) */}
+              <section className="mb-5">
+                <div className="mb-2 text-sm font-semibold text-emerald-600">
+                  {t('jobs.detail.requestInfo', 'Talep Detayları')}
                 </div>
-                {detail.createdByDisplayName && (
-                  <p className="text-xs text-slate-500 pb-3">
-                    {t('common.createdBy', 'Oluşturan')}: <span className="font-semibold text-slate-700">{detail.createdByDisplayName}</span>
-                    {' · '}{formatDateTime(detail.createdAtUtc, locale)}
-                  </p>
-                )}
-                <div className="mb-4 flex flex-wrap gap-2">
-                  <StatusPill tone="info">{t('requests.create.typeLabel', 'Talep Tipi')}: {t(`jobs.requestTypes.${detail.requestType}`, detail.requestType)}</StatusPill>
-                  <StatusPill tone="neutral">{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}: {detail.ownerDepartmentName ?? '—'}</StatusPill>
-                  <StatusPill tone="success">{t('jobs.columns.taskCount', 'Görevler')}: {detail.tasks.length}</StatusPill>
+                <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
+                  <div className="min-w-0 divide-y divide-slate-100">
+                    {[
+                      { label: 'Talep No', value: detail.jobNumber ? `T-${detail.jobNumberYear}-${detail.jobNumber}` : '—' },
+                      { label: 'Talep Başlığı', value: detail.title },
+                      {
+                        label: 'Talep Yeri / Oluşturan',
+                        value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                      },
+                      { label: 'Talep Tipi', value: t(`jobs.requestTypes.${detail.requestType}`, detail.requestType) },
+                      { label: 'Proje', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="flex items-start gap-2 px-3 py-2">
+                        <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                        <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
+                    <div className="divide-y divide-slate-100">
+                      {[
+                        { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
+                        { label: 'Durum', value: getJobStatusLabel(t, detail.status) },
+                        { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
+                        { label: 'Son Tarih', value: formatDateTime(detail.dueDateUtc, locale) },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
+                          <span className="text-xs font-semibold text-slate-500">{label}</span>
+                          <span className="text-sm text-slate-900">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
+                    <div className="border-b border-slate-200 px-4 py-2">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {t('jobs.form.description', 'Açıklama')}
+                      </span>
+                    </div>
+                    <div className="px-4 py-3">
+                      <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content text-sm leading-6 text-slate-900" />
+                    </div>
+                  </div>
                 </div>
                 {(isManagerLike || canMutatePreApprovalJob(detail)) && (
-                  <div className="mb-6 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {isManagerLike && detail.status === 'PendingOwnerApproval' && (
                       <>
                         <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>{t('jobs.actions.approveOwner')}</Button>
@@ -1067,7 +1097,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     )}
                   </div>
                 )}
-              </div>
+              </section>
                
               {detailLoading && <div className="loading">{t('common.loading')}</div>}
 

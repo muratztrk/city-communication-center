@@ -508,6 +508,14 @@
       "all": "Tüm Görevlerim",
       "empty": "{{view}} bulunmuyor"
     },
+    "statusLabel": {
+      "pending": "Bekleyen",
+      "overdue": "Son Tarihi Geçmiş",
+      "completed": "Tamamlanmış",
+      "cancelled": "İptal",
+      "rejected": "Reddedildi",
+      "revisionRequested": "Revize İstendi"
+    },
     "departmentViews": {
       "pending": "Bekleyen Görevler",
       "completed": "Tamamlanmış Görevler",

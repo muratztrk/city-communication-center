@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
-import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -19,7 +18,7 @@ import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
 interface TaskScopeFiltersProps {
@@ -254,16 +253,6 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [parentJobDetail, setParentJobDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
-  const taskAuditLogQuery = useQuery({
-    queryKey: ['task-audit-log', taskDetail?.taskId],
-    queryFn: () => api.getTaskAuditLog(taskDetail!.taskId),
-    enabled: !!taskDetail?.taskId,
-  })
-  const jobAuditLogQuery = useQuery({
-    queryKey: ['job-audit-log', parentJobDetail?.jobId],
-    queryFn: () => api.getJobAuditLog(parentJobDetail!.jobId),
-    enabled: !!parentJobDetail?.jobId,
-  })
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
@@ -881,7 +870,7 @@ const pageKicker = isMyTasksView
                 <>
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
-                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,0.6fr)_minmax(8rem,0.6fr)]' : ''} lg:items-stretch`}>
+                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(12rem,0.5fr)_minmax(10rem,0.7fr)]' : ''} lg:items-stretch`}>
                       <div className="form-card page-stack min-w-0">
                         <div className="space-y-4">
                           <div className="space-y-3">
@@ -915,7 +904,7 @@ const pageKicker = isMyTasksView
                                 <div className="divide-y divide-slate-100">
                                   {[
                                     { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
-                                    { label: 'Durum', value: t(`enum.taskStatus.${taskDetail.currentStatus}`, taskDetail.currentStatus) },
+                                    { label: 'Durum', value: getTaskDisplayStatus(t, taskDetail) },
                                     { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
                                     { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
                                   ].map(({ label, value }) => (
@@ -974,134 +963,60 @@ const pageKicker = isMyTasksView
                     </div>
                   </section>
 
-                  {/* İlgili Talep Detayları — Görev bilgisinin hemen altında (card 4) */}
-                  {parentJobDetail && (
-                    <section className="mb-5">
-                      <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-                        {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
-                      </h3>
-                      <div className="overflow-x-auto">
-                        <table className="data-table">
-                          <thead>
-                            <tr>
-                              <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
-                              <th>{t('jobs.columns.title', 'Başlık')}</th>
-                              <th>{t('tasks.columns.status', 'Durum')}</th>
-                              <th>{t('tasks.columns.priority', 'Öncelik')}</th>
-                              <th>{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}</th>
-                              <th>{t('common.createdBy', 'Oluşturan')}</th>
-                              <th>{t('tasks.columns.dueDate', 'Termin')}</th>
-                              <th>{t('jobs.columns.completedAt', 'Tamamlanma')}</th>
-                              <th>{t('jobs.columns.taskCount', 'Görev Sayısı')}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="font-mono text-xs text-slate-500">
-                                {parentJobDetail.jobNumber ? `T-${parentJobDetail.jobNumberYear}-${parentJobDetail.jobNumber}` : '—'}
-                              </td>
-                              <td className="font-semibold">{parentJobDetail.title}</td>
-                              <td><StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill></td>
-                              <td><StatusPill tone="info">{getPriorityLabel(t, parentJobDetail.priority)}</StatusPill></td>
-                              <td>{parentJobDetail.ownerDepartmentName ?? '—'}</td>
-                              <td>{parentJobDetail.createdByDisplayName ?? '—'}</td>
-                              <td>{formatDateTime(parentJobDetail.dueDateUtc, locale)}</td>
-                              <td>{formatDateTime(parentJobDetail.completedAtUtc, locale)}</td>
-                              <td className="text-center">{parentJobDetail.tasks.length}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Görev Süreci — görevin tarihsel işlem kaydı (card 5) */}
-                  <section className="mb-5">
-                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">Görev Süreci</h3>
-                    {taskAuditLogQuery.isLoading ? (
-                      <div className="loading">{t('common.loading')}</div>
-                    ) : !taskAuditLogQuery.data || taskAuditLogQuery.data.length === 0 ? (
-                      <div className="empty-state">Görev sürecinde kayıt bulunmuyor</div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <table className="data-table">
-                          <thead>
-                            <tr>
-                              <th>Tarih</th>
-                              <th>İşlem</th>
-                              <th>Kullanıcı</th>
-                              <th>Durum</th>
-                              <th>Notlar</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {taskAuditLogQuery.data.map(entry => (
-                              <tr key={entry.auditLogId}>
-                                <td className="whitespace-nowrap text-xs text-slate-500">
-                                  {new Date(entry.eventTimeUtc).toLocaleString(locale)}
-                                </td>
-                                <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
-                                <td>{entry.actorDisplayName || '—'}</td>
-                                <td>
-                                  {entry.statusAtEvent
-                                    ? t(`enum.taskStatus.${entry.statusAtEvent}`, entry.statusAtEvent)
-                                    : '—'}
-                                </td>
-                                <td className="text-xs text-slate-500">
-                                  {entry.notes ? formatAuditNotes(t, entry.notes) : '—'}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </section>
-
-                  {/* Talep Süreci — üst talebin tarihsel işlem kaydı (card 5) */}
-                  {parentJobDetail && (
-                    <section className="mb-5">
-                      <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">Talep Süreci</h3>
-                      {jobAuditLogQuery.isLoading ? (
-                        <div className="loading">{t('common.loading')}</div>
-                      ) : !jobAuditLogQuery.data || jobAuditLogQuery.data.length === 0 ? (
-                        <div className="empty-state">Talep sürecinde kayıt bulunmuyor</div>
-                      ) : (
-                        <div className="overflow-x-auto">
-                          <table className="data-table">
-                            <thead>
-                              <tr>
-                                <th>Tarih</th>
-                                <th>İşlem</th>
-                                <th>Kullanıcı</th>
-                                <th>Durum</th>
-                                <th>Notlar</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {jobAuditLogQuery.data.map(entry => (
-                                <tr key={entry.auditLogId}>
-                                  <td className="whitespace-nowrap text-xs text-slate-500">
-                                    {new Date(entry.eventTimeUtc).toLocaleString(locale)}
-                                  </td>
-                                  <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
-                                  <td>{entry.actorDisplayName || '—'}</td>
-                                  <td>
-                                    {entry.statusAtEvent
-                                      ? t(`enum.jobStatus.${entry.statusAtEvent}`, entry.statusAtEvent)
-                                      : '—'}
-                                  </td>
-                                  <td className="text-xs text-slate-500">
-                                    {entry.notes ? formatAuditNotes(t, entry.notes) : '—'}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                  {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388) */}
+                  {parentJobDetail && (() => {
+                    const ownerJobDepartment = parentJobDetail.departments.find(
+                      dept => dept.departmentId === parentJobDetail.ownerDepartmentId,
+                    )
+                    const leftFields = [
+                      {
+                        label: 'Talep No',
+                        value: parentJobDetail.jobNumber
+                          ? `T-${parentJobDetail.jobNumberYear}-${parentJobDetail.jobNumber}`
+                          : '—',
+                      },
+                      { label: 'Talep Başlığı', value: parentJobDetail.title },
+                      {
+                        label: 'Talep Sahibi / Onaylayan',
+                        value: [parentJobDetail.createdByDisplayName, ownerJobDepartment?.approvedByDisplayName]
+                          .filter(Boolean)
+                          .join(' / ') || '—',
+                      },
+                    ]
+                    const rightFields = [
+                      { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
+                      { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
+                      { label: 'Talep Onay Tarihi', value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale) },
+                      { label: 'Son Tarih Bilgisi', value: formatDateTime(parentJobDetail.dueDateUtc, locale) },
+                    ]
+                    return (
+                      <section className="mb-5">
+                        <div className="mb-2 text-sm font-semibold text-emerald-600">
+                          {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
-                      )}
-                    </section>
-                  )}
+                        <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-2">
+                          <div className="min-w-0 divide-y divide-slate-100">
+                            {leftFields.map(({ label, value }) => (
+                              <div key={label} className="flex items-start gap-2 px-3 py-2">
+                                <span className="w-40 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                                <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
+                            <div className="divide-y divide-slate-100">
+                              {rightFields.map(({ label, value }) => (
+                                <div key={label} className="flex items-start gap-2 px-3 py-2">
+                                  <span className="w-40 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                                  <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    )
+                  })()}
 
                   {/* Alt 3 sütun: Görevi Yönlendir | Ekler/Fotoğraflar | Atama Geçmişi (card 5, 7) */}
                   <div className="grid gap-4 lg:grid-cols-3">

@@ -8,6 +8,31 @@ export function getTaskStatusLabel(t: TFunction, taskStatus: string): string {
   return t(`enum.taskStatus.${taskStatus}`, { defaultValue: taskStatus })
 }
 
+// Görev durumunu, görev listesi sekmeleriyle (Bekleyen / Son Tarihi Geçmiş /
+// Tamamlanmış / İptal) tutarlı tek bir etiketle gösterir. Ham enum yerine
+// kullanıcının gördüğü "durum belirten butonlarla" aynı ifadeleri kullanır.
+export function getTaskDisplayStatus(
+  t: TFunction,
+  task: { currentStatus: string; dueDateUtc: string | null },
+): string {
+  switch (task.currentStatus) {
+    case 'Completed':
+      return t('tasks.statusLabel.completed', { defaultValue: 'Tamamlanmış' })
+    case 'Cancelled':
+      return t('tasks.statusLabel.cancelled', { defaultValue: 'İptal' })
+    case 'Rejected':
+      return t('tasks.statusLabel.rejected', { defaultValue: 'Reddedildi' })
+    case 'RevisionRequested':
+      return t('tasks.statusLabel.revisionRequested', { defaultValue: 'Revize İstendi' })
+    default:
+      break
+  }
+  if (task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now()) {
+    return t('tasks.statusLabel.overdue', { defaultValue: 'Son Tarihi Geçmiş' })
+  }
+  return t('tasks.statusLabel.pending', { defaultValue: 'Bekleyen' })
+}
+
 export function getPriorityLabel(t: TFunction, priority: string): string {
   return t(`enum.priority.${priority}`, { defaultValue: priority })
 }

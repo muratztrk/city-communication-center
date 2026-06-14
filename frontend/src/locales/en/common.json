@@ -507,6 +507,14 @@
       "all": "All My Tasks",
       "empty": "No {{view}}"
     },
+    "statusLabel": {
+      "pending": "Pending",
+      "overdue": "Overdue",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "rejected": "Rejected",
+      "revisionRequested": "Revision Requested"
+    },
     "departmentViews": {
       "pending": "Pending Tasks",
       "completed": "Completed Tasks",

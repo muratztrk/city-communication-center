@@ -891,7 +891,7 @@ const pageKicker = isMyTasksView
                             <div className="text-sm font-semibold text-emerald-600">
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1fr)_18rem_22rem]">
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.3fr)_minmax(12rem,0.7fr)_22rem]">
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
@@ -954,7 +954,7 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
                             </p>
                           </div>
-                          <label className="job-field">
+                          <label className="job-field mt-2">
                             <span className="job-field-label">
                               {t('tasks.actions.completionNote', 'Tamamlama Notu')}
                             </span>

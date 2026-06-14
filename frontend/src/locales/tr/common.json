@@ -1157,6 +1157,7 @@
       "pendingOwnerApproval": "Yönetici Onayı Bekleyen",
       "pendingExternalApproval": "Hedef Onayı Bekleyen",
       "active": "Aktif",
+      "overdue": "Son Tarihi Geçmiş Talepler",
       "all": "Tümü"
     },
     "myViews": {
@@ -1164,6 +1165,7 @@
       "pending": "Bekleyen Taleplerim",
       "approved": "Onaylanmış Taleplerim",
       "inProgress": "Yapılmakta Olan Taleplerim",
+      "overdue": "Son Tarihi Geçmiş Taleplerim",
       "completed": "Tamamlanmış Taleplerim",
       "rejected": "İptal Taleplerim",
       "all": "Tüm Taleplerim",
@@ -1171,6 +1173,7 @@
     },
     "outgoingViews": {
       "pending": "Bekleyen Talepler",
+      "overdue": "Son Tarihi Geçmiş Talepler",
       "approved": "Onaylanmış Talepler",
       "inProgress": "Yapılmakta Olan Talepler",
       "completed": "Tamamlanmış Talepler",

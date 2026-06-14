@@ -1133,6 +1133,7 @@
       "pendingOwnerApproval": "Pending Owner Approval",
       "pendingExternalApproval": "Pending External Approval",
       "active": "Active",
+      "overdue": "Overdue Requests",
       "all": "All"
     },
     "myViews": {
@@ -1140,12 +1141,15 @@
       "pending": "Pending My Requests",
       "approved": "Approved My Requests",
       "inProgress": "My In-Progress Requests",
+      "overdue": "My Overdue Requests",
+      "completed": "Completed My Requests",
       "rejected": "Rejected/Cancelled/Returned My Requests",
       "all": "All My Requests",
       "empty": "No {{view}}"
     },
     "outgoingViews": {
       "pending": "Pending Requests",
+      "overdue": "Overdue Requests",
       "approved": "Approved Requests",
       "inProgress": "Requests In Progress",
       "completed": "Resulted Requests",

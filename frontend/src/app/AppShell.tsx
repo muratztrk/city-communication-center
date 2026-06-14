@@ -171,12 +171,18 @@ export function AppShell() {
   const myRequestsViewLabels: Record<string, string> = {
     pending: t('nav.myRequestsPending', 'Bekleyen Taleplerim'),
     approved: t('nav.myRequestsApproved', 'Onaylanmış Taleplerim'),
+    'in-progress': t('jobs.myViews.inProgress', 'Yapılmakta Olan Taleplerim'),
+    overdue: t('jobs.myViews.overdue', 'Son Tarihi Geçmiş Taleplerim'),
+    completed: t('jobs.myViews.completed', 'Tamamlanmış Taleplerim'),
     rejected: t('nav.myRequestsRejected', 'İptal Taleplerim'),
     all: t('nav.myRequestsAll', 'Tüm Taleplerim'),
   }
   const myRequestsViewIcons: Record<string, typeof LayoutDashboard> = {
     pending: Clock3,
     approved: CheckCircle2,
+    'in-progress': Workflow,
+    overdue: Clock3,
+    completed: ClipboardCheck,
     rejected: XCircle,
     all: Inbox,
   }
@@ -197,6 +203,7 @@ export function AppShell() {
     pending: t('jobs.outgoingViews.pending', 'Bekleyen Talepler'),
     approved: t('jobs.outgoingViews.approved', 'Onaylanmış Talepler'),
     'in-progress': t('jobs.outgoingViews.inProgress', 'Yapılmakta Olan Talepler'),
+    overdue: t('jobs.outgoingViews.overdue', 'Son Tarihi Geçmiş Talepler'),
     completed: t('jobs.outgoingViews.completed', 'Tamamlanmış Talepler'),
     rejected: t('jobs.outgoingViews.rejected', 'Reddedilen/İptal Talepler'),
     all: t('jobs.outgoingViews.all', 'Tümü'),
@@ -205,6 +212,7 @@ export function AppShell() {
     pending: Clock3,
     approved: CheckCircle2,
     'in-progress': Workflow,
+    overdue: Clock3,
     completed: ClipboardCheck,
     rejected: XCircle,
     all: Inbox,

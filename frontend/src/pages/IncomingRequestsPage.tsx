@@ -6,6 +6,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
   if (value === 'approved') return 'scope-chip--approved'
+  if (value === 'overdue') return 'scope-chip--in-progress'
   if (value === 'completed') return 'scope-chip--completed'
   if (value === 'cancelled') return 'scope-chip--rejected'
   if (value === 'all') return 'scope-chip--all'
@@ -28,13 +29,14 @@ import { useAuth } from '../context/AuthContext'
 import type { Department, JobSummary, Task, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
-type IncomingStatusFilter = 'pending-approval' | 'approved' | 'completed' | 'cancelled' | 'all'
+type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'internal' | 'external' | 'all'
 
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
+  { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Son Tarihi Geçmiş Talepler' },
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
   { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanmış Talepler' },
   { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal Talepler' },
@@ -86,7 +88,7 @@ function getJobStatusLabel(t: ReturnType<typeof useTranslation>['t'], status: st
 }
 
 function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
-  return value === 'approved' || value === 'completed' || value === 'cancelled' || value === 'all' ? value : 'pending-approval'
+  return value === 'overdue' || value === 'approved' || value === 'completed' || value === 'cancelled' || value === 'all' ? value : 'pending-approval'
 }
 
 function getIncomingKindFilter(value: string | null): IncomingKindFilter {
@@ -121,6 +123,11 @@ function attentionPriorityColorClass(priority: string): string {
 
 function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilter): boolean {
   if (filter === 'all') return true
+  const isOverdue = row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()
+  const isClosed = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
+
+  if (filter === 'overdue') return !isClosed && isOverdue
+  if (isOverdue && !isClosed) return false
 
   if (filter === 'pending-approval') {
     // Personel ataması bekleyen aktif birim dışı talepler (ör. Üst Düzey Yönetici'nin oluşturduğu)

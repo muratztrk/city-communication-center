@@ -16,7 +16,6 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { Toast } from '../components/ui/toast'
-import { RichTextContent } from '../components/ui/RichTextContent'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
@@ -251,6 +250,11 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     queryKey: ['task-audit-log', taskDetail?.taskId],
     queryFn: () => api.getTaskAuditLog(taskDetail!.taskId),
     enabled: !!taskDetail?.taskId,
+  })
+  const jobAuditLogQuery = useQuery({
+    queryKey: ['job-audit-log', parentJobDetail?.jobId],
+    queryFn: () => api.getJobAuditLog(parentJobDetail!.jobId),
+    enabled: !!parentJobDetail?.jobId,
   })
   const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
   const [assignmentSaving, setAssignmentSaving] = useState(false)
@@ -827,284 +831,353 @@ const pageKicker = isMyTasksView
           role="presentation"
         >
           <section
-            className="relative max-h-[90dvh] w-full max-w-7xl overflow-y-auto rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            className="flex max-h-[90dvh] w-full max-w-7xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <button
-              type="button"
-              onClick={closeTaskDetail}
-              className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-              aria-label={t('common.close', 'Kapat')}
-            >
-              <X className="size-4" />
-            </button>
-          <div className="page-header-row mb-4">
-            <div className="space-y-1">
-              <div className="page-kicker">{t('tasks.detail.kicker', 'Görev Detayı')}</div>
-              <h2 className="text-xl font-extrabold text-slate-950">{taskDetail?.title ?? selectedTask.title}</h2>
-              <p className="helper-copy">{taskDetail?.jobTitle ?? selectedTask.jobTitle ?? t('common.none')}</p>
-            </div>
-            <div className="inline-actions ml-auto">
+            {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}
+            <div className="flex shrink-0 items-center justify-end gap-2 border-b border-slate-100 px-4 py-3">
               {taskDetail && (
                 <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, locale)}>
                   {t('common.print', 'Yazdır')}
                 </Button>
               )}
-              <Button type="button" variant="secondary" onClick={closeTaskDetail}>
-                {t('common.close', 'Kapat')}
-              </Button>
+              <button
+                type="button"
+                onClick={closeTaskDetail}
+                className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                aria-label={t('common.close', 'Kapat')}
+              >
+                <X className="size-4" />
+              </button>
             </div>
-          </div>
 
-          {detailLoading ? (
-            <div className="loading">{t('common.loading')}</div>
-          ) : taskDetail ? (
-            <>
-              {/* Gridview 1: Görev Detayları */}
-              <section className="mb-5">
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('tasks.detail.kicker', 'Görev Detayları')}</h3>
-                <div className="overflow-x-auto">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>{t('tasks.columns.title', 'Başlık')}</th>
-                        <th>{t('tasks.columns.status', 'Durum')}</th>
-                        <th>{t('tasks.columns.priority', 'Öncelik')}</th>
-                        <th>{t('tasks.columns.owner', 'Sahip')}</th>
-                        <th>{t('tasks.department', 'Birim')}</th>
-                        <th>{t('tasks.columns.assignedUser', 'Atanan')}</th>
-                        <th>{t('tasks.columns.dueDate', 'Termin')}</th>
-                        <th>{t('tasks.columns.createdBy', 'Oluşturan')}</th>
-                        <th>{t('tasks.columns.taskDate', 'Oluşturma Tarihi')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="font-semibold">{taskDetail.title}</td>
-                        <td><StatusPill tone={taskDetail.currentStatus === 'Completed' ? 'success' : taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected' ? 'warning' : 'info'}>{getTaskStatusLabel(t, taskDetail.currentStatus)}</StatusPill></td>
-                        <td><StatusPill tone="info">{getPriorityLabel(t, taskDetail.priority)}</StatusPill></td>
-                        <td>{taskDetail.ownerDisplayName ?? '—'}</td>
-                        <td>{taskDetail.assignedDepartmentId ? getDepartmentName(taskDetail.assignedDepartmentId) : '—'}</td>
-                        <td>{taskDetail.assignedUserId ? getUserName(taskDetail.assignedUserId) : t('tasks.departmentPoolAssignee', 'Havuz')}</td>
-                        <td>{formatDateTime(taskDetail.dueDateUtc, locale)}</td>
-                        <td>{taskDetail.createdByDisplayName ?? '—'}</td>
-                        <td>{formatDateTime(taskDetail.createdAtUtc, locale)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                {taskDetail.description && (
-                  <div className="mt-3">
-                    <RichTextContent
-                      value={taskDetail.description}
-                      emptyText=""
-                      className="rich-text-content rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700"
-                    />
-                  </div>
-                )}
-              </section>
-
-              <div className="grid gap-4 lg:grid-cols-2">
-                <section className="form-card page-stack">
-                  <div>
-                    <h3 className="text-lg font-extrabold text-slate-950">{t('tasks.detail.assignmentTitle', 'Atama')}</h3>
-                    <p className="helper-copy">
-                      {t('tasks.detail.currentAssignment', 'Mevcut atama')}: {taskDetail.assignedUserId ? getUserName(taskDetail.assignedUserId) : taskDetail.assignedDepartmentId ? getDepartmentName(taskDetail.assignedDepartmentId) : t('tasks.departmentPoolAssignee')}
-                    </p>
-                  </div>
-                  {isManagerLike ? (
-                    <>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        <label className="job-field">
-                          <span className="job-field-label">{t('tasks.department')}</span>
-                          <select
-                            className="field-select"
-                            value={assignmentDraft.departmentId}
-                            onChange={event => setAssignmentDraft({ departmentId: event.target.value, userId: '' })}
-                          >
-                            <option value="">{t('tasks.departmentPoolAssignee')}</option>
-                            {departments.map(department => (
-                              <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                            ))}
-                          </select>
-                        </label>
-                        <label className="job-field">
-                          <span className="job-field-label">{t('tasks.draftUser')}</span>
-                          <select
-                            className="field-select"
-                            value={assignmentDraft.userId}
-                            onChange={event => {
-                              const nextUserId = event.target.value
-                              const nextUser = users.find(item => item.userId === nextUserId)
-                              setAssignmentDraft(current => ({
-                                departmentId: nextUser?.departmentId ?? current.departmentId,
-                                userId: nextUserId,
-                              }))
-                            }}
-                          >
-                            <option value="">{t('tasks.departmentPoolAssignee')}</option>
-                            {assignmentUsers.map(item => (
-                              <option key={item.userId} value={item.userId}>{item.displayName}</option>
-                            ))}
-                          </select>
-                        </label>
-                      </div>
-                      <div className="inline-actions">
-                        <Button type="button" size="sm" disabled={assignmentSaving || (!assignmentDraft.departmentId && !assignmentDraft.userId)} onClick={saveAssignment}>
-                          {assignmentSaving ? t('common.loading') : t('tasks.actions.saveAssignment', 'Atamayı Kaydet')}
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                      {taskDetail.assignedUserId ? getUserName(taskDetail.assignedUserId) : taskDetail.assignedDepartmentId ? getDepartmentName(taskDetail.assignedDepartmentId) : t('tasks.departmentPoolAssignee')}
-                    </div>
-                  )}
-                </section>
-
-                <section className="form-card page-stack">
-                  <h3 className="text-lg font-extrabold text-slate-950">{t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}</h3>
-                  {taskDetail.assignmentHistory.length > 0 ? (
-                    <div className="grid gap-2">
-                      {taskDetail.assignmentHistory.map(item => (
-                        <div key={item.assignmentId} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
-                          <div className="font-semibold text-slate-950">
-                            {getDepartmentName(item.toDepartmentId)} · {getUserName(item.toUserId)}
-                          </div>
-                          <div className="text-xs text-slate-500">{new Date(item.actionDateUtc).toLocaleString(locale)}</div>
+            {/* Kaydırılabilir içerik alanı */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {detailLoading ? (
+                <div className="loading">{t('common.loading')}</div>
+              ) : taskDetail ? (
+                <>
+                  {/* Görev bilgi kutusu (card 6) — satır satır alanlar */}
+                  <section className="mb-5">
+                    <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                      {[
+                        { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
+                        { label: 'Görev Başlığı', value: taskDetail.title },
+                        { label: 'Açıklama', value: taskDetail.description || '—' },
+                        {
+                          label: 'Görevin Talep Yeri / Oluşturan',
+                          value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                        },
+                        { label: 'Görev Sahibi', value: taskDetail.ownerDisplayName || '—' },
+                        {
+                          label: 'Görev Tipi',
+                          value: taskDetail.jobSourceType === 'Routine'
+                            ? t('tasks.type.routine', 'Rutin')
+                            : t('tasks.type.assigned', 'Atanmış'),
+                        },
+                        { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
+                        { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                        { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex items-start gap-3 px-4 py-2">
+                          <span className="w-52 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                          <span className="text-sm text-slate-900">{value}</span>
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="empty-state">{t('tasks.detail.noAssignmentHistory', 'Atama geçmişi yok')}</div>
+                  </section>
+
+                  {/* İlgili Talep Detayları — Görev bilgisinin hemen altında (card 4) */}
+                  {parentJobDetail && (
+                    <section className="mb-5">
+                      <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                        {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
+                      </h3>
+                      <div className="overflow-x-auto">
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
+                              <th>{t('jobs.columns.title', 'Başlık')}</th>
+                              <th>{t('tasks.columns.status', 'Durum')}</th>
+                              <th>{t('tasks.columns.priority', 'Öncelik')}</th>
+                              <th>{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}</th>
+                              <th>{t('common.createdBy', 'Oluşturan')}</th>
+                              <th>{t('tasks.columns.dueDate', 'Termin')}</th>
+                              <th>{t('jobs.columns.completedAt', 'Tamamlanma')}</th>
+                              <th>{t('jobs.columns.taskCount', 'Görev Sayısı')}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="font-mono text-xs text-slate-500">
+                                {parentJobDetail.jobNumber ? `T-${parentJobDetail.jobNumberYear}-${parentJobDetail.jobNumber}` : '—'}
+                              </td>
+                              <td className="font-semibold">{parentJobDetail.title}</td>
+                              <td><StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill></td>
+                              <td><StatusPill tone="info">{getPriorityLabel(t, parentJobDetail.priority)}</StatusPill></td>
+                              <td>{parentJobDetail.ownerDepartmentName ?? '—'}</td>
+                              <td>{parentJobDetail.createdByDisplayName ?? '—'}</td>
+                              <td>{formatDateTime(parentJobDetail.dueDateUtc, locale)}</td>
+                              <td>{formatDateTime(parentJobDetail.completedAtUtc, locale)}</td>
+                              <td className="text-center">{parentJobDetail.tasks.length}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
                   )}
-                </section>
-              </div>
 
-              {(taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && taskDetail.assignedUserId === user?.userId && (
-                <section className="form-card page-stack mb-5">
-                  <div>
-                    <h3 className="text-lg font-extrabold text-slate-950">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h3>
-                    <p className="helper-copy">{t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}</p>
+                  {/* Görev Süreci — görevin tarihsel işlem kaydı (card 5) */}
+                  <section className="mb-5">
+                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">Görev Süreci</h3>
+                    {taskAuditLogQuery.isLoading ? (
+                      <div className="loading">{t('common.loading')}</div>
+                    ) : !taskAuditLogQuery.data || taskAuditLogQuery.data.length === 0 ? (
+                      <div className="empty-state">Görev sürecinde kayıt bulunmuyor</div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>Tarih</th>
+                              <th>İşlem</th>
+                              <th>Kullanıcı</th>
+                              <th>Durum</th>
+                              <th>Notlar</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {taskAuditLogQuery.data.map(entry => (
+                              <tr key={entry.auditLogId}>
+                                <td className="whitespace-nowrap text-xs text-slate-500">
+                                  {new Date(entry.eventTimeUtc).toLocaleString(locale)}
+                                </td>
+                                <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
+                                <td>{entry.actorDisplayName || '—'}</td>
+                                <td>
+                                  {entry.statusAtEvent
+                                    ? t(`enum.taskStatus.${entry.statusAtEvent}`, entry.statusAtEvent)
+                                    : '—'}
+                                </td>
+                                <td className="text-xs text-slate-500">
+                                  {entry.notes ? formatAuditNotes(t, entry.notes) : '—'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Talep Süreci — üst talebin tarihsel işlem kaydı (card 5) */}
+                  {parentJobDetail && (
+                    <section className="mb-5">
+                      <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">Talep Süreci</h3>
+                      {jobAuditLogQuery.isLoading ? (
+                        <div className="loading">{t('common.loading')}</div>
+                      ) : !jobAuditLogQuery.data || jobAuditLogQuery.data.length === 0 ? (
+                        <div className="empty-state">Talep sürecinde kayıt bulunmuyor</div>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="data-table">
+                            <thead>
+                              <tr>
+                                <th>Tarih</th>
+                                <th>İşlem</th>
+                                <th>Kullanıcı</th>
+                                <th>Durum</th>
+                                <th>Notlar</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {jobAuditLogQuery.data.map(entry => (
+                                <tr key={entry.auditLogId}>
+                                  <td className="whitespace-nowrap text-xs text-slate-500">
+                                    {new Date(entry.eventTimeUtc).toLocaleString(locale)}
+                                  </td>
+                                  <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
+                                  <td>{entry.actorDisplayName || '—'}</td>
+                                  <td>
+                                    {entry.statusAtEvent
+                                      ? t(`enum.jobStatus.${entry.statusAtEvent}`, entry.statusAtEvent)
+                                      : '—'}
+                                  </td>
+                                  <td className="text-xs text-slate-500">
+                                    {entry.notes ? formatAuditNotes(t, entry.notes) : '—'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {/* Alt 3 sütun: Görevi Yönlendir/Tamamla | Ekler/Fotoğraflar | Atama Geçmişi (card 5, 7) */}
+                  <div className="grid gap-4 lg:grid-cols-3">
+
+                    {/* Sütun 1: Yöneticiler → Görevi Yönlendir; atanan personel → Görevi Tamamla */}
+                    <section className="form-card page-stack">
+                      {isManagerLike ? (
+                        <>
+                          <div>
+                            <h3 className="text-lg font-extrabold text-slate-950">Görevi Yönlendir</h3>
+                            <p className="helper-copy">
+                              Mevcut:{' '}
+                              {taskDetail.assignedUserId
+                                ? getUserName(taskDetail.assignedUserId)
+                                : taskDetail.assignedDepartmentId
+                                  ? getDepartmentName(taskDetail.assignedDepartmentId)
+                                  : t('tasks.departmentPoolAssignee')}
+                            </p>
+                          </div>
+                          <div className="grid gap-3">
+                            <label className="job-field">
+                              <span className="job-field-label">{t('tasks.department')}</span>
+                              <select
+                                className="field-select"
+                                value={assignmentDraft.departmentId}
+                                onChange={e => setAssignmentDraft({ departmentId: e.target.value, userId: '' })}
+                              >
+                                <option value="">{t('tasks.departmentPoolAssignee')}</option>
+                                {departments.map(d => (
+                                  <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="job-field">
+                              <span className="job-field-label">{t('tasks.draftUser')}</span>
+                              <select
+                                className="field-select"
+                                value={assignmentDraft.userId}
+                                onChange={e => {
+                                  const uid = e.target.value
+                                  const u = users.find(item => item.userId === uid)
+                                  setAssignmentDraft(cur => ({
+                                    departmentId: u?.departmentId ?? cur.departmentId,
+                                    userId: uid,
+                                  }))
+                                }}
+                              >
+                                <option value="">{t('tasks.departmentPoolAssignee')}</option>
+                                {assignmentUsers.map(u => (
+                                  <option key={u.userId} value={u.userId}>{u.displayName}</option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                          <div className="inline-actions">
+                            <Button
+                              type="button"
+                              size="sm"
+                              disabled={assignmentSaving || (!assignmentDraft.departmentId && !assignmentDraft.userId)}
+                              onClick={saveAssignment}
+                            >
+                              {assignmentSaving ? t('common.loading') : t('tasks.actions.route', 'Yönlendir')}
+                            </Button>
+                          </div>
+                        </>
+                      ) : (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')
+                          && taskDetail.assignedUserId === user?.userId ? (
+                        <>
+                          <div>
+                            <h3 className="text-lg font-extrabold text-slate-950">
+                              {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
+                            </h3>
+                            <p className="helper-copy">
+                              {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
+                            </p>
+                          </div>
+                          <label className="job-field">
+                            <span className="job-field-label">
+                              {t('tasks.actions.completionNote', 'Tamamlama Notu')}
+                            </span>
+                            <textarea
+                              className="field-textarea"
+                              rows={5}
+                              value={completionNote}
+                              onChange={e => setCompletionNote(e.target.value)}
+                              placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                            />
+                          </label>
+                          <div className="inline-actions">
+                            <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
+                              {t('tasks.actions.complete', 'Tamamla')}
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-lg font-extrabold text-slate-950">Görevi Yönlendir</h3>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                            {taskDetail.assignedUserId
+                              ? getUserName(taskDetail.assignedUserId)
+                              : taskDetail.assignedDepartmentId
+                                ? getDepartmentName(taskDetail.assignedDepartmentId)
+                                : t('tasks.departmentPoolAssignee')}
+                          </div>
+                        </>
+                      )}
+                    </section>
+
+                    {/* Sütun 2: Ekler / Fotoğraflar (card 5, 7) */}
+                    <section className="form-card page-stack">
+                      <h3 className="text-lg font-extrabold text-slate-950">
+                        {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                      </h3>
+                      <AttachmentSection
+                        attachments={taskDetail.attachments ?? []}
+                        onUpload={async file => {
+                          setAttachmentUploading(true)
+                          try {
+                            await api.uploadTaskAttachment(taskDetail.taskId, file)
+                            setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                          } finally {
+                            setAttachmentUploading(false)
+                          }
+                        }}
+                        onDelete={async id => {
+                          await api.deleteAttachment(id)
+                          setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                        }}
+                        disabled={attachmentUploading}
+                      />
+                    </section>
+
+                    {/* Sütun 3: Atama Geçmişi (card 5) */}
+                    <section className="form-card page-stack">
+                      <h3 className="text-lg font-extrabold text-slate-950">
+                        {t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}
+                      </h3>
+                      {taskDetail.assignmentHistory.length > 0 ? (
+                        <div className="grid gap-2">
+                          {taskDetail.assignmentHistory.map(item => (
+                            <div
+                              key={item.assignmentId}
+                              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700"
+                            >
+                              <div className="font-semibold text-slate-950">
+                                {getDepartmentName(item.toDepartmentId)} · {getUserName(item.toUserId)}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {new Date(item.actionDateUtc).toLocaleString(locale)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="empty-state">
+                          {t('tasks.detail.noAssignmentHistory', 'Atama geçmişi yok')}
+                        </div>
+                      )}
+                    </section>
                   </div>
-                  <label className="job-field">
-                    <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')}</span>
-                    <textarea
-                      className="field-textarea"
-                      rows={3}
-                      value={completionNote}
-                      onChange={e => setCompletionNote(e.target.value)}
-                      placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
-                    />
-                  </label>
-                  <div className="inline-actions">
-                    <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
-                      {t('tasks.actions.complete', 'Tamamla')}
-                    </Button>
-                  </div>
-                </section>
-              )}
-
-              <section className="mb-5">
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-                  {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                </h3>
-                <AttachmentSection
-                  attachments={taskDetail.attachments ?? []}
-                  onUpload={async (file) => {
-                    setAttachmentUploading(true)
-                    try {
-                      await api.uploadTaskAttachment(taskDetail.taskId, file)
-                      const refreshed = await api.getTaskById(taskDetail.taskId)
-                      setTaskDetail(refreshed)
-                    } finally {
-                      setAttachmentUploading(false)
-                    }
-                  }}
-                  onDelete={async (id) => {
-                    await api.deleteAttachment(id)
-                    const refreshed = await api.getTaskById(taskDetail.taskId)
-                    setTaskDetail(refreshed)
-                  }}
-                  disabled={attachmentUploading}
-                />
-              </section>
-
-              <section className="mb-5">
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-                  {t('auditLog.title', 'Denetim İzi')}
-                </h3>
-                {taskAuditLogQuery.isLoading ? (
-                  <div className="loading">{t('common.loading')}</div>
-                ) : !taskAuditLogQuery.data || taskAuditLogQuery.data.length === 0 ? (
-                  <div className="empty-state">{t('auditLog.empty', 'Henüz denetim kaydı bulunmuyor')}</div>
-                ) : (
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>{t('auditLog.columns.date', 'Tarih')}</th>
-                        <th>{t('auditLog.columns.action', 'İşlem')}</th>
-                        <th>{t('auditLog.columns.actor', 'Kullanıcı')}</th>
-                        <th>{t('auditLog.columns.notes', 'Notlar')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {taskAuditLogQuery.data.map(entry => (
-                        <tr key={entry.auditLogId}>
-                          <td className="text-xs text-slate-500">{new Date(entry.eventTimeUtc).toLocaleString(locale)}</td>
-                          <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
-                          <td>{entry.actorDisplayName}</td>
-                          <td className="text-xs text-slate-500">{entry.notes ? formatAuditNotes(t, entry.notes) : '—'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </section>
-            </>
-          ) : null}
-
-          {/* Gridview 2: İlgili Talep Detayları */}
-          {parentJobDetail && (
-            <section className="mt-6 border-t border-slate-200 pt-5">
-              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}</h3>
-              <div className="overflow-x-auto">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
-                      <th>{t('jobs.columns.title', 'Başlık')}</th>
-                      <th>{t('tasks.columns.status', 'Durum')}</th>
-                      <th>{t('tasks.columns.priority', 'Öncelik')}</th>
-                      <th>{t('jobs.columns.ownerDepartment', 'Sahip Müdürlük')}</th>
-                      <th>{t('common.createdBy', 'Oluşturan')}</th>
-                      <th>{t('tasks.columns.dueDate', 'Termin')}</th>
-                      <th>{t('jobs.columns.completedAt', 'Tamamlanma')}</th>
-                      <th>{t('jobs.columns.taskCount', 'Görev Sayısı')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="font-mono text-xs text-slate-500">{parentJobDetail.jobNumber ? `T-${parentJobDetail.jobNumberYear}-${parentJobDetail.jobNumber}` : '—'}</td>
-                      <td className="font-semibold">{parentJobDetail.title}</td>
-                      <td><StatusPill>{t(`enum.jobStatus.${parentJobDetail.status}`, parentJobDetail.status)}</StatusPill></td>
-                      <td><StatusPill tone="info">{getPriorityLabel(t, parentJobDetail.priority)}</StatusPill></td>
-                      <td>{parentJobDetail.ownerDepartmentName ?? '—'}</td>
-                      <td>{parentJobDetail.createdByDisplayName ?? '—'}</td>
-                      <td>{formatDateTime(parentJobDetail.dueDateUtc, locale)}</td>
-                      <td>{formatDateTime(parentJobDetail.completedAtUtc, locale)}</td>
-                      <td className="text-center">{parentJobDetail.tasks.length}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              {parentJobDetail.description && (
-                <div className="mt-3">
-                  <RichTextContent value={parentJobDetail.description} emptyText="" className="rich-text-content rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600" />
-                </div>
-              )}
-            </section>
-          )}
+                </>
+              ) : null}
+            </div>
           </section>
         </div>
       )}

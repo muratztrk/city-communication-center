@@ -77,49 +77,30 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
         var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
             e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
 
-        // Rutin olmayan dış birim talebi: tüm görevler iptal olduysa iş tekrar onay beklemeye döner
-        if (parentJob is not null
-            && parentJob.SourceType != JobSourceType.Routine
-            && parentJob.RequestType == JobRequestType.ExternalUnit
-            && parentJob.Status == JobStatus.Active)
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        // Tüm talep tiplerinde görev iptali sonrası üst talep durumunu yeniden hesapla.
+        // ExternalUnit dahil — tüm görevler iptal edildiğinde talep de iptal edilmeli.
+        if (parentJob is not null)
         {
-            var remainingActive = await _dbContext.Tasks
-                .Where(t => t.JobId == parentJob.JobId
-                         && t.TaskId != task.TaskId
-                         && t.CurrentStatus != WorkflowTaskStatus.Cancelled
-                         && t.CurrentStatus != WorkflowTaskStatus.Completed
-                         && t.CurrentStatus != WorkflowTaskStatus.Rejected)
-                .AnyAsync(cancellationToken);
-
-            if (!remainingActive)
+            var previousStatus = parentJob.Status;
+            await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
+            if (parentJob.Status != previousStatus)
             {
-                parentJob.Status = JobStatus.PendingOwnerApproval;
-                parentJob.CompletionPercentage = 0;
-                parentJob.UpdatedAtUtc = utcNow;
-                parentJob.UpdatedByUserId = request.ActorUserId;
-
                 _dbContext.AuditLogs.Add(new AuditLog
                 {
                     AuditLogId = Guid.NewGuid(),
                     TenantId = tenantId,
                     EntityType = nameof(Job),
                     EntityId = parentJob.JobId.ToString(),
-                    Action = "JobReturnedToPending",
+                    Action = parentJob.Status == JobStatus.Cancelled ? "JobCancelled" : "JobCompleted",
                     ActorUserId = request.ActorUserId,
                     ActorDisplayName = actor.DisplayName,
-                    StatusAtEvent = JobStatus.PendingOwnerApproval.ToString(),
-                    Notes = "Tüm görevler iptal edildi; talep yeniden onay sürecine döndürüldü.",
+                    StatusAtEvent = parentJob.Status.ToString(),
+                    Notes = "Görev iptali sonucu talep durumu güncellendi.",
                     Details = request.Reason
                 });
             }
-        }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        // İç birim / vatandaş talepleri: tüm görevler iptal/tamamlandıysa talep durumunu güncelle
-        if (parentJob is not null && parentJob.RequestType != JobRequestType.ExternalUnit)
-        {
-            await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 

@@ -165,8 +165,12 @@ internal static class TaskWorkflowAuthorization
             job.Status = Domain.Enums.JobStatus.Completed;
             job.CompletedAtUtc = DateTimeOffset.UtcNow;
         }
-        else if (allCancelled && job.Status == Domain.Enums.JobStatus.Active)
+        else if (allCancelled
+            && job.Status is not Domain.Enums.JobStatus.Completed
+                and not Domain.Enums.JobStatus.Cancelled
+                and not Domain.Enums.JobStatus.Rejected)
         {
+            // Tüm görevler iptal edildiğinde talebi de iptal et (Active, PendingOwnerApproval, vb.)
             job.Status = Domain.Enums.JobStatus.Cancelled;
             job.CompletionPercentage = 0;
         }

@@ -180,7 +180,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
                   value={targetDepartmentId}
                   onChange={event => setTargetDepartmentId(event.target.value)}
                 >
-                  <option value="">{t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}</option>
+                  <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
                   {targetDepartmentOptions.map(department => (
                     <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
                   ))}

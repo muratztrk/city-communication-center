@@ -307,3 +307,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
   - Verification: frontend build PASS, lint clean for touched files. Runtime not exercised (no demo seed). Note: portaling the detail modals also makes them render at full viewport scale (was content-zoom ~0.81) — intended/acceptable for a focal overlay.
 
 ## STATUS: Round 39 complete.
+
+## Round 40
+- [x] `#446` — "Birim Dışı Talep Oluştur" target dropdown placeholder "Birim/Müdürlük seçin" → "Departman seçiniz" (CreateRequestPage); aligned CitizenRequestModal target placeholder to the same key. Build PASS.

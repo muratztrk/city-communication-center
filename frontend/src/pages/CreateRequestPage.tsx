@@ -665,7 +665,7 @@ export function CreateRequestPage() {
                 onChange={e => setExternalForm(current => ({ ...current, targetDepartmentId: e.target.value }))}
                 required
               >
-                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Birim/Müdürlük seçin')}</option>
+                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
                 {targetDepartmentOptions.map(d => (
                   <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
                 ))}

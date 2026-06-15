@@ -747,6 +747,13 @@ export const api = {
       ownerDepartmentId: string
       priority: string
       dueDateUtc?: string | null
+      requestType?: string | null
+      targetDepartmentIds?: string[]
+      isProject?: boolean
+      startDateUtc?: string | null
+      neighborhood?: string | null
+      street?: string | null
+      openAddress?: string | null
     },
   ): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/convert`, {

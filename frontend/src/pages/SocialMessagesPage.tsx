@@ -1,5 +1,5 @@
 import { MapPin, MessageSquare } from 'lucide-react'
-import { Fragment, useEffect, useMemo, useState, useCallback } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -9,12 +9,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
-import { ConfirmDialog } from '../components/ui/confirm-dialog'
-import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
 import type { Department, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
-import { ConversationPanel } from '../components/ConversationPanel'
+import { CitizenRequestModal } from '../components/CitizenRequestModal'
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
@@ -34,14 +32,8 @@ export function SocialMessagesPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeConversation, setActiveConversation] = useState<{ id: string; handle: string } | null>(null)
-
-  const openConversation = useCallback((msg: SocialMessage) => {
-    setActiveConversation({ id: msg.socialMessageId, handle: msg.citizenHandle })
-  }, [])
-  const [routeDrafts, setRouteDrafts] = useState<Record<string, { departmentId: string }>>({})
-  const [taskTitles, setTaskTitles] = useState<Record<string, string>>({})
-  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  // "Talep Oluştur" pop-up'ı için seçilen vatandaş mesajı (card 443).
+  const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
 
   useEffect(() => {
     let isActive = true
@@ -93,64 +85,10 @@ export function SocialMessagesPage() {
     }
   }
 
-  const handleRoute = async (socialMessageId: string) => {
-    const draft = routeDrafts[socialMessageId]
-    const departmentId = draft?.departmentId || undefined
-
-    if (!departmentId) {
-      return
-    }
-
-    try {
-      await api.routeSocialMessage(socialMessageId, departmentId)
-      await reload()
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-    } catch (routeError) {
-      setError(routeError instanceof Error ? routeError.message : t('common.error'))
-    }
-  }
-
-  const handleConvert = async (socialMessageId: string, citizenHandle: string) => {
-    const title = taskTitles[socialMessageId]?.trim() || t('social.defaultTaskTitle', { handle: citizenHandle })
-    const message = messages.find(m => m.socialMessageId === socialMessageId)
-    const ownerDepartmentId =
-      routeDrafts[socialMessageId]?.departmentId ||
-      message?.assignedDepartmentId ||
-      ''
-    if (!ownerDepartmentId) {
-      setError(t('social.ownerDepartmentRequired', 'Önce bir müdürlük seçin.'))
-      return
-    }
-
-    try {
-      await api.convertSocialMessageToJob(socialMessageId, {
-        title,
-        description: t('social.defaultTaskDescription', { handle: citizenHandle }),
-        ownerDepartmentId,
-        priority: 'Normal',
-        dueDateUtc: null,
-      })
-      await reload()
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-    } catch (convertError) {
-      setError(convertError instanceof Error ? convertError.message : t('common.error'))
-    }
-  }
-
-  const handleDelete = (socialMessageId: string) => {
-    setConfirmDialog({
-      message: t('social.deleteConfirm'),
-      variant: 'destructive',
-      onConfirm: async () => {
-        try {
-          await api.deleteSocialMessage(socialMessageId)
-          setMessages(current => current.filter(m => m.socialMessageId !== socialMessageId))
-          void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-        } catch (deleteError) {
-          setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
-        }
-      },
-    })
+  const handleRequestCreated = () => {
+    setRequestModalMessage(null)
+    void reload()
+    void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
   }
 
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
@@ -266,71 +204,26 @@ export function SocialMessagesPage() {
                     </td>
                     <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
                     <td className="actions-cell">
-                      {!message.jobId ? (
-                        <div className="table-stack">
-                          {!message.assignedDepartmentId ? (
-                            <>
-                              <select
-                                aria-label={t('social.departmentSelectionAria', { handle: message.citizenHandle })}
-                                className="field-select"
-                                value={routeDrafts[message.socialMessageId]?.departmentId ?? ''}
-                                onChange={event => {
-                                  const departmentId = event.target.value
-                                  setRouteDrafts(current => ({
-                                    ...current,
-                                    [message.socialMessageId]: {
-                                      departmentId,
-                                    },
-                                  }))
-                                }}
-                              >
-                                <option value="">{t('tasks.draftDepartment')}</option>
-                                {departments.map(department => (
-                                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                                ))}
-                              </select>
-                              <div className="request-actions">
-                                <Button size="sm" type="button" onClick={() => handleRoute(message.socialMessageId)}>{t('social.route')}</Button>
-                                <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>
-                              </div>
-                            </>
-                          ) : (
-                            <StatusPill tone="info">{message.assignedDepartmentName ?? t('social.routedSummary')}</StatusPill>
-                          )}
-                          <div className="request-actions">
-                            <input
-                              aria-label={t('social.taskTitleAria', { handle: message.citizenHandle })}
-                              className="field-input"
-                              placeholder={t('social.taskTitlePlaceholder')}
-                              type="text"
-                              value={taskTitles[message.socialMessageId] ?? ''}
-                              onChange={event => setTaskTitles(current => ({ ...current, [message.socialMessageId]: event.target.value }))}
-                            />
-                            <Button size="sm" type="button" variant="success" onClick={() => handleConvert(message.socialMessageId, message.citizenHandle)}>
-                              {t('social.convert')}
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="request-actions">
-                          {message.jobId && (
-                            <Button size="sm" type="button" variant="secondary"
-                              onClick={() => navigate(`/request-details?context=social&scope=all&jobId=${message.jobId}`)}>
-                              {t('jobs.actions.details', 'Detaylar')}
-                            </Button>
-                          )}
-                          <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>
-                        </div>
-                      )}
+                      <div className="request-actions justify-center">
+                        {!message.jobId ? (
+                          <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
+                            {t('nav.createRequest', 'Talep Oluştur')}
+                          </Button>
+                        ) : (
+                          <Button size="sm" type="button" variant="secondary"
+                            onClick={() => navigate(`/request-details?context=social&scope=all&jobId=${message.jobId}`)}>
+                            {t('jobs.actions.details', 'Detaylar')}
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                   {message.content ? (
-                    <tr className="bg-slate-50/70 cursor-pointer hover:bg-slate-100/80 transition-colors" onClick={() => openConversation(message)}>
+                    <tr className="bg-slate-50/70">
                       <td colSpan={8}>
                         <div className="flex items-center gap-2 py-0.5">
                           <MessageSquare className="mt-0.5 size-4 shrink-0 text-[color:var(--color-primary)]" />
                           <p className="text-sm text-slate-700 truncate max-w-xl">{message.content}</p>
-                          <span className="ml-auto text-xs font-semibold text-[color:var(--color-primary)] shrink-0 pr-2">{t('social.openConversation', 'Konuşmayı Aç →')}</span>
                         </div>
                       </td>
                     </tr>
@@ -368,29 +261,15 @@ export function SocialMessagesPage() {
           </table>
         </div>
       </section>
-      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
 
-      {/* Conversation slide-in panel */}
-      {activeConversation && (
-        <div
-          className="fixed inset-0 z-40 flex justify-end"
-          onClick={() => setActiveConversation(null)}
-        >
-          <div
-            className="relative z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <ConversationPanel
-              socialMessageId={activeConversation.id}
-              citizenHandle={activeConversation.handle}
-              onClose={() => setActiveConversation(null)}
-              onReplySent={() => {
-                api.getSocialMessages().then(setMessages).catch(() => {})
-              }}
-            />
-          </div>
-          <div className="fixed inset-0 bg-black/30 -z-10" />
-        </div>
+      {/* "Talep Oluştur" → Birim Dışı Talep Oluştur formu + ilgili WhatsApp konuşması (card 443) */}
+      {requestModalMessage && (
+        <CitizenRequestModal
+          message={requestModalMessage}
+          departments={departments}
+          onClose={() => setRequestModalMessage(null)}
+          onCreated={handleRequestCreated}
+        />
       )}
     </div>
   )

@@ -9,7 +9,15 @@ public sealed record ConvertSocialMessageToJobCommand(
     string Description,
     Guid OwnerDepartmentId,
     string Priority,
-    DateTimeOffset? DueDateUtc) : ICommand<JobSummaryResponse?>;
+    DateTimeOffset? DueDateUtc,
+    // "Birim Dışı Talep Oluştur" formu alanları (card 443); verilmezse eski vatandaş talebi davranışı korunur.
+    string? RequestType = null,
+    IReadOnlyList<Guid>? TargetDepartmentIds = null,
+    bool IsProject = false,
+    DateTimeOffset? StartDateUtc = null,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null) : ICommand<JobSummaryResponse?>;
 
 public sealed class ConvertSocialMessageToJobCommandValidator : AbstractValidator<ConvertSocialMessageToJobCommand>
 {
@@ -64,17 +72,20 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             request.OwnerDepartmentId,
             OwnerUserIds: null,
             request.Priority,
-            RequestType: JobRequestType.Citizen.ToString(),
-            IsProject: false,
+            RequestType: request.RequestType ?? JobRequestType.Citizen.ToString(),
+            IsProject: request.IsProject,
             CitizenName: message.CitizenHandle,
             CitizenPhone: null,
-            StartDateUtc: null,
+            StartDateUtc: request.StartDateUtc,
             request.DueDateUtc,
-            TargetDepartmentIds: null,
+            TargetDepartmentIds: request.TargetDepartmentIds,
             SourceType: JobSourceType.SocialMessage.ToString(),
             SourceRefId: message.SocialMessageId,
             Latitude: message.Latitude,
-            Longitude: message.Longitude), cancellationToken);
+            Longitude: message.Longitude,
+            Neighborhood: request.Neighborhood,
+            Street: request.Street,
+            OpenAddress: request.OpenAddress), cancellationToken);
 
         message.JobId = jobSummary.JobId;
         message.Status = SocialMessageStatus.ConvertedToTask;

@@ -293,3 +293,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - Runtime E2E NOT performed: no demo seed is configured in any appsettings (`SeedData:EnableDemoData` unset → off), so a fresh DB has no managers/requests/notifications to exercise cards #431/#440/#439 without heavy manual data setup. Note: this contradicts CLAUDE.md which claims demo seed is on in dev config.
 
 ## STATUS: Round 37 complete — Doing list drained (8 cards).
+
+## Round 38 (#443 — arrived mid-session, user chose "implement now")
+- [x] `#443` (6a30569e) — Vatandaş Talepleri redesign: removed the inline Müdürlük dropdown, İş başlığı input, Yönlendir/Sil/İşe çevir buttons and the "Konuşmayı Aç" link + slide-in conversation. Each unconverted citizen message now has a single "Talep Oluştur" button that opens a new `CitizenRequestModal` — a two-pane pop-up with the related WhatsApp conversation (ConversationPanel) on the left and the full "Birim Dışı Talep Oluştur" form on the right (Talep Başlığı, Talebin Gideceği Birim, Koordineli + Koordine Departmanlar, Öncelik, Proje, Başlangıç/Son tarih, Adres, Açıklama). Submit creates an ExternalUnit job linked to the message. Backend: extended ConvertSocialMessageToJobCommand/Request + controller to accept RequestType/TargetDepartmentIds/IsProject/StartDate/address; handler passes them to CreateJobCommand (defaults preserve old Citizen behavior). FE: new CitizenRequestModal.tsx, api client convert payload extended, SocialMessagesPage rewired. Converted rows keep "Detaylar".
+  - Verification: frontend build PASS, backend Api build PASS, lint clean for touched files. Runtime E2E not run (no demo seed → no social messages/conversations to exercise without manual setup).
+
+## STATUS: Round 38 complete — Doing list drained.

@@ -13,7 +13,15 @@ public sealed record ConvertSocialMessageToJobRequest(
     string Description,
     Guid OwnerDepartmentId,
     string Priority,
-    DateTimeOffset? DueDateUtc);
+    DateTimeOffset? DueDateUtc,
+    // Vatandaş talebi "Birim Dışı Talep Oluştur" formundan oluşturulduğunda kullanılan ek alanlar (card 443).
+    string? RequestType = null,
+    IReadOnlyList<Guid>? TargetDepartmentIds = null,
+    bool IsProject = false,
+    DateTimeOffset? StartDateUtc = null,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null);
 
 public sealed record CreateSocialMessageRequest(
     string Channel,

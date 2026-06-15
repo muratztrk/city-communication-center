@@ -54,7 +54,7 @@ function filterResults(
       category: 'jobs',
       title: job.title,
       subtitle: [job.ownerDepartmentName, job.requestType === 'ExternalUnit' ? 'Birim Dışı' : job.requestType === 'Citizen' ? 'Vatandaş' : 'Birim İçi'].filter(Boolean).join(' · '),
-      path: job.requestType === 'ExternalUnit' ? '/request-details' : '/incoming-requests?kind=all',
+      path: job.requestType === 'ExternalUnit' ? `/request-details?context=incoming&jobId=${job.jobId}` : '/incoming-requests?kind=all',
     }))
 
   data.tasks

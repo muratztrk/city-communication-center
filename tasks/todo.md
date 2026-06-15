@@ -275,3 +275,21 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `UWHsvfFj` — Removed İade from the cancel flow: grid "İptal/İade" buttons → "İptal" in TasksPage + IncomingRequests; clicking goes straight to the cancel-reason popup (TasksPage openReturnModal → 'cancel' step; IncomingRequests openCancelReturn → prompt). Task popup keeps "Görev" wording; request popup says "Talebi İptal Et" (Talep, not Görev). Reporter cancel restriction preserved (staff button passive). Choose/İade-Et UI now unreachable. Pushed. Moved to Done.
 
 ## STATUS: Round 36 complete — Doing list drained.
+
+## Round 37 (Jun 15 — Doing list, 8 cards)
+- [x] `#377` (6a2e8e13) — Bell unread count now a round red badge with white number (was bare red text); rounded-full bg-red-600 text-white ring-2 ring-white. NotificationBell.tsx.
+- [x] `#441` (6a304f84) — Birim Dışı Talep Oluştur coordination texts: "Koordineli Birimler"→"Koordine Departmanlar", placeholder "Birim/Müdürlük seçin"→"Koordine Departman seçin", help "...ek birimler."→"...ek departmanlar." Same strings aligned in IncomingRequests coordinated modal. CreateRequestPage + IncomingRequestsPage.
+- [x] `#436` (6a300106) — JobsPage detail popup coordination button "Koordine Birim Ekle"→"Koordine Departman Ekle" (heading was already correct).
+- [x] `#442` (6a3051fd) — Request detail popup (Taleplerim/Birime Gelen/Birimden Giden) bottom section now 3 columns: Koordine Departman Ekle | Adres Bilgileri (opsiyonel adres alanları, veri varsa) | Ekler/Fotoğraflar. Added renderJobAddressInfo + Adres section for non-coordination (staff) viewers. JobsPage.
+- [x] `#438` (6a304a70) — Task detail popup: removed the redundant header "Görevi Yönlendir" button (the inline "Görevi Yönlendir" column does the same routing); enlarged that section's heading/help/select/button (text-2xl, h-12 select, size lg full-width button). TasksPage.
+- [x] `#431` (6a2ff8d1) — Removed the standalone JobsPage "Birime Gelen Talepler" list page (duplicate of /incoming-requests): /request-details with no jobId now redirects to /incoming-requests?kind=all; closing a detail in external mode returns to /incoming-requests (or /social for social context); GlobalSearchBar external results open the detail directly with jobId. JobsPage + GlobalSearchBar.
+- [x] `#440` (6a304dc0) — Pending requests now surface in notifications: NotificationAudience.GetManagerPendingJobIdsAsync adds a manager's pending incoming ("Onay Bekleyen Talepler") + outgoing ("Bekleyen Talepler") jobs (status Pending(Owner|External)Approval where their managed dept is owner or Target) to the visible-entity set, so both the bell feed AND unread count include them consistently; their "Detay" opens the approvable incoming detail. Backend: NotificationAudience + GetNotificationsQuery.
+- [x] `#439` (6a304cae) — Notifications: row click no longer navigates; only the "Detay" button opens the detail (and marks read). Detail popups (Jobs/Tasks z-[120]) now layer ABOVE the notifications modal (z-100) so the notifications popup stays behind. NotificationBell + JobsPage + TasksPage.
+
+### Verification (Round 37)
+- Frontend `npm run build` (tsc -b + vite) — PASS.
+- Backend `dotnet build` full solution — PASS (had to clear pre-existing runaway nested `bin/` recursion + stray `bin\Debug` literal dir in the Api project; unrelated to these changes).
+- `npm run lint` — clean for all touched files (2 pre-existing errors remain in untouched RichTextEditor.tsx / date-time-picker.tsx).
+- Runtime E2E NOT performed: no demo seed is configured in any appsettings (`SeedData:EnableDemoData` unset → off), so a fresh DB has no managers/requests/notifications to exercise cards #431/#440/#439 without heavy manual data setup. Note: this contradicts CLAUDE.md which claims demo seed is on in dev config.
+
+## STATUS: Round 37 complete — Doing list drained (8 cards).

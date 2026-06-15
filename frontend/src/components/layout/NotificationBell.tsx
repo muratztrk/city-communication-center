@@ -48,18 +48,15 @@ interface NotifItemProps {
 
 function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) {
   const { t } = useTranslation()
-  const handleClick = () => {
+  // Satıra tıklamak bir şey yapmaz; ilgili detay yalnızca "Detay" butonuyla açılır (card 439).
+  const handleOpenDetail = () => {
     if (!n.isRead) onMarkRead(n.notificationId)
     if (n.actionUrl && onNavigate) onNavigate(n.actionUrl)
   }
 
   return (
     <li
-      className="group relative flex cursor-pointer gap-3 bg-white px-4 py-3 transition-colors duration-150 hover:bg-slate-50"
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleClick() }}
+      className="group relative flex gap-3 bg-white px-4 py-3 transition-colors duration-150 hover:bg-slate-50"
     >
       {/* Unread accent bar */}
       <div className={`mt-1 w-1 shrink-0 self-stretch rounded-full transition-colors
@@ -79,7 +76,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
           {n.actionUrl && onNavigate && (
             <button
               type="button"
-              onClick={e => { e.stopPropagation(); onNavigate(n.actionUrl!); }}
+              onClick={e => { e.stopPropagation(); handleOpenDetail() }}
               className="rounded-md bg-emerald-500 px-2 py-1 text-[0.7rem] font-bold text-white shadow-sm transition-colors hover:bg-emerald-600 ml-auto"
             >
               {t('common.detail', 'Detay')}
@@ -264,7 +261,7 @@ export function NotificationBell() {
           <span className="relative inline-flex">
             <Bell className="size-4" />
             {unreadCount > 0 && (
-              <span className="pointer-events-none absolute -right-2.5 -top-2.5 text-sm font-black leading-none tabular-nums text-red-600">
+              <span className="pointer-events-none absolute -right-2.5 -top-2.5 flex h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full bg-red-600 px-1 text-[0.7rem] font-black leading-none tabular-nums text-white shadow-sm ring-2 ring-white">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}

@@ -449,6 +449,15 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   // auto-open detail drawer when ?jobId=... is in the URL (e.g. linked from social messages)
   const autoOpenJobId = searchParams.get('jobId')
 
+  // "Birime Gelen Talepler" varsayılan liste görünümü artık /incoming-requests sayfasının
+  // kopyasıydı; tek bir talep (jobId) açılmadığında bu eski sayfaya düşülmemesi için
+  // gerçek "Birime Gelen Talepler" sayfasına yönlendirilir (card 431).
+  useEffect(() => {
+    if (mode === 'external' && !autoOpenJobId) {
+      navigate('/incoming-requests?kind=all', { replace: true })
+    }
+  }, [mode, autoOpenJobId, navigate])
+
   useEffect(() => {
     const handler = () => setActiveDeptId(getActiveDepartmentId())
     window.addEventListener('activeDepartmentChanged', handler)
@@ -690,6 +699,39 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     if (!detail) return
     try { setDetail(await api.getJobById(detail.jobId)) } catch { /* ignore */ }
     await reload()
+  }
+
+  // Detayı kapatınca, kaldırılan bağımsız "Birime Gelen Talepler" liste sayfasında
+  // takılı kalınmaması için bağlama göre ilgili listeye dönülür (card 431).
+  const closeDetail = () => {
+    setDetail(null)
+    if (mode === 'external') {
+      navigate(detailContext === 'social' ? '/social' : '/incoming-requests?kind=all', { replace: true })
+    }
+  }
+
+  // Talep oluştururken opsiyonel olarak girilen adres alanlarını gösterir; veri yoksa boş durum (card 442).
+  const renderJobAddressInfo = (job: JobDetail) => {
+    const fields = [
+      { label: t('address.neighborhoodLabel', 'Mahalle'), value: job.neighborhood },
+      { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: job.street },
+      { label: t('address.openAddressLabel', 'Açık Adres'), value: job.openAddress },
+    ].filter(field => field.value != null && field.value.trim() !== '')
+
+    if (fields.length === 0) {
+      return <p className="text-sm text-slate-400">{t('address.empty', 'Adres bilgisi girilmemiş.')}</p>
+    }
+
+    return (
+      <dl className="space-y-2">
+        {fields.map(field => (
+          <div key={field.label}>
+            <dt className="text-xs font-semibold text-slate-500">{field.label}</dt>
+            <dd className="break-words text-sm text-slate-900">{field.value}</dd>
+          </div>
+        ))}
+      </dl>
+    )
   }
 
   const coordinatingDepartmentOptions = useMemo(() => {
@@ -1112,8 +1154,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {detail && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setDetail(null)}
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
+          onClick={closeDetail}
           role="presentation"
         >
           <section
@@ -1151,7 +1193,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale)}>{t('common.print', 'Yazdır')}</Button>
                 <button
                   type="button"
-                  onClick={() => setDetail(null)}
+                  onClick={closeDetail}
                   className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
                   aria-label={t('common.close', 'Kapat')}
                 >
@@ -1234,14 +1276,15 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
-                  <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                    {/* 1. sütun: Koordine Departman Ekle (card 436) */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
                       <MultiSelectDropdown
                         options={coordinatingDepartmentOptions}
                         value={coordinatingDepartmentIds}
                         onChange={setCoordinatingDepartmentIds}
-                        placeholder="Birim/Müdürlük seçin"
+                        placeholder="Koordine Departman seçin"
                         emptyText="Seçilebilir birim bulunmuyor."
                         disabled={coordinatingSaving}
                       />
@@ -1252,10 +1295,18 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                           disabled={coordinatingSaving || coordinatingDepartmentIds.length === 0}
                           onClick={() => void handleAddCoordinatingDepartments()}
                         >
-                          {coordinatingSaving ? 'Ekleniyor...' : 'Koordine Birim Ekle'}
+                          {coordinatingSaving ? 'Ekleniyor...' : 'Koordine Departman Ekle'}
                         </Button>
                       </div>
                     </div>
+                    {/* 2. sütun: Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442) */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-4">
+                      <h3 className="mb-3 text-sm font-bold text-slate-900">
+                        {t('address.detailSectionTitle', 'Adres Bilgileri')}
+                      </h3>
+                      {renderJobAddressInfo(detail)}
+                    </div>
+                    {/* 3. sütun: Ekler / Fotoğraflar */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 text-sm font-bold text-slate-900">
                         {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
@@ -1368,6 +1419,16 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   </tbody>
                 </table>
               )}
+            </section>}
+
+            {/* Yöneticisi/koordinasyon yetkisi olmayan kullanıcılar (ör. Taleplerim) için ayrı Adres Bilgileri (card 442). */}
+            {isRequestDetailContext && !canManageCoordination && <section className="mb-5">
+              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                {t('address.detailSectionTitle', 'Adres Bilgileri')}
+              </h3>
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                {renderJobAddressInfo(detail)}
+              </div>
             </section>}
 
             {(!isRequestDetailContext || !canManageCoordination) && <section className="mb-5">

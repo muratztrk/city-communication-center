@@ -855,7 +855,7 @@ const pageKicker = isMyTasksView
 
       {selectedTask && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
           onClick={closeTaskDetail}
           role="presentation"
         >
@@ -880,19 +880,6 @@ const pageKicker = isMyTasksView
                   <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>
                     {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                   </Button>
-                )}
-                {taskDetail
-                  && selectedTask
-                  && (isDepartmentTasksView || isStaffTasksView)
-                  && isManagerLike
-                  && taskDetail.assignedDepartmentId
-                  && (taskDetail.currentStatus === 'Waiting'
-                    || taskDetail.currentStatus === 'Assigned'
-                    || taskDetail.currentStatus === 'InProgress'
-                    || taskDetail.currentStatus === 'PendingCloseApproval') && (
-                    <Button type="button" onClick={() => openDepartmentRouteModal(selectedTask)}>
-                      {t('tasks.actions.routeTask', 'Görevi Yönlendir')}
-                    </Button>
                 )}
                 {taskDetail
                   && (isDepartmentTasksView || isStaffTasksView)
@@ -1116,8 +1103,8 @@ const pageKicker = isMyTasksView
                       <section className="form-card page-stack">
                         <>
                           <div>
-                            <h3 className="text-lg font-extrabold text-slate-950">Görevi Yönlendir</h3>
-                            <p className="helper-copy">
+                            <h3 className="text-2xl font-extrabold text-slate-950">Görevi Yönlendir</h3>
+                            <p className="helper-copy text-base">
                               Mevcut:{' '}
                               {taskDetail.assignedUserId
                                 ? getUserName(taskDetail.assignedUserId)
@@ -1128,9 +1115,9 @@ const pageKicker = isMyTasksView
                           </div>
                           <div className="grid gap-3">
                             <label className="job-field">
-                              <span className="job-field-label">{t('tasks.draftUser')}</span>
+                              <span className="job-field-label text-sm">{t('tasks.draftUser')}</span>
                               <select
-                                className="field-select"
+                                className="field-select h-12 text-base"
                                 value={assignmentDraft.userId}
                                 onChange={e => {
                                   const uid = e.target.value
@@ -1153,7 +1140,8 @@ const pageKicker = isMyTasksView
                           <div className="inline-actions justify-end pt-2">
                             <Button
                               type="button"
-                              size="sm"
+                              size="lg"
+                              className="w-full justify-center text-base"
                               disabled={assignmentSaving || (!assignmentDraft.departmentId && !assignmentDraft.userId)}
                               onClick={saveAssignment}
                             >

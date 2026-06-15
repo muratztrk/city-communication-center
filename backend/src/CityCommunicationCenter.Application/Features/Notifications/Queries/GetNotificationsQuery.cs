@@ -47,8 +47,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
             // Talep ve görev aşamalarındaki tüm değişiklikler denetim kaydından (AuditLog) bildirim olarak yansıtılır:
             // kullanıcının oluşturduğu talepler + atandığı / sahibi olduğu / oluşturduğu görevler.
+            // Ayrıca yöneticinin onayını bekleyen talepler de feed'e eklenir (card 440) — okunmamış
+            // sayacıyla tutarlı kalması için aynı NotificationAudience mantığı kullanılır.
+            var pendingJobIds = await NotificationAudience.GetManagerPendingJobIdsAsync(
+                _dbContext, tenantId, userId, cancellationToken);
             var jobRecords = await _dbContext.Jobs.AsNoTracking()
-                .Where(j => j.TenantId == tenantId && j.CreatedByUserId == userId)
+                .Where(j => j.TenantId == tenantId && (j.CreatedByUserId == userId || pendingJobIds.Contains(j.JobId)))
                 .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
@@ -59,6 +63,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             var jobsById = jobRecords.ToDictionary(j => j.JobId);
             var tasksById = taskRecords.ToDictionary(t => t.TaskId);
             var taskIdSet = taskRecords.Select(t => t.TaskId).ToHashSet();
+            // Onay bekleyen talepler "Detay"a tıklanınca onaylanabilir (Birime Gelen) detayında açılır (card 440/439).
+            var pendingJobIdSet = pendingJobIds.Select(id => id.ToString()).ToHashSet();
             var entityIds = jobRecords.Select(j => j.JobId).Concat(taskRecords.Select(t => t.TaskId)).Distinct().ToList();
 
             if (entityIds.Count > 0)
@@ -115,7 +121,11 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         readThroughUtc.HasValue
                             ? a.EventTimeUtc <= readThroughUtc.Value
                             : a.AuditLogId != initialUnreadAuditLogId,
-                        isTask ? $"/my-tasks?taskId={a.EntityId}" : $"/my-requests?jobId={a.EntityId}",
+                        isTask
+                            ? $"/my-tasks?taskId={a.EntityId}"
+                            : pendingJobIdSet.Contains(a.EntityId)
+                                ? $"/request-details?context=incoming&jobId={a.EntityId}"
+                                : $"/my-requests?jobId={a.EntityId}",
                         a.EventTimeUtc));
                 }
             }

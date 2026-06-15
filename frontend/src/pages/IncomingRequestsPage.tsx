@@ -833,17 +833,17 @@ export function IncomingRequestsPage() {
               {t('jobs.actions.createCoordinatedRequest', 'Koordineli Talep Oluştur')}
             </h3>
             <p className="mb-4 text-sm text-slate-600">
-              {t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek birimler.')}
+              {t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}
             </p>
             <div className="mb-4">
               <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
-                {t('jobs.form.coordinatedDepartments', 'Koordineli Birimler')}
+                {t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}
               </span>
               <MultiSelectDropdown
                 options={coordinatedDepartmentOptions}
                 value={coordinatedModal.selectedDepartmentIds}
                 onChange={selectedDepartmentIds => setCoordinatedModal(current => (current ? { ...current, selectedDepartmentIds } : current))}
-                placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Birim/Müdürlük seçin')}
+                placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
                 emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
               />
             </div>

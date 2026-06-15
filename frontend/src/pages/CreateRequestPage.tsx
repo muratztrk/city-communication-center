@@ -689,15 +689,15 @@ export function CreateRequestPage() {
             </div>
             {externalForm.isCoordinated ? (
               <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordineli Birimler')}</span>
+                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
                 <MultiSelectDropdown
                   options={coordinatedDepartmentOptions.map(d => ({ value: d.departmentId, label: d.name }))}
                   value={externalForm.coordinatedDepartmentIds}
                   onChange={coordinatedDepartmentIds => setExternalForm(current => ({ ...current, coordinatedDepartmentIds }))}
-                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Birim/Müdürlük seçin')}
+                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
                   emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
                 />
-                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek birimler.')}</span>
+                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
               </div>
             ) : null}
             <div className="grid gap-3 md:grid-cols-2">

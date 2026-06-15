@@ -983,6 +983,9 @@ const pageKicker = isMyTasksView
                     const ownerJobDepartment = parentJobDetail.departments.find(
                       dept => dept.departmentId === parentJobDetail.ownerDepartmentId,
                     )
+                    const isCrossDepartmentRequest =
+                      taskDetail.assignedDepartmentId != null &&
+                      taskDetail.assignedDepartmentId !== parentJobDetail.ownerDepartmentId
                     const leftFields = [
                       {
                         label: 'Talep No',
@@ -1001,7 +1004,12 @@ const pageKicker = isMyTasksView
                     const rightFields = [
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
-                      { label: 'Talep Onay Tarihi', value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale) },
+                      {
+                        label: isCrossDepartmentRequest
+                          ? "Talebi Oluşturan Departman'ın Onay Tarihi"
+                          : 'Talep Onay Tarihi',
+                        value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
+                      },
                       { label: 'Son Tarih Bilgisi', value: formatDateTime(parentJobDetail.dueDateUtc, locale) },
                     ]
                     return (

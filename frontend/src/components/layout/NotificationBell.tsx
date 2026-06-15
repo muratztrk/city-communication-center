@@ -1,5 +1,5 @@
 import { Bell, CheckCheck, X } from 'lucide-react'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -9,6 +9,7 @@ import type { AppNotification } from '../../types/platform'
 import type { NotificationPayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import { getLocale } from '../../utils/localization'
+import { useAuth } from '../../context/AuthContext'
 
 type NotifFilter = 'all' | 'unread'
 
@@ -123,6 +124,7 @@ function NotifList({ items, onMarkRead, onNavigate, locale }: NotifListProps) {
 
 export function NotificationBell() {
   const { t, i18n } = useTranslation()
+  const { user } = useAuth()
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -133,17 +135,28 @@ export function NotificationBell() {
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const unreadQueryKey = useMemo(
+    () => ['notifications-unread-count', user?.tenantId, user?.userId] as const,
+    [user?.tenantId, user?.userId],
+  )
+  const notificationsQueryKey = useMemo(
+    () => ['notifications-list', user?.tenantId, user?.userId] as const,
+    [user?.tenantId, user?.userId],
+  )
 
   const unreadQuery = useQuery({
-    queryKey: ['notifications-unread-count'],
+    queryKey: unreadQueryKey,
     queryFn: () => api.getUnreadNotificationCount(),
+    enabled: Boolean(user?.userId),
     refetchInterval: 30000,
+    refetchOnMount: 'always',
   })
 
   const notifQuery = useQuery({
-    queryKey: ['notifications-list'],
+    queryKey: notificationsQueryKey,
     queryFn: () => api.getNotifications(),
-    enabled: isOpen || isModalOpen,
+    enabled: Boolean(user?.userId) && (isOpen || isModalOpen),
+    refetchOnMount: 'always',
   })
 
   const notifications = notifQuery.data ?? []
@@ -170,13 +183,13 @@ export function NotificationBell() {
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.notificationId !== payload.notificationId))
       }, 5000)
-      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
-      queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
+      queryClient.invalidateQueries({ queryKey: unreadQueryKey })
+      queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
       if (Notification.permission === 'granted') {
         new Notification(localizedPayload.title, { body: localizedPayload.message, icon: '/favicon.ico' })
       }
     },
-    [queryClient],
+    [notificationsQueryKey, queryClient, unreadQueryKey],
   )
 
   useSignalR(handleNotification)
@@ -199,8 +212,8 @@ export function NotificationBell() {
   const markRead = async (id: string) => {
     setViewedNotificationIds(prev => new Set(prev).add(id))
     await api.markNotificationRead(id)
-    queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
-    queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
+    queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
+    queryClient.invalidateQueries({ queryKey: unreadQueryKey })
   }
 
   const markAllRead = async () => {
@@ -212,8 +225,8 @@ export function NotificationBell() {
       return next
     })
     await api.markAllNotificationsRead()
-    queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
-    queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
+    queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
+    queryClient.invalidateQueries({ queryKey: unreadQueryKey })
   }
 
   const handleNavigate = (url: string) => {

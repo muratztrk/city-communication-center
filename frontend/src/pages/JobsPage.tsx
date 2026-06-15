@@ -1234,7 +1234,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
-                  <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                  <div className="mt-4 grid gap-4 lg:grid-cols-2">
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
                       <MultiSelectDropdown
@@ -1255,6 +1255,28 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                           {coordinatingSaving ? 'Ekleniyor...' : 'Koordine Birim Ekle'}
                         </Button>
                       </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white p-4">
+                      <h3 className="mb-3 text-sm font-bold text-slate-900">
+                        {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                      </h3>
+                      <AttachmentSection
+                        attachments={detail.attachments ?? []}
+                        onUpload={async (file) => {
+                          setAttachmentUploading(true)
+                          try {
+                            await api.uploadJobAttachment(detail.jobId, file)
+                            await refreshDetail()
+                          } finally {
+                            setAttachmentUploading(false)
+                          }
+                        }}
+                        onDelete={async (id) => {
+                          await api.deleteAttachment(id)
+                          await refreshDetail()
+                        }}
+                        disabled={attachmentUploading}
+                      />
                     </div>
                   </div>
                 )}
@@ -1348,7 +1370,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               )}
             </section>}
 
-            <section className="mb-5">
+            {(!isRequestDetailContext || !canManageCoordination) && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
                 {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
               </h3>
@@ -1369,7 +1391,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 }}
                 disabled={attachmentUploading}
               />
-            </section>
+            </section>}
 
             {showWorkflowSections && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">

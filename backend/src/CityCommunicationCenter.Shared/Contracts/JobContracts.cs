@@ -36,6 +36,8 @@ public sealed record JobApprovalDecisionRequest(string? Comment);
 
 public sealed record RejectJobRequest(string Reason);
 
+public sealed record AddCoordinatingDepartmentsRequest(IReadOnlyCollection<Guid> DepartmentIds);
+
 public sealed record JobDepartmentResponse(
     Guid JobDepartmentId,
     Guid DepartmentId,

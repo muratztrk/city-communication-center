@@ -22,6 +22,7 @@ import type { PromptDialogState } from '../components/ui/prompt-dialog'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
+import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
@@ -376,6 +377,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     dueDateUtc: string
   } | null>(null)
   const [editSaving, setEditSaving] = useState(false)
+  const [coordinatingDepartmentIds, setCoordinatingDepartmentIds] = useState<string[]>([])
+  const [coordinatingSaving, setCoordinatingSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
@@ -397,6 +400,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           ? t('nav.social', 'Vatandaş Talepleri')
           : t('jobs.detail.title', 'İş Detayı')
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || detailContext === 'incoming'
+  const canManageCoordination = isManagerLike || isReporter
   const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
   const canCancelDetail = isRequestDetailContext
     && (isManagerLike || isMyRequestsView)
@@ -452,7 +456,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }, [])
 
   useEffect(() => {
-    if (!isReporter) return
+    if (!canManageCoordination) return
 
     let cancelled = false
     api.getDepartments()
@@ -464,7 +468,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       })
 
     return () => { cancelled = true }
-  }, [isReporter])
+  }, [canManageCoordination])
 
   useEffect(() => {
     let cancelled = false
@@ -671,6 +675,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
   const openDetail = async (jobId: string) => {
     setDetailLoading(true)
+    setCoordinatingDepartmentIds([])
     try {
       const d = await api.getJobById(jobId)
       setDetail(d)
@@ -685,6 +690,29 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     if (!detail) return
     try { setDetail(await api.getJobById(detail.jobId)) } catch { /* ignore */ }
     await reload()
+  }
+
+  const coordinatingDepartmentOptions = useMemo(() => {
+    const existingIds = new Set(detail?.departments.map(department => department.departmentId) ?? [])
+    return departments
+      .filter(department => !existingIds.has(department.departmentId))
+      .map(department => ({ value: department.departmentId, label: department.name }))
+      .sort((a, b) => a.label.localeCompare(b.label, locale))
+  }, [departments, detail?.departments, locale])
+
+  const handleAddCoordinatingDepartments = async () => {
+    if (!detail || coordinatingDepartmentIds.length === 0) return
+    setCoordinatingSaving(true)
+    setError(null)
+    try {
+      await api.addJobCoordinatingDepartments(detail.jobId, coordinatingDepartmentIds)
+      setCoordinatingDepartmentIds([])
+      await refreshDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setCoordinatingSaving(false)
+    }
   }
 
   const handleCancel = (jobId: string) => {
@@ -1205,6 +1233,31 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     </div>
                   </div>
                 </div>
+                {isRequestDetailContext && canManageCoordination && (
+                  <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                    <div className="rounded-xl border border-slate-200 bg-white p-4">
+                      <h3 className="mb-3 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
+                      <MultiSelectDropdown
+                        options={coordinatingDepartmentOptions}
+                        value={coordinatingDepartmentIds}
+                        onChange={setCoordinatingDepartmentIds}
+                        placeholder="Birim/Müdürlük seçin"
+                        emptyText="Seçilebilir birim bulunmuyor."
+                        disabled={coordinatingSaving}
+                      />
+                      <div className="mt-3 flex justify-end">
+                        <Button
+                          type="button"
+                          variant="success"
+                          disabled={coordinatingSaving || coordinatingDepartmentIds.length === 0}
+                          onClick={() => void handleAddCoordinatingDepartments()}
+                        >
+                          {coordinatingSaving ? 'Ekleniyor...' : 'Koordine Birim Ekle'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {!isRequestDetailContext && (isManagerLike || canMutatePreApprovalJob(detail)) && (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {canMutatePreApprovalJob(detail) && (

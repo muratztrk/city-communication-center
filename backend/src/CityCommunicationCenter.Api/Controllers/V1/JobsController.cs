@@ -96,6 +96,18 @@ public sealed class JobsController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{jobId:guid}/coordinating-departments")]
+    public async Task<IActionResult> AddCoordinatingDepartments(
+        Guid jobId,
+        [FromBody] AddCoordinatingDepartmentsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new AddCoordinatingDepartmentsCommand(jobId, CurrentContext.UserId, request.DepartmentIds),
+            cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPut("{jobId:guid}")]
     public async Task<IActionResult> Update(Guid jobId, [FromBody] UpdateJobRequest request, CancellationToken cancellationToken)
     {

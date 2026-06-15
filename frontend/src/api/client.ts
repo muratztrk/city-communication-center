@@ -664,6 +664,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
   },
 
+  async addJobCoordinatingDepartments(jobId: string, departmentIds: string[]): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/coordinating-departments`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ departmentIds }),
+    })
+    await ensureOk(response, i18n.t('errors.jobCoordinationFailed', 'Koordine birimler eklenemedi'))
+  },
+
   async deleteJob(jobId: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}`, {
       method: 'DELETE',

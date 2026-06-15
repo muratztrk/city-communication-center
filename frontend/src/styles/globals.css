@@ -217,6 +217,8 @@
     .app-content-shell .scope-chip {
       min-height: 1.95rem;
       padding: 0.38rem 0.7rem;
+      border-width: 1.5px;
+      border-color: #b8c4d2;
       font-size: 0.68rem;
       line-height: 1.2;
     }

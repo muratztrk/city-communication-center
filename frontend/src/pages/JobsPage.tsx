@@ -1127,6 +1127,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                               : getJobStatusLabel(t, detail.status),
                         },
                         { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
+                        ...(isMyRequestsView ? [{
+                          label: 'Talebi Yapan Departman Onay Tarihi',
+                          value: formatDateTime(
+                            detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
+                            locale,
+                          ),
+                        }] : []),
                         { label: 'Son Tarih', value: formatDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (
                         <div key={label} className="flex flex-col gap-0.5 px-4 py-2">

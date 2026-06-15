@@ -63,11 +63,19 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
             if (entityIds.Count > 0)
             {
+                var readThroughUtc = await _dbContext.NotificationReadCursors
+                    .AsNoTracking()
+                    .Where(cursor => cursor.TenantId == tenantId && cursor.UserId == userId)
+                    .Select(cursor => (DateTimeOffset?)cursor.ReadThroughUtc)
+                    .SingleOrDefaultAsync(cancellationToken);
                 var logs = await _dbContext.AuditLogs.AsNoTracking()
                     .Where(a => a.TenantId == tenantId && entityIds.Contains(a.EntityId))
                     .OrderByDescending(a => a.EventTimeUtc)
                     .Take(100)
                     .ToListAsync(cancellationToken);
+                var initialUnreadAuditLogId = readThroughUtc.HasValue
+                    ? (Guid?)null
+                    : logs.FirstOrDefault()?.AuditLogId;
 
                 foreach (var a in logs)
                 {
@@ -104,7 +112,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         "Sent",
                         ActionTitle(a.Action),
                         string.Join(" — ", messageParts),
-                        true,
+                        readThroughUtc.HasValue
+                            ? a.EventTimeUtc <= readThroughUtc.Value
+                            : a.AuditLogId != initialUnreadAuditLogId,
                         isTask ? $"/my-tasks?taskId={a.EntityId}" : $"/my-requests?jobId={a.EntityId}",
                         a.EventTimeUtc));
                 }

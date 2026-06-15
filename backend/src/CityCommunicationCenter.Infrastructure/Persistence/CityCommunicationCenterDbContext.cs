@@ -39,6 +39,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<WorkflowApproval> Approvals => Set<WorkflowApproval>();
     public DbSet<AssignmentHistory> AssignmentHistories => Set<AssignmentHistory>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<NotificationReadCursor> NotificationReadCursors => Set<NotificationReadCursor>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<RoutingRule> RoutingRules => Set<RoutingRule>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
@@ -97,6 +98,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureWorkflowApproval(modelBuilder.Entity<WorkflowApproval>());
         ConfigureAssignmentHistory(modelBuilder.Entity<AssignmentHistory>());
         ConfigureNotification(modelBuilder.Entity<Notification>());
+        ConfigureNotificationReadCursor(modelBuilder.Entity<NotificationReadCursor>());
         ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
         ConfigureRoutingRule(modelBuilder.Entity<RoutingRule>());
         ConfigurePushSubscription(modelBuilder.Entity<PushSubscription>());
@@ -117,6 +119,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<WorkflowApproval>());
         ApplyTenantFilter(modelBuilder.Entity<AssignmentHistory>());
         ApplyTenantFilter(modelBuilder.Entity<Notification>());
+        ApplyTenantFilter(modelBuilder.Entity<NotificationReadCursor>());
         ApplyTenantFilter(modelBuilder.Entity<AuditLog>());
         ApplyTenantFilter(modelBuilder.Entity<RoutingRule>());
         ApplyTenantFilter(modelBuilder.Entity<PushSubscription>());
@@ -541,6 +544,13 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.HasKey(entity => entity.NotificationId);
         builder.Property(entity => entity.Channel).HasConversion<string>();
         builder.Property(entity => entity.DeliveryStatus).HasConversion<string>();
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureNotificationReadCursor(EntityTypeBuilder<NotificationReadCursor> builder)
+    {
+        builder.ToTable("notificationreadcursors");
+        builder.HasKey(entity => entity.NotificationReadCursorId);
         ApplyLowerCaseColumnNames(builder);
     }
 

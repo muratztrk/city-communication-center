@@ -16,6 +16,7 @@ public interface IApplicationDbContext
     DbSet<WorkflowApproval> Approvals { get; }
     DbSet<AssignmentHistory> AssignmentHistories { get; }
     DbSet<Notification> Notifications { get; }
+    DbSet<NotificationReadCursor> NotificationReadCursors { get; }
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<RoutingRule> RoutingRules { get; }
     DbSet<PushSubscription> PushSubscriptions { get; }

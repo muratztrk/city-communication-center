@@ -27,10 +27,37 @@ public sealed class MarkNotificationReadCommandHandler : ICommandHandler<MarkNot
                     && entity.UserId == userId,
                 cancellationToken);
 
-        if (notification is null) return false;
+        if (notification is not null)
+        {
+            notification.IsRead = true;
+            notification.DeliveryStatus = NotificationDeliveryStatus.Read;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return true;
+        }
 
-        notification.IsRead = true;
-        notification.DeliveryStatus = NotificationDeliveryStatus.Read;
+        var entityIds = await NotificationAudience.GetVisibleEntityIdsAsync(
+            _dbContext, tenantId, userId, cancellationToken);
+        var auditLog = await _dbContext.AuditLogs
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity =>
+                    entity.AuditLogId == request.NotificationId
+                    && entity.TenantId == tenantId
+                    && entityIds.Contains(entity.EntityId),
+                cancellationToken);
+        if (auditLog is null)
+        {
+            return false;
+        }
+
+        var cursor = await NotificationAudience.GetOrCreateCursorAsync(
+            _dbContext, tenantId, userId, cancellationToken);
+        if (auditLog.EventTimeUtc > cursor.ReadThroughUtc)
+        {
+            cursor.ReadThroughUtc = auditLog.EventTimeUtc;
+            cursor.UpdatedByUserId = userId;
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

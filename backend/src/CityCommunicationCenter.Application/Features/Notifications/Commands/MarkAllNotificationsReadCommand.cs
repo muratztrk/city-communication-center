@@ -25,7 +25,7 @@ public sealed class MarkAllNotificationsReadCommandHandler
         var userId = context.UserId
             ?? throw new UnauthorizedAccessException("User context is required.");
 
-        return await _dbContext.Notifications
+        var updatedNotificationCount = await _dbContext.Notifications
             .Where(entity =>
                 entity.TenantId == tenantId
                 && entity.UserId == userId
@@ -35,5 +35,28 @@ public sealed class MarkAllNotificationsReadCommandHandler
                     .SetProperty(entity => entity.IsRead, true)
                     .SetProperty(entity => entity.DeliveryStatus, NotificationDeliveryStatus.Read),
                 cancellationToken);
+
+        var entityIds = await NotificationAudience.GetVisibleEntityIdsAsync(
+            _dbContext, tenantId, userId, cancellationToken);
+        if (entityIds.Count == 0)
+        {
+            return updatedNotificationCount;
+        }
+
+        var latestAuditTime = await _dbContext.AuditLogs
+            .Where(auditLog => auditLog.TenantId == tenantId && entityIds.Contains(auditLog.EntityId))
+            .MaxAsync(auditLog => (DateTimeOffset?)auditLog.EventTimeUtc, cancellationToken);
+        if (!latestAuditTime.HasValue)
+        {
+            return updatedNotificationCount;
+        }
+
+        var cursor = await NotificationAudience.GetOrCreateCursorAsync(
+            _dbContext, tenantId, userId, cancellationToken);
+        cursor.ReadThroughUtc = latestAuditTime.Value;
+        cursor.UpdatedByUserId = userId;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return updatedNotificationCount + 1;
     }
 }

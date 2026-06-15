@@ -2187,12 +2187,12 @@
   }
 
   .wallboard-priority-text {
-    font-size: 0.64rem;
+    font-size: clamp(0.76rem, 0.8vw, 0.9rem);
     font-weight: 700;
   }
 
   .wallboard-secondary-text {
-    font-size: 0.66rem;
+    font-size: clamp(0.76rem, 0.8vw, 0.9rem);
     opacity: 0.8;
   }
 

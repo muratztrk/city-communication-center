@@ -54,10 +54,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
 
   return (
     <li
-      className={`group relative flex cursor-pointer gap-3 rounded-xl border bg-white px-4 py-3 transition-all duration-150 hover:shadow-sm
-        ${!n.isRead
-          ? 'border-amber-300 hover:border-amber-400'
-          : 'border-emerald-300 hover:border-emerald-400'}`}
+      className="group relative flex cursor-pointer gap-3 bg-white px-4 py-3 transition-colors duration-150 hover:bg-slate-50"
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -155,7 +152,7 @@ export function NotificationBell() {
     ...notification,
     title: localizeNotificationText(notification.title),
     message: localizeNotificationText(notification.message),
-    isRead: viewedNotificationIds.has(notification.notificationId),
+    isRead: notification.isRead || viewedNotificationIds.has(notification.notificationId),
   }))
 
   const filteredDropdown = filter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications

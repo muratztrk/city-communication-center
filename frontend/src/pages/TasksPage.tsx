@@ -2,7 +2,7 @@ import { Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -270,6 +270,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
+  const dismissedAutoOpenTaskIdRef = useRef<string | null>(null)
   const canCompleteTask = !!taskDetail && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && taskDetail.assignedUserId === user?.userId
 
   const scopes = useMemo(() => fixedScope ? [fixedScope] : availableScopes(user?.role), [fixedScope, user?.role])
@@ -672,7 +673,11 @@ const pageKicker = isMyTasksView
   }
 
   useEffect(() => {
-    if (!autoOpenTaskId || selectedTask?.taskId === autoOpenTaskId) return
+    if (
+      !autoOpenTaskId ||
+      selectedTask?.taskId === autoOpenTaskId ||
+      dismissedAutoOpenTaskIdRef.current === autoOpenTaskId
+    ) return
     const task = tasks.find(item => item.taskId === autoOpenTaskId)
     if (task) {
       void openTaskDetail(task)
@@ -680,6 +685,7 @@ const pageKicker = isMyTasksView
   }, [autoOpenTaskId, selectedTask?.taskId, tasks]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const closeTaskDetail = () => {
+    dismissedAutoOpenTaskIdRef.current = autoOpenTaskId
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('taskId')
     setSearchParams(nextParams, { replace: true })

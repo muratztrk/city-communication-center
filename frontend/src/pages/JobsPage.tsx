@@ -122,6 +122,18 @@ function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
 }
 
+function getJobDisplayStatus(t: TFunction, job: Pick<JobSummary, 'status' | 'dueDateUtc'>): string {
+  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
+  if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
+  if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
+    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+  }
+  if (job.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  return t('jobs.statusLabel.pending', 'Bekleyen')
+}
+
 
 function getDepartmentRoleTone(role: string) {
   if (role === 'Owner') return 'info' as const
@@ -571,7 +583,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         if (key === 'destinationText') return row.destinationText
         if (key === 'cancelReturnStatus') return 'İptal'
         if (key === 'jobNumber') return formatJobDisplayNumber(row)
-        if (key === 'status') return getJobStatusLabel(t, row.status)
+        if (key === 'status') return getJobDisplayStatus(t, row)
         if (key === 'priority') return getPriorityLabel(t, row.priority)
         if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc ?? null, locale)
         if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc ?? null, locale)
@@ -990,7 +1002,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {isMyRequestsView && activeJobView === 'all' && <td><StatusPill tone="neutral">{getJobStatusLabel(t, job.status)}</StatusPill></td>}
+                    {isMyRequestsView && activeJobView === 'all' && <td><StatusPill tone="neutral">{getJobDisplayStatus(t, job)}</StatusPill></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>

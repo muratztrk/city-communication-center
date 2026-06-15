@@ -419,7 +419,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
         cancelReturnStatus: 'İptal',
       }))
       .filter(task => taskMatchesFilters(task, (key, row) => {
-        if (key === 'currentStatus') return getTaskStatusLabel(t, row.currentStatus)
+        if (key === 'currentStatus') return getTaskDisplayStatus(t, row)
         if (key === 'cancelReturnStatus') return row.currentStatus === 'Cancelled' ? 'İptal' : 'İade'
         if (key === 'priority') return getPriorityLabel(t, row.priority)
         if (key === 'taskNumber') return formatTaskDisplayNumber(row)
@@ -1247,7 +1247,7 @@ const pageKicker = isMyTasksView
                     {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <td><DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {isMyTasksView && currentMyTaskView === 'all' && <td><StatusPill tone="neutral">{getTaskStatusLabel(t, task.currentStatus)}</StatusPill></td>}
+                    {isMyTasksView && currentMyTaskView === 'all' && <td><StatusPill tone="neutral">{getTaskDisplayStatus(t, task)}</StatusPill></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>

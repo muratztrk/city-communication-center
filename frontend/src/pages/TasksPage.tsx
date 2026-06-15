@@ -1031,12 +1031,11 @@ const pageKicker = isMyTasksView
                     )
                   })()}
 
-                  {/* Alt 3 sütun: Görevi Yönlendir | Ekler/Fotoğraflar | Atama Geçmişi (card 5, 7) */}
-                  <div className="grid gap-4 lg:grid-cols-3">
+                  <div className={`grid gap-4 ${isManagerLike ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
 
                     {/* Sütun 1: Görevi Yönlendir */}
-                    <section className="form-card page-stack">
-                      {isManagerLike ? (
+                    {isManagerLike && (
+                      <section className="form-card page-stack">
                         <>
                           <div>
                             <h3 className="text-lg font-extrabold text-slate-950">Görevi Yönlendir</h3>
@@ -1084,19 +1083,8 @@ const pageKicker = isMyTasksView
                             </Button>
                           </div>
                         </>
-                      ) : (
-                        <>
-                          <h3 className="text-lg font-extrabold text-slate-950">Görevi Yönlendir</h3>
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                            {taskDetail.assignedUserId
-                              ? getUserName(taskDetail.assignedUserId)
-                              : taskDetail.assignedDepartmentId
-                                ? getDepartmentName(taskDetail.assignedDepartmentId)
-                                : t('tasks.unassigned', 'Atanmamış')}
-                          </div>
-                        </>
-                      )}
-                    </section>
+                      </section>
+                    )}
 
                     {/* Sütun 2: Atama Geçmişi */}
                     <section className="form-card page-stack">

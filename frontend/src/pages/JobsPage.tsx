@@ -1205,7 +1205,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     </div>
                   </div>
                 </div>
-                {(isManagerLike || canMutatePreApprovalJob(detail)) && (
+                {!isRequestDetailContext && (isManagerLike || canMutatePreApprovalJob(detail)) && (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {canMutatePreApprovalJob(detail) && (
                       <Button type="button" variant="secondary" onClick={() => void openEditModal(detail)}>

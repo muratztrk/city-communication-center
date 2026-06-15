@@ -1145,7 +1145,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       handleCancel(detail.jobId)
                     }}
                   >
-                    {t('jobs.actions.cancel', 'İptal Et')}
+                    {t('jobs.actions.cancelJob', 'Talebi İptal Et')}
                   </Button>
                 )}
                 <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale)}>{t('common.print', 'Yazdır')}</Button>

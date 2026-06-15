@@ -374,6 +374,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
   const isMyRequestsView = mode === 'myRequests'
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
+  const detailContext = searchParams.get('context')
+  const detailHeaderTitle = isMyRequestsView
+    ? t('nav.myRequests', 'Taleplerim')
+    : isDepartmentOutgoingView
+      ? t('nav.outgoingRequests', 'Birimden Giden Talepler')
+      : detailContext === 'incoming'
+        ? t('nav.incomingRequests', 'Birime Gelen Talepler')
+        : t('jobs.detail.title', 'İş Detayı')
   const currentMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
@@ -1052,7 +1060,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
               <div className="min-w-0">
                 <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
-                  {t('jobs.detail.title')}
+                  {detailHeaderTitle}
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">

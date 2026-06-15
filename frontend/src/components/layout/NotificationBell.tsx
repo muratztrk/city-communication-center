@@ -362,11 +362,7 @@ export function NotificationBell() {
                   className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${modalFilter === 'unread' ? 'bg-[color:var(--color-primary)] text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                 >
                   {t('notifications.unread', 'Okunmamış')}
-                  {unreadCount > 0 && (
-                    <span className="ml-1.5 rounded-full bg-red-500 px-1.5 py-0.5 text-[0.6rem] font-bold text-white">
-                      {unreadCount}
-                    </span>
-                  )}
+                  <span className="ml-1 text-amber-400">({unreadCount})</span>
                 </button>
               </div>
               <button

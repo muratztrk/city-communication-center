@@ -201,7 +201,7 @@ function getScopeChipColorClass(value: string): string {
 function matchesRequestFlow(requestType: Task['jobRequestType'], filter: RequestFlowFilter): boolean {
   if (filter === 'internal') return requestType === 'InternalUnit'
   if (filter === 'external') return requestType === 'ExternalUnit'
-  return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
+  return true
 }
 
 function userBelongsToDepartment(item: User, departmentId: string) {

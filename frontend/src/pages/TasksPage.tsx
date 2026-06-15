@@ -683,8 +683,11 @@ const pageKicker = isMyTasksView
   }
 
   useEffect(() => {
+    if (!autoOpenTaskId) {
+      dismissedAutoOpenTaskIdRef.current = null
+      return
+    }
     if (
-      !autoOpenTaskId ||
       selectedTask?.taskId === autoOpenTaskId ||
       dismissedAutoOpenTaskIdRef.current === autoOpenTaskId
     ) return

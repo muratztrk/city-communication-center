@@ -1006,7 +1006,9 @@ const pageKicker = isMyTasksView
                       taskDetail.assignedDepartmentId != null &&
                       taskDetail.assignedDepartmentId !== parentJobDetail.ownerDepartmentId
                     const coordinatingDepartmentNames = parentJobDetail.departments
-                      .filter(department => department.role === 'Coordinating')
+                      .filter(department =>
+                        (department.role === 'Target' || department.role === 'Coordinating')
+                        && department.departmentId !== taskDetail.assignedDepartmentId)
                       .map(department => department.departmentName)
                       .filter((name): name is string => Boolean(name))
                     const leftFields = [
@@ -1029,10 +1031,10 @@ const pageKicker = isMyTasksView
                           ? t('common.yes', 'Evet')
                           : t('common.no', 'Hayır'),
                       },
-                      ...(parentJobDetail.isCoordinated
+                      ...(coordinatingDepartmentNames.length > 0
                         ? [{
-                            label: 'Koordineli Departmanlar',
-                            value: coordinatingDepartmentNames.join(', ') || '—',
+                            label: 'Koordine Departmanlar',
+                            value: coordinatingDepartmentNames.join(', '),
                           }]
                         : []),
                     ]

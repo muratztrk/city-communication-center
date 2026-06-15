@@ -223,6 +223,10 @@
       line-height: 1.2;
     }
 
+    .app-content-shell .desktop-page-shell > .scope-chips {
+      margin-block: 0.2rem;
+    }
+
     .app-content-shell .scope-chip-search-wrap {
       min-height: 1.875rem;
       padding: 0 0.5rem;

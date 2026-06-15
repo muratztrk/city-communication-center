@@ -138,6 +138,29 @@ function getTargetJobDepartments(job: JobSummary) {
   return sortJobDepartments(job.departments ?? []).filter(department => department.role === 'Target' || department.role === 'Coordinating')
 }
 
+function formatJobDestinationsWithAssignees(job: JobDetail): string {
+  const destinations = sortJobDepartments(job.departments)
+    .filter(department => department.role === 'Target' || department.role === 'Coordinating')
+  const effectiveDestinations = destinations.length > 0
+    ? destinations
+    : job.departments.filter(department => department.departmentId === job.ownerDepartmentId)
+
+  return effectiveDestinations
+    .map(department => {
+      const assignees = [...new Set(
+        job.tasks
+          .filter(task =>
+            task.assignedDepartmentId === department.departmentId
+            || task.assignedDepartmentName === department.departmentName)
+          .map(task => task.assignedUserDisplayName)
+          .filter((name): name is string => Boolean(name)),
+      )]
+      const departmentName = department.departmentName ?? job.ownerDepartmentName ?? '—'
+      return assignees.length > 0 ? `${departmentName}/${assignees.join(', ')}` : departmentName
+    })
+    .join(', ') || job.ownerDepartmentName || '—'
+}
+
 function formatDateTime(value: string | null, locale: string) {
   if (!value) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
   return new Date(value).toLocaleString(locale, {
@@ -1063,11 +1086,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       },
                       {
                         label: 'Gittiği Yer',
-                        value: detail.departments
-                          .filter(d => d.role === 'Target' || d.role === 'Coordinating')
-                          .map(d => d.departmentName)
-                          .filter(Boolean)
-                          .join(', ') || detail.ownerDepartmentName || '—',
+                        value: formatJobDestinationsWithAssignees(detail),
                       },
                       { label: 'Proje mi', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
                     ].map(({ label, value }) => (

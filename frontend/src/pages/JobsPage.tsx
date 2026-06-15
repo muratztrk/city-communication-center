@@ -394,6 +394,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       : detailContext === 'incoming'
         ? t('nav.incomingRequests', 'Birime Gelen Talepler')
         : t('jobs.detail.title', 'İş Detayı')
+  const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || detailContext === 'incoming'
+  const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
+  const canCancelDetail = isRequestDetailContext
+    && (isManagerLike || isMyRequestsView)
+    && detail != null
+    && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
   const currentMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
@@ -1082,15 +1088,25 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                {isMyRequestsView && isManagerLike && detail.status === 'PendingOwnerApproval' && (
-                  <>
-                    <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>
-                      {t('jobs.actions.approveOwner', 'Onayla')}
-                    </Button>
-                    <Button type="button" variant="destructive" onClick={() => handleRejectOwner(detail.jobId)}>
-                      {t('jobs.actions.cancel', 'İptal Et')}
-                    </Button>
-                  </>
+                {canApproveDetail && (
+                  <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>
+                    {t('jobs.actions.approveOwner', 'Onayla')}
+                  </Button>
+                )}
+                {canCancelDetail && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      if (isManagerLike && detail.status === 'PendingOwnerApproval') {
+                        handleRejectOwner(detail.jobId)
+                        return
+                      }
+                      handleCancel(detail.jobId)
+                    }}
+                  >
+                    {t('jobs.actions.cancel', 'İptal Et')}
+                  </Button>
                 )}
                 <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale)}>{t('common.print', 'Yazdır')}</Button>
                 <button
@@ -1179,12 +1195,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </div>
                 {(isManagerLike || canMutatePreApprovalJob(detail)) && (
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {!isMyRequestsView && isManagerLike && detail.status === 'PendingOwnerApproval' && (
-                      <>
-                        <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>{t('jobs.actions.approveOwner')}</Button>
-                        <Button type="button" variant="destructive" onClick={() => handleRejectOwner(detail.jobId)}>{t('jobs.actions.rejectOwner')}</Button>
-                      </>
-                    )}
                     {canMutatePreApprovalJob(detail) && (
                       <Button type="button" variant="secondary" onClick={() => void openEditModal(detail)}>
                         {t('jobs.actions.edit', 'Düzenle')}

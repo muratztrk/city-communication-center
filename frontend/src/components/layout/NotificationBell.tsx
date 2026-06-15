@@ -248,12 +248,14 @@ export function NotificationBell() {
           onClick={() => setIsOpen(prev => !prev)}
           aria-label={t('notifications.bell', 'Bildirimler')}
         >
-          <Bell className="size-4" />
-          {unreadCount > 0 && (
-            <span className="pointer-events-none absolute -right-1.5 -top-2 min-w-4 rounded-full bg-white px-0.5 text-center text-sm font-black leading-4 tabular-nums text-red-600">
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
-          )}
+          <span className="relative inline-flex">
+            <Bell className="size-4" />
+            {unreadCount > 0 && (
+              <span className="pointer-events-none absolute -right-2.5 -top-2.5 text-sm font-black leading-none tabular-nums text-red-600">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </span>
         </button>
 
         {isOpen && (

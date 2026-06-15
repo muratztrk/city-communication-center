@@ -483,7 +483,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const showRequestFlowFilters = isMyRequestsView && user?.role !== 'SystemAdmin' && !isReporter
   const canMutatePreApprovalJob = (job: JobSummary | JobDetail) => (
     isPreApprovalStatus(job.status) &&
-    (user?.role === 'SystemAdmin' || isManagerLike || isMyRequestsView)
+    (user?.role === 'SystemAdmin' || isManagerLike)
   )
   const scopeLabel = scope === 'rejected'
     ? t('jobs.scopes.rejected', 'İptal/Red Edilen')
@@ -1096,7 +1096,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
                   <div className="min-w-0 divide-y divide-slate-100">
                     {[
-                      { label: 'Talep No', value: detail.jobNumber ? `T-${detail.jobNumberYear}-${detail.jobNumber}` : '—' },
+                      {
+                        label: 'Talep No',
+                        value: detail.jobNumber != null && detail.jobNumberYear != null
+                          ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
+                          : `T-${detail.jobNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`,
+                      },
                       { label: 'Talep Başlığı', value: detail.title },
                       {
                         label: 'Talep Yeri / Oluşturan',

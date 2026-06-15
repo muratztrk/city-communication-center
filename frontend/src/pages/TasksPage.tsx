@@ -1377,7 +1377,7 @@ const pageKicker = isMyTasksView
                     {t('common.dismiss', 'Vazgeç')}
                   </Button>
                   <Button type="button" variant="destructive" disabled={returnSaving || !cancelReason.trim()} onClick={() => void handleCancelTask()}>
-                    {returnSaving ? t('common.loading') : t('tasks.actions.cancelTask', 'İptal Et')}
+                    {returnSaving ? t('common.loading') : t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                   </Button>
                 </div>
               </>

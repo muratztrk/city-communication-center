@@ -36,17 +36,23 @@ function compare(a: unknown, b: unknown, dir: SortDir): number {
 }
 
 export function useSortable() {
-  const [sortKey, setSortKey] = useState<string | null>(null)
-  const [sortDir, setSortDir] = useState<SortDir>('asc')
+  const [{ sortKey, sortDir }, setSortState] = useState<{
+    sortKey: string | null
+    sortDir: SortDir
+  }>({
+    sortKey: null,
+    sortDir: 'asc',
+  })
 
   const toggleSort = useCallback((key: string) => {
-    setSortKey(prev => {
-      if (prev === key) {
-        setSortDir(d => d === 'asc' ? 'desc' : 'asc')
-        return prev
+    setSortState(current => {
+      if (current.sortKey !== key) {
+        return { sortKey: key, sortDir: 'asc' }
       }
-      setSortDir('asc')
-      return key
+      if (current.sortDir === 'asc') {
+        return { sortKey: key, sortDir: 'desc' }
+      }
+      return { sortKey: null, sortDir: 'asc' }
     })
   }, [])
 

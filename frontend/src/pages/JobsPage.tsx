@@ -168,7 +168,7 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
           .filter((name): name is string => Boolean(name)),
       )]
       const departmentName = department.departmentName ?? job.ownerDepartmentName ?? '—'
-      return assignees.length > 0 ? `${departmentName}/${assignees.join(', ')}` : departmentName
+      return assignees.length > 0 ? `${departmentName} / ${assignees.join(', ')}` : departmentName
     })
     .join(', ') || job.ownerDepartmentName || '—'
 }

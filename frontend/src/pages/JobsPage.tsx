@@ -1169,7 +1169,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                
               {detailLoading && <div className="loading">{t('common.loading')}</div>}
 
-            <section className="mb-5">
+            {!isMyRequestsView && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.departments')}</h3>
               <table className="data-table">
                 <thead>
@@ -1194,7 +1194,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 </tbody>
               </table>
 
-            </section>
+            </section>}
 
             {detail.latitude != null && detail.longitude != null && (
               <section className="mb-5">
@@ -1215,7 +1215,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </section>
             )}
 
-            <section className="mb-5">
+            {!isMyRequestsView && <section className="mb-5">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.tasks')}</h3>
               </div>
@@ -1241,7 +1241,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   </tbody>
                 </table>
               )}
-            </section>
+            </section>}
 
             <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
@@ -1266,7 +1266,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               />
             </section>
 
-            <section className="mb-5">
+            {!isMyRequestsView && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
                 {t('auditLog.title', 'Denetim İzi')}
               </h3>
@@ -1296,7 +1296,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   </tbody>
                 </table>
               )}
-            </section>
+            </section>}
            </div>
           </section>
         </div>

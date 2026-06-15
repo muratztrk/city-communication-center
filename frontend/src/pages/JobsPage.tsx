@@ -393,7 +393,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       ? t('nav.outgoingRequests', 'Birimden Giden Talepler')
       : detailContext === 'incoming'
         ? t('nav.incomingRequests', 'Birime Gelen Talepler')
-        : t('jobs.detail.title', 'İş Detayı')
+        : detailContext === 'social'
+          ? t('nav.social', 'Vatandaş Talepleri')
+          : t('jobs.detail.title', 'İş Detayı')
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || detailContext === 'incoming'
   const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
   const canCancelDetail = isRequestDetailContext
@@ -1209,7 +1211,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                
               {detailLoading && <div className="loading">{t('common.loading')}</div>}
 
-            {!isMyRequestsView && <section className="mb-5">
+            {!isMyRequestsView && detailContext !== 'social' && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.departments')}</h3>
               <table className="data-table">
                 <thead>
@@ -1255,7 +1257,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </section>
             )}
 
-            {!isMyRequestsView && <section className="mb-5">
+            {!isMyRequestsView && detailContext !== 'social' && <section className="mb-5">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.tasks')}</h3>
               </div>
@@ -1306,7 +1308,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               />
             </section>
 
-            {!isMyRequestsView && <section className="mb-5">
+            {!isMyRequestsView && detailContext !== 'social' && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
                 {t('auditLog.title', 'Denetim İzi')}
               </h3>

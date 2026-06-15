@@ -316,7 +316,7 @@ export function SocialMessagesPage() {
                           {message.jobId && (
                             <Button size="sm" type="button" variant="secondary"
                               onClick={() => navigate(`/request-details?context=social&scope=all&jobId=${message.jobId}`)}>
-                              {t('social.viewJob', 'İşi Görüntüle')}
+                              {t('common.detail', 'Detay')}
                             </Button>
                           )}
                           <Button size="sm" type="button" variant="destructive" onClick={() => handleDelete(message.socialMessageId)}>{t('social.delete')}</Button>

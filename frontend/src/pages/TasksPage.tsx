@@ -1223,7 +1223,7 @@ const pageKicker = isMyTasksView
                         </StatusPill>
                       </td>
                     )}
-                    {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <td><DueDatePill value={task.dueDateUtc} locale={locale} /></td>}
+                    {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <td><DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
                     <td className="actions-cell">

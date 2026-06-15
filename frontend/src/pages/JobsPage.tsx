@@ -985,7 +985,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {!(isMyRequestsView || isDepartmentOutgoingView) && <td>{getPriorityLabel(t, job.priority)}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
-                    {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <td><DueDatePill value={job.dueDateUtc} locale={locale} /></td>}
+                    {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <td><DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} /></td>}

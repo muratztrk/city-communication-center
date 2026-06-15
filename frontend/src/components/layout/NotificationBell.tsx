@@ -48,7 +48,10 @@ interface NotifItemProps {
 
 function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) {
   const { t } = useTranslation()
-  // Satıra tıklamak bir şey yapmaz; ilgili detay yalnızca "Detay" butonuyla açılır (card 439).
+  // Satıra tıklamak bildirimi yalnızca okundu yapar; ilgili detay sadece "Detay" butonuyla açılır (card 439/445).
+  const handleRowClick = () => {
+    if (!n.isRead) onMarkRead(n.notificationId)
+  }
   const handleOpenDetail = () => {
     if (!n.isRead) onMarkRead(n.notificationId)
     if (n.actionUrl && onNavigate) onNavigate(n.actionUrl)
@@ -56,7 +59,8 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
 
   return (
     <li
-      className="group relative flex gap-3 bg-white px-4 py-3 transition-colors duration-150 hover:bg-slate-50"
+      className="group relative flex cursor-pointer gap-3 bg-white px-4 py-3 transition-colors duration-150 hover:bg-slate-50"
+      onClick={handleRowClick}
     >
       {/* Unread accent bar */}
       <div className={`mt-1 w-1 shrink-0 self-stretch rounded-full transition-colors

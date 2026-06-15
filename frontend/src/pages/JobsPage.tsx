@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -1152,7 +1153,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         </section>
       )}
 
-      {detail && (
+      {detail && createPortal(
         <div
           className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
           onClick={closeDetail}
@@ -1487,7 +1488,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
             </section>}
            </div>
           </section>
-        </div>
+        </div>,
+        document.body
       )}
 
       {editModal && (

@@ -3,6 +3,7 @@ import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -853,7 +854,7 @@ const pageKicker = isMyTasksView
         </nav>
       )}
 
-      {selectedTask && (
+      {selectedTask && createPortal(
         <div
           className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
           onClick={closeTaskDetail}
@@ -1103,8 +1104,8 @@ const pageKicker = isMyTasksView
                       <section className="form-card page-stack">
                         <>
                           <div>
-                            <h3 className="text-2xl font-extrabold text-slate-950">Görevi Yönlendir</h3>
-                            <p className="helper-copy text-base">
+                            <h3 className="text-base font-extrabold text-slate-950">Görevi Yönlendir</h3>
+                            <p className="helper-copy">
                               Mevcut:{' '}
                               {taskDetail.assignedUserId
                                 ? getUserName(taskDetail.assignedUserId)
@@ -1115,9 +1116,9 @@ const pageKicker = isMyTasksView
                           </div>
                           <div className="grid gap-3">
                             <label className="job-field">
-                              <span className="job-field-label text-sm">{t('tasks.draftUser')}</span>
+                              <span className="job-field-label">{t('tasks.draftUser')}</span>
                               <select
-                                className="field-select h-12 text-base"
+                                className="field-select"
                                 value={assignmentDraft.userId}
                                 onChange={e => {
                                   const uid = e.target.value
@@ -1140,8 +1141,7 @@ const pageKicker = isMyTasksView
                           <div className="inline-actions justify-end pt-2">
                             <Button
                               type="button"
-                              size="lg"
-                              className="w-full justify-center text-base"
+                              size="sm"
                               disabled={assignmentSaving || (!assignmentDraft.departmentId && !assignmentDraft.userId)}
                               onClick={saveAssignment}
                             >
@@ -1207,7 +1207,8 @@ const pageKicker = isMyTasksView
               ) : null}
             </div>
           </section>
-        </div>
+        </div>,
+        document.body
       )}
 
       {error && <div className="alert alert-error">{error}</div>}

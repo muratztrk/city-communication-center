@@ -299,3 +299,11 @@ Polling every ~5 min this session. Commit + push to main after each card.
   - Verification: frontend build PASS, backend Api build PASS, lint clean for touched files. Runtime E2E not run (no demo seed → no social messages/conversations to exercise without manual setup).
 
 ## STATUS: Round 38 complete — Doing list drained.
+
+## Round 39 (live review feedback on Round 37 work)
+- [x] `#438` (reopened) — Round-37 enlargement was too big; shrank the task-detail "Görevi Yönlendir" section back down (h3 text-2xl→text-base, removed helper text-base / select h-12 text-base / full-width lg button → default field-select + size sm). TasksPage.
+- [x] `#445` — Notification row click now marks the notification read only (no navigation); detail still opens solely via the "Detay" button (refines Round-37 #439 where the row did nothing). NotificationBell.
+- [x] `#444` — Detail popup opened from a notification must appear above the notifications modal and, on X, leave the notifications open. Root cause: detail modals render inside the content `zoom` stacking context, so a z-index alone can't lift them above the body-portaled notifications modal. Fix: portal the Tasks + Jobs detail modals to `document.body` (same technique the notifications modal already documents) at z-[120] > notifications z-[100]; closing the detail never touches the notifications modal. TasksPage + JobsPage.
+  - Verification: frontend build PASS, lint clean for touched files. Runtime not exercised (no demo seed). Note: portaling the detail modals also makes them render at full viewport scale (was content-zoom ~0.81) — intended/acceptable for a focal overlay.
+
+## STATUS: Round 39 complete.

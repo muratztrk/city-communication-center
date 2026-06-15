@@ -14,9 +14,9 @@ type NotifFilter = 'all' | 'unread'
 
 function localizeNotificationText(value: string): string {
   return value
-    .replace(/routine task created/gi, 'Rutin görev oluşturuldu')
-    .replace(/created task/gi, 'Görev oluşturuldu')
-    .replace(/task created/gi, 'Görev oluşturuldu')
+    .replace(/routine[\s\u00a0]+task[\s\u00a0]+created/giu, 'Rutin görev oluşturuldu')
+    .replace(/created[\s\u00a0]+(?:a[\s\u00a0]+)?task/giu, 'Görev oluşturuldu')
+    .replace(/task[\s\u00a0]+(?:was[\s\u00a0]+)?created/giu, 'Görev oluşturuldu')
     .replace(/task assigned/gi, 'Görev atandı')
     .replace(/job created/gi, 'Talep oluşturuldu')
     .replace(/job updated/gi, 'Talep güncellendi')

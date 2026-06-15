@@ -153,7 +153,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
     private static string? FormatNote(string? note)
     {
         if (string.IsNullOrWhiteSpace(note)) return null;
-        var trimmed = note.Trim();
+        var trimmed = string.Join(
+            " ",
+            note.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
 
         // Saf teknik/debug notlarını kullanıcıya gösterme.
         if (trimmed.StartsWith("Targets=", StringComparison.OrdinalIgnoreCase) ||
@@ -174,8 +176,10 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             return null;
 
         if (trimmed.StartsWith("Created task", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("Task created", StringComparison.OrdinalIgnoreCase))
-            return "Görev oluşturuldu";
+            trimmed.StartsWith("Created a task", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("Task created", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("Task was created", StringComparison.OrdinalIgnoreCase))
+            return null;
 
         return trimmed;
     }

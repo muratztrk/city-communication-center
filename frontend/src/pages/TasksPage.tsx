@@ -453,6 +453,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('view', view)
     setSearchParams(nextParams)
+    setTasksPage(1)
+    clearTaskFilters()
   }
 
   const setRequestFlowFilter = (filter: RequestFlowFilter) => {
@@ -460,12 +462,16 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     if (filter === 'all') nextParams.delete('flow')
     else nextParams.set('flow', filter)
     setSearchParams(nextParams)
+    setTasksPage(1)
+    clearTaskFilters()
   }
 
   const setDepartmentTaskFlow = (filter: RequestFlowFilter) => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('flow', filter)
     setSearchParams(nextParams)
+    setTasksPage(1)
+    clearTaskFilters()
   }
 
   const setStaffUserFilter = (userId: string) => {
@@ -473,6 +479,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     if (userId === 'all') nextParams.delete('userId')
     else nextParams.set('userId', userId)
     setSearchParams(nextParams)
+    setTasksPage(1)
+    clearTaskFilters()
   }
 
   const setStaffTaskTypeFilter = (type: 'all' | 'assigned' | 'routine') => {
@@ -480,6 +488,8 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     if (type === 'all') nextParams.delete('taskType')
     else nextParams.set('taskType', type)
     setSearchParams(nextParams)
+    setTasksPage(1)
+    clearTaskFilters()
   }
 
   useEffect(() => {

@@ -622,6 +622,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     nextParams.set('view', view)
     setSearchParams(nextParams)
     setJobsPage(1)
+    clearJobFilters()
   }
 
   const setRequestFlowFilter = (filter: RequestFlowFilter) => {
@@ -630,6 +631,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     else nextParams.set('flow', filter)
     setSearchParams(nextParams)
     setJobsPage(1)
+    clearJobFilters()
   }
 
   const setReporterDepartment = (departmentId: string) => {
@@ -638,6 +640,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     else nextParams.set('departmentId', 'all')
     setSearchParams(nextParams)
     setJobsPage(1)
+    clearJobFilters()
   }
 
   const setDepartmentOutgoingView = (view: DepartmentOutgoingView) => {
@@ -645,6 +648,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     nextParams.set('view', view)
     setSearchParams(nextParams)
     setJobsPage(1)
+    clearJobFilters()
   }
 
   const openDetail = async (jobId: string) => {

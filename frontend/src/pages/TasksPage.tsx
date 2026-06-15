@@ -871,6 +871,16 @@ const pageKicker = isMyTasksView
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {isMyTasksView && canCompleteTask && (
+                  <Button type="button" variant="success" onClick={() => handleComplete(taskDetail.taskId)}>
+                    {t('tasks.actions.complete', 'Tamamla')}
+                  </Button>
+                )}
+                {isMyTasksView && canCompleteTask && (
+                  <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>
+                    {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
+                  </Button>
+                )}
                 {taskDetail
                   && selectedTask
                   && (isDepartmentTasksView || isStaffTasksView)

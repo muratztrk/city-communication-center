@@ -589,7 +589,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           : job.ownerDepartmentName ?? ''
         const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
         const cancelReturnStatus = 'İptal'
-        return { ...job, destinationText, ownerDecidedAtUtc, cancelReturnStatus }
+        const statusSortText = getJobDisplayStatus(t, job)
+        return { ...job, destinationText, ownerDecidedAtUtc, cancelReturnStatus, statusSortText }
       })
       .filter(job => jobMatchesFilters(job, (key, row) => {
         if (key === 'destinationText') return row.destinationText
@@ -625,7 +626,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }, [activeDeptId, clearJobFilters])
 
   const pagedJobs = useMemo(
-    () => sortJobs(columnFilteredJobs).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize),
+    () => {
+      const newestFirst = [...columnFilteredJobs].sort(
+        (a, b) => new Date(b.createdAtUtc).getTime() - new Date(a.createdAtUtc).getTime(),
+      )
+      return sortJobs(newestFirst).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize)
+    },
     [columnFilteredJobs, jobsPage, jobsPageSize, sortJobs],
   )
 
@@ -975,7 +981,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <FilterableTh filterKey="ownerDecidedAtUtc" filterValue={jobFilters['ownerDecidedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="ownerDecidedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={jobFilters['completedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="completedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={jobFilters['updatedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="updatedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
-                  {isMyRequestsView && activeJobView === 'all' && <FilterableTh filterKey="status" filterValue={jobFilters['status'] ?? ''} onFilter={setJobFilter} sortKey="status" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
+                  {isMyRequestsView && activeJobView === 'all' && <FilterableTh filterKey="status" filterValue={jobFilters['status'] ?? ''} onFilter={setJobFilter} sortKey="statusSortText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
                   <th>{t('jobs.columns.actions')}</th>
                 </tr>
               </thead>

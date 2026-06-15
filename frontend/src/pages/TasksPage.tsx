@@ -992,6 +992,10 @@ const pageKicker = isMyTasksView
                     const isCrossDepartmentRequest =
                       taskDetail.assignedDepartmentId != null &&
                       taskDetail.assignedDepartmentId !== parentJobDetail.ownerDepartmentId
+                    const coordinatingDepartmentNames = parentJobDetail.departments
+                      .filter(department => department.role === 'Coordinating')
+                      .map(department => department.departmentName)
+                      .filter((name): name is string => Boolean(name))
                     const leftFields = [
                       {
                         label: 'Talep No',
@@ -1006,6 +1010,18 @@ const pageKicker = isMyTasksView
                           .filter(Boolean)
                           .join(' / ') || '—',
                       },
+                      {
+                        label: 'Proje mi',
+                        value: parentJobDetail.isProject
+                          ? t('common.yes', 'Evet')
+                          : t('common.no', 'Hayır'),
+                      },
+                      ...(parentJobDetail.isCoordinated
+                        ? [{
+                            label: 'Koordineli Departmanlar',
+                            value: coordinatingDepartmentNames.join(', ') || '—',
+                          }]
+                        : []),
                     ]
                     const rightFields = [
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },

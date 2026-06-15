@@ -15,10 +15,16 @@ public sealed class MarkNotificationReadCommandHandler : ICommandHandler<MarkNot
 
     public async ValueTask<bool> Handle(MarkNotificationReadCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
+        var userId = context.UserId
+            ?? throw new UnauthorizedAccessException("User context is required.");
         var notification = await _dbContext.Notifications
             .FirstOrDefaultAsync(
-                entity => entity.NotificationId == request.NotificationId && entity.TenantId == tenantId,
+                entity =>
+                    entity.NotificationId == request.NotificationId
+                    && entity.TenantId == tenantId
+                    && entity.UserId == userId,
                 cancellationToken);
 
         if (notification is null) return false;

@@ -21,7 +21,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         // Gerçek (push) bildirimleri.
         var notifications = await _dbContext.Notifications
             .AsNoTracking()
-            .Where(entity => entity.TenantId == tenantId)
+            .Where(entity =>
+                entity.TenantId == tenantId
+                && (!context.UserId.HasValue || entity.UserId == context.UserId.Value))
             .OrderByDescending(entity => entity.SentAtUtc)
             .Take(100)
             .Select(entity => new NotificationResponse(

@@ -211,7 +211,7 @@ export function NotificationBell() {
       unread.forEach(notification => next.add(notification.notificationId))
       return next
     })
-    await api.markAllNotificationsRead(unread.map(n => n.notificationId))
+    await api.markAllNotificationsRead()
     queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
     queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
   }

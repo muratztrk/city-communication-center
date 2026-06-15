@@ -76,6 +76,14 @@ public sealed class NotificationsController : ApiControllerBase
         return result ? NoContent() : NotFound();
     }
 
+    [HttpPost("read-all")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> MarkAllRead(CancellationToken cancellationToken)
+    {
+        await _sender.Send(new MarkAllNotificationsReadCommand(), cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("unread-count")]
     [ProducesResponseType<int>(StatusCodes.Status200OK)]
     public async Task<ActionResult<int>> GetUnreadCount(CancellationToken cancellationToken)

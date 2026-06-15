@@ -958,8 +958,12 @@ export const api = {
     return response.json() as Promise<AppNotification[]>
   },
 
-  async markAllNotificationsRead(ids: string[]): Promise<void> {
-    await Promise.all(ids.map(id => api.markNotificationRead(id)))
+  async markAllNotificationsRead(): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/notifications/read-all`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, 'Failed to mark all notifications as read')
   },
 
   async subscribePush(subscription: { endpoint: string; p256dhKey: string; authKey: string; userAgent?: string }): Promise<{ subscriptionId: string }> {

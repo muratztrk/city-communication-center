@@ -871,6 +871,27 @@ const pageKicker = isMyTasksView
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {taskDetail
+                  && selectedTask
+                  && (isDepartmentTasksView || isStaffTasksView)
+                  && isManagerLike
+                  && taskDetail.assignedDepartmentId
+                  && (taskDetail.currentStatus === 'Waiting'
+                    || taskDetail.currentStatus === 'Assigned'
+                    || taskDetail.currentStatus === 'InProgress'
+                    || taskDetail.currentStatus === 'PendingCloseApproval') && (
+                    <Button type="button" onClick={() => openDepartmentRouteModal(selectedTask)}>
+                      {t('tasks.actions.routeTask', 'Görevi Yönlendir')}
+                    </Button>
+                )}
+                {taskDetail
+                  && (isDepartmentTasksView || isStaffTasksView)
+                  && isManagerLike
+                  && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && (
+                    <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>
+                      {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
+                    </Button>
+                )}
                 {taskDetail && (
                   <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, locale)}>
                     {t('common.print', 'Yazdır')}

@@ -78,13 +78,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     {
                         entityTitle = taskRec.Title;
                         if (taskRec.TaskNumber.HasValue)
-                            entityNumber = $"Görev No: {FormatNumber(taskRec.TaskNumber.Value, taskRec.TaskNumberYear)}";
+                            entityNumber = $"Görev No: {FormatNumber("G", taskRec.TaskNumber.Value, taskRec.TaskNumberYear)}";
                     }
                     else if (!isTask && jobsById.TryGetValue(a.EntityId, out var jobRec))
                     {
                         entityTitle = jobRec.Title;
                         if (jobRec.JobNumber.HasValue)
-                            entityNumber = $"Talep No: {FormatNumber(jobRec.JobNumber.Value, jobRec.JobNumberYear)}";
+                            entityNumber = $"Talep No: {FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear)}";
                     }
 
                     var messageParts = new List<string>();
@@ -143,8 +143,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         _ => "İşlem gerçekleşti",
     };
 
-    private static string FormatNumber(int number, int? year) =>
-        year.HasValue ? $"{year}/{number}" : number.ToString();
+    private static string FormatNumber(string prefix, int number, int? year) =>
+        year.HasValue ? $"{prefix}-{year}-{number}" : $"{prefix}-{number}";
 
     // Bildirim mesajlarında kullanıcıya gösterilen denetim notlarını sadeleştirir:
     // teknik/hata ayıklama notlarını gizler, İngilizce ifadeleri Türkçeye çevirir (card 308).

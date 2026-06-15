@@ -164,14 +164,19 @@ export function NotificationBell() {
 
   const handleNotification = useCallback(
     (payload: NotificationPayload) => {
-      setToasts(prev => [payload, ...prev].slice(0, 5))
+      const localizedPayload = {
+        ...payload,
+        title: localizeNotificationText(payload.title),
+        message: localizeNotificationText(payload.message),
+      }
+      setToasts(prev => [localizedPayload, ...prev].slice(0, 5))
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.notificationId !== payload.notificationId))
       }, 5000)
       queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
       queryClient.invalidateQueries({ queryKey: ['notifications-list'] })
       if (Notification.permission === 'granted') {
-        new Notification(payload.title, { body: payload.message, icon: '/favicon.ico' })
+        new Notification(localizedPayload.title, { body: localizedPayload.message, icon: '/favicon.ico' })
       }
     },
     [queryClient],

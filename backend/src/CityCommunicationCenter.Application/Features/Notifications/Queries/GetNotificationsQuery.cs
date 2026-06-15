@@ -171,6 +171,10 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         if (trimmed.StartsWith("Routine task created", StringComparison.OrdinalIgnoreCase))
             return null;
 
+        if (trimmed.StartsWith("Created task", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("Task created", StringComparison.OrdinalIgnoreCase))
+            return "Görev oluşturuldu";
+
         return trimmed;
     }
 }

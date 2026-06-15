@@ -677,7 +677,7 @@
     "domain": "Alan Adı",
     "domainNotConfigured": "Tanımlanmadı",
     "deploymentMode": "Dağıtım Modu",
-    "sla": "Varsayılan SLA",
+    "sla": "Varsayılan SLA (saat)",
     "hours": "saat",
     "organizationSaveSuccess": "Kurum ayarları kaydedildi.",
     "themeKey": "Tema Anahtarı",

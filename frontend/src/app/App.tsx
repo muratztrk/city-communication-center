@@ -75,7 +75,8 @@ export default function App() {
           <Route path="/department-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="departmentTasks" fixedScope="all" /></ManagerOnlyGate>} />
           <Route path="/staff-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="staffTasks" fixedScope="all" /></ManagerOnlyGate>} />
           <Route path="/tasks" element={<PageAccessGate pageKey="tasks" role={user?.role}><TasksPage /></PageAccessGate>} />
-          <Route path="/jobs" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
+          <Route path="/jobs" element={<Navigate to="/incoming-requests?kind=all" replace />} />
+          <Route path="/request-details" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" role={user?.role}><IncomingRequestsPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" role={user?.role}><SocialMessagesPage /></PageAccessGate>} />
           <Route path="/whatsapp" element={<PageAccessGate pageKey="social" role={user?.role}><WhatsAppConversationsPage /></PageAccessGate>} />

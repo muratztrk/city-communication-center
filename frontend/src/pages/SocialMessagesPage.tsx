@@ -315,7 +315,7 @@ export function SocialMessagesPage() {
                         <div className="request-actions">
                           {message.jobId && (
                             <Button size="sm" type="button" variant="secondary"
-                              onClick={() => navigate(`/jobs?scope=all&jobId=${message.jobId}`)}>
+                              onClick={() => navigate(`/request-details?context=social&scope=all&jobId=${message.jobId}`)}>
                               {t('social.viewJob', 'İşi Görüntüle')}
                             </Button>
                           )}

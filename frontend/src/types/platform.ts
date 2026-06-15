@@ -627,6 +627,36 @@ export interface SyslogSettingsUpdate {
   transport: SyslogTransport
 }
 
+export interface FileStorageSettings {
+  nasHost: string | null;
+  nasShareName: string | null;
+  nasProtocol: 'SMB/CIFS' | 'NFS';
+  nasUsername: string | null;
+  nasHasPassword: boolean;
+  ftpHost: string | null;
+  ftpPort: number;
+  ftpPath: string | null;
+  ftpProtocol: 'FTP' | 'FTPS' | 'SFTP';
+  ftpUsername: string | null;
+  ftpHasPassword: boolean;
+}
+
+export interface FileStorageSettingsUpdate {
+  nasHost: string | null;
+  nasShareName: string | null;
+  nasProtocol: 'SMB/CIFS' | 'NFS';
+  nasUsername: string | null;
+  nasPassword: string | null;
+  clearNasPassword: boolean;
+  ftpHost: string | null;
+  ftpPort: number;
+  ftpPath: string | null;
+  ftpProtocol: 'FTP' | 'FTPS' | 'SFTP';
+  ftpUsername: string | null;
+  ftpPassword: string | null;
+  clearFtpPassword: boolean;
+}
+
 export interface SlaWeekendSettings {
   excludeWeekends: boolean
   exemptDepartmentIds: string[]

@@ -28,6 +28,8 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? SyslogSettingsJson { get; set; }
 
+    public string? FileStorageSettingsJson { get; set; }
+
     public string? SlaWeekendSettingsJson { get; set; }
 
     public string? RolePageAccessJson { get; set; }

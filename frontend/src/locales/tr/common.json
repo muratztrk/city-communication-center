@@ -106,6 +106,8 @@
     "smsSettingsSaveFailed": "SMS API ayarları kaydedilemedi.",
     "syslogSettingsLoadFailed": "Syslog ayarları alınamadı.",
     "syslogSettingsSaveFailed": "Syslog ayarları kaydedilemedi.",
+    "fileStorageSettingsLoadFailed": "Dosya sunucusu ayarları alınamadı.",
+    "fileStorageSettingsSaveFailed": "Dosya sunucusu ayarları kaydedilemedi.",
     "slaWeekendSettingsLoadFailed": "SLA hafta sonu ayarları alınamadı.",
     "slaWeekendSettingsSaveFailed": "SLA hafta sonu ayarları kaydedilemedi."
   },
@@ -795,6 +797,22 @@
       },
       "save": "Kaydet",
       "saved": "Syslog ayarları kaydedildi."
+    },
+    "fileStorage": {
+      "sectionTitle": "Talep ve Görev Eklerini Barınacak Server Bilgileri",
+      "sectionDescription": "Talep ve görev eklerinin saklanacağı yerel ağ veya FTP sunucusu bağlantı bilgilerini tanımlayın.",
+      "nasTitle": "NAS / Dosya Sunucusu Paylaşımı",
+      "ftpTitle": "FTP Paylaşımı",
+      "host": "IP Adresi / Sunucu",
+      "shareName": "Paylaşım Adı",
+      "port": "Port",
+      "path": "Dizin / Paylaşım Yolu",
+      "protocol": "Protokol",
+      "username": "Kullanıcı Adı",
+      "password": "Parola",
+      "passwordPlaceholder": "Kayıtlı parolayı değiştirmek için girin",
+      "clearPassword": "Kayıtlı parolayı sil",
+      "saved": "Dosya sunucusu ayarları kaydedildi."
     },
     "slaWeekend": {
       "sectionTitle": "Hafta Sonu SLA",

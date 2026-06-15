@@ -39,6 +39,7 @@ import type {
   WorkingHoursSettings,
   SmsSettings,
   SmsSettingsUpdate,
+  FileStorageSettingsUpdate,
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
 } from '../types/platform'
@@ -283,6 +284,21 @@ export function SettingsPage() {
   const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
     isEnabled: false, host: null, port: 514, format: 'Syslog', transport: 'UDP',
   })
+  const [fileStorageForm, setFileStorageForm] = useState<FileStorageSettingsUpdate>({
+    nasHost: null,
+    nasShareName: null,
+    nasProtocol: 'SMB/CIFS',
+    nasUsername: null,
+    nasPassword: null,
+    clearNasPassword: false,
+    ftpHost: null,
+    ftpPort: 21,
+    ftpPath: null,
+    ftpProtocol: 'FTP',
+    ftpUsername: null,
+    ftpPassword: null,
+    clearFtpPassword: false,
+  })
   const [slaWeekendForm, setSlaWeekendForm] = useState<SlaWeekendSettingsUpdate>({
     excludeWeekends: false, exemptDepartmentIds: [],
   })
@@ -310,11 +326,12 @@ export function SettingsPage() {
       api.getDepartments(),
       api.getWorkingHours(user.tenantId),
       api.getSmsSettings(user.tenantId),
+      api.getFileStorageSettings(user.tenantId),
       api.getSyslogSettings(user.tenantId),
       api.getSlaWeekendSettings(user.tenantId),
       api.getWhatsAppTemplates(),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
         if (!isActive) {
           return
         }
@@ -361,6 +378,21 @@ export function SettingsPage() {
           password: null,
           clearPassword: false,
           originator: smsResponse.originator,
+        })
+        setFileStorageForm({
+          nasHost: fileStorageResponse.nasHost,
+          nasShareName: fileStorageResponse.nasShareName,
+          nasProtocol: fileStorageResponse.nasProtocol,
+          nasUsername: fileStorageResponse.nasUsername,
+          nasPassword: null,
+          clearNasPassword: false,
+          ftpHost: fileStorageResponse.ftpHost,
+          ftpPort: fileStorageResponse.ftpPort,
+          ftpPath: fileStorageResponse.ftpPath,
+          ftpProtocol: fileStorageResponse.ftpProtocol,
+          ftpUsername: fileStorageResponse.ftpUsername,
+          ftpPassword: null,
+          clearFtpPassword: false,
         })
         setSyslogForm({
           isEnabled: syslogResponse.isEnabled,
@@ -602,6 +634,26 @@ export function SettingsPage() {
       const refreshed = await api.getSyslogSettings(user.tenantId)
       setSyslogForm({ isEnabled: refreshed.isEnabled, host: refreshed.host, port: refreshed.port, format: refreshed.format, transport: refreshed.transport })
       setMessage({ type: 'success', text: t('settings.syslog.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveFileStorageSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+
+    setMessage(null)
+    try {
+      await api.updateFileStorageSettings(user.tenantId, fileStorageForm)
+      setFileStorageForm(current => ({
+        ...current,
+        nasPassword: null,
+        clearNasPassword: false,
+        ftpPassword: null,
+        clearFtpPassword: false,
+      }))
+      setMessage({ type: 'success', text: t('settings.fileStorage.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -1333,6 +1385,89 @@ export function SettingsPage() {
             )}
             <div className="inline-actions">
               <Button type="submit">{t('settings.sms.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveFileStorageSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.fileStorage.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.fileStorage.sectionDescription')}</p>
+              </div>
+            </div>
+            <div className="grid gap-5 xl:grid-cols-2">
+              <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <h3 className="mb-4 text-base font-extrabold text-slate-900">{t('settings.fileStorage.nasTitle')}</h3>
+                <div className="grid gap-4">
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.host')}</span>
+                    <input className="field-input" placeholder="192.168.1.100" value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.shareName')}</span>
+                    <input className="field-input" value={fileStorageForm.nasShareName ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasShareName: event.target.value || null }))} />
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.protocol')}</span>
+                    <select className="field-select" value={fileStorageForm.nasProtocol} onChange={event => setFileStorageForm(current => ({ ...current, nasProtocol: event.target.value as FileStorageSettingsUpdate['nasProtocol'] }))}>
+                      <option value="SMB/CIFS">SMB/CIFS</option>
+                      <option value="NFS">NFS</option>
+                    </select>
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.username')}</span>
+                    <input className="field-input" value={fileStorageForm.nasUsername ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasUsername: event.target.value || null }))} />
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.password')}</span>
+                    <input className="field-input" type="password" placeholder={t('settings.fileStorage.passwordPlaceholder')} value={fileStorageForm.nasPassword ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasPassword: event.target.value || null, clearNasPassword: false }))} />
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearNasPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearNasPassword: event.target.checked, nasPassword: null }))} />
+                    {t('settings.fileStorage.clearPassword')}
+                  </label>
+                </div>
+              </section>
+              <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <h3 className="mb-4 text-base font-extrabold text-slate-900">{t('settings.fileStorage.ftpTitle')}</h3>
+                <div className="grid gap-4">
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.host')}</span>
+                    <input className="field-input" placeholder="ftp.example.com" value={fileStorageForm.ftpHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpHost: event.target.value || null }))} />
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.port')}</span>
+                    <input className="field-input" type="number" min={1} max={65535} value={fileStorageForm.ftpPort} onChange={event => setFileStorageForm(current => ({ ...current, ftpPort: Number(event.target.value) || 21 }))} />
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.path')}</span>
+                    <input className="field-input" placeholder="/attachments" value={fileStorageForm.ftpPath ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpPath: event.target.value || null }))} />
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.protocol')}</span>
+                    <select className="field-select" value={fileStorageForm.ftpProtocol} onChange={event => setFileStorageForm(current => ({ ...current, ftpProtocol: event.target.value as FileStorageSettingsUpdate['ftpProtocol'] }))}>
+                      <option value="FTP">FTP</option>
+                      <option value="FTPS">FTPS</option>
+                      <option value="SFTP">SFTP</option>
+                    </select>
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.username')}</span>
+                    <input className="field-input" value={fileStorageForm.ftpUsername ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpUsername: event.target.value || null }))} />
+                  </label>
+                  <label className="field-row">
+                    <span className="field-label">{t('settings.fileStorage.password')}</span>
+                    <input className="field-input" type="password" placeholder={t('settings.fileStorage.passwordPlaceholder')} value={fileStorageForm.ftpPassword ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpPassword: event.target.value || null, clearFtpPassword: false }))} />
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearFtpPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearFtpPassword: event.target.checked, ftpPassword: null }))} />
+                    {t('settings.fileStorage.clearPassword')}
+                  </label>
+                </div>
+              </section>
+            </div>
+            <div className="inline-actions">
+              <Button type="submit">{t('common.save')}</Button>
             </div>
           </form>
 

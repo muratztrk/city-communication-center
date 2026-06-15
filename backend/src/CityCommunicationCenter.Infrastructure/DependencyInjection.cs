@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantAppearanceService, TenantAppearanceService>();
         services.AddScoped<ITenantWorkingHoursService, TenantWorkingHoursService>();
         services.AddScoped<ITenantSmsSettingsService, TenantSmsSettingsService>();
+        services.AddScoped<ITenantFileStorageSettingsService, TenantFileStorageSettingsService>();
         services.AddScoped<ISyslogForwarderService, SyslogForwarderService>();
         services.AddScoped<ISlaCalculatorService, SlaCalculatorService>();
         services.AddScoped<ITenantLdapSettingsService, TenantLdapSettingsService>();

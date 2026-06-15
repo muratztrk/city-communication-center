@@ -106,6 +106,8 @@
     "smsSettingsSaveFailed": "Failed to save SMS API settings.",
     "syslogSettingsLoadFailed": "Failed to load Syslog settings.",
     "syslogSettingsSaveFailed": "Failed to save Syslog settings.",
+    "fileStorageSettingsLoadFailed": "Failed to load file server settings.",
+    "fileStorageSettingsSaveFailed": "Failed to save file server settings.",
     "slaWeekendSettingsLoadFailed": "Failed to load SLA weekend settings.",
     "slaWeekendSettingsSaveFailed": "Failed to save SLA weekend settings."
   },
@@ -794,6 +796,22 @@
       },
       "save": "Save",
       "saved": "Syslog settings saved."
+    },
+    "fileStorage": {
+      "sectionTitle": "Server Information for Request and Task Attachments",
+      "sectionDescription": "Configure the local network or FTP server used to store request and task attachments.",
+      "nasTitle": "NAS / File Server Share",
+      "ftpTitle": "FTP Share",
+      "host": "IP Address / Server",
+      "shareName": "Share Name",
+      "port": "Port",
+      "path": "Directory / Share Path",
+      "protocol": "Protocol",
+      "username": "Username",
+      "password": "Password",
+      "passwordPlaceholder": "Enter to replace the saved password",
+      "clearPassword": "Clear saved password",
+      "saved": "File server settings saved."
     },
     "slaWeekend": {
       "sectionTitle": "Weekend SLA",

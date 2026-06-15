@@ -275,6 +275,41 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpGet("tenants/{tenantId:guid}/file-storage-settings")]
+    public async Task<ActionResult<FileStorageSettingsResponse>> GetFileStorageSettings(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetFileStorageSettingsQuery(tenantId), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/file-storage-settings")]
+    public async Task<IActionResult> UpdateFileStorageSettings(
+        Guid tenantId,
+        [FromBody] UpdateFileStorageSettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateFileStorageSettingsCommand(
+                tenantId,
+                request.NasHost,
+                request.NasShareName,
+                request.NasProtocol,
+                request.NasUsername,
+                request.NasPassword,
+                request.ClearNasPassword,
+                request.FtpHost,
+                request.FtpPort,
+                request.FtpPath,
+                request.FtpProtocol,
+                request.FtpUsername,
+                request.FtpPassword,
+                request.ClearFtpPassword),
+            cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/syslog-settings")]
     public async Task<ActionResult<SyslogSettingsResponse>> GetSyslogSettings(Guid tenantId, CancellationToken cancellationToken)
     {

@@ -402,6 +402,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     && (isManagerLike || isMyRequestsView)
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
+  const showWorkflowSections = !isMyRequestsView
+    && !isDepartmentOutgoingView
+    && detailContext !== 'incoming'
+    && detailContext !== 'social'
   const currentMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
@@ -1211,7 +1215,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                
               {detailLoading && <div className="loading">{t('common.loading')}</div>}
 
-            {!isMyRequestsView && detailContext !== 'social' && <section className="mb-5">
+            {showWorkflowSections && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.departments')}</h3>
               <table className="data-table">
                 <thead>
@@ -1257,7 +1261,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </section>
             )}
 
-            {!isMyRequestsView && detailContext !== 'social' && <section className="mb-5">
+            {showWorkflowSections && <section className="mb-5">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.tasks')}</h3>
               </div>
@@ -1308,7 +1312,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               />
             </section>
 
-            {!isMyRequestsView && detailContext !== 'social' && <section className="mb-5">
+            {showWorkflowSections && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
                 {t('auditLog.title', 'Denetim İzi')}
               </h3>

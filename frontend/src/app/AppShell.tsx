@@ -4,7 +4,7 @@ import { ScrollFab } from '../components/layout/ScrollFab'
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'lumespecsoftware@gmail.com'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
@@ -22,10 +22,12 @@ import { getRoleLabel } from '../utils/localization'
 
 
 function useResponsiveZoom() {
-  const compute = () => {
-    // Browser zoom changes innerWidth and can otherwise trigger a second application scale jump.
-    // outerWidth tracks the actual window size, keeping breakpoints stable while browser zoom changes.
-    const w = window.outerWidth || window.innerWidth
+  const [initialDevicePixelRatio] = useState(() => window.devicePixelRatio || 1)
+  const compute = useCallback(() => {
+    // Browser zoom changes innerWidth and devicePixelRatio in opposite directions.
+    // Normalizing them keeps responsive breakpoints stable without ignoring the actual content width.
+    const currentDevicePixelRatio = window.devicePixelRatio || initialDevicePixelRatio
+    const w = window.innerWidth * currentDevicePixelRatio / initialDevicePixelRatio
     // İçerik ölçeği, tarayıcı %100 yakınlaştırmadayken %90'daki gibi sığsın diye
     // bir ek 0.9 katsayısı içerir (card 375). Sidebar ölçeği aynı bırakıldı.
     if (w >= 2560) return { sidebar: 0.92, content: 0.79 }
@@ -33,13 +35,13 @@ function useResponsiveZoom() {
     if (w >= 1680) return { sidebar: 0.90, content: 0.86 }
     if (w >= 1440) return { sidebar: 0.84, content: 0.81 }
     return { sidebar: 0.78, content: 0.76 }
-  }
+  }, [initialDevicePixelRatio])
   const [zoom, setZoom] = useState(compute)
   useEffect(() => {
     const onResize = () => setZoom(compute())
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
-  }, [])
+  }, [compute])
   return zoom
 }
 

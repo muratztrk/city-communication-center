@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
@@ -112,7 +113,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
     }
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
@@ -285,6 +286,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

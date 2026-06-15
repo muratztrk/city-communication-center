@@ -310,3 +310,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 40
 - [x] `#446` — "Birim Dışı Talep Oluştur" target dropdown placeholder "Birim/Müdürlük seçin" → "Departman seçiniz" (CreateRequestPage); aligned CitizenRequestModal target placeholder to the same key. Build PASS.
+
+## Round 41
+- [x] `#447` — Bell unread badge nudged a bit further out (-right-2.5/-top-2.5 → -right-3.5/-top-3.5). NotificationBell.
+- [x] `#443` (reopened, no feedback) — Likely cause: CitizenRequestModal rendered inside the content `zoom` stacking context (same issue as #444), so the popup appeared mis-scaled/clipped. Fix: portal CitizenRequestModal to document.body. Build PASS. If the real issue was different, awaiting clarification.

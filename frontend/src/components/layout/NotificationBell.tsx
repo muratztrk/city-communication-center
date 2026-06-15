@@ -265,7 +265,7 @@ export function NotificationBell() {
           <span className="relative inline-flex">
             <Bell className="size-4" />
             {unreadCount > 0 && (
-              <span className="pointer-events-none absolute -right-2.5 -top-2.5 flex h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full bg-red-600 px-1 text-[0.7rem] font-black leading-none tabular-nums text-white shadow-sm ring-2 ring-white">
+              <span className="pointer-events-none absolute -right-3.5 -top-3.5 flex h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full bg-red-600 px-1 text-[0.7rem] font-black leading-none tabular-nums text-white shadow-sm ring-2 ring-white">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}

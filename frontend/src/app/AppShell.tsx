@@ -23,7 +23,9 @@ import { getRoleLabel } from '../utils/localization'
 
 function useResponsiveZoom() {
   const compute = () => {
-    const w = window.innerWidth
+    // Browser zoom-out increases innerWidth even though the physical window has not grown.
+    // Cap it at outerWidth so zooming below 80% does not trigger a large-monitor scale step.
+    const w = Math.min(window.innerWidth, window.outerWidth || window.innerWidth)
     // İçerik ölçeği, tarayıcı %100 yakınlaştırmadayken %90'daki gibi sığsın diye
     // bir ek 0.9 katsayısı içerir (card 375). Sidebar ölçeği aynı bırakıldı.
     if (w >= 2560) return { sidebar: 0.92, content: 0.79 }

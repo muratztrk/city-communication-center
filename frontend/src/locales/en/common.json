@@ -131,7 +131,6 @@
     "myRequestsAll": "All My Requests",
     "incomingRequests": "Incoming Unit Requests",
     "incomingRequestsInternal": "Internal Incoming Requests",
-    "incomingRequestsExternal": "External Incoming Requests",
     "incomingRequestsAll": "All Incoming Unit Requests",
     "outgoingRequests": "Outgoing Unit Requests",
     "departmentTasks": "Unit Tasks",
@@ -155,7 +154,7 @@
     "directorateProjects": "Directorate Projects",
     "coordinatedProjects": "Coordinated Projects",
     "groupProjects": "Projects",
-    "jobs": "External Incoming Requests",
+    "jobs": "Incoming Unit Requests",
     "groupJobs": "Jobs"
   },
   "shell": {

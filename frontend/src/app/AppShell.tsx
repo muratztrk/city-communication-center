@@ -252,9 +252,7 @@ export function AppShell() {
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': requestKindParam === 'internal'
       ? t('nav.incomingRequestsInternal', 'Birim İçi Gelen Talepler')
-      : requestKindParam === 'external'
-        ? t('nav.incomingRequestsExternal', 'Birim Dışı Gelen Talepler')
-        : t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
+      : t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
     tasks: t('nav.tasks'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),

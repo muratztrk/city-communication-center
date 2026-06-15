@@ -882,7 +882,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         <div className="page-header-row">
           <div className="space-y-1">
             <div className="page-kicker">{isMyRequestsView ? currentMyRequestsViewLabel : isDepartmentOutgoingView ? currentDepartmentOutgoingViewLabel : scopeLabel}</div>
-            <h1 className="page-title">{isMyRequestsView ? t('nav.myRequests', 'Taleplerim') : isDepartmentOutgoingView ? t('nav.outgoingRequests', 'Birimden Giden Talepler') : t('nav.jobs', 'Birim Dışı Gelen Talep')}</h1>
+            <h1 className="page-title">{isMyRequestsView ? t('nav.myRequests', 'Taleplerim') : isDepartmentOutgoingView ? t('nav.outgoingRequests', 'Birimden Giden Talepler') : t('nav.jobs', 'Birime Gelen Talepler')}</h1>
             <p className="page-subtitle">
               {isMyRequestsView
                 ? t('jobs.myRequestsSubtitle', 'Oluşturduğunuz talepleri durumlarına göre takip edin.')

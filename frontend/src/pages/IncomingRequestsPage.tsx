@@ -30,7 +30,7 @@ import type { Department, JobSummary, Task, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
-type IncomingKindFilter = 'internal' | 'external' | 'all'
+type IncomingKindFilter = 'internal' | 'all'
 
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
@@ -45,7 +45,6 @@ const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback:
 
 const KIND_FILTERS: { value: IncomingKindFilter; labelKey: string; fallback: string }[] = [
   { value: 'internal', labelKey: 'nav.incomingRequestsInternal', fallback: 'Birim İçi Gelen Talepler' },
-  { value: 'external', labelKey: 'nav.incomingRequestsExternal', fallback: 'Birim Dışı Gelen Talepler' },
   { value: 'all', labelKey: 'nav.incomingRequestsAll', fallback: 'Birime Gelen Tüm Talepler' },
 ]
 
@@ -92,7 +91,7 @@ function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
 }
 
 function getIncomingKindFilter(value: string | null): IncomingKindFilter {
-  return value === 'internal' || value === 'external' ? value : 'all'
+  return value === 'internal' ? value : 'all'
 }
 
 function getSelfRequestedOwnerUserId(job: JobSummary): string | null {

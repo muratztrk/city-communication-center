@@ -131,7 +131,6 @@
     "myRequestsAll": "Tüm Taleplerim",
     "incomingRequests": "Birime Gelen Talepler",
     "incomingRequestsInternal": "Birim İçi Gelen Talepler",
-    "incomingRequestsExternal": "Birim Dışı Gelen Talepler",
     "incomingRequestsAll": "Birime Gelen Tüm Talepler",
     "outgoingRequests": "Birimden Giden Talepler",
     "departmentTasks": "Birimdeki Görevler",
@@ -155,7 +154,7 @@
     "directorateProjects": "Müdürlük Projesi",
     "coordinatedProjects": "Koordineli Proje",
     "groupProjects": "Projeler",
-    "jobs": "Birim Dışı Gelen Talepler",
+    "jobs": "Birime Gelen Talepler",
     "groupJobs": "İş Yönetimi"
   },
   "shell": {

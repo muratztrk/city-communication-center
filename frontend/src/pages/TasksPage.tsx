@@ -1071,8 +1071,8 @@ const pageKicker = isMyTasksView
                       { label: 'Son Tarih Bilgisi', value: formatDateTime(parentJobDetail.dueDateUtc, locale) },
                     ]
                     return (
-                      <section className="mb-5">
-                        <div className="mb-2 text-sm font-semibold text-emerald-600">
+                      <section className="form-card page-stack mb-5">
+                        <div className="text-sm font-semibold text-emerald-600">
                           {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
                         <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-2">

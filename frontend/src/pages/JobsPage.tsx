@@ -17,6 +17,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { PromptDialog } from '../components/ui/prompt-dialog'
 import type { PromptDialogState } from '../components/ui/prompt-dialog'
@@ -1215,15 +1216,15 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                             )
                           }
 
-                          if (activeJobView === 'all') {
+                          if (activeJobView === 'all' || activeJobView === 'overdue') {
                             return (
-                              <Button
+                              <DisabledActionButton
                                 size="sm"
                                 className="button-placeholder bg-teal-700 text-white"
-                                disabled
+                                hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
                               >
                                 {t('jobs.actions.edit', 'Düzenle')}
-                              </Button>
+                              </DisabledActionButton>
                             )
                           }
 

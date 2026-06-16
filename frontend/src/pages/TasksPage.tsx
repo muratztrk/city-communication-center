@@ -16,6 +16,7 @@ import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
@@ -1316,7 +1317,7 @@ const pageKicker = isMyTasksView
                             return <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                           }
                           if (isMyTasksView && currentMyTaskView === 'all') {
-                            return <Button size="sm" variant="success" className="button-placeholder" disabled>{t('tasks.actions.complete', 'Tamamla')}</Button>
+                            return <DisabledActionButton size="sm" variant="success" hoverTitle={t('tasks.actions.completeUnavailable', 'Bu görev şu an tamamlanamaz')}>{t('tasks.actions.complete', 'Tamamla')}</DisabledActionButton>
                           }
                           return null
                         })()}
@@ -1346,7 +1347,7 @@ const pageKicker = isMyTasksView
                             )
                           }
                           if (isMyTasksView && currentMyTaskView === 'all') {
-                            return <Button size="sm" variant="destructive" className="button-placeholder" disabled>{t('jobs.actions.cancel', 'İptal Et')}</Button>
+                            return <DisabledActionButton size="sm" variant="destructive" hoverTitle={t('tasks.actions.cancelUnavailable', 'Bu görev şu an iptal edilemez')}>{t('jobs.actions.cancel', 'İptal Et')}</DisabledActionButton>
                           }
                           return null
                         })()}

@@ -255,9 +255,10 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
 function getMyRequestsView(value: string | null, isManager: boolean, isReporter: boolean): MyRequestsView {
   if (value === 'returned') return 'rejected'
   if (isManager) {
-    // Yönetici/sorumlu için Bekleyen+Onaylanmış tek "Yapılmakta Olan" görünümünde birleşti.
-    if (value === 'external-pending' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all') return value
-    return 'in-progress'
+    // Yöneticiler Taleplerim ekranına girdiğinde varsayılan olarak hedef birim onayı bekleyen
+    // birim dışı talepleri görür; personel atanınca kayıt Yapılmakta Olan'a geçer.
+    if (value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all') return value
+    return 'external-pending'
   }
   if (isReporter) {
     return value === 'external-pending' || value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
@@ -281,7 +282,7 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
   return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
 }
 
-function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false): JobSummary[] {
+function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false, isManager = false): JobSummary[] {
   if (view === 'all') return jobs
   if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
 
@@ -305,8 +306,9 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
   }
 
   if (view === 'in-progress') {
-    // Üst Düzey Yönetici: hedef birim yöneticisi personel atayıp görev oluşturunca "Yapılmakta Olan"a düşer.
-    if (isReporter) {
+    // Yönetici/üst düzey yönetici: hedef birim yöneticisi personel atayıp görev oluşturunca
+    // "Yapılmakta Olan"a düşer.
+    if (isReporter || isManager) {
       return jobs.filter(job => job.status === 'Active' && job.taskCount > 0 && !isJobOverdue(job))
     }
     // Yönetici/sorumlu: bekleyen (onay) + onaylanmış (aktif) talepler birlikte.
@@ -540,7 +542,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     let result: typeof jobs
 
     if (isMyRequestsView) {
-      const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter)
+      const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter, isManagerLike)
       result = showRequestFlowFilters ? myJobs.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter)) : myJobs
     } else if (isDepartmentOutgoingView) {
       result = filterDepartmentOutgoingRequests(jobs, currentDepartmentOutgoingView)
@@ -593,7 +595,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }
 
     return result
-  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
+  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()

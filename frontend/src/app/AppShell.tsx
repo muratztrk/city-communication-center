@@ -22,12 +22,10 @@ import { getRoleLabel } from '../utils/localization'
 
 
 function useResponsiveZoom() {
-  const [initialDevicePixelRatio] = useState(() => window.devicePixelRatio || 1)
   const compute = useCallback(() => {
-    // Browser zoom changes innerWidth and devicePixelRatio in opposite directions.
-    // Normalizing them keeps responsive breakpoints stable without ignoring the actual content width.
-    const currentDevicePixelRatio = window.devicePixelRatio || initialDevicePixelRatio
-    const w = window.innerWidth * currentDevicePixelRatio / initialDevicePixelRatio
+    // Browser zoom changes innerWidth, while outerWidth remains tied to the actual browser frame.
+    // Use the frame width on desktop so 27" layouts do not jump between %100 and %110 zoom.
+    const w = Math.max(window.outerWidth || 0, window.innerWidth)
     // İçerik ölçeği, tarayıcı %100 yakınlaştırmadayken %90'daki gibi sığsın diye
     // bir ek 0.9 katsayısı içerir (card 375). Sidebar ölçeği aynı bırakıldı.
     if (w >= 2560) return { sidebar: 0.92, content: 0.79 }
@@ -35,12 +33,16 @@ function useResponsiveZoom() {
     if (w >= 1680) return { sidebar: 0.90, content: 0.86 }
     if (w >= 1440) return { sidebar: 0.84, content: 0.81 }
     return { sidebar: 0.78, content: 0.76 }
-  }, [initialDevicePixelRatio])
+  }, [])
   const [zoom, setZoom] = useState(compute)
   useEffect(() => {
     const onResize = () => setZoom(compute())
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    window.visualViewport?.addEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('resize', onResize)
+      window.visualViewport?.removeEventListener('resize', onResize)
+    }
   }, [compute])
   return zoom
 }

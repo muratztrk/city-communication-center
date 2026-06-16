@@ -1298,6 +1298,12 @@
     border-color: #c0cdd8;
   }
 
+  .scope-chip:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
+
   .scope-chip.active {
     background: var(--color-primary);
     border-color: var(--color-primary);

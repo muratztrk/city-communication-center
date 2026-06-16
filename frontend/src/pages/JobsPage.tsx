@@ -422,10 +422,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     && !isDepartmentOutgoingView
     && detailContext !== 'incoming'
     && detailContext !== 'social'
-  const currentMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
-  const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
+  const rawMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
+  const currentMyRequestsView = isManagerLike && currentRequestFlowFilter === 'internal' && rawMyRequestsView === 'external-pending'
+    ? 'in-progress'
+    : rawMyRequestsView
+  const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
   // Yönetici/sorumlu: Bekleyen + Onaylanmış yerine tek "Yapılmakta Olan Taleplerim".
   const myRequestViews = isManagerLike
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
@@ -672,8 +675,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     const nextParams = new URLSearchParams(searchParams)
     if (filter === 'all') nextParams.delete('flow')
     else nextParams.set('flow', filter)
-    if (filter === 'internal' && currentMyRequestsView === 'external-pending') {
-      nextParams.set('view', 'in-progress')
+    if (isManagerLike) {
+      if (filter === 'internal' && currentMyRequestsView === 'external-pending') {
+        nextParams.set('view', 'in-progress')
+      } else if (filter !== 'internal') {
+        nextParams.set('view', 'external-pending')
+      }
     }
     setSearchParams(nextParams)
     setJobsPage(1)
@@ -963,16 +970,22 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {isMyRequestsView ? (
         <nav className="scope-chips" aria-label={t('nav.myRequests', 'Taleplerim')}>
-          {myRequestViews.map(view => (
-            <button
-              key={view.value}
-              type="button"
-              className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
-              onClick={() => setMyRequestsView(view.value)}
-            >
-              {t(view.labelKey)}
-            </button>
-          ))}
+          {myRequestViews.map(view => {
+            const isDisabledExternalPending = isManagerLike
+              && currentRequestFlowFilter === 'internal'
+              && view.value === 'external-pending'
+            return (
+              <button
+                key={view.value}
+                type="button"
+                className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
+                disabled={isDisabledExternalPending}
+                onClick={() => setMyRequestsView(view.value)}
+              >
+                {t(view.labelKey)}
+              </button>
+            )
+          })}
           {showRequestFlowFilters ? (
             <>
               <span className="scope-chip-divider" aria-hidden="true">|</span>

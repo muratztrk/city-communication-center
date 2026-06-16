@@ -78,6 +78,31 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
 }
 
 const CITIZEN_CHANNELS = ['Facebook', 'Instagram', 'X', 'Email', 'WebForm', 'WhatsApp', 'Other']
+const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
+
+function getRequestedOwnerUserIds(
+  departments: { role: string; notes?: string | null }[],
+  tasks: { ownerUserId?: string | null; assignedUserId: string | null }[],
+) {
+  const ownerDepartmentNotes = departments.find(department => department.role === 'Owner')?.notes
+  if (ownerDepartmentNotes?.startsWith(OWNER_TASK_NOTES_PREFIX)) {
+    try {
+      const parsed = JSON.parse(ownerDepartmentNotes.slice(OWNER_TASK_NOTES_PREFIX.length)) as { ownerUserIds?: string[] }
+      const ownerUserIds = parsed.ownerUserIds?.filter(id => typeof id === 'string' && id.trim() !== '') ?? []
+      if (ownerUserIds.length > 0) {
+        return [...new Set(ownerUserIds)]
+      }
+    } catch {
+      // Ignore malformed historical payloads and fall back to current task assignments.
+    }
+  }
+
+  const fallbackUserIds = tasks
+    .map(task => task.ownerUserId ?? task.assignedUserId)
+    .filter((id): id is string => typeof id === 'string' && id.trim() !== '')
+
+  return fallbackUserIds.length > 0 ? [...new Set(fallbackUserIds)] : ['']
+}
 
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
@@ -265,7 +290,11 @@ export function CreateRequestPage() {
             isCoordinated: targetIds.length > 1,
           }))
         } else {
-          setInternalForm(current => ({ ...current, ...common }))
+          setInternalForm(current => ({
+            ...current,
+            ...common,
+            ownerUserIds: getRequestedOwnerUserIds(job.departments ?? [], job.tasks ?? []),
+          }))
         }
         setEditPrefilled(true)
       })

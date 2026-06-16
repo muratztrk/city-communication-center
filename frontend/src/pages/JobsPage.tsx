@@ -1449,7 +1449,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                                 disabled={managerNoteSaving}
                                 onClick={() => void handleSaveManagerNote()}
                               >
-                                {managerNoteSaving ? t('common.saving', 'Kaydediliyor...') : t('common.add', 'Ekle')}
+                                {t('common.add', 'Ekle')}
                               </Button>
                             </div>
                           </>

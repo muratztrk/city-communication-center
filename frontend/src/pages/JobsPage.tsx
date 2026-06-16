@@ -1174,7 +1174,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           role="presentation"
         >
           <section
-            className="flex max-h-[72dvh] w-full max-w-[90rem] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="detail-modal-shell flex max-h-[72dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Fixed header */}

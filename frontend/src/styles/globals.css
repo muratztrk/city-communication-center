@@ -139,6 +139,15 @@
     min-height: 0;
   }
 
+  .detail-modal-shell {
+    width: min(88vw, 90rem);
+    max-width: calc(100vw - 2rem);
+  }
+
+  .detail-modal-shell--notification {
+    width: min(88vw, 64rem);
+  }
+
   @media (min-width: 1024px) {
     .app-content-shell {
       font-size: 0.86rem;
@@ -1316,7 +1325,7 @@
   .scope-chip--external-pending.active {
     background: #facc15;
     border-color: #eab308;
-    color: #422006;
+    color: white;
     box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
   }
 
@@ -1366,10 +1375,10 @@
 
   /* ── Yapılmakta Olan → Turuncu ─────────────── */
   .scope-chip--in-progress.active {
-    background: #f97316;
-    border-color: #f97316;
-    color: white;
-    box-shadow: 0 1px 4px rgba(249, 115, 22, 0.38);
+    background: #fed7aa;
+    border-color: #fb923c;
+    color: #7c2d12;
+    box-shadow: 0 1px 4px rgba(251, 146, 60, 0.28);
   }
 
   .scope-chip-divider {
@@ -2382,6 +2391,15 @@
     .table-container table,
     .data-table {
       min-width: 36rem;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  @layer components {
+    .detail-modal-shell,
+    .detail-modal-shell--notification {
+      width: 100%;
     }
   }
 }

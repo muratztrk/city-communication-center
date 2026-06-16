@@ -371,7 +371,7 @@ export function NotificationBell() {
           aria-modal="true"
         >
           <section
-            className="flex max-h-[72dvh] w-full max-w-5xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="detail-modal-shell detail-modal-shell--notification flex max-h-[72dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5">

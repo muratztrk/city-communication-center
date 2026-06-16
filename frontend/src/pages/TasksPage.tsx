@@ -861,7 +861,7 @@ const pageKicker = isMyTasksView
           role="presentation"
         >
           <section
-            className="flex max-h-[72dvh] w-full max-w-[90rem] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="detail-modal-shell flex max-h-[72dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}
@@ -1118,7 +1118,7 @@ const pageKicker = isMyTasksView
                             <label className="job-field">
                               <span className="job-field-label">{t('tasks.draftUser')}</span>
                               <select
-                                className="field-select h-9 py-1.5"
+                                className="field-select h-8 min-h-8 py-1 text-sm"
                                 value={assignmentDraft.userId}
                                 onChange={e => {
                                   const uid = e.target.value

@@ -335,3 +335,10 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `#464` — Detay popup Koordine Departman MultiSelectDropdown now opens upward (new openUp prop → bottom-full mb-2). Personel seçiniz is a native <select> (browser auto-positions upward near viewport bottom).
 - [x] `#465`+`#466` — Yönetici Notu moved from a row below into the coordination grid as the 3rd column (right of Adres Bilgileri); grid becomes 4 cols (Koordine|Adres|Yönetici Notu|Ekler) when shown. Birimden Giden→Bekleyen: editable. Birime Gelen: read-only — shows the note, or "Yönetici Notu girilmemiş" when empty.
 - Build (FE) + lint PASS. Runtime not exercised (no seed).
+
+## Round 47 (4 cards)
+- [x] `#469` — Taleplerim "Düzenle" button background light→dark turquoise (bg-teal-700). JobsPage.
+- [x] `#467` — Manager note "Ekle" now shows an info popup "Notunuz Eklendi" (ConfirmDialog hideCancel) after save. JobsPage.
+- [x] `#464` (reopened) — Görevi Yönlendir "Personel seçiniz" converted from native <select> to new SingleSelectDropdown with openUp (opens upward). TasksPage + single-select-dropdown.tsx.
+- [x] `#468` — Yönetici Notu column now shows in ALL request detail contexts (showManagerNoteColumn = isRequestDetailContext; read-only "Yönetici Notu girilmemiş" when empty). In the Task detail, added a read-only Yönetici Notu column (parent job's note) right of Atama Geçmişi (grid 3→4 cols for managers). JobsPage + TasksPage.
+- Build (FE) + lint PASS.

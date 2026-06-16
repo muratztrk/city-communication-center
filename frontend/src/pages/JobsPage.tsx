@@ -461,8 +461,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       || detail.status === 'PendingExternalApproval'
       || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0))
   const canEditManagerNote = isDepartmentOutgoingView && isManagerLike && isJobPendingTargetApproval
-  // Yönetici Notu sütunu: Birimden Giden'de düzenlenebilir, Birime Gelen'de salt-okunur (card 465/466).
-  const showManagerNoteColumn = canEditManagerNote || detailContext === 'incoming'
+  // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); Birimden Giden → Bekleyen'de
+  // düzenlenebilir, diğer yerlerde salt-okunur (yoksa "girilmemiş").
+  const showManagerNoteColumn = isRequestDetailContext
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const rawMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
@@ -777,6 +778,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     try {
       await api.setJobManagerNote(detail.jobId, managerNoteDraft.trim() || null)
       await refreshDetail()
+      setConfirmDialog({
+        message: t('jobs.managerNote.saved', 'Notunuz Eklendi'),
+        confirmLabel: t('common.ok', 'Tamam'),
+        hideCancel: true,
+        onConfirm: () => setConfirmDialog(null),
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -1191,7 +1198,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         {isMyRequestsView && (isPreApprovalStatus(job.status) || (isManagerLike && job.status === 'Active' && job.taskCount === 0)) && (
                           <Button
                             size="sm"
-                            className="bg-cyan-300 text-slate-900 hover:bg-cyan-400"
+                            className="bg-teal-700 text-white hover:bg-teal-800"
                             onClick={() => navigate(`/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`)}
                           >
                             {t('jobs.actions.edit', 'Düzenle')}

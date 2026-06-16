@@ -2,6 +2,7 @@ import { Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -1097,7 +1098,7 @@ const pageKicker = isMyTasksView
                     )
                   })()}
 
-                  <div className={`grid gap-4 ${isManagerLike ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+                  <div className={`grid gap-4 ${isManagerLike ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
 
                     {/* Sütun 1: Görevi Yönlendir */}
                     {isManagerLike && (
@@ -1117,25 +1118,23 @@ const pageKicker = isMyTasksView
                           <div className="grid gap-3">
                             <label className="job-field">
                               <span className="job-field-label">{t('tasks.draftUser')}</span>
-                              <select
-                                className="field-select h-8 min-h-8 py-1 text-xs"
+                              {/* Personel seçiniz dropdown yukarı doğru açılır (card 464) */}
+                              <SingleSelectDropdown
+                                options={assignmentUsers.map(u => ({ value: u.userId, label: u.displayName }))}
                                 value={assignmentDraft.userId}
-                                onChange={e => {
-                                  const uid = e.target.value
+                                onChange={uid => {
                                   const u = users.find(item => item.userId === uid)
                                   setAssignmentDraft(cur => ({
                                     departmentId: u?.departmentId ?? cur.departmentId,
                                     userId: uid,
                                   }))
                                 }}
-                              >
-                                <option value="" disabled hidden>
-                                  {t('tasks.userSelection', 'Personel seçiniz')}
-                                </option>
-                                {assignmentUsers.map(u => (
-                                  <option key={u.userId} value={u.userId}>{u.displayName}</option>
-                                ))}
-                              </select>
+                                placeholder={t('tasks.userSelection', 'Personel seçiniz')}
+                                emptyText={t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}
+                                triggerClassName="h-8 min-h-8 py-1 text-xs"
+                                openUp
+                                disabled={assignmentSaving}
+                              />
                             </label>
                           </div>
                           <div className="inline-actions justify-end pt-2">
@@ -1180,7 +1179,18 @@ const pageKicker = isMyTasksView
                         </div>
                       )}
                     </section>
-                    {/* Sütun 3: Ekler / Fotoğraflar */}
+                    {/* Sütun 3: Yönetici Notu — Atama Geçmişi'nin sağında, ilgili talebin notu, salt-okunur (card 468) */}
+                    <section className="form-card page-stack">
+                      <h3 className="text-lg font-extrabold text-slate-950">
+                        {t('jobs.managerNote.title', 'Yönetici Notu')}
+                      </h3>
+                      {parentJobDetail?.managerNote ? (
+                        <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
+                      ) : (
+                        <div className="empty-state">{t('jobs.managerNote.empty', 'Yönetici Notu girilmemiş')}</div>
+                      )}
+                    </section>
+                    {/* Sütun 4: Ekler / Fotoğraflar */}
                     <section className="form-card page-stack">
                       <h3 className="text-lg font-extrabold text-slate-950">
                         {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}

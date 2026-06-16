@@ -38,6 +38,8 @@ public sealed record RejectJobRequest(string Reason);
 
 public sealed record AddCoordinatingDepartmentsRequest(IReadOnlyCollection<Guid> DepartmentIds);
 
+public sealed record SetJobManagerNoteRequest(string? Note);
+
 public sealed record JobDepartmentResponse(
     Guid JobDepartmentId,
     Guid DepartmentId,
@@ -110,6 +112,7 @@ public sealed record JobDetailResponse(
     DateTimeOffset CreatedAtUtc,
     int? JobNumber,
     int? JobNumberYear,
+    string? ManagerNote,
     IReadOnlyCollection<JobDepartmentResponse> Departments,
     IReadOnlyCollection<TaskSummaryResponse> Tasks,
     IReadOnlyCollection<ApprovalStepResponse> Approvals,

@@ -421,6 +421,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [editSaving, setEditSaving] = useState(false)
   const [coordinatingDepartmentIds, setCoordinatingDepartmentIds] = useState<string[]>([])
   const [coordinatingSaving, setCoordinatingSaving] = useState(false)
+  const [managerNoteDraft, setManagerNoteDraft] = useState('')
+  const [managerNoteSaving, setManagerNoteSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
@@ -452,6 +454,13 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     && !isDepartmentOutgoingView
     && detailContext !== 'incoming'
     && detailContext !== 'social'
+  // Yönetici Notu: Birimden Giden → Bekleyen detayında (hedef birim onaylamadığı sürece) düzenlenebilir;
+  // not, Birime Gelen detayında salt-okunur görünür (card 453).
+  const isJobPendingTargetApproval = detail != null
+    && (detail.status === 'PendingOwnerApproval'
+      || detail.status === 'PendingExternalApproval'
+      || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0))
+  const canEditManagerNote = isDepartmentOutgoingView && isManagerLike && isJobPendingTargetApproval
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const rawMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
@@ -752,6 +761,25 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     if (!detail) return
     try { setDetail(await api.getJobById(detail.jobId)) } catch { /* ignore */ }
     await reload()
+  }
+
+  // Açılan talebin mevcut yönetici notunu forma yükle (card 453); aynı talep yenilenince yazılanı korur.
+  useEffect(() => {
+    setManagerNoteDraft(detail?.managerNote ?? '')
+  }, [detail?.jobId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSaveManagerNote = async () => {
+    if (!detail) return
+    setManagerNoteSaving(true)
+    setError(null)
+    try {
+      await api.setJobManagerNote(detail.jobId, managerNoteDraft.trim() || null)
+      await refreshDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setManagerNoteSaving(false)
+    }
   }
 
   // Detayı kapatınca, kaldırılan bağımsız "Birime Gelen Talepler" liste sayfasında
@@ -1345,12 +1373,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         onChange={setCoordinatingDepartmentIds}
                         placeholder="Koordine Departman seçin"
                         emptyText="Seçilebilir birim bulunmuyor."
+                        triggerClassName="text-xs"
                         disabled={coordinatingSaving}
                       />
                       <div className="mt-3 flex justify-end">
                         <Button
                           type="button"
                           variant="success"
+                          size="sm"
                           disabled={coordinatingSaving || coordinatingDepartmentIds.length === 0}
                           onClick={() => void handleAddCoordinatingDepartments()}
                         >
@@ -1388,6 +1418,36 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         disabled={attachmentUploading}
                       />
                     </div>
+                  </div>
+                )}
+                {/* Yönetici Notu — Birimden Giden (Bekleyen) detayında düzenlenebilir; Birime Gelen detayında salt-okunur (card 453) */}
+                {(canEditManagerNote || (detailContext === 'incoming' && detail.managerNote)) && (
+                  <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 lg:max-w-md">
+                    <h3 className="mb-3 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
+                    {canEditManagerNote ? (
+                      <>
+                        <textarea
+                          className="field-textarea min-h-24 w-full"
+                          rows={3}
+                          value={managerNoteDraft}
+                          onChange={e => setManagerNoteDraft(e.target.value)}
+                          placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}
+                        />
+                        <div className="mt-3 flex justify-end">
+                          <Button
+                            type="button"
+                            variant="success"
+                            size="sm"
+                            disabled={managerNoteSaving}
+                            onClick={() => void handleSaveManagerNote()}
+                          >
+                            {managerNoteSaving ? t('common.saving', 'Kaydediliyor...') : t('common.add', 'Ekle')}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
+                    )}
                   </div>
                 )}
                 {!isRequestDetailContext && (isManagerLike || canMutatePreApprovalJob(detail)) && (

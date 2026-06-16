@@ -108,6 +108,18 @@ public sealed class JobsController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{jobId:guid}/manager-note")]
+    public async Task<IActionResult> SetManagerNote(
+        Guid jobId,
+        [FromBody] SetJobManagerNoteRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new SetJobManagerNoteCommand(jobId, CurrentContext.UserId, request.Note),
+            cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPut("{jobId:guid}")]
     public async Task<IActionResult> Update(Guid jobId, [FromBody] UpdateJobRequest request, CancellationToken cancellationToken)
     {

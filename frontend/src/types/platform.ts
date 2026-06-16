@@ -294,6 +294,7 @@ export interface JobDetail {
   createdAtUtc: string;
   jobNumber: number | null;
   jobNumberYear: number | null;
+  managerNote?: string | null;
   departments: JobDepartmentInfo[];
   tasks: Task[];
   approvals: JobApprovalStep[];

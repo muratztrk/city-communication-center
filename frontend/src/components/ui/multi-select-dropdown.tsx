@@ -14,6 +14,8 @@ interface MultiSelectDropdownProps {
   placeholder: string
   emptyText: string
   className?: string
+  /** Extra classes for the trigger button (e.g. to shrink the placeholder font). */
+  triggerClassName?: string
   disabled?: boolean
 }
 
@@ -24,6 +26,7 @@ export function MultiSelectDropdown({
   placeholder,
   emptyText,
   className,
+  triggerClassName,
   disabled = false,
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false)
@@ -63,6 +66,7 @@ export function MultiSelectDropdown({
         className={cn(
           'field-select flex min-h-10 w-full items-center justify-between gap-2 text-left',
           disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
+          triggerClassName,
         )}
         aria-expanded={open}
         disabled={disabled}

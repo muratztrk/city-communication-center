@@ -690,6 +690,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobCoordinationFailed', 'Koordine birimler eklenemedi'))
   },
 
+  async setJobManagerNote(jobId: string, note: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/manager-note`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ note }),
+    })
+    await ensureOk(response, i18n.t('errors.jobManagerNoteFailed', 'Yönetici notu kaydedilemedi'))
+  },
+
   async deleteJob(jobId: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}`, {
       method: 'DELETE',

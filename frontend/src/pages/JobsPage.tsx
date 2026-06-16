@@ -425,6 +425,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [coordinatingSaving, setCoordinatingSaving] = useState(false)
   const [managerNoteDraft, setManagerNoteDraft] = useState('')
   const [managerNoteSaving, setManagerNoteSaving] = useState(false)
+  const [managerNoteSaved, setManagerNoteSaved] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
@@ -771,6 +772,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   // Açılan talebin mevcut yönetici notunu forma yükle (card 453); aynı talep yenilenince yazılanı korur.
   useEffect(() => {
     setManagerNoteDraft(detail?.managerNote ?? '')
+    setManagerNoteSaved(false)
   }, [detail?.jobId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSaveManagerNote = async () => {
@@ -780,12 +782,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     try {
       await api.setJobManagerNote(detail.jobId, managerNoteDraft.trim() || null)
       await refreshDetail()
-      setConfirmDialog({
-        message: t('jobs.managerNote.saved', 'Notunuz Eklendi'),
-        confirmLabel: t('common.ok', 'Tamam'),
-        hideCancel: true,
-        onConfirm: () => setConfirmDialog(null),
-      })
+      setManagerNoteSaved(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -1197,7 +1194,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
                         {/* Düzenle — onay öncesi (hedef onaylamadan) talebi Talep Oluştur sayfasında dolu olarak aç (card 452). */}
-                        {isMyRequestsView && (isPreApprovalStatus(job.status) || (isManagerLike && job.status === 'Active' && job.taskCount === 0)) && (
+                        {isMyRequestsView && (
+                          isPreApprovalStatus(job.status)
+                          || (isManagerLike && (
+                            (job.requestType === 'ExternalUnit' && job.status === 'PendingExternalApproval')
+                            || (job.requestType === 'InternalUnit' && job.status === 'Active')
+                            || (job.status === 'Active' && job.taskCount === 0)
+                          ))
+                        ) && (
                           <Button
                             size="sm"
                             className="bg-teal-700 text-white hover:bg-teal-800"
@@ -1271,7 +1275,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
             onClick={e => e.stopPropagation()}
           >
             {/* Fixed header */}
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2">
               <div className="min-w-0">
                 <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
                   {detailHeaderTitle}
@@ -1422,13 +1426,19 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {showManagerNoteColumn && (
                       <div className="rounded-xl border border-slate-200 bg-white p-4">
                         <h3 className="mb-3 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
+                        {canEditManagerNote && managerNoteSaved ? (
+                          <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
+                        ) : null}
                         {canEditManagerNote ? (
                           <>
                             <textarea
                               className="field-textarea min-h-24 w-full"
                               rows={3}
                               value={managerNoteDraft}
-                              onChange={e => setManagerNoteDraft(e.target.value)}
+                              onChange={e => {
+                                setManagerNoteDraft(e.target.value)
+                                setManagerNoteSaved(false)
+                              }}
                               placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}
                             />
                             <div className="mt-3 flex justify-end">

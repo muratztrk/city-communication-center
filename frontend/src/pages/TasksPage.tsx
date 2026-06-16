@@ -804,7 +804,7 @@ const pageKicker = isMyTasksView
             <button
               key={item.userId}
               type="button"
-              className={`scope-chip${currentStaffUserId === item.userId ? ' active' : ''}`}
+              className={`scope-chip scope-chip--pending${currentStaffUserId === item.userId ? ' active' : ''}`}
               onClick={() => setStaffUserFilter(item.userId)}
             >
               {item.displayName}
@@ -812,7 +812,7 @@ const pageKicker = isMyTasksView
           ))}
           <button
             type="button"
-            className={`scope-chip${currentStaffUserId === 'all' ? ' active' : ''}`}
+            className={`scope-chip scope-chip--pending${currentStaffUserId === 'all' ? ' active' : ''}`}
             onClick={() => setStaffUserFilter('all')}
           >
             {t('tasks.staff.allStaff', 'Tüm Personel')}
@@ -820,21 +820,21 @@ const pageKicker = isMyTasksView
           <span className="scope-chip-divider" aria-hidden="true">|</span>
           <button
             type="button"
-            className={`scope-chip${currentStaffTaskType === 'assigned' ? ' active' : ''}`}
+            className={`scope-chip scope-chip--pending${currentStaffTaskType === 'assigned' ? ' active' : ''}`}
             onClick={() => setStaffTaskTypeFilter('assigned')}
           >
             {t('tasks.staff.assignedTasks', 'Atanmış Görevleri')}
           </button>
           <button
             type="button"
-            className={`scope-chip${currentStaffTaskType === 'routine' ? ' active' : ''}`}
+            className={`scope-chip scope-chip--pending${currentStaffTaskType === 'routine' ? ' active' : ''}`}
             onClick={() => setStaffTaskTypeFilter('routine')}
           >
             {t('tasks.staff.routineTasks', 'Rutin Görevleri')}
           </button>
           <button
             type="button"
-            className={`scope-chip${currentStaffTaskType === 'all' ? ' active' : ''}`}
+            className={`scope-chip scope-chip--pending${currentStaffTaskType === 'all' ? ' active' : ''}`}
             onClick={() => setStaffTaskTypeFilter('all')}
           >
             {t('tasks.staff.allTasks', 'Tüm Görevleri')}

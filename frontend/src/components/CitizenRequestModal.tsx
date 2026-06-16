@@ -120,7 +120,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
       role="presentation"
     >
       <div
-        className="flex h-[90dvh] max-h-[90dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         {/* Header */}

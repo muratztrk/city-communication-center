@@ -30,7 +30,7 @@ import type { Department, JobSummary, Task, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
-type IncomingKindFilter = 'internal' | 'all'
+type IncomingKindFilter = 'all'
 
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
@@ -44,7 +44,6 @@ const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback:
 ]
 
 const KIND_FILTERS: { value: IncomingKindFilter; labelKey: string; fallback: string }[] = [
-  { value: 'internal', labelKey: 'nav.incomingRequestsInternal', fallback: 'Birim İçi Gelen Talepler' },
   { value: 'all', labelKey: 'nav.incomingRequestsAll', fallback: 'Birime Gelen Tüm Talepler' },
 ]
 
@@ -90,8 +89,8 @@ function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
   return value === 'overdue' || value === 'approved' || value === 'completed' || value === 'cancelled' || value === 'all' ? value : 'pending-approval'
 }
 
-function getIncomingKindFilter(value: string | null): IncomingKindFilter {
-  return value === 'internal' ? value : 'all'
+function getIncomingKindFilter(): IncomingKindFilter {
+  return 'all'
 }
 
 function getSelfRequestedOwnerUserId(job: JobSummary): string | null {
@@ -153,8 +152,8 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
   )
 }
 
-function matchesKindFilter(row: IncomingRequestRow, filter: IncomingKindFilter): boolean {
-  return filter === 'all' || row.kind === filter
+function matchesKindFilter(filter: IncomingKindFilter): boolean {
+  return filter === 'all'
 }
 
 function formatJobDisplayNumber(job: JobSummary): string {
@@ -295,7 +294,7 @@ export function IncomingRequestsPage() {
     saving: boolean
   } | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
-  const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
+  const currentKindFilter = getIncomingKindFilter()
 
   useEffect(() => {
     const handler = () => setActiveDeptIdState(getActiveDepartmentId())
@@ -537,7 +536,7 @@ export function IncomingRequestsPage() {
   const visibleRows = useMemo(() => {
     let result = rows
       .filter(row => matchesStatusFilter(row, currentStatusFilter))
-      .filter(row => matchesKindFilter(row, currentKindFilter))
+      .filter(() => matchesKindFilter(currentKindFilter))
     if (filterFrom || filterTo) {
       result = result.filter(row => {
         const d = row.createdAtUtc?.slice(0, 10)
@@ -654,17 +653,21 @@ export function IncomingRequestsPage() {
             {t(filter.labelKey, filter.fallback)}
           </button>
         ))}
-        <span className="scope-chip-divider" aria-hidden="true">|</span>
-        {KIND_FILTERS.map(filter => (
-          <button
-            key={filter.value}
-            type="button"
-            className={`scope-chip scope-chip--${filter.value}${filter.value === currentKindFilter ? ' active' : ''}`}
-            onClick={() => setKindFilter(filter.value)}
-          >
-            {t(filter.labelKey, filter.fallback)}
-          </button>
-        ))}
+        {KIND_FILTERS.length > 1 ? (
+          <>
+            <span className="scope-chip-divider" aria-hidden="true">|</span>
+            {KIND_FILTERS.map(filter => (
+              <button
+                key={filter.value}
+                type="button"
+                className={`scope-chip scope-chip--${filter.value}${filter.value === currentKindFilter ? ' active' : ''}`}
+                onClick={() => setKindFilter(filter.value)}
+              >
+                {t(filter.labelKey, filter.fallback)}
+              </button>
+            ))}
+          </>
+        ) : null}
       </nav>
 
       {error ? <div className="error">{error}</div> : null}

@@ -1312,6 +1312,14 @@
     box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
   }
 
+  /* ── Birim Dışı Onay Bekleyen → Sarı ──────── */
+  .scope-chip--external-pending.active {
+    background: #facc15;
+    border-color: #eab308;
+    color: #422006;
+    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
+  }
+
   /* ── Tamamlanmış → Yeşil ────────────────────── */
   .scope-chip--completed.active {
     background: #16a34a;

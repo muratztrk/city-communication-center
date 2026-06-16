@@ -1156,6 +1156,7 @@
     "myViews": {
       "created": "Requests I Created",
       "pending": "Pending My Requests",
+      "externalPending": "External Pending Approval Requests",
       "approved": "Approved My Requests",
       "inProgress": "My In-Progress Requests",
       "overdue": "My Overdue Requests",

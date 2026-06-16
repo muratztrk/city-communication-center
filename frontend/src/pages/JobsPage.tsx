@@ -68,11 +68,12 @@ const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
 
-type MyRequestsView = 'pending' | 'approved' | 'in-progress' | 'overdue' | 'completed' | 'rejected' | 'all'
+type MyRequestsView = 'pending' | 'approved' | 'external-pending' | 'in-progress' | 'overdue' | 'completed' | 'rejected' | 'all'
 type RequestFlowFilter = 'internal' | 'external' | 'all'
 type DepartmentOutgoingView = 'pending' | 'approved' | 'in-progress' | 'overdue' | 'completed' | 'rejected' | 'all'
 
 const MY_REQUEST_VIEWS: { value: MyRequestsView; labelKey: string }[] = [
+  { value: 'external-pending', labelKey: 'jobs.myViews.externalPending' },
   { value: 'in-progress', labelKey: 'jobs.myViews.inProgress' },
   { value: 'overdue', labelKey: 'jobs.myViews.overdue' },
   { value: 'pending', labelKey: 'jobs.myViews.pending' },
@@ -100,6 +101,7 @@ const DEPARTMENT_OUTGOING_VIEWS: { value: DepartmentOutgoingView; labelKey: stri
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending' || value === 'pending-approval') return 'scope-chip--pending'
+  if (value === 'external-pending') return 'scope-chip--external-pending'
   if (value === 'approved') return 'scope-chip--approved'
   if (value === 'in-progress' || value === 'overdue') return 'scope-chip--in-progress'
   if (value === 'completed') return 'scope-chip--completed'
@@ -254,13 +256,13 @@ function getMyRequestsView(value: string | null, isManager: boolean, isReporter:
   if (value === 'returned') return 'rejected'
   if (isManager) {
     // Yönetici/sorumlu için Bekleyen+Onaylanmış tek "Yapılmakta Olan" görünümünde birleşti.
-    if (value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all') return value
+    if (value === 'external-pending' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all') return value
     return 'in-progress'
   }
   if (isReporter) {
-    return value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+    return value === 'external-pending' || value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
   }
-  return value === 'approved' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+  return value === 'approved' || value === 'external-pending' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
 
 function getRequestFlowFilter(value: string | null): RequestFlowFilter {
@@ -282,6 +284,13 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
 function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false): JobSummary[] {
   if (view === 'all') return jobs
   if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
+
+  if (view === 'external-pending') {
+    return jobs.filter(job =>
+      job.requestType === 'ExternalUnit'
+      && job.status === 'PendingExternalApproval'
+      && !isJobOverdue(job))
+  }
 
   if (view === 'pending') {
     // Üst Düzey Yönetici: oluşturulmuş ama henüz personel atanmamış (görev yok) talepler bekliyor sayılır.
@@ -420,9 +429,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
     : isReporter
       // Üst Düzey Yönetici: "Bekleyen Taleplerim"den sonra "Yapılmakta Olan Taleplerim".
-      ? (['pending', 'in-progress', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
+      ? (['pending', 'external-pending', 'in-progress', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
-      : (['pending', 'approved', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
+      : (['pending', 'external-pending', 'approved', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
   const reporterDepartmentParam = searchParams.get('departmentId')
   const reporterDepartmentId = isReporter
@@ -661,6 +670,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     const nextParams = new URLSearchParams(searchParams)
     if (filter === 'all') nextParams.delete('flow')
     else nextParams.set('flow', filter)
+    if (filter === 'internal' && currentMyRequestsView === 'external-pending') {
+      nextParams.set('view', 'in-progress')
+    }
     setSearchParams(nextParams)
     setJobsPage(1)
     clearJobFilters()

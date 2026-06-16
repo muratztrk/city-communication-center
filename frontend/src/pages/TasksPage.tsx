@@ -861,7 +861,7 @@ const pageKicker = isMyTasksView
           role="presentation"
         >
           <section
-            className="detail-modal-shell flex max-h-[80dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}

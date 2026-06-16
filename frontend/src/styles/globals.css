@@ -1387,6 +1387,14 @@
     box-shadow: 0 1px 4px rgba(249, 115, 22, 0.38);
   }
 
+  /* ── Yapılmakta Olan Taleplerim (yönetici/Taleplerim) → Sarı (card 457) ── */
+  .scope-chip--in-progress-yellow.active {
+    background: #facc15;
+    border-color: #eab308;
+    color: #422006;
+    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
+  }
+
   .scope-chip-divider {
     flex: 0 0 auto;
     color: #94a3b8;

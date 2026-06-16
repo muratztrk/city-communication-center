@@ -16,6 +16,8 @@ interface MultiSelectDropdownProps {
   className?: string
   /** Extra classes for the trigger button (e.g. to shrink the placeholder font). */
   triggerClassName?: string
+  /** Open the options panel upward (e.g. when the control sits near the bottom of a modal). */
+  openUp?: boolean
   disabled?: boolean
 }
 
@@ -27,6 +29,7 @@ export function MultiSelectDropdown({
   emptyText,
   className,
   triggerClassName,
+  openUp = false,
   disabled = false,
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false)
@@ -92,7 +95,10 @@ export function MultiSelectDropdown({
       </button>
 
       {open ? (
-        <div className="absolute left-0 right-0 z-40 mt-2 flex max-h-72 flex-col rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+        <div className={cn(
+          'absolute left-0 right-0 z-40 flex max-h-72 flex-col rounded-xl border border-slate-200 bg-white p-2 shadow-xl',
+          openUp ? 'bottom-full mb-2' : 'mt-2',
+        )}>
           <div className="mb-1 flex items-center justify-between gap-2 px-1">
             <span className="text-xs font-semibold text-slate-500">{selectedOptions.length} / {options.length}</span>
             {selectedOptions.length > 0 ? (

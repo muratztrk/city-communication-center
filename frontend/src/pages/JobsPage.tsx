@@ -461,6 +461,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       || detail.status === 'PendingExternalApproval'
       || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0))
   const canEditManagerNote = isDepartmentOutgoingView && isManagerLike && isJobPendingTargetApproval
+  // Yönetici Notu sütunu: Birimden Giden'de düzenlenebilir, Birime Gelen'de salt-okunur (card 465/466).
+  const showManagerNoteColumn = canEditManagerNote || detailContext === 'incoming'
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const rawMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
@@ -1037,7 +1039,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               <button
                 key={view.value}
                 type="button"
-                className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
+                className={`scope-chip ${view.value === 'in-progress' && isManagerLike ? 'scope-chip--in-progress-yellow' : getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
                 disabled={isDisabledExternalPending}
                 onClick={() => setMyRequestsView(view.value)}
               >
@@ -1256,7 +1258,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           role="presentation"
         >
           <section
-            className="detail-modal-shell flex max-h-[80dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Fixed header */}
@@ -1373,7 +1375,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
-                  <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                  <div className={`mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
                     {/* 1. sütun: Koordine Departman Ekle (card 436) */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
@@ -1384,6 +1386,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         placeholder="Koordine Departman seçin"
                         emptyText="Seçilebilir birim bulunmuyor."
                         triggerClassName="text-xs"
+                        openUp
                         disabled={coordinatingSaving}
                       />
                       <div className="mt-3 flex justify-end">
@@ -1405,7 +1408,40 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       </h3>
                       {renderJobAddressInfo(detail)}
                     </div>
-                    {/* 3. sütun: Ekler / Fotoğraflar */}
+                    {/* 3. sütun: Yönetici Notu — Adres'in sağında, 4 sütunlu hizada (card 465/466).
+                        Birimden Giden (Bekleyen) → düzenlenebilir; Birime Gelen → salt-okunur (yoksa "girilmemiş"). */}
+                    {showManagerNoteColumn && (
+                      <div className="rounded-xl border border-slate-200 bg-white p-4">
+                        <h3 className="mb-3 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
+                        {canEditManagerNote ? (
+                          <>
+                            <textarea
+                              className="field-textarea min-h-24 w-full"
+                              rows={3}
+                              value={managerNoteDraft}
+                              onChange={e => setManagerNoteDraft(e.target.value)}
+                              placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}
+                            />
+                            <div className="mt-3 flex justify-end">
+                              <Button
+                                type="button"
+                                variant="success"
+                                size="sm"
+                                disabled={managerNoteSaving}
+                                onClick={() => void handleSaveManagerNote()}
+                              >
+                                {managerNoteSaving ? t('common.saving', 'Kaydediliyor...') : t('common.add', 'Ekle')}
+                              </Button>
+                            </div>
+                          </>
+                        ) : detail.managerNote ? (
+                          <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
+                        ) : (
+                          <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Yönetici Notu girilmemiş')}</p>
+                        )}
+                      </div>
+                    )}
+                    {/* 4. sütun: Ekler / Fotoğraflar */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 text-sm font-bold text-slate-900">
                         {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
@@ -1428,36 +1464,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         disabled={attachmentUploading}
                       />
                     </div>
-                  </div>
-                )}
-                {/* Yönetici Notu — Birimden Giden (Bekleyen) detayında düzenlenebilir; Birime Gelen detayında salt-okunur (card 453) */}
-                {(canEditManagerNote || (detailContext === 'incoming' && detail.managerNote)) && (
-                  <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 lg:max-w-md">
-                    <h3 className="mb-3 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
-                    {canEditManagerNote ? (
-                      <>
-                        <textarea
-                          className="field-textarea min-h-24 w-full"
-                          rows={3}
-                          value={managerNoteDraft}
-                          onChange={e => setManagerNoteDraft(e.target.value)}
-                          placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}
-                        />
-                        <div className="mt-3 flex justify-end">
-                          <Button
-                            type="button"
-                            variant="success"
-                            size="sm"
-                            disabled={managerNoteSaving}
-                            onClick={() => void handleSaveManagerNote()}
-                          >
-                            {managerNoteSaving ? t('common.saving', 'Kaydediliyor...') : t('common.add', 'Ekle')}
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-                    )}
                   </div>
                 )}
                 {!isRequestDetailContext && (isManagerLike || canMutatePreApprovalJob(detail)) && (

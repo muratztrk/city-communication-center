@@ -328,3 +328,10 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 45
 - [x] `#452` — Düzenle (edit) flow for pending requests. JobsPage Taleplerim list: light-turquoise "Düzenle" button right of "Detaylar", shown while editable (isPreApprovalStatus OR manager Active+taskCount0); navigates to /requests/new?kind=…&editJobId=…. CreateRequestPage edit mode: prefill external/internal form from job (title/desc/priority/dates/isProject/address + target+coordinated from Target depts), submit calls updateJob (button label → "Güncelle"), default owner-dept effects guarded so prefill isn't clobbered. Backend: UpdateJobCommand/Request/controller expanded with IsProject/Neighborhood/Street/OpenAddress + TargetDepartmentIds reconciliation (pre-approval external only; replace Target rows, keep Owner). Build (FE+BE) + lint PASS. Note: runtime not exercised (no seed); target-dept reconciliation guarded to pre-approval.
+
+## Round 46 (5 cards)
+- [x] `#462` (reopened, screenshot) — Detay popups grew unbounded tall on 27" (80dvh≈1152px). Capped absolute height: max-h-[min(85dvh,52rem)] (Jobs+Tasks) so big monitors stay compact like the screenshot; small screens still use 85dvh.
+- [x] `#457` — Manager Taleplerim "Yapılmakta Olan Taleplerim" chip active bg orange→yellow (new .scope-chip--in-progress-yellow; applied when in-progress && isManagerLike). globals.css + JobsPage.
+- [x] `#464` — Detay popup Koordine Departman MultiSelectDropdown now opens upward (new openUp prop → bottom-full mb-2). Personel seçiniz is a native <select> (browser auto-positions upward near viewport bottom).
+- [x] `#465`+`#466` — Yönetici Notu moved from a row below into the coordination grid as the 3rd column (right of Adres Bilgileri); grid becomes 4 cols (Koordine|Adres|Yönetici Notu|Ekler) when shown. Birimden Giden→Bekleyen: editable. Birime Gelen: read-only — shows the note, or "Yönetici Notu girilmemiş" when empty.
+- Build (FE) + lint PASS. Runtime not exercised (no seed).

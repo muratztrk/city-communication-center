@@ -289,6 +289,13 @@ function hasPendingTargetDepartment(job: JobSummary, activeDepartmentId: string 
   return targetDepartments.some(department => department.departmentId === activeDepartmentId)
 }
 
+function hasApprovedTargetDepartment(job: JobSummary, activeDepartmentId: string | null): boolean {
+  const targetDepartments = job.departments?.filter(department =>
+    department.role === 'Target' && department.approvalStatus === 'Approved') ?? []
+  if (!activeDepartmentId) return targetDepartments.length > 0
+  return targetDepartments.some(department => department.departmentId === activeDepartmentId)
+}
+
 function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false, isManager = false, activeDepartmentId: string | null = null): JobSummary[] {
   if (view === 'all') return jobs
   if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
@@ -316,7 +323,14 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
   if (view === 'in-progress') {
     // Yönetici/üst düzey yönetici: hedef birim yöneticisi personel atayıp görev oluşturunca
     // "Yapılmakta Olan"a düşer.
-    if (isReporter || isManager) {
+    if (isManager) {
+      return jobs.filter(job =>
+        job.status === 'Active'
+        && job.taskCount > 0
+        && hasApprovedTargetDepartment(job, activeDepartmentId)
+        && !isJobOverdue(job))
+    }
+    if (isReporter) {
       return jobs.filter(job => job.status === 'Active' && job.taskCount > 0 && !isJobOverdue(job))
     }
     // Yönetici/sorumlu: bekleyen (onay) + onaylanmış (aktif) talepler birlikte.
@@ -356,6 +370,17 @@ function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOu
   }
 
   return jobs.filter(job => job.status === 'Rejected' || job.status === 'Cancelled')
+}
+
+async function loadJobsForView(scope: JobListScope, departmentId: string | null, includeDepartmentJobs: boolean): Promise<JobSummary[]> {
+  const primaryJobs = await api.getJobs(scope, departmentId)
+  if (!includeDepartmentJobs) return primaryJobs
+
+  const departmentJobs = await api.getJobs('department-pool')
+  const jobsById = new Map<string, JobSummary>()
+  for (const job of primaryJobs) jobsById.set(job.jobId, job)
+  for (const job of departmentJobs) jobsById.set(job.jobId, job)
+  return [...jobsById.values()]
 }
 
 interface JobsPageProps {
@@ -460,6 +485,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'
     return EXTERNAL_SCOPES.some(s => s.value === raw) || raw === 'rejected' ? raw : 'department-pool'
   }, [fixedScope, searchParams])
+  const includeDepartmentJobs = isMyRequestsView && isManagerLike
 
   // "pending-approval" görünümü "Birime Gelen Talepler" varsayılan sayfasının kopyasıydı;
   // bu eski bağlantılar artık Birime Gelen Talepler'e yönlendirilir.
@@ -505,7 +531,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    api.getJobs(scope, reporterDepartmentId)
+    loadJobsForView(scope, reporterDepartmentId, includeDepartmentJobs)
       .then(jobList => {
         if (cancelled) return
         setJobs(jobList)
@@ -514,11 +540,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [scope, t, activeDeptId, reporterDepartmentId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      api.getJobs(scope, reporterDepartmentId)
+      loadJobsForView(scope, reporterDepartmentId, includeDepartmentJobs)
         .then(jobList => {
           setJobs(jobList)
           setError(null)
@@ -533,10 +559,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }, 30000)
 
     return () => window.clearInterval(intervalId)
-  }, [detail?.jobId, scope, t, activeDeptId, reporterDepartmentId])
+  }, [detail?.jobId, scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs])
 
   const reload = async () => {
-    try { setJobs(await api.getJobs(scope, reporterDepartmentId)) }
+    try { setJobs(await loadJobsForView(scope, reporterDepartmentId, includeDepartmentJobs)) }
     catch (err) { setError(err instanceof Error ? err.message : t('common.error')) }
   }
 

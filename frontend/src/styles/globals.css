@@ -140,7 +140,7 @@
   }
 
   .detail-modal-shell {
-    width: min(88vw, 90rem);
+    width: min(76vw, 90rem);
     max-width: calc(100vw - 2rem);
   }
 
@@ -1327,11 +1327,11 @@
     box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
   }
 
-  /* ── Birim Dışı Onay Bekleyen → Sarı ──────── */
+  /* ── Birim Dışı Onay Bekleyen → Bekleyen ile aynı açık gri ──────── */
   .scope-chip--external-pending.active {
     background: #e2e8f0;
     border-color: #b8c4d2;
-    color: white;
+    color: #0f172a;
     box-shadow: none;
   }
 

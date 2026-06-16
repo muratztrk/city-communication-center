@@ -2001,6 +2001,7 @@
   }
 
   .wallboard-stats > button {
+    position: relative;
     min-width: 0;
     /* Buton yüksekliği ~%30 azaltıldı (gridview'da 10 kayıt scroll'suz sığsın). */
     padding: 0.55rem 1rem;
@@ -2012,6 +2013,18 @@
     transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
   }
 
+  .wallboard-stats > button::after {
+    content: '';
+    position: absolute;
+    left: 0.9rem;
+    right: 0.9rem;
+    bottom: 0.28rem;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04));
+    opacity: 0.9;
+  }
+
   .wallboard-stats > button:hover {
     background: rgba(255, 255, 255, 0.18);
     border-color: rgba(255, 255, 255, 0.32);
@@ -2019,6 +2032,19 @@
 
   .wallboard-stats > button.active {
     border-color: #fb923c;
+  }
+
+  .wallboard-stats > button.active::after {
+    background: linear-gradient(90deg, #fdba74, #fb923c);
+    box-shadow: 0 0 12px rgba(251, 146, 60, 0.35);
+  }
+
+  .wallboard-stats > button.stat-overdue::after {
+    background: linear-gradient(90deg, rgba(248, 113, 113, 0.62), rgba(239, 68, 68, 0.95));
+  }
+
+  .wallboard-stats > button.stat-overdue.active::after {
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
   }
 
   .wallboard-stats span {

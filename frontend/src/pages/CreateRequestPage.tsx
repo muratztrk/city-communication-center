@@ -347,7 +347,7 @@ export function CreateRequestPage() {
       <div
         role="button"
         tabIndex={saving ? -1 : 0}
-        className={`request-photo-dropzone flex min-h-[10.75rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+        className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
         onClick={() => !saving && fileInputRef.current?.click()}
         onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
         onDragOver={event => event.preventDefault()}
@@ -438,7 +438,7 @@ export function CreateRequestPage() {
           <label className="grid gap-1 min-h-0">
             <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
             <textarea
-              className="field-textarea h-full min-h-[10.75rem] resize-none"
+              className="field-textarea h-full min-h-[5.5rem] resize-none"
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
               value={form.openAddress}
               onChange={e => setField('openAddress', e.target.value)}
@@ -676,7 +676,7 @@ export function CreateRequestPage() {
         <form className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.internalFormTitle', 'Birim İçi Talep Oluştur')}</h2>
-            <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Birim içi talep kaydını başlatmak için temel bilgileri girin.')}</p>
+            <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Birim içi talep kaydını başlatmak için temel bilgileri giriniz.')}</p>
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">

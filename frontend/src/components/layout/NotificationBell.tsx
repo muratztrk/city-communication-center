@@ -9,6 +9,7 @@ import type { NotificationPayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import { getLocale } from '../../utils/localization'
 import { useAuth } from '../../context/AuthContext'
+import { TablePagination } from '../ui/table-pagination'
 
 type NotifFilter = 'all' | 'unread'
 type NotificationDetailTarget =
@@ -187,6 +188,8 @@ export function NotificationBell() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filter, setFilter] = useState<NotifFilter>('all')
   const [modalFilter, setModalFilter] = useState<NotifFilter>('all')
+  const [modalPage, setModalPage] = useState(1)
+  const [modalPageSize, setModalPageSize] = useState(5)
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
   const [detailTarget, setDetailTarget] = useState<NotificationDetailTarget | null>(null)
@@ -232,7 +235,12 @@ export function NotificationBell() {
 
   const filteredDropdown = filter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications
   const filteredModal = modalFilter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications
+  const pagedModal = filteredModal.slice((modalPage - 1) * modalPageSize, modalPage * modalPageSize)
   const previewItems = filteredDropdown.slice(0, 5)
+
+  useEffect(() => {
+    setModalPage(1)
+  }, [modalFilter, modalPageSize, displayNotifications.length])
 
   const handleNotification = useCallback(
     (payload: NotificationPayload) => {
@@ -335,6 +343,7 @@ export function NotificationBell() {
 
   const openModal = () => {
     setIsOpen(false)
+    setModalPage(1)
     setIsModalOpen(true)
   }
 
@@ -596,9 +605,19 @@ export function NotificationBell() {
               {notifQuery.isLoading ? (
                 <div className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotifList items={filteredModal} onMarkRead={markRead} onNavigate={handleNavigate} locale={locale} />
+                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleNavigate} locale={locale} />
               )}
             </div>
+            {!notifQuery.isLoading && (
+              <TablePagination
+                totalCount={filteredModal.length}
+                pageSize={modalPageSize}
+                currentPage={modalPage}
+                onPageSizeChange={setModalPageSize}
+                onPageChange={setModalPage}
+                pageSizeOptions={[5, 10, 25, 50]}
+              />
+            )}
           </div>
         </div>
       , document.body)}

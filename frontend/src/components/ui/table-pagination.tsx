@@ -9,9 +9,17 @@ interface TablePaginationProps {
   currentPage: number
   onPageSizeChange: (size: number) => void
   onPageChange: (page: number) => void
+  pageSizeOptions?: number[]
 }
 
-export function TablePagination({ totalCount, pageSize, currentPage, onPageSizeChange, onPageChange }: TablePaginationProps) {
+export function TablePagination({
+  totalCount,
+  pageSize,
+  currentPage,
+  onPageSizeChange,
+  onPageChange,
+  pageSizeOptions = PAGE_SIZE_OPTIONS,
+}: TablePaginationProps) {
   const { t } = useTranslation()
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
   const from = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1
@@ -41,7 +49,7 @@ export function TablePagination({ totalCount, pageSize, currentPage, onPageSizeC
           value={pageSize}
           onChange={e => { onPageSizeChange(Number(e.target.value)); onPageChange(1) }}
         >
-          {PAGE_SIZE_OPTIONS.map(size => (
+          {pageSizeOptions.map(size => (
             <option key={size} value={size}>{size}</option>
           ))}
         </select>

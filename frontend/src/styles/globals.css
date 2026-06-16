@@ -1329,10 +1329,10 @@
 
   /* ── Birim Dışı Onay Bekleyen → Sarı ──────── */
   .scope-chip--external-pending.active {
-    background: #facc15;
-    border-color: #eab308;
+    background: #e2e8f0;
+    border-color: #b8c4d2;
     color: white;
-    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
+    box-shadow: none;
   }
 
   /* ── Tamamlanmış → Yeşil ────────────────────── */
@@ -1381,10 +1381,10 @@
 
   /* ── Yapılmakta Olan → Turuncu ─────────────── */
   .scope-chip--in-progress.active {
-    background: #fed7aa;
-    border-color: #fb923c;
-    color: #7c2d12;
-    box-shadow: 0 1px 4px rgba(251, 146, 60, 0.28);
+    background: #f97316;
+    border-color: #f97316;
+    color: white;
+    box-shadow: 0 1px 4px rgba(249, 115, 22, 0.38);
   }
 
   .scope-chip-divider {

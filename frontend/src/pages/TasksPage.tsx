@@ -1118,7 +1118,7 @@ const pageKicker = isMyTasksView
                             <label className="job-field">
                               <span className="job-field-label">{t('tasks.draftUser')}</span>
                               <select
-                                className="field-select h-8 min-h-8 py-1 text-sm"
+                                className="field-select h-8 min-h-8 py-1 text-xs"
                                 value={assignmentDraft.userId}
                                 onChange={e => {
                                   const uid = e.target.value

@@ -66,14 +66,14 @@ export function RoutineTaskPage() {
         </div>
       </header>
 
-      <form onSubmit={handleSubmit} className="section-card grid gap-4 xl:grid-cols-2">
+      <form onSubmit={handleSubmit} className="section-card routine-task-form routine-task-form--readable grid gap-4 xl:grid-cols-2">
         {/* Banner */}
         <div className="xl:col-span-2 flex items-center gap-3 border-b border-slate-100 pb-4">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
             <ClipboardList className="size-5" />
           </span>
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-950">
+            <h2 className="text-xl font-extrabold text-slate-950">
               {t('nav.createRoutineTask', 'Rutin Görev Oluştur')}
             </h2>
             <p className="helper-copy mt-0.5 text-base leading-6">

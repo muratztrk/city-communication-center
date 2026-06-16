@@ -1082,6 +1082,38 @@
     opacity: 1;
   }
 
+  .request-form--readable .helper-copy,
+  .routine-task-form--readable .helper-copy {
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .request-form--readable .job-field-label,
+  .routine-task-form--readable .job-field-label {
+    font-size: 0.9rem;
+  }
+
+  .request-form--readable .field-input,
+  .request-form--readable .field-select,
+  .request-form--readable .rich-text-editable,
+  .routine-task-form--readable .field-input,
+  .routine-task-form--readable .field-select,
+  .routine-task-form--readable .rich-text-editable {
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+
+  .request-form--readable .rich-text-toolbar,
+  .routine-task-form--readable .rich-text-toolbar {
+    min-height: 3.2rem;
+  }
+
+  .request-form--readable .rich-text-toolbar-button,
+  .routine-task-form--readable .rich-text-toolbar-button {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+
   /* Mavi; Button primary variant'ının yeşil bg utility'sini (utilities layer) ezmek için !important. */
   .task-route-button {
     border: 1px solid #0284c7 !important;

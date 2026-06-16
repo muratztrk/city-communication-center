@@ -132,7 +132,7 @@
     "myRequestsRejected": "İptal Taleplerim",
     "myRequestsAll": "Tüm Taleplerim",
     "incomingRequests": "Birime Gelen Talepler",
-    "incomingRequestsInternal": "Birim İçi Gelen Talepler",
+    "incomingRequestsInternal": "Birime Gelen Talepler",
     "incomingRequestsAll": "Birime Gelen Tüm Talepler",
     "outgoingRequests": "Birimden Giden Talepler",
     "departmentTasks": "Birimdeki Görevler",
@@ -140,7 +140,7 @@
     "departmentTasksExternal": "Birim Dışı Oluşan Görevler",
     "departmentTasksAll": "Birimde Oluşan Tüm Görevler",
     "staffTasks": "Personelimin Görevleri",
-    "tasks": "Birim İçi Gelen Talepler",
+    "tasks": "Görevler",
     "social": "Vatandaş Talepleri",
     "socialPhone": "Çağrı",
     "socialAll": "Tümü",
@@ -1074,7 +1074,7 @@
       "Directory": "Dizin"
     },
     "auditAction": {
-      "TaskCreated": "İş oluşturuldu",
+      "TaskCreated": "Görev oluşturuldu",
       "TaskSubmitted": "İş gönderildi",
       "TaskApproved": "İş onaylandı",
       "TaskRejected": "İş reddedildi",

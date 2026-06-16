@@ -26,6 +26,11 @@ function localizeNotificationText(value: string): string {
     .replace(/job created/gi, 'Talep oluşturuldu')
     .replace(/job updated/gi, 'Talep güncellendi')
     // Teknik/İngilizce ifadeleri temizle (card 308).
+    .replace(/\s*—?\s*Created after job owner approval\.?\s*AssignedUser=[0-9a-f-]+/gi, '')
+    .replace(/\s*—?\s*Created from job owner user selection\.?\s*AssignedUser=[0-9a-f-]+/gi, '')
+    .replace(/\s*—?\s*Created task\b[^—]*/gi, '')
+    .replace(/\s*—?\s*Created a task\b[^—]*/gi, '')
+    .replace(/\s*—?\s*Task (?:was )?created\b[^—]*/gi, '')
     .replace(/\s*—?\s*Targets=\d+,?\s*OwnerUsers=\d+/gi, '')
     .replace(/\s*—?\s*Status=[^—]*/gi, '')
     .replace(/Assigned to user\s+[0-9a-f-]+/gi, 'Bir personele atandı')

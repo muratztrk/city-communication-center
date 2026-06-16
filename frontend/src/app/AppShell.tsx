@@ -23,9 +23,14 @@ import { getRoleLabel } from '../utils/localization'
 
 function useResponsiveZoom() {
   const compute = useCallback(() => {
-    // Browser zoom changes innerWidth, while outerWidth remains tied to the actual browser frame.
-    // Use the frame width on desktop so 27" layouts do not jump between %100 and %110 zoom.
-    const w = Math.max(window.outerWidth || 0, window.innerWidth)
+    const frameWidth = Math.max(window.outerWidth || 0, window.innerWidth)
+    const screenWidth = window.screen?.availWidth || window.screen?.width || 0
+    // 27" monitors can hover around the 1920px breakpoint when browser zoom moves
+    // from 100% to 110%. When the browser is near full-width, use the stable screen
+    // width so the app does not jump between layout scales.
+    const w = screenWidth >= 1920 && frameWidth >= screenWidth * 0.7
+      ? screenWidth
+      : frameWidth
     // İçerik ölçeği, tarayıcı %100 yakınlaştırmadayken %90'daki gibi sığsın diye
     // bir ek 0.9 katsayısı içerir (card 375). Sidebar ölçeği aynı bırakıldı.
     if (w >= 2560) return { sidebar: 0.92, content: 0.79 }
@@ -254,10 +259,8 @@ export function AppShell() {
     'outgoing-requests': (viewParam && outgoingRequestsViewLabels[viewParam]) || t('nav.outgoingRequests', 'Birimden Giden Talepler'),
     'department-tasks': (flowParam && departmentTasksViewLabels[flowParam]) || t('nav.departmentTasks', 'Birimdeki Görevler'),
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
-    'incoming-requests': requestKindParam === 'internal'
-      ? t('nav.incomingRequestsInternal', 'Birim İçi Gelen Talepler')
-      : t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
-    tasks: t('nav.tasks'),
+    'incoming-requests': t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
+    tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
     jobs: t('nav.jobs'),

@@ -141,6 +141,7 @@
 
   .detail-modal-shell {
     width: min(76vw, 90rem);
+    height: min(85dvh, 52rem);
     max-width: calc(100vw - 2rem);
   }
 

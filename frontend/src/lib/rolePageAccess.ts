@@ -8,7 +8,6 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'createRoutineTask', path: '/routine-tasks/new', labelKey: 'nav.createRoutineTask' },
   { key: 'myTasks', path: '/my-tasks', labelKey: 'nav.myTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
-  { key: 'tasks', path: '/tasks', labelKey: 'nav.tasks' },
   { key: 'jobs', path: '/jobs', labelKey: 'nav.jobs' },
   { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequestsAll' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },

@@ -195,6 +195,10 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         if (trimmed.StartsWith("Routine task created", StringComparison.OrdinalIgnoreCase))
             return null;
 
+        if (trimmed.StartsWith("Created after job owner approval", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("Created from job owner user selection", StringComparison.OrdinalIgnoreCase))
+            return null;
+
         if (trimmed.StartsWith("Created task", StringComparison.OrdinalIgnoreCase) ||
             trimmed.StartsWith("Created a task", StringComparison.OrdinalIgnoreCase) ||
             trimmed.StartsWith("Task created", StringComparison.OrdinalIgnoreCase) ||

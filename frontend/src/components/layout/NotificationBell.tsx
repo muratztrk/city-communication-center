@@ -1,17 +1,20 @@
 import { Bell, CheckCheck, X } from 'lucide-react'
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
-import type { AppNotification } from '../../types/platform'
+import type { AppNotification, JobDetail, TaskDetail } from '../../types/platform'
 import type { NotificationPayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import { getLocale } from '../../utils/localization'
 import { useAuth } from '../../context/AuthContext'
 
 type NotifFilter = 'all' | 'unread'
+type NotificationDetailTarget =
+  | { kind: 'task'; id: string }
+  | { kind: 'job'; id: string }
+  | { kind: 'unsupported'; url: string }
 
 function localizeNotificationText(value: string): string {
   return value
@@ -37,6 +40,58 @@ function formatNotifDate(value: string | null | undefined, locale: string) {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
+}
+
+function stripHtmlTags(value: string | null | undefined): string {
+  if (!value) return ''
+  return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function parseNotificationDetailTarget(url: string): NotificationDetailTarget {
+  try {
+    const parsed = new URL(url, window.location.origin)
+    const taskId = parsed.searchParams.get('taskId')
+    const jobId = parsed.searchParams.get('jobId')
+    if (taskId) return { kind: 'task', id: taskId }
+    if (jobId) return { kind: 'job', id: jobId }
+  } catch {
+    const taskMatch = url.match(/[?&]taskId=([^&]+)/)
+    const jobMatch = url.match(/[?&]jobId=([^&]+)/)
+    if (taskMatch) return { kind: 'task', id: decodeURIComponent(taskMatch[1]) }
+    if (jobMatch) return { kind: 'job', id: decodeURIComponent(jobMatch[1]) }
+  }
+  return { kind: 'unsupported', url }
+}
+
+function formatJobNumber(job: JobDetail): string {
+  if (job.jobNumber != null && job.jobNumberYear != null) return `T-${job.jobNumberYear}-${job.jobNumber}`
+  return `T-${job.jobNumberYear ?? new Date().getFullYear()}`
+}
+
+function formatTaskNumber(task: TaskDetail): string {
+  return task.taskId.slice(0, 8).toUpperCase()
+}
+
+function formatJobDestinations(job: JobDetail): string {
+  const destinationNames = job.departments
+    .filter(department => department.role === 'Target' || department.role === 'Coordinating')
+    .map(department => department.departmentName)
+    .filter((name): name is string => Boolean(name))
+  if (destinationNames.length > 0) return destinationNames.join(', ')
+  return job.departments
+    .filter(department => department.departmentId !== job.ownerDepartmentId)
+    .map(department => department.departmentName)
+    .filter((name): name is string => Boolean(name))
+    .join(', ') || '—'
+}
+
+function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div className="flex items-start gap-2 border-b border-slate-100 px-3 py-2 last:border-b-0">
+      <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+      <span className="min-w-0 break-words text-sm text-slate-900">{value || '—'}</span>
+    </div>
+  )
 }
 
 interface NotifItemProps {
@@ -127,7 +182,6 @@ export function NotificationBell() {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const locale = getLocale(i18n.language)
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -135,7 +189,14 @@ export function NotificationBell() {
   const [modalFilter, setModalFilter] = useState<NotifFilter>('all')
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
+  const [detailTarget, setDetailTarget] = useState<NotificationDetailTarget | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState<string | null>(null)
+  const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
+  const [jobDetail, setJobDetail] = useState<JobDetail | null>(null)
+  const [taskParentJob, setTaskParentJob] = useState<JobDetail | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const detailModalRef = useRef<HTMLDivElement>(null)
   const unreadQueryKey = useMemo(
     () => ['notifications-unread-count', user?.tenantId, user?.userId] as const,
     [user?.tenantId, user?.userId],
@@ -204,6 +265,7 @@ export function NotificationBell() {
   useEffect(() => {
     if (!isOpen) return
     function handler(e: MouseEvent) {
+      if (detailModalRef.current?.contains(e.target as Node)) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setIsOpen(false)
     }
     document.addEventListener('mousedown', handler)
@@ -230,13 +292,58 @@ export function NotificationBell() {
     queryClient.invalidateQueries({ queryKey: unreadQueryKey })
   }
 
+  useEffect(() => {
+    let cancelled = false
+    setTaskDetail(null)
+    setJobDetail(null)
+    setTaskParentJob(null)
+    setDetailError(null)
+    setDetailLoading(false)
+    if (!detailTarget) return
+    if (detailTarget.kind === 'unsupported') {
+      setDetailError(t('notifications.unsupportedDetail', 'Bu bildirimin detayı mevcut sayfada açılamıyor.'))
+      return
+    }
+    setDetailLoading(true)
+    const load = async () => {
+      try {
+        if (detailTarget.kind === 'task') {
+          const task = await api.getTaskById(detailTarget.id)
+          if (cancelled) return
+          setTaskDetail(task)
+          if (task.jobId) {
+            const parent = await api.getJobById(task.jobId).catch(() => null)
+            if (!cancelled) setTaskParentJob(parent)
+          }
+          return
+        }
+        const job = await api.getJobById(detailTarget.id)
+        if (!cancelled) setJobDetail(job)
+      } catch (err) {
+        if (!cancelled) setDetailError(err instanceof Error ? err.message : t('common.error', 'Hata oluştu'))
+      } finally {
+        if (!cancelled) setDetailLoading(false)
+      }
+    }
+    void load()
+    return () => { cancelled = true }
+  }, [detailTarget, t])
+
   const handleNavigate = (url: string) => {
-    navigate(url)
+    setDetailTarget(parseNotificationDetailTarget(url))
   }
 
   const openModal = () => {
     setIsOpen(false)
     setIsModalOpen(true)
+  }
+
+  const closeNotificationDetail = () => {
+    setDetailTarget(null)
+    setDetailError(null)
+    setTaskDetail(null)
+    setJobDetail(null)
+    setTaskParentJob(null)
   }
 
   return (
@@ -253,6 +360,101 @@ export function NotificationBell() {
           </div>
         ))}
       </div>
+
+      {detailTarget && createPortal(
+        <div
+          ref={detailModalRef}
+          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-4"
+          onClick={closeNotificationDetail}
+          onKeyDown={e => { if (e.key === 'Escape') closeNotificationDetail() }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <section
+            className="flex max-h-[72dvh] w-full max-w-5xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5">
+              <div className="min-w-0">
+                <div className="text-[0.72rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
+                  {detailTarget.kind === 'task'
+                    ? t('tasks.detail.title', 'Görev Detayları')
+                    : t('jobs.detail.requestInfo', 'Talep Detayları')}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeNotificationDetail}
+                className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                aria-label={t('common.close', 'Kapat')}
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5">
+              {detailLoading && (
+                <div className="py-10 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
+              )}
+              {!detailLoading && detailError && (
+                <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                  {detailError}
+                </div>
+              )}
+              {!detailLoading && taskDetail && (
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                    <DetailRow label="Görev No" value={formatTaskNumber(taskDetail)} />
+                    <DetailRow label="Görev Başlığı" value={taskDetail.title} />
+                    <DetailRow label="İlgili Talep" value={taskParentJob?.title ?? taskDetail.jobTitle ?? '—'} />
+                    <DetailRow label="Görev Sahibi" value={taskDetail.ownerDisplayName} />
+                    <DetailRow label="Atanan" value={taskDetail.assignedUserId ?? taskDetail.assignedDepartmentId ?? '—'} />
+                  </div>
+                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                    <DetailRow label="Öncelik" value={t(`enum.priority.${taskDetail.priority}`, { defaultValue: taskDetail.priority })} />
+                    <DetailRow label="Durum" value={t(`enum.taskStatus.${taskDetail.currentStatus}`, { defaultValue: taskDetail.currentStatus })} />
+                    <DetailRow label="Görev Tarihi" value={formatNotifDate(taskDetail.createdAtUtc, locale)} />
+                    <DetailRow label="Son Tarih" value={formatNotifDate(taskDetail.dueDateUtc, locale)} />
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-2">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      {t('tasks.detail.description', 'Açıklama')}
+                    </div>
+                    <p className="whitespace-pre-wrap text-sm leading-6 text-slate-900">
+                      {stripHtmlTags(taskDetail.description) || t('tasks.detail.noDescription', 'Açıklama yok')}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {!detailLoading && jobDetail && (
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                    <DetailRow label="Talep No" value={formatJobNumber(jobDetail)} />
+                    <DetailRow label="Talep Başlığı" value={jobDetail.title} />
+                    <DetailRow label="Talep Yeri / Oluşturan" value={[jobDetail.ownerDepartmentName, jobDetail.createdByDisplayName].filter(Boolean).join(' / ')} />
+                    <DetailRow label="Gittiği Yer" value={formatJobDestinations(jobDetail)} />
+                    <DetailRow label="Proje mi" value={jobDetail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')} />
+                  </div>
+                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                    <DetailRow label="Öncelik" value={t(`enum.priority.${jobDetail.priority}`, { defaultValue: jobDetail.priority })} />
+                    <DetailRow label="Durum" value={t(`enum.jobStatus.${jobDetail.status}`, { defaultValue: jobDetail.status })} />
+                    <DetailRow label="Talep Tarihi" value={formatNotifDate(jobDetail.createdAtUtc, locale)} />
+                    <DetailRow label="Son Tarih" value={formatNotifDate(jobDetail.dueDateUtc, locale)} />
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-2">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      {t('jobs.form.description', 'Açıklama')}
+                    </div>
+                    <p className="whitespace-pre-wrap text-sm leading-6 text-slate-900">
+                      {stripHtmlTags(jobDetail.description) || t('common.none', 'Yok')}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>,
+        document.body,
+      )}
 
       {/* Bell button + dropdown */}
       <div className="relative" ref={dropdownRef}>
@@ -335,7 +537,7 @@ export function NotificationBell() {
           aria-modal="true"
         >
           <div
-            className="flex max-h-[82dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="flex max-h-[74dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal header */}

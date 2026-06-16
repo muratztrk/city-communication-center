@@ -861,7 +861,7 @@ const pageKicker = isMyTasksView
           role="presentation"
         >
           <section
-            className="flex max-h-[80dvh] w-full max-w-[90rem] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="flex max-h-[72dvh] w-full max-w-[90rem] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}
@@ -1118,7 +1118,7 @@ const pageKicker = isMyTasksView
                             <label className="job-field">
                               <span className="job-field-label">{t('tasks.draftUser')}</span>
                               <select
-                                className="field-select"
+                                className="field-select h-9 py-1.5"
                                 value={assignmentDraft.userId}
                                 onChange={e => {
                                   const uid = e.target.value
@@ -1141,7 +1141,8 @@ const pageKicker = isMyTasksView
                           <div className="inline-actions justify-end pt-2">
                             <Button
                               type="button"
-                              size="sm"
+                              size="default"
+                              className="h-9 px-4 text-sm"
                               disabled={assignmentSaving || (!assignmentDraft.departmentId && !assignmentDraft.userId)}
                               onClick={saveAssignment}
                             >

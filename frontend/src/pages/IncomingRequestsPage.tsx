@@ -703,10 +703,10 @@ export function IncomingRequestsPage() {
                   <tr key={`${row.kind}-${row.id}`} className={row.kind === 'external' && row.status === 'Active' && row.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
-                    <td className="font-mono text-xs text-slate-500">
-                      <div>{row.displayNumber}</div>
+                    <td className="table-number-cell font-mono text-xs text-slate-500">
+                      <div className="table-number-cell__value">{row.displayNumber}</div>
                       {/* Sarı (dikkat) satırda öncelik metni kalın; Çok Yüksek=kırmızı, Yüksek=açık kırmızı, diğeri beyaz. Diğer satırlarda öncelik rengi. */}
-                      <div className={`font-sans text-[0.7rem] ${row.kind === 'external' && row.status === 'Active' ? `font-extrabold ${attentionPriorityColorClass(row.priority)}` : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
+                      <div className={`table-number-cell__priority font-sans ${row.kind === 'external' && row.status === 'Active' ? `font-extrabold ${attentionPriorityColorClass(row.priority)}` : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td>

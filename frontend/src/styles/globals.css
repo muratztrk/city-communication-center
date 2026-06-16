@@ -1114,6 +1114,16 @@
     height: 2.35rem;
   }
 
+  .table-number-cell__value {
+    font-size: 0.84rem;
+    line-height: 1.3;
+  }
+
+  .table-number-cell__priority {
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+
   /* Mavi; Button primary variant'ının yeşil bg utility'sini (utilities layer) ezmek için !important. */
   .task-route-button {
     border: 1px solid #0284c7 !important;

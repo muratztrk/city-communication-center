@@ -1170,10 +1170,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   <tr key={job.jobId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
                     {(isMyRequestsView || isDepartmentOutgoingView) && (
-                      <td className="font-mono text-xs text-slate-500">
-                        <div>{formatJobDisplayNumber(job)}</div>
-                        <div className={`font-sans text-[0.7rem] font-bold ${getPriorityColorClass(job.priority)}`}>(Öncelik:{getPriorityLabel(t, job.priority)})</div>
-                      </td>
+                    <td className="table-number-cell font-mono text-xs text-slate-500">
+                      <div className="table-number-cell__value">{formatJobDisplayNumber(job)}</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>(Öncelik:{getPriorityLabel(t, job.priority)})</div>
+                    </td>
                     )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}

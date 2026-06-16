@@ -1268,9 +1268,9 @@ const pageKicker = isMyTasksView
                   // Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (dikkat).
                   <tr key={task.taskId} className={task.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
-                    <td className="font-mono text-xs text-slate-500">
-                      <div>{formatTaskDisplayNumber(task)}</div>
-                      <div className={`font-sans text-[0.7rem] font-bold ${task.createdByRoleCode === 'Reporter' && task.priority === 'Normal' ? 'text-white' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
+                    <td className="table-number-cell font-mono text-xs text-slate-500">
+                      <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${task.createdByRoleCode === 'Reporter' && task.priority === 'Normal' ? 'text-white' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
                     </td>
                     <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}

@@ -28,7 +28,12 @@ public sealed record UpdateJobRequest(
     DateTimeOffset? StartDateUtc,
     DateTimeOffset? DueDateUtc,
     double? Latitude,
-    double? Longitude);
+    double? Longitude,
+    bool? IsProject = null,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null,
+    IReadOnlyCollection<Guid>? TargetDepartmentIds = null);
 
 public sealed record CancelJobRequest(string Reason);
 

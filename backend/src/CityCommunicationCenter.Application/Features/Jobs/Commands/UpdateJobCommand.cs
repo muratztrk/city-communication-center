@@ -9,7 +9,13 @@ public sealed record UpdateJobCommand(
     DateTimeOffset? StartDateUtc,
     DateTimeOffset? DueDateUtc,
     double? Latitude,
-    double? Longitude) : ICommand<bool>;
+    double? Longitude,
+    // Talep Oluştur sayfasından tam düzenleme için ek alanlar (card 452); null = değiştirme.
+    bool? IsProject = null,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null,
+    IReadOnlyCollection<Guid>? TargetDepartmentIds = null) : ICommand<bool>;
 
 public sealed class UpdateJobCommandValidator : AbstractValidator<UpdateJobCommand>
 {
@@ -63,8 +69,43 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         job.DueDateUtc = request.DueDateUtc;
         job.Latitude = request.Latitude;
         job.Longitude = request.Longitude;
+        // null = değiştirme; verilen alanlar (boş string dahil) güncellenir (card 452).
+        if (request.IsProject.HasValue) job.IsProject = request.IsProject.Value;
+        if (request.Neighborhood is not null) job.Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood;
+        if (request.Street is not null) job.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street;
+        if (request.OpenAddress is not null) job.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress;
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
+
+        // Birim dışı talepte hedef departmanlar değişebilir (yalnızca onay öncesi, görev yokken).
+        // Owner satırı korunur; mevcut Target satırları silinip yeni seçim eklenir (card 452).
+        if (request.TargetDepartmentIds is not null && job.RequestType == JobRequestType.ExternalUnit)
+        {
+            var newTargetIds = request.TargetDepartmentIds
+                .Where(id => id != Guid.Empty && id != job.OwnerDepartmentId)
+                .Distinct()
+                .ToArray();
+            var existingTargets = await _dbContext.JobDepartments
+                .Where(jd => jd.JobId == job.JobId && jd.TenantId == tenantId && jd.Role == JobDepartmentRole.Target)
+                .ToListAsync(cancellationToken);
+            _dbContext.JobDepartments.RemoveRange(existingTargets);
+            foreach (var targetId in newTargetIds)
+            {
+                _dbContext.JobDepartments.Add(new JobDepartment
+                {
+                    JobDepartmentId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    JobId = job.JobId,
+                    DepartmentId = targetId,
+                    Role = JobDepartmentRole.Target,
+                    ApprovalStatus = JobApprovalStatus.NotRequired,
+                    RequestedByUserId = actor.UserId,
+                    RequestedAtUtc = utcNow,
+                    CreatedByUserId = actor.UserId,
+                });
+            }
+            job.IsCoordinated = newTargetIds.Length > 1;
+        }
 
         _dbContext.AuditLogs.Add(new AuditLog
         {

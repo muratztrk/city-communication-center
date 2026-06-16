@@ -207,6 +207,11 @@ export interface UpdateJobRequest {
   dueDateUtc: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  isProject?: boolean | null;
+  neighborhood?: string | null;
+  street?: string | null;
+  openAddress?: string | null;
+  targetDepartmentIds?: string[] | null;
 }
 
 export interface JobSummary {

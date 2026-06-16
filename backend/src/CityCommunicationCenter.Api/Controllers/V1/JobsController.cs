@@ -123,7 +123,7 @@ public sealed class JobsController : ApiControllerBase
     [HttpPut("{jobId:guid}")]
     public async Task<IActionResult> Update(Guid jobId, [FromBody] UpdateJobRequest request, CancellationToken cancellationToken)
     {
-        var ok = await _sender.Send(new UpdateJobCommand(jobId, CurrentContext.UserId, request.Title, request.Description, request.Priority, request.StartDateUtc, request.DueDateUtc, request.Latitude, request.Longitude), cancellationToken);
+        var ok = await _sender.Send(new UpdateJobCommand(jobId, CurrentContext.UserId, request.Title, request.Description, request.Priority, request.StartDateUtc, request.DueDateUtc, request.Latitude, request.Longitude, request.IsProject, request.Neighborhood, request.Street, request.OpenAddress, request.TargetDepartmentIds), cancellationToken);
         return ok ? NoContent() : NotFound();
     }
 

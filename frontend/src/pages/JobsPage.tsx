@@ -1185,6 +1185,16 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
+                        {/* Düzenle — onay öncesi (hedef onaylamadan) talebi Talep Oluştur sayfasında dolu olarak aç (card 452). */}
+                        {isMyRequestsView && (isPreApprovalStatus(job.status) || (isManagerLike && job.status === 'Active' && job.taskCount === 0)) && (
+                          <Button
+                            size="sm"
+                            className="bg-cyan-300 text-slate-900 hover:bg-cyan-400"
+                            onClick={() => navigate(`/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`)}
+                          >
+                            {t('jobs.actions.edit', 'Düzenle')}
+                          </Button>
+                        )}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
                         )}

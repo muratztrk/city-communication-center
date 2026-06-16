@@ -120,6 +120,9 @@ export function CreateRequestPage() {
   const rawKindParam = searchParams.get('kind')
   const kindParam = isRequestKind(rawKindParam) ? rawKindParam : null
   const selectedKind = kindParam
+  // Onay öncesi bir talebi "verileri dolu" düzenleme modu (card 452).
+  const editJobId = searchParams.get('editJobId')
+  const [editPrefilled, setEditPrefilled] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -231,21 +234,62 @@ export function CreateRequestPage() {
     return () => { cancelled = true }
   }, [t])
 
+  // Düzenleme modunda mevcut talep verilerini forma yükle (card 452).
   useEffect(() => {
+    if (!editJobId || editPrefilled) return
+    let cancelled = false
+    api.getJobById(editJobId)
+      .then(job => {
+        if (cancelled || !job) return
+        const targetIds = (job.departments ?? [])
+          .filter(department => department.role === 'Target')
+          .map(department => department.departmentId)
+        const common = {
+          title: job.title,
+          description: job.description ?? '',
+          priority: job.priority,
+          dueDateUtc: job.dueDateUtc ?? '',
+          isProject: job.isProject,
+          ownerDepartmentId: job.ownerDepartmentId,
+          neighborhood: job.neighborhood ?? '',
+          street: job.street ?? '',
+          openAddress: job.openAddress ?? '',
+        }
+        if (job.requestType === 'ExternalUnit') {
+          setExternalForm(current => ({
+            ...current,
+            ...common,
+            startDateUtc: job.startDateUtc ?? '',
+            targetDepartmentId: targetIds[0] ?? '',
+            coordinatedDepartmentIds: targetIds.slice(1),
+            isCoordinated: targetIds.length > 1,
+          }))
+        } else {
+          setInternalForm(current => ({ ...current, ...common }))
+        }
+        setEditPrefilled(true)
+      })
+      .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
+    return () => { cancelled = true }
+  }, [editJobId, editPrefilled, t])
+
+  useEffect(() => {
+    if (editJobId) return // düzenleme modunda sahip birim talepten gelir; varsayılanla ezme.
     if (!selectedKind) return
     const firstDepartmentId = myDepartmentId || ownerDepartmentOptions[0]?.departmentId
     if (firstDepartmentId && externalForm.ownerDepartmentId !== firstDepartmentId) {
       setExternalForm(current => ({ ...current, ownerDepartmentId: firstDepartmentId }))
     }
-  }, [externalForm.ownerDepartmentId, myDepartmentId, ownerDepartmentOptions, selectedKind])
+  }, [externalForm.ownerDepartmentId, myDepartmentId, ownerDepartmentOptions, selectedKind, editJobId])
 
   useEffect(() => {
+    if (editJobId) return
     if (selectedKind !== 'internal') return
     const defaultDeptId = ownerDepartmentOptions[0]?.departmentId || myDepartmentId
     if (defaultDeptId && !internalForm.ownerDepartmentId) {
       setInternalForm(current => ({ ...current, ownerDepartmentId: defaultDeptId }))
     }
-  }, [selectedKind, internalForm.ownerDepartmentId, ownerDepartmentOptions, myDepartmentId])
+  }, [selectedKind, internalForm.ownerDepartmentId, ownerDepartmentOptions, myDepartmentId, editJobId])
 
   useEffect(() => {
     if ((rawKindParam && !kindParam) || (kindParam === 'citizen' && !canCreateCitizenRequest)) {
@@ -394,6 +438,21 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      if (editJobId) {
+        await api.updateJob(editJobId, {
+          title: internalForm.title.trim(),
+          description: internalForm.description.trim(),
+          priority: internalForm.priority,
+          startDateUtc: null,
+          dueDateUtc: toApiDateTime(internalForm.dueDateUtc),
+          isProject: internalForm.isProject,
+          neighborhood: internalForm.neighborhood || '',
+          street: internalForm.street || '',
+          openAddress: internalForm.openAddress || '',
+        })
+        navigate('/my-requests')
+        return
+      }
       const selectedOwnerUserIds = internalForm.ownerUserIds.filter(id => id.trim() !== '')
       const job = await api.createJob({
         title: internalForm.title.trim(),
@@ -441,6 +500,22 @@ export function CreateRequestPage() {
         externalForm.targetDepartmentId,
         ...(externalForm.isCoordinated ? externalForm.coordinatedDepartmentIds : []),
       ]
+      if (editJobId) {
+        await api.updateJob(editJobId, {
+          title: externalForm.title.trim(),
+          description: externalForm.description.trim(),
+          priority: externalForm.priority,
+          startDateUtc: toApiDateTime(externalForm.startDateUtc),
+          dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
+          isProject: externalForm.isProject,
+          neighborhood: externalForm.neighborhood || '',
+          street: externalForm.street || '',
+          openAddress: externalForm.openAddress || '',
+          targetDepartmentIds,
+        })
+        navigate('/my-requests')
+        return
+      }
       const job = await api.createJob({
         title: externalForm.title.trim(),
         description: externalForm.description.trim(),
@@ -639,7 +714,7 @@ export function CreateRequestPage() {
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
             </Button>
           </div>
         </form>
@@ -740,7 +815,7 @@ export function CreateRequestPage() {
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
             </Button>
           </div>
         </form>
@@ -853,7 +928,7 @@ export function CreateRequestPage() {
             </label>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
             </Button>
           </div>
         </form>

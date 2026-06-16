@@ -1310,30 +1310,46 @@ const pageKicker = isMyTasksView
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
-                        {isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
-                        )}
-                        {(isDepartmentTasksView || (isMyTasksView && isAssignee(task))) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => {
-                              if (task.createdByRoleCode === 'Reporter' && !isManagerLike) {
-                                setConfirmDialog({
-                                  title: t('tasks.actions.cancelNotAllowed', 'İptal Yetkiniz Yok'),
-                                  message: t('tasks.actions.cancelManagerTaskNotAllowed', 'Üst Düzey Yönetici\'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.'),
-                                  onConfirm: () => setConfirmDialog(null),
-                                  confirmLabel: t('common.ok', 'Tamam'),
-                                  hideCancel: true
-                                })
-                              } else {
-                                openReturnModal(task.taskId)
-                              }
-                            }}
-                          >
-                            {t('jobs.actions.cancel', 'İptal Et')}
-                          </Button>
-                        )}
+                        {(() => {
+                          const canComplete = isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
+                          if (canComplete) {
+                            return <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
+                          }
+                          if (isMyTasksView && currentMyTaskView === 'all') {
+                            return <Button size="sm" variant="success" className="button-placeholder" disabled>{t('tasks.actions.complete', 'Tamamla')}</Button>
+                          }
+                          return null
+                        })()}
+                        {(() => {
+                          const canCancel = (isDepartmentTasksView || (isMyTasksView && isAssignee(task))) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
+                          if (canCancel) {
+                            return (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  if (task.createdByRoleCode === 'Reporter' && !isManagerLike) {
+                                    setConfirmDialog({
+                                      title: t('tasks.actions.cancelNotAllowed', 'İptal Yetkiniz Yok'),
+                                      message: t('tasks.actions.cancelManagerTaskNotAllowed', 'Üst Düzey Yönetici\'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.'),
+                                      onConfirm: () => setConfirmDialog(null),
+                                      confirmLabel: t('common.ok', 'Tamam'),
+                                      hideCancel: true
+                                    })
+                                  } else {
+                                    openReturnModal(task.taskId)
+                                  }
+                                }}
+                              >
+                                {t('jobs.actions.cancel', 'İptal Et')}
+                              </Button>
+                            )
+                          }
+                          if (isMyTasksView && currentMyTaskView === 'all') {
+                            return <Button size="sm" variant="destructive" className="button-placeholder" disabled>{t('jobs.actions.cancel', 'İptal Et')}</Button>
+                          }
+                          return null
+                        })()}
                       </div>
                     </td>
                   </tr>

@@ -61,7 +61,7 @@ export function RoutineTaskPage() {
           <div className="space-y-1">
             <div className="page-kicker">{t('nav.myTasks', 'Görevlerim')}</div>
             <h1 className="page-title">{t('nav.createRoutineTask', 'Rutin Görev Oluştur')}</h1>
-            <p className="page-subtitle">{t('routineTask.subtitle', 'Onay gerektirmeyen kişisel görev')}</p>
+            <p className="page-subtitle text-base">{t('routineTask.subtitle', 'Onay gerektirmeyen kişisel görev')}</p>
           </div>
         </div>
       </header>
@@ -73,10 +73,10 @@ export function RoutineTaskPage() {
             <ClipboardList className="size-5" />
           </span>
           <div>
-            <h2 className="text-xl font-extrabold text-slate-950">
+            <h2 className="text-2xl font-extrabold text-slate-950">
               {t('nav.createRoutineTask', 'Rutin Görev Oluştur')}
             </h2>
-            <p className="helper-copy mt-0.5">
+            <p className="helper-copy mt-0.5 text-base leading-6">
               {t('routineTask.formDescription', 'Onay süreci gerektirmeyen kişisel görevler için kullanın.')}
             </p>
           </div>

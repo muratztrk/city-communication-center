@@ -1194,22 +1194,41 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
                         {/* Düzenle — onay öncesi (hedef onaylamadan) talebi Talep Oluştur sayfasında dolu olarak aç (card 452). */}
-                        {isMyRequestsView && (
+                        {isMyRequestsView && (() => {
+                          const canEdit =
                           isPreApprovalStatus(job.status)
                           || (isManagerLike && (
                             (job.requestType === 'ExternalUnit' && job.status === 'PendingExternalApproval')
                             || (job.requestType === 'InternalUnit' && job.status === 'Active')
                             || (job.status === 'Active' && job.taskCount === 0)
                           ))
-                        ) && (
-                          <Button
-                            size="sm"
-                            className="bg-teal-700 text-white hover:bg-teal-800"
-                            onClick={() => navigate(`/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`)}
-                          >
-                            {t('jobs.actions.edit', 'Düzenle')}
-                          </Button>
-                        )}
+
+                          if (canEdit) {
+                            return (
+                              <Button
+                                size="sm"
+                                className="bg-teal-700 text-white hover:bg-teal-800"
+                                onClick={() => navigate(`/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`)}
+                              >
+                                {t('jobs.actions.edit', 'Düzenle')}
+                              </Button>
+                            )
+                          }
+
+                          if (activeJobView === 'all') {
+                            return (
+                              <Button
+                                size="sm"
+                                className="button-placeholder bg-teal-700 text-white"
+                                disabled
+                              >
+                                {t('jobs.actions.edit', 'Düzenle')}
+                              </Button>
+                            )
+                          }
+
+                          return null
+                        })()}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
                         )}

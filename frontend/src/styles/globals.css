@@ -274,14 +274,14 @@
     .app-content-shell .data-table thead th,
     .app-content-shell .table-container thead th {
       padding: 0.52rem 0.62rem;
-      font-size: 0.62rem;
+      font-size: 0.68rem;
       letter-spacing: 0.06em;
     }
 
     .app-content-shell .data-table tbody td,
     .app-content-shell .table-container tbody td {
       padding: 0.58rem 0.62rem;
-      font-size: 0.76rem;
+      font-size: 0.84rem;
     }
 
     .app-content-shell .request-actions {
@@ -781,7 +781,7 @@
     padding: 0.75rem 0.9rem;
     border-right: 1px solid #cbd5e1;
     text-align: center;
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -924,7 +924,7 @@
     border-top: 1px solid #edf2f7;
     vertical-align: top;
     text-align: center;
-    font-size: 0.875rem;
+    font-size: 0.96rem;
     color: #0f172a;
     word-break: break-word;
   }
@@ -1076,6 +1076,10 @@
   .request-actions a {
     flex: 0 0 auto;
     white-space: nowrap;
+  }
+
+  .request-actions .button-placeholder {
+    opacity: 1;
   }
 
   /* Mavi; Button primary variant'ının yeşil bg utility'sini (utilities layer) ezmek için !important. */

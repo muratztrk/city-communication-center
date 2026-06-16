@@ -342,3 +342,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `#464` (reopened) — Görevi Yönlendir "Personel seçiniz" converted from native <select> to new SingleSelectDropdown with openUp (opens upward). TasksPage + single-select-dropdown.tsx.
 - [x] `#468` — Yönetici Notu column now shows in ALL request detail contexts (showManagerNoteColumn = isRequestDetailContext; read-only "Yönetici Notu girilmemiş" when empty). In the Task detail, added a read-only Yönetici Notu column (parent job's note) right of Atama Geçmişi (grid 3→4 cols for managers). JobsPage + TasksPage.
 - Build (FE) + lint PASS.
+
+## Round 48
+- [x] `#470` — Manager's own Birim İçi (internal) request assigned to self/staff didn't show in "Yapılmakta Olan Taleplerim": the in-progress manager filter required hasApprovedTargetDepartment (only valid for external). Now internal Active+taskCount>0 jobs qualify directly (requestType==='InternalUnit' || hasApprovedTargetDepartment). JobsPage. Build + lint PASS.

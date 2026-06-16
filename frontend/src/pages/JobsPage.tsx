@@ -321,10 +321,12 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
     // Yönetici/üst düzey yönetici: hedef birim yöneticisi personel atayıp görev oluşturunca
     // "Yapılmakta Olan"a düşer.
     if (isManager) {
+      // Birim içi talepte hedef birim yoktur; yönetici kendine/personeline atayınca (görev oluşunca)
+      // doğrudan "Yapılmakta Olan" sayılır. Birim dışında hedef birimin onayı aranır (card 470).
       return jobs.filter(job =>
         job.status === 'Active'
         && job.taskCount > 0
-        && hasApprovedTargetDepartment(job, activeDepartmentId)
+        && (job.requestType === 'InternalUnit' || hasApprovedTargetDepartment(job, activeDepartmentId))
         && !isJobOverdue(job))
     }
     if (isReporter) {

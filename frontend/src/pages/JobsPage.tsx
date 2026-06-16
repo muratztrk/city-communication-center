@@ -263,7 +263,7 @@ function getMyRequestsView(value: string | null, isManager: boolean, isReporter:
   if (isReporter) {
     return value === 'external-pending' || value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
   }
-  return value === 'approved' || value === 'external-pending' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+  return value === 'approved' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
 
 function getRequestFlowFilter(value: string | null): RequestFlowFilter {
@@ -282,7 +282,14 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
   return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
 }
 
-function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false, isManager = false): JobSummary[] {
+function hasPendingTargetDepartment(job: JobSummary, activeDepartmentId: string | null): boolean {
+  const targetDepartments = job.departments?.filter(department =>
+    department.role === 'Target' && department.approvalStatus === 'Pending') ?? []
+  if (!activeDepartmentId) return targetDepartments.length > 0
+  return targetDepartments.some(department => department.departmentId === activeDepartmentId)
+}
+
+function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false, isManager = false, activeDepartmentId: string | null = null): JobSummary[] {
   if (view === 'all') return jobs
   if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
 
@@ -290,6 +297,7 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
     return jobs.filter(job =>
       job.requestType === 'ExternalUnit'
       && job.status === 'PendingExternalApproval'
+      && (!isManager || hasPendingTargetDepartment(job, activeDepartmentId))
       && !isJobOverdue(job))
   }
 
@@ -436,7 +444,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       // Üst Düzey Yönetici: "Bekleyen Taleplerim"den sonra "Yapılmakta Olan Taleplerim".
       ? (['pending', 'external-pending', 'in-progress', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
-      : (['pending', 'external-pending', 'approved', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
+      : (['pending', 'approved', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
   const reporterDepartmentParam = searchParams.get('departmentId')
   const reporterDepartmentId = isReporter
@@ -545,7 +553,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     let result: typeof jobs
 
     if (isMyRequestsView) {
-      const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter, isManagerLike)
+      const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter, isManagerLike, activeDeptId)
       result = showRequestFlowFilters ? myJobs.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter)) : myJobs
     } else if (isDepartmentOutgoingView) {
       result = filterDepartmentOutgoingRequests(jobs, currentDepartmentOutgoingView)
@@ -598,7 +606,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     }
 
     return result
-  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
+  }, [activeDeptId, currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()

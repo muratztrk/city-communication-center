@@ -317,3 +317,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 42 (direct feedback)
 - [x] Detay popups too tall after the #444 portal (scale went 0.81→1.0). Lowered Jobs + Tasks detail modals from forced `h-[92dvh] max-h-[92dvh]` to `max-h-[80dvh]` (caps + sizes to content). Build PASS. (Citizen "Talep Oluştur" popup left as-is — out of scope of "Detay" popups.)
+
+## Round 43 (new Doing cards)
+- [x] `#462` — Detay popups (Jobs + Tasks detail modals) height-only bump max-h-[72dvh] → max-h-[80dvh] (notification list modal left at 72dvh — it's bell-opened, not a Detay popup). JobsPage + TasksPage.
+- [x] `#459` — Manager Taleplerim "Birim Dışı Onay Bekleyen Talepler" grid was empty: filterMyRequests external-pending required status PendingExternalApproval AND hasPendingTargetDepartment(job, activeDept) — but in Taleplerim the active dept is the OWNER (never a target), so it always excluded everything; it also missed the owner-approved-awaiting-target-staff state. Fixed: external-pending now = ExternalUnit && (PendingExternalApproval || (Active && taskCount===0)) && !overdue (mirrors what the target manager sees in Birime Gelen → Onay Bekleyen). Removed now-unused hasPendingTargetDepartment helper. JobsPage. Build + lint PASS.

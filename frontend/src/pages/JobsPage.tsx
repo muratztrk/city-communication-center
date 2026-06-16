@@ -282,13 +282,6 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
   return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
 }
 
-function hasPendingTargetDepartment(job: JobSummary, activeDepartmentId: string | null): boolean {
-  const targetDepartments = job.departments?.filter(department =>
-    department.role === 'Target' && department.approvalStatus === 'Pending') ?? []
-  if (!activeDepartmentId) return targetDepartments.length > 0
-  return targetDepartments.some(department => department.departmentId === activeDepartmentId)
-}
-
 function hasApprovedTargetDepartment(job: JobSummary, activeDepartmentId: string | null): boolean {
   const targetDepartments = job.departments?.filter(department =>
     department.role === 'Target' && department.approvalStatus === 'Approved') ?? []
@@ -301,10 +294,14 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
   if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
 
   if (view === 'external-pending') {
+    // Talep, oluşturan birimde onaylandıktan sonra hedef birim yöneticisinde "Birime Gelen →
+    // Onay Bekleyen" durumundayken burada görünür: ya hedef birim onayı bekliyor
+    // (PendingExternalApproval) ya da hedef birimin havuzunda personel ataması bekliyor
+    // (Active, henüz görev yok). Talep sahibinin aktif birimi hedef değil (sahip) olduğundan
+    // hedef-birim eşleşmesi aranmaz (card 459).
     return jobs.filter(job =>
       job.requestType === 'ExternalUnit'
-      && job.status === 'PendingExternalApproval'
-      && (!isManager || hasPendingTargetDepartment(job, activeDepartmentId))
+      && (job.status === 'PendingExternalApproval' || (job.status === 'Active' && job.taskCount === 0))
       && !isJobOverdue(job))
   }
 
@@ -1221,7 +1218,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
           role="presentation"
         >
           <section
-            className="detail-modal-shell flex max-h-[72dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="detail-modal-shell flex max-h-[80dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Fixed header */}

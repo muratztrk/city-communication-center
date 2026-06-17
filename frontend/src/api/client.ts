@@ -55,6 +55,15 @@ export const api = {
     return response.json() as Promise<DepartmentSummary[]>
   },
 
+  async changeMyPassword(payload: { currentPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/change-password`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.passwordChangeFailed', 'Parola değiştirilemedi'))
+  },
+
   async getDashboard(from?: string, to?: string): Promise<DashboardSnapshot> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)

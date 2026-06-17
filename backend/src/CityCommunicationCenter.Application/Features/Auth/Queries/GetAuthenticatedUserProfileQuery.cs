@@ -36,15 +36,27 @@ public sealed class GetAuthenticatedUserProfileQueryHandler : IQueryHandler<GetA
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
+        var userIdValue = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? principal.FindFirst("sub")?.Value;
+        string? userSource = null;
+        if (Guid.TryParse(userIdValue, out var userId) && userId != Guid.Empty)
+        {
+            userSource = await _dbContext.Users
+                .IgnoreQueryFilters()
+                .Where(entity => entity.UserId == userId)
+                .Select(entity => entity.UserSource.ToString())
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         var response = new AuthenticatedUserProfileResponse(
-            principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? principal.FindFirst("sub")?.Value,
+            userIdValue,
             principal.FindFirst(ClaimTypes.Email)?.Value ?? principal.FindFirst("email")?.Value,
             principal.FindFirst(ClaimTypes.Name)?.Value ?? principal.FindFirst("name")?.Value,
             principal.FindFirst(ClaimTypes.Role)?.Value ?? principal.FindFirst("role")?.Value,
             principal.FindFirst("tenant_id")?.Value,
             principal.FindFirst("department_id")?.Value,
             departmentName,
-            rolePageAccessJson);
+            rolePageAccessJson,
+            userSource);
 
         return response;
     }

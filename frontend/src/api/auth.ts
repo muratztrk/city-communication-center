@@ -48,6 +48,7 @@ interface AuthenticatedUserProfileResponse {
   departmentId: string | null
   departmentName: string | null
   rolePageAccessJson: string | null
+  userSource: string | null
 }
 
 interface JwtPayload {
@@ -155,6 +156,7 @@ function buildUserFromProfileResponse(response: AuthenticatedUserProfileResponse
     tenantName: existingUser?.tenantName ?? '',
     departmentId: response.departmentId ?? existingUser?.departmentId ?? '',
     departmentName: response.departmentName ?? existingUser?.departmentName ?? '',
+    userSource: response.userSource ?? existingUser?.userSource ?? '',
   }
 }
 

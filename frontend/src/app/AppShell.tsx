@@ -1,6 +1,7 @@
-import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
+import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'lumespecsoftware@gmail.com'
@@ -66,6 +67,7 @@ export function AppShell() {
   const [userDepartments, setUserDepartments] = useState<DepartmentSummary[]>([])
   const [activeDeptId, setActiveDeptId] = useState<string | null>(getActiveDepartmentId)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -128,6 +130,9 @@ export function AppShell() {
   const logoUrl = appearance.logoUrl?.trim() || null
   const userDisplayName = user?.displayName || '-'
   const userRoleLabel = getRoleLabel(t, user?.role ?? '')
+  // Yerel (Manual) kullanıcılar parolasını değiştirebilir; LDAP kullanıcıları dizinde yönetilir.
+  const isLocalUser = (user?.userSource ?? '').toLowerCase() === 'manual'
+  const canOpenUserMenu = userDepartments.length > 1 || isLocalUser
   const userInitials = userDisplayName
     .trim()
     .split(/\s+/)
@@ -503,8 +508,8 @@ export function AppShell() {
             <div ref={userMenuRef} className="relative">
               <button
                 type="button"
-                onClick={() => userDepartments.length > 1 && setIsUserMenuOpen(v => !v)}
-                className={`flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm${userDepartments.length > 1 ? ' cursor-pointer transition-colors hover:border-slate-300 hover:shadow-md' : ' cursor-default'}`}
+                onClick={() => canOpenUserMenu && setIsUserMenuOpen(v => !v)}
+                className={`flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm${canOpenUserMenu ? ' cursor-pointer transition-colors hover:border-slate-300 hover:shadow-md' : ' cursor-default'}`}
                 title={`${userDisplayName} - ${user?.departmentName || userRoleLabel}`}
               >
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-xs font-black text-white">
@@ -518,45 +523,67 @@ export function AppShell() {
                       : (user?.departmentName || userRoleLabel)}
                   </div>
                 </div>
-                {userDepartments.length > 1 && (
+                {canOpenUserMenu && (
                   <ChevronDown className={`size-3.5 shrink-0 text-slate-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                 )}
               </button>
-              {isUserMenuOpen && userDepartments.length > 1 && (
+              {isUserMenuOpen && canOpenUserMenu && (
                 <div
-                  role="listbox"
-                  aria-label={t('departmentSwitcher.label', 'Birim seçin')}
+                  role="menu"
+                  aria-label={t('userMenu.label', 'Kullanıcı menüsü')}
                   className="absolute right-0 top-full z-50 mt-1.5 min-w-[220px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5"
                 >
-                  <div className="px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-slate-400">
-                    {t('departmentSwitcher.heading', 'Görev Yaptığım Birimler')}
-                  </div>
-                  <div className="pb-1.5">
-                    {userDepartments.map(dept => {
-                      const isActive = dept.departmentId === activeDeptId
-                      return (
-                        <button
-                          key={dept.departmentId}
-                          role="option"
-                          aria-selected={isActive}
-                          type="button"
-                          onClick={() => handleDeptSelect(dept)}
-                          className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50"
-                        >
-                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-primary)]/10">
-                            <Building className="size-4 text-[color:var(--color-primary)]" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-semibold text-slate-800">{dept.name}</div>
-                            {dept.isPrimary ? (
-                              <div className="text-xs text-slate-400">{t('departmentSwitcher.primaryLabel', 'Asıl Birim')}</div>
-                            ) : null}
-                          </div>
-                          {isActive ? <Check className="size-4 shrink-0 text-[color:var(--color-primary)]" /> : null}
-                        </button>
-                      )
-                    })}
-                  </div>
+                  {userDepartments.length > 1 && (
+                    <>
+                      <div className="px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-slate-400">
+                        {t('departmentSwitcher.heading', 'Görev Yaptığım Birimler')}
+                      </div>
+                      <div className="pb-1.5" role="listbox" aria-label={t('departmentSwitcher.label', 'Birim seçin')}>
+                        {userDepartments.map(dept => {
+                          const isActive = dept.departmentId === activeDeptId
+                          return (
+                            <button
+                              key={dept.departmentId}
+                              role="option"
+                              aria-selected={isActive}
+                              type="button"
+                              onClick={() => handleDeptSelect(dept)}
+                              className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50"
+                            >
+                              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-primary)]/10">
+                                <Building className="size-4 text-[color:var(--color-primary)]" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate text-sm font-semibold text-slate-800">{dept.name}</div>
+                                {dept.isPrimary ? (
+                                  <div className="text-xs text-slate-400">{t('departmentSwitcher.primaryLabel', 'Asıl Birim')}</div>
+                                ) : null}
+                              </div>
+                              {isActive ? <Check className="size-4 shrink-0 text-[color:var(--color-primary)]" /> : null}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
+                  {isLocalUser && (
+                    <>
+                      {userDepartments.length > 1 && <div className="border-t border-slate-100" />}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => { setIsUserMenuOpen(false); setIsChangePasswordOpen(true) }}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50"
+                      >
+                        <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-primary)]/10">
+                          <KeyRound className="size-4 text-[color:var(--color-primary)]" />
+                        </div>
+                        <div className="truncate text-sm font-semibold text-slate-800">
+                          {t('changePassword.menuItem', 'Parolamı Değiştir')}
+                        </div>
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -581,6 +608,7 @@ export function AppShell() {
       </div>
       </div> {/* end main area row */}
       <ScrollFab />
+      {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
     </div>
   )
 }

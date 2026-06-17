@@ -61,6 +61,11 @@
   <data name="ValidationUserIdRequired" xml:space="preserve"><value>User ID is required.</value></data>
   <data name="ValidationUserNotFound" xml:space="preserve"><value>User not found.</value></data>
   <data name="ValidationCannotDeleteSelf" xml:space="preserve"><value>You cannot delete your own account.</value></data>
+  <data name="ValidationCurrentPasswordRequired" xml:space="preserve"><value>Current password is required.</value></data>
+  <data name="ValidationNewPasswordRequired" xml:space="preserve"><value>New password is required.</value></data>
+  <data name="ValidationNewPasswordMismatch" xml:space="preserve"><value>New passwords do not match.</value></data>
+  <data name="ValidationCurrentPasswordIncorrect" xml:space="preserve"><value>Current password is incorrect.</value></data>
+  <data name="ValidationPasswordChangeNotAllowed" xml:space="preserve"><value>Password can only be changed for local users.</value></data>
   <data name="ValidationDepartmentIdRequired" xml:space="preserve"><value>Department ID is required.</value></data>
   <data name="ValidationDepartmentNameRequired" xml:space="preserve"><value>Department name is required.</value></data>
   <data name="ValidationDepartmentHasUsers" xml:space="preserve"><value>This department has assigned users. Move them to another department first.</value></data>

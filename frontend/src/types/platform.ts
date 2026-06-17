@@ -522,6 +522,7 @@ export interface AuthUser {
   tenantName: string;
   departmentId: string;
   departmentName?: string;
+  userSource?: string;
 }
 
 export interface AuthSession {

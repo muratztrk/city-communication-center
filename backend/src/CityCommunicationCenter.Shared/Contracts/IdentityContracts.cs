@@ -8,6 +8,11 @@ public sealed record CurrentUserResponse(
     bool IsAuthenticated,
     string? ResolutionSource);
 
+public sealed record ChangeMyPasswordRequest(
+    string CurrentPassword,
+    string NewPassword,
+    string ConfirmPassword);
+
 public sealed record DepartmentSummaryResponse(
     Guid DepartmentId,
     string Name,
@@ -136,7 +141,8 @@ public sealed record AuthenticatedUserProfileResponse(
     string? TenantId,
     string? DepartmentId,
     string? DepartmentName,
-    string? RolePageAccessJson);
+    string? RolePageAccessJson,
+    string? UserSource = null);
 
 public sealed record TenantLookupResponse(
     Guid TenantId,

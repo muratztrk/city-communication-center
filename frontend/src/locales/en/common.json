@@ -29,7 +29,27 @@
     "no": "No",
     "unspecified": "Unspecified",
     "exit": "Exit",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "hide": "Hide",
+    "show": "Show"
+  },
+  "userMenu": {
+    "label": "User menu"
+  },
+  "changePassword": {
+    "menuItem": "Change My Password",
+    "title": "Change My Password",
+    "currentPassword": "Old password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "submit": "Change",
+    "success": "Your password has been changed successfully.",
+    "errors": {
+      "allRequired": "Please fill in all fields.",
+      "minLength": "New password must be at least 8 characters.",
+      "mismatch": "New passwords do not match.",
+      "failed": "Could not change password."
+    }
   },
   "filters": {
     "requestFlow": {
@@ -57,6 +77,7 @@
     "userCreateFailed": "Failed to create user.",
     "userUpdateFailed": "Failed to update user.",
     "userDeleteFailed": "Failed to delete user.",
+    "passwordChangeFailed": "Could not change password.",
     "tenantSettingsLoadFailed": "Failed to load organization settings.",
     "tenantSettingsSaveFailed": "Failed to save organization settings.",
     "tenantLdapSettingsLoadFailed": "Failed to load LDAP settings.",

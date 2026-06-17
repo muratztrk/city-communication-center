@@ -28,4 +28,16 @@ public sealed class MeController : ApiControllerBase
         var response = await _sender.Send(new GetMyDepartmentsQuery(), cancellationToken);
         return Ok(response);
     }
+
+    [HttpPost("change-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangeMyPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new ChangeMyPasswordCommand(request.CurrentPassword, request.NewPassword, request.ConfirmPassword),
+            cancellationToken);
+        return NoContent();
+    }
 }

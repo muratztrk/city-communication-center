@@ -29,7 +29,9 @@
     "no": "Hayır",
     "unspecified": "Belirsiz",
     "exit": "Çıkış",
-    "dismiss": "Vazgeç"
+    "dismiss": "Vazgeç",
+    "hide": "Gizle",
+    "show": "Göster"
   },
   "filters": {
     "requestFlow": {
@@ -39,6 +41,24 @@
     },
     "startDate": "Başlangıç tarihi",
     "endDate": "Bitiş tarihi"
+  },
+  "userMenu": {
+    "label": "Kullanıcı menüsü"
+  },
+  "changePassword": {
+    "menuItem": "Parolamı Değiştir",
+    "title": "Parolamı Değiştir",
+    "currentPassword": "Eski parola",
+    "newPassword": "Yeni Parola",
+    "confirmPassword": "Yeni Parola Tekrarı",
+    "submit": "Değiştir",
+    "success": "Parolanız başarıyla değiştirildi.",
+    "errors": {
+      "allRequired": "Lütfen tüm alanları doldurun.",
+      "minLength": "Yeni parola en az 8 karakter olmalıdır.",
+      "mismatch": "Yeni parolalar eşleşmiyor.",
+      "failed": "Parola değiştirilemedi."
+    }
   },
   "errors": {
     "invalidAccessToken": "Geçersiz access token.",
@@ -57,6 +77,7 @@
     "userCreateFailed": "Kullanıcı oluşturulamadı.",
     "userUpdateFailed": "Kullanıcı güncellenemedi.",
     "userDeleteFailed": "Kullanıcı silinemedi.",
+    "passwordChangeFailed": "Parola değiştirilemedi.",
     "tenantSettingsLoadFailed": "Kurum ayarları alınamadı.",
     "tenantSettingsSaveFailed": "Kurum ayarları kaydedilemedi.",
     "tenantLdapSettingsLoadFailed": "LDAP ayarları alınamadı.",

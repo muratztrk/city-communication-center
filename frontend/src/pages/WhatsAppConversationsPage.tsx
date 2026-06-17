@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Send, Volume2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { ChannelIcon } from '../components/ui/channel-icon'
 import { StatusPill } from '../components/ui/status-pill'
 import type {
   CitizenConversationSummary,
@@ -438,10 +439,11 @@ function ConversationDetail({
 
 export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(searchParams.get('phone') ?? '')
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const loadConversations = useCallback(async () => {
@@ -461,6 +463,10 @@ export function WhatsAppConversationsPage() {
   useEffect(() => {
     void loadConversations()
   }, [loadConversations])
+
+  useEffect(() => {
+    setSearch(searchParams.get('phone') ?? '')
+  }, [searchParams])
 
   const filtered = conversations.filter(c =>
     c.citizenPhone.includes(search) ||
@@ -501,13 +507,16 @@ export function WhatsAppConversationsPage() {
         {/* Left: conversation list */}
         <div className="w-80 shrink-0 flex flex-col border-r border-[color:var(--color-border)]">
           <div className="px-3 py-2.5 border-b border-[color:var(--color-border)]">
-            <input
-              type="search"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder={t('whatsapp.searchPlaceholder')}
-              className="field-input w-full text-sm"
-            />
+            <div className="relative">
+              <ChannelIcon channel="WhatsApp" className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#25d366]" />
+              <input
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={t('whatsapp.searchPlaceholder')}
+                className="field-input w-full pl-9 text-sm"
+              />
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto">
             {loading ? (

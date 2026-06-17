@@ -150,8 +150,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, onClose, can
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0"
-        style={{ background: 'linear-gradient(180deg, #e5ffe8 0%, #f0f9ff 100%)' }}>
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0"
+        style={{ background: 'linear-gradient(145deg, var(--color-header-from), var(--color-header-to))' }}
+      >
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />

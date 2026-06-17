@@ -275,13 +275,13 @@ export function WallboardPage() {
       </header>
 
       <section className="wallboard-stats" aria-label={t('wallboard.summary', 'Özet')}>
-        <button type="button" className={`${summary.total === 0 ? 'is-zero' : ''}${statFilter === 'total' ? ' active' : ''}`} aria-pressed={statFilter === 'total'} onClick={() => setStatFilter('total')}>
+        <button type="button" className={`stat-total${summary.total === 0 ? ' is-zero' : ''}${statFilter === 'total' ? ' active' : ''}`} aria-pressed={statFilter === 'total'} onClick={() => setStatFilter('total')}>
           <span>{summary.total}</span><p>{t('wallboard.totalWaiting', 'Toplam Bekleyen (Birim İçi + Birim Dışı)')}</p>
         </button>
-        <button type="button" className={`${summary.internal === 0 ? 'is-zero' : ''}${statFilter === 'internal' ? ' active' : ''}`} aria-pressed={statFilter === 'internal'} onClick={() => setStatFilter('internal')}>
+        <button type="button" className={`stat-internal${summary.internal === 0 ? ' is-zero' : ''}${statFilter === 'internal' ? ' active' : ''}`} aria-pressed={statFilter === 'internal'} onClick={() => setStatFilter('internal')}>
           <span>{summary.internal}</span><p>{t('wallboard.internal', 'Birim İçi')}</p>
         </button>
-        <button type="button" className={`${summary.external === 0 ? 'is-zero' : ''}${statFilter === 'external' ? ' active' : ''}`} aria-pressed={statFilter === 'external'} onClick={() => setStatFilter('external')}>
+        <button type="button" className={`stat-external${summary.external === 0 ? ' is-zero' : ''}${statFilter === 'external' ? ' active' : ''}`} aria-pressed={statFilter === 'external'} onClick={() => setStatFilter('external')}>
           <span>{summary.external}</span><p>{t('wallboard.external', 'Birim Dışı')}</p>
         </button>
         <button type="button" className={`stat-overdue${summary.overdue === 0 ? ' is-zero' : ''}${statFilter === 'overdue' ? ' active' : ''}`} aria-pressed={statFilter === 'overdue'} onClick={() => setStatFilter('overdue')}>

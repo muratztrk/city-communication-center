@@ -639,6 +639,7 @@
     "title": "WhatsApp Conversations",
     "subtitle": "Manage incoming WhatsApp messages from citizens.",
     "searchPlaceholder": "Search by phone number…",
+    "conversationsButton": "Conversations",
     "empty": "No conversations yet",
     "emptyDetail": "Select a conversation",
     "unread": "unread",

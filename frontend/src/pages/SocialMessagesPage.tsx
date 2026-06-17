@@ -1,11 +1,11 @@
-import { MapPin, MessageSquare, X } from 'lucide-react'
+import { MapPin, MessageCircle, MessageSquare, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
@@ -67,6 +67,7 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const channelFilter = searchParams.get('channel') ?? ''
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
@@ -184,6 +185,10 @@ export function SocialMessagesPage() {
     setSearchParams(nextParams)
   }
 
+  const openWhatsAppConversations = (phoneOrHandle: string) => {
+    navigate(`/whatsapp?phone=${encodeURIComponent(phoneOrHandle.replace(/^@/, ''))}`)
+  }
+
   if (loading) {
     return <div className="loading">{t('common.loading')}</div>
   }
@@ -204,21 +209,19 @@ export function SocialMessagesPage() {
         </div>
       </header>
 
-      <section className="section-card">
-        <div className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
-          {channelQuickFilters.map(filter => (
-            <button
-              key={filter.value || 'all'}
-              type="button"
-              className={`scope-chip ${channelFilter === filter.value ? 'active' : ''}`}
-              onClick={() => setChannelFilter(filter.value)}
-            >
-              {filter.value && <ChannelIcon channel={filter.value} className="size-3.5 shrink-0" />}
-              {filter.label}
-            </button>
-          ))}
-        </div>
-      </section>
+      <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
+        {channelQuickFilters.map(filter => (
+          <button
+            key={filter.value || 'all'}
+            type="button"
+            className={`scope-chip scope-chip--pending${channelFilter === filter.value ? ' active' : ''}`}
+            onClick={() => setChannelFilter(filter.value)}
+          >
+            {filter.value && <ChannelIcon channel={filter.value} className="size-3.5 shrink-0" />}
+            {filter.label}
+          </button>
+        ))}
+      </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
@@ -260,6 +263,17 @@ export function SocialMessagesPage() {
                     <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
+                        {message.channel === 'WhatsApp' ? (
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant="secondary"
+                            onClick={() => openWhatsAppConversations(message.citizenHandle)}
+                          >
+                            <MessageCircle className="size-3.5" />
+                            {t('whatsapp.conversationsButton', 'Yazışmalar')}
+                          </Button>
+                        ) : null}
                         {!message.jobId ? (
                           <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
                             {t('nav.createRequest', 'Talep Oluştur')}

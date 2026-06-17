@@ -551,7 +551,7 @@ export function NotificationBell() {
           aria-modal="true"
         >
           <div
-            className="flex max-h-[74dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="notification-modal-shell flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal header */}

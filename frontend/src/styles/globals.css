@@ -149,6 +149,11 @@
     width: min(88vw, 64rem);
   }
 
+  .notification-modal-shell {
+    height: min(74dvh, 42rem);
+    max-height: calc(100dvh - 2rem);
+  }
+
   @media (min-width: 1024px) {
     .app-content-shell {
       font-size: 0.86rem;
@@ -2003,49 +2008,46 @@
 
   .wallboard-stats > button {
     position: relative;
+    --wallboard-stat-accent: #fbbf24;
+    --wallboard-stat-accent-soft: rgba(251, 191, 36, 0.28);
     min-width: 0;
     /* Buton yüksekliği ~%30 azaltıldı (gridview'da 10 kayıt scroll'suz sığsın). */
     padding: 0.55rem 1rem;
     border: 1px solid rgba(255, 255, 255, 0.14);
+    border-bottom-color: var(--wallboard-stat-accent);
     border-radius: 0.85rem;
     background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 -3px 0 var(--wallboard-stat-accent), 0 16px 34px rgba(0, 0, 0, 0.14);
     text-align: left;
     cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+    transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
   }
 
-  .wallboard-stats > button::after {
-    content: '';
-    position: absolute;
-    left: 0.9rem;
-    right: 0.9rem;
-    bottom: 0.28rem;
-    height: 3px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04));
-    opacity: 0.9;
+  .wallboard-stats > button.stat-internal {
+    --wallboard-stat-accent: #fb7185;
+    --wallboard-stat-accent-soft: rgba(251, 113, 133, 0.28);
+  }
+
+  .wallboard-stats > button.stat-external {
+    --wallboard-stat-accent: #f43f5e;
+    --wallboard-stat-accent-soft: rgba(244, 63, 94, 0.28);
+  }
+
+  .wallboard-stats > button.stat-overdue {
+    --wallboard-stat-accent: #e11d48;
+    --wallboard-stat-accent-soft: rgba(225, 29, 72, 0.3);
   }
 
   .wallboard-stats > button:hover {
     background: rgba(255, 255, 255, 0.18);
     border-color: rgba(255, 255, 255, 0.32);
+    border-bottom-color: var(--wallboard-stat-accent);
+    box-shadow: inset 0 -4px 0 var(--wallboard-stat-accent), 0 18px 36px rgba(0, 0, 0, 0.18);
   }
 
   .wallboard-stats > button.active {
-    border-color: #fb923c;
-  }
-
-  .wallboard-stats > button.active::after {
-    background: linear-gradient(90deg, #fdba74, #fb923c);
-    box-shadow: 0 0 12px rgba(251, 146, 60, 0.35);
-  }
-
-  .wallboard-stats > button.stat-overdue::after {
-    background: linear-gradient(90deg, rgba(248, 113, 113, 0.62), rgba(239, 68, 68, 0.95));
-  }
-
-  .wallboard-stats > button.stat-overdue.active::after {
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+    border-color: var(--wallboard-stat-accent);
+    box-shadow: inset 0 -4px 0 var(--wallboard-stat-accent), 0 0 0 1px var(--wallboard-stat-accent-soft), 0 18px 38px rgba(0, 0, 0, 0.2);
   }
 
   .wallboard-stats span {

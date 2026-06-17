@@ -1,4 +1,4 @@
-import { Paperclip, Search, X } from 'lucide-react'
+import { FileText, Paperclip, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -11,6 +11,7 @@ import { FilterableTh } from '../components/ui/FilterableTh'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { resolveAttachmentUrl } from '../api/config'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
@@ -1146,13 +1147,20 @@ const pageKicker = isMyTasksView
                                 {parentJobDetail.attachments.map(att => (
                                   <a
                                     key={att.attachmentId}
-                                    href={att.url}
+                                    href={resolveAttachmentUrl(att.url)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     title={att.fileName}
                                     className="block overflow-hidden rounded-lg border border-slate-200 bg-slate-50"
                                   >
-                                    <img src={att.url} alt={att.fileName} className="h-16 w-full object-cover" loading="lazy" />
+                                    {/\.(jpe?g|png)$/i.test(att.fileName) ? (
+                                      <img src={resolveAttachmentUrl(att.url)} alt={att.fileName} className="h-16 w-full object-cover" loading="lazy" />
+                                    ) : (
+                                      <div className="flex h-16 w-full flex-col items-center justify-center gap-0.5 px-1 text-slate-500">
+                                        <FileText className="size-5" />
+                                        <span className="line-clamp-1 break-all text-center text-[9px] font-medium">{att.fileName}</span>
+                                      </div>
+                                    )}
                                   </a>
                                 ))}
                               </div>

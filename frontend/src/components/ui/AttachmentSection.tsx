@@ -1,6 +1,7 @@
 import { FileText } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { resolveAttachmentUrl } from '../../api/config'
 import type { Attachment } from '../../types/platform'
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
@@ -127,10 +128,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
               key={att.attachmentId}
               className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
             >
-              <a href={att.url} target="_blank" rel="noopener noreferrer" title={att.fileName} className="block">
+              <a href={resolveAttachmentUrl(att.url)} target="_blank" rel="noopener noreferrer" title={att.fileName} className="block">
                 {isImageAttachment(att.fileName) ? (
                   <img
-                    src={att.url}
+                    src={resolveAttachmentUrl(att.url)}
                     alt={att.fileName}
                     className="h-24 w-full object-cover"
                     loading="lazy"

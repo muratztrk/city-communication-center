@@ -1313,7 +1313,9 @@
     "errorSize": "File size must not exceed 5 MB.",
     "errorType": "Only JPG, PNG, GIF and WebP files are allowed.",
     "deleteConfirm": "Are you sure you want to delete this attachment?",
-    "uploading": "Uploading..."
+    "uploading": "Uploading...",
+    "requestEmpty": "No attachment/photo for the request.",
+    "addFile": "Add File"
   },
   "location": {
     "label": "Location (Optional)",

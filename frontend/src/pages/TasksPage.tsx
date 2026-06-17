@@ -1104,28 +1104,29 @@ const pageKicker = isMyTasksView
                               <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
                             )}
                           </div>
-                          {/* 4. sütun: Ekler / Fotoğraflar (card 519) */}
+                          {/* 4. sütun: Ekler / Fotoğraflar — talep oluşturulurken eklenen dosyalar, salt-okunur (card 519/527) */}
                           <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
                             <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                               {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                             </div>
-                            <AttachmentSection
-                              attachments={taskDetail.attachments ?? []}
-                              onUpload={async file => {
-                                setAttachmentUploading(true)
-                                try {
-                                  await api.uploadTaskAttachment(taskDetail.taskId, file)
-                                  setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                                } finally {
-                                  setAttachmentUploading(false)
-                                }
-                              }}
-                              onDelete={async id => {
-                                await api.deleteAttachment(id)
-                                setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                              }}
-                              disabled={attachmentUploading}
-                            />
+                            {parentJobDetail.attachments.length > 0 ? (
+                              <div className="grid grid-cols-3 gap-2">
+                                {parentJobDetail.attachments.map(att => (
+                                  <a
+                                    key={att.attachmentId}
+                                    href={att.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title={att.fileName}
+                                    className="block overflow-hidden rounded-lg border border-slate-200 bg-slate-50"
+                                  >
+                                    <img src={att.url} alt={att.fileName} className="h-16 w-full object-cover" loading="lazy" />
+                                  </a>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-slate-400">{t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}</p>
+                            )}
                           </div>
                         </div>
                       </section>

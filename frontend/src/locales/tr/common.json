@@ -1338,7 +1338,9 @@
     "errorSize": "Dosya boyutu 5 MB'ı aşamaz.",
     "errorType": "Sadece JPG, PNG, GIF ve WebP dosyaları yüklenebilir.",
     "deleteConfirm": "Bu eki silmek istediğinize emin misiniz?",
-    "uploading": "Yükleniyor..."
+    "uploading": "Yükleniyor...",
+    "requestEmpty": "Talep için ek/fotoğraf bulunmamaktadır.",
+    "addFile": "Dosya ekle"
   },
   "location": {
     "label": "Konum (İsteğe Bağlı)",

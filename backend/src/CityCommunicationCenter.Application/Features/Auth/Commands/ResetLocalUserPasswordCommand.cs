@@ -27,8 +27,11 @@ public sealed class ResetLocalUserPasswordCommandValidator : AbstractValidator<R
 public sealed class ResetLocalUserPasswordCommandHandler : ICommandHandler<ResetLocalUserPasswordCommand, Unit>
 {
     // Karışıklık yaratabilecek karakterler (O/0, l/1 vb.) hariç tutuldu.
-    private const string PasswordAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-    private const int GeneratedPasswordLength = 12;
+    private const string LowercaseChars = "abcdefghijkmnpqrstuvwxyz";
+    private const string UppercaseChars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    private const string DigitChars = "23456789";
+    private const string SpecialChars = "!@#$%*?-_";
+    private const int GeneratedPasswordLength = 14;
 
     private readonly IApplicationDbContext _dbContext;
     private readonly ILocalUserPasswordService _localUserPasswordService;
@@ -111,14 +114,30 @@ public sealed class ResetLocalUserPasswordCommandHandler : ICommandHandler<Reset
         return Unit.Value;
     }
 
+    // PasswordPolicy'i karşılaması için her kategoriden en az bir karakter garanti edilir.
     private static string GeneratePassword()
     {
-        var chars = new char[GeneratedPasswordLength];
-        for (var i = 0; i < chars.Length; i++)
+        var all = LowercaseChars + UppercaseChars + DigitChars + SpecialChars;
+        var chars = new List<char>(GeneratedPasswordLength)
         {
-            chars[i] = PasswordAlphabet[RandomNumberGenerator.GetInt32(PasswordAlphabet.Length)];
+            LowercaseChars[RandomNumberGenerator.GetInt32(LowercaseChars.Length)],
+            UppercaseChars[RandomNumberGenerator.GetInt32(UppercaseChars.Length)],
+            DigitChars[RandomNumberGenerator.GetInt32(DigitChars.Length)],
+            SpecialChars[RandomNumberGenerator.GetInt32(SpecialChars.Length)],
+        };
+
+        while (chars.Count < GeneratedPasswordLength)
+        {
+            chars.Add(all[RandomNumberGenerator.GetInt32(all.Length)]);
         }
 
-        return new string(chars);
+        // Sabit kategori sıralamasını bozmak için kriptografik Fisher-Yates karıştırma.
+        for (var i = chars.Count - 1; i > 0; i--)
+        {
+            var j = RandomNumberGenerator.GetInt32(i + 1);
+            (chars[i], chars[j]) = (chars[j], chars[i]);
+        }
+
+        return new string(chars.ToArray());
     }
 }

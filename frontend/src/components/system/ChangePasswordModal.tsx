@@ -67,8 +67,9 @@ export function ChangePasswordModal({ onClose }: ChangePasswordModalProps) {
       setError(t('changePassword.errors.allRequired', 'Lütfen tüm alanları doldurun.'))
       return
     }
-    if (newPassword.length < 8) {
-      setError(t('changePassword.errors.minLength', 'Yeni parola en az 8 karakter olmalıdır.'))
+    // En az 8 karakter; büyük harf, küçük harf, rakam ve özel karakter (card 521).
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(newPassword)) {
+      setError(t('changePassword.errors.policy', 'Parola minimum 8 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir.'))
       return
     }
     if (newPassword !== confirmPassword) {

@@ -66,6 +66,7 @@
   <data name="ValidationNewPasswordMismatch" xml:space="preserve"><value>New passwords do not match.</value></data>
   <data name="ValidationCurrentPasswordIncorrect" xml:space="preserve"><value>Current password is incorrect.</value></data>
   <data name="ValidationPasswordChangeNotAllowed" xml:space="preserve"><value>Password can only be changed for local users.</value></data>
+  <data name="ValidationPasswordPolicy" xml:space="preserve"><value>Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a digit and a special character.</value></data>
   <data name="ValidationTenantRequired" xml:space="preserve"><value>A valid municipality context is required.</value></data>
   <data name="ValidationPasswordResetEmailRequired" xml:space="preserve"><value>A valid e-mail address is required.</value></data>
   <data name="ValidationPasswordResetNotLocal" xml:space="preserve"><value>Your user is not a local user. Please contact your system administrator.</value></data>

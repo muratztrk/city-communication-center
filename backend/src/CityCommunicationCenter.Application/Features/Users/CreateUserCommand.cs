@@ -45,9 +45,9 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
             .WithMessage(localizer["ValidationEmailRequired"]);
 
         RuleFor(command => command.Password)
-            .MinimumLength(8)
+            .Must(PasswordPolicy.IsStrong)
             .When(command => !string.IsNullOrWhiteSpace(command.Password))
-            .WithMessage(localizer["ValidationPasswordMinLength"]);
+            .WithMessage(localizer["ValidationPasswordPolicy"]);
 
         RuleFor(command => command.Password)
             .NotEmpty()

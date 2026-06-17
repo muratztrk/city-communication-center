@@ -19,8 +19,8 @@ public sealed class ChangeMyPasswordCommandValidator : AbstractValidator<ChangeM
         RuleFor(command => command.NewPassword)
             .NotEmpty()
             .WithMessage(localizer["ValidationNewPasswordRequired"])
-            .MinimumLength(8)
-            .WithMessage(localizer["ValidationPasswordMinLength"]);
+            .Must(PasswordPolicy.IsStrong)
+            .WithMessage(localizer["ValidationPasswordPolicy"]);
 
         RuleFor(command => command.ConfirmPassword)
             .Equal(command => command.NewPassword)

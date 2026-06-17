@@ -47,6 +47,7 @@
     "errors": {
       "allRequired": "Please fill in all fields.",
       "minLength": "New password must be at least 8 characters.",
+      "policy": "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a digit and a special character.",
       "mismatch": "New passwords do not match.",
       "failed": "Could not change password."
     }

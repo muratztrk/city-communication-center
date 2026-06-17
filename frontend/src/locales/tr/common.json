@@ -56,6 +56,7 @@
     "errors": {
       "allRequired": "Lütfen tüm alanları doldurun.",
       "minLength": "Yeni parola en az 8 karakter olmalıdır.",
+      "policy": "Parola minimum 8 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir.",
       "mismatch": "Yeni parolalar eşleşmiyor.",
       "failed": "Parola değiştirilemedi."
     }

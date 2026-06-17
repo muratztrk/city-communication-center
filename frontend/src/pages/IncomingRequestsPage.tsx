@@ -24,10 +24,9 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
-import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
-import type { Department, JobSummary, Task, User } from '../types/platform'
+import type { JobSummary, Task, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
@@ -282,17 +281,11 @@ export function IncomingRequestsPage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ row: IncomingRequestRow; reason: string; saving: boolean } | null>(null)
   const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
-  const [departments, setDepartments] = useState<Department[]>([])
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
     approvalType: 'owner' | 'assign'
     selectedUserIds: string[]
     selfRequestedOwnerUserId: string | null
-  } | null>(null)
-  const [coordinatedModal, setCoordinatedModal] = useState<{
-    row: IncomingRequestRow
-    selectedDepartmentIds: string[]
-    saving: boolean
   } | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter()
@@ -310,13 +303,11 @@ export function IncomingRequestsPage() {
       api.getTasks('all'),
       api.getJobs('my-department'),
       api.getUsers(),
-      api.getDepartments(),
     ])
-      .then(([taskList, jobList, userList, departmentList]) => {
+      .then(([taskList, jobList, userList]) => {
         if (cancelled) return
         setTasks(taskList)
         setJobs(jobList)
-        setDepartments(departmentList)
         const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
         // Personel listesi + atamayı yapan yöneticinin kendisi (görevi kendine atayabilsin).
         setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === currentDeptId || u.departments?.some(d => d.departmentId === currentDeptId)) && (u.roleCode === 'Staff' || u.userId === user?.userId)))
@@ -361,60 +352,6 @@ export function IncomingRequestsPage() {
       selectedUserIds: [],
       selfRequestedOwnerUserId: null,
     })
-  }
-
-  const openCoordinatedModal = (row: IncomingRequestRow) => {
-    setCoordinatedModal({
-      row,
-      selectedDepartmentIds: [],
-      saving: false,
-    })
-  }
-
-  const coordinatedDepartmentOptions = useMemo(() => {
-    if (!coordinatedModal) return []
-    const job = jobs.find(item => item.jobId === coordinatedModal.row.jobId)
-    if (!job) return []
-    return departments
-      .filter(department =>
-        department.departmentId !== job.ownerDepartmentId
-        && department.departmentId !== coordinatedModal.row.assignTargetDepartmentId
-      )
-      .map(department => ({ value: department.departmentId, label: department.name }))
-  }, [coordinatedModal, departments, jobs])
-
-  const handleCreateCoordinatedRequest = async () => {
-    if (!coordinatedModal || coordinatedModal.selectedDepartmentIds.length === 0) return
-    setCoordinatedModal(current => (current ? { ...current, saving: true } : current))
-    setError(null)
-    try {
-      const sourceJob = jobs.find(item => item.jobId === coordinatedModal.row.jobId)
-      if (!sourceJob) throw new Error(t('common.error'))
-      const sourceJobDetail = await api.getJobById(sourceJob.jobId)
-      const ownerDepartmentId = activeDeptId ?? user?.departmentId ?? sourceJob.ownerDepartmentId
-      await api.createJob({
-        title: sourceJobDetail.title,
-        description: sourceJobDetail.description,
-        ownerDepartmentId,
-        ownerUserIds: [],
-        priority: sourceJobDetail.priority,
-        requestType: 'ExternalUnit',
-        isProject: sourceJobDetail.isProject,
-        startDateUtc: sourceJobDetail.startDateUtc,
-        dueDateUtc: sourceJobDetail.dueDateUtc,
-        targetDepartmentIds: coordinatedModal.selectedDepartmentIds,
-        sourceType: 'Manual',
-        sourceRefId: sourceJob.jobId,
-        neighborhood: sourceJobDetail.neighborhood ?? null,
-        street: sourceJobDetail.street ?? null,
-        openAddress: sourceJobDetail.openAddress ?? null,
-      })
-      setCoordinatedModal(null)
-      await reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-      setCoordinatedModal(current => (current ? { ...current, saving: false } : current))
-    }
   }
 
   const handleStaffAssignConfirm = async () => {
@@ -762,15 +699,6 @@ export function IncomingRequestsPage() {
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {user?.role === 'Manager' && row.statusDomain === 'job' && row.assignTargetDepartmentId && row.kind === 'external' && row.status === 'Active' && row.createdByRoleCode === 'Reporter' && (
-                          <Button
-                            size="sm"
-                            className="bg-cyan-500 text-white hover:bg-cyan-600"
-                            onClick={() => openCoordinatedModal(row)}
-                          >
-                            {t('jobs.actions.createCoordinatedRequest', 'Koordineli Talep Oluştur')}
-                          </Button>
-                        )}
                         {/* Onayla — kapanış onayı bekleyen görevlerde */}
                         {canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
@@ -849,55 +777,6 @@ export function IncomingRequestsPage() {
               </Button>
               <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
                 {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-      {coordinatedModal && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setCoordinatedModal(null)}
-          role="presentation"
-        >
-          <div
-            className="relative w-full max-w-lg rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <button type="button" onClick={() => setCoordinatedModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
-              <X className="size-4" />
-            </button>
-            <h3 className="mb-1 text-base font-bold text-slate-950">
-              {t('jobs.actions.createCoordinatedRequest', 'Koordineli Talep Oluştur')}
-            </h3>
-            <p className="mb-4 text-sm text-slate-600">
-              {t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}
-            </p>
-            <div className="mb-4">
-              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
-                {t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}
-              </span>
-              <MultiSelectDropdown
-                options={coordinatedDepartmentOptions}
-                value={coordinatedModal.selectedDepartmentIds}
-                onChange={selectedDepartmentIds => setCoordinatedModal(current => (current ? { ...current, selectedDepartmentIds } : current))}
-                placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
-                emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                className="bg-cyan-500 text-white hover:bg-cyan-600"
-                disabled={coordinatedModal.saving || coordinatedModal.selectedDepartmentIds.length === 0}
-                onClick={() => void handleCreateCoordinatedRequest()}
-              >
-                {coordinatedModal.saving
-                  ? t('common.loading')
-                  : t('jobs.actions.createCoordinatedRequest', 'Koordineli Talep Oluştur')}
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => setCoordinatedModal(null)}>
-                {t('common.cancel', 'Vazgeç')}
               </Button>
             </div>
           </div>

@@ -49,22 +49,25 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             // kullanıcının oluşturduğu talepler + atandığı / sahibi olduğu / oluşturduğu görevler.
             // Ayrıca yöneticinin onayını bekleyen talepler de feed'e eklenir (card 440) — okunmamış
             // sayacıyla tutarlı kalması için aynı NotificationAudience mantığı kullanılır.
-            var pendingJobIds = await NotificationAudience.GetManagerPendingJobIdsAsync(
+            // Yönetilen birimlerin dahil olduğu talep/görevler de feed'e girer (card 541).
+            var managerJobIds = await NotificationAudience.GetManagerInvolvedJobIdsAsync(
+                _dbContext, tenantId, userId, cancellationToken);
+            var managerTaskIds = await NotificationAudience.GetManagerDepartmentTaskIdsAsync(
                 _dbContext, tenantId, userId, cancellationToken);
             var jobRecords = await _dbContext.Jobs.AsNoTracking()
-                .Where(j => j.TenantId == tenantId && (j.CreatedByUserId == userId || pendingJobIds.Contains(j.JobId)))
-                .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
+                .Where(j => j.TenantId == tenantId && (j.CreatedByUserId == userId || managerJobIds.Contains(j.JobId)))
+                .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear, j.CreatedByUserId })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
-                .Where(t => t.TenantId == tenantId && (t.AssignedUserId == userId || t.OwnerUserId == userId || t.CreatedByUserId == userId))
+                .Where(t => t.TenantId == tenantId && (t.AssignedUserId == userId || t.OwnerUserId == userId || t.CreatedByUserId == userId || managerTaskIds.Contains(t.TaskId)))
                 .Select(t => new { TaskId = t.TaskId.ToString(), t.Title, t.TaskNumber, t.TaskNumberYear })
                 .ToListAsync(cancellationToken);
 
             var jobsById = jobRecords.ToDictionary(j => j.JobId);
             var tasksById = taskRecords.ToDictionary(t => t.TaskId);
             var taskIdSet = taskRecords.Select(t => t.TaskId).ToHashSet();
-            // Onay bekleyen talepler "Detay"a tıklanınca onaylanabilir (Birime Gelen) detayında açılır (card 440/439).
-            var pendingJobIdSet = pendingJobIds.Select(id => id.ToString()).ToHashSet();
+            // Kullanıcının kendi oluşturduğu talepler "Taleplerim"e; yönetilen birim talepleri "Birime Gelen" detayına yönlenir.
+            var ownJobIdSet = jobRecords.Where(j => j.CreatedByUserId == userId).Select(j => j.JobId).ToHashSet();
             var entityIds = jobRecords.Select(j => j.JobId).Concat(taskRecords.Select(t => t.TaskId)).Distinct().ToList();
 
             if (entityIds.Count > 0)
@@ -123,9 +126,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                             : a.AuditLogId != initialUnreadAuditLogId,
                         isTask
                             ? $"/my-tasks?taskId={a.EntityId}"
-                            : pendingJobIdSet.Contains(a.EntityId)
-                                ? $"/request-details?context=incoming&jobId={a.EntityId}"
-                                : $"/my-requests?jobId={a.EntityId}",
+                            : ownJobIdSet.Contains(a.EntityId)
+                                ? $"/my-requests?jobId={a.EntityId}"
+                                : $"/request-details?context=incoming&jobId={a.EntityId}",
                         a.EventTimeUtc));
                 }
             }

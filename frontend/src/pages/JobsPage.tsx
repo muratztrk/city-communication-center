@@ -449,7 +449,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         : detailContext === 'social'
           ? t('nav.social', 'Vatandaş Talepleri')
           : t('jobs.detail.title', 'İş Detayı')
-  const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || detailContext === 'incoming'
+  const isIncomingRequestDetail = detailContext === 'incoming'
+  const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail
   const canManageCoordination = isManagerLike || isReporter
   const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
   const canCancelDetail = isRequestDetailContext
@@ -1487,6 +1488,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         (onay öncesi) talepte düzenlenebilir; onaylanmış/birime gelen talepte salt-okunur (card 537/540). */}
                     {(() => {
                       const canEditJobAttachments = isPreApprovalStatus(detail.status) && (isDepartmentOutgoingView || isMyRequestsView)
+                      const showAttachmentLockNotice = !canEditJobAttachments && (isIncomingRequestDetail || !isPreApprovalStatus(detail.status))
                       return (
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
                           <h3 className="mb-3 text-sm font-bold text-slate-900">
@@ -1511,7 +1513,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                             } : undefined}
                             disabled={attachmentUploading}
                           />
-                          {!canEditJobAttachments && !isPreApprovalStatus(detail.status) && (
+                          {showAttachmentLockNotice && (
                             <p className="mt-2 text-xs font-medium text-amber-600">
                               {(detail.status === 'Cancelled' || detail.status === 'Rejected')
                                 ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
@@ -1625,6 +1627,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
             {(!isRequestDetailContext || !canManageCoordination) && (() => {
               const readOnlyRequestAttachments = isRequestDetailContext
+              const requestAttachmentLockText = (detail.status === 'Cancelled' || detail.status === 'Rejected')
+                ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
+                : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
                 <section className="mb-5">
                   <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
@@ -1649,6 +1654,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     } : undefined}
                     disabled={attachmentUploading}
                   />
+                  {readOnlyRequestAttachments && (
+                    <p className="mt-2 text-xs font-medium text-amber-600">
+                      {requestAttachmentLockText}
+                    </p>
+                  )}
                 </section>
               )
             })()}

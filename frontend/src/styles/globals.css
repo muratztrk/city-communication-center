@@ -155,17 +155,16 @@
   }
 
   .notification-modal-search.scope-chip-search-wrap {
-    width: min(8.75rem, 22vw);
-    background: color-mix(in srgb, var(--color-header-from) 68%, transparent);
-    border-color: rgba(255, 255, 255, 0.18);
+    width: 8.5rem;
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
   }
 
   .notification-modal-search.scope-chip-search-wrap:focus-within {
-    border-color: rgba(255, 255, 255, 0.38);
+    border-color: rgba(255, 255, 255, 0.42);
   }
 
   .notification-modal-search .scope-chip-search-input {
-    width: 100%;
     color: white;
   }
 
@@ -178,11 +177,11 @@
   }
 
   .notification-modal-search .scope-chip-search-clear {
-    color: #fecaca;
+    color: #ef4444;
   }
 
   .notification-modal-search .scope-chip-search-clear:hover {
-    color: white;
+    color: #dc2626;
   }
 
   @media (min-width: 1024px) {

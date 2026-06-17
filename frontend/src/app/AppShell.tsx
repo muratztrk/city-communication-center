@@ -24,8 +24,14 @@ import { getRoleLabel } from '../utils/localization'
 
 function useResponsiveZoom() {
   const compute = useCallback(() => {
-    const frameWidth = Math.max(window.outerWidth || 0, window.innerWidth)
+    const rawFrameWidth = Math.max(window.outerWidth || 0, window.innerWidth)
     const screenWidth = window.screen?.availWidth || window.screen?.width || 0
+    // Browser zoom-out inflates CSS pixel width (for example 15.6" screens can look
+    // like 1920px+ at 80%-90%). Cap by physical screen width when available so the
+    // app does not jump into a large-monitor scale while the user changes browser zoom.
+    const frameWidth = screenWidth > 0 && rawFrameWidth > screenWidth
+      ? screenWidth
+      : rawFrameWidth
     // 27" monitors can hover around the 1920px breakpoint when browser zoom moves
     // from 100% to 110%. When the browser is near full-width, use the stable screen
     // width so the app does not jump between layout scales.

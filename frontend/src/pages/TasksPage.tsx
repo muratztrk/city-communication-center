@@ -1266,23 +1266,37 @@ const pageKicker = isMyTasksView
                           <h3 className="mb-1.5 border-b border-slate-200 pb-1.5 text-sm font-bold text-slate-900">
                             {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                           </h3>
-                          <AttachmentSection
-                            attachments={taskDetail.attachments ?? []}
-                            onUpload={async file => {
-                              setAttachmentUploading(true)
-                              try {
-                                await api.uploadTaskAttachment(taskDetail.taskId, file)
-                                setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                              } finally {
-                                setAttachmentUploading(false)
-                              }
-                            }}
-                            onDelete={async id => {
-                              await api.deleteAttachment(id)
-                              setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                            }}
-                            disabled={attachmentUploading}
-                          />
+                          {(() => {
+                            const taskAttachmentsLocked = taskDetail.currentStatus === 'Completed'
+                            return (
+                              <>
+                                <AttachmentSection
+                                  attachments={taskDetail.attachments ?? []}
+                                  readOnly={taskAttachmentsLocked}
+                                  emptyText={taskAttachmentsLocked ? t('attachments.lockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.') : undefined}
+                                  onUpload={!taskAttachmentsLocked ? async file => {
+                                    setAttachmentUploading(true)
+                                    try {
+                                      await api.uploadTaskAttachment(taskDetail.taskId, file)
+                                      setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                                    } finally {
+                                      setAttachmentUploading(false)
+                                    }
+                                  } : undefined}
+                                  onDelete={!taskAttachmentsLocked ? async id => {
+                                    await api.deleteAttachment(id)
+                                    setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                                  } : undefined}
+                                  disabled={attachmentUploading}
+                                />
+                                {taskAttachmentsLocked && taskDetail.attachments.length > 0 && (
+                                  <p className="text-xs font-medium text-amber-600">
+                                    {t('attachments.lockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
+                                  </p>
+                                )}
+                              </>
+                            )
+                          })()}
                         </section>
                       </>
                     )}

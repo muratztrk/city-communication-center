@@ -1074,11 +1074,11 @@ const pageKicker = isMyTasksView
                         <div className="text-sm font-semibold text-emerald-600">
                           {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
-                        <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-2">
+                        <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)]">
                           <div className="min-w-0 divide-y divide-slate-100">
                             {leftFields.map(({ label, value }) => (
                               <div key={label} className="flex items-start gap-2 px-3 py-2">
-                                <span className="w-40 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                                <span className="w-28 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                                 <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                               </div>
                             ))}
@@ -1087,18 +1087,60 @@ const pageKicker = isMyTasksView
                             <div className="divide-y divide-slate-100">
                               {rightFields.map(({ label, value }) => (
                                 <div key={label} className="flex items-start gap-2 px-3 py-2">
-                                  <span className="w-40 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                                  <span className="w-28 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                                   <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                                 </div>
                               ))}
                             </div>
+                          </div>
+                          {/* 3. sütun: Yönetici Notu — ilgili talebin notu, salt-okunur (card 519) */}
+                          <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
+                            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              {t('jobs.managerNote.title', 'Yönetici Notu')}
+                            </div>
+                            {parentJobDetail.managerNote ? (
+                              <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
+                            ) : (
+                              <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
+                            )}
+                          </div>
+                          {/* 4. sütun: Ekler / Fotoğraflar (card 519) */}
+                          <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
+                            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                            </div>
+                            <AttachmentSection
+                              attachments={taskDetail.attachments ?? []}
+                              onUpload={async file => {
+                                setAttachmentUploading(true)
+                                try {
+                                  await api.uploadTaskAttachment(taskDetail.taskId, file)
+                                  setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                                } finally {
+                                  setAttachmentUploading(false)
+                                }
+                              }}
+                              onDelete={async id => {
+                                await api.deleteAttachment(id)
+                                setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                              }}
+                              disabled={attachmentUploading}
+                            />
                           </div>
                         </div>
                       </section>
                     )
                   })()}
 
-                  <div className={`grid gap-4 ${isManagerLike ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
+                  {/* Yönetici Notu + Ekler artık İlgili Talep Detayları'nda 3./4. sütun (card 519);
+                      yalnızca ilgili talep gösterilmiyorsa (rutin görev) burada gösterilir. */}
+                  {(() => {
+                    const showNoteAndAttachmentsHere = !parentJobDetail || taskDetail.jobSourceType === 'Routine'
+                    const bottomColsClass = showNoteAndAttachmentsHere
+                      ? (isManagerLike ? 'lg:grid-cols-4' : 'lg:grid-cols-3')
+                      : (isManagerLike ? 'lg:grid-cols-2' : '')
+                    return (
+                  <div className={`grid gap-4 ${bottomColsClass}`}>
 
                     {/* Sütun 1: Görevi Yönlendir */}
                     {isManagerLike && (
@@ -1179,41 +1221,46 @@ const pageKicker = isMyTasksView
                         </div>
                       )}
                     </section>
-                    {/* Sütun 3: Yönetici Notu — Atama Geçmişi'nin sağında, ilgili talebin notu, salt-okunur (card 468) */}
-                    <section className="form-card page-stack">
-                      <h3 className="mb-1 text-sm font-bold text-slate-900">
-                        {t('jobs.managerNote.title', 'Yönetici Notu')}
-                      </h3>
-                      {parentJobDetail?.managerNote ? (
-                        <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
-                      ) : (
-                        <div className="empty-state">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</div>
-                      )}
-                    </section>
-                    {/* Sütun 4: Ekler / Fotoğraflar */}
-                    <section className="form-card page-stack">
-                      <h3 className="mb-1 text-sm font-bold text-slate-900">
-                        {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                      </h3>
-                      <AttachmentSection
-                        attachments={taskDetail.attachments ?? []}
-                        onUpload={async file => {
-                          setAttachmentUploading(true)
-                          try {
-                            await api.uploadTaskAttachment(taskDetail.taskId, file)
-                            setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                          } finally {
-                            setAttachmentUploading(false)
-                          }
-                        }}
-                        onDelete={async id => {
-                          await api.deleteAttachment(id)
-                          setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                        }}
-                        disabled={attachmentUploading}
-                      />
-                    </section>
+                    {/* Yönetici Notu + Ekler yalnızca rutin görevde burada; aksi halde İlgili Talep Detayları'nda (card 519). */}
+                    {showNoteAndAttachmentsHere && (
+                      <>
+                        <section className="form-card page-stack">
+                          <h3 className="mb-1 text-sm font-bold text-slate-900">
+                            {t('jobs.managerNote.title', 'Yönetici Notu')}
+                          </h3>
+                          {parentJobDetail?.managerNote ? (
+                            <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
+                          ) : (
+                            <div className="empty-state">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</div>
+                          )}
+                        </section>
+                        <section className="form-card page-stack">
+                          <h3 className="mb-1 text-sm font-bold text-slate-900">
+                            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                          </h3>
+                          <AttachmentSection
+                            attachments={taskDetail.attachments ?? []}
+                            onUpload={async file => {
+                              setAttachmentUploading(true)
+                              try {
+                                await api.uploadTaskAttachment(taskDetail.taskId, file)
+                                setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                              } finally {
+                                setAttachmentUploading(false)
+                              }
+                            }}
+                            onDelete={async id => {
+                              await api.deleteAttachment(id)
+                              setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                            }}
+                            disabled={attachmentUploading}
+                          />
+                        </section>
+                      </>
+                    )}
                   </div>
+                    )
+                  })()}
                 </>
               ) : null}
             </div>

@@ -1307,6 +1307,7 @@
   },
   "attachments": {
     "sectionTitle": "Attachments / Photos",
+    "label": "Add File / Photo (optional)",
     "uploadLabel": "Add Photo",
     "uploadHint": "JPG, PNG, PDF, Office — max 5 MB",
     "dragHint": "Drop file here or click to browse",

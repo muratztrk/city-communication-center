@@ -1332,6 +1332,7 @@
   },
   "attachments": {
     "sectionTitle": "Ekler / Fotoğraflar",
+    "label": "Dosya / Fotoğraf Ekle (opsiyonel)",
     "uploadLabel": "Fotoğraf Ekle",
     "uploadHint": "JPG, PNG, PDF, Office — maks. 5 MB",
     "dragHint": "Dosyayı buraya sürükleyin veya tıklayın",

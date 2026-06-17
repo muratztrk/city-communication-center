@@ -542,7 +542,8 @@
       "progress": "İlerleme",
       "dueDate": "Son Tarih",
       "actions": "İşlemler",
-      "parentRequestNo": "Bağlı Olduğu Talep No"
+      "parentRequestNo": "Bağlı Olduğu Talep No",
+      "routineNoParentRequest": "Rutin görevin Talep No'su olmaz"
     },
     "new": "+ Yeni İş",
     "newCancel": "ptal",

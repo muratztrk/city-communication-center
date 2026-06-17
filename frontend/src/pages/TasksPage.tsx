@@ -434,7 +434,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
         if (key === 'currentStatus') return getTaskDisplayStatus(t, row)
         if (key === 'cancelReturnStatus') return row.currentStatus === 'Cancelled' ? 'İptal' : 'İade'
         if (key === 'priority') return getPriorityLabel(t, row.priority)
-        if (key === 'jobNumber') return formatTaskJobDisplayNumber(row)
+        if (key === 'jobNumber') return row.jobSourceType === 'Routine'
+          ? t('tasks.columns.routineNoParentRequest', "Rutin görevin Talep No'su olmaz")
+          : formatTaskJobDisplayNumber(row)
         if (key === 'taskNumber') return formatTaskDisplayNumber(row)
         if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
         if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
@@ -1279,8 +1281,10 @@ const pageKicker = isMyTasksView
                   // Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (dikkat).
                   <tr key={task.taskId} className={task.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
-                    <td className="table-number-cell font-mono text-xs text-slate-500">
-                      <div className="table-number-cell__value">{formatTaskJobDisplayNumber(task)}</div>
+                    <td className="table-number-cell text-xs text-slate-500">
+                      {task.jobSourceType === 'Routine'
+                        ? <div className="table-number-cell__value font-sans italic text-slate-400">{t('tasks.columns.routineNoParentRequest', "Rutin görevin Talep No'su olmaz")}</div>
+                        : <div className="table-number-cell__value font-mono">{formatTaskJobDisplayNumber(task)}</div>}
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>

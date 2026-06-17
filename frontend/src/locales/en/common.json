@@ -541,7 +541,8 @@
       "progress": "Progress",
       "dueDate": "Due",
       "actions": "Actions",
-      "parentRequestNo": "Parent Request No"
+      "parentRequestNo": "Parent Request No",
+      "routineNoParentRequest": "A routine task has no request no"
     },
     "new": "+ New Task",
     "newCancel": "Cancel",

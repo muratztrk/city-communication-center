@@ -201,10 +201,47 @@ function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
+function stripHtmlTags(value: string | null | undefined) {
+  if (!value) return ''
+  const parser = new DOMParser()
+  const parsed = parser.parseFromString(value, 'text/html')
+  return (parsed.body.innerText || parsed.body.textContent || '').trim()
+}
+
 function printJobDetail(detail: import('../types/platform').JobDetail, locale: string) {
   const win = window.open('', '_blank', 'width=820,height=960')
   if (!win) return
   const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+  const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
+    ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
+    : `T-${detail.jobNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`
+  const ownerApprovalDate = detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
+  const requestDetailRows = [
+    ['Talep No', jobDisplayNumber],
+    ['Talep Başlığı', detail.title],
+    ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Gittiği Yer', formatJobDestinationsWithAssignees(detail)],
+    ['Proje mi', detail.isProject ? 'Evet' : 'Hayır'],
+    ['Öncelik', detail.priority],
+    ['Durum', detail.status],
+    ['Talep Tarihi', fd(detail.createdAtUtc)],
+    ['Talep Onay Tarihi', fd(ownerApprovalDate)],
+    ['Son Tarih Bilgisi', fd(detail.dueDateUtc)],
+  ]
+  const requestDetailTable = requestDetailRows
+    .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`)
+    .join('')
+  const addressFields: Array<[string, string | null | undefined]> = [
+    ['Mahalle', detail.neighborhood],
+    ['Cadde / Sokak / Bulvar', detail.street],
+    ['Açık Adres', detail.openAddress],
+  ]
+  const addressRows = addressFields
+    .filter(([, value]) => value != null && value.trim() !== '')
+    .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value ?? '')}</td></tr>`)
+    .join('')
+  const managerNote = detail.managerNote?.trim()
+  const description = stripHtmlTags(detail.description)
   const deptRows = detail.departments.map(d => `<tr><td>${escHtml(d.departmentName ?? '—')}</td><td>${escHtml(d.role)}</td></tr>`).join('')
   const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td><td>${escHtml(tk.ownerDisplayName ?? '—')}</td></tr>`).join('')
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
@@ -217,28 +254,33 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #ccc;padding-bottom:3px;margin-bottom:8px;color:#333}
     table{width:100%;border-collapse:collapse;font-size:11px}
     th,td{border:1px solid #ccc;padding:4px 8px;text-align:left}
+    th{width:34%}
     th{background:#f0f0f0;font-weight:bold}
     .desc{border:1px solid #ccc;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
     .footer{margin-top:2rem;font-size:10px;color:#aaa}
     @media print{body{padding:0}}
   </style></head><body>
-  <div class="kicker">Talep Detayı</div>
+  <div class="kicker">Talep Detayları</div>
   <h1>${escHtml(detail.title)}</h1>
-  <div class="meta">
-    <strong>Talep No:</strong> ${detail.jobNumber != null && detail.jobNumberYear != null ? escHtml(`T-${detail.jobNumberYear}-${detail.jobNumber}`) : '—'} &nbsp;|&nbsp;
-    <strong>Durum:</strong> ${escHtml(detail.status)} &nbsp;|&nbsp;
-    <strong>Öncelik:</strong> ${escHtml(detail.priority)} &nbsp;|&nbsp;
-    <strong>Talep Tipi:</strong> ${escHtml(detail.requestType)}<br/>
-    <strong>Sahip Müdürlük:</strong> ${escHtml(detail.ownerDepartmentName ?? '—')} &nbsp;|&nbsp;
-    <strong>Gittiği Yer:</strong> ${escHtml(formatJobDestinationsWithAssignees(detail))} &nbsp;|&nbsp;
-    <strong>Proje mi:</strong> ${detail.isProject ? 'Evet' : 'Hayır'}<br/>
-    <strong>Oluşturan:</strong> ${escHtml(detail.createdByDisplayName ?? '—')} &nbsp;|&nbsp;
-    <strong>Tarih:</strong> ${fd(detail.createdAtUtc)}
-    ${detail.dueDateUtc ? ` &nbsp;|&nbsp; <strong>Termin:</strong> ${fd(detail.dueDateUtc)}` : ''}
+  <div class="section">
+    <div class="section-title">Talep Detayları</div>
+    <table><tbody>${requestDetailTable}</tbody></table>
   </div>
   <div class="section">
     <div class="section-title">Açıklama</div>
-    <div class="desc">${detail.description ?? '<em>Açıklama yok</em>'}</div>
+    <div class="desc">${description ? escHtml(description).replace(/\n/g, '<br/>') : '<em>Açıklama yok</em>'}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Adres Bilgileri</div>
+    ${addressRows ? `<table><tbody>${addressRows}</tbody></table>` : '<p style="color:#888;font-size:11px">Adres bilgisi girilmemiş.</p>'}
+  </div>
+  <div class="section">
+    <div class="section-title">Yönetici Notu</div>
+    <div class="desc">${managerNote ? escHtml(managerNote).replace(/\n/g, '<br/>') : '<em>Talep için yönetici notu bulunmamaktadır.</em>'}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Ekler / Fotoğraflar (${(detail.attachments ?? []).length})</div>
+    ${attachItems ? `<ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>` : '<p style="color:#888;font-size:11px">Talep için ek/fotoğraf bulunmamaktadır.</p>'}
   </div>
   <div class="section">
     <div class="section-title">Müdürlükler</div>
@@ -248,7 +290,6 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     <div class="section-title">Görevler (${detail.tasks.length})</div>
     ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Atanan</th><th>Sahip</th></tr></thead><tbody>${taskRows}</tbody></table>`}
   </div>
-  ${attachItems ? `<div class="section"><div class="section-title">Ekler (${(detail.attachments ?? []).length})</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul></div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <script>window.onload=function(){window.print()}</script>
   </body></html>`)

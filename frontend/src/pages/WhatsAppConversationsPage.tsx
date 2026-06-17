@@ -333,7 +333,7 @@ function ConversationDetail({
       {/* Timeline */}
       <div
         className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0"
-        style={{ background: 'linear-gradient(180deg, #e5ffe8 0%, #f0f9ff 100%)' }}
+        style={{ background: 'linear-gradient(145deg, var(--color-header-from), var(--color-header-to))' }}
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -508,13 +508,13 @@ export function WhatsAppConversationsPage() {
         <div className="w-80 shrink-0 flex flex-col border-r border-[color:var(--color-border)]">
           <div className="px-3 py-2.5 border-b border-[color:var(--color-border)]">
             <div className="relative">
-              <ChannelIcon channel="WhatsApp" className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#25d366]" />
+              <ChannelIcon channel="WhatsApp" className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-[#25d366]" />
               <input
                 type="search"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder={t('whatsapp.searchPlaceholder')}
-                className="field-input w-full pl-9 text-sm"
+                className="field-input w-full pl-10 text-sm"
               />
             </div>
           </div>

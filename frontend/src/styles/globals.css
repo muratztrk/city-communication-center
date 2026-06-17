@@ -1435,29 +1435,28 @@
     box-shadow: 0 1px 4px color-mix(in srgb, var(--color-primary) 35%, transparent);
   }
 
-  /* Aktif çip metni daima beyaz; bunun için açık zeminler okunur tona koyulaştırıldı (card 544). */
-  /* ── Bekleyen → Koyu gri ── */
+  /* ── Bekleyen → Açık gri (Tümü'den daha açık) ── */
   .scope-chip--pending.active {
-    background: #64748b;
-    border-color: #475569;
-    color: white;
-    box-shadow: 0 1px 4px rgba(100, 116, 139, 0.3);
+    background: #e2e8f0;
+    border-color: #b8c4d2;
+    color: #334155;
+    box-shadow: none;
   }
 
-  /* ── Onaylanmış → Koyu sarı ─────────────────── */
+  /* ── Onaylanmış → Sarı ─────────────────────── */
   .scope-chip--approved.active {
-    background: #ca8a04;
-    border-color: #a16207;
-    color: white;
-    box-shadow: 0 1px 4px rgba(202, 138, 4, 0.3);
+    background: #facc15;
+    border-color: #eab308;
+    color: #422006;
+    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
   }
 
-  /* ── Birim Dışı Onay Bekleyen → Bekleyen ile aynı koyu gri ──────── */
+  /* ── Birim Dışı Onay Bekleyen → Bekleyen ile aynı açık gri ──────── */
   .scope-chip--external-pending.active {
-    background: #64748b;
-    border-color: #475569;
-    color: white;
-    box-shadow: 0 1px 4px rgba(100, 116, 139, 0.3);
+    background: #e2e8f0;
+    border-color: #b8c4d2;
+    color: #0f172a;
+    box-shadow: none;
   }
 
   /* ── Tamamlanmış → Yeşil ────────────────────── */
@@ -1476,16 +1475,16 @@
     box-shadow: 0 1px 4px rgba(220, 38, 38, 0.35);
   }
 
-  /* ── Tümü → Koyu nötr ────────────────────── */
+  /* ── Tümü → Hover (nötr) ────────────────────── */
   .scope-chip--all.active {
-    background: #64748b;
-    border-color: #475569;
-    color: white;
-    box-shadow: 0 1px 4px rgba(100, 116, 139, 0.3);
+    background: #cbd5e1;
+    border-color: #94a3b8;
+    color: #1e293b;
+    box-shadow: none;
   }
   .scope-chip--all.active:hover {
-    background: #556070;
-    border-color: #3f4a5a;
+    background: #b0bfcc;
+    border-color: #7a8fa3;
   }
 
   /* ── Birim İçi → Açık turkuaz ──────────────── */

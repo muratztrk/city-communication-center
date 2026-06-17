@@ -459,6 +459,7 @@
     "role": "Role",
     "password": "Password",
     "passwordPlaceholder": "At least 8 characters",
+    "passwordHint": "(Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a special character and a digit.)",
     "createMode": "Create Mode",
     "manualMode": "Local User",
     "ldapMode": "LDAP User",

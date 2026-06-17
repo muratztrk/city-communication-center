@@ -510,7 +510,10 @@ export function UsersPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {createMode === 'manual' ? (
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('users.password')}</span>
+                <span>
+                  {t('users.password')}{' '}
+                  <span className="text-xs font-normal text-slate-400">{t('users.passwordHint', '(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)')}</span>
+                </span>
                 <input
                   aria-label={t('users.password')}
                   className="field-input"

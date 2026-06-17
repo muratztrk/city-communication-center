@@ -105,9 +105,10 @@ interface NotifItemProps {
   onMarkRead: (id: string) => void
   onNavigate?: (url: string) => void
   locale: string
+  largeDetailButton?: boolean
 }
 
-function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) {
+function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton = false }: NotifItemProps) {
   const { t } = useTranslation()
   // Satıra tıklamak bildirimi yalnızca okundu yapar; ilgili detay sadece "Detay" butonuyla açılır (card 439/445).
   const handleRowClick = () => {
@@ -142,7 +143,9 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale }: NotifItemProps) 
             <button
               type="button"
               onClick={e => { e.stopPropagation(); handleOpenDetail() }}
-              className="rounded-md bg-emerald-500 px-2 py-1 text-[0.7rem] font-bold text-white shadow-sm transition-colors hover:bg-emerald-600 ml-auto"
+              className={`ml-auto rounded-md bg-emerald-500 font-bold text-white shadow-sm transition-colors hover:bg-emerald-600 ${
+                largeDetailButton ? 'px-4 py-2 text-sm' : 'px-2 py-1 text-[0.7rem]'
+              }`}
             >
               {t('common.detail', 'Detay')}
             </button>
@@ -158,9 +161,10 @@ interface NotifListProps {
   onMarkRead: (id: string) => void
   onNavigate?: (url: string) => void
   locale: string
+  largeDetailButton?: boolean
 }
 
-function NotifList({ items, onMarkRead, onNavigate, locale }: NotifListProps) {
+function NotifList({ items, onMarkRead, onNavigate, locale, largeDetailButton = false }: NotifListProps) {
   const { t } = useTranslation()
   if (items.length === 0) {
     return (
@@ -178,6 +182,7 @@ function NotifList({ items, onMarkRead, onNavigate, locale }: NotifListProps) {
           onMarkRead={onMarkRead}
           onNavigate={onNavigate}
           locale={locale}
+          largeDetailButton={largeDetailButton}
         />
       ))}
     </ul>
@@ -635,7 +640,7 @@ export function NotificationBell() {
               {notifQuery.isLoading ? (
                 <div className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleNavigate} locale={locale} />
+                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleNavigate} locale={locale} largeDetailButton />
               )}
             </div>
             {!notifQuery.isLoading && (

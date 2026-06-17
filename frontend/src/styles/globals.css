@@ -192,7 +192,8 @@
   .notification-modal-date .field-input {
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
-    color: rgba(255, 255, 255, 0.9);
+    /* Tarih metni ve takvim ikonu, yanındaki "Ara" placeholder ile aynı renk (card 508). */
+    color: rgba(255, 255, 255, 0.7);
     box-shadow: none;
   }
 
@@ -203,7 +204,7 @@
   }
 
   .notification-modal-date .field-input svg {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.7);
     opacity: 1;
   }
 

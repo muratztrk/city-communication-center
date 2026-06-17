@@ -996,12 +996,12 @@
   }
 
   /* Uzun başlıklar sütunu yatayda genişletmesin; bir üst sınıra ulaşınca alt satıra kaysın (card 523).
-     Alt satıra geçen metin sola değil ortaya hizalanır (card 530). */
+     Alt satıra geçen metin ortaya hizalanır (card 530). Önce kelime (boşluk) bazında kaydır;
+     yalnızca tek başına sığmayan çok uzun kelimeler kırılır (card 535). */
   .cell-title {
     display: inline-block;
     max-width: 22rem;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: break-word;
     white-space: normal;
     text-align: center;
   }

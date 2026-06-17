@@ -155,13 +155,13 @@
   }
 
   .notification-modal-search {
-    width: min(16rem, 36vw);
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.28);
+    width: min(11.5rem, 28vw);
+    background: color-mix(in srgb, var(--color-header-from) 62%, transparent);
+    border-color: rgba(255, 255, 255, 0.18);
   }
 
   .notification-modal-search:focus-within {
-    border-color: rgba(255, 255, 255, 0.58);
+    border-color: rgba(255, 255, 255, 0.38);
   }
 
   .notification-modal-search .scope-chip-search-input {

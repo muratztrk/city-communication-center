@@ -187,7 +187,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     createdBy: task.createdByDisplayName ?? null,
     dueDateUtc: task.dueDateUtc,
     createdAtUtc: task.createdAtUtc ?? null,
-    detailsPath: `/tasks?scope=all&taskId=${task.taskId}`,
+    detailsPath: `/department-tasks?flow=all&taskId=${task.taskId}`,
     assignTargetDepartmentId: null,
     approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,
@@ -618,6 +618,20 @@ export function IncomingRequestsPage() {
   const shouldShowDisabledApprove = (row: IncomingRequestRow) =>
     isManagerLike && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue') && !canApproveRow(row)
 
+  const canCancelRow = (row: IncomingRequestRow) =>
+    isManagerLike && (
+      row.status === 'PendingOwnerApproval' ||
+      row.status === 'PendingExternalApproval' ||
+      row.status === 'Active' ||
+      row.status === 'Waiting' ||
+      row.status === 'Assigned' ||
+      row.status === 'InProgress' ||
+      row.status === 'PendingCloseApproval'
+    )
+
+  const shouldShowDisabledCancel = (row: IncomingRequestRow) =>
+    isManagerLike && currentStatusFilter === 'all' && !canCancelRow(row)
+
   return (
     <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
@@ -773,18 +787,19 @@ export function IncomingRequestsPage() {
                           </DisabledActionButton>
                         )}
                         {/* İptal/İade — onay bekleyen, onaylanmış ve aktif iş/görev satırlarında */}
-                        {isManagerLike && (
-                          row.status === 'PendingOwnerApproval' ||
-                          row.status === 'PendingExternalApproval' ||
-                          row.status === 'Active' ||
-                          row.status === 'Waiting' ||
-                          row.status === 'Assigned' ||
-                          row.status === 'InProgress' ||
-                          row.status === 'PendingCloseApproval'
-                        ) && (
+                        {canCancelRow(row) && (
                           <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
+                        )}
+                        {shouldShowDisabledCancel(row) && (
+                          <DisabledActionButton
+                            size="sm"
+                            variant="destructive"
+                            hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıtta iptal işlemi yapılamaz')}
+                          >
+                            {t('jobs.actions.cancel', 'İptal Et')}
+                          </DisabledActionButton>
                         )}
                       </div>
                     </td>

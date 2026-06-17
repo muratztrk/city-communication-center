@@ -519,29 +519,40 @@ export function NotificationBell() {
         {isOpen && (
           <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-              <div className="flex items-center gap-1">
+            <div className="border-b border-slate-100 px-4 py-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setFilter('all')}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-colors ${filter === 'all' ? 'bg-[color:var(--color-primary)] text-white' : 'text-slate-500 hover:bg-slate-100'}`}
+                  >
+                    {t('notifications.all', 'Tümü')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFilter('unread')}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-colors ${filter === 'unread' ? 'bg-[color:var(--color-primary)] text-white' : 'text-slate-500 hover:bg-slate-100'}`}
+                  >
+                    {t('notifications.unread', 'Okunmamış')}
+                  </button>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setFilter('all')}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-colors ${filter === 'all' ? 'bg-[color:var(--color-primary)] text-white' : 'text-slate-500 hover:bg-slate-100'}`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex size-6 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow-sm transition-colors hover:bg-red-600 active:scale-95"
+                  aria-label={t('common.close', 'Kapat')}
                 >
-                  {t('notifications.all', 'Tümü')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFilter('unread')}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-colors ${filter === 'unread' ? 'bg-[color:var(--color-primary)] text-white' : 'text-slate-500 hover:bg-slate-100'}`}
-                >
-                  {t('notifications.unread', 'Okunmamış')}
+                  <X className="size-3.5" strokeWidth={2.5} />
                 </button>
               </div>
+              {/* "Hepsini okundu yap" ayrı satırda, "Tümü" butonunun altına hizalı. */}
               <button
                 type="button"
                 onClick={markAllRead}
                 disabled={unreadCount === 0}
                 title={t('notifications.markAllRead', 'Hepsini okundu yap')}
-                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[0.7rem] font-semibold text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-35"
+                className="mt-1.5 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <CheckCheck className="size-3.5" />
                 {t('notifications.markAllReadShort', 'Hepsini okundu yap')}

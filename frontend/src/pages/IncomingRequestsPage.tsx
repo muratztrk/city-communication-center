@@ -164,19 +164,21 @@ function formatJobDisplayNumber(job: JobSummary): string {
   return `T-${year}-Onay Bekleyen`
 }
 
-function formatTaskDisplayNumber(task: Task): string {
-  const year = task.taskNumberYear ?? new Date().getFullYear()
-  if (task.taskNumber != null && task.taskNumberYear != null) {
-    return `G-${year}-${task.taskNumber}`
+// Birime gelen iç talep satırında "Talep No" = bağlı olduğu talebin (job) numarası,
+// görevin (task) numarası değil (card 536).
+function formatInternalRequestNumber(task: Task): string {
+  const year = task.jobNumberYear ?? new Date().getFullYear()
+  if (task.jobNumber != null && task.jobNumberYear != null) {
+    return `T-${task.jobNumberYear}-${task.jobNumber}`
   }
-  return `G-${year}-Onay Bekleyen`
+  return `T-${year}-Onay Bekleyen`
 }
 
 function toInternalRow(task: Task): IncomingRequestRow {
   return {
     id: task.taskId,
     jobId: task.jobId,
-    displayNumber: formatTaskDisplayNumber(task),
+    displayNumber: formatInternalRequestNumber(task),
     kind: 'internal',
     statusDomain: 'task',
     title: task.title,

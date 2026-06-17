@@ -129,7 +129,7 @@ function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function printTaskDetail(taskDetail: TaskDetail, locale: string) {
+function printTaskDetail(taskDetail: TaskDetail, parentJob: import('../types/platform').JobDetail | null, locale: string) {
   const win = window.open('', '_blank', 'width=820,height=900')
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
@@ -164,6 +164,17 @@ function printTaskDetail(taskDetail: TaskDetail, locale: string) {
     <div class="section-title">Açıklama</div>
     <div class="desc">${description ? escHtml(description).replace(/\n/g, '<br/>') : '<em>Açıklama yok</em>'}</div>
   </div>
+  ${parentJob ? `<div class="section">
+    <div class="section-title">İlgili Talep Detayları</div>
+    <div class="meta" style="margin:0">
+      <strong>Talep No:</strong> ${parentJob.jobNumber != null && parentJob.jobNumberYear != null ? escHtml(`T-${parentJob.jobNumberYear}-${parentJob.jobNumber}`) : '—'} &nbsp;|&nbsp;
+      <strong>Talep Başlığı:</strong> ${escHtml(parentJob.title)}<br/>
+      <strong>Talep Sahibi / Oluşturan:</strong> ${escHtml([parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—')} &nbsp;|&nbsp;
+      <strong>Proje mi:</strong> ${parentJob.isProject ? 'Evet' : 'Hayır'}<br/>
+      <strong>Öncelik:</strong> ${escHtml(parentJob.priority)} &nbsp;|&nbsp;
+      <strong>Talep Tarihi:</strong> ${fd(parentJob.createdAtUtc)}${parentJob.dueDateUtc ? ` &nbsp;|&nbsp; <strong>Son Tarih:</strong> ${fd(parentJob.dueDateUtc)}` : ''}
+    </div>
+  </div>` : ''}
   ${historyItems ? `<div class="section"><div class="section-title">Atama Geçmişi</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${historyItems}</ul></div>` : ''}
   ${attachItems ? `<div class="section"><div class="section-title">Ekler (${(taskDetail.attachments ?? []).length})</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul></div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -897,7 +908,7 @@ const pageKicker = isMyTasksView
                     </Button>
                 )}
                 {taskDetail && (
-                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, locale)}>
+                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, parentJobDetail, locale)}>
                     {t('common.print', 'Yazdır')}
                   </Button>
                 )}

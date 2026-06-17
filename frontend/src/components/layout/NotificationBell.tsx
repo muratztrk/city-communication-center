@@ -629,7 +629,7 @@ export function NotificationBell() {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
                 aria-label="Kapat"
               >
                 <X className="size-4" />

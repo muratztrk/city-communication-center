@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -401,6 +401,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [activeDeptId, setActiveDeptId] = useState(() => getActiveDepartmentId())
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const hasLoadedJobsRef = useRef(false)
   const [error, setError] = useState<string | null>(null)
   const [jobsPage, setJobsPage] = useState(1)
   const [jobsPageSize, setJobsPageSize] = useState(10)
@@ -546,10 +547,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
+    if (!hasLoadedJobsRef.current) setLoading(true)
     loadJobsForView(scope, reporterDepartmentId, includeDepartmentJobs)
       .then(jobList => {
         if (cancelled) return
+        hasLoadedJobsRef.current = true
         setJobs(jobList)
         if (autoOpenJobId) void openDetail(autoOpenJobId)
       })

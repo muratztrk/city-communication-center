@@ -154,13 +154,13 @@
     max-height: calc(100dvh - 2rem);
   }
 
-  .notification-modal-search {
-    width: min(11.5rem, 28vw);
-    background: color-mix(in srgb, var(--color-header-from) 62%, transparent);
+  .notification-modal-search.scope-chip-search-wrap {
+    width: min(8.75rem, 22vw);
+    background: color-mix(in srgb, var(--color-header-from) 68%, transparent);
     border-color: rgba(255, 255, 255, 0.18);
   }
 
-  .notification-modal-search:focus-within {
+  .notification-modal-search.scope-chip-search-wrap:focus-within {
     border-color: rgba(255, 255, 255, 0.38);
   }
 

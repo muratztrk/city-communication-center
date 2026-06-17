@@ -92,6 +92,7 @@ export function RoutineTaskPage() {
               id="routine-title"
               className="field-input"
               type="text"
+              maxLength={50}
               value={form.title}
               onChange={e => set('title', e.target.value)}
               placeholder={t('routineTask.titlePlaceholder', 'Görev başlığını girin')}

@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react'
+import { Paperclip, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -1006,7 +1006,35 @@ const pageKicker = isMyTasksView
                               placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
                             />
                           </label>
-                          <div className="inline-actions justify-end pt-2">
+                          <div className="inline-actions justify-end gap-2 pt-2">
+                            {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
+                            <label className={`inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                              <Paperclip className="size-4" />
+                              {attachmentUploading
+                                ? t('attachments.uploading', 'Yükleniyor...')
+                                : `${t('attachments.addFile', 'Dosya ekle')}${(taskDetail.attachments?.length ?? 0) > 0 ? ` (${taskDetail.attachments.length})` : ''}`}
+                              <input
+                                type="file"
+                                accept=".jpg,.jpeg,.png,.gif,.webp"
+                                multiple
+                                className="hidden"
+                                disabled={attachmentUploading}
+                                onChange={async event => {
+                                  const files = event.target.files
+                                  if (!files || files.length === 0) return
+                                  setAttachmentUploading(true)
+                                  try {
+                                    for (const file of Array.from(files)) {
+                                      await api.uploadTaskAttachment(taskDetail.taskId, file)
+                                    }
+                                    setTaskDetail(await api.getTaskById(taskDetail.taskId))
+                                  } finally {
+                                    setAttachmentUploading(false)
+                                    event.target.value = ''
+                                  }
+                                }}
+                              />
+                            </label>
                             <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
                               {t('tasks.actions.complete', 'Tamamla')}
                             </Button>

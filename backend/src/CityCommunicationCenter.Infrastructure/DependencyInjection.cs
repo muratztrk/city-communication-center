@@ -55,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthenticationExchangeTicketService, AuthenticationExchangeTicketService>();
         services.AddScoped<IInteractiveAuthenticationService, InteractiveAuthenticationService>();
         services.AddSingleton<ILocalUserPasswordService, LocalUserPasswordService>();
+        services.AddScoped<IPasswordResetEmailSender, SocialEmailPasswordResetSender>();
         services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
         services.AddScoped<IAuthenticationModeProvider, UserAuthenticationService>();
         services.AddScoped<IUserManagementConfigurationProvider, UserAuthenticationService>();

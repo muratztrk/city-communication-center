@@ -13,6 +13,10 @@ public sealed record ChangeMyPasswordRequest(
     string NewPassword,
     string ConfirmPassword);
 
+public sealed record ResetLocalUserPasswordRequest(
+    string TenantId,
+    string Email);
+
 public sealed record DepartmentSummaryResponse(
     Guid DepartmentId,
     string Name,

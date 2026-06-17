@@ -236,6 +236,17 @@ public sealed class AuthController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPost("reset-local-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> ResetLocalPassword(
+        [FromBody] ResetLocalUserPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(new ResetLocalUserPasswordCommand(request.TenantId, request.Email), cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<AuthenticatedUserProfileResponse>> GetCurrentUser(CancellationToken cancellationToken)

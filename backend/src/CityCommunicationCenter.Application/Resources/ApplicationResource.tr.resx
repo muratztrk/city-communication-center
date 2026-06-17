@@ -66,6 +66,10 @@
   <data name="ValidationNewPasswordMismatch" xml:space="preserve"><value>Yeni parolalar eşleşmiyor.</value></data>
   <data name="ValidationCurrentPasswordIncorrect" xml:space="preserve"><value>Mevcut parola hatalı.</value></data>
   <data name="ValidationPasswordChangeNotAllowed" xml:space="preserve"><value>Parola değişikliği yalnızca yerel kullanıcılar için yapılabilir.</value></data>
+  <data name="ValidationTenantRequired" xml:space="preserve"><value>Geçerli bir belediye bağlamı gereklidir.</value></data>
+  <data name="ValidationPasswordResetEmailRequired" xml:space="preserve"><value>Geçerli bir e-posta adresi girilmelidir.</value></data>
+  <data name="ValidationPasswordResetNotLocal" xml:space="preserve"><value>Kullanıcınız Local kullanıcı değildir. Sistem yöneticinizle iletişime geçiniz.</value></data>
+  <data name="ValidationPasswordResetEmailFailed" xml:space="preserve"><value>Parola sıfırlama e-postası gönderilemedi. Lütfen sistem yöneticinizle iletişime geçin.</value></data>
   <data name="ValidationDepartmentIdRequired" xml:space="preserve"><value>Müdürlük kimliği zorunludur.</value></data>
   <data name="ValidationDepartmentNameRequired" xml:space="preserve"><value>Müdürlük adı zorunludur.</value></data>
   <data name="ValidationDepartmentHasUsers" xml:space="preserve"><value>Bu müdürlüğe atanmış kullanıcılar var. Önce kullanıcıları başka müdürlüğe taşıyın.</value></data>

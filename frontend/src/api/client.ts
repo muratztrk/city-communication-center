@@ -64,6 +64,19 @@ export const api = {
     await ensureOk(response, i18n.t('errors.passwordChangeFailed', 'Parola değiştirilemedi'))
   },
 
+  // Anonim (giriş öncesi) çağrılır; oturum başlığı gerektirmez.
+  async resetLocalUserPassword(payload: { tenantId: string; email: string }): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/auth/reset-local-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+      },
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.passwordResetFailed', 'Parola sıfırlanamadı'))
+  },
+
   async getDashboard(from?: string, to?: string): Promise<DashboardSnapshot> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)

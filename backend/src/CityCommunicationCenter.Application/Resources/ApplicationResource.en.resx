@@ -66,6 +66,10 @@
   <data name="ValidationNewPasswordMismatch" xml:space="preserve"><value>New passwords do not match.</value></data>
   <data name="ValidationCurrentPasswordIncorrect" xml:space="preserve"><value>Current password is incorrect.</value></data>
   <data name="ValidationPasswordChangeNotAllowed" xml:space="preserve"><value>Password can only be changed for local users.</value></data>
+  <data name="ValidationTenantRequired" xml:space="preserve"><value>A valid municipality context is required.</value></data>
+  <data name="ValidationPasswordResetEmailRequired" xml:space="preserve"><value>A valid e-mail address is required.</value></data>
+  <data name="ValidationPasswordResetNotLocal" xml:space="preserve"><value>Your user is not a local user. Please contact your system administrator.</value></data>
+  <data name="ValidationPasswordResetEmailFailed" xml:space="preserve"><value>The password reset e-mail could not be sent. Please contact your system administrator.</value></data>
   <data name="ValidationDepartmentIdRequired" xml:space="preserve"><value>Department ID is required.</value></data>
   <data name="ValidationDepartmentNameRequired" xml:space="preserve"><value>Department name is required.</value></data>
   <data name="ValidationDepartmentHasUsers" xml:space="preserve"><value>This department has assigned users. Move them to another department first.</value></data>

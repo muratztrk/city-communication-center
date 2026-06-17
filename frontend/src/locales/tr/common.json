@@ -60,6 +60,18 @@
       "failed": "Parola değiştirilemedi."
     }
   },
+  "passwordReset": {
+    "link": "Local Kullanıcı Parola Sıfırla",
+    "title": "Local Kullanıcı Parola Sıfırla",
+    "description": "Kayıtlı e-posta adresinizi girin. Yerel kullanıcıysanız yeni parolanız e-postanıza gönderilir.",
+    "email": "E-posta",
+    "submit": "Parola Sıfırla",
+    "success": "Yeni parolanız e-posta adresinize gönderildi.",
+    "errors": {
+      "emailRequired": "Lütfen e-posta adresinizi girin.",
+      "failed": "Parola sıfırlanamadı."
+    }
+  },
   "errors": {
     "invalidAccessToken": "Geçersiz access token.",
     "authFailed": "Kimlik doğrulama başarısız.",
@@ -78,6 +90,7 @@
     "userUpdateFailed": "Kullanıcı güncellenemedi.",
     "userDeleteFailed": "Kullanıcı silinemedi.",
     "passwordChangeFailed": "Parola değiştirilemedi.",
+    "passwordResetFailed": "Parola sıfırlanamadı.",
     "tenantSettingsLoadFailed": "Kurum ayarları alınamadı.",
     "tenantSettingsSaveFailed": "Kurum ayarları kaydedilemedi.",
     "tenantLdapSettingsLoadFailed": "LDAP ayarları alınamadı.",

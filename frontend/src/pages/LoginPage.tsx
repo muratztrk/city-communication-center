@@ -12,6 +12,7 @@ import {
 } from '../api/auth'
 import { AppFooter } from '../components/layout/AppFooter'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
+import { LoginPasswordResetModal } from '../components/system/LoginPasswordResetModal'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
@@ -65,6 +66,7 @@ export function LoginPage() {
   const latestInteractiveRequestRef = useRef(0)
   const [showPassword, setShowPassword] = useState(false)
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
+  const [isResetOpen, setIsResetOpen] = useState(false)
 
   const credentialsForm = useForm<z.infer<typeof credentialsSchema>>({
     resolver: zodResolver(credentialsSchema),
@@ -429,6 +431,15 @@ export function LoginPage() {
                     <Button type="submit" size="lg" className="mt-1 w-full" disabled={isLoading || !isTenantReady}>
                       {isLoading ? t('login.submitting') : t('login.submit')}
                     </Button>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setIsResetOpen(true)}
+                        className="text-xs font-semibold text-[color:var(--color-primary)] underline-offset-2 transition-colors hover:underline"
+                      >
+                        {t('passwordReset.link', 'Local Kullanıcı Parola Sıfırla')}
+                      </button>
+                    </div>
                   </form>
                 ) : null}
 
@@ -532,6 +543,9 @@ export function LoginPage() {
 
     </div>{/* end inner grid */}
     <AppFooter />
+      {isResetOpen && (
+        <LoginPasswordResetModal tenantId={selectedTenant} onClose={() => setIsResetOpen(false)} />
+      )}
       {/* Privacy Policy Modal */}
       {isPrivacyOpen && (
         <div

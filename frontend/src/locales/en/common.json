@@ -51,6 +51,18 @@
       "failed": "Could not change password."
     }
   },
+  "passwordReset": {
+    "link": "Local User Password Reset",
+    "title": "Local User Password Reset",
+    "description": "Enter your registered e-mail address. If you are a local user, your new password will be e-mailed to you.",
+    "email": "E-mail",
+    "submit": "Reset Password",
+    "success": "Your new password has been sent to your e-mail address.",
+    "errors": {
+      "emailRequired": "Please enter your e-mail address.",
+      "failed": "Could not reset password."
+    }
+  },
   "filters": {
     "requestFlow": {
       "internal": "Internal",
@@ -78,6 +90,7 @@
     "userUpdateFailed": "Failed to update user.",
     "userDeleteFailed": "Failed to delete user.",
     "passwordChangeFailed": "Could not change password.",
+    "passwordResetFailed": "Could not reset password.",
     "tenantSettingsLoadFailed": "Failed to load organization settings.",
     "tenantSettingsSaveFailed": "Failed to save organization settings.",
     "tenantLdapSettingsLoadFailed": "Failed to load LDAP settings.",

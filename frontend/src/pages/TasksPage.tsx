@@ -180,6 +180,15 @@ function formatTaskDisplayNumber(task: Task): string {
   return `G-${year}-Onay Bekleyen`
 }
 
+function formatTaskJobDisplayNumber(task: Task): string {
+  if (task.jobSourceType === 'Routine') return '—'
+  if (task.jobNumber != null && task.jobNumberYear != null) {
+    return `T-${task.jobNumberYear}-${task.jobNumber}`
+  }
+  const year = task.jobNumberYear ?? new Date().getFullYear()
+  return `T-${year}-Onay Bekleyen`
+}
+
 function getMyTaskView(value: string | null): MyTaskView {
   if (value === 'returned') return 'rejected'
   return value === 'completed' || value === 'rejected' || value === 'overdue' || value === 'all' ? value : 'pending'
@@ -425,6 +434,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
         if (key === 'currentStatus') return getTaskDisplayStatus(t, row)
         if (key === 'cancelReturnStatus') return row.currentStatus === 'Cancelled' ? 'İptal' : 'İade'
         if (key === 'priority') return getPriorityLabel(t, row.priority)
+        if (key === 'jobNumber') return formatTaskJobDisplayNumber(row)
         if (key === 'taskNumber') return formatTaskDisplayNumber(row)
         if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
         if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
@@ -1233,6 +1243,7 @@ const pageKicker = isMyTasksView
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
+                  <FilterableTh filterKey="jobNumber" filterValue={taskFilters['jobNumber'] ?? ''} onFilter={setTaskFilter} sortKey="jobNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.parentRequestNo', 'Bağlı Olduğu Talep No')}</FilterableTh>
                   <FilterableTh filterKey="taskNumber" filterValue={taskFilters['taskNumber'] ?? ''} onFilter={setTaskFilter} sortKey="taskNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskNo', 'Görev No')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
@@ -1268,6 +1279,9 @@ const pageKicker = isMyTasksView
                   // Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (dikkat).
                   <tr key={task.taskId} className={task.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
+                    <td className="table-number-cell font-mono text-xs text-slate-500">
+                      <div className="table-number-cell__value">{formatTaskJobDisplayNumber(task)}</div>
+                    </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>
                       <div className={`table-number-cell__priority font-sans font-bold ${task.createdByRoleCode === 'Reporter' && task.priority === 'Normal' ? 'text-white' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>

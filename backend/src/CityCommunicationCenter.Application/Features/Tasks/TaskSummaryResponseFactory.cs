@@ -14,6 +14,8 @@ internal static class TaskSummaryResponseFactory
                 entity.Title,
                 entity.RequestType,
                 entity.SourceType,
+                entity.JobNumber,
+                entity.JobNumberYear,
                 entity.OwnerDepartmentId
             })
             .FirstOrDefaultAsync(cancellationToken);
@@ -30,6 +32,8 @@ internal static class TaskSummaryResponseFactory
             job?.Title,
             job is null ? null : job.RequestType.ToString(),
             job is null ? null : job.SourceType.ToString(),
+            job?.JobNumber,
+            job?.JobNumberYear,
             task.Title,
             task.Priority,
             task.CurrentStatus.ToString(),

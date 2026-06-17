@@ -290,6 +290,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 job.Title,
                 job.RequestType.ToString(),
                 job.SourceType.ToString(),
+                job.JobNumber,
+                job.JobNumberYear,
                 t.Title,
                 t.Priority,
                 t.CurrentStatus.ToString(),

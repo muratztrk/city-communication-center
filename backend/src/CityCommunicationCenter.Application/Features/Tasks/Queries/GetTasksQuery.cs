@@ -112,6 +112,16 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     .Where(job => job.JobId == task.JobId)
                     .Select(job => (string?)job.SourceType.ToString())
                     .FirstOrDefault(),
+                _dbContext.Jobs
+                    .AsNoTracking()
+                    .Where(job => job.JobId == task.JobId)
+                    .Select(job => job.JobNumber)
+                    .FirstOrDefault(),
+                _dbContext.Jobs
+                    .AsNoTracking()
+                    .Where(job => job.JobId == task.JobId)
+                    .Select(job => job.JobNumberYear)
+                    .FirstOrDefault(),
                 task.Title,
                 task.Priority,
                 task.CurrentStatus.ToString(),

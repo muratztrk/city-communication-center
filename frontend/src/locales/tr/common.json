@@ -541,7 +541,8 @@
       "createdBy": "Oluşturan",
       "progress": "İlerleme",
       "dueDate": "Son Tarih",
-      "actions": "İşlemler"
+      "actions": "İşlemler",
+      "parentRequestNo": "Bağlı Olduğu Talep No"
     },
     "new": "+ Yeni İş",
     "newCancel": "ptal",

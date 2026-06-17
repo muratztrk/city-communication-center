@@ -540,7 +540,8 @@
       "createdBy": "Created By",
       "progress": "Progress",
       "dueDate": "Due",
-      "actions": "Actions"
+      "actions": "Actions",
+      "parentRequestNo": "Parent Request No"
     },
     "new": "+ New Task",
     "newCancel": "Cancel",

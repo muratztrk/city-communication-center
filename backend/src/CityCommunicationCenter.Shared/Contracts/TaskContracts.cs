@@ -40,6 +40,8 @@ public sealed record TaskSummaryResponse(
     string? JobTitle,
     string? JobRequestType,
     string? JobSourceType,
+    int? JobNumber,
+    int? JobNumberYear,
     string Title,
     string Priority,
     string CurrentStatus,

@@ -99,6 +99,8 @@ export interface Task {
   jobTitle: string | null;
   jobRequestType: JobRequestType | null;
   jobSourceType: string | null;
+  jobNumber?: number | null;
+  jobNumberYear?: number | null;
   title: string;
   description?: string;
   priority: string;

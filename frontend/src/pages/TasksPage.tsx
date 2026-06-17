@@ -1200,7 +1200,7 @@ const pageKicker = isMyTasksView
                       {parentJobDetail?.managerNote ? (
                         <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
                       ) : (
-                        <div className="empty-state">{t('jobs.managerNote.empty', 'Yönetici Notu girilmemiş')}</div>
+                        <div className="empty-state">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</div>
                       )}
                     </section>
                     {/* Sütun 4: Ekler / Fotoğraflar */}

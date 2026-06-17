@@ -1476,7 +1476,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         ) : detail.managerNote ? (
                           <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
                         ) : (
-                          <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Yönetici Notu girilmemiş')}</p>
+                          <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
                         )}
                       </div>
                     )}

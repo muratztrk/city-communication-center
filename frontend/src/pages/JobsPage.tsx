@@ -1623,28 +1623,35 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </div>
             </section>}
 
-            {(!isRequestDetailContext || !canManageCoordination) && <section className="mb-5">
-              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-                {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-              </h3>
-              <AttachmentSection
-                attachments={detail.attachments ?? []}
-                onUpload={async (file) => {
-                  setAttachmentUploading(true)
-                  try {
-                    await api.uploadJobAttachment(detail.jobId, file)
-                    await refreshDetail()
-                  } finally {
-                    setAttachmentUploading(false)
-                  }
-                }}
-                onDelete={async (id) => {
-                  await api.deleteAttachment(id)
-                  await refreshDetail()
-                }}
-                disabled={attachmentUploading}
-              />
-            </section>}
+            {(!isRequestDetailContext || !canManageCoordination) && (() => {
+              const readOnlyRequestAttachments = isRequestDetailContext
+              return (
+                <section className="mb-5">
+                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                    {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                  </h3>
+                  <AttachmentSection
+                    attachments={detail.attachments ?? []}
+                    readOnly={readOnlyRequestAttachments}
+                    emptyText={readOnlyRequestAttachments ? t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.') : undefined}
+                    onUpload={!readOnlyRequestAttachments ? async (file) => {
+                      setAttachmentUploading(true)
+                      try {
+                        await api.uploadJobAttachment(detail.jobId, file)
+                        await refreshDetail()
+                      } finally {
+                        setAttachmentUploading(false)
+                      }
+                    } : undefined}
+                    onDelete={!readOnlyRequestAttachments ? async (id) => {
+                      await api.deleteAttachment(id)
+                      await refreshDetail()
+                    } : undefined}
+                    disabled={attachmentUploading}
+                  />
+                </section>
+              )
+            })()}
 
             {showWorkflowSections && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">

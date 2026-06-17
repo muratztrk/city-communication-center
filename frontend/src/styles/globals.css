@@ -192,8 +192,10 @@
   .notification-modal-date .field-input {
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
-    /* Tarih metni ve takvim ikonu, yanındaki "Ara" placeholder ile aynı renk (card 508). */
-    color: rgba(255, 255, 255, 0.7);
+    /* Tarih metni ve takvim ikonu, yanındaki "Ara" placeholder ile aynı renk (card 508).
+       Placeholder durumunda DateTimePicker `text-[color:var(--color-muted-foreground)]`
+       utility'sini ekliyor; utilities katmanı components'tan sonra geldiği için !important şart. */
+    color: rgba(255, 255, 255, 0.7) !important;
     box-shadow: none;
   }
 
@@ -204,8 +206,8 @@
   }
 
   .notification-modal-date .field-input svg {
-    color: rgba(255, 255, 255, 0.7);
-    opacity: 1;
+    color: rgba(255, 255, 255, 0.7) !important;
+    opacity: 1 !important;
   }
 
   @media (min-width: 1024px) {

@@ -154,6 +154,37 @@
     max-height: calc(100dvh - 2rem);
   }
 
+  .notification-modal-search {
+    width: min(16rem, 36vw);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+
+  .notification-modal-search:focus-within {
+    border-color: rgba(255, 255, 255, 0.58);
+  }
+
+  .notification-modal-search .scope-chip-search-input {
+    width: 100%;
+    color: white;
+  }
+
+  .notification-modal-search .scope-chip-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .notification-modal-search .scope-chip-search-icon {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .notification-modal-search .scope-chip-search-clear {
+    color: #fecaca;
+  }
+
+  .notification-modal-search .scope-chip-search-clear:hover {
+    color: white;
+  }
+
   @media (min-width: 1024px) {
     .app-content-shell {
       font-size: 0.86rem;

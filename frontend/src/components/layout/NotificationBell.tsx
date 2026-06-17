@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, X } from 'lucide-react'
+import { Bell, CheckCheck, Search, X } from 'lucide-react'
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -193,6 +193,7 @@ export function NotificationBell() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filter, setFilter] = useState<NotifFilter>('all')
   const [modalFilter, setModalFilter] = useState<NotifFilter>('all')
+  const [modalSearchText, setModalSearchText] = useState('')
   const [modalPage, setModalPage] = useState(1)
   const [modalPageSize, setModalPageSize] = useState(5)
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
@@ -239,13 +240,22 @@ export function NotificationBell() {
   }))
 
   const filteredDropdown = filter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications
-  const filteredModal = modalFilter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications
+  const modalSearchQuery = modalSearchText.trim().toLocaleLowerCase('tr')
+  const filteredModal = (modalFilter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications)
+    .filter(notification => {
+      if (!modalSearchQuery) return true
+      return [
+        notification.title,
+        notification.message,
+        formatNotifDate(notification.sentAtUtc, locale),
+      ].some(value => value.toLocaleLowerCase('tr').includes(modalSearchQuery))
+    })
   const pagedModal = filteredModal.slice((modalPage - 1) * modalPageSize, modalPage * modalPageSize)
   const previewItems = filteredDropdown.slice(0, 5)
 
   useEffect(() => {
     setModalPage(1)
-  }, [modalFilter, modalPageSize, displayNotifications.length])
+  }, [modalFilter, modalPageSize, modalSearchText, displayNotifications.length])
 
   const handleNotification = useCallback(
     (payload: NotificationPayload) => {
@@ -560,11 +570,26 @@ export function NotificationBell() {
               <h2 className="flex-1 text-base font-extrabold text-white">
                 {t('notifications.modalTitle', 'Bildirimler')}
               </h2>
-              {unreadCount > 0 && (
-                <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold text-white">
-                  {unreadCount} okunmamış
-                </span>
-              )}
+              <div className="notification-modal-search scope-chip-search-wrap">
+                <Search className="scope-chip-search-icon size-3 shrink-0" aria-hidden="true" />
+                <input
+                  type="text"
+                  className="scope-chip-search-input"
+                  placeholder={t('common.search', 'Ara...')}
+                  value={modalSearchText}
+                  onChange={event => setModalSearchText(event.target.value)}
+                />
+                {modalSearchText && (
+                  <button
+                    type="button"
+                    onClick={() => setModalSearchText('')}
+                    className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
+                    aria-label={t('common.clear', 'Temizle')}
+                  >
+                    <X className="size-3.5" strokeWidth={3} />
+                  </button>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}

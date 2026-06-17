@@ -23,6 +23,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
@@ -607,6 +608,16 @@ export function IncomingRequestsPage() {
     setIncomingPage(1)
   }
 
+  const canApproveRow = (row: IncomingRequestRow) =>
+    isManagerLike && (
+      (row.statusDomain === 'job' && row.status === 'PendingOwnerApproval')
+      || (row.statusDomain === 'job' && Boolean(row.assignTargetDepartmentId))
+      || (row.statusDomain === 'task' && row.status === 'PendingCloseApproval')
+    )
+
+  const shouldShowDisabledApprove = (row: IncomingRequestRow) =>
+    isManagerLike && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue') && !canApproveRow(row)
+
   return (
     <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
@@ -726,13 +737,13 @@ export function IncomingRequestsPage() {
                           <ArrowRight className="size-3.5" />
                         </Button>
                         {/* Onayla — onay bekleyen iş satırlarında */}
-                        {isManagerLike && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
+                        {canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
                         {/* Birime düşen (Active) birim dışı taleplerde buton "Onayla" (farklı birimden gelen tüm talepler için). */}
-                        {isManagerLike && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
+                        {canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
                           <Button size="sm" variant="success" onClick={() => handleAssignStaff(row.id)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
@@ -747,10 +758,19 @@ export function IncomingRequestsPage() {
                           </Button>
                         )}
                         {/* Onayla — kapanış onayı bekleyen görevlerde */}
-                        {isManagerLike && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
+                        {canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
                             {t('tasks.actions.approveClose', 'Onayla')}
                           </Button>
+                        )}
+                        {shouldShowDisabledApprove(row) && (
+                          <DisabledActionButton
+                            size="sm"
+                            variant="success"
+                            hoverTitle={t('jobs.actions.approveUnavailable', 'Bu kayıtta onay işlemi yapılamaz')}
+                          >
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </DisabledActionButton>
                         )}
                         {/* İptal/İade — onay bekleyen, onaylanmış ve aktif iş/görev satırlarında */}
                         {isManagerLike && (

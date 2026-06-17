@@ -1480,29 +1480,42 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         )}
                       </div>
                     )}
-                    {/* 4. sütun: Ekler / Fotoğraflar */}
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <h3 className="mb-3 text-sm font-bold text-slate-900">
-                        {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                      </h3>
-                      <AttachmentSection
-                        attachments={detail.attachments ?? []}
-                        onUpload={async (file) => {
-                          setAttachmentUploading(true)
-                          try {
-                            await api.uploadJobAttachment(detail.jobId, file)
-                            await refreshDetail()
-                          } finally {
-                            setAttachmentUploading(false)
-                          }
-                        }}
-                        onDelete={async (id) => {
-                          await api.deleteAttachment(id)
-                          await refreshDetail()
-                        }}
-                        disabled={attachmentUploading}
-                      />
-                    </div>
+                    {/* 4. sütun: Ekler / Fotoğraflar — yalnızca Birimden Giden Onay Bekleyen/Taleplerim
+                        (onay öncesi) talepte düzenlenebilir; onaylanmış/birime gelen talepte salt-okunur (card 537/540). */}
+                    {(() => {
+                      const canEditJobAttachments = isPreApprovalStatus(detail.status) && (isDepartmentOutgoingView || isMyRequestsView)
+                      return (
+                        <div className="rounded-xl border border-slate-200 bg-white p-4">
+                          <h3 className="mb-3 text-sm font-bold text-slate-900">
+                            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                          </h3>
+                          <AttachmentSection
+                            attachments={detail.attachments ?? []}
+                            readOnly={!canEditJobAttachments}
+                            emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                            onUpload={canEditJobAttachments ? async (file) => {
+                              setAttachmentUploading(true)
+                              try {
+                                await api.uploadJobAttachment(detail.jobId, file)
+                                await refreshDetail()
+                              } finally {
+                                setAttachmentUploading(false)
+                              }
+                            } : undefined}
+                            onDelete={canEditJobAttachments ? async (id) => {
+                              await api.deleteAttachment(id)
+                              await refreshDetail()
+                            } : undefined}
+                            disabled={attachmentUploading}
+                          />
+                          {!canEditJobAttachments && !isPreApprovalStatus(detail.status) && (
+                            <p className="mt-2 text-xs font-medium text-amber-600">
+                              {t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')}
+                            </p>
+                          )}
+                        </div>
+                      )
+                    })()}
                   </div>
                 )}
                 {!isRequestDetailContext && (isManagerLike || canMutatePreApprovalJob(detail)) && (

@@ -21,12 +21,15 @@ function isImageAttachment(name: string): boolean {
 
 interface AttachmentSectionProps {
   attachments: Attachment[]
-  onUpload: (file: File) => Promise<void>
-  onDelete: (attachmentId: string) => Promise<void>
+  onUpload?: (file: File) => Promise<void>
+  onDelete?: (attachmentId: string) => Promise<void>
   disabled?: boolean
+  // Salt-okunur: yükleme alanı ve silme gizlenir; boşken emptyText gösterilir (card 537).
+  readOnly?: boolean
+  emptyText?: string
 }
 
-export function AttachmentSection({ attachments, onUpload, onDelete, disabled }: AttachmentSectionProps) {
+export function AttachmentSection({ attachments, onUpload, onDelete, disabled, readOnly = false, emptyText }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -55,7 +58,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
       }
       setUploading(true)
       try {
-        await onUpload(file)
+        await onUpload?.(file)
       } catch (err) {
         setValidationError(err instanceof Error ? err.message : String(err))
       } finally {
@@ -69,7 +72,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
     if (!window.confirm(t('attachments.deleteConfirm', 'Bu eki silmek istediğinize emin misiniz?'))) return
     setDeletingId(attachmentId)
     try {
-      await onDelete(attachmentId)
+      await onDelete?.(attachmentId)
     } finally {
       setDeletingId(null)
     }
@@ -79,7 +82,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
 
   return (
     <div className="page-stack">
-      {/* Upload zone */}
+      {/* Upload zone — salt-okunur modda gizli (card 537). */}
+      {!readOnly && (
       <div
         role="button"
         tabIndex={isDisabled ? -1 : 0}
@@ -115,9 +119,15 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
           onChange={e => void handleFiles(e.target.files)}
         />
       </div>
+      )}
 
-      {validationError && (
+      {!readOnly && validationError && (
         <div className="alert alert-error text-sm">{validationError}</div>
+      )}
+
+      {/* Salt-okunur ve hiç ek yoksa açıklayıcı metin (card 537). */}
+      {readOnly && attachments.length === 0 && emptyText && (
+        <p className="text-sm text-slate-400">{emptyText}</p>
       )}
 
       {/* Thumbnail gallery */}
@@ -148,6 +158,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
                   {att.fileName}
                 </span>
               </div>
+              {!readOnly && (
               <button
                 type="button"
                 title={t('attachments.deleteConfirm', 'Sil')}
@@ -163,6 +174,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
                   </svg>
                 )}
               </button>
+              )}
             </div>
           ))}
         </div>

@@ -1315,7 +1315,9 @@
     "deleteConfirm": "Are you sure you want to delete this attachment?",
     "uploading": "Uploading...",
     "requestEmpty": "No attachment/photo for the request.",
-    "addFile": "Add File"
+    "addFile": "Add File",
+    "lockedApproved": "Attachments can no longer be added because the request is approved.",
+    "lockedCompleted": "Attachments can no longer be added because the task is completed."
   },
   "location": {
     "label": "Location (Optional)",

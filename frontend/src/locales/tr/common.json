@@ -1340,7 +1340,9 @@
     "deleteConfirm": "Bu eki silmek istediğinize emin misiniz?",
     "uploading": "Yükleniyor...",
     "requestEmpty": "Talep için ek/fotoğraf bulunmamaktadır.",
-    "addFile": "Dosya ekle"
+    "addFile": "Dosya ekle",
+    "lockedApproved": "Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.",
+    "lockedCompleted": "Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez."
   },
   "location": {
     "label": "Konum (İsteğe Bağlı)",

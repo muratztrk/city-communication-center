@@ -943,14 +943,7 @@ const pageKicker = isMyTasksView
                                       ? t('tasks.type.routine', 'Rutin')
                                       : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
                                   },
-                                  ...(taskDetail.jobSourceType !== 'Routine'
-                                    ? [{
-                                        label: 'Proje mi',
-                                        value: parentJobDetail?.isProject
-                                          ? t('common.yes', 'Evet')
-                                          : t('common.no', 'Hayır'),
-                                      }]
-                                    : []),
+                                  // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
                                 ].map(({ label, value }) => (
                                   <div key={label} className="flex items-start gap-2 px-3 py-2">
                                     <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>

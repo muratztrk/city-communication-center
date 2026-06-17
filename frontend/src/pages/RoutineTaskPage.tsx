@@ -86,7 +86,7 @@ export function RoutineTaskPage() {
         <div className="grid content-start gap-3">
           <div className="job-field">
             <label className="job-field-label" htmlFor="routine-title">
-              {t('tasks.newRequest.title', 'Başlık')} <span className="text-red-500">*</span>
+              {t('tasks.newRequest.title', 'Başlık')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span>
             </label>
             <input
               id="routine-title"

@@ -680,7 +680,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
               <input className="field-input" required maxLength={50} value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
             </div>
             <div className="grid gap-3 md:grid-cols-3">
@@ -759,7 +759,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-red-500">*</span></label>
+              <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input id="request-title" className="field-input" type="text" maxLength={50} value={externalForm.title} onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))} required />
             </div>
             <div className="job-field">

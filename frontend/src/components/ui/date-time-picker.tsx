@@ -57,6 +57,9 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   const containerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
+  // Yıl seçici (card 531): yıla tıklanınca geçmiş yıllar da seçilebilsin.
+  const [yearPickerOpen, setYearPickerOpen] = useState(false)
+  const [yearBlockStart, setYearBlockStart] = useState(() => new Date().getFullYear() - 5)
 
   const handleOpen = () => {
     const now = new Date()
@@ -75,6 +78,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
       setViewYear(now.getFullYear())
       setViewMonth(now.getMonth())
     }
+    setYearPickerOpen(false)
     setOpen(true)
   }
 
@@ -204,6 +208,14 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
             <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-white/60">
               Tarih Seç
             </div>
+            {/* Yıl, ayın üst satırında; tıklanınca yıl seçici açılır (card 531). */}
+            <button
+              type="button"
+              onClick={() => { setYearBlockStart(viewYear - 5); setYearPickerOpen(open => !open) }}
+              className="mb-1 block w-full rounded-lg py-0.5 text-center text-sm font-bold text-white/75 transition-colors hover:bg-white/15 hover:text-white"
+            >
+              {viewYear}
+            </button>
             <div className="flex items-center justify-between">
               <button
                 type="button"
@@ -213,7 +225,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
                 <ChevronLeft className="size-4" />
               </button>
               <span className="text-base font-extrabold text-white">
-                {MONTHS_TR[viewMonth]} {viewYear}
+                {MONTHS_TR[viewMonth]}
               </span>
               <button
                 type="button"
@@ -226,38 +238,83 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
           </div>
 
           <div className="p-3">
-            {/* Weekday labels */}
-            <div className="mb-1 grid grid-cols-7">
-              {DAYS_TR.map(d => (
-                <div key={d} className="py-1 text-center text-[11px] font-bold text-slate-400">{d}</div>
-              ))}
-            </div>
-
-            {/* Day grid */}
-            <div className="grid grid-cols-7 gap-y-0.5">
-              {cells.map((day, i) => {
-                if (!day) return <div key={i} />
-                const dateStr = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
-                const isSelected = draft.date === dateStr
-                const isToday = dateStr === today
-                return (
+            {yearPickerOpen ? (
+              <>
+                {/* Yıl seçici: on iki yıllık blok; ileri/geri ile geçmiş yıllara gidilebilir (card 531). */}
+                <div className="mb-2 flex items-center justify-between">
                   <button
-                    key={i}
                     type="button"
-                    onClick={() => handleDayClick(day)}
-                    className={cn(
-                      'mx-auto flex size-8 items-center justify-center rounded-lg text-sm font-medium transition-colors',
-                      isSelected && 'bg-[color:var(--color-primary)] font-bold text-white shadow-sm',
-                      !isSelected && isToday && 'border border-[color:var(--color-primary)] font-bold text-[color:var(--color-primary)]',
-                      !isSelected && !isToday && 'text-slate-700 hover:bg-slate-100',
-                    )}
+                    onClick={() => setYearBlockStart(start => start - 12)}
+                    className="rounded-lg p-1 text-slate-500 transition-colors hover:bg-slate-100"
                   >
-                    {day}
+                    <ChevronLeft className="size-4" />
                   </button>
-                )
-              })}
-            </div>
+                  <span className="text-xs font-bold text-slate-500">{yearBlockStart} – {yearBlockStart + 11}</span>
+                  <button
+                    type="button"
+                    onClick={() => setYearBlockStart(start => start + 12)}
+                    className="rounded-lg p-1 text-slate-500 transition-colors hover:bg-slate-100"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {Array.from({ length: 12 }, (_, i) => yearBlockStart + i).map(year => {
+                    const isSelected = year === viewYear
+                    const isCurrent = year === new Date().getFullYear()
+                    return (
+                      <button
+                        key={year}
+                        type="button"
+                        onClick={() => { setViewYear(year); setYearPickerOpen(false) }}
+                        className={cn(
+                          'flex h-9 items-center justify-center rounded-lg text-sm font-medium transition-colors',
+                          isSelected && 'bg-[color:var(--color-primary)] font-bold text-white shadow-sm',
+                          !isSelected && isCurrent && 'border border-[color:var(--color-primary)] font-bold text-[color:var(--color-primary)]',
+                          !isSelected && !isCurrent && 'text-slate-700 hover:bg-slate-100',
+                        )}
+                      >
+                        {year}
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Weekday labels */}
+                <div className="mb-1 grid grid-cols-7">
+                  {DAYS_TR.map(d => (
+                    <div key={d} className="py-1 text-center text-[11px] font-bold text-slate-400">{d}</div>
+                  ))}
+                </div>
 
+                {/* Day grid */}
+                <div className="grid grid-cols-7 gap-y-0.5">
+                  {cells.map((day, i) => {
+                    if (!day) return <div key={i} />
+                    const dateStr = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
+                    const isSelected = draft.date === dateStr
+                    const isToday = dateStr === today
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleDayClick(day)}
+                        className={cn(
+                          'mx-auto flex size-8 items-center justify-center rounded-lg text-sm font-medium transition-colors',
+                          isSelected && 'bg-[color:var(--color-primary)] font-bold text-white shadow-sm',
+                          !isSelected && isToday && 'border border-[color:var(--color-primary)] font-bold text-[color:var(--color-primary)]',
+                          !isSelected && !isToday && 'text-slate-700 hover:bg-slate-100',
+                        )}
+                      >
+                        {day}
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Footer: Temizle | Saat input | Seç — hepsi aynı satırda */}

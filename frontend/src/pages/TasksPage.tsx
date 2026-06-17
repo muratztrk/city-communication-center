@@ -1160,13 +1160,11 @@ const pageKicker = isMyTasksView
                     )
                   })()}
 
-                  {/* Yönetici Notu + Ekler artık İlgili Talep Detayları'nda 3./4. sütun (card 519);
-                      yalnızca ilgili talep gösterilmiyorsa (rutin görev) burada gösterilir. */}
+                  {/* Rutin görevlerde alt işlem/ek bölümleri gösterilmez (card 555).
+                      Rutin olmayan görevlerde Yönetici Notu + Ekler ilgili talep detaylarında gösterilir. */}
                   {(() => {
-                    const showNoteAndAttachmentsHere = !parentJobDetail || taskDetail.jobSourceType === 'Routine'
-                    const bottomColsClass = showNoteAndAttachmentsHere
-                      ? (isManagerLike ? 'lg:grid-cols-4' : 'lg:grid-cols-3')
-                      : (isManagerLike ? 'lg:grid-cols-2' : '')
+                    if (taskDetail.jobSourceType === 'Routine') return null
+                    const bottomColsClass = isManagerLike ? 'lg:grid-cols-2' : ''
                     return (
                   <div className={`grid gap-4 ${bottomColsClass}`}>
 
@@ -1249,57 +1247,6 @@ const pageKicker = isMyTasksView
                         </div>
                       )}
                     </section>
-                    {/* Yönetici Notu + Ekler yalnızca rutin görevde burada; aksi halde İlgili Talep Detayları'nda (card 519). */}
-                    {showNoteAndAttachmentsHere && (
-                      <>
-                        <section className="form-card page-stack">
-                          <h3 className="mb-1.5 border-b border-slate-200 pb-1.5 text-sm font-bold text-slate-900">
-                            {t('jobs.managerNote.title', 'Yönetici Notu')}
-                          </h3>
-                          {parentJobDetail?.managerNote ? (
-                            <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
-                          ) : (
-                            <div className="empty-state">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</div>
-                          )}
-                        </section>
-                        <section className="form-card page-stack">
-                          <h3 className="mb-1.5 border-b border-slate-200 pb-1.5 text-sm font-bold text-slate-900">
-                            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                          </h3>
-                          {(() => {
-                            const taskAttachmentsLocked = taskDetail.currentStatus === 'Completed'
-                            return (
-                              <>
-                                <AttachmentSection
-                                  attachments={taskDetail.attachments ?? []}
-                                  readOnly={taskAttachmentsLocked}
-                                  emptyText={taskAttachmentsLocked ? t('attachments.lockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.') : undefined}
-                                  onUpload={!taskAttachmentsLocked ? async file => {
-                                    setAttachmentUploading(true)
-                                    try {
-                                      await api.uploadTaskAttachment(taskDetail.taskId, file)
-                                      setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                                    } finally {
-                                      setAttachmentUploading(false)
-                                    }
-                                  } : undefined}
-                                  onDelete={!taskAttachmentsLocked ? async id => {
-                                    await api.deleteAttachment(id)
-                                    setTaskDetail(await api.getTaskById(taskDetail.taskId))
-                                  } : undefined}
-                                  disabled={attachmentUploading}
-                                />
-                                {taskAttachmentsLocked && taskDetail.attachments.length > 0 && (
-                                  <p className="text-xs font-medium text-amber-600">
-                                    {t('attachments.lockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
-                                  </p>
-                                )}
-                              </>
-                            )
-                          })()}
-                        </section>
-                      </>
-                    )}
                   </div>
                     )
                   })()}

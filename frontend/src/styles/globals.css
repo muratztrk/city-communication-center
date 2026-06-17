@@ -2055,8 +2055,8 @@
   }
 
   .wallboard-stats > button.stat-internal {
-    --wallboard-stat-accent: #fb7185;
-    --wallboard-stat-accent-soft: rgba(251, 113, 133, 0.28);
+    --wallboard-stat-accent: #f97316;
+    --wallboard-stat-accent-soft: rgba(249, 115, 22, 0.28);
   }
 
   .wallboard-stats > button.stat-external {

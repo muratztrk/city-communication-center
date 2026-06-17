@@ -10,6 +10,7 @@ import { useSignalR } from '../../hooks/useSignalR'
 import { getLocale } from '../../utils/localization'
 import { useAuth } from '../../context/AuthContext'
 import { TablePagination } from '../ui/table-pagination'
+import { DateTimePicker } from '../ui/date-time-picker'
 
 type NotifFilter = 'all' | 'unread'
 type NotificationDetailTarget =
@@ -199,6 +200,8 @@ export function NotificationBell() {
   const [filter, setFilter] = useState<NotifFilter>('all')
   const [modalFilter, setModalFilter] = useState<NotifFilter>('all')
   const [modalSearchText, setModalSearchText] = useState('')
+  const [modalDateFrom, setModalDateFrom] = useState('')
+  const [modalDateTo, setModalDateTo] = useState('')
   const [modalPage, setModalPage] = useState(1)
   const [modalPageSize, setModalPageSize] = useState(5)
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
@@ -248,6 +251,13 @@ export function NotificationBell() {
   const modalSearchQuery = modalSearchText.trim().toLocaleLowerCase('tr')
   const filteredModal = (modalFilter === 'unread' ? displayNotifications.filter(n => !n.isRead) : displayNotifications)
     .filter(notification => {
+      // Tarih aralığı filtresi — Talepler bannerındaki ile aynı mantık (gün bazında karşılaştırma).
+      if (modalDateFrom || modalDateTo) {
+        const day = notification.sentAtUtc?.slice(0, 10)
+        if (!day) return false
+        if (modalDateFrom && day < modalDateFrom.slice(0, 10)) return false
+        if (modalDateTo && day > modalDateTo.slice(0, 10)) return false
+      }
       if (!modalSearchQuery) return true
       return [
         notification.title,
@@ -260,7 +270,7 @@ export function NotificationBell() {
 
   useEffect(() => {
     setModalPage(1)
-  }, [modalFilter, modalPageSize, modalSearchText, displayNotifications.length])
+  }, [modalFilter, modalPageSize, modalSearchText, modalDateFrom, modalDateTo, displayNotifications.length])
 
   const handleNotification = useCallback(
     (payload: NotificationPayload) => {
@@ -364,6 +374,9 @@ export function NotificationBell() {
   const openModal = () => {
     setIsOpen(false)
     setModalPage(1)
+    setModalSearchText('')
+    setModalDateFrom('')
+    setModalDateTo('')
     setIsModalOpen(true)
   }
 
@@ -572,28 +585,46 @@ export function NotificationBell() {
             {/* Modal header */}
             <div className="flex shrink-0 items-center gap-3 bg-gradient-to-r from-[color:var(--color-primary)] to-[color:var(--color-secondary,var(--color-primary))] px-6 py-4">
               <Bell className="size-5 shrink-0 text-white/80" />
-              <h2 className="flex-1 text-base font-extrabold text-white">
+              <h2 className="min-w-0 flex-1 truncate text-base font-extrabold text-white">
                 {t('notifications.modalTitle', 'Bildirimler')}
               </h2>
-              <div className="notification-modal-search scope-chip-search-wrap">
-                <Search className="scope-chip-search-icon size-3 shrink-0" aria-hidden="true" />
-                <input
-                  type="text"
-                  className="scope-chip-search-input"
-                  placeholder={t('common.search', 'Ara...')}
-                  value={modalSearchText}
-                  onChange={event => setModalSearchText(event.target.value)}
+              {/* Talepler bannerındaki ile aynı: arama + başlangıç/bitiş tarihi seçicileri (card 508). */}
+              <div className="notification-modal-filters flex shrink-0 items-center gap-1.5">
+                <div className="notification-modal-search scope-chip-search-wrap">
+                  <Search className="scope-chip-search-icon size-3 shrink-0" aria-hidden="true" />
+                  <input
+                    type="text"
+                    className="scope-chip-search-input"
+                    placeholder={t('common.search', 'Ara...')}
+                    value={modalSearchText}
+                    onChange={event => setModalSearchText(event.target.value)}
+                  />
+                  {modalSearchText && (
+                    <button
+                      type="button"
+                      onClick={() => setModalSearchText('')}
+                      className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
+                      aria-label={t('common.clear', 'Temizle')}
+                    >
+                      <X className="size-3.5" strokeWidth={3} />
+                    </button>
+                  )}
+                </div>
+                <DateTimePicker
+                  value={modalDateFrom}
+                  onChange={setModalDateFrom}
+                  placeholder={t('filters.startDate', 'Başlangıç tarihi')}
+                  className="notification-modal-date scope-chip-date"
+                  forceDown
                 />
-                {modalSearchText && (
-                  <button
-                    type="button"
-                    onClick={() => setModalSearchText('')}
-                    className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
-                    aria-label={t('common.clear', 'Temizle')}
-                  >
-                    <X className="size-3.5" strokeWidth={3} />
-                  </button>
-                )}
+                <span className="text-xs text-white/50">–</span>
+                <DateTimePicker
+                  value={modalDateTo}
+                  onChange={setModalDateTo}
+                  placeholder={t('filters.endDate', 'Bitiş tarihi')}
+                  className="notification-modal-date scope-chip-date"
+                  forceDown
+                />
               </div>
               <button
                 type="button"

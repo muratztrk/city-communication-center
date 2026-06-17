@@ -36,7 +36,9 @@
       "internal": "Birim İçi",
       "external": "Birim Dışı",
       "all": "Birim İçi/Birim Dışı"
-    }
+    },
+    "startDate": "Başlangıç tarihi",
+    "endDate": "Bitiş tarihi"
   },
   "errors": {
     "invalidAccessToken": "Geçersiz access token.",

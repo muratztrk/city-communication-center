@@ -184,6 +184,29 @@
     color: #dc2626;
   }
 
+  /* Bildirim modalı tarih seçicileri — yeşil başlıkta camsı/translucent pill (arama ile aynı dil). */
+  .notification-modal-date {
+    width: 8rem;
+  }
+
+  .notification-modal-date .field-input {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+  }
+
+  .notification-modal-date .field-input:hover,
+  .notification-modal-date .field-input:focus {
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: none;
+  }
+
+  .notification-modal-date .field-input svg {
+    color: rgba(255, 255, 255, 0.8);
+    opacity: 1;
+  }
+
   @media (min-width: 1024px) {
     .app-content-shell {
       font-size: 0.86rem;

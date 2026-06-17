@@ -36,7 +36,9 @@
       "internal": "Internal",
       "external": "External",
       "all": "Internal/External"
-    }
+    },
+    "startDate": "Start date",
+    "endDate": "End date"
   },
   "errors": {
     "invalidAccessToken": "Invalid access token.",

@@ -645,7 +645,7 @@
     }
   },
   "incomingRequests": {
-    "subtitle": "Birim içi ve birim dışı gelen talepleri tek listede takip edin.",
+    "subtitle": "Birim içi gelen talepleri tek listede takip edin.",
     "empty": "Birime gelen talep bulunmuyor.",
     "columns": {
       "type": "Tip",

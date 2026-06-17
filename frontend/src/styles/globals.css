@@ -995,14 +995,15 @@
     background: rgba(248, 250, 252, 0.72);
   }
 
-  /* Uzun başlıklar sütunu yatayda genişletmesin; bir üst sınıra ulaşınca alt satıra kaysın (card 523). */
+  /* Uzun başlıklar sütunu yatayda genişletmesin; bir üst sınıra ulaşınca alt satıra kaysın (card 523).
+     Alt satıra geçen metin sola değil ortaya hizalanır (card 530). */
   .cell-title {
     display: inline-block;
     max-width: 22rem;
     overflow-wrap: anywhere;
     word-break: break-word;
     white-space: normal;
-    text-align: left;
+    text-align: center;
   }
 
   .data-table--zebra tbody tr:nth-child(even) td {

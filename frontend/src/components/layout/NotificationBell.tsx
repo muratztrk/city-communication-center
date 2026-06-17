@@ -546,17 +546,6 @@ export function NotificationBell() {
                   <X className="size-3.5" strokeWidth={2.5} />
                 </button>
               </div>
-              {/* "Hepsini okundu yap" ayrı satırda, "Tümü" butonunun altına hizalı. */}
-              <button
-                type="button"
-                onClick={markAllRead}
-                disabled={unreadCount === 0}
-                title={t('notifications.markAllRead', 'Hepsini okundu yap')}
-                className="mt-1.5 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.7rem] font-semibold text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-35"
-              >
-                <CheckCheck className="size-3.5" />
-                {t('notifications.markAllReadShort', 'Hepsini okundu yap')}
-              </button>
             </div>
 
             {/* List */}

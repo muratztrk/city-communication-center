@@ -225,10 +225,12 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   <div class="kicker">Talep Detayı</div>
   <h1>${escHtml(detail.title)}</h1>
   <div class="meta">
+    <strong>Talep No:</strong> ${detail.jobNumber != null && detail.jobNumberYear != null ? escHtml(`T-${detail.jobNumberYear}-${detail.jobNumber}`) : '—'} &nbsp;|&nbsp;
     <strong>Durum:</strong> ${escHtml(detail.status)} &nbsp;|&nbsp;
     <strong>Öncelik:</strong> ${escHtml(detail.priority)} &nbsp;|&nbsp;
     <strong>Talep Tipi:</strong> ${escHtml(detail.requestType)}<br/>
     <strong>Sahip Müdürlük:</strong> ${escHtml(detail.ownerDepartmentName ?? '—')} &nbsp;|&nbsp;
+    <strong>Gittiği Yer:</strong> ${escHtml(formatJobDestinationsWithAssignees(detail))} &nbsp;|&nbsp;
     <strong>Proje mi:</strong> ${detail.isProject ? 'Evet' : 'Hayır'}<br/>
     <strong>Oluşturan:</strong> ${escHtml(detail.createdByDisplayName ?? '—')} &nbsp;|&nbsp;
     <strong>Tarih:</strong> ${fd(detail.createdAtUtc)}

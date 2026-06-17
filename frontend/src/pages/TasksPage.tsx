@@ -9,7 +9,7 @@ import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { resolveAttachmentUrl } from '../api/config'
 import { getActiveDepartmentId } from '../api/http'
@@ -129,15 +129,13 @@ function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function printTaskDetail(taskDetail: TaskDetail, parentJob: import('../types/platform').JobDetail | null, locale: string) {
+function printTaskDetail(taskDetail: TaskDetail, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
   const win = window.open('', '_blank', 'width=820,height=900')
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const description = stripHtmlTags(taskDetail.description)
-  const historyItems = taskDetail.assignmentHistory.map(h =>
-    `<li>${escHtml(h.toDepartmentId ?? '—')} · ${escHtml(h.toUserId ?? '—')} — ${fd(h.actionDateUtc)}</li>`
-  ).join('')
-  const attachItems = (taskDetail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
+  const gorevTipi = taskDetail.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
+  // Yalnızca ekranda görünen "Görev Detayları" ve (varsa) "İlgili Talep Detayları" alanları; harici bölüm yok (card 547).
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDetail.title)}</title><style>
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     h1{font-size:18px;margin:4px 0 8px}
@@ -149,16 +147,16 @@ function printTaskDetail(taskDetail: TaskDetail, parentJob: import('../types/pla
     .footer{margin-top:2rem;font-size:10px;color:#aaa}
     @media print{body{padding:0}}
   </style></head><body>
-  <div class="kicker">Görev Detayı</div>
+  <div class="kicker">Görev Detayları</div>
   <h1>${escHtml(taskDetail.title)}</h1>
-  ${taskDetail.jobTitle ? `<p style="font-size:12px;color:#555;margin:0 0 8px">İlgili Talep: <strong>${escHtml(taskDetail.jobTitle)}</strong></p>` : ''}
   <div class="meta">
-    <strong>Durum:</strong> ${escHtml(taskDetail.currentStatus)} &nbsp;|&nbsp;
-    <strong>Öncelik:</strong> ${escHtml(taskDetail.priority)} &nbsp;|&nbsp;
-    <strong>Termin:</strong> ${fd(taskDetail.dueDateUtc)}<br/>
-    <strong>Sahip:</strong> ${escHtml(taskDetail.ownerDisplayName ?? '—')} &nbsp;|&nbsp;
+    <strong>Görev Sahibi:</strong> ${escHtml(taskDetail.ownerDisplayName ?? '—')} &nbsp;|&nbsp;
     <strong>Oluşturan:</strong> ${escHtml(taskDetail.createdByDisplayName ?? '—')}<br/>
-    <strong>Atanan:</strong> ${escHtml(taskDetail.assignedUserId ?? taskDetail.assignedDepartmentId ?? 'Havuz')}
+    <strong>Görev Tipi:</strong> ${escHtml(gorevTipi)} &nbsp;|&nbsp;
+    <strong>Öncelik:</strong> ${escHtml(getPriorityLabel(t, taskDetail.priority))} &nbsp;|&nbsp;
+    <strong>Durum:</strong> ${escHtml(getTaskDisplayStatus(t, taskDetail))}<br/>
+    <strong>Görev Tarihi:</strong> ${fd(taskDetail.createdAtUtc)} &nbsp;|&nbsp;
+    <strong>Son Tarih:</strong> ${fd(taskDetail.dueDateUtc)}
   </div>
   <div class="section">
     <div class="section-title">Açıklama</div>
@@ -171,12 +169,10 @@ function printTaskDetail(taskDetail: TaskDetail, parentJob: import('../types/pla
       <strong>Talep Başlığı:</strong> ${escHtml(parentJob.title)}<br/>
       <strong>Talep Sahibi / Oluşturan:</strong> ${escHtml([parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—')} &nbsp;|&nbsp;
       <strong>Proje mi:</strong> ${parentJob.isProject ? 'Evet' : 'Hayır'}<br/>
-      <strong>Öncelik:</strong> ${escHtml(parentJob.priority)} &nbsp;|&nbsp;
+      <strong>Öncelik:</strong> ${escHtml(getPriorityLabel(t, parentJob.priority))} &nbsp;|&nbsp;
       <strong>Talep Tarihi:</strong> ${fd(parentJob.createdAtUtc)}${parentJob.dueDateUtc ? ` &nbsp;|&nbsp; <strong>Son Tarih:</strong> ${fd(parentJob.dueDateUtc)}` : ''}
     </div>
   </div>` : ''}
-  ${historyItems ? `<div class="section"><div class="section-title">Atama Geçmişi</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${historyItems}</ul></div>` : ''}
-  ${attachItems ? `<div class="section"><div class="section-title">Ekler (${(taskDetail.attachments ?? []).length})</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul></div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <script>window.onload=function(){window.print()}</script>
   </body></html>`)
@@ -267,6 +263,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
 
   const locale = getLocale(i18n.language)
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [activeDeptId, setActiveDeptId] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -717,13 +714,19 @@ const pageKicker = isMyTasksView
 
   const closeTaskDetail = () => {
     dismissedAutoOpenTaskIdRef.current = autoOpenTaskId
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('taskId')
-    setSearchParams(nextParams, { replace: true })
     setSelectedTask(null)
     setTaskDetail(null)
     setParentJobDetail(null)
     setAssignmentDraft({ departmentId: '', userId: '' })
+    // Detay derin bağlantıyla (ör. Birime Gelen Talepler) açıldıysa kapatınca geldiği sayfaya dön;
+    // bu sayfada kalıp Birimdeki Görevler'e düşmemeli (card 549).
+    if (autoOpenTaskId) {
+      navigate(-1)
+      return
+    }
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('taskId')
+    setSearchParams(nextParams, { replace: true })
   }
 
   const saveAssignment = async () => {
@@ -908,7 +911,7 @@ const pageKicker = isMyTasksView
                     </Button>
                 )}
                 {taskDetail && (
-                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, parentJobDetail, locale)}>
+                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, parentJobDetail, t, locale)}>
                     {t('common.print', 'Yazdır')}
                   </Button>
                 )}
@@ -1434,7 +1437,8 @@ const pageKicker = isMyTasksView
                               </Button>
                             )
                           }
-                          if (isMyTasksView && currentMyTaskView === 'all') {
+                          // Görsel bütünlük: Görevlerim ve Birimdeki Görevler "Tüm Görevler"de iptal edilemeyen satırlarda pasif İptal Et (card 545).
+                          if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all') {
                             return <DisabledActionButton size="sm" variant="destructive" hoverTitle={t('tasks.actions.cancelUnavailable', 'Bu görev şu an iptal edilemez')}>{t('jobs.actions.cancel', 'İptal Et')}</DisabledActionButton>
                           }
                           return null

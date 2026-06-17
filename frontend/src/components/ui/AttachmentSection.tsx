@@ -27,9 +27,10 @@ interface AttachmentSectionProps {
   // Salt-okunur: yükleme alanı ve silme gizlenir; boşken emptyText gösterilir (card 537).
   readOnly?: boolean
   emptyText?: string
+  compact?: boolean
 }
 
-export function AttachmentSection({ attachments, onUpload, onDelete, disabled, readOnly = false, emptyText }: AttachmentSectionProps) {
+export function AttachmentSection({ attachments, onUpload, onDelete, disabled, readOnly = false, emptyText, compact = false }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -132,7 +133,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
 
       {/* Thumbnail gallery */}
       {attachments.length > 0 && (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+        <div className={compact ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-3 sm:grid-cols-4'}>
           {attachments.map(att => (
             <div
               key={att.attachmentId}
@@ -143,13 +144,13 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
                   <img
                     src={resolveAttachmentUrl(att.url)}
                     alt={att.fileName}
-                    className="h-24 w-full object-cover"
+                    className={`${compact ? 'h-16' : 'h-24'} w-full object-cover`}
                     loading="lazy"
                   />
                 ) : (
-                  <div className="flex h-24 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
-                    <FileText className="size-7" />
-                    <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{att.fileName}</span>
+                  <div className={`flex ${compact ? 'h-16' : 'h-24'} w-full flex-col items-center justify-center gap-1 px-2 text-slate-500`}>
+                    <FileText className={compact ? 'size-5' : 'size-7'} />
+                    <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
                   </div>
                 )}
               </a>

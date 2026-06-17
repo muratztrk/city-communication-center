@@ -1,4 +1,4 @@
-import { FileText, Paperclip, Search, X } from 'lucide-react'
+import { Paperclip, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -11,7 +11,6 @@ import { FilterableTh } from '../components/ui/FilterableTh'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { resolveAttachmentUrl } from '../api/config'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
@@ -1149,31 +1148,12 @@ const pageKicker = isMyTasksView
                             <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                               {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                             </div>
-                            {parentJobDetail.attachments.length > 0 ? (
-                              <div className="grid grid-cols-3 gap-2">
-                                {parentJobDetail.attachments.map(att => (
-                                  <a
-                                    key={att.attachmentId}
-                                    href={resolveAttachmentUrl(att.url)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title={att.fileName}
-                                    className="block overflow-hidden rounded-lg border border-slate-200 bg-slate-50"
-                                  >
-                                    {/\.(jpe?g|png)$/i.test(att.fileName) ? (
-                                      <img src={resolveAttachmentUrl(att.url)} alt={att.fileName} className="h-16 w-full object-cover" loading="lazy" />
-                                    ) : (
-                                      <div className="flex h-16 w-full flex-col items-center justify-center gap-0.5 px-1 text-slate-500">
-                                        <FileText className="size-5" />
-                                        <span className="line-clamp-1 break-all text-center text-[9px] font-medium">{att.fileName}</span>
-                                      </div>
-                                    )}
-                                  </a>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-sm text-slate-400">{t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}</p>
-                            )}
+                            <AttachmentSection
+                              attachments={parentJobDetail.attachments}
+                              readOnly
+                              compact
+                              emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                            />
                           </div>
                         </div>
                       </section>

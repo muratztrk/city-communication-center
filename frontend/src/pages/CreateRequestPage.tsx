@@ -1,4 +1,4 @@
-import { Building2, MapPin, MessageSquareMore, Paperclip, Send, Workflow, X } from 'lucide-react'
+import { Building2, FileText, MapPin, MessageSquareMore, Paperclip, Send, Workflow, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -104,14 +104,20 @@ function getRequestedOwnerUserIds(
   return fallbackUserIds.length > 0 ? [...new Set(fallbackUserIds)] : ['']
 }
 
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+// Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png']
+const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
+function fileExtension(name: string): string {
+  const dot = name.lastIndexOf('.')
+  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
+
 function validateFile(file: File): string | null {
-  const ext = '.' + (file.name.split('.').pop()?.toLowerCase() ?? '')
-  if (!ALLOWED_EXTENSIONS.includes(ext) || !ALLOWED_TYPES.includes(file.type)) {
-    return 'Sadece JPG, PNG, GIF ve WebP dosyaları yüklenebilir.'
+  if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
+    return 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'
   }
   if (file.size > MAX_FILE_SIZE) {
     return 'Dosya boyutu 5 MB\'ı aşamaz.'
@@ -368,7 +374,7 @@ export function CreateRequestPage() {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".jpg,.jpeg,.png,.gif,.webp"
+          accept={ACCEPT_ATTR}
           multiple
           className="hidden"
           disabled={saving}
@@ -388,7 +394,14 @@ export function CreateRequestPage() {
         <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
           {pendingFiles.map((file, idx) => (
             <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-              <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
+              {IMAGE_EXTENSIONS.includes(fileExtension(file.name)) ? (
+                <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
+              ) : (
+                <div className="flex h-20 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
+                  <FileText className="size-6" />
+                  <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{file.name}</span>
+                </div>
+              )}
               <button
                 type="button"
                 className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"

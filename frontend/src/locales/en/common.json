@@ -1308,10 +1308,10 @@
   "attachments": {
     "sectionTitle": "Attachments / Photos",
     "uploadLabel": "Add Photo",
-    "uploadHint": "JPG, PNG, GIF, WebP — max 5 MB",
+    "uploadHint": "JPG, PNG, PDF, Office — max 5 MB",
     "dragHint": "Drop file here or click to browse",
     "errorSize": "File size must not exceed 5 MB.",
-    "errorType": "Only JPG, PNG, GIF and WebP files are allowed.",
+    "errorType": "Only image (JPG, PNG), PDF and Office files are allowed.",
     "deleteConfirm": "Are you sure you want to delete this attachment?",
     "uploading": "Uploading...",
     "requestEmpty": "No attachment/photo for the request.",

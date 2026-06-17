@@ -1,10 +1,22 @@
+import { FileText } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Attachment } from '../../types/platform'
 
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+// Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png']
+const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
 const MAX_SIZE = 5 * 1024 * 1024
+
+function fileExtension(name: string): string {
+  const dot = name.lastIndexOf('.')
+  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
+
+function isImageAttachment(name: string): boolean {
+  return IMAGE_EXTENSIONS.includes(fileExtension(name))
+}
 
 interface AttachmentSectionProps {
   attachments: Attachment[]
@@ -22,9 +34,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
   const [dragOver, setDragOver] = useState(false)
 
   const validate = (file: File): string | null => {
-    const ext = '.' + file.name.split('.').pop()?.toLowerCase()
-    if (!ALLOWED_EXTENSIONS.includes(ext) || !ALLOWED_TYPES.includes(file.type)) {
-      return t('attachments.errorType', 'Sadece JPG, PNG, GIF ve WebP dosyaları yüklenebilir.')
+    if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
+      return t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.')
     }
     if (file.size > MAX_SIZE) {
       return t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.')
@@ -91,12 +102,12 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
             : t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}
         </span>
         <span className="mt-1 text-xs text-slate-400">
-          {t('attachments.uploadHint', 'JPG, PNG, GIF, WebP — maks. 5 MB')}
+          {t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}
         </span>
         <input
           ref={fileInputRef}
           type="file"
-          accept=".jpg,.jpeg,.png,.gif,.webp"
+          accept={ACCEPT_ATTR}
           multiple
           className="hidden"
           disabled={isDisabled}
@@ -116,13 +127,20 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled }:
               key={att.attachmentId}
               className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
             >
-              <a href={att.url} target="_blank" rel="noopener noreferrer">
-                <img
-                  src={att.url}
-                  alt={att.fileName}
-                  className="h-24 w-full object-cover"
-                  loading="lazy"
-                />
+              <a href={att.url} target="_blank" rel="noopener noreferrer" title={att.fileName} className="block">
+                {isImageAttachment(att.fileName) ? (
+                  <img
+                    src={att.url}
+                    alt={att.fileName}
+                    className="h-24 w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-24 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
+                    <FileText className="size-7" />
+                    <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{att.fileName}</span>
+                  </div>
+                )}
               </a>
               <div className="absolute inset-0 flex flex-col items-start justify-end bg-black/0 p-1 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
                 <span className="max-w-full truncate rounded bg-black/60 px-1 py-0.5 text-[10px] text-white">

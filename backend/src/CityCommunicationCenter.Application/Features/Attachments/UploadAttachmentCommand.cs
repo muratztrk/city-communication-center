@@ -18,14 +18,12 @@ public sealed record UploadAttachmentCommand(
 
 public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttachmentCommand, AttachmentResponse>
 {
-    private static readonly HashSet<string> AllowedContentTypes =
-    [
-        "image/jpeg", "image/png", "image/gif", "image/webp"
-    ];
-
+    // Resim (JPG/PNG), PDF ve tüm Office uzantıları (card 539). Office MIME tipleri
+    // tarayıcıdan güvenilmez geldiğinden doğrulama uzantı üzerinden yapılır.
     private static readonly HashSet<string> AllowedExtensions =
     [
-        ".jpg", ".jpeg", ".png", ".gif", ".webp"
+        ".jpg", ".jpeg", ".png", ".pdf",
+        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"
     ];
 
     private const long MaxFileSizeBytes = 5 * 1024 * 1024;
@@ -48,11 +46,11 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
     {
         var ext = Path.GetExtension(request.FileName).ToLowerInvariant();
 
-        if (!AllowedExtensions.Contains(ext) || !AllowedContentTypes.Contains(request.ContentType.ToLowerInvariant()))
+        if (!AllowedExtensions.Contains(ext))
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.FileName),
-                    "Sadece JPG, PNG, GIF ve WebP dosyalari yuklenebilir.")
+                    "Yalnizca resim (JPG, PNG), PDF ve Office dosyalari yuklenebilir.")
             ]);
         }
 

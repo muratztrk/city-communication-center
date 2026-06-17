@@ -1333,10 +1333,10 @@
   "attachments": {
     "sectionTitle": "Ekler / Fotoğraflar",
     "uploadLabel": "Fotoğraf Ekle",
-    "uploadHint": "JPG, PNG, GIF, WebP — maks. 5 MB",
+    "uploadHint": "JPG, PNG, PDF, Office — maks. 5 MB",
     "dragHint": "Dosyayı buraya sürükleyin veya tıklayın",
     "errorSize": "Dosya boyutu 5 MB'ı aşamaz.",
-    "errorType": "Sadece JPG, PNG, GIF ve WebP dosyaları yüklenebilir.",
+    "errorType": "Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.",
     "deleteConfirm": "Bu eki silmek istediğinize emin misiniz?",
     "uploading": "Yükleniyor...",
     "requestEmpty": "Talep için ek/fotoğraf bulunmamaktadır.",

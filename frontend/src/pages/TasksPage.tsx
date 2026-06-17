@@ -1154,7 +1154,7 @@ const pageKicker = isMyTasksView
 
                     {/* Sütun 2: Atama Geçmişi */}
                     <section className="form-card page-stack">
-                      <h3 className="text-lg font-extrabold text-slate-950">
+                      <h3 className="mb-1 text-sm font-bold text-slate-900">
                         {t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}
                       </h3>
                       {taskDetail.assignmentHistory.length > 0 ? (
@@ -1181,7 +1181,7 @@ const pageKicker = isMyTasksView
                     </section>
                     {/* Sütun 3: Yönetici Notu — Atama Geçmişi'nin sağında, ilgili talebin notu, salt-okunur (card 468) */}
                     <section className="form-card page-stack">
-                      <h3 className="text-lg font-extrabold text-slate-950">
+                      <h3 className="mb-1 text-sm font-bold text-slate-900">
                         {t('jobs.managerNote.title', 'Yönetici Notu')}
                       </h3>
                       {parentJobDetail?.managerNote ? (
@@ -1192,7 +1192,7 @@ const pageKicker = isMyTasksView
                     </section>
                     {/* Sütun 4: Ekler / Fotoğraflar */}
                     <section className="form-card page-stack">
-                      <h3 className="text-lg font-extrabold text-slate-950">
+                      <h3 className="mb-1 text-sm font-bold text-slate-900">
                         {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                       </h3>
                       <AttachmentSection

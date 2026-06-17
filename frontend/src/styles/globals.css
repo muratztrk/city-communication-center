@@ -323,6 +323,29 @@
       min-width: 56rem;
     }
 
+    /* Görevlerim > Tüm Görevlerim: 15.6" ekranlarda Taleplerim/Tüm Taleplerim gibi dengeli grid (card 548). */
+    .app-content-shell .my-tasks-all-table {
+      min-width: 68rem;
+      table-layout: fixed;
+    }
+
+    .app-content-shell .my-tasks-all-table .cell-title {
+      max-width: 12rem;
+    }
+
+    .app-content-shell .my-tasks-all-table tbody td.actions-cell {
+      width: 13.5rem;
+      min-width: 13.5rem;
+    }
+
+    .app-content-shell .my-tasks-all-table .request-actions {
+      justify-content: flex-start;
+    }
+
+    .app-content-shell .my-tasks-all-table .request-actions .h-8 {
+      padding-inline: 0.55rem;
+    }
+
     /* Birimdeki Görevler tablosu yatay scroll yerine kullanılabilir genişliğe sığsın (card 397). */
     .app-content-shell .department-tasks-table {
       min-width: 0;

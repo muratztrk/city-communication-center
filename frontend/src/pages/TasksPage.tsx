@@ -337,6 +337,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const currentStaffUserLabel = currentStaffUserId === 'all'
     ? t('tasks.staff.allStaff', 'Tüm Personel')
     : staffUsers.find(item => item.userId === currentStaffUserId)?.displayName ?? t('tasks.staff.allStaff', 'Tüm Personel')
+  const isMyTasksAllView = isMyTasksView && currentMyTaskView === 'all'
   // Durum sütunu: Görevlerim/Birimdeki Görevler "Tüm Görevler" ve Personelimin Görevleri "Tüm Personel" görünümlerinde (card 532).
   const showStatusColumn =
     ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
@@ -1264,7 +1265,7 @@ const pageKicker = isMyTasksView
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table data-table--zebra${isDepartmentTasksView ? ' department-tasks-table' : ''}`}>
+            <table className={`data-table jobs-table data-table--zebra${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>

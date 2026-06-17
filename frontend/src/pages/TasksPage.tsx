@@ -1095,7 +1095,7 @@ const pageKicker = isMyTasksView
                           </div>
                           {/* 3. sütun: Yönetici Notu — ilgili talebin notu, salt-okunur (card 519) */}
                           <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                               {t('jobs.managerNote.title', 'Yönetici Notu')}
                             </div>
                             {parentJobDetail.managerNote ? (
@@ -1106,7 +1106,7 @@ const pageKicker = isMyTasksView
                           </div>
                           {/* 4. sütun: Ekler / Fotoğraflar (card 519) */}
                           <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                               {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                             </div>
                             <AttachmentSection
@@ -1225,7 +1225,7 @@ const pageKicker = isMyTasksView
                     {showNoteAndAttachmentsHere && (
                       <>
                         <section className="form-card page-stack">
-                          <h3 className="mb-1 text-sm font-bold text-slate-900">
+                          <h3 className="mb-1.5 border-b border-slate-200 pb-1.5 text-sm font-bold text-slate-900">
                             {t('jobs.managerNote.title', 'Yönetici Notu')}
                           </h3>
                           {parentJobDetail?.managerNote ? (
@@ -1235,7 +1235,7 @@ const pageKicker = isMyTasksView
                           )}
                         </section>
                         <section className="form-card page-stack">
-                          <h3 className="mb-1 text-sm font-bold text-slate-900">
+                          <h3 className="mb-1.5 border-b border-slate-200 pb-1.5 text-sm font-bold text-slate-900">
                             {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                           </h3>
                           <AttachmentSection

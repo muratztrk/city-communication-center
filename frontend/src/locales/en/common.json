@@ -1317,6 +1317,7 @@
     "requestEmpty": "No attachment/photo for the request.",
     "addFile": "Add File",
     "lockedApproved": "Attachments can no longer be added because the request is approved.",
+    "lockedCancelled": "Attachments can no longer be added because the request is cancelled.",
     "lockedCompleted": "Attachments can no longer be added because the task is completed."
   },
   "location": {

@@ -1342,6 +1342,7 @@
     "requestEmpty": "Talep için ek/fotoğraf bulunmamaktadır.",
     "addFile": "Dosya ekle",
     "lockedApproved": "Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.",
+    "lockedCancelled": "Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.",
     "lockedCompleted": "Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez."
   },
   "location": {

@@ -1513,7 +1513,9 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                           />
                           {!canEditJobAttachments && !isPreApprovalStatus(detail.status) && (
                             <p className="mt-2 text-xs font-medium text-amber-600">
-                              {t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')}
+                              {(detail.status === 'Cancelled' || detail.status === 'Rejected')
+                                ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
+                                : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')}
                             </p>
                           )}
                         </div>

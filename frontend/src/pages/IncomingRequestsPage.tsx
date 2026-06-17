@@ -675,7 +675,7 @@ export function IncomingRequestsPage() {
                       <div className="font-semibold text-slate-700">{row.departmentName ?? '—'}</div>
                       <div className="text-xs text-slate-500">{row.createdBy ?? '—'}</div>
                     </td>
-                    <td className="font-semibold">{row.title}</td>
+                    <td className="font-semibold"><span className="cell-title">{row.title}</span></td>
                     {currentStatusFilter !== 'cancelled' && <td><DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}

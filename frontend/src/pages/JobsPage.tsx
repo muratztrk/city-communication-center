@@ -1177,7 +1177,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
-                    <td className="font-semibold">{job.title}</td>
+                    <td className="font-semibold"><span className="cell-title">{job.title}</span></td>
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
                         renderOutgoingDestination(job)
@@ -1585,7 +1585,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   <tbody>
                     {detail.tasks.map(tk => (
                       <tr key={tk.taskId}>
-                        <td>{tk.title}</td>
+                        <td><span className="cell-title">{tk.title}</span></td>
                         <td>{tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—'}</td>
                         <td>{tk.ownerDisplayName ?? '—'}</td>
                       </tr>

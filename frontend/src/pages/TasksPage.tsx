@@ -1332,7 +1332,7 @@ const pageKicker = isMyTasksView
                         <div className="truncate text-xs text-slate-500">{task.createdByDisplayName ?? '—'}</div>
                       </div>
                     </td>
-                    <td>{task.title}</td>
+                    <td><span className="cell-title">{task.title}</span></td>
                     {isDepartmentTasksView && (
                       <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
                     )}

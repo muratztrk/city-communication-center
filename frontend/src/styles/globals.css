@@ -993,6 +993,16 @@
     background: rgba(248, 250, 252, 0.72);
   }
 
+  /* Uzun başlıklar sütunu yatayda genişletmesin; bir üst sınıra ulaşınca alt satıra kaysın (card 523). */
+  .cell-title {
+    display: inline-block;
+    max-width: 22rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+    text-align: left;
+  }
+
   .data-table--zebra tbody tr:nth-child(even) td {
     background: #f8fafc;
   }

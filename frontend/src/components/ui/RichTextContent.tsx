@@ -77,6 +77,14 @@ function sanitizeRichTextHtml(value: string) {
   return documentRef.body.innerHTML
 }
 
+// Etiketsiz düz metin olarak gösterilecek değerde HTML varlıklarını çöz (örn. &nbsp; → boşluk) (card 551).
+function decodeHtmlEntities(value: string): string {
+  if (!value.includes('&')) return value
+  if (typeof DOMParser === 'undefined') return value.replace(/&nbsp;/gi, ' ')
+  const documentRef = new DOMParser().parseFromString(value, 'text/html')
+  return documentRef.body.textContent ?? value
+}
+
 interface RichTextContentProps {
   value: string | null | undefined
   emptyText?: string
@@ -95,7 +103,7 @@ export function RichTextContent({ value, emptyText = '—', className }: RichTex
   }
 
   if (!sanitizedHtml) {
-    return <div className={className} style={{ whiteSpace: 'pre-wrap' }}>{plainValue}</div>
+    return <div className={className} style={{ whiteSpace: 'pre-wrap' }}>{decodeHtmlEntities(plainValue)}</div>
   }
 
   return (

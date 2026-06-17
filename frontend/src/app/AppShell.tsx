@@ -341,8 +341,8 @@ export function AppShell() {
               <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{user?.displayName}</div>
             </div>
           </div>
-          <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
-            <LogOut className="size-3.5" />
+          <Button variant="destructive" onClick={handleLogout} className="gap-2 px-5">
+            <LogOut className="size-4.5" />
             {t('shell.logout')}
           </Button>
         </div>
@@ -560,8 +560,8 @@ export function AppShell() {
                 </div>
               )}
             </div>
-            <Button size="sm" variant="destructive" onClick={handleLogout} className="gap-1.5">
-              <LogOut className="size-3.5" />
+            <Button variant="destructive" onClick={handleLogout} className="gap-2 px-5">
+              <LogOut className="size-4.5" />
               {t('shell.logout')}
             </Button>
           </div>

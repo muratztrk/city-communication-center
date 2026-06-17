@@ -597,19 +597,6 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     setReturnUserId('')
   }
 
-  const openDepartmentRouteModal = (task: Task) => {
-    setReturnModal({
-      taskId: task.taskId,
-      step: 'return',
-      assignedDepartmentId: task.assignedDepartmentId,
-      isReporterTask: false,
-      useManagerReporterRedirectLabel: true,
-      directRoute: true,
-    })
-    setReturnDeptId(task.assignedDepartmentId ?? '')
-    setReturnUserId('')
-  }
-
   const closeReturnModal = () => {
     setReturnModal(null)
     setCancelReason('')
@@ -1316,16 +1303,7 @@ const pageKicker = isMyTasksView
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
-                        {isDepartmentTasksView && isManagerLike && task.assignedDepartmentId && (
-                          task.currentStatus === 'Waiting' ||
-                          task.currentStatus === 'Assigned' ||
-                          task.currentStatus === 'InProgress' ||
-                          task.currentStatus === 'PendingCloseApproval'
-                        ) && (
-                          <Button size="sm" className="task-route-button" onClick={() => openDepartmentRouteModal(task)}>
-                            {t('tasks.actions.routeTask', 'Görevi Yönlendir')}
-                          </Button>
-                        )}
+                        {/* "Görevi Yönlendir" satır butonu kaldırıldı; yönlendirme Detaylar pop-up'ında yapılır (card 516). */}
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}

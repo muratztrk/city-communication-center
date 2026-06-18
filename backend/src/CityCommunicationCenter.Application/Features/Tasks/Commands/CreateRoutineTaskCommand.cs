@@ -9,7 +9,10 @@ public sealed record CreateRoutineTaskCommand(
     string Description,
     string Priority,
     DateTimeOffset? DueDateUtc,
-    string? Notes) : ICommand<TaskSummaryResponse>;
+    string? Notes,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null) : ICommand<TaskSummaryResponse>;
 
 public sealed class CreateRoutineTaskCommandValidator : AbstractValidator<CreateRoutineTaskCommand>
 {
@@ -78,7 +81,10 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             DueDateUtc = dueDateUtc,
             CreatedByUserId = context.UserId,
             JobNumber = jobNumber,
-            JobNumberYear = year
+            JobNumberYear = year,
+            Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim(),
+            Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
+            OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim()
         };
 
         _dbContext.Jobs.Add(job);

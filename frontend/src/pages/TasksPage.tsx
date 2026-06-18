@@ -1078,6 +1078,53 @@ const pageKicker = isMyTasksView
                     </div>
                   </section>
 
+                  {/* Rutin görevlerde 2. satır: Adres Bilgileri + Ekler / Fotoğraflar (card 575) */}
+                  {taskDetail.jobSourceType === 'Routine' && (() => {
+                    const addressFields = [
+                      { label: t('address.neighborhoodLabel', 'Mahalle'), value: parentJobDetail?.neighborhood },
+                      { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: parentJobDetail?.street },
+                      { label: t('address.openAddressLabel', 'Açık Adres'), value: parentJobDetail?.openAddress },
+                    ].filter(field => field.value != null && field.value.trim() !== '')
+                    const isCompleted = taskDetail.currentStatus === 'Completed'
+                    return (
+                      <section className="mb-5 grid gap-4 lg:grid-cols-2">
+                        <div className="rounded-xl border border-slate-200 bg-white p-4">
+                          <h3 className="mb-3 text-sm font-bold text-slate-900">
+                            {t('address.detailSectionTitle', 'Adres Bilgileri')}
+                          </h3>
+                          {addressFields.length === 0 ? (
+                            <p className="text-sm text-slate-400">{t('address.empty', 'Adres bilgisi girilmemiş.')}</p>
+                          ) : (
+                            <dl className="space-y-2">
+                              {addressFields.map(field => (
+                                <div key={field.label}>
+                                  <dt className="text-xs font-semibold text-slate-500">{field.label}</dt>
+                                  <dd className="break-words text-sm text-slate-900">{field.value}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                          )}
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white p-4">
+                          <h3 className="mb-3 text-sm font-bold text-slate-900">
+                            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                          </h3>
+                          <AttachmentSection
+                            attachments={taskDetail.attachments ?? []}
+                            readOnly
+                            compact
+                            emptyText={t('attachments.routineEmpty', 'Rutin Görev için ek/fotoğraf bulunmamaktadır.')}
+                          />
+                          {isCompleted && (
+                            <p className="mt-2 text-xs font-medium text-amber-600">
+                              {t('attachments.routineLocked', 'Rutin görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
+                            </p>
+                          )}
+                        </div>
+                      </section>
+                    )
+                  })()}
+
                   {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388).
                       Rutin görevlerde talep olmadığı için bu bölüm gösterilmez (card 395). */}
                   {parentJobDetail && taskDetail.jobSourceType !== 'Routine' && (() => {

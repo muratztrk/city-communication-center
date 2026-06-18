@@ -368,3 +368,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 53 (2 cards)
 - [x] `#578` — Enlarged the task-cancel popup helper "Görevi iptal etmek için neden belirtiniz." (TasksPage:1386) via inline `fontSize:0.85rem` (same treatment as #572; the IncomingRequestsPage instance was already covered by #572).
 - [x] `#579` — Banner 1st line (kicker) + 3rd line (subtitle) enlarged. Split `.page-kicker` out of the shared shell override so only the banner kicker grows (0.66→0.76rem), bumped `.page-subtitle` shell size 0.78→0.88rem, and base `.page-kicker` 0.72→0.8rem. globals.css. Build + lint PASS.
+
+## Round 54 (1 feature card)
+- [x] `#575` — Routine tasks: Adres Bilgisi + Dosya/Fotoğraf on the create form, and Adres Bilgileri + Ekler/Fotoğraflar in the Görevlerim routine detail. Key insight: CreateRoutineTask already creates a synthetic Job (SourceType=Routine) that has the address fields; attachments use the Task bucket (same as the existing complete-card uploader, card 528).
+  - BE: added Neighborhood/Street/OpenAddress to `CreateRoutineTaskRequest` + `CreateRoutineTaskCommand` (optional), set on the Job in the handler, passed through in `TasksController.CreateRoutine`. No migration (Job already has address fields).
+  - FE: `api.createRoutineTask` signature + RoutineTaskPage (address fields mirroring CreateRequestPage + pendingFiles photo upload → `uploadTaskAttachment` after create). TasksPage detail: new routine-only 2nd row with Adres Bilgileri (from parentJobDetail, "Adres bilgisi girilmemiş." when empty) + read-only Ekler/Fotoğraflar (`taskDetail.attachments`, empty "Rutin Görev için ek/fotoğraf bulunmamaktadır.", amber lock "Rutin görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez." when Completed). New i18n keys attachments.routineEmpty/routineLocked (tr+en).
+  - BE + FE build + lint PASS. Runtime not exercised (no seed).

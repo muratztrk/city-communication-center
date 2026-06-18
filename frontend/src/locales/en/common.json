@@ -1319,7 +1319,9 @@
     "addFile": "Add File",
     "lockedApproved": "Attachments can no longer be added because the request is approved.",
     "lockedCancelled": "Attachments can no longer be added because the request is cancelled.",
-    "lockedCompleted": "Attachments can no longer be added because the task is completed."
+    "lockedCompleted": "Attachments can no longer be added because the task is completed.",
+    "routineEmpty": "No attachment/photo for the routine task.",
+    "routineLocked": "Attachments can no longer be added because the routine task is completed."
   },
   "location": {
     "label": "Location (Optional)",

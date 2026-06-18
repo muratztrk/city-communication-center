@@ -518,6 +518,9 @@ export const api = {
     priority: string
     dueDateUtc?: string | null
     notes?: string | null
+    neighborhood?: string | null
+    street?: string | null
+    openAddress?: string | null
   }): Promise<Task> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/routine`, {
       method: 'POST',

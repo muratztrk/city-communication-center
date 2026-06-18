@@ -33,7 +33,10 @@ public sealed class TasksController : ApiControllerBase
             request.Description,
             request.Priority,
             request.DueDateUtc,
-            request.Notes), cancellationToken);
+            request.Notes,
+            request.Neighborhood,
+            request.Street,
+            request.OpenAddress), cancellationToken);
         return CreatedAtRoute("GetTaskById", new { taskId = response.TaskId }, response);
     }
 

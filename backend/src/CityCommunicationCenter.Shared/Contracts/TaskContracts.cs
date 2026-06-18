@@ -5,7 +5,10 @@ public sealed record CreateRoutineTaskRequest(
     string Description,
     string Priority,
     DateTimeOffset? DueDateUtc,
-    string? Notes);
+    string? Notes,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null);
 
 public sealed record CreateTaskRequest(
     Guid JobId,

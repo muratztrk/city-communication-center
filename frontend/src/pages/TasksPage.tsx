@@ -1098,7 +1098,7 @@ const pageKicker = isMyTasksView
                             <dl className="flex flex-wrap gap-x-10 gap-y-3">
                               {addressFields.map(field => (
                                 <div key={field.label}>
-                                  <dt className="text-xs font-semibold text-slate-500">{field.label}</dt>
+                                  <dt className="mb-1 border-b border-slate-200 pb-1 text-xs font-semibold text-slate-500">{field.label}</dt>
                                   <dd className="break-words text-sm text-slate-900">{field.value}</dd>
                                 </div>
                               ))}

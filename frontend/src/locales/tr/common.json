@@ -233,6 +233,8 @@
       "priority": "Öncelik",
       "assignee": "Atanan",
       "owner": "Görev Sahibi",
+      "requestLocation": "Görevin Talep Yeri",
+      "creator": "Oluşturan",
       "dueDate": "Son Tarih"
     }
   },

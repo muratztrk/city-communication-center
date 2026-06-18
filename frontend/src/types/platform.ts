@@ -126,6 +126,7 @@ export interface Task {
   updatedAtUtc?: string | null;
   createdByRoleCode?: string | null;
   ownerUserId?: string | null;
+  assignedAtUtc?: string | null;
 }
 
 export interface TaskDetail {

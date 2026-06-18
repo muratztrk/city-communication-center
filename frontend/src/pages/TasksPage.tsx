@@ -210,6 +210,17 @@ function formatTaskDisplayNumber(task: Task): string {
   return `G-${year}-Onay Bekleyen`
 }
 
+// Görevin atanma günü = bugün mü? (Görevlerim "Yeni" rozeti, card 589)
+function isAssignedToday(value: string | null | undefined): boolean {
+  if (!value) return false
+  const assigned = new Date(value)
+  if (Number.isNaN(assigned.getTime())) return false
+  const now = new Date()
+  return assigned.getFullYear() === now.getFullYear()
+    && assigned.getMonth() === now.getMonth()
+    && assigned.getDate() === now.getDate()
+}
+
 function formatTaskJobDisplayNumber(task: Task): string {
   if (task.jobSourceType === 'Routine') return '—'
   if (task.jobNumber != null && task.jobNumberYear != null) {
@@ -1328,7 +1339,13 @@ const pageKicker = isMyTasksView
                       <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>
                       <div className={`table-number-cell__priority font-sans font-bold ${task.createdByRoleCode === 'Reporter' && task.priority === 'Normal' ? 'text-white' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
                     </td>
-                    <td><DateCell value={task.createdAtUtc} locale={locale} /></td>
+                    <td>
+                      <DateCell value={task.createdAtUtc} locale={locale} />
+                      {/* Bugün atanan görevler için yanıp sönen yeşil "Yeni" rozeti (card 589). */}
+                      {isMyTasksView && isAssignedToday(task.assignedAtUtc) && (
+                        <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
+                      )}
+                    </td>
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}
                     <td>
                       <div className="mx-auto max-w-[11rem] text-center">

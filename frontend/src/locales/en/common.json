@@ -520,6 +520,9 @@
     "title": "Tasks",
     "subtitle": "Manage pending approvals, approved requests, and all work in one flow.",
     "myTasksSubtitle": "Track tasks assigned to you by status.",
+    "badges": {
+      "new": "New"
+    },
     "departmentTasksSubtitle": "Track tasks created in your unit by request source.",
     "staffTasksSubtitle": "Track tasks and stages assigned to your staff.",
     "departmentTasksEmpty": "No {{view}}",

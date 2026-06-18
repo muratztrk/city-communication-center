@@ -345,3 +345,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 48
 - [x] `#470` — Manager's own Birim İçi (internal) request assigned to self/staff didn't show in "Yapılmakta Olan Taleplerim": the in-progress manager filter required hasApprovedTargetDepartment (only valid for external). Now internal Active+taskCount>0 jobs qualify directly (requestType==='InternalUnit' || hasApprovedTargetDepartment). JobsPage. Build + lint PASS.
+
+## Round 49 (2 cards — print popup)
+- [x] `#565` — Print window height now matches the detail popup behind it. Both print fns measure the open detail modal (`document.querySelector('.detail-modal-shell').offsetHeight`, fallback 832) and pass it to `getCenteredPopupFeatures(820, …)` instead of the fixed 832. JobsPage + TasksPage.
+- [x] `#570` — Reverted regressions from "Clean print popup chrome" (21926e4): removed `@page{margin:0}` (it zeroed page margins → killed left/right alignment AND the browser's default "1/1" page-number footer), and restored the `.footer` CSS + `<div class="footer">Yazdırma tarihi: …</div>`. Matches the pre-regression state (da2390d). JobsPage + TasksPage.
+- Build (FE) + lint PASS. Runtime not exercised (no seed; print needs an open detail modal with data).

@@ -377,3 +377,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 55 (1 card)
 - [x] `#580` — Notification "Detay" now deep-links to the real page popup instead of the bell's own inline popup: task → `/my-tasks?view=all&taskId=<id>` (Görevlerim opens the task detail), job → `/my-requests?view=all&jobId=<id>` (Taleplerim opens the request detail). `handleNavigate` in NotificationBell now uses `useNavigate` + `parseNotificationDetailTarget`, closing the dropdown/modal. The bell's inline detail popup is now unreachable (flagged for cleanup). Build + lint PASS.
+
+## Round 56 (3 cards)
+- [x] `#581` — Explicitly block dangerous file extensions on upload (.exe, .bat, .msi, .dmg, .iso, .tar, .xz, … 30 total). Added a `BlockedExtensions` denylist to `UploadAttachmentCommandHandler`, checked before the allowlist with a security message. Note: the existing allowlist (jpg/png/pdf/Office only) already rejected these — the denylist is explicit defense-in-depth. BE build PASS.
+- [x] `#582` — Routine create form: aligned Adres Bilgisi + Dosya/Fotoğraf layout to match Talep Oluştur exactly (single group: Mahalle|Cadde row, then Açık Adres|Upload row) instead of two separate columns. RoutineTaskPage. Build + lint PASS.
+- [x] `#583` — Routine detail Adres Bilgileri: headings now side by side (values beneath) via `flex flex-wrap` instead of the stacked `dl space-y-2`. TasksPage. Build + lint PASS.

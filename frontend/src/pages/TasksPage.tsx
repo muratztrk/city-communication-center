@@ -1095,7 +1095,7 @@ const pageKicker = isMyTasksView
                           {addressFields.length === 0 ? (
                             <p className="text-sm text-slate-400">{t('address.empty', 'Adres bilgisi girilmemiş.')}</p>
                           ) : (
-                            <dl className="space-y-2">
+                            <dl className="flex flex-wrap gap-x-10 gap-y-3">
                               {addressFields.map(field => (
                                 <div key={field.label}>
                                   <dt className="text-xs font-semibold text-slate-500">{field.label}</dt>

@@ -169,7 +169,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('') : ''
-  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title></title><style>
+  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDisplayNumber)}</title><style>
     @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     .section{margin-top:1.5rem}
@@ -1412,7 +1412,7 @@ const pageKicker = isMyTasksView
                 <h2 className="text-xl font-extrabold text-slate-950">
                   {t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')}
                 </h2>
-                <p className="helper-copy">{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde yönlendirilebilir.')}</p>
+                <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde yönlendirilebilir.')}</p>
                 <div className="job-field">
                   <span className="job-field-label">{t('tasks.department', 'Birim')}</span>
                   <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">

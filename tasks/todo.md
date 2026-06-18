@@ -354,3 +354,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 50 (1 card — print chrome)
 - [x] `#571` — Remove the browser's native print header/footer (top-left date, top-center "about:blank" title, bottom-left "about:blank" URL) while keeping a "1/1" page number. These are all the browser's all-or-nothing print chrome (only toggled by `@page` margin), so: re-added `@page{margin:0}` to suppress ALL native chrome; restored left/right (and top/bottom) margins via `@media print{body{padding:1.5cm}}`; and rendered our own print-only bottom-right `.page-number` ("1 / 1"). Decided with the user (native "1/1" can't be kept while removing the about:blank/date). JobsPage + TasksPage. Build (FE) + lint PASS.
   - Caveat: the custom "1 / 1" is a fixed bottom-right indicator, accurate for the typical single-page printout; a multi-page print would repeat "1 / 1" (no cross-browser way to paginate counters in Chrome).
+
+## Round 51 (3 cards)
+- [x] `#573` — Print → Save as PDF filename was "download". Set the print doc `<title>` to the number (TasksPage → `taskDisplayNumber` / Görev No, JobsPage → `jobDisplayNumber` / Talep No). Title is still hidden from the printout (suppressed by `@page{margin:0}` from #571) but drives the PDF filename. JobsPage + TasksPage.
+- [x] `#572` — Enlarged two helper texts (cancel-request "…neden belirtiniz." + route-within-unit "Görev sadece aynı birim içinde yönlendirilebilir.") via inline `fontSize:0.85rem` so only these `.helper-copy` instances grow (base is 0.76rem / 0.66rem in the zoomed shell — global change avoided). JobsPage + IncomingRequestsPage (cancel popup) + TasksPage (route popup).
+- [x] `#574` — Address labels (Mahalle, Cadde / Sokak / Bulvar, Açık Adres) bumped `text-xs`→`text-sm` in CreateRequestPage `renderAddressFields` (shared by internal + external forms).
+- Build (FE) + lint PASS.

@@ -257,7 +257,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   const description = stripHtmlTags(detail.description)
   const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td></tr>`).join('')
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
-  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title></title><style>
+  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(jobDisplayNumber)}</title><style>
     @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     h1{font-size:18px;margin:4px 0 8px}
@@ -1868,7 +1868,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               <XIcon className="size-4" />
             </button>
             <h2 className="text-xl font-extrabold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
-            <p className="helper-copy">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
+            <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
               <textarea

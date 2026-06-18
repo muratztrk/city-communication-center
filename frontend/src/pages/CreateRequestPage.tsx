@@ -428,7 +428,7 @@ export function CreateRequestPage() {
       <div className="grid gap-2">
         <div className="grid gap-2 md:grid-cols-2">
           <div className="grid gap-1">
-            <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+            <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
             <select
               className="field-select"
               value={form.neighborhood}
@@ -441,7 +441,7 @@ export function CreateRequestPage() {
             </select>
           </div>
           <div className="grid gap-1">
-            <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+            <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
             <input
               className="field-input"
               placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
@@ -452,7 +452,7 @@ export function CreateRequestPage() {
         </div>
         <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">
           <label className="grid gap-1 min-h-0">
-            <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+            <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
             <textarea
               className="field-textarea h-full min-h-[5.5rem] resize-none"
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}

@@ -767,7 +767,7 @@ export function IncomingRequestsPage() {
             <h2 className="text-xl font-extrabold text-slate-950">
               {cancelModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
             </h2>
-            <p className="helper-copy">
+            <p className="helper-copy" style={{ fontSize: '0.85rem' }}>
               {cancelModal.row.statusDomain === 'task'
                 ? t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')
                 : t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}

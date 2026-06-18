@@ -182,6 +182,105 @@ export function RoutineTaskPage() {
               />
             </div>
           </div>
+
+          {/* Adres Bilgisi + Dosya/Fotoğraf — Öncelik ve Bitiş Tarihi satırının hemen altında. */}
+          <div className="job-field border-t border-slate-100 pt-4">
+            <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
+            <div className="grid gap-2">
+              <div className="grid gap-2 md:grid-cols-2">
+                <div className="grid gap-1">
+                  <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                  <select
+                    className="field-select"
+                    value={form.neighborhood}
+                    onChange={e => set('neighborhood', e.target.value)}
+                  >
+                    <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
+                    {neighborhoods.map(n => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid gap-1">
+                  <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                  <input
+                    className="field-input"
+                    placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                    value={form.street}
+                    onChange={e => set('street', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">
+                <label className="grid min-h-0 gap-1">
+                  <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+                  <textarea
+                    className="field-textarea h-full min-h-[5.5rem] resize-none"
+                    placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+                    value={form.openAddress}
+                    onChange={e => set('openAddress', e.target.value)}
+                  />
+                </label>
+
+                <div className="job-field min-h-0">
+                  <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
+                  <div
+                    role="button"
+                    tabIndex={submitting ? -1 : 0}
+                    className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${submitting ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+                    onClick={() => !submitting && fileInputRef.current?.click()}
+                    onKeyDown={event => event.key === 'Enter' && !submitting && fileInputRef.current?.click()}
+                    onDragOver={event => event.preventDefault()}
+                    onDrop={event => {
+                      event.preventDefault()
+                      if (submitting) return
+                      addFiles(event.dataTransfer.files)
+                    }}
+                  >
+                    <Paperclip className="mb-1 size-4 text-slate-400" />
+                    <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
+                    <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept={ACCEPT_ATTR}
+                      multiple
+                      className="hidden"
+                      disabled={submitting}
+                      onChange={event => {
+                        addFiles(event.target.files)
+                        if (fileInputRef.current) fileInputRef.current.value = ''
+                      }}
+                    />
+                  </div>
+                  {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
+                  {pendingFiles.length > 0 && (
+                    <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                      {pendingFiles.map((file, idx) => (
+                        <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                          {IMAGE_EXTENSIONS.includes(fileExtension(file.name)) ? (
+                            <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
+                          ) : (
+                            <div className="flex h-20 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
+                              <FileText className="size-6" />
+                              <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{file.name}</span>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"
+                            onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Sağ sütun: Açıklama */}
@@ -196,105 +295,6 @@ export function RoutineTaskPage() {
               placeholder={t('routineTask.descPlaceholder', 'Görev açıklamasını girin')}
               minHeight="min-h-48"
             />
-          </div>
-        </div>
-
-        {/* Adres Bilgisi + Dosya/Fotoğraf — Talep Oluştur formundaki ile aynı hizalama (card 575/582) */}
-        <div className="job-field border-t border-slate-100 pt-4 xl:col-span-2">
-          <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
-          <div className="grid gap-2">
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="grid gap-1">
-                <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-                <select
-                  className="field-select"
-                  value={form.neighborhood}
-                  onChange={e => set('neighborhood', e.target.value)}
-                >
-                  <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-                  {neighborhoods.map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid gap-1">
-                <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
-                <input
-                  className="field-input"
-                  placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                  value={form.street}
-                  onChange={e => set('street', e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">
-              <label className="grid min-h-0 gap-1">
-                <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
-                <textarea
-                  className="field-textarea h-full min-h-[5.5rem] resize-none"
-                  placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
-                  value={form.openAddress}
-                  onChange={e => set('openAddress', e.target.value)}
-                />
-              </label>
-
-              <div className="job-field min-h-0">
-                <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                <div
-                  role="button"
-                  tabIndex={submitting ? -1 : 0}
-                  className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${submitting ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
-                  onClick={() => !submitting && fileInputRef.current?.click()}
-                  onKeyDown={event => event.key === 'Enter' && !submitting && fileInputRef.current?.click()}
-                  onDragOver={event => event.preventDefault()}
-                  onDrop={event => {
-                    event.preventDefault()
-                    if (submitting) return
-                    addFiles(event.dataTransfer.files)
-                  }}
-                >
-                  <Paperclip className="mb-1 size-4 text-slate-400" />
-                  <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
-                  <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}</span>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={ACCEPT_ATTR}
-                    multiple
-                    className="hidden"
-                    disabled={submitting}
-                    onChange={event => {
-                      addFiles(event.target.files)
-                      if (fileInputRef.current) fileInputRef.current.value = ''
-                    }}
-                  />
-                </div>
-                {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
-                {pendingFiles.length > 0 && (
-                  <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                    {pendingFiles.map((file, idx) => (
-                      <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                        {IMAGE_EXTENSIONS.includes(fileExtension(file.name)) ? (
-                          <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
-                        ) : (
-                          <div className="flex h-20 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
-                            <FileText className="size-6" />
-                            <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{file.name}</span>
-                          </div>
-                        )}
-                        <button
-                          type="button"
-                          className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"
-                          onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
-                        >
-                          <X className="size-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
 

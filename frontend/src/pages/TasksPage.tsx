@@ -1089,7 +1089,7 @@ const pageKicker = isMyTasksView
                     return (
                       <section className="mb-5 grid gap-4 lg:grid-cols-2">
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <h3 className="mb-3 text-sm font-bold text-slate-900">
+                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                             {t('address.detailSectionTitle', 'Adres Bilgileri')}
                           </h3>
                           {addressFields.length === 0 ? (
@@ -1106,7 +1106,7 @@ const pageKicker = isMyTasksView
                           )}
                         </div>
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <h3 className="mb-3 text-sm font-bold text-slate-900">
+                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                             {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                           </h3>
                           <AttachmentSection
@@ -1281,7 +1281,12 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="jobNumber" filterValue={taskFilters['jobNumber'] ?? ''} onFilter={setTaskFilter} sortKey="jobNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.parentRequestNo', 'Bağlı Olduğu Talep No')}</FilterableTh>
                   <FilterableTh filterKey="taskNumber" filterValue={taskFilters['taskNumber'] ?? ''} onFilter={setTaskFilter} sortKey="taskNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskNo', 'Görev No')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
-                  <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.ownerDepartmentCreator', 'Görevin Talep Yeri/Oluşturan')}</FilterableTh>
+                  <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
+                    <span className="inline-flex flex-col leading-tight">
+                      <span>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</span>
+                      <span>{t('tasks.columns.creator', 'Oluşturan')}</span>
+                    </span>
+                  </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
                   {isDepartmentTasksView && (
                     <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
@@ -1337,7 +1342,7 @@ const pageKicker = isMyTasksView
                     )}
                     {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
                       <td>
-                        <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'}>
+                        <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
                           {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                         </StatusPill>
                       </td>
@@ -1345,7 +1350,7 @@ const pageKicker = isMyTasksView
                     {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <td><DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {showStatusColumn && <td><StatusPill tone="neutral">{getTaskDisplayStatus(t, task)}</StatusPill></td>}
+                    {showStatusColumn && <td><StatusPill tone="neutral" className="text-[0.82rem]">{getTaskDisplayStatus(t, task)}</StatusPill></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>

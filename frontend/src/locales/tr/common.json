@@ -577,6 +577,8 @@
       "assignedTo": "Atanan",
       "owner": "Görev Sahibi",
       "createdBy": "Oluşturan",
+      "ownerDepartment": "Görevin Talep Yeri",
+      "creator": "Oluşturan",
       "progress": "İlerleme",
       "dueDate": "Son Tarih",
       "actions": "İşlemler",

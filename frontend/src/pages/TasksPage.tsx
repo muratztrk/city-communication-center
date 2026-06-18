@@ -168,7 +168,8 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('') : ''
-  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDetail.title)}</title><style>
+  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title></title><style>
+    @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     .section{margin-top:1.5rem}
     .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #ccc;padding-bottom:3px;margin-bottom:8px;color:#333}
@@ -176,7 +177,6 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     th,td{border:1px solid #ccc;padding:4px 8px;text-align:left}
     th{width:34%;background:#f0f0f0;font-weight:bold}
     .desc{border:1px solid #ccc;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
-    .footer{margin-top:2rem;font-size:10px;color:#aaa}
     @media print{body{padding:0}}
   </style></head><body>
   <div class="section">
@@ -191,7 +191,6 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     <div class="section-title">İlgili Talep Detayları</div>
     <table><tbody>${parentJobRows}</tbody></table>
   </div>` : ''}
-  <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <script>window.onload=function(){window.print()}</script>
   </body></html>`)
   win.document.close()
@@ -904,7 +903,7 @@ const pageKicker = isMyTasksView
                 {canRouteTaskDetail && selectedTask && (
                   <Button
                     type="button"
-                    className="bg-teal-700 text-white shadow-sm hover:bg-teal-800"
+                    className="bg-[#00a6b4] text-white shadow-sm hover:bg-[#008f9c]"
                     onClick={() => openRouteModal(selectedTask.taskId)}
                   >
                     {t('tasks.actions.route', 'Görevi Yönlendir')}

@@ -7,7 +7,7 @@ services:
       - POSTGRES_USER=${CCC_DB_USER:-ccc}
       - POSTGRES_PASSWORD=${CCC_DB_PASSWORD:?CCC_DB_PASSWORD is required}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${CCC_DB_USER:-ccc} -d ${CCC_DB_NAME:-city_communication_center}"]
       interval: 5s

@@ -2,7 +2,6 @@ import { Paperclip, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
-import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -233,10 +232,6 @@ function matchesRequestFlow(requestType: Task['jobRequestType'], filter: Request
   return true
 }
 
-function userBelongsToDepartment(item: User, departmentId: string) {
-  return item.departmentId === departmentId || Boolean(item.departments?.some(department => department.departmentId === departmentId))
-}
-
 function userBelongsToAnyDepartment(item: User, departmentIds: Set<string>) {
   return departmentIds.has(item.departmentId) || Boolean(item.departments?.some(department => departmentIds.has(department.departmentId)))
 }
@@ -287,8 +282,6 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [parentJobDetail, setParentJobDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
-  const [assignmentDraft, setAssignmentDraft] = useState({ departmentId: '', userId: '' })
-  const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
@@ -363,6 +356,10 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       : isStaffTasksView
         ? t('nav.staffTasks', 'Personelimin Görevleri')
         : t('tasks.detail.title', 'Görev Detayları')
+  const canRouteTaskDetail = !!taskDetail
+    && isManagerLike
+    && taskDetail.jobSourceType !== 'Routine'
+    && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')
 
   const visibleTasks = useMemo(() => {
     let result: typeof tasks
@@ -439,7 +436,6 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       setSelectedTask(null)
       setTaskDetail(null)
       setParentJobDetail(null)
-      setAssignmentDraft({ departmentId: '', userId: '' })
       setReturnModal(null)
       setConfirmDialog(null)
       setSuccessToast(null)
@@ -483,11 +479,6 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     DEPARTMENT_STATUS_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.departmentViews.pending',
     'Bekleyen Görevler',
   )
-  const assignmentUsers = useMemo(() => {
-    if (!assignmentDraft.departmentId) return activeUsers
-    return activeUsers.filter(item => userBelongsToDepartment(item, assignmentDraft.departmentId))
-  }, [activeUsers, assignmentDraft.departmentId])
-
   const setMyTaskView = (view: MyTaskView) => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('view', view)
@@ -623,6 +614,22 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     setReturnUserId('')
   }
 
+  const openRouteModal = (taskId: string) => {
+    const task = tasks.find(t => t.taskId === taskId)
+    const departmentId = task?.assignedDepartmentId ?? activeDeptId ?? user?.departmentId ?? null
+    setReturnModal({
+      taskId,
+      step: 'return',
+      assignedDepartmentId: departmentId,
+      isReporterTask: task?.createdByRoleCode === 'Reporter',
+      useManagerReporterRedirectLabel: false,
+      directRoute: true,
+    })
+    setCancelReason('')
+    setReturnDeptId(departmentId ?? '')
+    setReturnUserId('')
+  }
+
   const closeReturnModal = () => {
     setReturnModal(null)
     setCancelReason('')
@@ -690,10 +697,6 @@ const pageKicker = isMyTasksView
     setTaskDetail(null)
     setParentJobDetail(null)
     setDetailLoading(true)
-    setAssignmentDraft({
-      departmentId: task.assignedDepartmentId ?? '',
-      userId: '',
-    })
     try {
       const [detail, jobDetail] = await Promise.all([
         api.getTaskById(task.taskId),
@@ -701,10 +704,6 @@ const pageKicker = isMyTasksView
       ])
       setTaskDetail(detail)
       setParentJobDetail(jobDetail)
-      setAssignmentDraft({
-        departmentId: detail.assignedDepartmentId ?? '',
-        userId: '',
-      })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -732,7 +731,6 @@ const pageKicker = isMyTasksView
     setSelectedTask(null)
     setTaskDetail(null)
     setParentJobDetail(null)
-    setAssignmentDraft({ departmentId: '', userId: '' })
     // Detay derin bağlantıyla (ör. Birime Gelen Talepler) açıldıysa kapatınca geldiği sayfaya dön;
     // bu sayfada kalıp Birimdeki Görevler'e düşmemeli (card 549).
     if (autoOpenTaskId) {
@@ -742,21 +740,6 @@ const pageKicker = isMyTasksView
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('taskId')
     setSearchParams(nextParams, { replace: true })
-  }
-
-  const saveAssignment = async () => {
-    if (!selectedTask) return
-    setAssignmentSaving(true)
-    try {
-      await api.assignTask(selectedTask.taskId, assignmentDraft.departmentId || null, assignmentDraft.userId || null)
-      invalidateTasks(queryClient, selectedTask.taskId, selectedTask.jobId)
-      await reload()
-      await openTaskDetail(selectedTask)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    } finally {
-      setAssignmentSaving(false)
-    }
   }
 
   return (
@@ -908,6 +891,15 @@ const pageKicker = isMyTasksView
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {canRouteTaskDetail && selectedTask && (
+                  <Button
+                    type="button"
+                    className="bg-teal-700 text-white shadow-sm hover:bg-teal-800"
+                    onClick={() => openRouteModal(selectedTask.taskId)}
+                  >
+                    {t('tasks.actions.route', 'Görevi Yönlendir')}
+                  </Button>
+                )}
                 {isMyTasksView && canCompleteTask && (
                   <Button type="button" variant="success" onClick={() => handleComplete(taskDetail.taskId)}>
                     {t('tasks.actions.complete', 'Tamamla')}
@@ -1181,68 +1173,13 @@ const pageKicker = isMyTasksView
                       Rutin olmayan görevlerde Yönetici Notu + Ekler ilgili talep detaylarında gösterilir. */}
                   {(() => {
                     if (taskDetail.jobSourceType === 'Routine') return null
-                    const bottomColsClass = isManagerLike ? 'lg:grid-cols-2' : ''
+                    if (taskDetail.assignmentHistory.length === 0) return null
                     return (
-                  <div className={`grid gap-4 ${bottomColsClass}`}>
-
-                    {/* Sütun 1: Görevi Yönlendir */}
-                    {isManagerLike && (
-                      <section className="form-card page-stack">
-                        <>
-                          <div>
-                            <h3 className="text-base font-extrabold text-slate-950">Görevi Yönlendir</h3>
-                            <p className="helper-copy">
-                              Mevcut:{' '}
-                              {taskDetail.assignedUserId
-                                ? getUserName(taskDetail.assignedUserId)
-                                : taskDetail.assignedDepartmentId
-                                  ? getDepartmentName(taskDetail.assignedDepartmentId)
-                                : t('tasks.unassigned', 'Atanmamış')}
-                            </p>
-                          </div>
-                          <div className="grid gap-3">
-                            <label className="job-field">
-                              <span className="job-field-label">{t('tasks.draftUser')}</span>
-                              {/* Personel seçiniz dropdown yukarı doğru açılır (card 464) */}
-                              <SingleSelectDropdown
-                                options={assignmentUsers.map(u => ({ value: u.userId, label: u.displayName }))}
-                                value={assignmentDraft.userId}
-                                onChange={uid => {
-                                  const u = users.find(item => item.userId === uid)
-                                  setAssignmentDraft(cur => ({
-                                    departmentId: u?.departmentId ?? cur.departmentId,
-                                    userId: uid,
-                                  }))
-                                }}
-                                placeholder={t('tasks.userSelection', 'Personel seçiniz')}
-                                emptyText={t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}
-                                triggerClassName="h-8 min-h-8 py-1 text-xs"
-                                openUp
-                                disabled={assignmentSaving}
-                              />
-                            </label>
-                          </div>
-                          <div className="inline-actions justify-end pt-2">
-                            <Button
-                              type="button"
-                              size="default"
-                              className="h-9 px-4 text-sm"
-                              disabled={assignmentSaving || (!assignmentDraft.departmentId && !assignmentDraft.userId)}
-                              onClick={saveAssignment}
-                            >
-                              {assignmentSaving ? t('common.loading') : t('tasks.actions.route', 'Yönlendir')}
-                            </Button>
-                          </div>
-                        </>
-                      </section>
-                    )}
-
-                    {/* Sütun 2: Atama Geçmişi */}
+                  <div className="grid gap-4">
                     <section className="form-card page-stack">
                       <h3 className="mb-1 text-sm font-bold text-slate-900">
                         {t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}
                       </h3>
-                      {taskDetail.assignmentHistory.length > 0 ? (
                         <div className="grid gap-2">
                           {taskDetail.assignmentHistory.map(item => (
                             <div
@@ -1258,11 +1195,6 @@ const pageKicker = isMyTasksView
                             </div>
                           ))}
                         </div>
-                      ) : (
-                        <div className="empty-state">
-                          {t('tasks.detail.noAssignmentHistory', 'Atama geçmişi yok')}
-                        </div>
-                      )}
                     </section>
                   </div>
                     )
@@ -1420,7 +1352,7 @@ const pageKicker = isMyTasksView
 
       {returnModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
           onClick={closeReturnModal}
         >
           <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>

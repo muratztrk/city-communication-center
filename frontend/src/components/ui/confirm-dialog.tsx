@@ -28,7 +28,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
       role="presentation"
     >

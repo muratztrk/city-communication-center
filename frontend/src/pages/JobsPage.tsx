@@ -1772,7 +1772,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
       {editModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
           onClick={() => setEditModal(null)}
           role="presentation"
         >
@@ -1848,7 +1848,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
       {cancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)}>
           <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <XIcon className="size-4" />

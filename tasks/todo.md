@@ -385,3 +385,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 57 (1 card)
 - [x] `#584` — Birime Gelen Talepler grid: "Talep Yeri / Oluşturan" header now renders on two lines without the slash ("Talep Yeri" / "Oluşturan"). Single shared table header (line 658) → two `t()` calls with `<br/>`; added `incomingRequests.columns.requestLocation` + `.creator` keys (tr+en). Build + lint PASS.
+
+## Round 58 (3 cards — Doing batch)
+- [x] `#594` — Wallboard ("Ekrana yansıt") Görev No column was missing the `G-` prefix (showed `2026/98`). Added a dedicated `formatTaskNumber` → `G-{year}-{n}` in WallboardPage, aligning the wallboard with the app-wide task-number format (also normalised the `/` separator to `-` for consistency with TasksPage/NotificationBell). jobNumber (unused in render) keeps the generic `formatNumber`.
+- [x] `#593` — Balanced title wrapping in all gridviews: long `Başlık` text now splits ~half/half across lines instead of orphaning words. Added `text-wrap: balance` to `.cell-title` (Tasks/Jobs/IncomingRequests grids) and switched `.wallboard-row-title` from nowrap+ellipsis to `white-space:normal` + `overflow-wrap:break-word` + `text-wrap:balance` (wallboard). globals.css only.
+- [x] `#589` — "Yeni" blinking green badge under the Görev Tarihi value in Görevlerim while the task's assignment-to-staff date is still today. Derived `AssignedAtUtc` (latest AssignmentHistory `ToUserId == AssignedUserId`, covers Assign + Claim) as a no-migration projection in `GetTasksQuery`; added optional trailing `AssignedAtUtc` to `TaskSummaryResponse`. FE: `Task.assignedAtUtc`, `isAssignedToday()` gate (only `isMyTasksView`), `.task-new-badge` blink keyframe (`@keyframes ccc-blink`, respects `prefers-reduced-motion`), `tasks.badges.new` i18n (tr/en).
+- BE build + FE build + lint + 10 backend tests PASS. Runtime not exercised (no seed; needs tasks assigned today / open wallboard items).

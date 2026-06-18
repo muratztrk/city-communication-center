@@ -65,7 +65,9 @@ public sealed record TaskSummaryResponse(
     DateTimeOffset? CompletedAtUtc,
     DateTimeOffset? UpdatedAtUtc,
     string? CreatedByRoleCode = null,
-    Guid? OwnerUserId = null);
+    Guid? OwnerUserId = null,
+    // Görevin mevcut atanan kullanıcıya atandığı tarih (Görevlerim "Yeni" rozeti, card 589).
+    DateTimeOffset? AssignedAtUtc = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

@@ -523,6 +523,9 @@
     "title": "İşler",
     "subtitle": "Onay bekleyen talepleri, onaylanmış talepleri ve tüm işleri aynı akışta yönetin.",
     "myTasksSubtitle": "Size atanmış görevleri durumuna göre takip edin.",
+    "badges": {
+      "new": "Yeni"
+    },
     "departmentTasksSubtitle": "Müdürlüğünüzde oluşan görevleri kaynak tipine göre takip edin.",
     "staffTasksSubtitle": "Personelinizin üzerindeki görevleri ve aşamalarını izleyin.",
     "departmentTasksEmpty": "{{view}} bulunmuyor",

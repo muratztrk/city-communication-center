@@ -76,6 +76,12 @@ function formatNumber(num: number | null | undefined, year: number | null | unde
   return year ? `${year}/${num}` : String(num)
 }
 
+// Görev No, uygulama genelindeki gösterimle aynı olmalı: "G-{yıl}-{no}" (card 594).
+function formatTaskNumber(num: number | null | undefined, year: number | null | undefined): string | null {
+  if (!num) return null
+  return `G-${year ?? new Date().getFullYear()}-${num}`
+}
+
 function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[] {
   const jobsById = new Map(jobs.map(job => [job.jobId, job]))
 
@@ -96,7 +102,7 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[]
         dueDateUtc: task.dueDateUtc,
         createdAtUtc: task.createdAtUtc ?? null,
         jobNumber: formatNumber(job?.jobNumber, job?.jobNumberYear),
-        taskNumber: formatNumber(task.taskNumber, task.taskNumberYear),
+        taskNumber: formatTaskNumber(task.taskNumber, task.taskNumberYear),
         requestLocation: job?.ownerDepartmentName ?? null,
         requestCreator: job?.createdByDisplayName ?? null,
         taskOwner: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,

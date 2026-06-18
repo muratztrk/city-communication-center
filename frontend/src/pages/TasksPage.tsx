@@ -140,7 +140,7 @@ function getCenteredPopupFeatures(width: number, height: number): string {
 }
 
 function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
-  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 450))
+  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 832))
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const description = stripHtmlTags(taskDetail.description)
@@ -172,11 +172,11 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     .section{margin-top:1.5rem}
-    .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #ccc;padding-bottom:3px;margin-bottom:8px;color:#333}
+    .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #9ca3af;padding-bottom:3px;margin-bottom:8px;color:#333}
     table{width:100%;border-collapse:collapse;font-size:11px}
-    th,td{border:1px solid #ccc;padding:4px 8px;text-align:left}
+    th,td{border:1px solid #9ca3af;padding:4px 8px;text-align:left}
     th{width:34%;background:#f0f0f0;font-weight:bold}
-    .desc{border:1px solid #ccc;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
+    .desc{border:1px solid #9ca3af;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
     @media print{body{padding:0}}
   </style></head><body>
   <div class="section">

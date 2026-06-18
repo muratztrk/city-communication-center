@@ -221,7 +221,7 @@ function getCenteredPopupFeatures(width: number, height: number): string {
 }
 
 function printJobDetail(detail: import('../types/platform').JobDetail, locale: string, t: TFunction) {
-  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 480))
+  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 832))
   if (!win) return
   const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
@@ -263,12 +263,12 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     .kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#666}
     .meta{font-size:11px;color:#444;margin-bottom:1rem;line-height:1.7}
     .section{margin-top:1.5rem}
-    .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #ccc;padding-bottom:3px;margin-bottom:8px;color:#333}
+    .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #9ca3af;padding-bottom:3px;margin-bottom:8px;color:#333}
     table{width:100%;border-collapse:collapse;font-size:11px}
-    th,td{border:1px solid #ccc;padding:4px 8px;text-align:left}
+    th,td{border:1px solid #9ca3af;padding:4px 8px;text-align:left}
     th{width:34%}
     th{background:#f0f0f0;font-weight:bold}
-    .desc{border:1px solid #ccc;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
+    .desc{border:1px solid #9ca3af;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
     @media print{body{padding:0}}
   </style></head><body>
   <div class="section">

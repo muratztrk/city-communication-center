@@ -129,8 +129,18 @@ function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
+function getCenteredPopupFeatures(width: number, height: number): string {
+  const screenLeft = window.screenX ?? window.screenLeft ?? 0
+  const screenTop = window.screenY ?? window.screenTop ?? 0
+  const viewportWidth = window.outerWidth || document.documentElement.clientWidth || window.screen.width
+  const viewportHeight = window.outerHeight || document.documentElement.clientHeight || window.screen.height
+  const left = Math.max(0, Math.round(screenLeft + (viewportWidth - width) / 2))
+  const top = Math.max(0, Math.round(screenTop + (viewportHeight - height) / 2))
+  return `width=${width},height=${height},left=${left},top=${top}`
+}
+
 function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
-  const win = window.open('', '_blank', 'width=820,height=900')
+  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 900))
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const description = stripHtmlTags(taskDetail.description)

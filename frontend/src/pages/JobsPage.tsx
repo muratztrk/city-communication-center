@@ -210,8 +210,18 @@ function stripHtmlTags(value: string | null | undefined) {
   return (parsed.body.innerText || parsed.body.textContent || '').replace(/\u00a0/g, ' ').trim()
 }
 
+function getCenteredPopupFeatures(width: number, height: number): string {
+  const screenLeft = window.screenX ?? window.screenLeft ?? 0
+  const screenTop = window.screenY ?? window.screenTop ?? 0
+  const viewportWidth = window.outerWidth || document.documentElement.clientWidth || window.screen.width
+  const viewportHeight = window.outerHeight || document.documentElement.clientHeight || window.screen.height
+  const left = Math.max(0, Math.round(screenLeft + (viewportWidth - width) / 2))
+  const top = Math.max(0, Math.round(screenTop + (viewportHeight - height) / 2))
+  return `width=${width},height=${height},left=${left},top=${top}`
+}
+
 function printJobDetail(detail: import('../types/platform').JobDetail, locale: string) {
-  const win = window.open('', '_blank', 'width=820,height=960')
+  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 960))
   if (!win) return
   const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null

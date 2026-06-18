@@ -140,7 +140,7 @@ function getCenteredPopupFeatures(width: number, height: number): string {
 }
 
 function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
-  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 900))
+  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 450))
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const description = stripHtmlTags(taskDetail.description)
@@ -1436,7 +1436,7 @@ const pageKicker = isMyTasksView
                     disabled={returnSaving || !returnDeptId}
                     onClick={() => void handleReturn()}
                   >
-                    {returnSaving ? t('common.loading') : t('tasks.actions.route', 'Yönlendir')}
+                    {returnSaving ? t('common.loading') : t('tasks.actions.route', 'Görevi Yönlendir')}
                   </Button>
                 </div>
               </>

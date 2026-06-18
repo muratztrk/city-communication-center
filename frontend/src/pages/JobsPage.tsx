@@ -220,8 +220,8 @@ function getCenteredPopupFeatures(width: number, height: number): string {
   return `width=${width},height=${height},left=${left},top=${top}`
 }
 
-function printJobDetail(detail: import('../types/platform').JobDetail, locale: string) {
-  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 960))
+function printJobDetail(detail: import('../types/platform').JobDetail, locale: string, t: TFunction) {
+  const win = window.open('', '_blank', getCenteredPopupFeatures(820, 480))
   if (!win) return
   const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
@@ -235,7 +235,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     ['Gittiği Yer', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', detail.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', detail.priority],
-    ['Durum', detail.status],
+    ['Durum', getJobStatusLabel(t, detail.status)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
     ['Talep Onay Tarihi', fd(ownerApprovalDate)],
     ['Son Tarih Bilgisi', fd(detail.dueDateUtc)],
@@ -1381,7 +1381,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     {t('jobs.actions.cancelJob', 'Talebi İptal Et')}
                   </Button>
                 )}
-                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale)}>{t('common.print', 'Yazdır')}</Button>
+                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t)}>{t('common.print', 'Yazdır')}</Button>
                 <button
                   type="button"
                   onClick={closeDetail}

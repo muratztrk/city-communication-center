@@ -245,11 +245,15 @@
     }
 
     .app-content-shell .page-subtitle {
-      font-size: 0.78rem;
+      font-size: 0.88rem;
       line-height: 1.45;
     }
 
-    .app-content-shell .page-kicker,
+    /* Banner 1. ve 3. satır (kicker + alt başlık) biraz daha büyük (card 579). */
+    .app-content-shell .page-kicker {
+      font-size: 0.76rem;
+    }
+
     .app-content-shell .job-field-label,
     .app-content-shell .info-item label,
     .app-content-shell .helper-copy {
@@ -473,7 +477,7 @@
   }
 
   .page-kicker {
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 800;
     line-height: 1.2;
     text-transform: uppercase;

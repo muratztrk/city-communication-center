@@ -59,7 +59,6 @@ export function ScrollFab() {
     el.addEventListener('scroll', update, { passive: true })
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   function update() {
     const el = activeElRef.current
     if (!el) return

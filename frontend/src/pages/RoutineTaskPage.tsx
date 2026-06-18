@@ -2,7 +2,9 @@ import { ClipboardList, Send } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateTasks } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
@@ -24,6 +26,7 @@ const INITIAL: FormState = {
 export function RoutineTaskPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [form, setForm] = useState<FormState>(INITIAL)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +47,7 @@ export function RoutineTaskPage() {
         dueDateUtc: form.dueDateUtc ? new Date(form.dueDateUtc).toISOString() : null,
         notes: null,
       })
+      invalidateTasks(queryClient)
       navigate('/my-tasks?view=all')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))

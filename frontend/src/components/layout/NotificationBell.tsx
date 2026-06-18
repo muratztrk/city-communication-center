@@ -1,9 +1,11 @@
 import { Bell, CheckCheck, Search, X } from 'lucide-react'
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
+import { invalidateNotifications } from '../../api/cacheInvalidation'
+import { queryKeys } from '../../api/queryKeys'
 import type { AppNotification, JobDetail, TaskDetail } from '../../types/platform'
 import type { NotificationPayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
@@ -214,17 +216,8 @@ export function NotificationBell() {
   const [taskParentJob, setTaskParentJob] = useState<JobDetail | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const detailModalRef = useRef<HTMLDivElement>(null)
-  const unreadQueryKey = useMemo(
-    () => ['notifications-unread-count', user?.tenantId, user?.userId] as const,
-    [user?.tenantId, user?.userId],
-  )
-  const notificationsQueryKey = useMemo(
-    () => ['notifications-list', user?.tenantId, user?.userId] as const,
-    [user?.tenantId, user?.userId],
-  )
-
   const unreadQuery = useQuery({
-    queryKey: unreadQueryKey,
+    queryKey: queryKeys.notifications.unreadCount(),
     queryFn: () => api.getUnreadNotificationCount(),
     enabled: Boolean(user?.userId),
     refetchInterval: 30000,
@@ -232,7 +225,7 @@ export function NotificationBell() {
   })
 
   const notifQuery = useQuery({
-    queryKey: notificationsQueryKey,
+    queryKey: queryKeys.notifications.list(),
     queryFn: () => api.getNotifications(),
     enabled: Boolean(user?.userId) && (isOpen || isModalOpen),
     refetchOnMount: 'always',
@@ -283,13 +276,12 @@ export function NotificationBell() {
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.notificationId !== payload.notificationId))
       }, 5000)
-      queryClient.invalidateQueries({ queryKey: unreadQueryKey })
-      queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
+      invalidateNotifications(queryClient)
       if (Notification.permission === 'granted') {
         new Notification(localizedPayload.title, { body: localizedPayload.message, icon: '/favicon.ico' })
       }
     },
-    [notificationsQueryKey, queryClient, unreadQueryKey],
+    [queryClient],
   )
 
   useSignalR(handleNotification)
@@ -313,8 +305,7 @@ export function NotificationBell() {
   const markRead = async (id: string) => {
     setViewedNotificationIds(prev => new Set(prev).add(id))
     await api.markNotificationRead(id)
-    queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
-    queryClient.invalidateQueries({ queryKey: unreadQueryKey })
+    invalidateNotifications(queryClient)
   }
 
   const markAllRead = async () => {
@@ -326,8 +317,7 @@ export function NotificationBell() {
       return next
     })
     await api.markAllNotificationsRead()
-    queryClient.invalidateQueries({ queryKey: notificationsQueryKey })
-    queryClient.invalidateQueries({ queryKey: unreadQueryKey })
+    invalidateNotifications(queryClient)
   }
 
   useEffect(() => {

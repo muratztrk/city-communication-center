@@ -4,7 +4,7 @@ import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import type React from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Search, X as XIcon } from 'lucide-react'
@@ -13,6 +13,8 @@ import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { invalidateJobs } from '../api/cacheInvalidation'
+import { queryKeys } from '../api/queryKeys'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
@@ -433,6 +435,7 @@ interface JobsPageProps {
 
 export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const isReporter = user?.role === 'Reporter'
@@ -452,7 +455,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [detailLoading, setDetailLoading] = useState(false)
 
   const auditLogQuery = useQuery({
-    queryKey: ['job-audit-log', detail?.jobId],
+    queryKey: queryKeys.jobs.auditLog(detail?.jobId),
     queryFn: () => api.getJobAuditLog(detail!.jobId),
     enabled: !!detail?.jobId,
   })
@@ -828,6 +831,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     setError(null)
     try {
       await api.setJobManagerNote(detail.jobId, managerNoteDraft.trim() || null)
+      invalidateJobs(queryClient, detail.jobId)
       await refreshDetail()
       setManagerNoteSaved(true)
     } catch (err) {
@@ -884,6 +888,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     setError(null)
     try {
       await api.addJobCoordinatingDepartments(detail.jobId, coordinatingDepartmentIds)
+      invalidateJobs(queryClient, detail.jobId)
       setCoordinatingDepartmentIds([])
       await refreshDetail()
     } catch (err) {
@@ -902,6 +907,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     setCancelModal(m => m ? { ...m, saving: true } : null)
     try {
       await api.cancelJob(cancelModal.jobId, cancelModal.reason.trim())
+      invalidateJobs(queryClient, cancelModal.jobId)
       setCancelModal(null)
       await refreshDetail()
       await reload()
@@ -919,6 +925,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         setError(null)
         try {
           await api.approveJobOwner(jobId)
+          invalidateJobs(queryClient, jobId)
           await refreshDetail()
           await reload()
         } catch (err) {
@@ -933,6 +940,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       onConfirm: async (reason) => {
         try {
           await api.rejectJobOwner(jobId, reason)
+          invalidateJobs(queryClient, jobId)
           await refreshDetail()
           await reload()
         } catch (err) {
@@ -948,6 +956,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       onConfirm: async () => {
         try {
           await api.deleteJob(jobId)
+          invalidateJobs(queryClient, jobId)
           if (detail?.jobId === jobId) setDetail(null)
           await reload()
         } catch (err) {
@@ -981,6 +990,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         startDateUtc: editModal.startDateUtc ? new Date(editModal.startDateUtc).toISOString() : null,
         dueDateUtc: editModal.dueDateUtc ? new Date(editModal.dueDateUtc).toISOString() : null,
       })
+      invalidateJobs(queryClient, editModal.jobId)
       setEditModal(null)
       await reload()
       if (detail?.jobId === editModal.jobId) await refreshDetail()
@@ -1545,6 +1555,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                               setAttachmentUploading(true)
                               try {
                                 await api.uploadJobAttachment(detail.jobId, file)
+                                invalidateJobs(queryClient, detail.jobId)
                                 await refreshDetail()
                               } finally {
                                 setAttachmentUploading(false)
@@ -1552,6 +1563,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                             } : undefined}
                             onDelete={canEditJobAttachments ? async (id) => {
                               await api.deleteAttachment(id)
+                              invalidateJobs(queryClient, detail.jobId)
                               await refreshDetail()
                             } : undefined}
                             disabled={attachmentUploading}
@@ -1686,6 +1698,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       setAttachmentUploading(true)
                       try {
                         await api.uploadJobAttachment(detail.jobId, file)
+                        invalidateJobs(queryClient, detail.jobId)
                         await refreshDetail()
                       } finally {
                         setAttachmentUploading(false)
@@ -1693,6 +1706,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                     } : undefined}
                     onDelete={!readOnlyRequestAttachments ? async (id) => {
                       await api.deleteAttachment(id)
+                      invalidateJobs(queryClient, detail.jobId)
                       await refreshDetail()
                     } : undefined}
                     disabled={attachmentUploading}

@@ -6,6 +6,7 @@ import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'lumespecsoftware@gmail.com'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
@@ -17,6 +18,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import { api } from '../api/client'
 import { getActiveDepartmentId, setActiveDepartmentId } from '../api/http'
+import { queryKeys } from '../api/queryKeys'
 import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
@@ -70,27 +72,30 @@ export function AppShell() {
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-  const [userDepartments, setUserDepartments] = useState<DepartmentSummary[]>([])
   const [activeDeptId, setActiveDeptId] = useState<string | null>(getActiveDepartmentId)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
+  const userDepartmentsQuery = useQuery({
+    queryKey: queryKeys.departments.me(),
+    queryFn: () => api.getMyDepartments(),
+  })
+  const userDepartments = useMemo(() => userDepartmentsQuery.data ?? [], [userDepartmentsQuery.data])
+
   useEffect(() => {
-    api.getMyDepartments()
-      .then(depts => {
-        setUserDepartments(depts)
-        const currentDeptId = getActiveDepartmentId()
-        if (depts.length > 0 && (!currentDeptId || !depts.some(d => d.departmentId === currentDeptId))) {
-          const primary = depts.find(d => d.isPrimary) ?? depts[0]
-          setActiveDepartmentId(primary.departmentId, true) // silent: don't trigger Outlet remount on initial load
-          setActiveDeptId(primary.departmentId)
-        } else {
-          setActiveDeptId(currentDeptId)
-        }
-      })
-      .catch(() => {})
-  }, [])
+    if (!userDepartmentsQuery.data) return
+    const currentDeptId = getActiveDepartmentId()
+    if (userDepartments.length > 0 && (!currentDeptId || !userDepartments.some(d => d.departmentId === currentDeptId))) {
+      const primary = userDepartments.find(d => d.isPrimary) ?? userDepartments[0]
+      setActiveDepartmentId(primary.departmentId, true) // silent: don't trigger Outlet remount on initial load
+      const frame = window.requestAnimationFrame(() => setActiveDeptId(primary.departmentId))
+      return () => window.cancelAnimationFrame(frame)
+    } else {
+      const frame = window.requestAnimationFrame(() => setActiveDeptId(currentDeptId))
+      return () => window.cancelAnimationFrame(frame)
+    }
+  }, [userDepartments, userDepartmentsQuery.data])
 
   useEffect(() => {
     const handler = () => setActiveDeptId(getActiveDepartmentId())

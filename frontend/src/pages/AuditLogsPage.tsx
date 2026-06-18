@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
+import { queryKeys } from '../api/queryKeys'
 import { StatusPill } from '../components/ui/status-pill'
-import type { AuditLog } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale } from '../utils/localization'
 
 function getActionTone(action: string) {
@@ -23,36 +23,16 @@ function getActionTone(action: string) {
 
 export function AuditLogsPage() {
   const { t, i18n } = useTranslation()
-  const [logs, setLogs] = useState<AuditLog[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const auditLogsQuery = useQuery({
+    queryKey: queryKeys.auditLogs.list(),
+    queryFn: () => api.getAuditLogs(),
+  })
+  const logs = auditLogsQuery.data ?? []
+  const error = auditLogsQuery.error
+    ? auditLogsQuery.error instanceof Error ? auditLogsQuery.error.message : t('common.error')
+    : ''
 
-  useEffect(() => {
-    let isActive = true
-
-    void api.getAuditLogs()
-      .then(response => {
-        if (isActive) {
-          setLogs(response)
-        }
-      })
-      .catch(loadError => {
-        if (isActive) {
-          setError(loadError instanceof Error ? loadError.message : t('common.error'))
-        }
-      })
-      .finally(() => {
-        if (isActive) {
-          setLoading(false)
-        }
-      })
-
-    return () => {
-      isActive = false
-    }
-  }, [t])
-
-  if (loading) {
+  if (auditLogsQuery.isLoading) {
     return <div className="loading">{t('common.loading')}</div>
   }
 

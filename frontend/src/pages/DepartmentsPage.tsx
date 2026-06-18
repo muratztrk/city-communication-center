@@ -1,9 +1,12 @@
 import { Building2, Layers3, Pencil, Trash2, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { api } from '../api/client'
+import { invalidateDepartments } from '../api/cacheInvalidation'
+import { queryKeys } from '../api/queryKeys'
 import { Button } from '../components/ui/button'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
@@ -14,9 +17,7 @@ import { getDepartmentTypeLabel } from '../utils/localization'
 export function DepartmentsPage() {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const [departments, setDepartments] = useState<Department[]>([])
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [newName, setNewName] = useState('')
@@ -33,44 +34,17 @@ export function DepartmentsPage() {
   const [managerAssignId, setManagerAssignId] = useState<string | null>(null)
   const [managerAssignSavingId, setManagerAssignSavingId] = useState<string | null>(null)
 
-  const loadDepartments = () => {
-    setLoading(true)
-    setError('')
-
-    void Promise.all([api.getDepartments(), api.getUsers().catch(() => [] as User[])])
-      .then(([loadedDepartments, loadedUsers]) => {
-        setDepartments(loadedDepartments)
-        setUsers(loadedUsers)
-      })
-      .catch(loadError => setError(loadError instanceof Error ? loadError.message : t('common.error')))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    let isActive = true
-
-    void Promise.all([api.getDepartments(), api.getUsers().catch(() => [] as User[])])
-      .then(([loadedDepartments, loadedUsers]) => {
-        if (isActive) {
-          setDepartments(loadedDepartments)
-          setUsers(loadedUsers)
-        }
-      })
-      .catch(loadError => {
-        if (isActive) {
-          setError(loadError instanceof Error ? loadError.message : t('common.error'))
-        }
-      })
-      .finally(() => {
-        if (isActive) {
-          setLoading(false)
-        }
-      })
-
-    return () => {
-      isActive = false
-    }
-  }, [t])
+  const departmentsQuery = useQuery({
+    queryKey: queryKeys.departments.list(),
+    queryFn: () => api.getDepartments(),
+  })
+  const usersQuery = useQuery({
+    queryKey: queryKeys.users.list(),
+    queryFn: () => api.getUsers().catch(() => [] as User[]),
+  })
+  const departments = useMemo(() => departmentsQuery.data ?? [], [departmentsQuery.data])
+  const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data])
+  const loading = departmentsQuery.isLoading || usersQuery.isLoading
 
   const handleCreate = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -91,7 +65,7 @@ export function DepartmentsPage() {
       setNewManagerUserId('')
       setNewResponsibleUserIds([])
       setShowForm(false)
-      loadDepartments()
+      invalidateDepartments(queryClient)
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
     }
@@ -128,7 +102,7 @@ export function DepartmentsPage() {
         responsibleUserIds: editResponsibleUserIds,
       })
       cancelEdit()
-      loadDepartments()
+      invalidateDepartments(queryClient)
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : t('common.error'))
     }
@@ -138,7 +112,7 @@ export function DepartmentsPage() {
     try {
       await api.deleteDepartment(departmentId)
       setDeleteConfirmId(null)
-      loadDepartments()
+      invalidateDepartments(queryClient)
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
     }
@@ -155,7 +129,11 @@ export function DepartmentsPage() {
         managerUserId,
         responsibleUserIds: department.responsibleUserIds ?? [],
       })
-      setDepartments(current => current.map(item => item.departmentId === updated.departmentId ? updated : item))
+      queryClient.setQueryData<Department[]>(
+        queryKeys.departments.list(),
+        current => current?.map(item => item.departmentId === updated.departmentId ? updated : item) ?? [updated],
+      )
+      invalidateDepartments(queryClient)
       setManagerAssignId(null)
     } catch (assignError) {
       setError(assignError instanceof Error ? assignError.message : t('common.error'))

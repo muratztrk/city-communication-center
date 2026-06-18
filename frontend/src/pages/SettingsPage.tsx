@@ -1,9 +1,11 @@
 import type { FormEvent } from 'react'
 import { Paintbrush, Settings2, ShieldCheck, UsersRound } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { invalidateSettings, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
 import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
@@ -225,6 +227,7 @@ function splitLines(value: string): string[] {
 
 export function SettingsPage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const { user } = useAuth()
   const { setAppearance } = useTenantTheme()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -462,6 +465,7 @@ export function SettingsPage() {
     try {
       const matrixJson = serializeRolePageAccessMatrix(rolePageAccess)
       await api.updateRolePageAccess(user.tenantId, matrixJson)
+      invalidateSettings(queryClient)
       saveRolePageAccessMatrix(rolePageAccess)
       setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
       setMessage({ type: 'success', text: t('settings.roles.saveSuccess') })
@@ -479,6 +483,7 @@ export function SettingsPage() {
     try {
       const matrixJson = serializeRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
       await api.updateRolePageAccess(user.tenantId, matrixJson)
+      invalidateSettings(queryClient)
       setRolePageAccess(DEFAULT_ROLE_PAGE_ACCESS)
       saveRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
       setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
@@ -516,6 +521,7 @@ export function SettingsPage() {
         domain: tenantSettings.domain,
         defaultSlaHours: tenantSettings.defaultSlaHours,
       })
+      invalidateSettings(queryClient)
       setMessage({ type: 'success', text: t('settings.organizationSaveSuccess') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
@@ -531,6 +537,7 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.updateTenantAppearance(user.tenantId, appearanceForm)
+      invalidateSettings(queryClient)
       const refreshed = await api.getTenantAppearance(user.tenantId)
       const nextAppearance = {
         themePreset: refreshed.themePreset,
@@ -578,6 +585,7 @@ export function SettingsPage() {
         bindPassword: tenantLdapSettings.bindPassword || null,
         clearBindPassword: tenantLdapSettings.clearBindPassword,
       })
+      invalidateSettings(queryClient)
 
       const refreshedSettings = await api.getTenantLdapSettings(user.tenantId)
       setTenantLdapSettings({
@@ -600,6 +608,7 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.updateWorkingHours(user.tenantId, workingHoursForm)
+      invalidateSettings(queryClient)
       showToast('success', t('settings.workingHours.saved'))
     } catch (saveError) {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
@@ -615,6 +624,7 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.updateSmsSettings(user.tenantId, smsForm)
+      invalidateSettings(queryClient)
       const refreshed = await api.getSmsSettings(user.tenantId)
       setSmsSettings(refreshed)
       setSmsForm(current => ({ ...current, password: null, clearPassword: false }))
@@ -631,6 +641,7 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.updateSyslogSettings(user.tenantId, syslogForm)
+      invalidateSettings(queryClient)
       const refreshed = await api.getSyslogSettings(user.tenantId)
       setSyslogForm({ isEnabled: refreshed.isEnabled, host: refreshed.host, port: refreshed.port, format: refreshed.format, transport: refreshed.transport })
       setMessage({ type: 'success', text: t('settings.syslog.saved') })
@@ -646,6 +657,7 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.updateFileStorageSettings(user.tenantId, fileStorageForm)
+      invalidateSettings(queryClient)
       setFileStorageForm(current => ({
         ...current,
         nasPassword: null,
@@ -666,6 +678,7 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.updateSlaWeekendSettings(user.tenantId, slaWeekendForm)
+      invalidateSettings(queryClient)
       const refreshed = await api.getSlaWeekendSettings(user.tenantId)
       setSlaWeekendForm({ excludeWeekends: refreshed.excludeWeekends, exemptDepartmentIds: refreshed.exemptDepartmentIds })
       setMessage({ type: 'success', text: t('settings.slaWeekend.saved') })
@@ -737,6 +750,7 @@ export function SettingsPage() {
         allowMockCodePreview: tenantAuthenticationPolicy.allowMockCodePreview,
         webhookUrl: tenantAuthenticationPolicy.webhookUrl,
       })
+      invalidateSettings(queryClient)
 
       setTenantAuthenticationPolicy(await api.getTenantAuthenticationPolicy(user.tenantId))
       setMessage({ type: 'success', text: t('settings.authSaveSuccess') })
@@ -754,6 +768,7 @@ export function SettingsPage() {
     try {
       const nextValue = !routingConfig.autoRoutingEnabled
       await api.toggleAutoRouting(nextValue)
+      invalidateSettings(queryClient)
       setRoutingConfig(current => current ? { ...current, autoRoutingEnabled: nextValue } : current)
       setMessage({ type: 'success', text: nextValue ? t('settings.routing.toggleOn') : t('settings.routing.toggleOff') })
     } catch (toggleError) {
@@ -768,9 +783,11 @@ export function SettingsPage() {
     try {
       if (editingRuleId) {
         await api.updateRoutingRule(editingRuleId, { ...ruleForm, isActive: true })
+        invalidateSettings(queryClient)
         setMessage({ type: 'success', text: t('settings.routing.updated') })
       } else {
         await api.createRoutingRule(ruleForm)
+        invalidateSettings(queryClient)
         setMessage({ type: 'success', text: t('settings.routing.saved') })
       }
 
@@ -802,6 +819,7 @@ export function SettingsPage() {
         setMessage(null)
         try {
           await api.deleteRoutingRule(ruleId)
+          invalidateSettings(queryClient)
           setMessage({ type: 'success', text: t('settings.routing.deleted') })
           await refreshRouting()
         } catch (deleteError) {
@@ -836,6 +854,7 @@ export function SettingsPage() {
         content: citizenForm.content.trim(),
         category: citizenForm.category.trim() || undefined,
       })
+      invalidateSocialMessages(queryClient)
       setMessage({ type: 'success', text: t('settings.citizen.successMessage') })
       setCitizenForm({ channel: 'Other', citizenHandle: '', content: '', category: '' })
     } catch (submitError) {
@@ -864,6 +883,7 @@ export function SettingsPage() {
         ? { ...socialForms[channel], autoNotify: whatsAppAutoNotify }
         : socialForms[channel]
       await api.saveSocialSettings(channel, payload)
+      invalidateSettings(queryClient)
       await refreshSocial()
       setActiveChannel(null)
       setMessage({ type: 'success', text: t('settings.socialConfig.saved') })
@@ -886,6 +906,7 @@ export function SettingsPage() {
     setMessage(null)
     try {
       await api.deleteSocialSettings(channel)
+      invalidateSettings(queryClient)
       await refreshSocial()
       setMessage({ type: 'success', text: t('settings.socialConfig.deleted') })
     } catch (deleteError) {
@@ -931,6 +952,7 @@ export function SettingsPage() {
       } else if (selectedTemplateId) {
         await api.updateWhatsAppTemplate(selectedTemplateId, data)
       }
+      invalidateSettings(queryClient)
       const updated = await api.getWhatsAppTemplates()
       setTemplates(updated)
       setMessage({ type: 'success', text: 'Şablon kaydedildi.' })
@@ -950,6 +972,7 @@ export function SettingsPage() {
       onConfirm: async () => {
         try {
           await api.deleteWhatsAppTemplate(id)
+          invalidateSettings(queryClient)
           const updated = await api.getWhatsAppTemplates()
           setTemplates(updated)
           if (selectedTemplateId === id) {

@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
@@ -45,6 +47,7 @@ function escapeHtml(value: string): string {
  */
 export function CitizenRequestModal({ message, departments, onClose, onCreated }: CitizenRequestModalProps) {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const { user } = useAuth()
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
@@ -106,6 +109,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
         street: street || null,
         openAddress: openAddress || null,
       })
+      invalidateSocialMessages(queryClient, message.socialMessageId)
       onCreated()
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : t('common.error'))

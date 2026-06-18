@@ -106,7 +106,8 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
       style.top = rect.bottom + 4
     }
 
-    setDropdownStyle(style)
+    const animationFrame = window.requestAnimationFrame(() => setDropdownStyle(style))
+    return () => window.cancelAnimationFrame(animationFrame)
   }, [open, viewMonth, viewYear, forceDown])
 
   const handleConfirm = () => {

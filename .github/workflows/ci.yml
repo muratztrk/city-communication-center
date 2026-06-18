@@ -1,0 +1,144 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend build and tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore backend/CityCommunicationCenter.sln
+
+      - name: Build
+        run: dotnet build backend/CityCommunicationCenter.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test backend/CityCommunicationCenter.sln --configuration Release --no-build --logger "trx;LogFileName=backend-tests.trx"
+
+      - name: Upload backend test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: '**/backend-tests.trx'
+          if-no-files-found: ignore
+
+  frontend:
+    name: Frontend lint and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+  e2e:
+    name: Playwright e2e
+    runs-on: ubuntu-latest
+    needs:
+      - backend
+      - frontend
+
+    env:
+      CCC_ASPNETCORE_ENVIRONMENT: Development
+      CCC_DB_PASSWORD: ci-postgres-password
+      CCC_SIGNING_KEY: ci-signing-key-for-city-communication-center-tests-please-keep-long
+      CCC_INITIAL_PASSWORD: CiInitialPassword123!
+      CCC_AUTH_ISSUER: http://localhost:15000
+      CCC_AUTH_AUDIENCE: city-communication-center-api
+      CCC_FRONTEND_PUBLIC_ORIGIN: http://localhost:13000
+      CCC_API_PUBLIC_ORIGIN: http://localhost:15000
+      CCC_TENANT_ID: b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/e2e/package-lock.json
+
+      - name: Start application stack
+        run: docker compose up -d --build
+
+      - name: Wait for API health
+        run: |
+          for attempt in {1..40}; do
+            if curl -fsS "$CCC_API_PUBLIC_ORIGIN/health"; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose logs api
+          exit 1
+
+      - name: Install e2e dependencies
+        working-directory: tests/e2e
+        run: npm ci
+
+      - name: Install Playwright browser
+        working-directory: tests/e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: tests/e2e
+        run: npm test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: tests/e2e/playwright-report
+          if-no-files-found: ignore
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: tests/e2e/test-results
+          if-no-files-found: ignore
+
+      - name: Dump Docker logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop application stack
+        if: always()
+        run: docker compose down -v

@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Send, X, Loader2, FileText, Volume2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { SocialConversationEntry } from '../types/platform'
 import { api } from '../api/client'
+import { invalidateSocialMessages } from '../api/cacheInvalidation'
+import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
 import { getLocale } from '../utils/localization'
 
@@ -97,18 +100,16 @@ function EntryBubble({ entry, socialMessageId }: { entry: SocialConversationEntr
 
 export function ConversationPanel({ socialMessageId, citizenHandle, onClose, canReply = true, onReplySent }: ConversationPanelProps) {
   const { t } = useTranslation()
-  const [entries, setEntries] = useState<SocialConversationEntry[]>([])
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    setLoading(true)
-    api.getSocialConversation(socialMessageId)
-      .then(setEntries)
-      .finally(() => setLoading(false))
-  }, [socialMessageId])
+  const conversationQuery = useQuery({
+    queryKey: queryKeys.socialMessages.conversation(socialMessageId),
+    queryFn: () => api.getSocialConversation(socialMessageId),
+  })
+  const entries = useMemo(() => conversationQuery.data ?? [], [conversationQuery.data])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -121,8 +122,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, onClose, can
     try {
       await api.replySocialMessage(socialMessageId, text)
       setReplyText('')
-      const updated = await api.getSocialConversation(socialMessageId)
-      setEntries(updated)
+      invalidateSocialMessages(queryClient, socialMessageId)
       onReplySent?.()
     } finally {
       setSending(false)
@@ -154,7 +154,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, onClose, can
         className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0"
         style={{ background: 'linear-gradient(145deg, var(--color-header-from), var(--color-header-to))' }}
       >
-        {loading ? (
+        {conversationQuery.isLoading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
           </div>

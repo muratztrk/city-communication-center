@@ -119,7 +119,7 @@ function normalizeEditorValue(value: string): string {
 }
 
 function isEditorEmpty(editor: HTMLElement): boolean {
-  return !editor.innerText.replace(/ /g, ' ').trim()
+  return !editor.innerText.replace(/\u00a0/g, ' ').trim()
 }
 
 function getElementFromNode(node: Node | null): HTMLElement | null {

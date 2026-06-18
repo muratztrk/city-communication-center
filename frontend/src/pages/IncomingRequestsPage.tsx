@@ -19,7 +19,9 @@ import { StatusPill } from '../components/ui/status-pill'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateJobs, invalidateTasks } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
@@ -266,6 +268,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
 
 export function IncomingRequestsPage() {
   const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const locale = getLocale(i18n.language)
@@ -365,6 +368,7 @@ export function IncomingRequestsPage() {
     try {
       if (approvalType === 'owner') {
         await api.approveJobOwner(jobId)
+        invalidateJobs(queryClient, jobId)
       }
       if (selectedUserIds.length > 0) {
         const jobDetail = await api.getJobById(jobId)
@@ -390,6 +394,7 @@ export function IncomingRequestsPage() {
             )
           )
         }
+        invalidateTasks(queryClient, undefined, jobId)
       }
       await reload()
     } catch (err) {
@@ -406,6 +411,7 @@ export function IncomingRequestsPage() {
         setError(null)
         try {
           await api.approveTaskClose(taskId)
+          invalidateTasks(queryClient, taskId)
           await reload()
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
@@ -430,6 +436,7 @@ export function IncomingRequestsPage() {
       } else {
         await api.cancelJob(row.id, reason.trim())
       }
+      invalidateJobs(queryClient, row.jobId)
       setCancelModal(null)
       await reload()
     } catch (err) {

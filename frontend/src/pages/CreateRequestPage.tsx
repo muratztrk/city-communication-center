@@ -2,7 +2,9 @@ import { Building2, FileText, MapPin, MessageSquareMore, Paperclip, Send, Workfl
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -145,6 +147,7 @@ function hasRichTextContent(value: string) {
 
 export function CreateRequestPage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user } = useAuth()
@@ -495,6 +498,7 @@ export function CreateRequestPage() {
           street: internalForm.street || '',
           openAddress: internalForm.openAddress || '',
         })
+        invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return
       }
@@ -516,6 +520,7 @@ export function CreateRequestPage() {
       for (const file of pendingFiles) {
         await api.uploadJobAttachment(job.jobId, file)
       }
+      invalidateJobs(queryClient, job.jobId)
       setInternalForm(EMPTY_INTERNAL_FORM)
       setPendingFiles([])
       navigate('/requests/new')
@@ -558,6 +563,7 @@ export function CreateRequestPage() {
           openAddress: externalForm.openAddress || '',
           targetDepartmentIds,
         })
+        invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return
       }
@@ -580,6 +586,7 @@ export function CreateRequestPage() {
       for (const file of pendingFiles) {
         await api.uploadJobAttachment(job.jobId, file)
       }
+      invalidateJobs(queryClient, job.jobId)
       setExternalForm(EMPTY_EXTERNAL_FORM)
       setPendingFiles([])
       navigate(isReporter ? '/my-requests?view=pending' : '/requests/new')
@@ -608,6 +615,7 @@ export function CreateRequestPage() {
         latitude: citizenForm.latitude ? parseFloat(citizenForm.latitude) : undefined,
         longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
       })
+      invalidateSocialMessages(queryClient)
       setCitizenForm(EMPTY_CITIZEN_FORM)
       navigate('/requests/new')
     } catch (err) {

@@ -10,7 +10,9 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateTasks } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
@@ -258,6 +260,7 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
 
 export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
   const { user } = useAuth()
 
   const locale = getLocale(i18n.language)
@@ -578,6 +581,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       onConfirm: async () => {
         try {
           await api.completeTask(taskId, completionNote.trim() || undefined)
+          invalidateTasks(queryClient, taskId, selectedTask?.jobId)
           setCompletionNote('')
           closeTaskDetail()
           await reload()
@@ -593,6 +597,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     setError(null)
     try {
       await api.claimTask(taskId)
+      invalidateTasks(queryClient, taskId)
       await reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -622,6 +627,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     setReturnSaving(true)
     try {
       await api.cancelTask(returnModal.taskId, cancelReason.trim())
+      invalidateTasks(queryClient, returnModal.taskId)
       closeReturnModal()
       await reload()
     } catch (err) {
@@ -636,6 +642,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     setReturnSaving(true)
     try {
       await api.assignTask(returnModal.taskId, returnDeptId || undefined, returnUserId || undefined)
+      invalidateTasks(queryClient, returnModal.taskId)
       closeReturnModal()
       await reload()
     } catch (err) {
@@ -734,6 +741,7 @@ const pageKicker = isMyTasksView
     setAssignmentSaving(true)
     try {
       await api.assignTask(selectedTask.taskId, assignmentDraft.departmentId || null, assignmentDraft.userId || null)
+      invalidateTasks(queryClient, selectedTask.taskId, selectedTask.jobId)
       await reload()
       await openTaskDetail(selectedTask)
     } catch (err) {

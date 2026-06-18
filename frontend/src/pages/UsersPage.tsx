@@ -6,7 +6,9 @@ import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateUsers } from '../api/cacheInvalidation'
 import { AutocompleteField } from '../components/forms/AutocompleteField'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
@@ -54,6 +56,7 @@ function resolveDataRequests(canManageUsers: boolean) {
 
 export function UsersPage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const { user: currentUser } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const [users, setUsers] = useState<User[]>([])
@@ -233,6 +236,7 @@ export function UsersPage() {
       })
 
       closeCreateForm()
+      invalidateUsers(queryClient)
       loadData()
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
@@ -267,6 +271,7 @@ export function UsersPage() {
     try {
       await api.updateUser(userId, editForm)
       setEditingUserId(null)
+      invalidateUsers(queryClient)
       loadData()
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : t('common.error'))
@@ -281,6 +286,7 @@ export function UsersPage() {
         setError('')
         try {
           await api.deleteUser(user.userId)
+          invalidateUsers(queryClient)
           loadData()
         } catch (deleteError) {
           setError(deleteError instanceof Error ? deleteError.message : t('common.error'))

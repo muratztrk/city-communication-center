@@ -1,34 +1,37 @@
 import { Building2, Check, ChevronDown } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
+import { queryKeys } from '../../api/queryKeys'
 import { getActiveDepartmentId, setActiveDepartmentId } from '../../api/http'
 import type { DepartmentSummary } from '../../types/platform'
 
 export function DepartmentSwitcher() {
   const { t } = useTranslation()
-  const [departments, setDepartments] = useState<DepartmentSummary[]>([])
   const [activeDeptId, setActiveDeptId] = useState<string | null>(getActiveDepartmentId)
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const departmentsQuery = useQuery({
+    queryKey: queryKeys.departments.me(),
+    queryFn: () => api.getMyDepartments(),
+  })
+  const departments = useMemo(() => departmentsQuery.data ?? [], [departmentsQuery.data])
 
   useEffect(() => {
-    api.getMyDepartments()
-      .then(depts => {
-        setDepartments(depts)
-        const currentDeptId = getActiveDepartmentId()
+    if (!departmentsQuery.data) return
+    const currentDeptId = getActiveDepartmentId()
 
-        if (depts.length > 0 && (!currentDeptId || !depts.some(dept => dept.departmentId === currentDeptId))) {
-          const primary = depts.find(d => d.isPrimary) ?? depts[0]
-          setActiveDepartmentId(primary.departmentId)
-          setActiveDeptId(primary.departmentId)
-          return
-        }
+    if (departments.length > 0 && (!currentDeptId || !departments.some(dept => dept.departmentId === currentDeptId))) {
+      const primary = departments.find(d => d.isPrimary) ?? departments[0]
+      setActiveDepartmentId(primary.departmentId)
+      const frame = window.requestAnimationFrame(() => setActiveDeptId(primary.departmentId))
+      return () => window.cancelAnimationFrame(frame)
+    }
 
-        setActiveDeptId(currentDeptId)
-      })
-      .catch(() => {})
-  }, [])
+    const frame = window.requestAnimationFrame(() => setActiveDeptId(currentDeptId))
+    return () => window.cancelAnimationFrame(frame)
+  }, [departments, departmentsQuery.data])
 
   useEffect(() => {
     const handler = () => setActiveDeptId(getActiveDepartmentId())

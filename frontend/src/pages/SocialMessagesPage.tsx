@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { RichTextContent } from '../components/ui/RichTextContent'
@@ -132,7 +133,7 @@ export function SocialMessagesPage() {
   const handleRequestCreated = () => {
     setRequestModalMessage(null)
     void reload()
-    void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    invalidateSocialMessages(queryClient, requestModalMessage?.socialMessageId)
   }
 
   const openDetail = async (jobId: string) => {

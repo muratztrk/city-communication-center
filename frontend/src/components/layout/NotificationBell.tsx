@@ -78,7 +78,10 @@ function formatJobNumber(job: JobDetail): string {
 }
 
 function formatTaskNumber(task: TaskDetail): string {
-  return task.taskId.slice(0, 8).toUpperCase()
+  if (task.taskNumber != null && task.taskNumberYear != null) {
+    return `G-${task.taskNumberYear}-${task.taskNumber}`
+  }
+  return `G-${task.taskNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`
 }
 
 function formatJobDestinations(job: JobDetail): string {
@@ -439,7 +442,7 @@ export function NotificationBell() {
                     <DetailRow label="Görev Başlığı" value={taskDetail.title} />
                     <DetailRow label="İlgili Talep" value={taskParentJob?.title ?? taskDetail.jobTitle ?? '—'} />
                     <DetailRow label="Görev Sahibi" value={taskDetail.ownerDisplayName} />
-                    <DetailRow label="Atanan" value={taskDetail.assignedUserId ?? taskDetail.assignedDepartmentId ?? '—'} />
+                    <DetailRow label="Atanan" value={taskDetail.assignedUserDisplayName ?? taskDetail.assignedDepartmentName ?? '—'} />
                   </div>
                   <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
                     <DetailRow label="Öncelik" value={t(`enum.priority.${taskDetail.priority}`, { defaultValue: taskDetail.priority })} />

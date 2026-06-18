@@ -58,6 +58,20 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
+        var assignedUserDisplayName = task.AssignedUserId.HasValue
+            ? await _dbContext.Users.AsNoTracking()
+                .Where(u => u.UserId == task.AssignedUserId.Value && u.TenantId == tenantId)
+                .Select(u => u.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
+        var assignedDepartmentName = task.AssignedDepartmentId.HasValue
+            ? await _dbContext.Departments.AsNoTracking()
+                .Where(d => d.DepartmentId == task.AssignedDepartmentId.Value && d.TenantId == tenantId)
+                .Select(d => d.Name)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         var approvals = await _dbContext.Approvals
             .Where(entity => entity.TenantId == tenantId
                 && (
@@ -126,6 +140,10 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                 .ToArray(),
             ownerDisplayName,
             attachments,
-            assigningManagerDisplayName);
+            assigningManagerDisplayName,
+            assignedDepartmentName,
+            assignedUserDisplayName,
+            task.TaskNumber,
+            task.TaskNumberYear);
     }
 }

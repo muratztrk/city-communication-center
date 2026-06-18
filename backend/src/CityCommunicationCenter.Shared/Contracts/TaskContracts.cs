@@ -110,4 +110,8 @@ public sealed record TaskDetailResponse(
     IReadOnlyCollection<AssignmentHistoryResponse> AssignmentHistory,
     string? OwnerDisplayName,
     IReadOnlyCollection<AttachmentResponse> Attachments,
-    string? AssigningManagerDisplayName);
+    string? AssigningManagerDisplayName,
+    string? AssignedDepartmentName,
+    string? AssignedUserDisplayName,
+    int? TaskNumber,
+    int? TaskNumberYear);

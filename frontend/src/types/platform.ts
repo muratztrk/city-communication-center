@@ -156,6 +156,10 @@ export interface TaskDetail {
   ownerDisplayName: string | null;
   attachments: Attachment[];
   assigningManagerDisplayName: string | null;
+  assignedDepartmentName: string | null;
+  assignedUserDisplayName: string | null;
+  taskNumber: number | null;
+  taskNumberYear: number | null;
 }
 
 export interface AssignmentHistory {

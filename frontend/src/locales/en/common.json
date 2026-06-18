@@ -649,6 +649,8 @@
     "columns": {
       "type": "Type",
       "requestLocationCreator": "Request Location/Creator",
+      "requestLocation": "Request Location",
+      "creator": "Creator",
       "cancelReturnStatus": "Status"
     }
   },

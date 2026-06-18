@@ -650,6 +650,8 @@
     "columns": {
       "type": "Tip",
       "requestLocationCreator": "Talep Yeri/Oluşturan",
+      "requestLocation": "Talep Yeri",
+      "creator": "Oluşturan",
       "cancelReturnStatus": "Durum"
     }
   },

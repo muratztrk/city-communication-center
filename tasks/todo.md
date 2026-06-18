@@ -382,3 +382,6 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `#581` — Explicitly block dangerous file extensions on upload (.exe, .bat, .msi, .dmg, .iso, .tar, .xz, … 30 total). Added a `BlockedExtensions` denylist to `UploadAttachmentCommandHandler`, checked before the allowlist with a security message. Note: the existing allowlist (jpg/png/pdf/Office only) already rejected these — the denylist is explicit defense-in-depth. BE build PASS.
 - [x] `#582` — Routine create form: aligned Adres Bilgisi + Dosya/Fotoğraf layout to match Talep Oluştur exactly (single group: Mahalle|Cadde row, then Açık Adres|Upload row) instead of two separate columns. RoutineTaskPage. Build + lint PASS.
 - [x] `#583` — Routine detail Adres Bilgileri: headings now side by side (values beneath) via `flex flex-wrap` instead of the stacked `dl space-y-2`. TasksPage. Build + lint PASS.
+
+## Round 57 (1 card)
+- [x] `#584` — Birime Gelen Talepler grid: "Talep Yeri / Oluşturan" header now renders on two lines without the slash ("Talep Yeri" / "Oluşturan"). Single shared table header (line 658) → two `t()` calls with `<br/>`; added `incomingRequests.columns.requestLocation` + `.creator` keys (tr+en). Build + lint PASS.

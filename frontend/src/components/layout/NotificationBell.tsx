@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
 import { invalidateNotifications } from '../../api/cacheInvalidation'
 import { queryKeys } from '../../api/queryKeys'
@@ -200,6 +201,7 @@ export function NotificationBell() {
   const { user } = useAuth()
   const locale = getLocale(i18n.language)
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filter, setFilter] = useState<NotifFilter>('all')
@@ -360,8 +362,19 @@ export function NotificationBell() {
     return () => { cancelled = true }
   }, [detailTarget, t])
 
+  // Bildirim "Detay": görevse Görevlerim, talepse Taleplerim sayfasındaki ilgili detay
+  // pop-up'ı derin bağlantıyla açılır (card 580).
   const handleNavigate = (url: string) => {
-    setDetailTarget(parseNotificationDetailTarget(url))
+    const target = parseNotificationDetailTarget(url)
+    setIsOpen(false)
+    setIsModalOpen(false)
+    if (target.kind === 'task') {
+      navigate(`/my-tasks?view=all&taskId=${target.id}`)
+    } else if (target.kind === 'job') {
+      navigate(`/my-requests?view=all&jobId=${target.id}`)
+    } else {
+      navigate(url)
+    }
   }
 
   const openModal = () => {

@@ -244,7 +244,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     .join('')
   const managerNote = detail.managerNote?.trim()
   const description = stripHtmlTags(detail.description)
-  const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td><td>${escHtml(tk.ownerDisplayName ?? '—')}</td></tr>`).join('')
+  const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td></tr>`).join('')
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(detail.title)}</title><style>
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
@@ -283,7 +283,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   </div>
   <div class="section">
     <div class="section-title">Görevler (${detail.tasks.length})</div>
-    ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Atanan</th><th>Sahip</th></tr></thead><tbody>${taskRows}</tbody></table>`}
+    ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Atanan</th></tr></thead><tbody>${taskRows}</tbody></table>`}
   </div>
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <script>window.onload=function(){window.print()}</script>

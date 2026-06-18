@@ -975,7 +975,7 @@ const pageKicker = isMyTasksView
                                   },
                                   // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
                                 ].map(({ label, value }) => (
-                                  <div key={label} className="flex items-start gap-2 px-3 py-2">
+                                  <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Görev Tipi' ? ' border-b border-slate-100' : ''}`}>
                                     <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                                     <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                                   </div>

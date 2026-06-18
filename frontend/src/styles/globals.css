@@ -329,6 +329,13 @@
       table-layout: fixed;
     }
 
+    /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon
+       modelini şişirip başlıkların üst üste binmesine yol açıyordu; boşken Taleplerim
+       grid'i gibi otomatik yerleşime dön (card 577). */
+    .app-content-shell .my-tasks-all-table.data-table--empty {
+      table-layout: auto;
+    }
+
     .app-content-shell .my-tasks-all-table .cell-title {
       max-width: 12rem;
     }

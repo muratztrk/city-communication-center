@@ -1227,7 +1227,7 @@ const pageKicker = isMyTasksView
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table data-table--zebra${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
+            <table className={`data-table jobs-table data-table--zebra${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}${pagedTasks.length === 0 ? ' data-table--empty' : ''}`}>
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>

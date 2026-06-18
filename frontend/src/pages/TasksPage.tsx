@@ -1383,7 +1383,7 @@ const pageKicker = isMyTasksView
             {returnModal.step === 'cancel' && (
               <>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelTask', 'Görevi İptal Et')}</h2>
-                <p className="helper-copy">{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
+                <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
                 <label className="job-field">
                   <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
                   <textarea

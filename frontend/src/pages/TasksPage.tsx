@@ -170,6 +170,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('') : ''
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title></title><style>
+    @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     .section{margin-top:1.5rem}
     .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #9ca3af;padding-bottom:3px;margin-bottom:8px;color:#333}
@@ -178,7 +179,8 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     th{width:34%;background:#f0f0f0;font-weight:bold}
     .desc{border:1px solid #9ca3af;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
     .footer{margin-top:2rem;font-size:10px;color:#aaa}
-    @media print{body{padding:0}}
+    .page-number{display:none}
+    @media print{body{padding:1.5cm}.page-number{display:block;position:fixed;bottom:0.6cm;right:1.5cm;font-size:10px;color:#444}}
   </style></head><body>
   <div class="section">
     <div class="section-title">Görev Detayları</div>
@@ -193,6 +195,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     <table><tbody>${parentJobRows}</tbody></table>
   </div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
+  <div class="page-number">1 / 1</div>
   <script>window.onload=function(){window.print()}</script>
   </body></html>`)
   win.document.close()

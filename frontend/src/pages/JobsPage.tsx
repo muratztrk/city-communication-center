@@ -258,6 +258,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td></tr>`).join('')
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title></title><style>
+    @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     h1{font-size:18px;margin:4px 0 8px}
     .kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#666}
@@ -270,7 +271,8 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     th{background:#f0f0f0;font-weight:bold}
     .desc{border:1px solid #9ca3af;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
     .footer{margin-top:2rem;font-size:10px;color:#aaa}
-    @media print{body{padding:0}}
+    .page-number{display:none}
+    @media print{body{padding:1.5cm}.page-number{display:block;position:fixed;bottom:0.6cm;right:1.5cm;font-size:10px;color:#444}}
   </style></head><body>
   <div class="section">
     <div class="section-title">Talep Detayları</div>
@@ -297,6 +299,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Atanan</th></tr></thead><tbody>${taskRows}</tbody></table>`}
   </div>
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
+  <div class="page-number">1 / 1</div>
   <script>window.onload=function(){window.print()}</script>
   </body></html>`)
   win.document.close()

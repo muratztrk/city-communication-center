@@ -26,6 +26,16 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
         ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"
     ];
 
+    // Yürütülebilir/arşiv/paketleyici gibi tehlikeli uzantılar açıkça reddedilir (card 581).
+    // İzin listesi zaten yalnızca güvenli türlere izin verir; bu liste güvenlik için ek savunmadır.
+    private static readonly HashSet<string> BlockedExtensions =
+    [
+        ".net", ".activemime", ".arj", ".aspack", ".bat", ".binhex", ".bzip", ".bzip2",
+        ".chm", ".cod", ".dmg", ".elf", ".exe", ".flac", ".fsg", ".hlp", ".hta", ".iso",
+        ".jad", ".mach-o", ".msi", ".petite", ".rm", ".sis", ".tar", ".torrent", ".upx",
+        ".uue", ".xar", ".xz"
+    ];
+
     private const long MaxFileSizeBytes = 5 * 1024 * 1024;
 
     private readonly IApplicationDbContext _dbContext;
@@ -45,6 +55,14 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
     public async ValueTask<AttachmentResponse> Handle(UploadAttachmentCommand request, CancellationToken cancellationToken)
     {
         var ext = Path.GetExtension(request.FileName).ToLowerInvariant();
+
+        if (BlockedExtensions.Contains(ext))
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.FileName),
+                    "Guvenlik nedeniyle bu dosya turu yuklenemez.")
+            ]);
+        }
 
         if (!AllowedExtensions.Contains(ext))
         {

@@ -207,7 +207,7 @@ function stripHtmlTags(value: string | null | undefined) {
   if (!value) return ''
   const parser = new DOMParser()
   const parsed = parser.parseFromString(value, 'text/html')
-  return (parsed.body.innerText || parsed.body.textContent || '').trim()
+  return (parsed.body.innerText || parsed.body.textContent || '').replace(/\u00a0/g, ' ').trim()
 }
 
 function printJobDetail(detail: import('../types/platform').JobDetail, locale: string) {
@@ -244,7 +244,6 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     .join('')
   const managerNote = detail.managerNote?.trim()
   const description = stripHtmlTags(detail.description)
-  const deptRows = detail.departments.map(d => `<tr><td>${escHtml(d.departmentName ?? '—')}</td><td>${escHtml(d.role)}</td></tr>`).join('')
   const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td><td>${escHtml(tk.ownerDisplayName ?? '—')}</td></tr>`).join('')
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(detail.title)}</title><style>
@@ -262,8 +261,6 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     .footer{margin-top:2rem;font-size:10px;color:#aaa}
     @media print{body{padding:0}}
   </style></head><body>
-  <div class="kicker">Talep Detayları</div>
-  <h1>${escHtml(detail.title)}</h1>
   <div class="section">
     <div class="section-title">Talep Detayları</div>
     <table><tbody>${requestDetailTable}</tbody></table>
@@ -283,10 +280,6 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
   <div class="section">
     <div class="section-title">Ekler / Fotoğraflar (${(detail.attachments ?? []).length})</div>
     ${attachItems ? `<ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>` : '<p style="color:#888;font-size:11px">Talep için ek/fotoğraf bulunmamaktadır.</p>'}
-  </div>
-  <div class="section">
-    <div class="section-title">Müdürlükler</div>
-    <table><thead><tr><th>Müdürlük</th><th>Rol</th></tr></thead><tbody>${deptRows || '<tr><td colspan="2">—</td></tr>'}</tbody></table>
   </div>
   <div class="section">
     <div class="section-title">Görevler (${detail.tasks.length})</div>
@@ -1670,17 +1663,37 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               )}
             </section>}
 
-            {/* Yöneticisi/koordinasyon yetkisi olmayan kullanıcılar (ör. Taleplerim) için ayrı Adres Bilgileri (card 442). */}
-            {isRequestDetailContext && !canManageCoordination && <section className="mb-5">
-              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-                {t('address.detailSectionTitle', 'Adres Bilgileri')}
-              </h3>
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                {renderJobAddressInfo(detail)}
-              </div>
-            </section>}
+            {/* Yöneticisi/koordinasyon yetkisi olmayan kullanıcılar için ikinci satır standart iki kolon tasarımı. */}
+            {isRequestDetailContext && !canManageCoordination && (() => {
+              const requestAttachmentLockText = (detail.status === 'Cancelled' || detail.status === 'Rejected')
+                ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
+                : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
+              return (
+                <div className="mb-5 grid gap-4 lg:grid-cols-2">
+                  <section className="rounded-xl border border-slate-200 bg-white p-4">
+                    <h3 className="mb-3 text-sm font-bold text-slate-900">
+                      {t('address.detailSectionTitle', 'Adres Bilgileri')}
+                    </h3>
+                    {renderJobAddressInfo(detail)}
+                  </section>
+                  <section className="rounded-xl border border-slate-200 bg-white p-4">
+                    <h3 className="mb-3 text-sm font-bold text-slate-900">
+                      {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                    </h3>
+                    <AttachmentSection
+                      attachments={detail.attachments ?? []}
+                      readOnly
+                      emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                    />
+                    <p className="mt-2 text-xs font-medium text-amber-600">
+                      {requestAttachmentLockText}
+                    </p>
+                  </section>
+                </div>
+              )
+            })()}
 
-            {(!isRequestDetailContext || !canManageCoordination) && (() => {
+            {!isRequestDetailContext && (() => {
               const readOnlyRequestAttachments = isRequestDetailContext
               const requestAttachmentLockText = (detail.status === 'Cancelled' || detail.status === 'Rejected')
                 ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')

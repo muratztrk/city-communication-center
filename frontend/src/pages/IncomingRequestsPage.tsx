@@ -191,7 +191,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     createdBy: task.createdByDisplayName ?? null,
     dueDateUtc: task.dueDateUtc,
     createdAtUtc: task.createdAtUtc ?? null,
-    detailsPath: `/department-tasks?flow=all&taskId=${task.taskId}`,
+    detailsPath: `/request-details?context=incoming&jobId=${task.jobId}`,
     assignTargetDepartmentId: null,
     approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,

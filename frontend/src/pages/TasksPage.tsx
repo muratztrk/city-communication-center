@@ -123,41 +123,56 @@ function stripHtmlTags(value: string | null | undefined) {
   if (!value) return ''
   const parser = new DOMParser()
   const parsed = parser.parseFromString(value, 'text/html')
-  return (parsed.body.innerText || parsed.body.textContent || '').trim()
+  return (parsed.body.innerText || parsed.body.textContent || '').replace(/\u00a0/g, ' ').trim()
 }
 
 function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function printTaskDetail(taskDetail: TaskDetail, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
+function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
   const win = window.open('', '_blank', 'width=820,height=900')
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const description = stripHtmlTags(taskDetail.description)
   const gorevTipi = taskDetail.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
-  // Yalnızca ekranda görünen "Görev Detayları" ve (varsa) "İlgili Talep Detayları" alanları; harici bölüm yok (card 547).
+  const taskDisplayNumber = taskSummary
+    ? formatTaskDisplayNumber(taskSummary)
+    : `G-${new Date().getFullYear()}-Onay Bekleyen`
+  const taskDetailRows = [
+    ['Görev No', taskDisplayNumber],
+    ['Görev Başlığı', taskDetail.title],
+    ['Talep Yeri / Oluşturan', [taskSummary?.ownerDepartmentName, taskDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Görev Sahibi', taskDetail.ownerDisplayName ?? '—'],
+    ['Görev Tipi', gorevTipi],
+    ['Öncelik', getPriorityLabel(t, taskDetail.priority)],
+    ['Durum', getTaskDisplayStatus(t, taskDetail)],
+    ['Görev Tarihi', fd(taskDetail.createdAtUtc)],
+    ['Son Tarih', fd(taskDetail.dueDateUtc)],
+  ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('')
+  const parentJobRows = parentJob ? [
+    ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
+    ['Talep Başlığı', parentJob.title],
+    ['Talep Sahibi / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
+    ['Öncelik', getPriorityLabel(t, parentJob.priority)],
+    ['Talep Tarihi', fd(parentJob.createdAtUtc)],
+    ['Son Tarih', fd(parentJob.dueDateUtc)],
+  ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('') : ''
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDetail.title)}</title><style>
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
-    h1{font-size:18px;margin:4px 0 8px}
-    .kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#666}
-    .meta{font-size:11px;color:#444;margin-bottom:1rem;line-height:1.7}
     .section{margin-top:1.5rem}
     .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #ccc;padding-bottom:3px;margin-bottom:8px;color:#333}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    th,td{border:1px solid #ccc;padding:4px 8px;text-align:left}
+    th{width:34%;background:#f0f0f0;font-weight:bold}
     .desc{border:1px solid #ccc;padding:8px;border-radius:3px;background:#fafafa;font-size:11px;line-height:1.6}
     .footer{margin-top:2rem;font-size:10px;color:#aaa}
     @media print{body{padding:0}}
   </style></head><body>
-  <div class="kicker">Görev Detayları</div>
-  <h1>${escHtml(taskDetail.title)}</h1>
-  <div class="meta">
-    <strong>Görev Sahibi:</strong> ${escHtml(taskDetail.ownerDisplayName ?? '—')} &nbsp;|&nbsp;
-    <strong>Oluşturan:</strong> ${escHtml(taskDetail.createdByDisplayName ?? '—')}<br/>
-    <strong>Görev Tipi:</strong> ${escHtml(gorevTipi)} &nbsp;|&nbsp;
-    <strong>Öncelik:</strong> ${escHtml(getPriorityLabel(t, taskDetail.priority))} &nbsp;|&nbsp;
-    <strong>Durum:</strong> ${escHtml(getTaskDisplayStatus(t, taskDetail))}<br/>
-    <strong>Görev Tarihi:</strong> ${fd(taskDetail.createdAtUtc)} &nbsp;|&nbsp;
-    <strong>Son Tarih:</strong> ${fd(taskDetail.dueDateUtc)}
+  <div class="section">
+    <div class="section-title">Görev Detayları</div>
+    <table><tbody>${taskDetailRows}</tbody></table>
   </div>
   <div class="section">
     <div class="section-title">Açıklama</div>
@@ -165,14 +180,7 @@ function printTaskDetail(taskDetail: TaskDetail, parentJob: import('../types/pla
   </div>
   ${parentJob ? `<div class="section">
     <div class="section-title">İlgili Talep Detayları</div>
-    <div class="meta" style="margin:0">
-      <strong>Talep No:</strong> ${parentJob.jobNumber != null && parentJob.jobNumberYear != null ? escHtml(`T-${parentJob.jobNumberYear}-${parentJob.jobNumber}`) : '—'} &nbsp;|&nbsp;
-      <strong>Talep Başlığı:</strong> ${escHtml(parentJob.title)}<br/>
-      <strong>Talep Sahibi / Oluşturan:</strong> ${escHtml([parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—')} &nbsp;|&nbsp;
-      <strong>Proje mi:</strong> ${parentJob.isProject ? 'Evet' : 'Hayır'}<br/>
-      <strong>Öncelik:</strong> ${escHtml(getPriorityLabel(t, parentJob.priority))} &nbsp;|&nbsp;
-      <strong>Talep Tarihi:</strong> ${fd(parentJob.createdAtUtc)}${parentJob.dueDateUtc ? ` &nbsp;|&nbsp; <strong>Son Tarih:</strong> ${fd(parentJob.dueDateUtc)}` : ''}
-    </div>
+    <table><tbody>${parentJobRows}</tbody></table>
   </div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <script>window.onload=function(){window.print()}</script>
@@ -919,7 +927,7 @@ const pageKicker = isMyTasksView
                     </Button>
                 )}
                 {taskDetail && (
-                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, parentJobDetail, t, locale)}>
+                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, t, locale)}>
                     {t('common.print', 'Yazdır')}
                   </Button>
                 )}

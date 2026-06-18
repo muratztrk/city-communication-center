@@ -43,13 +43,14 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
 
   const isPathActive = useCallback((path: string) => {
     if (path.includes('?')) {
-      return currentPath === path
+      const [targetPath] = path.split('?')
+      return location.pathname === targetPath
     }
     if (location.pathname === path) {
       return location.search === ''
     }
     return location.pathname.startsWith(`${path}/`)
-  }, [currentPath, location.pathname, location.search])
+  }, [location.pathname, location.search])
 
   const getGroupPage = useCallback((label: string) => groupPages.get(label) ?? 0, [groupPages])
   const setGroupPage = useCallback((label: string, page: number) => {

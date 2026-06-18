@@ -82,7 +82,7 @@ function decodeHtmlEntities(value: string): string {
   if (!value.includes('&')) return value
   if (typeof DOMParser === 'undefined') return value.replace(/&nbsp;/gi, ' ')
   const documentRef = new DOMParser().parseFromString(value, 'text/html')
-  return documentRef.body.textContent ?? value
+  return (documentRef.body.textContent ?? value).replace(/\u00a0/g, ' ')
 }
 
 interface RichTextContentProps {

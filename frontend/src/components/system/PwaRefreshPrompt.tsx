@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import { useRegisterSW } from 'virtual:pwa-register/react'
@@ -10,6 +11,11 @@ export function PwaRefreshPrompt() {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW()
+
+  useEffect(() => {
+    if (import.meta.env.DEV || !needRefresh) return
+    void updateServiceWorker(true)
+  }, [needRefresh, updateServiceWorker])
 
   if (import.meta.env.DEV || !needRefresh || location.pathname === '/login') {
     return null

@@ -1,5 +1,5 @@
 import { CalendarClock, ChevronLeft, ChevronRight, Clock, X } from 'lucide-react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
 
@@ -11,6 +11,8 @@ interface DateTimePickerProps {
   className?: string
   /** Takvimi her zaman aşağıya doğru aç (yukarı kaydırma yapma). */
   forceDown?: boolean
+  /** Bileşen görünür olur olmaz takvimi aç. */
+  autoOpen?: boolean
 }
 
 const DROPDOWN_WIDTH = 288  // w-72
@@ -49,7 +51,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, autoOpen = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -61,7 +63,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   const [yearPickerOpen, setYearPickerOpen] = useState(false)
   const [yearBlockStart, setYearBlockStart] = useState(() => new Date().getFullYear() - 5)
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     const now = new Date()
     if (value) {
       const [datePart = '', timePart = ''] = value.split('T')
@@ -80,7 +82,13 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     }
     setYearPickerOpen(false)
     setOpen(true)
-  }
+  }, [value])
+
+  useEffect(() => {
+    if (!autoOpen) return
+    const animationFrame = window.requestAnimationFrame(handleOpen)
+    return () => window.cancelAnimationFrame(animationFrame)
+  }, [autoOpen, handleOpen])
 
   // Recalculate position after the dropdown renders
   useLayoutEffect(() => {

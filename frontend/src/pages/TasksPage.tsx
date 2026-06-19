@@ -1222,7 +1222,7 @@ const pageKicker = isMyTasksView
                                         {label === 'Son Tarih' && canChangeTaskDueDate && dueDateEdit?.taskId !== taskDetail.taskId && (
                                           <button
                                             type="button"
-                                            className="font-bold text-emerald-600 underline-offset-2 hover:text-emerald-700 hover:underline"
+                                            className="font-bold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
                                             onClick={openDueDateEdit}
                                           >
                                             {t('common.change', 'Değiştir')}
@@ -1231,7 +1231,7 @@ const pageKicker = isMyTasksView
                                         {label === 'Son Tarih' && canRequestExtraTime && extraTimeEdit?.taskId !== taskDetail.taskId && !hasPendingExtraTimeRequest && (
                                           <button
                                             type="button"
-                                            className="font-bold text-amber-500 underline-offset-2 hover:text-amber-600 hover:underline"
+                                            className="font-bold text-amber-500 underline underline-offset-2 hover:text-amber-600"
                                             onClick={openExtraTimeEdit}
                                           >
                                             {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
@@ -1259,6 +1259,7 @@ const pageKicker = isMyTasksView
                                             onChange={value => setDueDateEdit(current => current ? { ...current, value } : current)}
                                             placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
                                             forceDown
+                                            autoOpen
                                           />
                                           <div className="inline-actions justify-start gap-2">
                                             <Button type="button" size="sm" variant="success" disabled={dueDateEdit.saving} onClick={() => void handleDueDateSave()}>
@@ -1276,6 +1277,7 @@ const pageKicker = isMyTasksView
                                             onChange={value => setExtraTimeEdit(current => current ? { ...current, value } : current)}
                                             placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
                                             forceDown
+                                            autoOpen
                                           />
                                           <div className="inline-actions justify-start gap-2">
                                             <Button type="button" size="sm" variant="success" disabled={extraTimeEdit.saving || !extraTimeEdit.value} onClick={() => void handleExtraTimeRequest()}>
@@ -1309,7 +1311,7 @@ const pageKicker = isMyTasksView
                                         <span className="text-sm text-slate-900">
                                           {value}
                                           {label === 'Son Tarih' && hasApprovedExtraTime && (
-                                            <span className="ml-1 font-semibold text-emerald-600">
+                                            <span className="ml-1 text-xs font-semibold text-emerald-600">
                                               ({t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre')})
                                             </span>
                                           )}

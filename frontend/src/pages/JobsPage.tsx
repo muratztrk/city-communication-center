@@ -191,6 +191,11 @@ function formatDateTime(value: string | null, locale: string) {
   })
 }
 
+function formatDueDateTime(value: string | null, locale: string) {
+  if (!value) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
+  return formatDateTime(value, locale)
+}
+
 function formatJobDisplayNumber(job: JobSummary): string {
   if (job.jobNumber != null && job.jobNumberYear != null) {
     return `T-${job.jobNumberYear}-${job.jobNumber}`
@@ -1520,7 +1525,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                             locale,
                           ),
                         }] : []),
-                        { label: 'Son Tarih', value: formatDateTime(detail.dueDateUtc, locale) },
+                        { label: 'Son Tarih', value: formatDueDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (
                         <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
                           <span className="text-xs font-semibold text-slate-500">{label}</span>

@@ -118,6 +118,11 @@ function formatDateTime(value: string | null | undefined, locale: string) {
   })
 }
 
+function formatDueDateTime(value: string | null | undefined, locale: string) {
+  if (!value) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
+  return formatDateTime(value, locale)
+}
+
 function stripHtmlTags(value: string | null | undefined) {
   if (!value) return ''
   const parser = new DOMParser()
@@ -1209,7 +1214,7 @@ const pageKicker = isMyTasksView
                                     { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
                                     { label: 'Durum', value: getTaskDisplayStatus(t, taskDetail) },
                                     { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
-                                    { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
+                                    { label: 'Son Tarih', value: formatDueDateTime(taskDetail.dueDateUtc, locale) },
                                   ].map(({ label, value }) => (
                                     <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
                                       <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -1488,7 +1493,7 @@ const pageKicker = isMyTasksView
                           : 'Talep Onay Tarihi',
                         value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
                       },
-                      { label: 'Son Tarih Bilgisi', value: formatDateTime(parentJobDetail.dueDateUtc, locale) },
+                      { label: 'Son Tarih Bilgisi', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },
                     ]
                     return (
                       <section className="form-card page-stack mb-5">

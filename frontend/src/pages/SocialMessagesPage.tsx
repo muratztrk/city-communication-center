@@ -40,6 +40,11 @@ function formatDateTime(value: string | null, locale: string) {
   })
 }
 
+function formatDueDateTime(value: string | null, locale: string) {
+  if (!value) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
+  return formatDateTime(value, locale)
+}
+
 function formatJobDestinationsWithAssignees(job: JobDetail): string {
   const roleOrder: Record<string, number> = { Owner: 0, Target: 1, Coordinating: 2 }
   const destinations = [...job.departments]
@@ -430,7 +435,7 @@ export function SocialMessagesPage() {
                   <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
                     <div className="divide-y divide-slate-100">
                       {[
-                        { label: 'Son Tarih Bilgisi', value: formatDateTime(detailJob.dueDateUtc, getLocale(i18n.language)) },
+                        { label: 'Son Tarih Bilgisi', value: formatDueDateTime(detailJob.dueDateUtc, getLocale(i18n.language)) },
                         { label: 'Koordineli mi', value: detailJob.isCoordinated ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
                         { label: 'Kaynak', value: detailJob.sourceType },
                       ].map(({ label, value }) => (

@@ -152,6 +152,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             Description = request.Description.Trim(),
             AssignedDepartmentId = assignedDepartmentId,
             AssignedUserId = assignedUserId,
+            AssignedAtUtc = assignedUserId.HasValue ? utcNow : null,   // card 589
             AssigningManagerId = assigningManagerId,
             OwnerUserId = ownerUserId,
             CurrentStatus = initialStatus,

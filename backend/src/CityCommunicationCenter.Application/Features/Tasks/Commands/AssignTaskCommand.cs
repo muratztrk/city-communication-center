@@ -99,6 +99,8 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
 
         task.AssignedDepartmentId = targetDepartment?.DepartmentId;
         task.AssignedUserId = targetUser?.UserId;
+        // Bir kullanıcıya atandıysa atanma anını kaydet; havuza/birime bırakıldıysa temizle (card 589).
+        task.AssignedAtUtc = targetUser is not null ? utcNow : null;
         task.AssigningManagerId = request.ActorUserId;
         task.CurrentStatus = WorkflowTaskStatus.Assigned;
         task.UpdatedByUserId = request.ActorUserId;

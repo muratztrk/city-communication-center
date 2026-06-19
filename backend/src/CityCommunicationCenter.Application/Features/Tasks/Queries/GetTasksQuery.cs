@@ -175,14 +175,8 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                         .Select(u => (string?)u.RoleCode.ToString()))
                     .FirstOrDefault(),
                 task.OwnerUserId,
-                // Görevin mevcut atanan kullanıcıya en son atandığı tarih (Assign veya Claim).
-                // Görevlerim "Yeni" rozeti, atama günü = bugün olduğu sürece gösterilir (card 589).
-                _dbContext.AssignmentHistories
-                    .AsNoTracking()
-                    .Where(history => history.TaskId == task.TaskId && history.ToUserId == task.AssignedUserId)
-                    .OrderByDescending(history => history.ActionDateUtc)
-                    .Select(history => (DateTimeOffset?)history.ActionDateUtc)
-                    .FirstOrDefault()))
+                // Görevin atanan kullanıcıya atandığı an — "Yeni" rozeti bugünse gösterilir (card 589).
+                task.AssignedAtUtc))
             .ToListAsync(cancellationToken);
     }
 

@@ -221,6 +221,20 @@ function isAssignedToday(value: string | null | undefined): boolean {
     && assigned.getDate() === now.getDate()
 }
 
+function toDateTimePickerValue(value: string | null | undefined): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const offsetMs = date.getTimezoneOffset() * 60_000
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16)
+}
+
+function getExtraTimeProposedDueDate(comment: string | null | undefined): string | null {
+  if (!comment) return null
+  const match = comment.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/)
+  return match?.[0] ?? null
+}
+
 function formatTaskJobDisplayNumber(task: Task): string {
   if (task.jobSourceType === 'Routine') return '—'
   if (task.jobNumber != null && task.jobNumberYear != null) {
@@ -269,11 +283,11 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
   }
 
   if (view === 'rejected') {
-    return tasks.filter(task => task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected' || task.currentStatus === 'RevisionRequested')
+    return tasks.filter(task => task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
   }
 
   const isClosedStatus = (status: string) =>
-    ['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(status)
+    ['Completed', 'Cancelled', 'Rejected'].includes(status)
   const isOverdue = (task: Task) =>
     task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now()
 
@@ -315,6 +329,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [returnSaving, setReturnSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
+  const [dueDateEdit, setDueDateEdit] = useState<{ taskId: string; value: string; saving: boolean } | null>(null)
+  const [extraTimeEdit, setExtraTimeEdit] = useState<{ taskId: string; value: string; saving: boolean } | null>(null)
+  const [extraTimeReview, setExtraTimeReview] = useState<{ taskId: string; proposedDueDateUtc: string | null; saving: boolean } | null>(null)
   const [successToast, setSuccessToast] = useState<string | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
@@ -386,6 +403,27 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     && isManagerLike
     && taskDetail.jobSourceType !== 'Routine'
     && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')
+  const canChangeTaskDueDate = !!taskDetail
+    && isManagerLike
+    && (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
+    && !['Completed', 'Cancelled', 'Rejected'].includes(taskDetail.currentStatus)
+  const hasPendingExtraTimeRequest = !!taskDetail
+    && taskDetail.approvals.some(approval =>
+      approval.subjectType === 'TaskRevision' && approval.decision === 'Pending')
+  const hasApprovedExtraTime = !!taskDetail
+    && taskDetail.approvals.some(approval =>
+      approval.subjectType === 'TaskRevision' && approval.decision === 'Approved')
+  const pendingExtraTimeApproval = taskDetail?.approvals.find(approval =>
+    approval.subjectType === 'TaskRevision' && approval.decision === 'Pending') ?? null
+  const canRequestExtraTime = !!taskDetail
+    && isMyTasksView
+    && !isManagerLike
+    && taskDetail.assignedUserId === user?.userId
+    && !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested', 'PendingCloseApproval'].includes(taskDetail.currentStatus)
+  const canReviewExtraTime = !!taskDetail
+    && isManagerLike
+    && (isDepartmentTasksView || isStaffTasksView)
+    && pendingExtraTimeApproval != null
 
   const visibleTasks = useMemo(() => {
     let result: typeof tasks
@@ -464,6 +502,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       setParentJobDetail(null)
       setReturnModal(null)
       setConfirmDialog(null)
+      setDueDateEdit(null)
+      setExtraTimeEdit(null)
+      setExtraTimeReview(null)
       setSuccessToast(null)
       setError(null)
     })
@@ -693,6 +734,134 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     }
   }
 
+  const openDueDateEdit = () => {
+    if (!taskDetail) return
+    setDueDateEdit({
+      taskId: taskDetail.taskId,
+      value: toDateTimePickerValue(taskDetail.dueDateUtc),
+      saving: false,
+    })
+  }
+
+  const closeDueDateEdit = () => {
+    setDueDateEdit(null)
+  }
+
+  const handleDueDateSave = async () => {
+    if (!dueDateEdit || !taskDetail) return
+    setDueDateEdit(current => current ? { ...current, saving: true } : null)
+    try {
+      const dueDateUtc = dueDateEdit.value ? new Date(dueDateEdit.value).toISOString() : null
+      await api.updateTaskDueDate(dueDateEdit.taskId, dueDateUtc)
+      invalidateTasks(queryClient, dueDateEdit.taskId, taskDetail.jobId)
+      const updatedDetail = await api.getTaskById(dueDateEdit.taskId)
+      setTaskDetail(updatedDetail)
+      setTasks(current => current.map(task =>
+        task.taskId === dueDateEdit.taskId
+          ? { ...task, dueDateUtc: updatedDetail.dueDateUtc, updatedAtUtc: new Date().toISOString() }
+          : task
+      ))
+      setDueDateEdit(null)
+      setSuccessToast(t('tasks.actions.dueDateUpdated', 'Son tarih güncellendi.'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setDueDateEdit(current => current ? { ...current, saving: false } : null)
+    }
+  }
+
+  const openExtraTimeEdit = () => {
+    if (!taskDetail) return
+    setExtraTimeEdit({
+      taskId: taskDetail.taskId,
+      value: toDateTimePickerValue(taskDetail.dueDateUtc),
+      saving: false,
+    })
+  }
+
+  const closeExtraTimeEdit = () => {
+    setExtraTimeEdit(null)
+  }
+
+  const handleExtraTimeRequest = async () => {
+    if (!extraTimeEdit || !taskDetail || !extraTimeEdit.value) return
+    setExtraTimeEdit(current => current ? { ...current, saving: true } : null)
+    try {
+      const proposedDueDateUtc = new Date(extraTimeEdit.value).toISOString()
+      const reason = `${t('tasks.actions.extraTimeRequest', 'Ek süre iste')}: ${proposedDueDateUtc}`
+      await api.requestTaskRevision(extraTimeEdit.taskId, reason, proposedDueDateUtc)
+      invalidateTasks(queryClient, extraTimeEdit.taskId, taskDetail.jobId)
+      const updatedDetail = await api.getTaskById(extraTimeEdit.taskId)
+      setTaskDetail(updatedDetail)
+      setTasks(current => current.map(task =>
+        task.taskId === extraTimeEdit.taskId
+          ? { ...task, currentStatus: updatedDetail.currentStatus, updatedAtUtc: new Date().toISOString() }
+          : task
+      ))
+      setExtraTimeEdit(null)
+      setSuccessToast(t('tasks.actions.extraTimeRequested', 'Ek süre talebi yöneticinize iletildi.'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setExtraTimeEdit(current => current ? { ...current, saving: false } : null)
+    }
+  }
+
+  const openExtraTimeReview = () => {
+    if (!taskDetail || !pendingExtraTimeApproval) return
+    setExtraTimeReview({
+      taskId: taskDetail.taskId,
+      proposedDueDateUtc: getExtraTimeProposedDueDate(pendingExtraTimeApproval.comment),
+      saving: false,
+    })
+  }
+
+  const closeExtraTimeReview = () => {
+    setExtraTimeReview(null)
+  }
+
+  const refreshTaskAfterRevisionDecision = async (taskId: string, jobId: string) => {
+    invalidateTasks(queryClient, taskId, jobId)
+    const updatedDetail = await api.getTaskById(taskId)
+    setTaskDetail(updatedDetail)
+    setTasks(current => current.map(task =>
+      task.taskId === taskId
+        ? {
+            ...task,
+            currentStatus: updatedDetail.currentStatus,
+            dueDateUtc: updatedDetail.dueDateUtc,
+            updatedAtUtc: new Date().toISOString(),
+          }
+        : task
+    ))
+  }
+
+  const handleExtraTimeApprove = async () => {
+    if (!extraTimeReview || !taskDetail) return
+    setExtraTimeReview(current => current ? { ...current, saving: true } : null)
+    try {
+      await api.approveTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'), extraTimeReview.proposedDueDateUtc)
+      await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
+      setExtraTimeReview(null)
+      setSuccessToast(t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setExtraTimeReview(current => current ? { ...current, saving: false } : null)
+    }
+  }
+
+  const handleExtraTimeReject = async () => {
+    if (!extraTimeReview || !taskDetail) return
+    setExtraTimeReview(current => current ? { ...current, saving: true } : null)
+    try {
+      await api.rejectTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
+      await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
+      setExtraTimeReview(null)
+      setSuccessToast(t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setExtraTimeReview(current => current ? { ...current, saving: false } : null)
+    }
+  }
+
   const isAssignee = (task: Task) => task.assignedUserId === user?.userId
   const getDepartmentName = (departmentId?: string | null) => departments.find(department => department.departmentId === departmentId)?.name ?? '—'
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
@@ -789,6 +958,9 @@ const pageKicker = isMyTasksView
     setSelectedTask(null)
     setTaskDetail(null)
     setParentJobDetail(null)
+    setDueDateEdit(null)
+    setExtraTimeEdit(null)
+    setExtraTimeReview(null)
     // Detay derin bağlantıyla (ör. Birime Gelen Talepler) açıldıysa kapatınca geldiği sayfaya dön;
     // bu sayfada kalıp Birimdeki Görevler'e düşmemeli (card 549).
     if (autoOpenTaskId) {
@@ -1040,8 +1212,104 @@ const pageKicker = isMyTasksView
                                     { label: 'Son Tarih', value: formatDateTime(taskDetail.dueDateUtc, locale) },
                                   ].map(({ label, value }) => (
                                     <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
-                                      <span className="text-xs font-semibold text-slate-500">{label}</span>
-                                      <span className="text-sm text-slate-900">{value}</span>
+                                      <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                                        {label}
+                                        {label === 'Son Tarih' && canChangeTaskDueDate && dueDateEdit?.taskId !== taskDetail.taskId && (
+                                          <button
+                                            type="button"
+                                            className="font-bold text-emerald-600 underline-offset-2 hover:text-emerald-700 hover:underline"
+                                            onClick={openDueDateEdit}
+                                          >
+                                            {t('common.change', 'Değiştir')}
+                                          </button>
+                                        )}
+                                        {label === 'Son Tarih' && canRequestExtraTime && extraTimeEdit?.taskId !== taskDetail.taskId && !hasPendingExtraTimeRequest && (
+                                          <button
+                                            type="button"
+                                            className="font-bold text-amber-500 underline-offset-2 hover:text-amber-600 hover:underline"
+                                            onClick={openExtraTimeEdit}
+                                          >
+                                            {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
+                                          </button>
+                                        )}
+                                        {label === 'Son Tarih' && isMyTasksView && !isManagerLike && (hasPendingExtraTimeRequest || taskDetail.currentStatus === 'RevisionRequested') && (
+                                          <span className="font-bold text-slate-400">
+                                            {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
+                                          </span>
+                                        )}
+                                        {label === 'Son Tarih' && canReviewExtraTime && extraTimeReview?.taskId !== taskDetail.taskId && (
+                                          <button
+                                            type="button"
+                                            className="font-bold text-amber-500 underline-offset-2 hover:text-amber-600 hover:underline"
+                                            onClick={openExtraTimeReview}
+                                          >
+                                            {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
+                                          </button>
+                                        )}
+                                      </span>
+                                      {label === 'Son Tarih' && dueDateEdit?.taskId === taskDetail.taskId ? (
+                                        <div className="mt-1 flex flex-col gap-2">
+                                          <DateTimePicker
+                                            value={dueDateEdit.value}
+                                            onChange={value => setDueDateEdit(current => current ? { ...current, value } : current)}
+                                            placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                                            forceDown
+                                          />
+                                          <div className="inline-actions justify-start gap-2">
+                                            <Button type="button" size="sm" variant="success" disabled={dueDateEdit.saving} onClick={() => void handleDueDateSave()}>
+                                              {dueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
+                                            </Button>
+                                            <Button type="button" size="sm" variant="secondary" disabled={dueDateEdit.saving} onClick={closeDueDateEdit}>
+                                              {t('common.cancel', 'Vazgeç')}
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      ) : label === 'Son Tarih' && extraTimeEdit?.taskId === taskDetail.taskId ? (
+                                        <div className="mt-1 flex flex-col gap-2">
+                                          <DateTimePicker
+                                            value={extraTimeEdit.value}
+                                            onChange={value => setExtraTimeEdit(current => current ? { ...current, value } : current)}
+                                            placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                                            forceDown
+                                          />
+                                          <div className="inline-actions justify-start gap-2">
+                                            <Button type="button" size="sm" variant="success" disabled={extraTimeEdit.saving || !extraTimeEdit.value} onClick={() => void handleExtraTimeRequest()}>
+                                              {extraTimeEdit.saving ? t('common.loading') : t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
+                                            </Button>
+                                            <Button type="button" size="sm" variant="secondary" disabled={extraTimeEdit.saving} onClick={closeExtraTimeEdit}>
+                                              {t('common.cancel', 'Vazgeç')}
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      ) : label === 'Son Tarih' && extraTimeReview?.taskId === taskDetail.taskId ? (
+                                        <div className="mt-1 flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2">
+                                          <span className="text-sm font-semibold text-slate-900">
+                                            {extraTimeReview.proposedDueDateUtc
+                                              ? formatDateTime(extraTimeReview.proposedDueDateUtc, locale)
+                                              : t('tasks.actions.extraTimeDateUnavailable', 'Talep edilen tarih okunamadı.')}
+                                          </span>
+                                          <div className="inline-actions justify-start gap-2">
+                                            <Button type="button" size="sm" variant="success" disabled={extraTimeReview.saving || !extraTimeReview.proposedDueDateUtc} onClick={() => void handleExtraTimeApprove()}>
+                                              {extraTimeReview.saving ? t('common.loading') : t('common.approve', 'Onayla')}
+                                            </Button>
+                                            <Button type="button" size="sm" variant="destructive" disabled={extraTimeReview.saving} onClick={() => void handleExtraTimeReject()}>
+                                              {t('common.reject', 'Reddet')}
+                                            </Button>
+                                            <Button type="button" size="sm" variant="secondary" disabled={extraTimeReview.saving} onClick={closeExtraTimeReview}>
+                                              {t('common.cancel', 'Vazgeç')}
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <span className="text-sm text-slate-900">
+                                          {value}
+                                          {label === 'Son Tarih' && hasApprovedExtraTime && (
+                                            <span className="ml-1 font-semibold text-emerald-600">
+                                              ({t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre')})
+                                            </span>
+                                          )}
+                                        </span>
+                                      )}
                                     </div>
                                   ))}
                                 </div>
@@ -1397,7 +1665,16 @@ const pageKicker = isMyTasksView
                         </StatusPill>
                       </td>
                     )}
-                    {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <td><DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} /></td>}
+                    {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && (
+                      <td>
+                        <DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} />
+                        {(isDepartmentTasksView || isStaffTasksView) && task.currentStatus === 'RevisionRequested' && (
+                          <div className="mt-1 text-xs font-bold text-amber-500">
+                            {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                          </div>
+                        )}
+                      </td>
+                    )}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
                     {showStatusColumn && <td><StatusPill tone="neutral" className="text-[0.82rem]">{getTaskDisplayStatus(t, task)}</StatusPill></td>}

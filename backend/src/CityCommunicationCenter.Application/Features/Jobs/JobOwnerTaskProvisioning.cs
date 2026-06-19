@@ -77,6 +77,7 @@ internal static class JobOwnerTaskProvisioning
                 Description = job.Description,
                 AssignedDepartmentId = job.OwnerDepartmentId,
                 AssignedUserId = ownerUser.UserId,
+                AssignedAtUtc = utcNow,   // card 589
                 AssigningManagerId = assigningManagerId,
                 OwnerUserId = ownerUser.UserId,
                 CurrentStatus = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned,

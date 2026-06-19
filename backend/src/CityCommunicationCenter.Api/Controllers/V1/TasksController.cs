@@ -128,6 +128,13 @@ public sealed class TasksController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{taskId:guid}/due-date")]
+    public async Task<IActionResult> UpdateDueDate(Guid taskId, [FromBody] UpdateTaskDueDateRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new UpdateTaskDueDateCommand(taskId, CurrentContext.UserId, request.DueDateUtc), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpGet("{taskId:guid}/audit-log")]
     public async Task<ActionResult<IEnumerable<EntityAuditLogEntryResponse>>> GetTaskAuditLog(Guid taskId, CancellationToken cancellationToken)
     {

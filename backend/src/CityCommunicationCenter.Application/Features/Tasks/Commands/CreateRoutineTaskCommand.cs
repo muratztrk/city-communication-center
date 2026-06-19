@@ -113,6 +113,7 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             Description = request.Description.Trim(),
             AssignedDepartmentId = departmentId,
             AssignedUserId = actor.UserId,
+            AssignedAtUtc = utcNow,   // Rutin görev kendine atanır → atanma anı (card 589).
             OwnerUserId = actor.UserId,
             CurrentStatus = WorkflowTaskStatus.Assigned,
             Priority = request.Priority.Trim(),

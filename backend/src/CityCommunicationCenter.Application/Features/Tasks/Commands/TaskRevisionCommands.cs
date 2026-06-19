@@ -32,7 +32,7 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
 
         await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
 
-        if (task.CurrentStatus is WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled)
+        if (task.CurrentStatus is WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected)
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.TaskId), "Tamamlanmis/iptal edilmis gorevlere revizyon istenemez.")
@@ -112,7 +112,9 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
         await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
-        task.CurrentStatus = WorkflowTaskStatus.InProgress;
+        task.CurrentStatus = task.CompletionPercentage.GetValueOrDefault() > 0
+            ? WorkflowTaskStatus.InProgress
+            : WorkflowTaskStatus.Assigned;
         if (request.NewDueDateUtc.HasValue) task.DueDateUtc = request.NewDueDateUtc;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
@@ -208,7 +210,9 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
             pending.UpdatedByUserId = request.ActorUserId;
         }
 
-        // Keep status as RevisionRequested; staff can retry
+        task.CurrentStatus = task.CompletionPercentage.GetValueOrDefault() > 0
+            ? WorkflowTaskStatus.InProgress
+            : WorkflowTaskStatus.Assigned;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
 
@@ -220,6 +224,7 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionRejected",
             ActorUserId = request.ActorUserId,
+            StatusAtEvent = task.CurrentStatus.ToString(),
             Notes = request.Comment,
             Details = request.Comment
         });

@@ -16,6 +16,9 @@ public sealed class WorkTask : AuditableTenantEntity, IHasDatabaseIndexDefinitio
 
     public Guid? AssignedUserId { get; set; }
 
+    // Görevin mevcut atanan kullanıcıya atandığı an (Görevlerim "Yeni" rozeti, card 589).
+    public DateTimeOffset? AssignedAtUtc { get; set; }
+
     public Guid? AssigningManagerId { get; set; }
 
     public CityCommunicationCenter.Domain.Enums.TaskStatus CurrentStatus { get; set; } =

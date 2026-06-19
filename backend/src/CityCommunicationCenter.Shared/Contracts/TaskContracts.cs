@@ -36,6 +36,8 @@ public sealed record ApprovalActionRequest(string? Comment);
 
 public sealed record UpdateTaskProgressRequest(int? CompletionPercentage, decimal? ActualHours, string? Notes);
 
+public sealed record UpdateTaskDueDateRequest(DateTimeOffset? DueDateUtc);
+
 public sealed record TaskSummaryResponse(
     Guid TaskId,
     Guid TenantId,

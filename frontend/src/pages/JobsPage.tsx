@@ -13,7 +13,7 @@ import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { invalidateJobs } from '../api/cacheInvalidation'
+import { invalidateJobs, invalidateTasks } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
@@ -28,7 +28,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { useAuth } from '../context/AuthContext'
-import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary } from '../types/platform'
+import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
@@ -485,6 +485,12 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
+  const [staffAssignModal, setStaffAssignModal] = useState<{
+    jobId: string
+    selectedUserIds: string[]
+    users: User[]
+    saving: boolean
+  } | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
@@ -923,7 +929,28 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       setCancelModal(m => m ? { ...m, saving: false } : null)
     }
   }
-  const handleApproveOwner = (jobId: string) => {
+  const handleApproveOwner = async (jobId: string) => {
+    if (isIncomingRequestDetail) {
+      setError(null)
+      try {
+        const jobDetail = detail?.jobId === jobId ? detail : await api.getJobById(jobId)
+        const departmentId = activeDeptId ?? jobDetail.ownerDepartmentId
+        const users = await api.getUsers()
+        setStaffAssignModal({
+          jobId,
+          selectedUserIds: [],
+          users: users.filter(u =>
+            u.isActive
+            && (u.roleCode === 'Staff' || u.userId === user?.userId)
+            && (u.departmentId === departmentId || u.departments?.some(d => d.departmentId === departmentId))),
+          saving: false,
+        })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t('common.error'))
+      }
+      return
+    }
+
     setConfirmDialog({
       message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
       variant: 'primary',
@@ -940,6 +967,48 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         }
       },
     })
+  }
+
+  const handleStaffAssignConfirm = async () => {
+    if (!staffAssignModal) return
+    const { jobId, selectedUserIds } = staffAssignModal
+    setStaffAssignModal(current => current ? { ...current, saving: true } : null)
+    try {
+      await api.approveJobOwner(jobId)
+      invalidateJobs(queryClient, jobId)
+      if (selectedUserIds.length > 0) {
+        const jobDetail = await api.getJobById(jobId)
+        const taskIds = jobDetail.tasks.map(task => task.taskId)
+        if (taskIds.length === 0) {
+          await Promise.all(
+            selectedUserIds.map(userId =>
+              api.createTask({
+                jobId,
+                title: jobDetail.title,
+                description: jobDetail.description,
+                priority: jobDetail.priority,
+                startDateUtc: jobDetail.startDateUtc,
+                dueDateUtc: null,
+                assignedUserId: userId,
+              })
+            )
+          )
+        } else {
+          await Promise.all(
+            taskIds.map((taskId, index) =>
+              api.assignTask(taskId, undefined, selectedUserIds[index % selectedUserIds.length])
+            )
+          )
+        }
+        invalidateTasks(queryClient, undefined, jobId)
+      }
+      setStaffAssignModal(null)
+      await refreshDetail()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setStaffAssignModal(current => current ? { ...current, saving: false } : null)
+    }
   }
   const handleRejectOwner = (jobId: string) => {
     setPromptDialog({
@@ -1294,14 +1363,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                           return null
                         })()}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (
-                          <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
+                          <Button size="sm" variant="success" onClick={() => void handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
                         )}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
                         )}
                         {/* Birimden Giden → Bekleyen: Yönetici onayı. Onaylanınca hedef birimin havuzuna düşer. */}
                         {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && isManagerLike && job.status === 'PendingOwnerApproval' && (
-                          <Button size="sm" variant="success" onClick={() => handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner', 'Onayla')}</Button>
+                          <Button size="sm" variant="success" onClick={() => void handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner', 'Onayla')}</Button>
                         )}
                         {/* Birimden Giden → Bekleyen: İptal butonu */}
                         {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && (
@@ -1366,7 +1435,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 {canApproveDetail && (
-                  <Button type="button" variant="success" onClick={() => handleApproveOwner(detail.jobId)}>
+                  <Button type="button" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
@@ -1857,6 +1926,58 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
               </Button>
             </div>
           </form>
+        </div>
+      )}
+      {staffAssignModal && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setStaffAssignModal(null)}
+          role="presentation"
+        >
+          <div className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <button type="button" onClick={() => setStaffAssignModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <XIcon className="size-4" />
+            </button>
+            <h3 className="mb-1 text-base font-bold text-slate-950">
+              {t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
+            </h3>
+            <p className="mb-4 text-sm text-slate-600">
+              {t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}
+            </p>
+            {staffAssignModal.users.length === 0 ? (
+              <p className="mb-4 text-sm text-slate-400">{t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}</p>
+            ) : (
+              <div className="mb-4 flex max-h-48 flex-col gap-1 overflow-y-auto">
+                {staffAssignModal.users.map(item => (
+                  <label key={item.userId} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                    <input
+                      type="checkbox"
+                      className="size-4 rounded"
+                      checked={staffAssignModal.selectedUserIds.includes(item.userId)}
+                      onChange={event => {
+                        setStaffAssignModal(current => {
+                          if (!current) return current
+                          const selectedUserIds = event.target.checked
+                            ? [...current.selectedUserIds, item.userId]
+                            : current.selectedUserIds.filter(id => id !== item.userId)
+                          return { ...current, selectedUserIds }
+                        })
+                      }}
+                    />
+                    <span className="text-sm text-slate-800">{item.displayName}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              <Button type="button" variant="success" disabled={staffAssignModal.saving} onClick={() => void handleStaffAssignConfirm()}>
+                {staffAssignModal.saving ? t('common.loading') : t('common.approve', 'Onayla')}
+              </Button>
+              <Button type="button" variant="secondary" disabled={staffAssignModal.saving} onClick={() => setStaffAssignModal(null)}>
+                {t('common.cancel', 'Vazgeç')}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />

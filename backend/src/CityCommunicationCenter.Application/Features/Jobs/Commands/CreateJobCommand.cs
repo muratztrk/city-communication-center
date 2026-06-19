@@ -226,6 +226,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                     Description = job.Description,
                     AssignedDepartmentId = request.OwnerDepartmentId,
                     AssignedUserId = ownerUser.UserId,
+                    AssignedAtUtc = utcNow,   // card 589
                     AssigningManagerId = actor.RoleCode == RoleCode.Manager ? actor.UserId : null,
                     OwnerUserId = ownerUser.UserId,
                     CurrentStatus = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned,

@@ -330,7 +330,10 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     .Select(dep => (string?)dep.Name)
                     .FirstOrDefault(),
                 t.CompletedAtUtc,
-                t.UpdatedAtUtc))
+                t.UpdatedAtUtc,
+                null,
+                t.OwnerUserId,
+                t.AssignedAtUtc))
             .ToListAsync(cancellationToken);
 
         var approvals = await _dbContext.Approvals.AsNoTracking()

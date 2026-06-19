@@ -623,6 +623,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.taskCompleteFailed'))
   },
 
+  async updateTaskDueDate(taskId: string, dueDateUtc: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/due-date`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ dueDateUtc }),
+    })
+    await ensureOk(response, i18n.t('errors.taskUpdateFailed', 'Failed to update task'))
+  },
+
   // Jobs
   async getJobs(scope?: JobListScope, departmentId?: string | null): Promise<JobSummary[]> {
     const params = new URLSearchParams()

@@ -31,6 +31,7 @@ public sealed class ClaimTaskFromPoolCommandHandler : ICommandHandler<ClaimTaskF
         }
 
         task.AssignedUserId = actor.UserId;
+        task.AssignedAtUtc = DateTimeOffset.UtcNow;   // Havuzdan üstlenildi → atanma anı (card 589).
         task.CurrentStatus = WorkflowTaskStatus.Assigned;
         task.UpdatedByUserId = actor.UserId;
         task.UpdatedAtUtc = DateTimeOffset.UtcNow;

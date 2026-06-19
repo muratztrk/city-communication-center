@@ -335,7 +335,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
   const [dueDateEdit, setDueDateEdit] = useState<{ taskId: string; value: string; saving: boolean } | null>(null)
-  const [extraTimeEdit, setExtraTimeEdit] = useState<{ taskId: string; value: string; saving: boolean } | null>(null)
+  const [extraTimeEdit, setExtraTimeEdit] = useState<{ taskId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [extraTimeReview, setExtraTimeReview] = useState<{ taskId: string; proposedDueDateUtc: string | null; saving: boolean } | null>(null)
   const [successToast, setSuccessToast] = useState<string | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
@@ -780,6 +780,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       taskId: taskDetail.taskId,
       value: toDateTimePickerValue(taskDetail.dueDateUtc),
       saving: false,
+      mode: 'picking',
     })
   }
 
@@ -1228,7 +1229,7 @@ const pageKicker = isMyTasksView
                                             {t('common.change', 'Değiştir')}
                                           </button>
                                         )}
-                                        {label === 'Son Tarih' && canRequestExtraTime && extraTimeEdit?.taskId !== taskDetail.taskId && !hasPendingExtraTimeRequest && (
+                                        {label === 'Son Tarih' && canRequestExtraTime && extraTimeEdit?.mode !== 'confirm' && !hasPendingExtraTimeRequest && (
                                           <button
                                             type="button"
                                             className="font-bold text-amber-500 underline underline-offset-2 hover:text-amber-600"
@@ -1271,22 +1272,30 @@ const pageKicker = isMyTasksView
                                           </div>
                                         </div>
                                       ) : label === 'Son Tarih' && extraTimeEdit?.taskId === taskDetail.taskId ? (
-                                        <div className="mt-1 flex flex-col gap-2">
+                                        <div className="mt-1 flex flex-col gap-1.5">
                                           <DateTimePicker
                                             value={extraTimeEdit.value}
-                                            onChange={value => setExtraTimeEdit(current => current ? { ...current, value } : current)}
+                                            onChange={value => setExtraTimeEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
                                             placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                                            forceDown
+                                            className={extraTimeEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
+                                            forceUp
                                             autoOpen
                                           />
-                                          <div className="inline-actions justify-start gap-2">
-                                            <Button type="button" size="sm" variant="success" disabled={extraTimeEdit.saving || !extraTimeEdit.value} onClick={() => void handleExtraTimeRequest()}>
-                                              {extraTimeEdit.saving ? t('common.loading') : t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
-                                            </Button>
-                                            <Button type="button" size="sm" variant="secondary" disabled={extraTimeEdit.saving} onClick={closeExtraTimeEdit}>
-                                              {t('common.cancel', 'Vazgeç')}
-                                            </Button>
-                                          </div>
+                                          {extraTimeEdit.mode === 'confirm' && (
+                                            <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+                                              <span className="text-xs font-semibold text-slate-900">
+                                                {formatDateTime(new Date(extraTimeEdit.value).toISOString(), locale)}
+                                              </span>
+                                              <div className="inline-actions justify-start gap-1.5">
+                                                <Button type="button" size="sm" variant="success" disabled={extraTimeEdit.saving || !extraTimeEdit.value} onClick={() => void handleExtraTimeRequest()}>
+                                                  {extraTimeEdit.saving ? t('common.loading') : t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
+                                                </Button>
+                                                <Button type="button" size="sm" variant="secondary" disabled={extraTimeEdit.saving} onClick={closeExtraTimeEdit}>
+                                                  {t('common.cancel', 'Vazgeç')}
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          )}
                                         </div>
                                       ) : label === 'Son Tarih' && extraTimeReview?.taskId === taskDetail.taskId ? (
                                         <div className="mt-1 flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2">

@@ -196,6 +196,13 @@ function formatDueDateTime(value: string | null, locale: string) {
   return formatDateTime(value, locale)
 }
 
+function toDateTimePickerValue(value: string | null | undefined): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toISOString().slice(0, 16)
+}
+
 function formatJobDisplayNumber(job: JobSummary): string {
   if (job.jobNumber != null && job.jobNumberYear != null) {
     return `T-${job.jobNumberYear}-${job.jobNumber}`
@@ -481,6 +488,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     dueDateUtc: string
   } | null>(null)
   const [editSaving, setEditSaving] = useState(false)
+  const [detailDueDateEdit, setDetailDueDateEdit] = useState<{ jobId: string; value: string; saving: boolean } | null>(null)
   const [coordinatingDepartmentIds, setCoordinatingDepartmentIds] = useState<string[]>([])
   const [coordinatingSaving, setCoordinatingSaving] = useState(false)
   const [managerNoteDraft, setManagerNoteDraft] = useState('')
@@ -530,6 +538,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     && (detail.status === 'PendingOwnerApproval'
       || detail.status === 'PendingExternalApproval'
       || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0))
+  const canChangeDetailDueDate = isIncomingRequestDetail
+    && isManagerLike
+    && detail != null
+    && (detail.status === 'Draft' || detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
   const canEditManagerNote = isDepartmentOutgoingView && isManagerLike && isJobPendingTargetApproval
   // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); Birimden Giden → Bekleyen'de
   // düzenlenebilir, diğer yerlerde salt-okunur (yoksa "girilmemiş").
@@ -837,10 +849,50 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     await reload()
   }
 
+  const openDetailDueDateEdit = () => {
+    if (!detail) return
+    setDetailDueDateEdit({
+      jobId: detail.jobId,
+      value: toDateTimePickerValue(detail.dueDateUtc),
+      saving: false,
+    })
+  }
+
+  const closeDetailDueDateEdit = () => {
+    setDetailDueDateEdit(null)
+  }
+
+  const handleDetailDueDateSave = async () => {
+    if (!detail || !detailDueDateEdit) return
+    setDetailDueDateEdit(current => current ? { ...current, saving: true } : current)
+    try {
+      await api.updateJob(detailDueDateEdit.jobId, {
+        title: detail.title,
+        description: detail.description ?? '',
+        priority: detail.priority,
+        startDateUtc: detail.startDateUtc,
+        dueDateUtc: detailDueDateEdit.value ? new Date(detailDueDateEdit.value).toISOString() : null,
+        latitude: detail.latitude,
+        longitude: detail.longitude,
+        isProject: detail.isProject,
+        neighborhood: detail.neighborhood,
+        street: detail.street,
+        openAddress: detail.openAddress,
+      })
+      invalidateJobs(queryClient, detailDueDateEdit.jobId)
+      setDetailDueDateEdit(null)
+      await refreshDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setDetailDueDateEdit(current => current ? { ...current, saving: false } : current)
+    }
+  }
+
   // Açılan talebin mevcut yönetici notunu forma yükle (card 453); aynı talep yenilenince yazılanı korur.
   useEffect(() => {
     setManagerNoteDraft(detail?.managerNote ?? '')
     setManagerNoteSaved(false)
+    setDetailDueDateEdit(null)
   }, [detail?.jobId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSaveManagerNote = async () => {
@@ -1528,8 +1580,39 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         { label: 'Son Tarih', value: formatDueDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (
                         <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
-                          <span className="text-xs font-semibold text-slate-500">{label}</span>
-                          <span className="text-sm text-slate-900">{value}</span>
+                          <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                            {label}
+                            {label === 'Son Tarih' && canChangeDetailDueDate && detailDueDateEdit?.jobId !== detail.jobId && (
+                              <button
+                                type="button"
+                                className="font-bold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
+                                onClick={openDetailDueDateEdit}
+                              >
+                                {t('common.change', 'Değiştir')}
+                              </button>
+                            )}
+                          </span>
+                          {label === 'Son Tarih' && detailDueDateEdit?.jobId === detail.jobId ? (
+                            <div className="mt-1 flex flex-col gap-2">
+                              <DateTimePicker
+                                value={detailDueDateEdit.value}
+                                onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: dateValue } : current)}
+                                placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                                forceDown
+                                autoOpen
+                              />
+                              <div className="inline-actions justify-start gap-2">
+                                <Button type="button" size="sm" variant="success" disabled={detailDueDateEdit.saving} onClick={() => void handleDetailDueDateSave()}>
+                                  {detailDueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
+                                </Button>
+                                <Button type="button" size="sm" variant="secondary" disabled={detailDueDateEdit.saving} onClick={closeDetailDueDateEdit}>
+                                  {t('common.cancel', 'Vazgeç')}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-slate-900">{value}</span>
+                          )}
                         </div>
                       ))}
                     </div>

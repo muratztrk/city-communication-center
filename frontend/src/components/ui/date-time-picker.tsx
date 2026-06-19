@@ -11,6 +11,8 @@ interface DateTimePickerProps {
   className?: string
   /** Takvimi her zaman aşağıya doğru aç (yukarı kaydırma yapma). */
   forceDown?: boolean
+  /** Takvimi her zaman yukarıya doğru aç. */
+  forceUp?: boolean
   /** Bileşen görünür olur olmaz takvimi aç. */
   autoOpen?: boolean
 }
@@ -51,13 +53,14 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, autoOpen = false }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
   const [viewMonth, setViewMonth] = useState(new Date().getMonth())
   const containerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const autoOpenedRef = useRef(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   // Yıl seçici (card 531): yıla tıklanınca geçmiş yıllar da seçilebilsin.
   const [yearPickerOpen, setYearPickerOpen] = useState(false)
@@ -85,7 +88,8 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   }, [value])
 
   useEffect(() => {
-    if (!autoOpen) return
+    if (!autoOpen || autoOpenedRef.current) return
+    autoOpenedRef.current = true
     const animationFrame = window.requestAnimationFrame(handleOpen)
     return () => window.cancelAnimationFrame(animationFrame)
   }, [autoOpen, handleOpen])
@@ -107,8 +111,10 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
       style.left = rect.left
     }
 
-    // Vertical: prefer below; flip above only if it would overflow and not forced down
-    if (!forceDown && rect.bottom + DROPDOWN_HEIGHT + MARGIN > vh) {
+    // Vertical: prefer below; flip above only if requested or if it would overflow and not forced down.
+    if (forceUp) {
+      style.bottom = vh - rect.top + 4
+    } else if (!forceDown && rect.bottom + DROPDOWN_HEIGHT + MARGIN > vh) {
       style.bottom = vh - rect.top + 4
     } else {
       style.top = rect.bottom + 4
@@ -116,7 +122,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
 
     const animationFrame = window.requestAnimationFrame(() => setDropdownStyle(style))
     return () => window.cancelAnimationFrame(animationFrame)
-  }, [open, viewMonth, viewYear, forceDown])
+  }, [open, viewMonth, viewYear, forceDown, forceUp])
 
   const handleConfirm = () => {
     if (draft.date) {

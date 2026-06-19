@@ -233,8 +233,16 @@ function getCenteredPopupFeatures(width: number, height: number): string {
   return `width=${width},height=${height},left=${left},top=${top}`
 }
 
+function getVisibleDetailModalHeight(fallback = 832): number {
+  const modals = Array.from(document.querySelectorAll<HTMLElement>('.detail-modal-shell'))
+    .map(element => element.getBoundingClientRect())
+    .filter(rect => rect.width > 0 && rect.height > 0)
+  const activeRect = modals[modals.length - 1]
+  return Math.round(activeRect?.height ?? fallback)
+}
+
 function printJobDetail(detail: import('../types/platform').JobDetail, locale: string, t: TFunction) {
-  const detailModalHeight = document.querySelector<HTMLElement>('.detail-modal-shell')?.offsetHeight ?? 832
+  const detailModalHeight = getVisibleDetailModalHeight()
   const win = window.open('', '_blank', getCenteredPopupFeatures(820, detailModalHeight))
   if (!win) return
   const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'

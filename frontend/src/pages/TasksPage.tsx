@@ -144,8 +144,16 @@ function getCenteredPopupFeatures(width: number, height: number): string {
   return `width=${width},height=${height},left=${left},top=${top}`
 }
 
+function getVisibleDetailModalHeight(fallback = 832): number {
+  const modals = Array.from(document.querySelectorAll<HTMLElement>('.detail-modal-shell'))
+    .map(element => element.getBoundingClientRect())
+    .filter(rect => rect.width > 0 && rect.height > 0)
+  const activeRect = modals[modals.length - 1]
+  return Math.round(activeRect?.height ?? fallback)
+}
+
 function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
-  const detailModalHeight = document.querySelector<HTMLElement>('.detail-modal-shell')?.offsetHeight ?? 832
+  const detailModalHeight = getVisibleDetailModalHeight()
   const win = window.open('', '_blank', getCenteredPopupFeatures(820, detailModalHeight))
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
@@ -1713,7 +1721,7 @@ const pageKicker = isMyTasksView
                     {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && (
                       <td>
                         <DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} />
-                        {(isDepartmentTasksView || isStaffTasksView) && task.currentStatus === 'RevisionRequested' && (
+                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.currentStatus === 'RevisionRequested' && (
                           <div className="mt-1 text-xs font-bold text-amber-500">
                             {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
                           </div>

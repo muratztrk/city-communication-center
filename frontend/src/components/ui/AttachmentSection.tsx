@@ -80,6 +80,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
   }
 
   const isDisabled = disabled || uploading
+  const galleryClassName = compact
+    ? 'grid grid-cols-[repeat(auto-fit,minmax(4.75rem,1fr))] gap-2'
+    : 'grid grid-cols-[repeat(auto-fit,minmax(6.5rem,1fr))] gap-3'
+  const previewHeightClassName = compact ? 'h-16' : 'h-24'
 
   return (
     <div className="page-stack">
@@ -133,22 +137,22 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
 
       {/* Thumbnail gallery */}
       {attachments.length > 0 && (
-        <div className={compact ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-3 sm:grid-cols-4'}>
+        <div className={galleryClassName}>
           {attachments.map(att => (
             <div
               key={att.attachmentId}
-              className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+              className="group relative min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
             >
               <a href={resolveAttachmentUrl(att.url)} target="_blank" rel="noopener noreferrer" title={att.fileName} className="block">
                 {isImageAttachment(att.fileName) ? (
                   <img
                     src={resolveAttachmentUrl(att.url)}
                     alt={att.fileName}
-                    className={`${compact ? 'h-16' : 'h-24'} w-full object-cover`}
+                    className={`${previewHeightClassName} w-full bg-white object-contain`}
                     loading="lazy"
                   />
                 ) : (
-                  <div className={`flex ${compact ? 'h-16' : 'h-24'} w-full flex-col items-center justify-center gap-1 px-2 text-slate-500`}>
+                  <div className={`flex ${previewHeightClassName} w-full min-w-0 flex-col items-center justify-center gap-1 px-2 text-slate-500`}>
                     <FileText className={compact ? 'size-5' : 'size-7'} />
                     <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
                   </div>

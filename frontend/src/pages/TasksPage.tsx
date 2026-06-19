@@ -423,6 +423,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const canRequestExtraTime = !!taskDetail
     && isMyTasksView
     && !isManagerLike
+    && taskDetail.jobSourceType !== 'Routine'
     && taskDetail.assignedUserId === user?.userId
     && !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested', 'PendingCloseApproval'].includes(taskDetail.currentStatus)
   const canReviewExtraTime = !!taskDetail

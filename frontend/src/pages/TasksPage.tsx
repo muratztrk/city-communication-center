@@ -320,6 +320,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
   const dismissedAutoOpenTaskIdRef = useRef<string | null>(null)
+  const autoOpenInFlightRef = useRef<string | null>(null)
   const canCompleteTask = !!taskDetail && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && taskDetail.assignedUserId === user?.userId
 
   const scopes = useMemo(() => fixedScope ? [fixedScope] : availableScopes(user?.role), [fixedScope, user?.role])
@@ -736,6 +737,31 @@ const pageKicker = isMyTasksView
     }
   }
 
+  // Bildirim derin bağlantısı "Görevlerim" listenizde olmayan bir görevi işaret ettiğinde
+  // (ör. size atanmamış görev) detayı id ile getirip aynı pop-up'ta açar (card 580).
+  const openTaskDetailById = async (taskId: string) => {
+    setTaskDetail(null)
+    setParentJobDetail(null)
+    setDetailLoading(true)
+    try {
+      const detail = await api.getTaskById(taskId)
+      const parentJob = detail.jobId ? await api.getJobById(detail.jobId).catch(() => null) : null
+      setTaskDetail(detail)
+      setParentJobDetail(parentJob)
+      // Modal başlığı/yazdırma için Task özetini detaydan + bağlı talepten türet.
+      setSelectedTask({
+        ...detail,
+        ownerDepartmentName: parentJob?.ownerDepartmentName ?? null,
+        jobNumber: parentJob?.jobNumber ?? null,
+        jobNumberYear: parentJob?.jobNumberYear ?? null,
+      } as Task)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (!autoOpenTaskId) {
       dismissedAutoOpenTaskIdRef.current = null
@@ -743,13 +769,20 @@ const pageKicker = isMyTasksView
     }
     if (
       selectedTask?.taskId === autoOpenTaskId ||
-      dismissedAutoOpenTaskIdRef.current === autoOpenTaskId
+      dismissedAutoOpenTaskIdRef.current === autoOpenTaskId ||
+      autoOpenInFlightRef.current === autoOpenTaskId
     ) return
     const task = tasks.find(item => item.taskId === autoOpenTaskId)
     if (task) {
       void openTaskDetail(task)
+    } else if (!loading) {
+      // Görev mevcut listede yok (liste yüklendi) → id ile getir.
+      autoOpenInFlightRef.current = autoOpenTaskId
+      void openTaskDetailById(autoOpenTaskId).finally(() => {
+        if (autoOpenInFlightRef.current === autoOpenTaskId) autoOpenInFlightRef.current = null
+      })
     }
-  }, [autoOpenTaskId, selectedTask?.taskId, tasks]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [autoOpenTaskId, selectedTask?.taskId, tasks, loading]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const closeTaskDetail = () => {
     dismissedAutoOpenTaskIdRef.current = autoOpenTaskId

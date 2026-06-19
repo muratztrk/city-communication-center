@@ -215,6 +215,14 @@ function formatTaskDisplayNumber(task: Task): string {
   return `G-${year}-Onay Bekleyen`
 }
 
+// Atanan kişinin "Tamamla"/"İptal Et" alabileceği görev durumları. RevisionRequested
+// (ek süre talebi yöneticide beklerken) de dahildir: görev hâlâ atanan kişinindir ve
+// backend bu durumda da tamamlama/iptale izin verir; aksi halde "Bekleyen Görevlerim"de
+// aksiyon butonları kaybolur (card 614).
+function isActionableTaskStatus(status: string): boolean {
+  return status === 'Assigned' || status === 'InProgress' || status === 'RevisionRequested'
+}
+
 // Görevin atanma günü = bugün mü? (Görevlerim "Yeni" rozeti, card 589)
 function isAssignedToday(value: string | null | undefined): boolean {
   if (!value) return false
@@ -343,7 +351,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [searchText, setSearchText] = useState('')
   const dismissedAutoOpenTaskIdRef = useRef<string | null>(null)
   const autoOpenInFlightRef = useRef<string | null>(null)
-  const canCompleteTask = !!taskDetail && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && taskDetail.assignedUserId === user?.userId
+  const canCompleteTask = !!taskDetail && isActionableTaskStatus(taskDetail.currentStatus) && taskDetail.assignedUserId === user?.userId
 
   const scopes = useMemo(() => fixedScope ? [fixedScope] : availableScopes(user?.role), [fixedScope, user?.role])
   const scopeParam = (searchParams.get('scope') as TaskListScope | null) ?? scopes[0]
@@ -1719,7 +1727,7 @@ const pageKicker = isMyTasksView
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
                         {(() => {
-                          const canComplete = isMyTasksView && isAssignee(task) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
+                          const canComplete = isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus)
                           if (canComplete) {
                             return <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                           }
@@ -1729,7 +1737,8 @@ const pageKicker = isMyTasksView
                           return null
                         })()}
                         {(() => {
-                          const canCancel = (isDepartmentTasksView || (isMyTasksView && isAssignee(task))) && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
+                          const canCancel = (isDepartmentTasksView && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress'))
+                            || (isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus))
                           if (canCancel) {
                             return (
                               <Button

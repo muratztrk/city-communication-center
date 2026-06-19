@@ -1036,8 +1036,14 @@
      text-wrap: balance → uzun başlık satırlara yaklaşık eşit (yarı yarıya) bölünür; son satırda
      tek kelime sarkmaz (card 593). */
   .cell-title {
-    display: inline-block;
+    /* En fazla 2 satır: uzun başlık ~yarı yarıya bölünür (balance) ama 2. ek satıra inmez (card 597). */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     max-width: 22rem;
+    margin-inline: auto;
+    overflow: hidden;
     overflow-wrap: break-word;
     white-space: normal;
     text-wrap: balance;
@@ -2399,12 +2405,18 @@
 
   /* Uzun başlık tek satırda kesilmek yerine ~yarı yarıya bölünüp alt satıra kaysın (card 593). */
   .wallboard-row-title {
+    /* En fazla 2 satır (card 597). */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     max-width: 32rem;
     color: white;
     font-size: clamp(0.86rem, 1vw, 1.12rem);
     font-weight: 900;
-    white-space: normal;
+    overflow: hidden;
     overflow-wrap: break-word;
+    white-space: normal;
     text-wrap: balance;
   }
 

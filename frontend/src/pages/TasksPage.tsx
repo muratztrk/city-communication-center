@@ -980,7 +980,7 @@ const pageKicker = isMyTasksView
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className={`page-stack desktop-page-shell${isDepartmentTasksView ? ' department-tasks-shell' : ''}`}>
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -1659,8 +1659,11 @@ const pageKicker = isMyTasksView
                     </td>
                     <td>
                       <DateCell value={task.createdAtUtc} locale={locale} />
-                      {/* Bugün atanan görevler için yanıp sönen yeşil "Yeni" rozeti (card 589). */}
-                      {isMyTasksView && isAssignedToday(task.assignedAtUtc) && (
+                      {/* Bugün atanan görevler için yanıp sönen yeşil "Yeni" rozeti (card 589).
+                          Tamamlanmış/İptal/İade (kapanmış) görevlerde gösterilmez (card 606). */}
+                      {isMyTasksView
+                        && !['Completed', 'Cancelled', 'Rejected'].includes(task.currentStatus)
+                        && isAssignedToday(task.assignedAtUtc) && (
                         <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
                       )}
                     </td>

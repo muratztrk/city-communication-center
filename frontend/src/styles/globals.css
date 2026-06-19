@@ -2619,6 +2619,12 @@
       min-height: 0;
       max-height: none;
     }
+
+    /* Birimdeki Görevler: filtre çipleri ile tablo arasındaki fazla dikey boşluğu daralt (card 608).
+       Flex sütun gap'i (0.8rem) bu görünümde banner altında bant gibi durduğu için kısaltılır. */
+    .department-tasks-shell > .scope-chips + .desktop-page-fill {
+      margin-top: -0.6rem;
+    }
   }
 }@media (max-width: 960px) {
   @layer components {

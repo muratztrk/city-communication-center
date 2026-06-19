@@ -488,7 +488,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     dueDateUtc: string
   } | null>(null)
   const [editSaving, setEditSaving] = useState(false)
-  const [detailDueDateEdit, setDetailDueDateEdit] = useState<{ jobId: string; value: string; saving: boolean } | null>(null)
+  const [detailDueDateEdit, setDetailDueDateEdit] = useState<{ jobId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [coordinatingDepartmentIds, setCoordinatingDepartmentIds] = useState<string[]>([])
   const [coordinatingSaving, setCoordinatingSaving] = useState(false)
   const [managerNoteDraft, setManagerNoteDraft] = useState('')
@@ -855,6 +855,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       jobId: detail.jobId,
       value: toDateTimePickerValue(detail.dueDateUtc),
       saving: false,
+      mode: 'picking',
     })
   }
 
@@ -1593,22 +1594,34 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                             )}
                           </span>
                           {label === 'Son Tarih' && detailDueDateEdit?.jobId === detail.jobId ? (
-                            <div className="mt-1 flex flex-col gap-2">
+                            // Takvim yukarı yönde açılır; tetikleyici alan gizli, "Ek Süre İste"deki seç akışıyla
+                            // aynı: tarih seçilince (Seç) onay kutusu çıkar, Kaydet ile uygulanır (card 588).
+                            <div className="mt-1 flex flex-col gap-1.5">
                               <DateTimePicker
                                 value={detailDueDateEdit.value}
-                                onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: dateValue } : current)}
+                                onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: dateValue, mode: 'confirm' } : current)}
                                 placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                                forceDown
+                                className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
+                                forceUp
                                 autoOpen
                               />
-                              <div className="inline-actions justify-start gap-2">
-                                <Button type="button" size="sm" variant="success" disabled={detailDueDateEdit.saving} onClick={() => void handleDetailDueDateSave()}>
-                                  {detailDueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
-                                </Button>
-                                <Button type="button" size="sm" variant="secondary" disabled={detailDueDateEdit.saving} onClick={closeDetailDueDateEdit}>
-                                  {t('common.cancel', 'Vazgeç')}
-                                </Button>
-                              </div>
+                              {detailDueDateEdit.mode === 'confirm' && (
+                                <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
+                                  <span className="text-xs font-semibold text-slate-900">
+                                    {detailDueDateEdit.value
+                                      ? formatDateTime(new Date(detailDueDateEdit.value).toISOString(), locale)
+                                      : t('common.none')}
+                                  </span>
+                                  <div className="inline-actions justify-start gap-1.5">
+                                    <Button type="button" size="sm" variant="success" disabled={detailDueDateEdit.saving} onClick={() => void handleDetailDueDateSave()}>
+                                      {detailDueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
+                                    </Button>
+                                    <Button type="button" size="sm" variant="secondary" disabled={detailDueDateEdit.saving} onClick={closeDetailDueDateEdit}>
+                                      {t('common.cancel', 'Vazgeç')}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <span className="text-sm text-slate-900">{value}</span>

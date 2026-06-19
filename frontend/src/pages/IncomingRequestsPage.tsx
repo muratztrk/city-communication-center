@@ -12,6 +12,17 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'all') return 'scope-chip--all'
   return ''
 }
+
+// Talebin oluşturulma günü = bugün mü? (Onay Bekleyen "Yeni" rozeti, card 607 — Görevlerim ile aynı mantık)
+function isCreatedToday(value: string | null | undefined): boolean {
+  if (!value) return false
+  const created = new Date(value)
+  if (Number.isNaN(created.getTime())) return false
+  const now = new Date()
+  return created.getFullYear() === now.getFullYear()
+    && created.getMonth() === now.getMonth()
+    && created.getDate() === now.getDate()
+}
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -681,7 +692,13 @@ export function IncomingRequestsPage() {
                       {/* Sarı (dikkat) satırda öncelik metni kalın; Çok Yüksek=kırmızı, Yüksek=açık kırmızı, diğeri beyaz. Diğer satırlarda öncelik rengi. */}
                       <div className={`table-number-cell__priority font-sans ${row.kind === 'external' && row.status === 'Active' ? `font-extrabold ${attentionPriorityColorClass(row.priority)}` : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
-                    <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
+                    <td>
+                      <DateCell value={row.createdAtUtc} locale={locale} />
+                      {/* Onay Bekleyen filtresinde bugün gelen talepler için yanıp sönen yeşil "Yeni" rozeti (card 607). */}
+                      {currentStatusFilter === 'pending-approval' && isCreatedToday(row.createdAtUtc) && (
+                        <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
+                      )}
+                    </td>
                     <td>
                       <div className="font-semibold text-slate-700">{row.departmentName ?? '—'}</div>
                       <div className="text-xs text-slate-500">{row.createdBy ?? '—'}</div>

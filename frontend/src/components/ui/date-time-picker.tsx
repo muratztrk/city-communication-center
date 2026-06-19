@@ -220,18 +220,20 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
 
           {/* Coloured header */}
           <div className="bg-[color:var(--color-primary)] px-4 pb-3 pt-3">
-            {/* "Tarih Seç" etiketi, altındaki yıl bilgisiyle aynı hizada (ortalı) dursun (card 613). */}
-            <div className="mb-2 text-center text-[11px] font-bold uppercase tracking-widest text-white/60">
-              Tarih Seç
+            {/* "Tarih Seç" etiketi ile yıl bilgisi aynı yatay hizada ve sola yaslı (card 613).
+                Yıla tıklanınca yıl seçici açılır (card 531). */}
+            <div className="mb-1 flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/60">
+                Tarih Seç
+              </span>
+              <button
+                type="button"
+                onClick={() => { setYearBlockStart(viewYear - 5); setYearPickerOpen(open => !open) }}
+                className="rounded-lg px-2 py-0.5 text-sm font-bold text-white/75 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                {viewYear}
+              </button>
             </div>
-            {/* Yıl, ayın üst satırında; tıklanınca yıl seçici açılır (card 531). */}
-            <button
-              type="button"
-              onClick={() => { setYearBlockStart(viewYear - 5); setYearPickerOpen(open => !open) }}
-              className="mb-1 block w-full rounded-lg py-0.5 text-center text-sm font-bold text-white/75 transition-colors hover:bg-white/15 hover:text-white"
-            >
-              {viewYear}
-            </button>
             <div className="flex items-center justify-between">
               <button
                 type="button"

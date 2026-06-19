@@ -220,7 +220,8 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
 
           {/* Coloured header */}
           <div className="bg-[color:var(--color-primary)] px-4 pb-3 pt-3">
-            <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-white/60">
+            {/* "Tarih Seç" etiketi, altındaki yıl bilgisiyle aynı hizada (ortalı) dursun (card 613). */}
+            <div className="mb-2 text-center text-[11px] font-bold uppercase tracking-widest text-white/60">
               Tarih Seç
             </div>
             {/* Yıl, ayın üst satırında; tıklanınca yıl seçici açılır (card 531). */}

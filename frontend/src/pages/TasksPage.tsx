@@ -334,7 +334,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [returnSaving, setReturnSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
-  const [dueDateEdit, setDueDateEdit] = useState<{ taskId: string; value: string; saving: boolean } | null>(null)
+  const [dueDateEdit, setDueDateEdit] = useState<{ taskId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [extraTimeEdit, setExtraTimeEdit] = useState<{ taskId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [extraTimeReview, setExtraTimeReview] = useState<{ taskId: string; proposedDueDateUtc: string | null; saving: boolean } | null>(null)
   const [successToast, setSuccessToast] = useState<string | null>(null)
@@ -746,6 +746,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       taskId: taskDetail.taskId,
       value: toDateTimePickerValue(taskDetail.dueDateUtc),
       saving: false,
+      mode: 'picking',
     })
   }
 
@@ -980,7 +981,7 @@ const pageKicker = isMyTasksView
   }
 
   return (
-    <div className={`page-stack desktop-page-shell${isDepartmentTasksView ? ' department-tasks-shell' : ''}`}>
+    <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -1255,22 +1256,34 @@ const pageKicker = isMyTasksView
                                         )}
                                       </span>
                                       {label === 'Son Tarih' && dueDateEdit?.taskId === taskDetail.taskId ? (
-                                        <div className="mt-1 flex flex-col gap-2">
+                                        // Takvim yukarı yönde açılır; tetikleyici alan gizli, "Ek Süre İste"deki seç
+                                        // akışıyla aynı: tarih seçilince (Seç) onay kutusu çıkar, Kaydet ile uygulanır (card 611).
+                                        <div className="mt-1 flex flex-col gap-1.5">
                                           <DateTimePicker
                                             value={dueDateEdit.value}
-                                            onChange={value => setDueDateEdit(current => current ? { ...current, value } : current)}
+                                            onChange={value => setDueDateEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
                                             placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                                            forceDown
+                                            className={dueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
+                                            forceUp
                                             autoOpen
                                           />
-                                          <div className="inline-actions justify-start gap-2">
-                                            <Button type="button" size="sm" variant="success" disabled={dueDateEdit.saving} onClick={() => void handleDueDateSave()}>
-                                              {dueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
-                                            </Button>
-                                            <Button type="button" size="sm" variant="secondary" disabled={dueDateEdit.saving} onClick={closeDueDateEdit}>
-                                              {t('common.cancel', 'Vazgeç')}
-                                            </Button>
-                                          </div>
+                                          {dueDateEdit.mode === 'confirm' && (
+                                            <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
+                                              <span className="text-xs font-semibold text-slate-900">
+                                                {dueDateEdit.value
+                                                  ? formatDateTime(new Date(dueDateEdit.value).toISOString(), locale)
+                                                  : t('common.none')}
+                                              </span>
+                                              <div className="inline-actions justify-start gap-1.5">
+                                                <Button type="button" size="sm" variant="success" disabled={dueDateEdit.saving} onClick={() => void handleDueDateSave()}>
+                                                  {dueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
+                                                </Button>
+                                                <Button type="button" size="sm" variant="secondary" disabled={dueDateEdit.saving} onClick={closeDueDateEdit}>
+                                                  {t('common.cancel', 'Vazgeç')}
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          )}
                                         </div>
                                       ) : label === 'Son Tarih' && extraTimeEdit?.taskId === taskDetail.taskId ? (
                                         <div className="mt-1 flex flex-col gap-1.5">

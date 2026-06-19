@@ -30,6 +30,7 @@ import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
+import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { TablePagination } from '../components/ui/table-pagination'
 
 interface ScopeChipFiltersProps {
@@ -503,6 +504,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
     selectedUserIds: string[]
     users: User[]
     saving: boolean
+    selfRequestedOwnerUserId: string | null
   } | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
@@ -1002,6 +1004,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
             && (u.roleCode === 'Staff' || u.userId === user?.userId)
             && (u.departmentId === departmentId || u.departments?.some(d => d.departmentId === departmentId))),
           saving: false,
+          // Birim içi talepte oluşturan kişi kendini görev sahibi seçtiyse işaretle (card 616).
+          selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
         })
       } catch (err) {
         setError(err instanceof Error ? err.message : t('common.error'))
@@ -2067,7 +2071,14 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         })
                       }}
                     />
-                    <span className="text-sm text-slate-800">{item.displayName}</span>
+                    <span className="text-sm text-slate-800">
+                      {item.displayName}
+                      {staffAssignModal.selfRequestedOwnerUserId === item.userId && (
+                        <span className="ml-1 font-semibold text-emerald-700">
+                          {t('jobs.actions.selfRequestedOwner', '(Görevi kendisi yapmak istiyor.)')}
+                        </span>
+                      )}
+                    </span>
                   </label>
                 ))}
               </div>

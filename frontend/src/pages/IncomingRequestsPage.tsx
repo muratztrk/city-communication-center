@@ -42,11 +42,10 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
-
-const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
@@ -107,23 +106,6 @@ function getIncomingKindFilter(): IncomingKindFilter {
   return 'all'
 }
 
-function getSelfRequestedOwnerUserId(job: JobSummary): string | null {
-  const ownerDepartment = job.departments?.find(department => department.role === 'Owner')
-  const requestedByUserId = ownerDepartment?.requestedByUserId
-  const notes = ownerDepartment?.notes
-  if (!requestedByUserId || !notes?.startsWith(OWNER_TASK_NOTES_PREFIX)) return null
-
-  try {
-    const payload = JSON.parse(notes.slice(OWNER_TASK_NOTES_PREFIX.length)) as {
-      OwnerUserIds?: string[]
-      ownerUserIds?: string[]
-    }
-    const requestedOwnerUserIds = payload.OwnerUserIds ?? payload.ownerUserIds ?? []
-    return requestedOwnerUserIds.includes(requestedByUserId) ? requestedByUserId : null
-  } catch {
-    return null
-  }
-}
 
 // Sarı (dikkat) satırlarda yalnızca Normal öncelik beyaz görünür.
 function attentionPriorityColorClass(priority: string): string {

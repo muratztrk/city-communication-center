@@ -1741,7 +1741,7 @@ const pageKicker = isMyTasksView
                           return null
                         })()}
                         {(() => {
-                          const canCancel = (isDepartmentTasksView && (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress'))
+                          const canCancel = (isDepartmentTasksView && isActionableTaskStatus(task.currentStatus))
                             || (isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus))
                           if (canCancel) {
                             return (

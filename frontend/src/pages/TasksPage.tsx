@@ -1274,6 +1274,8 @@ const pageKicker = isMyTasksView
                                             className={dueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
                                             forceUp
                                             autoOpen
+                                            // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Değiştir" yeniden tıklanabilir kalsın (card 615).
+                                            onClose={dueDateEdit.mode === 'picking' ? closeDueDateEdit : undefined}
                                           />
                                           {dueDateEdit.mode === 'confirm' && (
                                             <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
@@ -1302,6 +1304,8 @@ const pageKicker = isMyTasksView
                                             className={extraTimeEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
                                             forceUp
                                             autoOpen
+                                            // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Ek süre iste" yeniden tıklanabilir kalsın (card 615).
+                                            onClose={extraTimeEdit.mode === 'picking' ? closeExtraTimeEdit : undefined}
                                           />
                                           {extraTimeEdit.mode === 'confirm' && (
                                             <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">

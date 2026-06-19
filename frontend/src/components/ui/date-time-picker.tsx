@@ -15,6 +15,8 @@ interface DateTimePickerProps {
   forceUp?: boolean
   /** Bileşen görünür olur olmaz takvimi aç. */
   autoOpen?: boolean
+  /** Takvim seçim yapılmadan (dışarı tıklama / Escape) kapatıldığında çağrılır. */
+  onClose?: () => void
 }
 
 const DROPDOWN_WIDTH = 288  // w-72
@@ -53,7 +55,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -152,6 +154,12 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     else setViewMonth(m => m + 1)
   }
 
+  // Seçim yapılmadan kapatma (dışarı tıklama / Escape): tüketiciye haber ver (card 615).
+  const dismiss = useCallback(() => {
+    setOpen(false)
+    onClose?.()
+  }, [onClose])
+
   // Close on outside click
   useEffect(() => {
     if (!open) return
@@ -159,19 +167,19 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
       const target = e.target as Node
       const inTrigger = containerRef.current?.contains(target)
       const inDropdown = dropdownRef.current?.contains(target)
-      if (!inTrigger && !inDropdown) setOpen(false)
+      if (!inTrigger && !inDropdown) dismiss()
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
-  }, [open])
+  }, [open, dismiss])
 
   // Close on Escape
   useEffect(() => {
     if (!open) return
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') dismiss() }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [open])
+  }, [open, dismiss])
 
   const display = formatDisplay(value)
   const today = todayDateStr()

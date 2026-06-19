@@ -1604,6 +1604,8 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                                 className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
                                 forceUp
                                 autoOpen
+                                // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Değiştir" yeniden tıklanabilir kalsın (card 615).
+                                onClose={detailDueDateEdit.mode === 'picking' ? closeDetailDueDateEdit : undefined}
                               />
                               {detailDueDateEdit.mode === 'confirm' && (
                                 <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">

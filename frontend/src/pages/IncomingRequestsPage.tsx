@@ -183,7 +183,10 @@ function toInternalRow(task: Task): IncomingRequestRow {
     departmentName: task.assignedDepartmentName ?? null,
     createdBy: task.createdByDisplayName ?? null,
     dueDateUtc: task.dueDateUtc,
-    createdAtUtc: task.createdAtUtc ?? null,
+    // "Talep Tarihi" = talebin oluşturulma tarihi. Birim içi talepler onaylanınca görev o an
+    // oluşturulduğundan görevin createdAt'i onay tarihini gösterir; bunun yerine bağlı talebin
+    // (job) oluşturulma tarihi kullanılır ki onay sonrası tarih değişmesin (card 629).
+    createdAtUtc: task.jobCreatedAtUtc ?? task.createdAtUtc ?? null,
     detailsPath: `/request-details?context=incoming&jobId=${task.jobId}`,
     assignTargetDepartmentId: null,
     approvedAtUtc: task.createdAtUtc ?? null,

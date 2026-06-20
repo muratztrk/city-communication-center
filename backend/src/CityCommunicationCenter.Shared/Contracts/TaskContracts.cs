@@ -69,7 +69,13 @@ public sealed record TaskSummaryResponse(
     string? CreatedByRoleCode = null,
     Guid? OwnerUserId = null,
     // Görevin mevcut atanan kullanıcıya atandığı tarih (Görevlerim "Yeni" rozeti, card 589).
-    DateTimeOffset? AssignedAtUtc = null);
+    DateTimeOffset? AssignedAtUtc = null,
+    // Bağlı olduğu talebin (job) oluşturulma tarihi. Birim içi talepler onaylanınca görevler
+    // o anda oluşturulduğu için "Talep Tarihi" görevin değil talebin tarihini göstermeli (card 629).
+    DateTimeOffset? JobCreatedAtUtc = null,
+    // Görev için yöneticide bekleyen bir ek süre (revizyon) talebi var mı — gridview "(Ek süre talebi)"
+    // işareti için. Status artık RevisionRequested'a çekilmediğinden onay üzerinden bakılır (card 628).
+    bool HasPendingExtraTimeRequest = false);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

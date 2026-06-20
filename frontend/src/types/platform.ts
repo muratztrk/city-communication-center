@@ -127,6 +127,10 @@ export interface Task {
   createdByRoleCode?: string | null;
   ownerUserId?: string | null;
   assignedAtUtc?: string | null;
+  // Bağlı talebin oluşturulma tarihi — "Talep Tarihi" sütunu için (card 629).
+  jobCreatedAtUtc?: string | null;
+  // Yöneticide bekleyen ek süre talebi var mı — gridview "(Ek süre talebi)" işareti (card 628).
+  hasPendingExtraTimeRequest?: boolean;
 }
 
 export interface TaskDetail {

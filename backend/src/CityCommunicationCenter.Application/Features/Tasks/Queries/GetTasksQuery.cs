@@ -176,7 +176,19 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     .FirstOrDefault(),
                 task.OwnerUserId,
                 // Görevin atanan kullanıcıya atandığı an — "Yeni" rozeti bugünse gösterilir (card 589).
-                task.AssignedAtUtc))
+                task.AssignedAtUtc,
+                // "Talep Tarihi" = bağlı talebin oluşturulma tarihi; birim içi talepler onaylanınca
+                // görev o an oluştuğu için görevin değil talebin tarihi gösterilir (card 629).
+                _dbContext.Jobs
+                    .AsNoTracking()
+                    .Where(job => job.JobId == task.JobId)
+                    .Select(job => (DateTimeOffset?)job.CreatedAtUtc)
+                    .FirstOrDefault(),
+                // Yöneticide bekleyen ek süre talebi var mı — gridview "(Ek süre talebi)" işareti (card 628).
+                _dbContext.Approvals.Any(approval =>
+                    approval.SubjectType == ApprovalSubjectType.TaskRevision
+                    && approval.SubjectId == task.TaskId
+                    && approval.Decision == ApprovalDecision.Pending)))
             .ToListAsync(cancellationToken);
     }
 

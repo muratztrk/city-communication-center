@@ -353,7 +353,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const [dueDateEdit, setDueDateEdit] = useState<{ taskId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [extraTimeEdit, setExtraTimeEdit] = useState<{ taskId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [extraTimeReview, setExtraTimeReview] = useState<{ taskId: string; proposedDueDateUtc: string | null; saving: boolean } | null>(null)
-  const [successToast, setSuccessToast] = useState<string | null>(null)
+  // Bilgilendirme balonu: çoğu işlem yeşil (success); ek süre reddi gibi olumsuz sonuçlar kırmızı (error, card 627).
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
@@ -525,7 +527,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       setDueDateEdit(null)
       setExtraTimeEdit(null)
       setExtraTimeReview(null)
-      setSuccessToast(null)
+      setToast(null)
       setError(null)
     })
   }, [activeDeptId, clearTaskFilters])
@@ -671,7 +673,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
           setCompletionNote('')
           closeTaskDetail()
           await reload()
-          setSuccessToast(t('tasks.actions.completeSuccess', 'Görev başarıyla tamamlandı!'))
+          showToast(t('tasks.actions.completeSuccess', 'Görev başarıyla tamamlandı!'))
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
         }
@@ -783,7 +785,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
           : task
       ))
       setDueDateEdit(null)
-      setSuccessToast(t('tasks.actions.dueDateUpdated', 'Son tarih güncellendi.'))
+      showToast(t('tasks.actions.dueDateUpdated', 'Son tarih güncellendi.'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setDueDateEdit(current => current ? { ...current, saving: false } : null)
@@ -820,7 +822,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
           : task
       ))
       setExtraTimeEdit(null)
-      setSuccessToast(t('tasks.actions.extraTimeRequested', 'Ek süre talebi yöneticinize iletildi.'))
+      showToast(t('tasks.actions.extraTimeRequested', 'Ek süre talebi yöneticinize iletildi.'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setExtraTimeEdit(current => current ? { ...current, saving: false } : null)
@@ -863,7 +865,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       await api.approveTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'), extraTimeReview.proposedDueDateUtc)
       await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
       setExtraTimeReview(null)
-      setSuccessToast(t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'))
+      showToast(t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setExtraTimeReview(current => current ? { ...current, saving: false } : null)
@@ -877,7 +879,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
       await api.rejectTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
       await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
       setExtraTimeReview(null)
-      setSuccessToast(t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
+      showToast(t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'), 'error')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setExtraTimeReview(current => current ? { ...current, saving: false } : null)
@@ -1720,7 +1722,7 @@ const pageKicker = isMyTasksView
                     {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && (
                       <td>
                         <DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} />
-                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.currentStatus === 'RevisionRequested' && (
+                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.hasPendingExtraTimeRequest && (
                           <div className="mt-1 text-xs font-bold text-amber-500">
                             {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
                           </div>
@@ -1882,8 +1884,8 @@ const pageKicker = isMyTasksView
         </div>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
-      {successToast && (
-        <Toast message={successToast} onClose={() => setSuccessToast(null)} />
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
       )}
     </div>
   )

@@ -129,6 +129,19 @@
   }
   .desktop-page-shell {
     min-width: 0;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .desktop-page-shell {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .desktop-page-shell {
+      padding-inline: 2rem;
+    }
   }
 
   .desktop-page-fill {

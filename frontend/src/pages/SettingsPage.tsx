@@ -997,7 +997,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell shrink-0 px-2 sm:px-3 lg:px-4">
+    <div className="page-stack desktop-page-shell shrink-0">
       <section className="section-card p-0">
         <div
           className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto] rounded-t-[var(--radius-xl)] lg:rounded-t-[0.85rem]"
@@ -1044,7 +1044,7 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'tenant' ? (
-        <div className="page-stack desktop-page-shell">
+        <div className="page-stack">
           <div className="grid gap-4">
             <section className="section-card page-stack p-5 sm:p-6 lg:p-7">
               <div className="page-header-row">
@@ -1819,7 +1819,7 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'appearance' ? (
-        <div className="page-stack desktop-page-shell">
+        <div className="page-stack">
           <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
             <section className="section-card page-stack">
               <div className="page-header-row">
@@ -1969,7 +1969,7 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'social' && socialStatus ? (
-        <div className="page-stack desktop-page-shell">
+        <div className="page-stack">
           <div>
             <h2 className="text-xl font-extrabold text-slate-950">{t('settings.socialConfig.sectionTitle')}</h2>
             <p className="helper-copy">{t('settings.socialConfig.sectionDescription')}</p>
@@ -2033,7 +2033,7 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'routing' && routingConfig ? (
-        <div className="page-stack desktop-page-shell">
+        <div className="page-stack">
           <section className="section-card page-stack">
             <div className="page-header-row">
               <div>

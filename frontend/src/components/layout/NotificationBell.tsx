@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
 import { invalidateNotifications } from '../../api/cacheInvalidation'
 import { queryKeys } from '../../api/queryKeys'
-import type { AppNotification, JobDetail, TaskDetail } from '../../types/platform'
+import type { AppNotification } from '../../types/platform'
 import type { NotificationPayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import { getLocale } from '../../utils/localization'
@@ -16,11 +16,6 @@ import { TablePagination } from '../ui/table-pagination'
 import { DateTimePicker } from '../ui/date-time-picker'
 
 type NotifFilter = 'all' | 'unread'
-type NotificationDetailTarget =
-  | { kind: 'task'; id: string }
-  | { kind: 'job'; id: string }
-  | { kind: 'unsupported'; url: string }
-
 function localizeNotificationText(value: string): string {
   return value
     .replace(/routine[\s\u00a0]+task[\s\u00a0]+created/giu, 'Rutin görev oluşturuldu')
@@ -52,12 +47,7 @@ function formatNotifDate(value: string | null | undefined, locale: string) {
   })
 }
 
-function stripHtmlTags(value: string | null | undefined): string {
-  if (!value) return ''
-  return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-}
-
-function parseNotificationDetailTarget(url: string): NotificationDetailTarget {
+function parseNotificationDetailTarget(url: string): { kind: 'task' | 'job' | 'unsupported'; id?: string } {
   try {
     const parsed = new URL(url, window.location.origin)
     const taskId = parsed.searchParams.get('taskId')
@@ -70,41 +60,7 @@ function parseNotificationDetailTarget(url: string): NotificationDetailTarget {
     if (taskMatch) return { kind: 'task', id: decodeURIComponent(taskMatch[1]) }
     if (jobMatch) return { kind: 'job', id: decodeURIComponent(jobMatch[1]) }
   }
-  return { kind: 'unsupported', url }
-}
-
-function formatJobNumber(job: JobDetail): string {
-  if (job.jobNumber != null && job.jobNumberYear != null) return `T-${job.jobNumberYear}-${job.jobNumber}`
-  return `T-${job.jobNumberYear ?? new Date().getFullYear()}`
-}
-
-function formatTaskNumber(task: TaskDetail): string {
-  if (task.taskNumber != null && task.taskNumberYear != null) {
-    return `G-${task.taskNumberYear}-${task.taskNumber}`
-  }
-  return `G-${task.taskNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`
-}
-
-function formatJobDestinations(job: JobDetail): string {
-  const destinationNames = job.departments
-    .filter(department => department.role === 'Target' || department.role === 'Coordinating')
-    .map(department => department.departmentName)
-    .filter((name): name is string => Boolean(name))
-  if (destinationNames.length > 0) return destinationNames.join(', ')
-  return job.departments
-    .filter(department => department.departmentId !== job.ownerDepartmentId)
-    .map(department => department.departmentName)
-    .filter((name): name is string => Boolean(name))
-    .join(', ') || '—'
-}
-
-function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div className="flex items-start gap-2 border-b border-slate-100 px-3 py-2 last:border-b-0">
-      <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-      <span className="min-w-0 break-words text-sm text-slate-900">{value || '—'}</span>
-    </div>
-  )
+  return { kind: 'unsupported' }
 }
 
 interface NotifItemProps {
@@ -213,14 +169,7 @@ export function NotificationBell() {
   const [modalPageSize, setModalPageSize] = useState(5)
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
-  const [detailTarget, setDetailTarget] = useState<NotificationDetailTarget | null>(null)
-  const [detailLoading, setDetailLoading] = useState(false)
-  const [detailError, setDetailError] = useState<string | null>(null)
-  const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
-  const [jobDetail, setJobDetail] = useState<JobDetail | null>(null)
-  const [taskParentJob, setTaskParentJob] = useState<JobDetail | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const detailModalRef = useRef<HTMLDivElement>(null)
   const unreadQuery = useQuery({
     queryKey: queryKeys.notifications.unreadCount(),
     queryFn: () => api.getUnreadNotificationCount(),
@@ -266,9 +215,27 @@ export function NotificationBell() {
   const pagedModal = filteredModal.slice((modalPage - 1) * modalPageSize, modalPage * modalPageSize)
   const previewItems = filteredDropdown.slice(0, 5)
 
-  useEffect(() => {
-    setModalPage(1)
-  }, [modalFilter, modalPageSize, modalSearchText, modalDateFrom, modalDateTo, displayNotifications.length])
+  const resetModalPage = () => setModalPage(1)
+  const handleModalFilterChange = (value: NotifFilter) => {
+    setModalFilter(value)
+    resetModalPage()
+  }
+  const handleModalSearchChange = (value: string) => {
+    setModalSearchText(value)
+    resetModalPage()
+  }
+  const handleModalDateFromChange = (value: string) => {
+    setModalDateFrom(value)
+    resetModalPage()
+  }
+  const handleModalDateToChange = (value: string) => {
+    setModalDateTo(value)
+    resetModalPage()
+  }
+  const handleModalPageSizeChange = (value: number) => {
+    setModalPageSize(value)
+    resetModalPage()
+  }
 
   const handleNotification = useCallback(
     (payload: NotificationPayload) => {
@@ -286,7 +253,7 @@ export function NotificationBell() {
         new Notification(localizedPayload.title, { body: localizedPayload.message, icon: '/favicon.ico' })
       }
     },
-    [queryClient],
+    [queryClient, setToasts],
   )
 
   useSignalR(handleNotification)
@@ -300,7 +267,6 @@ export function NotificationBell() {
   useEffect(() => {
     if (!isOpen) return
     function handler(e: MouseEvent) {
-      if (detailModalRef.current?.contains(e.target as Node)) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setIsOpen(false)
     }
     document.addEventListener('mousedown', handler)
@@ -325,52 +291,15 @@ export function NotificationBell() {
     invalidateNotifications(queryClient)
   }
 
-  useEffect(() => {
-    let cancelled = false
-    setTaskDetail(null)
-    setJobDetail(null)
-    setTaskParentJob(null)
-    setDetailError(null)
-    setDetailLoading(false)
-    if (!detailTarget) return
-    if (detailTarget.kind === 'unsupported') {
-      setDetailError(t('notifications.unsupportedDetail', 'Bu bildirimin detayı mevcut sayfada açılamıyor.'))
-      return
-    }
-    setDetailLoading(true)
-    const load = async () => {
-      try {
-        if (detailTarget.kind === 'task') {
-          const task = await api.getTaskById(detailTarget.id)
-          if (cancelled) return
-          setTaskDetail(task)
-          if (task.jobId) {
-            const parent = await api.getJobById(task.jobId).catch(() => null)
-            if (!cancelled) setTaskParentJob(parent)
-          }
-          return
-        }
-        const job = await api.getJobById(detailTarget.id)
-        if (!cancelled) setJobDetail(job)
-      } catch (err) {
-        if (!cancelled) setDetailError(err instanceof Error ? err.message : t('common.error', 'Hata oluştu'))
-      } finally {
-        if (!cancelled) setDetailLoading(false)
-      }
-    }
-    void load()
-    return () => { cancelled = true }
-  }, [detailTarget, t])
-
   // Bildirim "Detay": görevse Görevlerim, talepse Taleplerim sayfasındaki ilgili detay
   // pop-up'ı derin bağlantıyla açılır (card 580).
   const handleNavigate = (url: string) => {
     const target = parseNotificationDetailTarget(url)
     setIsOpen(false)
     setIsModalOpen(false)
-    if (target.kind === 'task') {
+    if (target.kind === 'task' && target.id) {
       navigate(`/my-tasks?view=all&taskId=${target.id}`)
-    } else if (target.kind === 'job') {
+    } else if (target.kind === 'job' && target.id) {
       navigate(`/my-requests?view=all&jobId=${target.id}`)
     } else {
       navigate(url)
@@ -384,14 +313,6 @@ export function NotificationBell() {
     setModalDateFrom('')
     setModalDateTo('')
     setIsModalOpen(true)
-  }
-
-  const closeNotificationDetail = () => {
-    setDetailTarget(null)
-    setDetailError(null)
-    setTaskDetail(null)
-    setJobDetail(null)
-    setTaskParentJob(null)
   }
 
   return (
@@ -408,101 +329,6 @@ export function NotificationBell() {
           </div>
         ))}
       </div>
-
-      {detailTarget && createPortal(
-        <div
-          ref={detailModalRef}
-          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-4"
-          onClick={closeNotificationDetail}
-          onKeyDown={e => { if (e.key === 'Escape') closeNotificationDetail() }}
-          role="dialog"
-          aria-modal="true"
-        >
-          <section
-            className="detail-modal-shell detail-modal-shell--notification flex max-h-[72dvh] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5">
-              <div className="min-w-0">
-                <div className="text-[0.72rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
-                  {detailTarget.kind === 'task'
-                    ? t('tasks.detail.title', 'Görev Detayları')
-                    : t('jobs.detail.requestInfo', 'Talep Detayları')}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={closeNotificationDetail}
-                className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-                aria-label={t('common.close', 'Kapat')}
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-5">
-              {detailLoading && (
-                <div className="py-10 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
-              )}
-              {!detailLoading && detailError && (
-                <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                  {detailError}
-                </div>
-              )}
-              {!detailLoading && taskDetail && (
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                    <DetailRow label="Görev No" value={formatTaskNumber(taskDetail)} />
-                    <DetailRow label="Görev Başlığı" value={taskDetail.title} />
-                    <DetailRow label="İlgili Talep" value={taskParentJob?.title ?? taskDetail.jobTitle ?? '—'} />
-                    <DetailRow label="Görev Sahibi" value={taskDetail.ownerDisplayName} />
-                    <DetailRow label="Atanan" value={taskDetail.assignedUserDisplayName ?? taskDetail.assignedDepartmentName ?? '—'} />
-                  </div>
-                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                    <DetailRow label="Öncelik" value={t(`enum.priority.${taskDetail.priority}`, { defaultValue: taskDetail.priority })} />
-                    <DetailRow label="Durum" value={t(`enum.taskStatus.${taskDetail.currentStatus}`, { defaultValue: taskDetail.currentStatus })} />
-                    <DetailRow label="Görev Tarihi" value={formatNotifDate(taskDetail.createdAtUtc, locale)} />
-                    <DetailRow label="Son Tarih" value={formatNotifDate(taskDetail.dueDateUtc, locale)} />
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-2">
-                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      {t('tasks.detail.description', 'Açıklama')}
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm leading-6 text-slate-900">
-                      {stripHtmlTags(taskDetail.description) || t('tasks.detail.noDescription', 'Açıklama yok')}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {!detailLoading && jobDetail && (
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                    <DetailRow label="Talep No" value={formatJobNumber(jobDetail)} />
-                    <DetailRow label="Talep Başlığı" value={jobDetail.title} />
-                    <DetailRow label="Talep Yeri / Oluşturan" value={[jobDetail.ownerDepartmentName, jobDetail.createdByDisplayName].filter(Boolean).join(' / ')} />
-                    <DetailRow label="Gittiği Yer" value={formatJobDestinations(jobDetail)} />
-                    <DetailRow label="Proje mi" value={jobDetail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')} />
-                  </div>
-                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                    <DetailRow label="Öncelik" value={t(`enum.priority.${jobDetail.priority}`, { defaultValue: jobDetail.priority })} />
-                    <DetailRow label="Durum" value={t(`enum.jobStatus.${jobDetail.status}`, { defaultValue: jobDetail.status })} />
-                    <DetailRow label="Talep Tarihi" value={formatNotifDate(jobDetail.createdAtUtc, locale)} />
-                    <DetailRow label="Son Tarih" value={formatNotifDate(jobDetail.dueDateUtc, locale)} />
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-2">
-                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      {t('jobs.form.description', 'Açıklama')}
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm leading-6 text-slate-900">
-                      {stripHtmlTags(jobDetail.description) || t('common.none', 'Yok')}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-        </div>,
-        document.body,
-      )}
 
       {/* Bell button + dropdown */}
       <div className="relative" ref={dropdownRef}>
@@ -603,12 +429,12 @@ export function NotificationBell() {
                     className="scope-chip-search-input"
                     placeholder={t('common.search', 'Ara...')}
                     value={modalSearchText}
-                    onChange={event => setModalSearchText(event.target.value)}
+                    onChange={event => handleModalSearchChange(event.target.value)}
                   />
                   {modalSearchText && (
                     <button
                       type="button"
-                      onClick={() => setModalSearchText('')}
+                      onClick={() => handleModalSearchChange('')}
                       className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
                       aria-label={t('common.clear', 'Temizle')}
                     >
@@ -618,7 +444,7 @@ export function NotificationBell() {
                 </div>
                 <DateTimePicker
                   value={modalDateFrom}
-                  onChange={setModalDateFrom}
+                  onChange={handleModalDateFromChange}
                   placeholder={t('filters.startDate', 'Başlangıç tarihi')}
                   className="notification-modal-date scope-chip-date"
                   forceDown
@@ -626,7 +452,7 @@ export function NotificationBell() {
                 <span className="text-xs text-white/50">–</span>
                 <DateTimePicker
                   value={modalDateTo}
-                  onChange={setModalDateTo}
+                  onChange={handleModalDateToChange}
                   placeholder={t('filters.endDate', 'Bitiş tarihi')}
                   className="notification-modal-date scope-chip-date"
                   forceDown
@@ -647,14 +473,14 @@ export function NotificationBell() {
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={() => setModalFilter('all')}
+                  onClick={() => handleModalFilterChange('all')}
                   className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${modalFilter === 'all' ? 'bg-[color:var(--color-primary)] text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                 >
                   {t('notifications.all', 'Tümü')} ({notifications.length})
                 </button>
                 <button
                   type="button"
-                  onClick={() => setModalFilter('unread')}
+                  onClick={() => handleModalFilterChange('unread')}
                   className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${modalFilter === 'unread' ? 'bg-[color:var(--color-primary)] text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                 >
                   {t('notifications.unread', 'Okunmamış')}
@@ -685,7 +511,7 @@ export function NotificationBell() {
                 totalCount={filteredModal.length}
                 pageSize={modalPageSize}
                 currentPage={modalPage}
-                onPageSizeChange={setModalPageSize}
+                onPageSizeChange={handleModalPageSizeChange}
                 onPageChange={setModalPage}
                 pageSizeOptions={[5, 10, 25, 50]}
               />

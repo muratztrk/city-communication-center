@@ -56,7 +56,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 _dbContext, tenantId, userId, cancellationToken);
             var jobRecords = await _dbContext.Jobs.AsNoTracking()
                 .Where(j => j.TenantId == tenantId && (j.CreatedByUserId == userId || managerJobIds.Contains(j.JobId)))
-                .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear, j.CreatedByUserId })
+                .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
                 .Where(t => t.TenantId == tenantId && (t.AssignedUserId == userId || t.OwnerUserId == userId || t.CreatedByUserId == userId || managerTaskIds.Contains(t.TaskId)))
@@ -66,8 +66,6 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             var jobsById = jobRecords.ToDictionary(j => j.JobId);
             var tasksById = taskRecords.ToDictionary(t => t.TaskId);
             var taskIdSet = taskRecords.Select(t => t.TaskId).ToHashSet();
-            // Kullanıcının kendi oluşturduğu talepler "Taleplerim"e; yönetilen birim talepleri "Birime Gelen" detayına yönlenir.
-            var ownJobIdSet = jobRecords.Where(j => j.CreatedByUserId == userId).Select(j => j.JobId).ToHashSet();
             var entityIds = jobRecords.Select(j => j.JobId).Concat(taskRecords.Select(t => t.TaskId)).Distinct().ToList();
 
             if (entityIds.Count > 0)
@@ -126,9 +124,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                             : a.AuditLogId != initialUnreadAuditLogId,
                         isTask
                             ? $"/my-tasks?taskId={a.EntityId}"
-                            : ownJobIdSet.Contains(a.EntityId)
-                                ? $"/my-requests?jobId={a.EntityId}"
-                                : $"/request-details?context=incoming&jobId={a.EntityId}",
+                            : $"/my-requests?jobId={a.EntityId}",
                         a.EventTimeUtc));
                 }
             }

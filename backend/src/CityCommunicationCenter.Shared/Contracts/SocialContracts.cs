@@ -50,6 +50,8 @@ public sealed record SocialMessageSummaryResponse(
     Guid? AssignedDepartmentId,
     string? AssignedDepartmentName,
     Guid? JobId,
+    int? JobNumber,
+    int? JobNumberYear,
     DateTimeOffset ReceivedAtUtc,
     double? Latitude,
     double? Longitude);

@@ -332,6 +332,8 @@ export interface SocialMessage {
   assignedDepartmentId: string | null;
   assignedDepartmentName: string | null;
   jobId: string | null;
+  jobNumber: number | null;
+  jobNumberYear: number | null;
   receivedAtUtc: string;
   latitude?: number | null;
   longitude?: number | null;

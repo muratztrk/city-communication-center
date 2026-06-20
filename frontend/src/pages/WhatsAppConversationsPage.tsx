@@ -25,6 +25,10 @@ function formatPhone(phone: string): string {
   return `+${digits}`
 }
 
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, '').replace(/^0(?=5\d{9}$)/, '90')
+}
+
 function formatRelativeTime(dateStr: string, locale: string): string {
   const d = new Date(dateStr)
   const diffMs = Date.now() - d.getTime()
@@ -440,6 +444,7 @@ function ConversationDetail({
 export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
+  const requestedPhone = searchParams.get('phone') ?? ''
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
   const [loading, setLoading] = useState(true)
@@ -465,12 +470,21 @@ export function WhatsAppConversationsPage() {
   }, [loadConversations])
 
   useEffect(() => {
-    setSearch(searchParams.get('phone') ?? '')
-  }, [searchParams])
+    setSearch(requestedPhone)
+  }, [requestedPhone])
 
-  const filtered = conversations.filter(c =>
-    c.citizenPhone.includes(search) ||
-    (c.citizenName ?? '').toLowerCase().includes(search.toLowerCase()),
+  useEffect(() => {
+    if (!requestedPhone) return
+    const requestedDigits = normalizePhone(requestedPhone)
+    const matchingConversation = conversations.find(conversation => normalizePhone(conversation.citizenPhone) === requestedDigits)
+    setSelectedId(matchingConversation?.citizenConversationId ?? null)
+  }, [conversations, requestedPhone])
+
+  const normalizedSearchPhone = normalizePhone(search)
+  const normalizedSearchName = search.toLocaleLowerCase('tr')
+  const filtered = conversations.filter(conversation =>
+    (normalizedSearchPhone.length > 0 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
+    || (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName),
   )
 
   const handleReadMarked = useCallback(() => {

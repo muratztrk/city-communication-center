@@ -667,6 +667,8 @@
     "convertedSummary": "converted to task",
     "channel": "Channel",
     "sender": "Sender",
+    "citizenRequestNo": "Citizen Request No",
+    "destination": "Destination",
     "category": "Category",
     "date": "Date",
     "route": "Route",

@@ -61,6 +61,8 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                     .Select(department => (string?)department.Name)
                     .FirstOrDefault(),
                 entity.JobId,
+                entity.Job == null ? null : entity.Job.JobNumber,
+                entity.Job == null ? null : entity.Job.JobNumberYear,
                 entity.ReceivedAtUtc,
                 entity.Latitude,
                 entity.Longitude))

@@ -6,17 +6,12 @@ import type { Attachment } from '../../types/platform'
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png']
 const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
 const MAX_SIZE = 5 * 1024 * 1024
 
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
-}
-
-function isImageAttachment(name: string): boolean {
-  return IMAGE_EXTENSIONS.includes(fileExtension(name))
 }
 
 interface AttachmentSectionProps {
@@ -143,26 +138,13 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
               key={att.attachmentId}
               className="group relative min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
             >
+              {/* Önizleme (resim küçük görseli) kaldırıldı; yüklenen her dosya yalnızca adıyla gösterilir (card 630). */}
               <a href={resolveAttachmentUrl(att.url)} target="_blank" rel="noopener noreferrer" title={att.fileName} className="block">
-                {isImageAttachment(att.fileName) ? (
-                  <img
-                    src={resolveAttachmentUrl(att.url)}
-                    alt={att.fileName}
-                    className={`${previewHeightClassName} w-full bg-white object-contain`}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className={`flex ${previewHeightClassName} w-full min-w-0 flex-col items-center justify-center gap-1 px-2 text-slate-500`}>
-                    <FileText className={compact ? 'size-5' : 'size-7'} />
-                    <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
-                  </div>
-                )}
+                <div className={`flex ${previewHeightClassName} w-full min-w-0 flex-col items-center justify-center gap-1 px-2 text-slate-500`}>
+                  <FileText className={compact ? 'size-5' : 'size-7'} />
+                  <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
+                </div>
               </a>
-              <div className="absolute inset-0 flex flex-col items-start justify-end bg-black/0 p-1 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
-                <span className="max-w-full truncate rounded bg-black/60 px-1 py-0.5 text-[10px] text-white">
-                  {att.fileName}
-                </span>
-              </div>
               {!readOnly && (
               <button
                 type="button"

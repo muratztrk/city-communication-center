@@ -1707,7 +1707,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                         (onay öncesi) talepte düzenlenebilir; onaylanmış/birime gelen talepte salt-okunur (card 537/540). */}
                     {(() => {
                       const canEditJobAttachments = isPreApprovalStatus(detail.status) && (isDepartmentOutgoingView || isMyRequestsView)
-                      const showAttachmentLockNotice = !canEditJobAttachments && (isIncomingRequestDetail || !isPreApprovalStatus(detail.status))
+                      const showAttachmentLockNotice = !canEditJobAttachments && !isPreApprovalStatus(detail.status)
                       return (
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
                           <h3 className="mb-3 text-sm font-bold text-slate-900">
@@ -1838,6 +1838,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
 
             {/* Yöneticisi/koordinasyon yetkisi olmayan kullanıcılar için ikinci satır standart iki kolon tasarımı. */}
             {isRequestDetailContext && !canManageCoordination && (() => {
+              const showAttachmentLockNotice = !isPreApprovalStatus(detail.status)
               const requestAttachmentLockText = (detail.status === 'Cancelled' || detail.status === 'Rejected')
                 ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
                 : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
@@ -1858,9 +1859,11 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                       readOnly
                       emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
                     />
-                    <p className="mt-2 text-xs font-medium text-amber-600">
-                      {requestAttachmentLockText}
-                    </p>
+                    {showAttachmentLockNotice && (
+                      <p className="mt-2 text-xs font-medium text-amber-600">
+                        {requestAttachmentLockText}
+                      </p>
+                    )}
                   </section>
                 </div>
               )

@@ -423,7 +423,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const canRouteTaskDetail = !!taskDetail
     && isManagerLike
     && taskDetail.jobSourceType !== 'Routine'
-    && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')
+    && isActionableTaskStatus(taskDetail.currentStatus)
   const canChangeTaskDueDate = !!taskDetail
     && isManagerLike
     && (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
@@ -1165,7 +1165,7 @@ const pageKicker = isMyTasksView
                 {taskDetail
                   && (isDepartmentTasksView || isStaffTasksView)
                   && isManagerLike
-                  && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress') && (
+                  && isActionableTaskStatus(taskDetail.currentStatus) && (
                     <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>
                       {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                     </Button>

@@ -39,8 +39,19 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
             ]);
         }
 
+        var hasPendingRevision = await _dbContext.Approvals.AnyAsync(
+            e => e.SubjectType == ApprovalSubjectType.TaskRevision
+                && e.SubjectId == task.TaskId
+                && e.Decision == ApprovalDecision.Pending,
+            cancellationToken);
+        if (hasPendingRevision)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.TaskId), "Bu gorev icin zaten bekleyen bir ek sure talebi var.")
+            ]);
+        }
+
         var utcNow = DateTimeOffset.UtcNow;
-        task.CurrentStatus = WorkflowTaskStatus.RevisionRequested;
         task.RevisionReason = request.Reason;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
@@ -69,7 +80,7 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionRequested",
             ActorUserId = request.ActorUserId,
-            StatusAtEvent = WorkflowTaskStatus.RevisionRequested.ToString(),
+            StatusAtEvent = task.CurrentStatus.ToString(),
             Notes = request.Reason,
             Details = request.Reason
         });
@@ -99,27 +110,22 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
         var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
-        if (task.CurrentStatus != WorkflowTaskStatus.RevisionRequested)
-        {
-            throw new ValidationException([
-                new FluentValidation.Results.ValidationFailure(nameof(request.TaskId), "Sadece revizyon onayi bekleyen gorevler onaylanabilir.")
-            ]);
-        }
-
         var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
         await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
+        var pendingApproval = await GetPendingApprovalAsync(task.TaskId, cancellationToken)
+            ?? throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.TaskId), "Bu gorev icin bekleyen ek sure talebi bulunamadi.")
+            ]);
+
         var utcNow = DateTimeOffset.UtcNow;
-        task.CurrentStatus = task.CompletionPercentage.GetValueOrDefault() > 0
-            ? WorkflowTaskStatus.InProgress
-            : WorkflowTaskStatus.Assigned;
         if (request.NewDueDateUtc.HasValue) task.DueDateUtc = request.NewDueDateUtc;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
 
-        await UpdateApprovalAsync(task.TaskId, ApprovalDecision.Approved, request.ActorUserId, request.Comment, utcNow, cancellationToken);
+        UpdateApproval(pendingApproval, ApprovalDecision.Approved, request.ActorUserId, request.Comment, utcNow);
 
         _dbContext.AuditLogs.Add(new AuditLog
         {
@@ -129,7 +135,7 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
             EntityId = task.TaskId.ToString(),
             Action = "TaskRevisionApproved",
             ActorUserId = request.ActorUserId,
-            StatusAtEvent = WorkflowTaskStatus.InProgress.ToString(),
+            StatusAtEvent = task.CurrentStatus.ToString(),
             Notes = request.Comment,
             Details = request.Comment
         });
@@ -138,24 +144,22 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
         return true;
     }
 
-    private async Task UpdateApprovalAsync(Guid taskId, ApprovalDecision decision, Guid? actorUserId, string? comment, DateTimeOffset utcNow, CancellationToken cancellationToken)
-    {
-        var pending = await _dbContext.Approvals
+    private Task<WorkflowApproval?> GetPendingApprovalAsync(Guid taskId, CancellationToken cancellationToken) =>
+        _dbContext.Approvals
             .Where(e => e.SubjectType == ApprovalSubjectType.TaskRevision
                 && e.SubjectId == taskId
                 && e.Decision == ApprovalDecision.Pending)
             .OrderBy(e => e.StepOrder)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (pending is not null)
-        {
-            pending.Decision = decision;
-            pending.ApproverUserId = actorUserId ?? pending.ApproverUserId;
-            pending.Comment = comment ?? pending.Comment;
-            pending.DecisionDateUtc = utcNow;
-            pending.UpdatedAtUtc = utcNow;
-            pending.UpdatedByUserId = actorUserId;
-        }
+    private static void UpdateApproval(WorkflowApproval pending, ApprovalDecision decision, Guid? actorUserId, string? comment, DateTimeOffset utcNow)
+    {
+        pending.Decision = decision;
+        pending.ApproverUserId = actorUserId ?? pending.ApproverUserId;
+        pending.Comment = comment ?? pending.Comment;
+        pending.DecisionDateUtc = utcNow;
+        pending.UpdatedAtUtc = utcNow;
+        pending.UpdatedByUserId = actorUserId;
     }
 }
 
@@ -179,13 +183,6 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
         var task = await _dbContext.Tasks.FirstOrDefaultAsync(e => e.TaskId == request.TaskId && e.TenantId == tenantId, cancellationToken);
         if (task is null) return false;
 
-        if (task.CurrentStatus != WorkflowTaskStatus.RevisionRequested)
-        {
-            throw new ValidationException([
-                new FluentValidation.Results.ValidationFailure(nameof(request.TaskId), "Sadece revizyon onayi bekleyen gorevler reddedilebilir.")
-            ]);
-        }
-
         var job = await _dbContext.Jobs.FirstOrDefaultAsync(e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
@@ -200,19 +197,19 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
             .OrderBy(e => e.StepOrder)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (pending is not null)
+        if (pending is null)
         {
-            pending.Decision = ApprovalDecision.Rejected;
-            pending.ApproverUserId = request.ActorUserId ?? pending.ApproverUserId;
-            pending.Comment = request.Comment ?? pending.Comment;
-            pending.DecisionDateUtc = utcNow;
-            pending.UpdatedAtUtc = utcNow;
-            pending.UpdatedByUserId = request.ActorUserId;
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.TaskId), "Bu gorev icin bekleyen ek sure talebi bulunamadi.")
+            ]);
         }
 
-        task.CurrentStatus = task.CompletionPercentage.GetValueOrDefault() > 0
-            ? WorkflowTaskStatus.InProgress
-            : WorkflowTaskStatus.Assigned;
+        pending.Decision = ApprovalDecision.Rejected;
+        pending.ApproverUserId = request.ActorUserId ?? pending.ApproverUserId;
+        pending.Comment = request.Comment ?? pending.Comment;
+        pending.DecisionDateUtc = utcNow;
+        pending.UpdatedAtUtc = utcNow;
+        pending.UpdatedByUserId = request.ActorUserId;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
 

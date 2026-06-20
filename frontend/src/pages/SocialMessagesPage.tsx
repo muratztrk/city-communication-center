@@ -1,11 +1,11 @@
-import { MapPin, MessageCircle, MessageSquare, X } from 'lucide-react'
+import { MapPin, MessageSquare, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
@@ -73,8 +73,8 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const channelFilter = searchParams.get('channel') ?? ''
+  const requestedChannelFilter = searchParams.get('channel') ?? ''
+  const channelFilter = requestedChannelFilter === 'WhatsApp' ? '' : requestedChannelFilter
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -158,7 +158,10 @@ export function SocialMessagesPage() {
   const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
 
   const filteredMessages = useMemo(
-    () => sortSocial(channelFilter ? messages.filter(m => m.channel === channelFilter) : messages),
+    () => sortSocial(messages.filter(message =>
+      message.channel !== 'WhatsApp'
+      && (!channelFilter || message.channel === channelFilter),
+    )),
     [messages, channelFilter, sortSocial],
   )
 
@@ -174,7 +177,6 @@ export function SocialMessagesPage() {
   }
 
   const channelQuickFilters: { value: string; label: string }[] = [
-    { value: 'WhatsApp', label: 'WhatsApp' },
     { value: 'Phone', label: t('nav.socialPhone', 'Çağrı') },
     { value: 'Instagram', label: 'Instagram' },
     { value: 'Facebook', label: 'Facebook' },
@@ -189,10 +191,6 @@ export function SocialMessagesPage() {
     if (channel) nextParams.set('channel', channel)
     else nextParams.delete('channel')
     setSearchParams(nextParams)
-  }
-
-  const openWhatsAppConversations = (phoneOrHandle: string) => {
-    navigate(`/whatsapp?phone=${encodeURIComponent(phoneOrHandle.replace(/^@/, ''))}`)
   }
 
   if (loading) {
@@ -236,19 +234,19 @@ export function SocialMessagesPage() {
           <table className="data-table">
             <thead>
               <tr>
+                <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh filterKey="channel" filterValue={socialFilters['channel'] ?? ''} onFilter={setSocialFilter} sortKey="channel" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.channel')}</FilterableTh>
                 <FilterableTh filterKey="citizenHandle" filterValue={socialFilters['citizenHandle'] ?? ''} onFilter={setSocialFilter} sortKey="citizenHandle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.sender')}</FilterableTh>
-                <FilterableTh filterKey="category" filterValue={socialFilters['category'] ?? ''} onFilter={setSocialFilter} sortKey="category" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.category')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.assignedDepartment', 'Sahip Müdürlük')}</FilterableTh>
-                <th>{t('location.mapSectionTitle', 'Konum')}</th>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.date')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {columnFilteredMessages.map(message => (
+              {columnFilteredMessages.map((message, index) => (
                 <Fragment key={message.socialMessageId}>
                   <tr>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
                     <td>
                       <span className="inline-flex items-center gap-1.5">
                         <ChannelIcon channel={message.channel} className="size-4 shrink-0" />
@@ -256,30 +254,10 @@ export function SocialMessagesPage() {
                       </span>
                     </td>
                     <td className="font-semibold">@{message.citizenHandle}</td>
-                    <td>{message.category || t('common.none')}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
-                    <td>
-                      {hasLocation(message) ? (
-                        <StatusPill tone="success">
-                          <MapPin className="size-3.5" />
-                          {t('location.mapSectionTitle', 'Konum')}
-                        </StatusPill>
-                      ) : t('common.none')}
-                    </td>
                     <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
-                        {message.channel === 'WhatsApp' ? (
-                          <Button
-                            size="sm"
-                            type="button"
-                            variant="secondary"
-                            onClick={() => openWhatsAppConversations(message.citizenHandle)}
-                          >
-                            <MessageCircle className="size-3.5" />
-                            {t('whatsapp.conversationsButton', 'Yazışmalar')}
-                          </Button>
-                        ) : null}
                         {!message.jobId ? (
                           <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
                             {t('nav.createRequest', 'Talep Oluştur')}
@@ -302,7 +280,7 @@ export function SocialMessagesPage() {
                   </tr>
                   {message.content ? (
                     <tr className="bg-slate-50/70">
-                      <td colSpan={8}>
+                      <td colSpan={6}>
                         <div className="flex items-center gap-2 py-0.5">
                           <MessageSquare className="mt-0.5 size-4 shrink-0 text-[color:var(--color-primary)]" />
                           <p className="text-sm text-slate-700 truncate max-w-xl">{message.content}</p>
@@ -312,7 +290,7 @@ export function SocialMessagesPage() {
                   ) : null}
                   {hasLocation(message) ? (
                     <tr className="bg-slate-50/70">
-                      <td colSpan={8}>
+                      <td colSpan={6}>
                         <section className="grid gap-2">
                           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600">
                             <MapPin className="size-4 text-[color:var(--color-primary)]" />
@@ -332,9 +310,9 @@ export function SocialMessagesPage() {
                   ) : null}
                 </Fragment>
               ))}
-              {messages.length === 0 ? (
+              {columnFilteredMessages.length === 0 ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={6}>
                     <div className="empty-state">{t('social.empty')}</div>
                   </td>
                 </tr>

@@ -758,20 +758,20 @@ export function IncomingRequestsPage() {
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       {cancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)}>
-          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)} role="presentation">
+          <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-incoming-job-dialog-title">
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <X className="size-4" />
             </button>
-            <h2 className="text-xl font-extrabold text-slate-950">
+            <h2 id="cancel-incoming-job-dialog-title" className="pr-8 text-xl font-extrabold text-slate-950">
               {cancelModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
             </h2>
-            <p className="helper-copy" style={{ fontSize: '0.85rem' }}>
+            <p className="mt-2 text-base font-medium leading-6 text-slate-700">
               {cancelModal.row.statusDomain === 'task'
                 ? t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')
                 : t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
-            <label className="job-field">
+            <label className="job-field mt-5">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
               <textarea
                 className="field-textarea"
@@ -782,7 +782,7 @@ export function IncomingRequestsPage() {
                 autoFocus
               />
             </label>
-            <div className="inline-actions">
+            <div className="mt-6 flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
@@ -790,7 +790,7 @@ export function IncomingRequestsPage() {
                 {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
               </Button>
             </div>
-          </div>
+          </section>
         </div>
       )}
       {staffAssignModal && (

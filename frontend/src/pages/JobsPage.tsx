@@ -21,8 +21,6 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
-import { PromptDialog } from '../components/ui/prompt-dialog'
-import type { PromptDialogState } from '../components/ui/prompt-dialog'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
@@ -505,7 +503,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   const [managerNoteSaved, setManagerNoteSaved] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
@@ -784,7 +781,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       setDetail(null)
       setEditModal(null)
       setConfirmDialog(null)
-      setPromptDialog(null)
       setError(null)
     })
   }, [activeDeptId, clearJobFilters])
@@ -1079,21 +1075,6 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setStaffAssignModal(current => current ? { ...current, saving: false } : null)
     }
-  }
-  const handleRejectOwner = (jobId: string) => {
-    setPromptDialog({
-      title: t('jobs.actions.rejectReason'),
-      onConfirm: async (reason) => {
-        try {
-          await api.rejectJobOwner(jobId, reason)
-          invalidateJobs(queryClient, jobId)
-          await refreshDetail()
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
   }
   const handleDelete = (jobId: string) => {
     setConfirmDialog({
@@ -1513,13 +1494,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => {
-                      if (isManagerLike && detail.status === 'PendingOwnerApproval') {
-                        handleRejectOwner(detail.jobId)
-                        return
-                      }
-                      handleCancel(detail.jobId)
-                    }}
+                    onClick={() => handleCancel(detail.jobId)}
                   >
                     {t('jobs.actions.cancelJob', 'Talebi İptal Et')}
                   </Button>
@@ -2103,16 +2078,15 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
         </div>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
-      <PromptDialog state={promptDialog} onClose={() => setPromptDialog(null)} />
       {cancelModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)}>
-          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)} role="presentation">
+          <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-job-dialog-title">
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <XIcon className="size-4" />
             </button>
-            <h2 className="text-xl font-extrabold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
-            <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
-            <label className="job-field">
+            <h2 id="cancel-job-dialog-title" className="pr-8 text-xl font-extrabold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
+            <p className="mt-2 text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
+            <label className="job-field mt-5">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
               <textarea
                 className="field-textarea"
@@ -2123,7 +2097,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 autoFocus
               />
             </label>
-            <div className="inline-actions">
+            <div className="mt-6 flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
@@ -2131,7 +2105,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
                 {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
               </Button>
             </div>
-          </div>
+          </section>
         </div>
       )}
     </div>

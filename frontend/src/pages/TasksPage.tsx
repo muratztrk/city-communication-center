@@ -428,12 +428,9 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     && isManagerLike
     && (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
     && !['Completed', 'Cancelled', 'Rejected'].includes(taskDetail.currentStatus)
-  const hasPendingExtraTimeRequest = !!taskDetail
-    && taskDetail.approvals.some(approval =>
-      approval.subjectType === 'TaskRevision' && approval.decision === 'Pending')
-  const hasApprovedExtraTime = !!taskDetail
-    && taskDetail.approvals.some(approval =>
-      approval.subjectType === 'TaskRevision' && approval.decision === 'Approved')
+  const latestExtraTimeApproval = taskDetail?.approvals
+    .filter(approval => approval.subjectType === 'TaskRevision')
+    .sort((left, right) => right.stepOrder - left.stepOrder)[0] ?? null
   const pendingExtraTimeApproval = taskDetail?.approvals.find(approval =>
     approval.subjectType === 'TaskRevision' && approval.decision === 'Pending') ?? null
   const canRequestExtraTime = !!taskDetail
@@ -442,6 +439,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
     && taskDetail.jobSourceType !== 'Routine'
     && taskDetail.assignedUserId === user?.userId
     && !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested', 'PendingCloseApproval'].includes(taskDetail.currentStatus)
+    && latestExtraTimeApproval === null
   const canReviewExtraTime = !!taskDetail
     && isManagerLike
     && (isDepartmentTasksView || isStaffTasksView)
@@ -1247,7 +1245,7 @@ const pageKicker = isMyTasksView
                                             {t('common.change', 'Değiştir')}
                                           </button>
                                         )}
-                                        {label === 'Son Tarih' && canRequestExtraTime && extraTimeEdit?.mode !== 'confirm' && !hasPendingExtraTimeRequest && (
+                                        {label === 'Son Tarih' && canRequestExtraTime && extraTimeEdit?.mode !== 'confirm' && (
                                           <button
                                             type="button"
                                             className="font-bold text-amber-500 underline underline-offset-2 hover:text-amber-600"
@@ -1256,9 +1254,15 @@ const pageKicker = isMyTasksView
                                             {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
                                           </button>
                                         )}
-                                        {label === 'Son Tarih' && isMyTasksView && !isManagerLike && (hasPendingExtraTimeRequest || taskDetail.currentStatus === 'RevisionRequested') && (
-                                          <span className="font-bold text-slate-400">
-                                            {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
+                                        {label === 'Son Tarih' && isMyTasksView && !isManagerLike && latestExtraTimeApproval && (
+                                          <span className="inline-flex items-center gap-1 font-bold">
+                                            <span className="text-slate-400">{t('tasks.actions.extraTimeRequest', 'Ek süre iste')}</span>
+                                            {latestExtraTimeApproval.decision === 'Approved' && (
+                                              <span className="text-emerald-600">({t('tasks.actions.extraTimeApprovedShort', 'onay')})</span>
+                                            )}
+                                            {latestExtraTimeApproval.decision === 'Rejected' && (
+                                              <span className="text-red-600">({t('tasks.actions.extraTimeRejectedShort', 'red')})</span>
+                                            )}
                                           </span>
                                         )}
                                         {label === 'Son Tarih' && canReviewExtraTime && extraTimeReview?.taskId !== taskDetail.taskId && (
@@ -1353,11 +1357,6 @@ const pageKicker = isMyTasksView
                                       ) : (
                                         <span className="text-sm text-slate-900">
                                           {value}
-                                          {label === 'Son Tarih' && hasApprovedExtraTime && (
-                                            <span className="ml-1 text-xs font-semibold text-emerald-600">
-                                              ({t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre')})
-                                            </span>
-                                          )}
                                         </span>
                                       )}
                                     </div>

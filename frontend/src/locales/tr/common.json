@@ -558,7 +558,7 @@
       "completed": "Tamamlanmış",
       "cancelled": "İptal",
       "rejected": "Reddedildi",
-      "revisionRequested": "Revize İstendi"
+      "revisionRequested": "Ek Süre Onayı Bekliyor"
     },
     "departmentViews": {
       "pending": "Bekleyen Görevler",

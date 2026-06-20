@@ -604,6 +604,7 @@ export function UsersPage() {
           <table className="data-table users-table">
             <thead>
               <tr>
+                <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh filterKey="username" filterValue={userFilters['username'] ?? ''} onFilter={setUserFilter} sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.username')}</FilterableTh>
                 <FilterableTh filterKey="displayName" filterValue={userFilters['displayName'] ?? ''} onFilter={setUserFilter} sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.displayName')}</FilterableTh>
                 <FilterableTh filterKey="title" filterValue={userFilters['title'] ?? ''} onFilter={setUserFilter} sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.jobTitle')}</FilterableTh>
@@ -616,9 +617,10 @@ export function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {columnFilteredUsers.map(user => (
+              {columnFilteredUsers.map((user, index) => (
                 editingUserId === user.userId ? (
                   <tr key={user.userId} className="bg-slate-50">
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
                     <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
@@ -678,6 +680,7 @@ export function UsersPage() {
                   </tr>
                 ) : (
                   <tr key={user.userId}>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
                     <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
@@ -718,7 +721,7 @@ export function UsersPage() {
               ))}
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={canManageUsers ? 9 : 8}>
+                  <td colSpan={canManageUsers ? 10 : 9}>
                     <div className="empty-state">{t('users.empty')}</div>
                   </td>
                 </tr>

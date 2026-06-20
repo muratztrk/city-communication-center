@@ -555,7 +555,7 @@
       "completed": "Completed",
       "cancelled": "Cancelled",
       "rejected": "Rejected",
-      "revisionRequested": "Revision Requested"
+      "revisionRequested": "Extra Time Approval Pending"
     },
     "departmentViews": {
       "pending": "Pending Tasks",

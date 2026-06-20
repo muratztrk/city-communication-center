@@ -77,7 +77,14 @@ function sanitizeRichTextHtml(value: string) {
   return documentRef.body.innerHTML
 }
 
-// Etiketsiz düz metin olarak gösterilecek değerde HTML varlıklarını çöz (örn. &nbsp; → boşluk) (card 551).
+// &nbsp; (ve hatalı çift kodlama &amp;nbsp;, &amp;amp;nbsp; …) ile gerçek U+00A0 karakterini normal
+// boşluğa indirger. Çift kodlanmış değerler rich-text dalında dangerouslySetInnerHTML ile düz
+// "&nbsp;" olarak görünüyordu; tek noktada normalize edince hem düz metin hem HTML dalı düzelir (card 551).
+function normalizeNbsp(value: string): string {
+  return value.replace(/&(?:amp;)*nbsp;/gi, ' ').replace(/\u00a0/g, ' ')
+}
+
+// Etiketsiz düz metin olarak gösterilecek değerde HTML varlıklarını çöz (örn. &amp; → &) (card 551).
 function decodeHtmlEntities(value: string): string {
   if (!value.includes('&')) return value
   if (typeof DOMParser === 'undefined') return value.replace(/&nbsp;/gi, ' ')
@@ -92,7 +99,9 @@ interface RichTextContentProps {
 }
 
 export function RichTextContent({ value, emptyText = '—', className }: RichTextContentProps) {
-  const plainValue = value ?? ''
+  // &nbsp; / çift kodlanmış &amp;nbsp; ve U+00A0 normal boşluğa indirgenir; aksi halde çift kodlanmış
+  // açıklamalar (örn. T-2026-109) Detaylar pop-up'ında düz "&nbsp;" olarak görünüyordu (card 551).
+  const plainValue = useMemo(() => normalizeNbsp(value ?? ''), [value])
   const sanitizedHtml = useMemo(
     () => looksLikeRichTextHtml(plainValue) ? sanitizeRichTextHtml(plainValue) : '',
     [plainValue],

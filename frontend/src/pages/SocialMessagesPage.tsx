@@ -1,11 +1,11 @@
-import { MapPin, MessageSquare, Search, X } from 'lucide-react'
+import { MapPin, MessageCircle, MessageSquare, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
@@ -114,6 +114,7 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const channelFilter = searchParams.get('channel') ?? ''
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
@@ -278,6 +279,17 @@ export function SocialMessagesPage() {
       </header>
 
       <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
+        {/* WhatsApp konuşmaları gridview'de satır olarak gösterilmiyor (card 621); erişim için
+            ayrı bir çip ile WhatsApp yazışma ekranına gidilir (yine de "tamamen kaybolmasın"). */}
+        <button
+          type="button"
+          className="scope-chip scope-chip--pending"
+          onClick={() => navigate('/whatsapp')}
+          title={t('whatsapp.conversationsButton', 'WhatsApp Yazışmaları')}
+        >
+          <MessageCircle className="size-3.5 shrink-0" />
+          {t('whatsapp.navLabel', 'WhatsApp Yazışmaları')}
+        </button>
         {channelQuickFilters.map(filter => (
           <button
             key={filter.value || 'all'}

@@ -13,6 +13,7 @@ import { getLocale } from '../../utils/localization'
 import { useAuth } from '../../context/AuthContext'
 import { TablePagination } from '../ui/table-pagination'
 import { DateTimePicker } from '../ui/date-time-picker'
+import { RichTextContent } from '../ui/RichTextContent'
 
 type NotifFilter = 'all' | 'unread'
 function localizeNotificationText(value: string): string {
@@ -203,7 +204,7 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
             <dl className="grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-2">
               {fields.map(([label, value]) => <div key={label} className="bg-white px-4 py-3"><dt className="text-xs font-semibold text-slate-500">{label}</dt><dd className="mt-0.5 break-words text-sm font-semibold text-slate-800">{value}</dd></div>)}
             </dl>
-            <section className="mt-4"><h3 className="text-sm font-bold text-slate-700">{t('common.description', 'Açıklama')}</h3><p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{description || '—'}</p></section>
+            <section className="mt-4"><h3 className="text-sm font-bold text-slate-700">{t('common.description', 'Açıklama')}</h3><RichTextContent value={description} className="mt-1 text-sm text-slate-600" /></section>
           </>}
         </div>
       </section>

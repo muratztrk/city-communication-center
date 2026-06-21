@@ -165,6 +165,8 @@ export interface TaskDetail {
   assignedUserDisplayName: string | null;
   taskNumber: number | null;
   taskNumberYear: number | null;
+  // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) (card 642).
+  statusActorDisplayName?: string | null;
 }
 
 export interface AssignmentHistory {
@@ -315,6 +317,9 @@ export interface JobDetail {
   tasks: Task[];
   approvals: JobApprovalStep[];
   attachments: Attachment[];
+  // Durumu belirleyen kullanıcı (iptal/tamamlayan/onay bekleyen yönetici) + tamamlama notu (card 643).
+  statusActorDisplayName?: string | null;
+  completionNote?: string | null;
 }
 
 export interface SocialConversationEntry {

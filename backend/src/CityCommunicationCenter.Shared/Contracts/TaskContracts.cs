@@ -127,4 +127,6 @@ public sealed record TaskDetailResponse(
     string? AssignedDepartmentName,
     string? AssignedUserDisplayName,
     int? TaskNumber,
-    int? TaskNumberYear);
+    int? TaskNumberYear,
+    // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) — denetim kaydından (card 642).
+    string? StatusActorDisplayName = null);

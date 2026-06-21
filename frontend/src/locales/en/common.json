@@ -644,6 +644,8 @@
       "title": "Task Details",
       "description": "Description",
       "noDescription": "No description",
+      "cancelNote": "Cancellation Note",
+      "completionNote": "Completion Note",
       "assignmentHistory": "Assignment History",
       "noAssignmentHistory": "No assignment history"
     }
@@ -1284,6 +1286,8 @@
     },
     "detail": {
       "title": "Job Detail",
+      "cancelNote": "Cancellation Note",
+      "completionNote": "Completion Note",
       "departments": "Departments",
       "tasks": "Tasks",
       "approvals": "Approval History",

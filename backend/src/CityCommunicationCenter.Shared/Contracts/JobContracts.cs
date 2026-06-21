@@ -121,4 +121,8 @@ public sealed record JobDetailResponse(
     IReadOnlyCollection<JobDepartmentResponse> Departments,
     IReadOnlyCollection<TaskSummaryResponse> Tasks,
     IReadOnlyCollection<ApprovalStepResponse> Approvals,
-    IReadOnlyCollection<AttachmentResponse> Attachments);
+    IReadOnlyCollection<AttachmentResponse> Attachments,
+    // Durumu belirleyen kullanıcı: iptal eden / tamamlayan görevi yapan / onay bekleyen yönetici (card 643).
+    string? StatusActorDisplayName = null,
+    // Tamamlanan talebin görevindeki tamamlama notu (card 643).
+    string? CompletionNote = null);

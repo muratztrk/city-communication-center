@@ -649,6 +649,8 @@
       "title": "Görev Detayları",
       "description": "Açıklama",
       "noDescription": "Açıklama yok",
+      "cancelNote": "İptal Notu",
+      "completionNote": "Tamamlama Notu",
       "assignmentHistory": "Atama Geçmişi",
       "noAssignmentHistory": "Atama geçmişi yok"
     }
@@ -1313,6 +1315,8 @@
     },
     "detail": {
       "title": "İş Detayı",
+      "cancelNote": "İptal Notu",
+      "completionNote": "Tamamlama Notu",
       "departments": "Müdürlükler",
       "tasks": "Görevler",
       "approvals": "Onay Geçmişi",

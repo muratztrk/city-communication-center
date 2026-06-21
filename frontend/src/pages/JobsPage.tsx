@@ -1576,11 +1576,37 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                         {
                           label: 'Durum',
-                          value: detail.status === 'Active'
-                            ? 'Yapılmakta Olan'
-                            : detail.status === 'Completed'
-                              ? 'Tamamlanmış'
-                              : getJobStatusLabel(t, detail.status),
+                          // Durum + (durumu belirleyen kullanıcı) + tıklanabilir İptal/Tamamlama Notu (card 643).
+                          value: (
+                            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                              <span>
+                                {detail.status === 'Active'
+                                  ? 'Yapılmakta Olan'
+                                  : detail.status === 'Completed'
+                                    ? 'Tamamlanmış'
+                                    : getJobStatusLabel(t, detail.status)}
+                                {detail.statusActorDisplayName ? ` (${detail.statusActorDisplayName})` : ''}
+                              </span>
+                              {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
+                                <button
+                                  type="button"
+                                  className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
+                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), message: detail.cancelReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                >
+                                  {t('jobs.detail.cancelNote', 'İptal Notu')}
+                                </button>
+                              ) : null}
+                              {detail.status === 'Completed' && detail.completionNote ? (
+                                <button
+                                  type="button"
+                                  className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
+                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.completionNote', 'Tamamlama Notu'), message: detail.completionNote!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                >
+                                  {t('jobs.detail.completionNote', 'Tamamlama Notu')}
+                                </button>
+                              ) : null}
+                            </span>
+                          ),
                         },
                         { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
                         ...(isMyRequestsView ? [{

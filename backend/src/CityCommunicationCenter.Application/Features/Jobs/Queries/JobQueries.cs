@@ -352,6 +352,52 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             .Select(a => new AttachmentResponse(a.AttachmentId, a.FileName, a.ContentType, a.FileSizeBytes, a.RelativeUrl, a.CreatedAtUtc))
             .ToListAsync(cancellationToken);
 
+        // Durumu belirleyen kullanıcı + tamamlama notu, denetim kaydı/görevlerden türetilir (card 643).
+        var jobStatusStr = job.Status.ToString();
+        string? jobStatusActorDisplayName = null;
+        string? jobCompletionNote = null;
+        if (jobStatusStr is "Cancelled" or "Rejected")
+        {
+            jobStatusActorDisplayName = await _dbContext.AuditLogs.AsNoTracking()
+                .Where(a => a.TenantId == tenantId && a.EntityId == request.JobId.ToString()
+                    && (a.Action == "JobCancelled" || a.Action == "JobOwnerRejected"))
+                .OrderByDescending(a => a.EventTimeUtc)
+                .Select(a => a.ActorDisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+        else if (jobStatusStr == "Completed")
+        {
+            var completedTask = await _dbContext.Tasks.AsNoTracking()
+                .Where(t => t.TenantId == tenantId && t.JobId == job.JobId && t.CompletedAtUtc != null)
+                .OrderByDescending(t => t.CompletedAtUtc)
+                .Select(t => new { t.TaskId, t.Notes })
+                .FirstOrDefaultAsync(cancellationToken);
+            jobCompletionNote = completedTask?.Notes;
+            if (completedTask != null)
+            {
+                var completedTaskId = completedTask.TaskId.ToString();
+                jobStatusActorDisplayName = await _dbContext.AuditLogs.AsNoTracking()
+                    .Where(a => a.TenantId == tenantId && a.EntityId == completedTaskId && a.Action == "TaskCompleted")
+                    .OrderByDescending(a => a.EventTimeUtc)
+                    .Select(a => a.ActorDisplayName)
+                    .FirstOrDefaultAsync(cancellationToken);
+            }
+        }
+        else if (jobStatusStr == "PendingOwnerApproval")
+        {
+            var managerUserId = await _dbContext.Departments.AsNoTracking()
+                .Where(d => d.DepartmentId == job.OwnerDepartmentId)
+                .Select(d => d.ManagerUserId)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (managerUserId.HasValue)
+            {
+                jobStatusActorDisplayName = await _dbContext.Users.AsNoTracking()
+                    .Where(u => u.UserId == managerUserId.Value)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefaultAsync(cancellationToken);
+            }
+        }
+
         return new JobDetailResponse(
             job.JobId, job.TenantId, job.Title, job.Description,
             job.Status.ToString(), job.Priority,
@@ -365,6 +411,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             createdByName, job.CreatedAtUtc,
             job.JobNumber, job.JobNumberYear,
             job.ManagerNote,
-            depts, tasks, approvals, attachments);
+            depts, tasks, approvals, attachments,
+            jobStatusActorDisplayName, jobCompletionNote);
     }
 }

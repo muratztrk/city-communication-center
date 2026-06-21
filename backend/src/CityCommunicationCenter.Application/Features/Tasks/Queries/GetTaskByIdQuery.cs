@@ -92,6 +92,19 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             .Select(a => new AttachmentResponse(a.AttachmentId, a.FileName, a.ContentType, a.FileSizeBytes, a.RelativeUrl, a.CreatedAtUtc))
             .ToListAsync(cancellationToken);
 
+        // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) denetim kaydından (card 642).
+        var taskStatusStr = task.CurrentStatus.ToString();
+        string? statusActorDisplayName = null;
+        if (taskStatusStr is "Cancelled" or "Completed")
+        {
+            var statusAction = taskStatusStr == "Completed" ? "TaskCompleted" : "TaskCancelled";
+            statusActorDisplayName = await _dbContext.AuditLogs.AsNoTracking()
+                .Where(a => a.TenantId == tenantId && a.EntityId == request.TaskId.ToString() && a.Action == statusAction)
+                .OrderByDescending(a => a.EventTimeUtc)
+                .Select(a => a.ActorDisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         return new TaskDetailResponse(
             task.TaskId,
             task.TenantId,
@@ -144,6 +157,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             assignedDepartmentName,
             assignedUserDisplayName,
             task.TaskNumber,
-            task.TaskNumberYear);
+            task.TaskNumberYear,
+            statusActorDisplayName);
     }
 }

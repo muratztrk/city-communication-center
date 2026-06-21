@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageCircle, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
@@ -156,13 +156,16 @@ export function AppShell() {
     .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean }
+  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[] }
 
   const navItemConfigs: NavLinkConfigEx[] = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
-    { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore },
+    // Vatandaş Talepleri, "WhatsApp Konuşmaları" alt öğesiyle açılır bir grup olarak gösterilir (card 621).
+    { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
+      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), icon: MessageCircle },
+    ] },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, requiredRole: 'Manager' },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
@@ -180,7 +183,17 @@ export function AppShell() {
     const canUse = item.requiredRole ? user?.role === item.requiredRole : item.pageKey ? canRoleAccessPage(user?.role, item.pageKey) : false
     if (canUse) {
       if (item.separatorBefore && items.length > 0) items.push({ type: 'separator' })
-      items.push({ path: item.path, label: item.label, icon: item.icon, newTab: item.newTab })
+      if (item.children && item.children.length > 0) {
+        items.push({
+          type: 'group',
+          label: item.label,
+          icon: item.icon,
+          path: item.path,
+          children: item.children.map(child => ({ path: child.path, label: child.label, icon: child.icon, newTab: child.newTab })),
+        })
+      } else {
+        items.push({ path: item.path, label: item.label, icon: item.icon, newTab: item.newTab })
+      }
       if (item.separatorAfter) items.push({ type: 'separator' })
     }
     return items

@@ -698,4 +698,6 @@ export interface AppNotification {
   isRead: boolean
   actionUrl: string | null
   sentAtUtc: string | null
+  // AuditLog'dan türetilen akış satırı: tek tek okunamaz, "Hepsini okundu yap" ile temizlenir (card 634).
+  isHistorical?: boolean
 }

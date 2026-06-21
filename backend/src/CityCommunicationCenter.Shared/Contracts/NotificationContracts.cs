@@ -20,7 +20,10 @@ public sealed record NotificationResponse(
     string Message,
     bool IsRead,
     string? ActionUrl,
-    DateTimeOffset? SentAtUtc);
+    DateTimeOffset? SentAtUtc,
+    // AuditLog'dan türetilen geçmiş/akış satırı mı (gerçek tekil bildirim değil). Bunlar tek tek
+    // okunamaz; "Hepsini okundu yap" (NotificationReadCursor) ile topluca okunur (card 634).
+    bool IsHistorical = false);
 
 public sealed record TestNotificationResponse(
     Guid NotificationId,

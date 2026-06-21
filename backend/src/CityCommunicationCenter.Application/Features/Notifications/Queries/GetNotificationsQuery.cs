@@ -45,6 +45,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         {
             var userId = context.UserId.Value;
 
+            // "Hepsini okundu yap" imlecinden sonraki (ve aktörün kendisi olmadığı) denetim kayıtları
+            // okunmamış sayılır; böylece talep/görev süreçlerindeki değişiklikler rozette uyarı verir (card 634).
+            var readThroughUtc = await _dbContext.NotificationReadCursors.AsNoTracking()
+                .Where(cursor => cursor.TenantId == tenantId && cursor.UserId == userId)
+                .Select(cursor => (DateTimeOffset?)cursor.ReadThroughUtc)
+                .FirstOrDefaultAsync(cancellationToken) ?? DateTimeOffset.MinValue;
+
             // Talep ve görev aşamalarındaki tüm değişiklikler denetim kaydından (AuditLog) bildirim olarak yansıtılır:
             // kullanıcının oluşturduğu talepler + atandığı / sahibi olduğu / oluşturduğu görevler.
             // Ayrıca yöneticinin onayını bekleyen talepler de feed'e eklenir (card 440) — okunmamış
@@ -103,6 +110,10 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
                     if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
 
+                    // İmleçten sonraki ve kullanıcının kendi yapmadığı olaylar okunmamış (rozette sayılır);
+                    // tekil olarak okunamaz (IsHistorical), "Hepsini okundu yap" ile topluca okunur (card 634).
+                    var isHistoricalRead = a.EventTimeUtc <= readThroughUtc || a.ActorUserId == userId;
+
                     feed.Add(new NotificationResponse(
                         a.AuditLogId,
                         taskId,
@@ -111,13 +122,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         "Sent",
                         ActionTitle(a.Action),
                         string.Join(" — ", messageParts),
-                        // Denetim kaydı satırları geçmiş amaçlıdır; tekil bildirim değildir.
-                        // Tek tek okunabilir rozet hesabına dahil edilmemeleri için daima okundu görünür.
-                        true,
+                        isHistoricalRead,
                         isTask
                             ? $"/my-tasks?taskId={a.EntityId}"
                             : $"/my-requests?jobId={a.EntityId}",
-                        a.EventTimeUtc));
+                        a.EventTimeUtc,
+                        IsHistorical: true));
                 }
             }
         }

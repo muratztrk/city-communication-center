@@ -95,7 +95,7 @@ public sealed class AuthController : ControllerBase
         var requestedScopes = request.GetScopes();
         var allowedScopes = new HashSet<string>(StringComparer.Ordinal)
         {
-            "openid", "profile", "email", "offline_access", "ccc_api"
+            "openid", "profile", "email", "ccc_api"
         };
         if (requestedScopes.Any(scope => !allowedScopes.Contains(scope)))
         {

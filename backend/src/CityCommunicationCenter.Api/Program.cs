@@ -162,12 +162,13 @@ builder.Services.AddOpenIddict()
         // existing password grant remains available for current web clients.
         options.AllowAuthorizationCodeFlow();
         options.RequireProofKeyForCodeExchange();
-        options.RegisterScopes("openid", "profile", "email", "offline_access", "ccc_api");
+        options.RegisterScopes("openid", "profile", "email", "ccc_api");
         options.AcceptAnonymousClients();
         options.EnableDegradedMode();
         options.DisableAuthorizationStorage();
         options.DisableTokenStorage();
         options.DisableScopeValidation();
+        options.AddEventHandler(OpenIddictAuthorizationRequestValidationHandler.Descriptor);
         options.AddEventHandler(OpenIddictPasswordGrantValidationHandler.Descriptor);
 
         options.DisableAccessTokenEncryption();

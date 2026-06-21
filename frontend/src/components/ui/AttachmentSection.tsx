@@ -2,7 +2,6 @@ import { Download, FileText } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
-import { resolveAttachmentUrl } from '../../api/config'
 import type { Attachment } from '../../types/platform'
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
@@ -168,13 +167,22 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
               key={att.attachmentId}
               className="group relative min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
             >
-              {/* Önizleme (resim küçük görseli) kaldırıldı; yüklenen her dosya yalnızca adıyla gösterilir (card 630). */}
-              <a href={resolveAttachmentUrl(att.url)} target="_blank" rel="noopener noreferrer" title={att.fileName} className="block">
-                <div className={`flex ${previewHeightClassName} w-full min-w-0 flex-col items-center justify-center gap-1 px-2 text-slate-500`}>
-                  <FileText className={compact ? 'size-5' : 'size-7'} />
-                  <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
-                </div>
-              </a>
+              {/* Önizleme (resim küçük görseli) kaldırıldı; yüklenen her dosya yalnızca adıyla gösterilir (card 630).
+                  Tüm kutucuk kimlik doğrulamalı indirmeyi tetikler: eski statik /uploads linki dosyayı
+                  indirmek yerine tarayıcıda açıyordu, kullanıcı "inmiyor" diyordu (card 631). */}
+              <button
+                type="button"
+                title={t('attachments.download', 'İndir')}
+                aria-label={t('attachments.downloadFile', '{{fileName}} dosyasını indir', { fileName: att.fileName })}
+                disabled={downloadingId === att.attachmentId}
+                onClick={() => void handleDownload(att)}
+                className={`flex ${previewHeightClassName} w-full min-w-0 cursor-pointer flex-col items-center justify-center gap-1 px-2 text-slate-500 transition-colors hover:bg-white hover:text-blue-600 disabled:cursor-wait`}
+              >
+                {downloadingId === att.attachmentId
+                  ? <Download className={`${compact ? 'size-5' : 'size-7'} animate-pulse`} />
+                  : <FileText className={compact ? 'size-5' : 'size-7'} />}
+                <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
+              </button>
               <button
                 type="button"
                 title={t('attachments.download', 'İndir')}

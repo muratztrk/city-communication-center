@@ -170,6 +170,7 @@ export function NotificationBell() {
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const markingNotificationIdsRef = useRef<Set<string>>(new Set())
   const unreadQuery = useQuery({
     queryKey: queryKeys.notifications.unreadCount(),
     queryFn: () => api.getUnreadNotificationCount(),
@@ -274,9 +275,30 @@ export function NotificationBell() {
   }, [isOpen])
 
   const markRead = async (id: string) => {
+    // Aynı bildirime ardışık tıklamalar, rozet sayısını birden fazla azaltmamalı.
+    if (markingNotificationIdsRef.current.has(id)) return
+    markingNotificationIdsRef.current.add(id)
+
     setViewedNotificationIds(prev => new Set(prev).add(id))
-    await api.markNotificationRead(id)
-    invalidateNotifications(queryClient)
+    queryClient.setQueryData<number>(queryKeys.notifications.unreadCount(), current => Math.max(0, (current ?? 0) - 1))
+    queryClient.setQueryData<AppNotification[]>(queryKeys.notifications.list(), current =>
+      current?.map(notification => notification.notificationId === id ? { ...notification, isRead: true } : notification),
+    )
+
+    try {
+      await api.markNotificationRead(id)
+      invalidateNotifications(queryClient)
+    } catch {
+      // Kalıcılaştırma başarısız olduysa sunucudaki gerçek sayıyı yeniden al.
+      setViewedNotificationIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+      invalidateNotifications(queryClient)
+    } finally {
+      markingNotificationIdsRef.current.delete(id)
+    }
   }
 
   const markAllRead = async () => {

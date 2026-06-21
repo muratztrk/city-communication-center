@@ -1,6 +1,7 @@
-import { FileText } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { api } from '../../api/client'
 import { resolveAttachmentUrl } from '../../api/config'
 import type { Attachment } from '../../types/platform'
 
@@ -31,6 +32,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
   const [uploading, setUploading] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
 
   const validate = (file: File): string | null => {
@@ -71,6 +73,26 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
       await onDelete?.(attachmentId)
     } finally {
       setDeletingId(null)
+    }
+  }
+
+  const handleDownload = async (attachment: Attachment) => {
+    setValidationError(null)
+    setDownloadingId(attachment.attachmentId)
+    try {
+      const file = await api.downloadAttachment(attachment.url)
+      const downloadUrl = URL.createObjectURL(file)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = attachment.fileName
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(downloadUrl)
+    } catch (err) {
+      setValidationError(err instanceof Error ? err.message : t('attachments.downloadFailed', 'Ek indirilemedi.'))
+    } finally {
+      setDownloadingId(null)
     }
   }
 
@@ -121,7 +143,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
       </div>
       )}
 
-      {!readOnly && validationError && (
+      {validationError && (
         <div className="alert alert-error text-sm">{validationError}</div>
       )}
 
@@ -145,6 +167,16 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
                   <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
                 </div>
               </a>
+              <button
+                type="button"
+                title={t('attachments.download', 'İndir')}
+                aria-label={t('attachments.downloadFile', '{{fileName}} dosyasını indir', { fileName: att.fileName })}
+                disabled={downloadingId === att.attachmentId}
+                className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow transition-colors hover:bg-white hover:text-blue-600 disabled:cursor-not-allowed"
+                onClick={() => void handleDownload(att)}
+              >
+                {downloadingId === att.attachmentId ? <span className="text-[10px]">…</span> : <Download className="h-3.5 w-3.5" />}
+              </button>
               {!readOnly && (
               <button
                 type="button"

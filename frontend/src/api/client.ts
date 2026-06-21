@@ -45,10 +45,18 @@ import type {
   CitizenConversationDetail,
   WhatsAppMessageTemplate,
 } from '../types/platform'
-import { API_BASE } from './config'
+import { API_BASE, resolveAttachmentUrl } from './config'
 import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
 
 export const api = {
+  async downloadAttachment(url: string): Promise<Blob> {
+    const response = await fetchWithCredentials(resolveAttachmentUrl(url), {
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.attachmentDownloadFailed', 'Ek indirilemedi'))
+    return response.blob()
+  },
+
   async getMyDepartments(): Promise<DepartmentSummary[]> {
     const response = await fetchWithCredentials(`${API_BASE}/me/departments`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.departmentsLoadFailed', 'Birim bilgileri yüklenemedi'))

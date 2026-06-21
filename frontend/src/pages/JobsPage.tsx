@@ -1772,7 +1772,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {/* 4. sütun: Ekler / Fotoğraflar — yalnızca Birimden Giden Onay Bekleyen/Taleplerim
                         (onay öncesi) talepte düzenlenebilir; onaylanmış/birime gelen talepte salt-okunur (card 537/540). */}
                     {(() => {
-                      const canEditJobAttachments = isPreApprovalStatus(detail.status) && (isDepartmentOutgoingView || isMyRequestsView)
+                      // Başkanlık seviyesi üst düzey yönetici (Reporter + Başkanlık birimi): Taleplerim →
+                      // Bekleyen/Yapılmakta Olan/Son Tarihi Geçmiş detayında, talep onaylanmış/aktif olsa da
+                      // Ek/Fotoğraf ekleyebilir; kilit uyarısı yerine "Dosya ekle" gösterilir (card 646).
+                      const canPresidencyEditAttachments = isPresidencyReporter && isMyRequestsView
+                        && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress' || currentMyRequestsView === 'overdue')
+                      const canEditJobAttachments = (isPreApprovalStatus(detail.status) && (isDepartmentOutgoingView || isMyRequestsView))
+                        || canPresidencyEditAttachments
                       // Birime gelen (incoming) talepte kilit uyarısı yalnızca talep gerçekten kapandığında
                       // gösterilir; onay bekleyen/aktif incoming talepte "Talep onaylandığı için..." yer almasın (card 632).
                       const isTerminalRequestStatus = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'

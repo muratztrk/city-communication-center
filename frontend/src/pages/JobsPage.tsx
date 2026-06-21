@@ -468,6 +468,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const isReporter = user?.role === 'Reporter'
+  // "Başkanlık seviyesi üst düzey yönetici": Üst Düzey Yönetici (Reporter) rolü + Başkanlık birimi (card 645/647).
+  const isPresidencyReporter = isReporter && user?.departmentName === 'Başkanlık'
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -1391,7 +1393,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
                         {/* Düzenle — onay öncesi (hedef onaylamadan) talebi Talep Oluştur sayfasında dolu olarak aç (card 452). */}
                         {isMyRequestsView && (() => {
-                          const canReporterEdit = isReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
+                          const canReporterEdit = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
                           const canEdit =
                           canReporterEdit
                           || isPreApprovalStatus(job.status)
@@ -1508,7 +1510,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı
                     (card 648/653/654). */}
                 {isMyRequestsView && detail != null && (() => {
-                  const canReporterEdit = isReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
+                  const canReporterEdit = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
                   const canEditDetailJob = canReporterEdit || isPreApprovalStatus(detail.status) || (isManagerLike && (
                     (detail.requestType === 'ExternalUnit' && detail.status === 'PendingExternalApproval')
                     || (detail.requestType === 'InternalUnit' && detail.status === 'Active')

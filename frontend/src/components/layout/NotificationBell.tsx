@@ -3,11 +3,10 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
 import { invalidateNotifications } from '../../api/cacheInvalidation'
 import { queryKeys } from '../../api/queryKeys'
-import type { AppNotification } from '../../types/platform'
+import type { AppNotification, JobDetail, TaskDetail } from '../../types/platform'
 import type { NotificationPayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import { getLocale } from '../../utils/localization'
@@ -152,12 +151,72 @@ function NotifList({ items, onMarkRead, onNavigate, locale, largeDetailButton = 
   )
 }
 
+interface NotificationEntityDetailModalProps {
+  detail: { kind: 'task' | 'job'; data: TaskDetail | JobDetail } | null
+  loading: boolean
+  error: string | null
+  locale: string
+  onClose: () => void
+}
+
+function NotificationEntityDetailModal({ detail, loading, error, locale, onClose }: NotificationEntityDetailModalProps) {
+  const { t } = useTranslation()
+  if (!loading && !detail && !error) return null
+
+  const isTask = detail?.kind === 'task'
+  const data = detail?.data
+  const fields = isTask && data
+    ? [
+        ['Görev Başlığı', (data as TaskDetail).title],
+        ['Durum', (data as TaskDetail).currentStatus],
+        ['Öncelik', (data as TaskDetail).priority],
+        ['Atanan', (data as TaskDetail).assignedUserDisplayName ?? (data as TaskDetail).assignedDepartmentName ?? '—'],
+        ['Son Tarih', (data as TaskDetail).dueDateUtc ? formatNotifDate((data as TaskDetail).dueDateUtc, locale) : '—'],
+      ]
+    : data
+      ? [
+          ['Talep Başlığı', (data as JobDetail).title],
+          ['Durum', (data as JobDetail).status],
+          ['Öncelik', (data as JobDetail).priority],
+          ['Talep Sahibi Birim', (data as JobDetail).ownerDepartmentName ?? '—'],
+          ['Son Tarih', (data as JobDetail).dueDateUtc ? formatNotifDate((data as JobDetail).dueDateUtc, locale) : '—'],
+        ]
+      : []
+  const description = data ? (data as TaskDetail | JobDetail).description : ''
+
+  return createPortal(
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-4" onClick={() => !loading && onClose()} role="dialog" aria-modal="true">
+      <section className="detail-modal-shell flex max-h-[min(85dvh,42rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={event => event.stopPropagation()}>
+        <header className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{t('notifications.bell', 'Bildirimler')}</p>
+            <h2 className="text-base font-extrabold text-slate-900">{isTask ? t('tasks.detail.title', 'Görev Detayları') : t('jobs.detail.title', 'Talep Detayları')}</h2>
+          </div>
+          <button type="button" disabled={loading} onClick={onClose} className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 disabled:opacity-50" aria-label={t('common.close', 'Kapat')}>
+            <X className="size-4" />
+          </button>
+        </header>
+        <div className="flex-1 overflow-y-auto p-5">
+          {loading && <p className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</p>}
+          {error && <p className="alert alert-error text-sm">{error}</p>}
+          {data && <>
+            <dl className="grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-2">
+              {fields.map(([label, value]) => <div key={label} className="bg-white px-4 py-3"><dt className="text-xs font-semibold text-slate-500">{label}</dt><dd className="mt-0.5 break-words text-sm font-semibold text-slate-800">{value}</dd></div>)}
+            </dl>
+            <section className="mt-4"><h3 className="text-sm font-bold text-slate-700">{t('common.description', 'Açıklama')}</h3><p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{description || '—'}</p></section>
+          </>}
+        </div>
+      </section>
+    </div>,
+    document.body,
+  )
+}
+
 export function NotificationBell() {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const locale = getLocale(i18n.language)
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filter, setFilter] = useState<NotifFilter>('all')
@@ -169,6 +228,9 @@ export function NotificationBell() {
   const [modalPageSize, setModalPageSize] = useState(5)
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
+  const [notificationDetail, setNotificationDetail] = useState<{ kind: 'task' | 'job'; data: TaskDetail | JobDetail } | null>(null)
+  const [notificationDetailLoading, setNotificationDetailLoading] = useState(false)
+  const [notificationDetailError, setNotificationDetailError] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const markingNotificationIdsRef = useRef<Set<string>>(new Set())
   const unreadQuery = useQuery({
@@ -313,18 +375,25 @@ export function NotificationBell() {
     invalidateNotifications(queryClient)
   }
 
-  // Bildirim "Detay": görevse Görevlerim, talepse Taleplerim sayfasındaki ilgili detay
-  // pop-up'ı derin bağlantıyla açılır (card 580).
-  const handleNavigate = (url: string) => {
+  // Bildirim detayı, mevcut sayfayı değiştirmeden uygulama kabuğunda açılır.
+  const handleOpenNotificationDetail = async (url: string) => {
     const target = parseNotificationDetailTarget(url)
     setIsOpen(false)
     setIsModalOpen(false)
-    if (target.kind === 'task' && target.id) {
-      navigate(`/my-tasks?view=all&taskId=${target.id}`)
-    } else if (target.kind === 'job' && target.id) {
-      navigate(`/my-requests?view=all&jobId=${target.id}`)
-    } else {
-      navigate(url)
+    if (target.kind === 'unsupported' || !target.id) return
+
+    setNotificationDetail(null)
+    setNotificationDetailError(null)
+    setNotificationDetailLoading(true)
+    try {
+      const data = target.kind === 'task'
+        ? await api.getTaskById(target.id)
+        : await api.getJobById(target.id)
+      setNotificationDetail({ kind: target.kind, data })
+    } catch (error) {
+      setNotificationDetailError(error instanceof Error ? error.message : t('common.error', 'Bir hata oluştu.'))
+    } finally {
+      setNotificationDetailLoading(false)
     }
   }
 
@@ -407,7 +476,7 @@ export function NotificationBell() {
               {notifQuery.isLoading ? (
                 <div className="py-6 text-center text-xs text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotifList items={previewItems} onMarkRead={markRead} onNavigate={handleNavigate} locale={locale} />
+                <NotifList items={previewItems} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} />
               )}
             </div>
 
@@ -525,7 +594,7 @@ export function NotificationBell() {
               {notifQuery.isLoading ? (
                 <div className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleNavigate} locale={locale} largeDetailButton />
+                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} largeDetailButton />
               )}
             </div>
             {!notifQuery.isLoading && (
@@ -541,6 +610,16 @@ export function NotificationBell() {
           </div>
         </div>
       , document.body)}
+      <NotificationEntityDetailModal
+        detail={notificationDetail}
+        loading={notificationDetailLoading}
+        error={notificationDetailError}
+        locale={locale}
+        onClose={() => {
+          setNotificationDetail(null)
+          setNotificationDetailError(null)
+        }}
+      />
     </>
   )
 }

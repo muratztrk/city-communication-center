@@ -1,11 +1,11 @@
-import { MapPin, MessageCircle, MessageSquare, Search, X } from 'lucide-react'
+import { MapPin, MessageSquare, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
@@ -114,7 +114,6 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
   const channelFilter = searchParams.get('channel') ?? ''
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
@@ -202,7 +201,8 @@ export function SocialMessagesPage() {
   const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
 
   const filteredMessages = useMemo(() => {
-    let result = messages.filter(message => !channelFilter || message.channel === channelFilter)
+    // WhatsApp kayıtları konuşma ekranında yönetilir; Vatandaş Talepleri gridinde satır olarak gösterilmez.
+    let result = messages.filter(message => message.channel !== 'WhatsApp' && (!channelFilter || message.channel === channelFilter))
 
     if (filterFrom || filterTo) {
       result = result.filter(message => {
@@ -234,7 +234,6 @@ export function SocialMessagesPage() {
   )
 
   const channelQuickFilters: { value: string; label: string }[] = [
-    { value: 'WhatsApp', label: 'WhatsApp' },
     { value: 'Phone', label: t('nav.socialPhone', 'Çağrı') },
     { value: 'Instagram', label: 'Instagram' },
     { value: 'Facebook', label: 'Facebook' },
@@ -249,10 +248,6 @@ export function SocialMessagesPage() {
     if (channel) nextParams.set('channel', channel)
     else nextParams.delete('channel')
     setSearchParams(nextParams)
-  }
-
-  const openWhatsAppConversations = (phoneOrHandle: string) => {
-    navigate(`/whatsapp?phone=${encodeURIComponent(phoneOrHandle.replace(/^@/, ''))}`)
   }
 
   if (loading) {
@@ -327,17 +322,6 @@ export function SocialMessagesPage() {
                     <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
-                        {message.channel === 'WhatsApp' && (
-                          <Button
-                            size="sm"
-                            type="button"
-                            variant="secondary"
-                            onClick={() => openWhatsAppConversations(message.citizenHandle)}
-                          >
-                            <MessageCircle className="size-3.5" />
-                            {t('whatsapp.conversationsButton', 'Yazışmalar')}
-                          </Button>
-                        )}
                         {!message.jobId ? (
                           <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
                             {t('nav.createRequest', 'Talep Oluştur')}
@@ -402,7 +386,7 @@ export function SocialMessagesPage() {
         </div>
       </section>
 
-      {/* "Talep Oluştur" → Birim Dışı Talep Oluştur formu + ilgili WhatsApp konuşması (card 443) */}
+      {/* "Talep Oluştur" → Birim Dışı Talep Oluştur formu (card 443). */}
       {requestModalMessage && (
         <CitizenRequestModal
           message={requestModalMessage}

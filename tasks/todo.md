@@ -430,4 +430,5 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `#621` (yeni gereksinim) — Sol menüde Vatandaş Talepleri açılır grup olsun, altında "WhatsApp Konuşmaları" → /whatsapp. SidebarNav zaten `type:'group'` destekliyordu; AppShell navItemConfigs'e `children` alanı + reduce'da grup üretimi eklendi; social artık grup (parent /social + child /whatsapp, MessageCircle ikon). Banner altındaki WhatsApp butonu/ikonu önceki turda chip olarak eklenmişti (scope-chips). FE build + lint PASS.
 - [x] `#652` — = #634 (okunmamış) + #640 (tıkla→okundu); kod zaten yapıyor (backend build düzeldikten sonra deploy edilebilir). Done'a taşındı.
 - [~] `#650` — Detay pop-up'ında "İlgili Talep Detayları" başlığı üstüne border çizgisi (görsel polish). Görsel doğrulama gerektiriyor (app+auth+veri); ATLANDI/ertelendi.
+- [x] `#653` — Taleplerim detayında Düzenle butonu artık her zaman görünür (Son Tarihi Geçmiş dahil): onay öncesi talepte aktif, değilse pasif (DisabledActionButton, "Bu kayıtta düzenleme yapılamaz"). #648'i genişletir. FE build + lint PASS.
 - BE build + FE build + lint PASS.

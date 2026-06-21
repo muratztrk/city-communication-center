@@ -1497,16 +1497,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
-                {/* Taleplerim → Bekleyen detayında, "Talebi İptal Et"in soluna Düzenle (tüm kullanıcılar,
-                    onay öncesi talep); gridview'daki Düzenle ile aynı akış (card 648). */}
-                {isMyRequestsView && detail != null && isPreApprovalStatus(detail.status) && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => navigate(`/requests/new?kind=${detail.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${detail.jobId}`)}
-                  >
-                    {t('jobs.actions.edit', 'Düzenle')}
-                  </Button>
+                {/* Taleplerim detayında, "Talebi İptal Et"in soluna Düzenle (tüm kullanıcılar).
+                    Onay öncesi talepte aktif; değilse (ör. Son Tarihi Geçmiş/aktif talep) pasif görünür
+                    (gridview'daki Düzenle akışıyla aynı) (card 648/653). */}
+                {isMyRequestsView && detail != null && (
+                  isPreApprovalStatus(detail.status) ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => navigate(`/requests/new?kind=${detail.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${detail.jobId}`)}
+                    >
+                      {t('jobs.actions.edit', 'Düzenle')}
+                    </Button>
+                  ) : (
+                    <DisabledActionButton hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
+                      {t('jobs.actions.edit', 'Düzenle')}
+                    </DisabledActionButton>
+                  )
                 )}
                 {canCancelDetail && (
                   <Button

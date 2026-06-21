@@ -131,21 +131,15 @@ export function applyTenantAppearance(appearance: TenantAppearance): void {
   root.dataset.themePreset = appearance.themePreset
 }
 
-export function applyTenantBrowserBranding(appearance: TenantAppearance): void {
+export function applyTenantBrowserBranding(_appearance: TenantAppearance): void {
   if (typeof document === 'undefined') {
     return
   }
 
-  const iconUrl = appearance.logoUrl?.trim() || '/favicon.png'
-  const iconType = iconUrl.endsWith('.svg')
-    ? 'image/svg+xml'
-    : iconUrl.endsWith('.png')
-      ? 'image/png'
-    : iconUrl.endsWith('.jpeg') || iconUrl.endsWith('.jpg')
-      ? 'image/jpeg'
-    : iconUrl.endsWith('.ico')
-      ? 'image/x-icon'
-      : undefined
+  // Browser icons are deployment assets, not tenant appearance assets. This
+  // prevents a tenant's content logo URL from being requested by every tab.
+  const iconUrl = '/favicon.png'
+  const iconType = 'image/png'
   const ensureIconLink = (rel: string) => {
     let link = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)
     if (!link) {

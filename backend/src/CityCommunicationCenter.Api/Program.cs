@@ -154,9 +154,15 @@ builder.Services.AddOpenIddict()
     .AddServer(options =>
     {
         options.SetIssuer(new Uri(tokenIssuer));
+        options.SetAuthorizationEndpointUris("/connect/authorize");
         options.SetTokenEndpointUris("/connect/token");
 
         options.AllowPasswordFlow();
+        // Native clients use the standards-based authorization-code flow.  The
+        // existing password grant remains available for current web clients.
+        options.AllowAuthorizationCodeFlow();
+        options.RequireProofKeyForCodeExchange();
+        options.RegisterScopes("openid", "profile", "email", "offline_access", "ccc_api");
         options.AcceptAnonymousClients();
         options.EnableDegradedMode();
         options.DisableAuthorizationStorage();
@@ -166,11 +172,13 @@ builder.Services.AddOpenIddict()
 
         options.DisableAccessTokenEncryption();
         options.SetAccessTokenLifetime(TimeSpan.FromHours(8));
+        options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
         options.AddEphemeralSigningKey();
         options.AddEphemeralEncryptionKey();
         options.AddSigningKey(signingKey);
 
         options.UseAspNetCore()
+            .EnableAuthorizationEndpointPassthrough()
             .EnableTokenEndpointPassthrough();
 
         if (builder.Environment.IsDevelopment())

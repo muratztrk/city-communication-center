@@ -65,13 +65,14 @@ public sealed class ReportsController : ApiControllerBase
     }
 
     [HttpGet("executive")]
+    [Authorize(Roles = "SystemAdmin,Manager")]
     public async Task<ActionResult<ExecutiveReportResponse>> GetExecutiveReport(
         [FromQuery] string period = "monthly",
-        [FromQuery] DateTimeOffset? from = null,
-        [FromQuery] DateTimeOffset? to = null,
+        [FromQuery] DateTimeOffset? fromUtc = null,
+        [FromQuery] DateTimeOffset? toUtc = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await _sender.Send(new GetExecutiveReportQuery(period, from, to), cancellationToken);
+        var response = await _sender.Send(new GetExecutiveReportQuery(period, fromUtc, toUtc), cancellationToken);
         return Ok(response);
     }
 }

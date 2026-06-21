@@ -85,16 +85,14 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
             jobsQuery = jobsQuery.Where(j => scopedDeptIds.Contains(j.OwnerDepartmentId));
 
         var allJobs = await jobsQuery
-            .Select(j => new
-            {
+            .Select(j => new ReportJob(
                 j.Status,
                 j.CreatedAtUtc,
                 j.CompletedAtUtc,
                 j.DueDateUtc,
                 j.OwnerDepartmentId,
                 j.SourceType,
-                j.SourceRefId,
-            })
+                j.SourceRefId))
             .ToListAsync(cancellationToken);
 
         var totalRequests = allJobs.Count;
@@ -135,7 +133,8 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
         var openSocialMessages = await _dbContext.SocialMessages
             .AsNoTracking()
             .CountAsync(sm => sm.TenantId == tenantId
-                && sm.Status != SocialMessageStatus.Closed,
+                && sm.Status != SocialMessageStatus.Closed
+                && (scopedDeptIds == null || (sm.AssignedDepartmentId.HasValue && scopedDeptIds.Contains(sm.AssignedDepartmentId.Value))),
                 cancellationToken);
 
         var kpi = new ExecutiveKpiResponse(
@@ -268,7 +267,7 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
 
     private static IReadOnlyList<TimeSeriesPointResponse> BuildTimeSeries(
         string period,
-        IReadOnlyList<dynamic> jobs,
+        IReadOnlyList<ReportJob> jobs,
         DateTimeOffset from,
         DateTimeOffset to)
     {
@@ -281,7 +280,7 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
     }
 
     private static IReadOnlyList<TimeSeriesPointResponse> BuildMonthlyBuckets(
-        IReadOnlyList<dynamic> jobs, DateTimeOffset from, DateTimeOffset to)
+        IReadOnlyList<ReportJob> jobs, DateTimeOffset from, DateTimeOffset to)
     {
         var buckets = new List<TimeSeriesPointResponse>();
         var cursor = new DateTimeOffset(from.Year, from.Month, 1, 0, 0, 0, TimeSpan.Zero);
@@ -307,7 +306,7 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
     }
 
     private static IReadOnlyList<TimeSeriesPointResponse> BuildWeeklyBuckets(
-        IReadOnlyList<dynamic> jobs, DateTimeOffset from, DateTimeOffset to)
+        IReadOnlyList<ReportJob> jobs, DateTimeOffset from, DateTimeOffset to)
     {
         var buckets = new List<TimeSeriesPointResponse>();
         // Align to Monday of the start week
@@ -339,7 +338,7 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
     }
 
     private static IReadOnlyList<TimeSeriesPointResponse> BuildYearlyBuckets(
-        IReadOnlyList<dynamic> jobs, DateTimeOffset from, DateTimeOffset to)
+        IReadOnlyList<ReportJob> jobs, DateTimeOffset from, DateTimeOffset to)
     {
         var buckets = new List<TimeSeriesPointResponse>();
         var startYear = from.Year;
@@ -382,4 +381,13 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
         SocialChannel.Phone => "warning",
         _ => "neutral",
     };
+
+    private sealed record ReportJob(
+        JobStatus Status,
+        DateTimeOffset CreatedAtUtc,
+        DateTimeOffset? CompletedAtUtc,
+        DateTimeOffset? DueDateUtc,
+        Guid OwnerDepartmentId,
+        JobSourceType SourceType,
+        Guid? SourceRefId);
 }

@@ -76,6 +76,41 @@ public sealed class AuthController : ControllerBase
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
 
+    [HttpGet("/connect/authorize")]
+    [Authorize(AuthenticationSchemes = AuthorizationPolicies.SessionCookieScheme)]
+    public IActionResult AuthorizeMobileClient()
+    {
+        var request = Microsoft.AspNetCore.OpenIddictServerAspNetCoreHelpers.GetOpenIddictServerRequest(HttpContext);
+        if (request is null)
+        {
+            return BadRequest(new { error = Errors.InvalidRequest, error_description = _localizer["AuthRequestUnreadable"].Value });
+        }
+
+        var mobileClient = MobileOidcClientConfiguration.FromConfiguration(_configuration);
+        if (!mobileClient.Matches(request.ClientId, request.RedirectUri))
+        {
+            return BadRequest(new { error = Errors.InvalidClient, error_description = "Geçersiz mobil istemci veya yönlendirme adresi." });
+        }
+
+        var requestedScopes = request.GetScopes();
+        var allowedScopes = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "openid", "profile", "email", "offline_access", "ccc_api"
+        };
+        if (requestedScopes.Any(scope => !allowedScopes.Contains(scope)))
+        {
+            return BadRequest(new { error = Errors.InvalidScope, error_description = "Geçersiz bir mobil erişim kapsamı istendi." });
+        }
+
+        // The browser session was created by the established server-side local/LDAP
+        // authentication flow.  The native client only receives protocol tokens.
+        var principal = new ClaimsPrincipal(User);
+        principal.SetScopes(requestedScopes);
+        principal.SetAudiences(_configuration["Authentication:Audience"] ?? "city-communication-center-api");
+
+        return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
@@ -342,7 +377,7 @@ public sealed class AuthController : ControllerBase
         principal.SetDestinations(static claim => claim.Type switch
         {
             Claims.Name or ClaimTypes.NameIdentifier or Claims.Subject or Claims.Email or Claims.PreferredUsername or Claims.Role or "displayName" or "tenant_id" or "tenantId" or "tenant_name" or "department_id"
-                => [Destinations.AccessToken],
+                => [Destinations.AccessToken, Destinations.IdentityToken],
             _ => []
         });
 

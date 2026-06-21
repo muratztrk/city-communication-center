@@ -19,6 +19,7 @@
     <ProjectReference Include="../../src/CityCommunicationCenter.Application/CityCommunicationCenter.Application.csproj" />
     <ProjectReference Include="../../src/CityCommunicationCenter.Domain/CityCommunicationCenter.Domain.csproj" />
     <ProjectReference Include="../../src/CityCommunicationCenter.Infrastructure/CityCommunicationCenter.Infrastructure.csproj" />
+    <ProjectReference Include="../../src/CityCommunicationCenter.Api/CityCommunicationCenter.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

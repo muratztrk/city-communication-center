@@ -16,6 +16,11 @@ import { DateTimePicker } from '../ui/date-time-picker'
 import { RichTextContent } from '../ui/RichTextContent'
 
 type NotifFilter = 'all' | 'unread'
+export type NotificationDetailTarget = { kind: 'task' | 'job'; id: string }
+
+interface NotificationBellProps {
+  onOpenDetail?: (target: NotificationDetailTarget) => void
+}
 function localizeNotificationText(value: string): string {
   return value
     .replace(/routine[\s\u00a0]+task[\s\u00a0]+created/giu, 'Rutin görev oluşturuldu')
@@ -213,7 +218,7 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
   )
 }
 
-export function NotificationBell() {
+export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const locale = getLocale(i18n.language)
@@ -229,9 +234,9 @@ export function NotificationBell() {
   const [modalPageSize, setModalPageSize] = useState(5)
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
-  const [notificationDetail, setNotificationDetail] = useState<{ kind: 'task' | 'job'; data: TaskDetail | JobDetail } | null>(null)
-  const [notificationDetailLoading, setNotificationDetailLoading] = useState(false)
-  const [notificationDetailError, setNotificationDetailError] = useState<string | null>(null)
+  const [notificationDetail] = useState<{ kind: 'task' | 'job'; data: TaskDetail | JobDetail } | null>(null)
+  const [notificationDetailLoading] = useState(false)
+  const [notificationDetailError] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const markingNotificationIdsRef = useRef<Set<string>>(new Set())
   const unreadQuery = useQuery({
@@ -383,19 +388,7 @@ export function NotificationBell() {
     setIsModalOpen(false)
     if (target.kind === 'unsupported' || !target.id) return
 
-    setNotificationDetail(null)
-    setNotificationDetailError(null)
-    setNotificationDetailLoading(true)
-    try {
-      const data = target.kind === 'task'
-        ? await api.getTaskById(target.id)
-        : await api.getJobById(target.id)
-      setNotificationDetail({ kind: target.kind, data })
-    } catch (error) {
-      setNotificationDetailError(error instanceof Error ? error.message : t('common.error', 'Bir hata oluştu.'))
-    } finally {
-      setNotificationDetailLoading(false)
-    }
+    onOpenDetail?.({ kind: target.kind, id: target.id })
   }
 
   const openModal = () => {
@@ -616,10 +609,7 @@ export function NotificationBell() {
         loading={notificationDetailLoading}
         error={notificationDetailError}
         locale={locale}
-        onClose={() => {
-          setNotificationDetail(null)
-          setNotificationDetailError(null)
-        }}
+        onClose={() => undefined}
       />
     </>
   )

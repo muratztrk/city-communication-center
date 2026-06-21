@@ -105,6 +105,9 @@ function availableScopes(role?: string): TaskListScope[] {
 interface TasksPageProps {
   fixedScope?: TaskListScope
   mode?: TasksPageMode
+  notificationTaskId?: string | null
+  detailOnly?: boolean
+  onNotificationDetailClose?: () => void
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -321,7 +324,7 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
   return tasks.filter(task => !isClosedStatus(task.currentStatus) && !isOverdue(task))
 }
 
-export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
+export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, detailOnly = false, onNotificationDetailClose }: TasksPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -371,7 +374,7 @@ export function TasksPage({ fixedScope, mode = 'default' }: TasksPageProps) {
   const isStaffTasksView = mode === 'staffTasks'
   const currentMyTaskView = getMyTaskView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
-  const autoOpenTaskId = searchParams.get('taskId')
+  const autoOpenTaskId = notificationTaskId ?? searchParams.get('taskId')
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
@@ -987,6 +990,10 @@ const pageKicker = isMyTasksView
     setExtraTimeReview(null)
     // Detay derin bağlantıyla (ör. Birime Gelen Talepler) açıldıysa kapatınca geldiği sayfaya dön;
     // bu sayfada kalıp Birimdeki Görevler'e düşmemeli (card 549).
+    if (notificationTaskId) {
+      onNotificationDetailClose?.()
+      return
+    }
     if (autoOpenTaskId) {
       navigate(-1)
       return
@@ -997,7 +1004,7 @@ const pageKicker = isMyTasksView
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className={detailOnly ? 'hidden' : 'page-stack desktop-page-shell'}>
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">

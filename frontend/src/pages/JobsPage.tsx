@@ -457,9 +457,12 @@ async function loadJobsForView(scope: JobListScope, departmentId: string | null,
 interface JobsPageProps {
   fixedScope?: JobListScope
   mode?: 'external' | 'myRequests' | 'departmentOutgoing'
+  notificationJobId?: string | null
+  detailOnly?: boolean
+  onNotificationDetailClose?: () => void
 }
 
-export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, onNotificationDetailClose }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -594,7 +597,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }, [fixedScope, searchParams, navigate])
 
   // auto-open detail drawer when ?jobId=... is in the URL (e.g. linked from social messages)
-  const autoOpenJobId = searchParams.get('jobId')
+  const autoOpenJobId = notificationJobId ?? searchParams.get('jobId')
 
   // "Birime Gelen Talepler" varsayılan liste görünümü artık /incoming-requests sayfasının
   // kopyasıydı; tek bir talep (jobId) açılmadığında bu eski sayfaya düşülmemesi için
@@ -922,6 +925,10 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   // takılı kalınmaması için bağlama göre ilgili listeye dönülür (card 431).
   const closeDetail = () => {
     setDetail(null)
+    if (notificationJobId) {
+      onNotificationDetailClose?.()
+      return
+    }
     if (mode === 'external') {
       navigate(detailContext === 'social' ? '/social' : '/incoming-requests?kind=all', { replace: true })
     }
@@ -1192,7 +1199,7 @@ export function JobsPage({ fixedScope, mode = 'external' }: JobsPageProps) {
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className={detailOnly ? 'hidden' : 'page-stack desktop-page-shell'}>
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">

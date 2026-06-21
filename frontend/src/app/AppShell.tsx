@@ -11,7 +11,9 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { GlobalSearchBar } from '../components/layout/GlobalSearchBar'
-import { NotificationBell } from '../components/layout/NotificationBell'
+import { NotificationBell, type NotificationDetailTarget } from '../components/layout/NotificationBell'
+import { TasksPage } from '../pages/TasksPage'
+import { JobsPage } from '../pages/JobsPage'
 import { SidebarNav, type SidebarNavItem, type SidebarNavLinkItem } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
@@ -75,6 +77,7 @@ export function AppShell() {
   const [activeDeptId, setActiveDeptId] = useState<string | null>(getActiveDepartmentId)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
+  const [notificationDetailTarget, setNotificationDetailTarget] = useState<NotificationDetailTarget | null>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   const userDepartmentsQuery = useQuery({
@@ -506,7 +509,7 @@ export function AppShell() {
           </nav>
           <div className="flex items-center gap-3">
             <GlobalSearchBar />
-            <NotificationBell />
+            <NotificationBell onOpenDetail={setNotificationDetailTarget} />
             <a
               href="https://lumespec.com/apps/city-communication-center/guide/"
               target="_blank"
@@ -620,6 +623,22 @@ export function AppShell() {
       </div> {/* end main area row */}
       <ScrollFab />
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
+      {notificationDetailTarget?.kind === 'task' && (
+        <TasksPage
+          fixedScope="mine"
+          detailOnly
+          notificationTaskId={notificationDetailTarget.id}
+          onNotificationDetailClose={() => setNotificationDetailTarget(null)}
+        />
+      )}
+      {notificationDetailTarget?.kind === 'job' && (
+        <JobsPage
+          mode="myRequests"
+          detailOnly
+          notificationJobId={notificationDetailTarget.id}
+          onNotificationDetailClose={() => setNotificationDetailTarget(null)}
+        />
+      )}
     </div>
   )
 }

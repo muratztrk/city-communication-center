@@ -101,6 +101,9 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             }
         }
 
+        // Atama denetim kaydında atanan kişinin adı saklanır; bildirimde "Bir personele atandı" yerine
+        // ismi gösterilir (card 639).
+        string? assignedUserDisplayName = null;
         if (assignedUserId.HasValue)
         {
             var target = await _dbContext.Users.FirstOrDefaultAsync(
@@ -110,6 +113,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             {
                 throw Validation(nameof(request.AssignedUserId), "Secilen kullanici bulunamadi veya aktif degil.");
             }
+            assignedUserDisplayName = target.DisplayName;
             if (assignedDepartmentId.HasValue &&
                 !await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, target, assignedDepartmentId.Value, cancellationToken))
             {
@@ -179,7 +183,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             ActorDisplayName = actor.DisplayName,
             StatusAtEvent = initialStatus.ToString(),
             Notes = request.Notes,
-            Details = assignedUserId.HasValue ? $"Assigned to user {assignedUserId}" : "Unassigned (pool)"
+            Details = assignedUserId.HasValue ? $"Assigned to: {assignedUserDisplayName}" : "Unassigned (pool)"
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

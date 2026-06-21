@@ -418,3 +418,10 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - **KRİTİK build hotfix**: `301cccf` (paralel commit) `AttachmentsController.Download` içinde `CurrentContext.RequireTenantId()` kullanıyor ama `using CityCommunicationCenter.Application;` eklenmemiş → **backend HEAD'de derlenmiyordu**. Yani 301cccf'den beri backend deploy olmuyordu → indirme uç noktası canlı değildi (#631'in gerçek kök nedeni, stale cache değil). Eksik using eklendi; backend tekrar derleniyor.
 - Not: #621/#631 stale cache değil, gerçek eksiklerdi (erişim noktası / tile indirme / backend derleme). #610 reprodüksiyonla doğrulandı (sorun yok). #612 zaten deploy'daydı.
 - FE build + lint + BE build + 10 test PASS.
+
+## Round 64 (Doing batch — 11 kart; gruplar halinde işleniyor)
+- [x] `#641` — Talep onaylanınca bildirimde "CreatedTasks=N" teknik detayı görünüyordu (ApproveJobOwnerCommand Details, comment yoksa). GetNotificationsQuery `FormatNote` artık "CreatedTasks=" ile başlayan notları gizliyor.
+- [x] `#639` — Bildirimde "Bir personele atandı" yerine atanan kişinin ismi. Kök: `CreateTaskCommand` denetim Details'i `"Assigned to user {guid}"` yazıyordu → FormatNote "Bir personele atandı". Artık `"Assigned to: {displayName}"` (target.DisplayName) yazılıyor → FormatNote "Atanan: {isim}". (Mevcut eski kayıtlar guid'li kalır; yeni atamalar ismi gösterir.)
+- [x] `#644` — Tamamlanmış taleplerde Ekler/Fotoğraf kilit metni "Talep onaylandığı için..." yerine "Talep tamamlandığı için...". Yeni i18n `attachments.lockedCompletedRequest` (tr/en; mevcut `lockedCompleted` "Görev..." task içindi). JobsPage 3 kilit metni daluna Completed kolu eklendi.
+- [x] `#632` — Üst düzey yönetici talebi hedef birime aktifken (Onay Bekleyen incoming) Ekler/Fotoğraf'ta "Talep onaylandığı için..." uyarısı çıkıyordu. Incoming (isRequestDetailContext) bağlamında kilit uyarısı artık yalnızca talep gerçekten kapandığında (Completed/Cancelled/Rejected) gösteriliyor; aktif/onay-bekleyen incoming talepte gösterilmiyor. Giden/Taleplerim bağlamı değişmedi.
+- BE build + FE build + lint PASS.

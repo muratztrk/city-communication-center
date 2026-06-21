@@ -1714,7 +1714,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         (onay öncesi) talepte düzenlenebilir; onaylanmış/birime gelen talepte salt-okunur (card 537/540). */}
                     {(() => {
                       const canEditJobAttachments = isPreApprovalStatus(detail.status) && (isDepartmentOutgoingView || isMyRequestsView)
-                      const showAttachmentLockNotice = !canEditJobAttachments && !isPreApprovalStatus(detail.status)
+                      // Birime gelen (incoming) talepte kilit uyarısı yalnızca talep gerçekten kapandığında
+                      // gösterilir; onay bekleyen/aktif incoming talepte "Talep onaylandığı için..." yer almasın (card 632).
+                      const isTerminalRequestStatus = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'
+                      const showAttachmentLockNotice = !canEditJobAttachments
+                        && (isRequestDetailContext ? isTerminalRequestStatus : !isPreApprovalStatus(detail.status))
                       return (
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
                           <h3 className="mb-3 text-sm font-bold text-slate-900">
@@ -1743,9 +1747,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           />
                           {showAttachmentLockNotice && (
                             <p className="mt-2 text-xs font-medium text-amber-600">
-                              {(detail.status === 'Cancelled' || detail.status === 'Rejected')
-                                ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
-                                : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')}
+                              {detail.status === 'Completed'
+                                ? t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')
+                                : (detail.status === 'Cancelled' || detail.status === 'Rejected')
+                                  ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
+                                  : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')}
                             </p>
                           )}
                         </div>
@@ -1845,10 +1851,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
             {/* Yöneticisi/koordinasyon yetkisi olmayan kullanıcılar için ikinci satır standart iki kolon tasarımı. */}
             {isRequestDetailContext && !canManageCoordination && (() => {
-              const showAttachmentLockNotice = !isPreApprovalStatus(detail.status)
-              const requestAttachmentLockText = (detail.status === 'Cancelled' || detail.status === 'Rejected')
-                ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
-                : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
+              // Incoming talepte kilit uyarısı yalnızca talep kapandığında gösterilir (card 632).
+              const showAttachmentLockNotice = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'
+              const requestAttachmentLockText = detail.status === 'Completed'
+                ? t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')
+                : (detail.status === 'Cancelled' || detail.status === 'Rejected')
+                  ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
+                  : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
                 <div className="mb-5 grid gap-4 lg:grid-cols-2">
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
@@ -1878,9 +1887,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
             {!isRequestDetailContext && (() => {
               const readOnlyRequestAttachments = isRequestDetailContext
-              const requestAttachmentLockText = (detail.status === 'Cancelled' || detail.status === 'Rejected')
-                ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
-                : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
+              const requestAttachmentLockText = detail.status === 'Completed'
+                ? t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')
+                : (detail.status === 'Cancelled' || detail.status === 'Rejected')
+                  ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
+                  : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
                 <section className="mb-5">
                   <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">

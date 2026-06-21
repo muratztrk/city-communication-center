@@ -180,7 +180,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
         // Saf teknik/debug notlarını kullanıcıya gösterme.
         if (trimmed.StartsWith("Targets=", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("Status=", StringComparison.OrdinalIgnoreCase))
+            trimmed.StartsWith("Status=", StringComparison.OrdinalIgnoreCase) ||
+            // Talep onaylanınca "CreatedTasks=N" teknik detayı bildirimde görünmesin (card 641).
+            trimmed.StartsWith("CreatedTasks=", StringComparison.OrdinalIgnoreCase))
             return null;
 
         // İngilizce ifadeleri Türkçeleştir.

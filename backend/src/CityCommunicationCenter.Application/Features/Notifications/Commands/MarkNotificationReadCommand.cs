@@ -50,15 +50,29 @@ public sealed class MarkNotificationReadCommandHandler : ICommandHandler<MarkNot
             return false;
         }
 
-        var cursor = await NotificationAudience.GetOrCreateCursorAsync(
-            _dbContext, tenantId, userId, cancellationToken);
-        if (auditLog.EventTimeUtc > cursor.ReadThroughUtc)
+        // Geçmiş (AuditLog) bildirimini TEKİL olarak okundu işaretle; imleci ilerletme — yoksa bu
+        // olaydan daha eski tüm olaylar da okunmuş sayılır ve rozet tek tıkla birden çok azalır (card 633).
+        // "Hepsini okundu yap" hâlâ imleci ilerletir (MarkAllNotificationsReadCommand).
+        var alreadyRead = await _dbContext.NotificationAuditReads
+            .AnyAsync(
+                entry =>
+                    entry.TenantId == tenantId
+                    && entry.UserId == userId
+                    && entry.AuditLogId == auditLog.AuditLogId,
+                cancellationToken);
+        if (!alreadyRead)
         {
-            cursor.ReadThroughUtc = auditLog.EventTimeUtc;
-            cursor.UpdatedByUserId = userId;
+            _dbContext.NotificationAuditReads.Add(new NotificationAuditRead
+            {
+                NotificationAuditReadId = Guid.NewGuid(),
+                TenantId = tenantId,
+                UserId = userId,
+                AuditLogId = auditLog.AuditLogId,
+                CreatedByUserId = userId,
+            });
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

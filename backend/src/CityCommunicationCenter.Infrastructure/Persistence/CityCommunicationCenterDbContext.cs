@@ -40,6 +40,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<AssignmentHistory> AssignmentHistories => Set<AssignmentHistory>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<NotificationReadCursor> NotificationReadCursors => Set<NotificationReadCursor>();
+    public DbSet<NotificationAuditRead> NotificationAuditReads => Set<NotificationAuditRead>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<RoutingRule> RoutingRules => Set<RoutingRule>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
@@ -99,6 +100,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureAssignmentHistory(modelBuilder.Entity<AssignmentHistory>());
         ConfigureNotification(modelBuilder.Entity<Notification>());
         ConfigureNotificationReadCursor(modelBuilder.Entity<NotificationReadCursor>());
+        ConfigureNotificationAuditRead(modelBuilder.Entity<NotificationAuditRead>());
         ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
         ConfigureRoutingRule(modelBuilder.Entity<RoutingRule>());
         ConfigurePushSubscription(modelBuilder.Entity<PushSubscription>());
@@ -120,6 +122,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<AssignmentHistory>());
         ApplyTenantFilter(modelBuilder.Entity<Notification>());
         ApplyTenantFilter(modelBuilder.Entity<NotificationReadCursor>());
+        ApplyTenantFilter(modelBuilder.Entity<NotificationAuditRead>());
         ApplyTenantFilter(modelBuilder.Entity<AuditLog>());
         ApplyTenantFilter(modelBuilder.Entity<RoutingRule>());
         ApplyTenantFilter(modelBuilder.Entity<PushSubscription>());
@@ -551,6 +554,13 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("notificationreadcursors");
         builder.HasKey(entity => entity.NotificationReadCursorId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureNotificationAuditRead(EntityTypeBuilder<NotificationAuditRead> builder)
+    {
+        builder.ToTable("notificationauditreads");
+        builder.HasKey(entity => entity.NotificationAuditReadId);
         ApplyLowerCaseColumnNames(builder);
     }
 

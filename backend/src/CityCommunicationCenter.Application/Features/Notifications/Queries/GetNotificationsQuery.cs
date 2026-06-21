@@ -52,6 +52,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 .Select(cursor => (DateTimeOffset?)cursor.ReadThroughUtc)
                 .FirstOrDefaultAsync(cancellationToken) ?? DateTimeOffset.MinValue;
 
+            // Tek tek okunmuş geçmiş bildirimler (imleç değil, tekil işaret) okundu görünür (card 633).
+            var readAuditIds = (await _dbContext.NotificationAuditReads.AsNoTracking()
+                .Where(entry => entry.TenantId == tenantId && entry.UserId == userId)
+                .Select(entry => entry.AuditLogId)
+                .ToListAsync(cancellationToken))
+                .ToHashSet();
+
             // Talep ve görev aşamalarındaki tüm değişiklikler denetim kaydından (AuditLog) bildirim olarak yansıtılır:
             // kullanıcının oluşturduğu talepler + atandığı / sahibi olduğu / oluşturduğu görevler.
             // Ayrıca yöneticinin onayını bekleyen talepler de feed'e eklenir (card 440) — okunmamış
@@ -110,9 +117,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
                     if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
 
-                    // İmleçten sonraki ve kullanıcının kendi yapmadığı olaylar okunmamış (rozette sayılır);
-                    // tekil olarak okunamaz (IsHistorical), "Hepsini okundu yap" ile topluca okunur (card 634).
-                    var isHistoricalRead = a.EventTimeUtc <= readThroughUtc || a.ActorUserId == userId;
+                    // İmleçten sonraki ve kullanıcının kendi yapmadığı olaylar okunmamış (rozette sayılır).
+                    // Tek tıkla okunabilir (tekil işaret, card 633) veya "Hepsini okundu yap" ile imleç
+                    // toplu ilerletilir (card 634).
+                    var isHistoricalRead = a.EventTimeUtc <= readThroughUtc
+                        || a.ActorUserId == userId
+                        || readAuditIds.Contains(a.AuditLogId);
 
                     feed.Add(new NotificationResponse(
                         a.AuditLogId,

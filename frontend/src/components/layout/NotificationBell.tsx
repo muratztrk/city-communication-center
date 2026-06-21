@@ -336,6 +336,14 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
     }
   }, [])
 
+  // Panel (açılır liste veya modal) açıldığında rozet sayısını tazele; kullanıcı tıklamadan önce
+  // sayı güncel olur, böylece her tıklama görünür biçimde tam 1 azalır (card 633).
+  useEffect(() => {
+    if (isOpen || isModalOpen) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unreadCount() })
+    }
+  }, [isOpen, isModalOpen, queryClient])
+
   useEffect(() => {
     if (!isOpen) return
     function handler(e: MouseEvent) {

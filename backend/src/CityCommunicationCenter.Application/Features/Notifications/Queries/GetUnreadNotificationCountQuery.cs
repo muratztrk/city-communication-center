@@ -45,6 +45,13 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
             .Select(cursor => (DateTimeOffset?)cursor.ReadThroughUtc)
             .FirstOrDefaultAsync(cancellationToken) ?? DateTimeOffset.MinValue;
 
+        // Tek tek okunmuş (rozet tam 1 azalsın diye) geçmiş bildirimler sayım dışı (card 633).
+        var readAuditIds = await _dbContext.NotificationAuditReads
+            .AsNoTracking()
+            .Where(entry => entry.TenantId == tenantId && entry.UserId == request.UserId)
+            .Select(entry => entry.AuditLogId)
+            .ToListAsync(cancellationToken);
+
         var historicalUnread = await _dbContext.AuditLogs
             .AsNoTracking()
             .CountAsync(
@@ -52,7 +59,8 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                     auditLog.TenantId == tenantId
                     && entityIds.Contains(auditLog.EntityId)
                     && auditLog.EventTimeUtc > readThroughUtc
-                    && auditLog.ActorUserId != request.UserId,
+                    && auditLog.ActorUserId != request.UserId
+                    && !readAuditIds.Contains(auditLog.AuditLogId),
                 cancellationToken);
 
         return realUnread + historicalUnread;

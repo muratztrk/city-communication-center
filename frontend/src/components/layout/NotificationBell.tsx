@@ -78,9 +78,10 @@ interface NotifItemProps {
 
 function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton = false }: NotifItemProps) {
   const { t } = useTranslation()
-  // Satıra tıklamak bildirimi yalnızca okundu yapar; ilgili detay sadece "Detay" butonuyla açılır (card 439/445).
-  // Geçmiş (AuditLog) satırları tek tek okunamaz; yalnızca "Hepsini okundu yap" ile temizlenir (card 634).
-  const canMarkRead = !n.isRead && !n.isHistorical
+  // Satıra tıklamak bildirimi okundu yapar; ilgili detay sadece "Detay" butonuyla açılır (card 439/445).
+  // Geçmiş (AuditLog) satırlarında da çalışır: MarkNotificationRead audit id'yi okuma imlecini
+  // o olayın zamanına ilerleterek işler (o olay + daha eskiler okundu olur) (card 640).
+  const canMarkRead = !n.isRead
   const handleRowClick = () => {
     if (canMarkRead) onMarkRead(n.notificationId)
   }

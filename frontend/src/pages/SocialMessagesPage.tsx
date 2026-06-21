@@ -259,6 +259,8 @@ export function SocialMessagesPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
+            {/* Kicker satırı eklendi; banner yüksekliği diğer bölümlerinkiyle aynı olsun (card 635). */}
+            <div className="page-kicker">{t('nav.social', 'Vatandaş Talepleri')}</div>
             <h1 className="page-title">{t('social.title')}</h1>
             <p className="page-subtitle">{t('social.subtitle')}</p>
           </div>

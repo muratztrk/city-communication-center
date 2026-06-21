@@ -45,7 +45,7 @@ import type {
   CitizenConversationDetail,
   WhatsAppMessageTemplate,
 } from '../types/platform'
-import { API_BASE, resolveAttachmentUrl } from './config'
+import { API_BASE } from './config'
 import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
 
 async function uploadAttachmentWithProgress(url: string, file: File, onProgress?: (percent: number) => void): Promise<Attachment> {
@@ -81,8 +81,8 @@ async function uploadAttachmentWithProgress(url: string, file: File, onProgress?
 }
 
 export const api = {
-  async downloadAttachment(url: string): Promise<Blob> {
-    const response = await fetchWithCredentials(resolveAttachmentUrl(url), {
+  async downloadAttachment(attachmentId: string): Promise<Blob> {
+    const response = await fetchWithCredentials(`${API_BASE}/attachments/${attachmentId}/download`, {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.attachmentDownloadFailed', 'Ek indirilemedi'))

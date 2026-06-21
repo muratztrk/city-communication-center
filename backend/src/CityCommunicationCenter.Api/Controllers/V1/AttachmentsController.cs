@@ -7,8 +7,15 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 public sealed class AttachmentsController : ApiControllerBase
 {
     private readonly IMediator _sender;
+    private readonly IApplicationDbContext _dbContext;
+    private readonly string _uploadRootPath;
 
-    public AttachmentsController(IMediator sender) { _sender = sender; }
+    public AttachmentsController(IMediator sender, IApplicationDbContext dbContext, IOptions<AttachmentStorageOptions> options)
+    {
+        _sender = sender;
+        _dbContext = dbContext;
+        _uploadRootPath = options.Value.UploadRootPath;
+    }
 
     [HttpPost("jobs/{jobId:guid}")]
     [RequestSizeLimit(6_000_000)]
@@ -41,5 +48,17 @@ public sealed class AttachmentsController : ApiControllerBase
     {
         var ok = await _sender.Send(new DeleteAttachmentCommand(attachmentId, CurrentContext.UserId), cancellationToken);
         return ok ? NoContent() : NotFound();
+    }
+
+    [HttpGet("{attachmentId:guid}/download")]
+    public async Task<IActionResult> Download(Guid attachmentId, CancellationToken cancellationToken)
+    {
+        var attachment = await _dbContext.Attachments.FindAsync([attachmentId], cancellationToken);
+        if (attachment is null || attachment.TenantId != CurrentContext.RequireTenantId()) return NotFound();
+
+        var path = Path.Combine(_uploadRootPath, attachment.TenantId.ToString(), attachment.EntityType, attachment.EntityId.ToString(), attachment.StoredFileName);
+        if (!System.IO.File.Exists(path)) return NotFound();
+
+        return File(System.IO.File.OpenRead(path), attachment.ContentType, attachment.FileName, enableRangeProcessing: true);
     }
 }

@@ -83,7 +83,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
     setValidationError(null)
     setDownloadingId(attachment.attachmentId)
     try {
-      const file = await api.downloadAttachment(attachment.url)
+      const file = await api.downloadAttachment(attachment.attachmentId)
       const downloadUrl = URL.createObjectURL(file)
       const link = document.createElement('a')
       link.href = downloadUrl

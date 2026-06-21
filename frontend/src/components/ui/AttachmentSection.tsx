@@ -17,7 +17,7 @@ function fileExtension(name: string): string {
 
 interface AttachmentSectionProps {
   attachments: Attachment[]
-  onUpload?: (file: File) => Promise<void>
+  onUpload?: (file: File, onProgress?: (percent: number) => void) => Promise<void>
   onDelete?: (attachmentId: string) => Promise<void>
   disabled?: boolean
   // Salt-okunur: yükleme alanı ve silme gizlenir; boşken emptyText gösterilir (card 537).
@@ -30,6 +30,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
@@ -55,12 +56,14 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
         return
       }
       setUploading(true)
+      setUploadProgress(0)
       try {
-        await onUpload?.(file)
+        await onUpload?.(file, setUploadProgress)
       } catch (err) {
         setValidationError(err instanceof Error ? err.message : String(err))
       } finally {
         setUploading(false)
+        setUploadProgress(0)
       }
     }
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -88,7 +91,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
       document.body.appendChild(link)
       link.click()
       link.remove()
-      URL.revokeObjectURL(downloadUrl)
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1_000)
     } catch (err) {
       setValidationError(err instanceof Error ? err.message : t('attachments.downloadFailed', 'Ek indirilemedi.'))
     } finally {
@@ -131,6 +134,11 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
         <span className="mt-1 text-xs text-slate-400">
           {t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}
         </span>
+        {uploading && (
+          <div className="mt-3 w-full max-w-xs overflow-hidden rounded-full bg-slate-200" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
+            <div className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150" style={{ width: `${uploadProgress}%` }} />
+          </div>
+        )}
         <input
           ref={fileInputRef}
           type="file"

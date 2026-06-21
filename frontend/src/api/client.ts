@@ -48,6 +48,38 @@ import type {
 import { API_BASE, resolveAttachmentUrl } from './config'
 import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
 
+async function uploadAttachmentWithProgress(url: string, file: File, onProgress?: (percent: number) => void): Promise<Attachment> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const authHeaders = await getAuthHeaders() as Record<string, string>
+
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest()
+    request.open('POST', url)
+    request.withCredentials = true
+    for (const [key, value] of Object.entries(authHeaders)) {
+      if (key.toLowerCase() !== 'content-type') request.setRequestHeader(key, value)
+    }
+    request.upload.onprogress = event => {
+      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100))
+    }
+    request.onerror = () => reject(new Error(i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment')))
+    request.onload = () => {
+      if (request.status < 200 || request.status >= 300) {
+        reject(new Error(request.responseText || i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment')))
+        return
+      }
+      try {
+        onProgress?.(100)
+        resolve(JSON.parse(request.responseText) as Attachment)
+      } catch {
+        reject(new Error(i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment')))
+      }
+    }
+    request.send(formData)
+  })
+}
+
 export const api = {
   async downloadAttachment(url: string): Promise<Blob> {
     const response = await fetchWithCredentials(resolveAttachmentUrl(url), {
@@ -1051,39 +1083,12 @@ export const api = {
     await ensureOk(response, 'Failed to mark notification as read')
   },
 
-  async uploadJobAttachment(jobId: string, file: File): Promise<Attachment> {
-    const formData = new FormData()
-    formData.append('file', file)
-    const authHeaders = await getAuthHeaders() as Record<string, string>
-    // Omit Content-Type so the browser sets the multipart boundary automatically
-    const uploadHeaders: Record<string, string> = {}
-    for (const [key, value] of Object.entries(authHeaders)) {
-      if (key.toLowerCase() !== 'content-type') uploadHeaders[key] = value
-    }
-    const response = await fetchWithCredentials(`${API_BASE}/attachments/jobs/${jobId}`, {
-      method: 'POST',
-      headers: uploadHeaders,
-      body: formData,
-    })
-    await ensureOk(response, i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment'))
-    return response.json() as Promise<Attachment>
+  async uploadJobAttachment(jobId: string, file: File, onProgress?: (percent: number) => void): Promise<Attachment> {
+    return uploadAttachmentWithProgress(`${API_BASE}/attachments/jobs/${jobId}`, file, onProgress)
   },
 
-  async uploadTaskAttachment(taskId: string, file: File): Promise<Attachment> {
-    const formData = new FormData()
-    formData.append('file', file)
-    const authHeaders = await getAuthHeaders() as Record<string, string>
-    const uploadHeaders: Record<string, string> = {}
-    for (const [key, value] of Object.entries(authHeaders)) {
-      if (key.toLowerCase() !== 'content-type') uploadHeaders[key] = value
-    }
-    const response = await fetchWithCredentials(`${API_BASE}/attachments/tasks/${taskId}`, {
-      method: 'POST',
-      headers: uploadHeaders,
-      body: formData,
-    })
-    await ensureOk(response, i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment'))
-    return response.json() as Promise<Attachment>
+  async uploadTaskAttachment(taskId: string, file: File, onProgress?: (percent: number) => void): Promise<Attachment> {
+    return uploadAttachmentWithProgress(`${API_BASE}/attachments/tasks/${taskId}`, file, onProgress)
   },
 
   async deleteAttachment(attachmentId: string): Promise<void> {

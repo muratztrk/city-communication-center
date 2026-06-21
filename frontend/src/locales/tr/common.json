@@ -1356,6 +1356,7 @@
     "downloadFile": "{{fileName}} dosyasını indir",
     "downloadFailed": "Ek indirilemedi.",
     "uploading": "Yükleniyor...",
+    "uploadProgress": "Yükleme ilerlemesi",
     "requestEmpty": "Talep için ek/fotoğraf bulunmamaktadır.",
     "addFile": "Dosya ekle",
     "lockedApproved": "Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.",

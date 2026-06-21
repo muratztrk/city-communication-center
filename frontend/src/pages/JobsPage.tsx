@@ -1724,10 +1724,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             attachments={detail.attachments ?? []}
                             readOnly={!canEditJobAttachments}
                             emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-                            onUpload={canEditJobAttachments ? async (file) => {
+                            onUpload={canEditJobAttachments ? async (file, onProgress) => {
                               setAttachmentUploading(true)
                               try {
-                                await api.uploadJobAttachment(detail.jobId, file)
+                                await api.uploadJobAttachment(detail.jobId, file, onProgress)
                                 invalidateJobs(queryClient, detail.jobId)
                                 await refreshDetail()
                               } finally {
@@ -1890,10 +1890,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     attachments={detail.attachments ?? []}
                     readOnly={readOnlyRequestAttachments}
                     emptyText={readOnlyRequestAttachments ? t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.') : undefined}
-                    onUpload={!readOnlyRequestAttachments ? async (file) => {
+                    onUpload={!readOnlyRequestAttachments ? async (file, onProgress) => {
                       setAttachmentUploading(true)
                       try {
-                        await api.uploadJobAttachment(detail.jobId, file)
+                        await api.uploadJobAttachment(detail.jobId, file, onProgress)
                         invalidateJobs(queryClient, detail.jobId)
                         await refreshDetail()
                       } finally {

@@ -1327,6 +1327,7 @@
     "downloadFile": "Download {{fileName}}",
     "downloadFailed": "The attachment could not be downloaded.",
     "uploading": "Uploading...",
+    "uploadProgress": "Upload progress",
     "requestEmpty": "No attachment/photo for the request.",
     "addFile": "Add File",
     "lockedApproved": "Attachments can no longer be added because the request is approved.",

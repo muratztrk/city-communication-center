@@ -431,4 +431,5 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `#652` — = #634 (okunmamış) + #640 (tıkla→okundu); kod zaten yapıyor (backend build düzeldikten sonra deploy edilebilir). Done'a taşındı.
 - [~] `#650` — Detay pop-up'ında "İlgili Talep Detayları" başlığı üstüne border çizgisi (görsel polish). Görsel doğrulama gerektiriyor (app+auth+veri); ATLANDI/ertelendi.
 - [x] `#653` — Taleplerim detayında Düzenle butonu artık her zaman görünür (Son Tarihi Geçmiş dahil): onay öncesi talepte aktif, değilse pasif (DisabledActionButton, "Bu kayıtta düzenleme yapılamaz"). #648'i genişletir. FE build + lint PASS.
+- [x] `#649` — Taleplerim detay pop-up'ının en altına "Görev Detayları" bölümü eklendi (talebin görev(ler)i varsa): her görev için Görev No (G-yıl-n), Başlık, Atanan, Görev/Son/Tamamlanma Tarihi, Durum — Görevlerim'deki etiketli kutuya benzer. `detail.tasks` (JobDetail) verisinden, frontend-only. `getTaskStatusLabel` import edildi. FE build + lint PASS.
 - BE build + FE build + lint PASS.

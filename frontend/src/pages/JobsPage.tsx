@@ -27,7 +27,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { TablePagination } from '../components/ui/table-pagination'
 
@@ -1944,6 +1944,36 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </section>
               )
             })()}
+
+            {/* Görev Detayları — talebin görev(ler)i oluştuysa Taleplerim detayının en altında,
+                Görevlerim'deki etiketli kutu gibi (card 649). */}
+            {isMyRequestsView && detail.tasks && detail.tasks.length > 0 && (
+              <section className="mb-5">
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                  {t('tasks.detail.title', 'Görev Detayları')}
+                </h3>
+                <div className="space-y-3">
+                  {detail.tasks.map(task => (
+                    <div key={task.taskId} className="grid gap-0 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                      {[
+                        { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
+                        { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
+                        { label: t('tasks.assignedTo', 'Atanan'), value: task.assignedUserDisplayName || task.assignedDepartmentName || '—' },
+                        { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
+                        { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc ?? null, locale) },
+                        { label: t('tasks.columns.status', 'Durum'), value: getTaskStatusLabel(t, task.currentStatus) },
+                        ...(task.completedAtUtc ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: formatDateTime(task.completedAtUtc, locale) }] : []),
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex items-start gap-2 px-3 py-2">
+                          <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                          <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {showWorkflowSections && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">

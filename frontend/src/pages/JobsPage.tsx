@@ -1497,24 +1497,29 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
-                {/* Taleplerim detayında, "Talebi İptal Et"in soluna Düzenle (tüm kullanıcılar).
-                    Onay öncesi talepte aktif; değilse (ör. Son Tarihi Geçmiş/aktif talep) pasif görünür
-                    (gridview'daki Düzenle akışıyla aynı) (card 648/653). */}
-                {isMyRequestsView && detail != null && (
-                  isPreApprovalStatus(detail.status) ? (
+                {/* Taleplerim detayında, "Talebi İptal Et"in soluna Düzenle — tüm kullanıcı tiplerinde.
+                    Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı
+                    (card 648/653/654). */}
+                {isMyRequestsView && detail != null && (() => {
+                  const canEditDetailJob = isPreApprovalStatus(detail.status) || (isManagerLike && (
+                    (detail.requestType === 'ExternalUnit' && detail.status === 'PendingExternalApproval')
+                    || (detail.requestType === 'InternalUnit' && detail.status === 'Active')
+                    || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0)
+                  ))
+                  return canEditDetailJob ? (
                     <Button
                       type="button"
-                      variant="secondary"
+                      className="bg-teal-700 text-white hover:bg-teal-800"
                       onClick={() => navigate(`/requests/new?kind=${detail.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${detail.jobId}`)}
                     >
                       {t('jobs.actions.edit', 'Düzenle')}
                     </Button>
                   ) : (
-                    <DisabledActionButton hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
+                    <DisabledActionButton className="bg-teal-700 text-white" hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
                       {t('jobs.actions.edit', 'Düzenle')}
                     </DisabledActionButton>
                   )
-                )}
+                })()}
                 {canCancelDetail && (
                   <Button
                     type="button"

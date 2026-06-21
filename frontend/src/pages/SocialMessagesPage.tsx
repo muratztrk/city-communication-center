@@ -1,4 +1,4 @@
-import { MapPin, MessageCircle, MessageSquare, Search, X } from 'lucide-react'
+import { MapPin, MessageSquare, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -279,16 +279,16 @@ export function SocialMessagesPage() {
       </header>
 
       <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
-        {/* WhatsApp konuşmaları gridview'de satır olarak gösterilmiyor (card 621); erişim için
-            ayrı bir çip ile WhatsApp yazışma ekranına gidilir (yine de "tamamen kaybolmasın"). */}
+        {/* WhatsApp konuşmaları gridview'de satır olarak gösterilmiyor (card 621); başında WhatsApp
+            ikonu olan "WhatsApp" butonu WhatsApp yazışma ekranına gider (card 655). */}
         <button
           type="button"
           className="scope-chip scope-chip--pending"
           onClick={() => navigate('/whatsapp')}
-          title={t('whatsapp.conversationsButton', 'WhatsApp Yazışmaları')}
+          title={t('whatsapp.title', 'WhatsApp Konuşmaları')}
         >
-          <MessageCircle className="size-3.5 shrink-0" />
-          {t('whatsapp.navLabel', 'WhatsApp Yazışmaları')}
+          <ChannelIcon channel="WhatsApp" className="size-3.5 shrink-0" />
+          WhatsApp
         </button>
         {channelQuickFilters.map(filter => (
           <button

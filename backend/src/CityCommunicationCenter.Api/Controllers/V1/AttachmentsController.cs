@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application;
 using CityCommunicationCenter.Application.Features.Attachments;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;

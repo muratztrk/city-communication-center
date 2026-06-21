@@ -1243,7 +1243,12 @@ const pageKicker = isMyTasksView
                                       // Durum + (durumu belirleyen kullanıcı) + tıklanabilir İptal/Tamamlama Notu (card 642).
                                       value: (
                                         <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                          <span>
+                                          <span className={taskDetail.currentStatus === 'Completed'
+                                            ? 'text-emerald-600'
+                                            : (taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected')
+                                              ? 'text-red-600'
+                                              : 'text-slate-900'}
+                                          >
                                             {getTaskDisplayStatus(t, taskDetail)}
                                             {taskDetail.statusActorDisplayName ? ` (${taskDetail.statusActorDisplayName})` : ''}
                                           </span>
@@ -1251,7 +1256,7 @@ const pageKicker = isMyTasksView
                                             <button
                                               type="button"
                                               className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
-                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
                                               {t('tasks.detail.cancelNote', 'İptal Notu')}
                                             </button>
@@ -1260,7 +1265,7 @@ const pageKicker = isMyTasksView
                                             <button
                                               type="button"
                                               className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: taskDetail.notes!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: taskDetail.notes!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
                                               {t('tasks.detail.completionNote', 'Tamamlama Notu')}
                                             </button>

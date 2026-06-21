@@ -4,6 +4,7 @@ import { Button } from './button'
 
 export interface ConfirmDialogState {
   title?: string
+  titleDivider?: boolean
   message: string
   confirmLabel?: string
   cancelLabel?: string
@@ -44,7 +45,11 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
         >
           <X className="size-4" />
         </button>
-        {state.title && <h2 className="mb-2 text-lg font-bold text-slate-950">{state.title}</h2>}
+        {state.title && (
+          <h2 className={`text-lg font-bold text-slate-950 ${state.titleDivider ? 'mb-3 border-b border-slate-200 pb-2' : 'mb-2'}`}>
+            {state.title}
+          </h2>
+        )}
         <p className="mb-6 mt-2 text-sm text-slate-700">{state.message}</p>
         <div className="flex justify-end gap-2">
           {!state.hideCancel && (

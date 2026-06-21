@@ -333,7 +333,7 @@ function getMyRequestsView(value: string | null, isManager: boolean, isReporter:
     return 'external-pending'
   }
   if (isReporter) {
-    return value === 'external-pending' || value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+    return value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
   }
   return value === 'approved' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
@@ -568,7 +568,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
     : isReporter
       // Üst Düzey Yönetici: "Bekleyen Taleplerim"den sonra "Yapılmakta Olan Taleplerim".
-      ? (['pending', 'external-pending', 'in-progress', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
+      ? (['pending', 'in-progress', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
       : (['pending', 'approved', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
@@ -581,6 +581,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     DEPARTMENT_OUTGOING_VIEWS.find(view => view.value === currentDepartmentOutgoingView)?.labelKey ?? 'jobs.outgoingViews.pending',
     'Bekleyen Talepler',
   )
+  const detailStatusClass = detail?.status === 'Completed'
+    ? 'text-emerald-600'
+    : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
+      ? 'text-red-600'
+      : 'text-slate-900'
   const scope = useMemo<JobListScope>(() => {
     if (fixedScope) return fixedScope
     const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'
@@ -1386,8 +1391,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
                         {/* Düzenle — onay öncesi (hedef onaylamadan) talebi Talep Oluştur sayfasında dolu olarak aç (card 452). */}
                         {isMyRequestsView && (() => {
+                          const canReporterEdit = isReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
                           const canEdit =
-                          isPreApprovalStatus(job.status)
+                          canReporterEdit
+                          || isPreApprovalStatus(job.status)
                           || (isManagerLike && (
                             (job.requestType === 'ExternalUnit' && job.status === 'PendingExternalApproval')
                             || (job.requestType === 'InternalUnit' && job.status === 'Active')
@@ -1501,7 +1508,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı
                     (card 648/653/654). */}
                 {isMyRequestsView && detail != null && (() => {
-                  const canEditDetailJob = isPreApprovalStatus(detail.status) || (isManagerLike && (
+                  const canReporterEdit = isReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
+                  const canEditDetailJob = canReporterEdit || isPreApprovalStatus(detail.status) || (isManagerLike && (
                     (detail.requestType === 'ExternalUnit' && detail.status === 'PendingExternalApproval')
                     || (detail.requestType === 'InternalUnit' && detail.status === 'Active')
                     || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0)
@@ -1544,7 +1552,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-6">
               {/* Talep Detayları — Görevlerim popup' undaki Görev Detayları kutusuyla aynı tasarım (card 386) */}
-              <section className="mb-5">
+              <section className="mb-5 border-t border-slate-200 pt-3">
                 <div className="mb-2 text-sm font-semibold text-emerald-600">
                   {t('jobs.detail.requestInfo', 'Talep Detayları')}
                 </div>
@@ -1584,7 +1592,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           // Durum + (durumu belirleyen kullanıcı) + tıklanabilir İptal/Tamamlama Notu (card 643).
                           value: (
                             <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                              <span>
+                              <span className={detailStatusClass}>
                                 {detail.status === 'Active'
                                   ? 'Yapılmakta Olan'
                                   : detail.status === 'Completed'
@@ -1980,7 +1988,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 Görevlerim'deki etiketli kutu gibi (card 649). */}
             {isMyRequestsView && detail.tasks && detail.tasks.length > 0 && (
               <section className="mb-5">
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+                <h3 className="mb-2 border-t border-slate-200 pt-3 text-sm font-semibold text-emerald-600">
                   {t('tasks.detail.title', 'Görev Detayları')}
                 </h3>
                 <div className="space-y-3">
@@ -1992,7 +2000,39 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         { label: t('tasks.assignedTo', 'Atanan'), value: task.assignedUserDisplayName || task.assignedDepartmentName || '—' },
                         { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
                         { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc ?? null, locale) },
-                        { label: t('tasks.columns.status', 'Durum'), value: getTaskStatusLabel(t, task.currentStatus) },
+                        {
+                          label: t('tasks.columns.status', 'Durum'),
+                          value: (
+                            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                              <span className={task.currentStatus === 'Completed'
+                                ? 'text-emerald-600'
+                                : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
+                                  ? 'text-red-600'
+                                  : 'text-slate-900'}
+                              >
+                                {getTaskStatusLabel(t, task.currentStatus)}
+                              </span>
+                              {task.currentStatus === 'Cancelled' && task.revisionReason ? (
+                                <button
+                                  type="button"
+                                  className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
+                                  onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: task.revisionReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                >
+                                  {t('tasks.detail.cancelNote', 'İptal Notu')}
+                                </button>
+                              ) : null}
+                              {task.currentStatus === 'Completed' && task.notes ? (
+                                <button
+                                  type="button"
+                                  className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
+                                  onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: task.notes!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                >
+                                  {t('tasks.detail.completionNote', 'Tamamlama Notu')}
+                                </button>
+                              ) : null}
+                            </span>
+                          ),
+                        },
                         ...(task.completedAtUtc ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: formatDateTime(task.completedAtUtc, locale) }] : []),
                       ].map(({ label, value }) => (
                         <div key={label} className="flex items-start gap-2 px-3 py-2">

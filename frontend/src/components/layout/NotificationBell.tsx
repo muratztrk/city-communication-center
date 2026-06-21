@@ -339,7 +339,11 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   useEffect(() => {
     if (!isOpen) return
     function handler(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setIsOpen(false)
+      if (!dropdownRef.current) return
+      if (dropdownRef.current.contains(e.target as Node)) return
+      // Bildirimden açılan detay pop-up'ı açıkken listedeki açık durumu koru (card 651).
+      if (document.querySelector('.detail-modal-shell')) return
+      setIsOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -387,7 +391,6 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   // Bildirim detayı, mevcut sayfayı değiştirmeden uygulama kabuğunda açılır.
   const handleOpenNotificationDetail = async (url: string) => {
     const target = parseNotificationDetailTarget(url)
-    setIsOpen(false)
     setIsModalOpen(false)
     if (target.kind === 'unsupported' || !target.id) return
 

@@ -5,7 +5,7 @@ import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
@@ -114,7 +114,6 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
   const channelFilter = searchParams.get('channel') ?? ''
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
@@ -202,8 +201,10 @@ export function SocialMessagesPage() {
   const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
 
   const filteredMessages = useMemo(() => {
-    // WhatsApp kayıtları konuşma ekranında yönetilir; Vatandaş Talepleri gridinde satır olarak gösterilmez.
-    let result = messages.filter(message => message.channel !== 'WhatsApp' && (!channelFilter || message.channel === channelFilter))
+    // Varsayılan görünümde WhatsApp satırlarını gizle; WhatsApp çipine tıklanınca gridde göster.
+    let result = messages.filter(message => channelFilter
+      ? message.channel === channelFilter
+      : message.channel !== 'WhatsApp')
 
     if (filterFrom || filterTo) {
       result = result.filter(message => {
@@ -279,13 +280,12 @@ export function SocialMessagesPage() {
       </header>
 
       <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
-        {/* WhatsApp konuşmaları gridview'de satır olarak gösterilmiyor (card 621); başında WhatsApp
-            ikonu olan "WhatsApp" butonu WhatsApp yazışma ekranına gider (card 655). */}
+        {/* WhatsApp butonu gridi WhatsApp kanalına filtreler; konuşma sayfasına yönlendirmez (card 658). */}
         <button
           type="button"
-          className="scope-chip scope-chip--pending"
-          onClick={() => navigate('/whatsapp')}
-          title={t('whatsapp.title', 'WhatsApp Konuşmaları')}
+          className={`scope-chip scope-chip--pending${channelFilter === 'WhatsApp' ? ' active' : ''}`}
+          onClick={() => setChannelFilter('WhatsApp')}
+          title={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}
         >
           <ChannelIcon channel="WhatsApp" className="size-3.5 shrink-0" />
           WhatsApp

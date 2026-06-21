@@ -1497,6 +1497,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
+                {/* Taleplerim → Bekleyen detayında, "Talebi İptal Et"in soluna Düzenle (tüm kullanıcılar,
+                    onay öncesi talep); gridview'daki Düzenle ile aynı akış (card 648). */}
+                {isMyRequestsView && detail != null && isPreApprovalStatus(detail.status) && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => navigate(`/requests/new?kind=${detail.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${detail.jobId}`)}
+                  >
+                    {t('jobs.actions.edit', 'Düzenle')}
+                  </Button>
+                )}
                 {canCancelDetail && (
                   <Button
                     type="button"

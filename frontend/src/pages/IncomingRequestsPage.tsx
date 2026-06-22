@@ -71,6 +71,7 @@ type IncomingRequestRow = {
   priority: string
   departmentName: string | null
   createdBy: string | null
+  taskOwnerDisplayName: string | null
   dueDateUtc: string | null
   createdAtUtc: string | null
   detailsPath: string
@@ -205,6 +206,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     priority: task.priority,
     departmentName: task.assignedDepartmentName ?? null,
     createdBy: task.createdByDisplayName ?? null,
+    taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,
     dueDateUtc: task.dueDateUtc,
     // "Talep Tarihi" = talebin oluşturulma tarihi. Birim içi talepler onaylanınca görev o an
     // oluşturulduğundan görevin createdAt'i onay tarihini gösterir; bunun yerine bağlı talebin
@@ -239,6 +241,7 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     priority: job.priority,
     departmentName: job.ownerDepartmentName,
     createdBy: job.createdByDisplayName,
+    taskOwnerDisplayName: job.assignedUserDisplayName ?? null,
     dueDateUtc: job.dueDateUtc,
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/request-details?context=incoming&jobId=${job.jobId}`,
@@ -274,6 +277,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     priority: job.priority,
     departmentName: job.ownerDepartmentName,
     createdBy: job.createdByDisplayName,
+    taskOwnerDisplayName: job.assignedUserDisplayName ?? null,
     dueDateUtc: job.dueDateUtc,
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/request-details?context=incoming&jobId=${job.jobId}`,
@@ -314,6 +318,7 @@ export function IncomingRequestsPage() {
   } | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter()
+  const showTaskOwnerColumn = ['approved', 'completed', 'cancelled'].includes(currentStatusFilter)
 
   useEffect(() => {
     const handler = () => setActiveDeptIdState(getActiveDepartmentId())
@@ -498,7 +503,7 @@ export function IncomingRequestsPage() {
   }, [t, locale])
 
   // Banner aramasının tarayacağı tüm sütunlar (sadece Başlık değil).
-  const SEARCH_COLUMN_KEYS = ['displayNumber', 'priority', 'createdAtUtc', 'departmentName', 'createdBy', 'title', 'dueDateUtc', 'approvedAtUtc', 'completedAtUtc', 'updatedAtUtc', 'status']
+  const SEARCH_COLUMN_KEYS = ['displayNumber', 'priority', 'createdAtUtc', 'departmentName', 'createdBy', 'title', 'taskOwnerDisplayName', 'dueDateUtc', 'approvedAtUtc', 'completedAtUtc', 'updatedAtUtc', 'status']
 
   const visibleRows = useMemo(() => {
     let result = rows
@@ -676,6 +681,7 @@ export function IncomingRequestsPage() {
                   <FilterableTh filterKey="createdAtUtc" filterValue={incomingFilters['createdAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdBy" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}><span className="leading-tight">{t('incomingRequests.columns.requestLocation', 'Talep Yeri')}<br />{t('incomingRequests.columns.creator', 'Oluşturan')}</span></FilterableTh>
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
+                  {showTaskOwnerColumn && <FilterableTh filterKey="taskOwnerDisplayName" filterValue={incomingFilters['taskOwnerDisplayName'] ?? ''} onFilter={setIncomingFilter} sortKey="taskOwnerDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>}
                   {currentStatusFilter !== 'cancelled' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
@@ -712,6 +718,7 @@ export function IncomingRequestsPage() {
                       <div className="text-xs text-slate-500">{row.createdBy ?? '—'}</div>
                     </td>
                     <td className="font-semibold"><span className="cell-title">{row.title}</span></td>
+                    {showTaskOwnerColumn && <td>{row.taskOwnerDisplayName ?? '—'}</td>}
                     {currentStatusFilter !== 'cancelled' && <td><DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}

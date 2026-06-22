@@ -565,6 +565,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ? 'in-progress'
     : rawMyRequestsView
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
+  const showTaskOwnerColumn = (isMyRequestsView || isDepartmentOutgoingView)
+    && ['in-progress', 'completed', 'rejected'].includes(activeJobView)
   // Yönetici/sorumlu: Bekleyen + Onaylanmış yerine tek "Yapılmakta Olan Taleplerim".
   const myRequestViews = isManagerLike
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
@@ -1337,6 +1339,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
                   {isDepartmentOutgoingView && <th>{t('jobs.columns.createdBy', 'Oluşturan')}</th>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
+                  {showTaskOwnerColumn && <FilterableTh filterKey="assignedUserDisplayName" filterValue={jobFilters['assignedUserDisplayName'] ?? ''} onFilter={setJobFilter} sortKey="assignedUserDisplayName" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView)
                     ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
                     : <th>{t('jobs.columns.departments')}</th>
@@ -1379,6 +1382,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold"><span className="cell-title">{job.title}</span></td>
+                    {showTaskOwnerColumn && <td>{job.assignedUserDisplayName ?? '—'}</td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
                         renderOutgoingDestination(job)

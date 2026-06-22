@@ -1625,7 +1625,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 <button
                                   type="button"
                                   className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
-                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), message: detail.cancelReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                 >
                                   ({t('jobs.detail.cancelNote', 'İptal Notu')})
                                 </button>

@@ -354,14 +354,7 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
   return requestType === 'InternalUnit' || requestType === 'ExternalUnit'
 }
 
-function hasApprovedTargetDepartment(job: JobSummary, activeDepartmentId: string | null): boolean {
-  const targetDepartments = job.departments?.filter(department =>
-    department.role === 'Target' && department.approvalStatus === 'Approved') ?? []
-  if (!activeDepartmentId) return targetDepartments.length > 0
-  return targetDepartments.some(department => department.departmentId === activeDepartmentId)
-}
-
-function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false, isManager = false, activeDepartmentId: string | null = null): JobSummary[] {
+function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false, isManager = false): JobSummary[] {
   if (view === 'all') return jobs
   if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
 
@@ -393,12 +386,12 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
     // Yönetici/üst düzey yönetici: hedef birim yöneticisi personel atayıp görev oluşturunca
     // "Yapılmakta Olan"a düşer.
     if (isManager) {
-      // Birim içi talepte hedef birim yoktur; yönetici kendine/personeline atayınca (görev oluşunca)
-      // doğrudan "Yapılmakta Olan" sayılır. Birim dışında hedef birimin onayı aranır (card 470).
+      // Taleplerim → "Yapılmakta Olan Taleplerim" ve Birimden Giden → "Yapılmakta Olan" aynı ölçüt:
+      // Aktif + görev oluşmuş. Yönetici kendi birim dışı talebinde aktif birim sahip (hedef değil)
+      // olduğundan hedef-birim eşleşmesi aranmaz (card 6a39867b).
       return jobs.filter(job =>
         job.status === 'Active'
         && job.taskCount > 0
-        && (job.requestType === 'InternalUnit' || hasApprovedTargetDepartment(job, activeDepartmentId))
         && !isJobOverdue(job))
     }
     if (isReporter) {
@@ -696,7 +689,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     let result: typeof jobs
 
     if (isMyRequestsView) {
-      const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter, isManagerLike, activeDeptId)
+      const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter, isManagerLike)
       result = showRequestFlowFilters ? myJobs.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter)) : myJobs
     } else if (isDepartmentOutgoingView) {
       result = filterDepartmentOutgoingRequests(jobs, currentDepartmentOutgoingView)

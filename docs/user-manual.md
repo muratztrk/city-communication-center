@@ -722,3 +722,82 @@ Sayfayı yenileyin. Hâlâ görünmüyorsa kullanıcı oturumu, bildirim yetkisi
 - **Yönetici Notu:** Talep detayında yöneticinin eklediği açıklama.
 - **Ekler / Fotoğraflar:** Talep veya görevle ilgili yüklenen dosya ve görseller.
 - **Son Tarihi Geçmiş:** Son tarihi geçmiş fakat tamamlanmamış kayıt.
+
+---
+
+## 23. Rol, Kapsam ve İşlem Sınırları
+
+Bu tablo, erişimin genel çalışma kuralını açıklar. Kuruma özel rol-sayfa ayarları bu erişimleri daraltabilir; bir menünün görünmesi tek başına her işlem için yetki olduğu anlamına gelmez.
+
+| İşlem | Personel | Birim yöneticisi | Sistem yöneticisi |
+| --- | --- | --- | --- |
+| Kendi talebini oluşturma ve izleme | Evet | Evet | Evet |
+| Birim havuzundaki işi sahiplenme | Uygun görevlerde | Evet | Evet |
+| Birime gelen talebi kabul/ret | Hayır | Kendi biriminde | Tüm yetkili kapsamda |
+| Personele görev atama veya yeniden atama | Hayır | Kendi biriminde | Evet |
+| Görevi tamamlama | Kendine atanmış görevde | Yetkili görevde | Yetkili görevde |
+| Birim, kullanıcı ve sistem ayarı yönetimi | Hayır | Kurum ayarına bağlı | Evet |
+| Denetim kayıtlarını inceleme | Hayır | Yetkiye bağlı | Evet |
+
+Bir kullanıcı birden fazla birime bağlıysa, işlem ekranlarında seçili birim bağlamını kontrol edin. Yanlış birim bağlamı, beklenen talep veya görevlerin listede görünmemesine neden olabilir.
+
+## 24. Talep Yaşam Döngüsü ve Karar Noktaları
+
+Talep durumu yalnızca renk değil, yapılabilecek sonraki işlemi de belirler.
+
+| Sistem durumu | Kullanıcıdaki karşılığı | Sonraki olağan işlem |
+| --- | --- | --- |
+| Taslak | Henüz gönderilmemiş | Bilgileri tamamlayıp oluşturma/gönderme |
+| Sahip birim onayı bekliyor | Yönetici onayı bekleyen | Sahip birim yöneticisinin onayı veya reddi |
+| Dış birim onayı bekliyor | Hedef birim bekliyor | Hedef birim yöneticisinin kabulü, reddi veya ataması |
+| Aktif | Yapılmakta | Görev atama, ilerletme ve tamamlama |
+| Revizyon istendi | İade edildi | Açıklamayı güncelleyip tekrar değerlendirmeye sunma |
+| Tamamlandı | Tamamlandı | Sonuç ve notların kontrolü |
+| Reddedildi / İptal | İşlem sonlandırıldı | Gerekirse yeni talep açma |
+
+Bir birim dışı talepte sahip birim kararı ile hedef birimin kararı farklı zamanlarda oluşabilir. Bu nedenle detay ekranındaki iki onay tarihi, aynı olayın tekrarı değildir. Hedef birim henüz işlem yapmadıysa tarih alanında **Onay Bekleyen** görünür.
+
+## 25. Görev Yaşam Döngüsü ve Kapatma Süreci
+
+Görevler talep altında oluşabilir veya rutin görev olarak bağımsız başlatılabilir.
+
+1. **Bekleyen:** Görev birim havuzunda veya işleme alınmayı bekleyen durumdadır.
+2. **Atanmış:** Bir personele atanmıştır; görev sahibinin listesinde görünür.
+3. **Yapılmakta:** Çalışma sürmektedir. Varsa ilerleme notu ve güncel son tarih girilmelidir.
+4. **Kapanış onayı bekliyor:** Kurumun iş akışı kapanış kontrolü gerektiriyorsa görev tamamlamadan sonra bu aşamaya geçebilir.
+5. **Tamamlandı:** İş sonucu kaydedilmiş, görev sonlandırılmıştır.
+6. **Revizyon istendi / reddedildi / iptal:** Açıklama veya gerekçe detay ekranındaki durum notundan incelenir.
+
+Görev tamamlanırken yazılan not, işin nasıl sonuçlandığını anlatmalıdır. İptal, revizyon ve ret işlemlerinde gerekçe yazılması; denetim, sonraki atama ve vatandaş bilgilendirmesi için önemlidir.
+
+## 26. Detay Ekranı Davranışları
+
+Talep ve görev detayları listeyi terk etmeden açılır. İşlem yaptıktan sonra liste verisi güncellenir; yine de uzun süre açık bırakılmış ekranlarda güncel sonuç için yenileme yapılması önerilir.
+
+- Durum satırındaki parantezli not, sadece işlem gerekçesini gösterir; kayıt verisini değiştirmez.
+- Ek indirme bağlantısı yeni sekmede veya tarayıcının indirme davranışına göre açılabilir.
+- Görev sahibi boşsa kayıt birim havuzundadır; bu, görevin kaybolduğu anlamına gelmez.
+- Son tarih boşsa kayıt için zorunlu teslim tarihi tanımlanmamıştır. Son tarih geçmiş uyarısı yalnızca tanımlı tarihler için oluşur.
+- Tamamlama veya iptal sonrasında izin verilen işlemler durum ve role göre azalır; bu normal bir iş akışı kısıtıdır.
+
+## 27. Bildirim ve Canlı Güncellemeler
+
+Bildirimler atama, onay, iade, tamamlanma ve benzeri önemli iş akışı değişiklikleri için üretilir. Açık oturumlarda bildirim zili canlı güncellenebilir.
+
+Bildirim beklenenden geç görünürse:
+
+1. İnternet bağlantısını ve oturumun açık olduğunu kontrol edin.
+2. Sayfayı yenileyin; özellikle uzun süre açık kalan tarayıcı sekmelerinde bu faydalıdır.
+3. İlgili talebi **Birime Gelen Talepler**, **Taleplerim** veya **Görevlerim** ekranındaki uygun görünümden arayın.
+4. Sorun sürerse talep numarası, işlem zamanı ve kullanıcı/birim bilgisiyle sistem yöneticisine başvurun.
+
+## 28. Destek Kaydı İçin Gerekli Bilgiler
+
+Bir iş akışı sorunu bildirirken aşağıdaki bilgiler çözüm süresini kısaltır:
+
+- Talep veya görev numarası
+- İşlemin yapıldığı tarih ve yaklaşık saat
+- İşlemi yapan kullanıcı ve işlem yapılan hedef birim
+- Ekrandaki durum ve görülen hata metni
+- Sorunu tekrar üretmek için izlenen adımlar
+- Varsa ekran görüntüsü; kişisel veri veya erişim anahtarı içermemelidir

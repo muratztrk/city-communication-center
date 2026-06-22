@@ -622,3 +622,83 @@ npm test
 - Frontend tarafında yeni sayfa erişimleri `rolePageAccess.ts` ile uyumlu eklenmelidir.
 - `frontend_old/` arşivdir; aktif geliştirme ve build için kullanılmamalıdır.
 - Production ayarlarında CORS, signing key, Data Protection ve proxy güveni açıkça yapılandırılmalıdır.
+
+## 22. API Sözleşmesi, Hata Modeli ve Uyumluluk
+
+HTTP API'nin ana sürüm öneki `api/v1`'dir. Kaynaklar controller bazında gruplanır: `jobs`, `tasks`, `departments`, `users`, `notifications`, `reports`, `attachments`, `social/messages`, `citizen-conversations` ve yönetim kaynakları. Kimlik doğrulama token endpoint'i OpenIddict standardı gereği `/connect/token` olarak ayrıca yayınlanır.
+
+Sözleşme ilkeleri:
+
+- Dışarıya açılan ortak response/command tipleri `CityCommunicationCenter.Shared.Contracts` altında tutulur.
+- Bir handler'ın public API dönüşüyle aynı şekli ürettiği yerde controller yeniden mapping yapmadan kontratı doğrudan döndürür.
+- Liste endpoint'leri yeni paralel endpoint'ler yerine scope ve filtre query parametreleriyle genişletilir.
+- Mutasyon endpoint'leri iş akışı komutudur; istemci sadece arayüzün izin verdiği geçişleri varsaymamalı, API'nin business validation yanıtını ele almalıdır.
+- Tarihler UTC saklanır; istemci sunumda yerel zaman biçimine dönüştürür.
+
+Başarısız isteklerde `ExceptionMiddleware` ve FluentValidation, tutarlı problem-details biçiminde hata üretir. İstemci doğrulama, yetki, bulunamadı ve beklenmeyen hata durumlarını ayrı ele almalıdır. Hata gövdesinde veya loglarda parola, access token, webhook secret ya da bağlantı dizesi taşınmamalıdır.
+
+## 23. Veri Modeli, Sahiplik ve Bütünlük Kuralları
+
+Tüm tenant-scoped kayıtlar tenant bağlamıyla oluşturulur ve sorgulanır. `AuditableTenantEntity` türevi kayıtlarda oluşturma/değiştirme izleri korunur. Tenant filtresini atlayacak yönetimsel sorgular yalnızca açıkça tanımlı ve yetkilendirilmiş servislerden yapılmalıdır.
+
+Temel ilişkiler:
+
+| Kök kayıt | Bağlı kayıtlar | Bütünlük kuralı |
+| --- | --- | --- |
+| `Tenant` | Ayarlar, birimler, kullanıcılar, iş kayıtları | Tenantlar arası ilişki kurulamaz |
+| `Department` | Kullanıcı birim ataması, `JobDepartment`, görev ataması | Pasif/silinmiş birim yeni atama hedefi olmamalıdır |
+| `Job` | `JobDepartment`, `WorkTask`, ekler, onaylar, audit kayıtları | Her talebin sahip birim bağlamı korunur |
+| `WorkTask` | Atama geçmişi, onaylar, ekler, audit kayıtları | Kişi atamasında departman bağlamı tutarlı olmalıdır |
+| `SocialMessage` | Konuşma girdileri ve kaynak talep | Kaynak ilişki `SourceRefId` ile izlenebilir olmalıdır |
+
+`JobDepartment` talebin yönlendirme grafiğini taşır: `Owner`, `Target` ve `Coordinating`. Karar durumu `JobApprovalStatus`, karar zamanı ise `DecidedAtUtc` üzerinden izlenir. `NotRequired`, akışta karar beklenmeyen bağlamı ifade eder; `Pending` ile eş anlamlı değildir.
+
+Görev atamasında departman havuzu `AssignedDepartmentId` dolu ve `AssignedUserId` boş olacak şekilde temsil edilir. Kişiye atamada iki alan birlikte anlamlıdır. Atama veya durum geçişi, `AssignmentHistory`, `WorkflowApproval` ve audit kayıtlarının anlamını bozacak doğrudan veritabanı güncellemeleriyle yapılmamalıdır.
+
+## 24. Yetkilendirme Matrisi ve Durum Geçişi Koruması
+
+Frontend sayfa erişimi bir kullanılabilirlik katmanıdır; yetkinin asıl kaynağı API policy'leri ve command handler iş kurallarıdır. `ApiControllerBase`, tenant üyesi policy'sini varsayılan olarak uygular. Platform/system admin işlemleri daha dar policy ile korunur.
+
+| İşlem sınıfı | Esas kontrol |
+| --- | --- |
+| Talep/görev görüntüleme | Tenant, kullanıcının birim/kendi kayıt kapsamı ve endpoint scope'u |
+| Sahip/hedef onayı | İlgili birim yöneticisi veya tanımlı yönetim yetkisi |
+| Atama/yeniden atama | Yönetici veya sistem yöneticisi; hedef kullanıcı/birim tutarlılığı |
+| Havuz görevi sahiplenme | Kullanıcının kendi birimi, görevin uygun durumu ve atama kuralı |
+| Tamamlama/kapatma/revizyon | Durum geçişinin geçerli olması, işlem yapanın iş kapsamı |
+| Tenant ayarları ve kullanıcı yönetimi | Platform/system admin policy |
+
+Durum geçişleri enum değerlerini doğrudan değiştiren genel bir CRUD işlemi değildir. `JobStatus`: `Draft`, `PendingOwnerApproval`, `PendingExternalApproval`, `Active`, `Completed`, `Rejected`, `Cancelled`, `RevisionRequested`; `TaskStatus`: `Waiting`, `Assigned`, `InProgress`, `PendingCloseApproval`, `Completed`, `Cancelled`, `Rejected`, `RevisionRequested` değerlerinden oluşur. Yeni bir geçiş eklenirken handler doğrulaması, frontend görünürlüğü, bildirim, audit ve rapor etkisi birlikte güncellenmelidir.
+
+## 25. Asenkron İşler, Bildirim Teslimi ve Dayanıklılık
+
+Canlı kullanıcı deneyimi SignalR hub'ı, kalıcı kullanıcı bildirimi ise `Notification` kaydıyla sağlanır. SignalR bağlantısı kopmuşsa bildirim geçmişi ve okunmamış sayısı API üzerinden tekrar alınabilmelidir; canlı yayın tek doğruluk kaynağı değildir.
+
+Webhook işleme, dış sistemlerin tekrar gönderebileceği varsayımıyla idempotent tasarlanmalıdır. Aynı dış mesajın tekrar işlenmesi duplicate sosyal mesaj, duplicate görev veya duplicate vatandaş bildirimi üretmemelidir. Dış HTTP çağrılarında zaman aşımı, kontrollü retry, hata loglama ve gerekiyorsa manuel tekrar işleme operasyonel olarak düşünülmelidir.
+
+Worker servisleri veritabanına yazarken aynı tenant, audit ve business-rule sınırlarını API handler'larıyla tutarlı uygular. Uzun süren veya başarısız arka plan işleri için correlation/reference kimliği loglara eklenmelidir.
+
+## 26. Operasyon Runbook'u
+
+Sürüm alma, doğrulama ve geri dönüş planı her değişiklikte uygulanmalıdır.
+
+1. Değişiklik öncesinde sürüm/commit, ortam değişkenleri ve veritabanı yedeği doğrulanır.
+2. API veya frontend kodu değiştiyse ilgili container yeniden build edilir. Birlikte değişen sözleşmelerde iki servis de yeniden oluşturulur: `docker compose up -d --build api frontend`.
+3. `docker compose ps`, API `/health` ve gerekli servis loglarıyla başlangıç doğrulanır.
+4. Kritik akışlar: giriş, talep oluşturma, hedef birime düşme, atama, tamamlama ve bildirim kontrol edilir.
+5. Sorun halinde önce loglar ve migration durumu incelenir; geri dönüş, bilinen önceki image/commit'e yapılır. Migration geri alma yalnızca yedek ve onaylı planla uygulanır.
+
+Yedekler PostgreSQL verisi ile upload volume'ünü kapsamalıdır. Data Protection key volume'ü de korunmalıdır; anahtarların kaybedilmesi şifrelenmiş ayarların çözülememesine ve kullanıcı oturum/secret erişim sorunlarına yol açabilir.
+
+## 27. Kabul Kriterleri ve Doğrulama Kapsamı
+
+Yeni özellikler için en az aşağıdaki etkiler gözden geçirilir:
+
+- Rol ve tenant kapsamı: yetkisiz kullanıcı işlem yapamaz, yetkili kullanıcı kendi birim bağlamında kaydı görür.
+- İş akışı: yaratma, onay/red, yönlendirme, atama, tamamlama/iptal ve gerekli not/audit etkileri.
+- API: başarı, doğrulama hatası, yetki hatası, bulunamadı ve tekrarlı istek davranışı.
+- Arayüz: yüklenme/boş durum, hata mesajı, tarih/saat gösterimi, filtre-sıralama ve dar ekran davranışı.
+- Bildirim: kalıcı bildirim kaydı, canlı yayın mümkünse SignalR, bağlantı sonrası tekrar yükleme.
+- Dosya ve gizli veri: boyut/erişim sınırı, secret redaction ve tenant izolasyonu.
+
+Mevcut taban doğrulama komutları `dotnet build backend/CityCommunicationCenter.sln`, frontend için `npm run lint` ve `npm run build`, E2E altyapısı için `tests/e2e` altında `npm test` komutlarıdır. Kritik üretim akışları bunların yanında yetkili test kullanıcılarıyla uçtan uca doğrulanmalıdır.

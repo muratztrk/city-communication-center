@@ -2007,68 +2007,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               )
             })()}
 
-            {/* Görev Detayları — talebin görev(ler)i oluştuysa Taleplerim detayının en altında,
-                Görevlerim'deki etiketli kutu gibi (card 649). */}
-            {isMyRequestsView && detail.tasks && detail.tasks.length > 0 && (
-              <section className="mb-5">
-                <h3 className="mb-2 border-t border-slate-200 pt-3 text-sm font-semibold text-emerald-600">
-                  {t('tasks.detail.title', 'Görev Detayları')}
-                </h3>
-                <div className="space-y-3">
-                  {detail.tasks.map(task => (
-                    <div key={task.taskId} className="grid gap-0 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                      {[
-                        { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
-                        { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
-                        { label: t('tasks.assignedTo', 'Atanan'), value: task.assignedUserDisplayName || task.assignedDepartmentName || '—' },
-                        { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
-                        { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc ?? null, locale) },
-                        {
-                          label: t('tasks.columns.status', 'Durum'),
-                          value: (
-                            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                              <span className={task.currentStatus === 'Completed'
-                                ? 'text-emerald-600'
-                                : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
-                                  ? 'text-red-600'
-                                  : 'text-slate-900'}
-                              >
-                                {getTaskStatusLabel(t, task.currentStatus)}
-                              </span>
-                              {task.currentStatus === 'Cancelled' && task.revisionReason ? (
-                                <button
-                                  type="button"
-                                  className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
-                                  onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: task.revisionReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                >
-                                  {t('tasks.detail.cancelNote', 'İptal Notu')}
-                                </button>
-                              ) : null}
-                              {task.currentStatus === 'Completed' && task.notes ? (
-                                <button
-                                  type="button"
-                                  className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                  onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: task.notes!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                >
-                                  {t('tasks.detail.completionNote', 'Tamamlama Notu')}
-                                </button>
-                              ) : null}
-                            </span>
-                          ),
-                        },
-                        ...(task.completedAtUtc ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: formatDateTime(task.completedAtUtc, locale) }] : []),
-                      ].map(({ label, value }) => (
-                        <div key={label} className="flex items-start gap-2 px-3 py-2">
-                          <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                          <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
             {showWorkflowSections && <section className="mb-5">
               <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
                 {t('auditLog.title', 'Denetim İzi')}
@@ -2100,6 +2038,94 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </table>
               )}
             </section>}
+
+            {/* Görev Detayları — ilişkili görev varsa talep detayının sonundaki, Görevlerim
+                pop-up'ıyla aynı üç sütunlu özet kartta gösterilir (card 649). */}
+            {isMyRequestsView && detail.tasks.length > 0 && (
+              <section className="form-card page-stack mb-5">
+                <div className="text-sm font-semibold text-emerald-600">
+                  {t('tasks.detail.title', 'Görev Detayları')}
+                </div>
+                <div className="space-y-3">
+                  {detail.tasks.map(task => {
+                    const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, task.createdByDisplayName ?? detail.createdByDisplayName]
+                      .filter(Boolean)
+                      .join(' / ') || '—'
+                    const taskType = task.jobSourceType === 'Routine'
+                      ? t('tasks.type.routine', 'Rutin')
+                      : [t('tasks.type.assigned', 'Atanmış'), task.assignedUserDisplayName].filter(Boolean).join(' ') || 'Atanmış'
+                    const taskStatus = (
+                      <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <span className={task.currentStatus === 'Completed'
+                          ? 'text-emerald-600'
+                          : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
+                            ? 'text-red-600'
+                            : 'text-slate-900'}
+                        >
+                          {getTaskStatusLabel(t, task.currentStatus)}
+                        </span>
+                        {task.currentStatus === 'Cancelled' && task.revisionReason ? (
+                          <button
+                            type="button"
+                            className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
+                            onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: task.revisionReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                          >
+                            {t('tasks.detail.cancelNote', 'İptal Notu')}
+                          </button>
+                        ) : null}
+                        {task.currentStatus === 'Completed' && task.notes ? (
+                          <button
+                            type="button"
+                            className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
+                            onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: task.notes!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                          >
+                            {t('tasks.detail.completionNote', 'Tamamlama Notu')}
+                          </button>
+                        ) : null}
+                      </span>
+                    )
+
+                    return (
+                      <div key={task.taskId} className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]">
+                        <div className="min-w-0 divide-y divide-slate-100">
+                          {[
+                            { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
+                            { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
+                            { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
+                            { label: t('tasks.columns.owner', 'Görev Sahibi'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
+                            { label: t('tasks.columns.taskType', 'Görev Tipi'), value: taskType },
+                          ].map(({ label, value }) => (
+                            <div key={label} className="flex items-start gap-2 px-3 py-2">
+                              <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                              <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="divide-y divide-slate-100 border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
+                          {[
+                            { label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) },
+                            { label: t('tasks.columns.status', 'Durum'), value: taskStatus },
+                            { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
+                            { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc, locale) },
+                          ].map(({ label, value }) => (
+                            <div key={label} className="px-3 py-2">
+                              <div className="text-xs font-semibold text-slate-500">{label}</div>
+                              <div className="mt-0.5 break-words text-sm text-slate-900">{value}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
+                          <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            {t('tasks.detail.description', 'Açıklama')}
+                          </div>
+                          <RichTextContent value={task.description ?? ''} emptyText={t('tasks.detail.noDescription', 'Açıklama yok')} className="rich-text-content text-sm leading-6 text-slate-900" />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
            </div>
           </section>
         </div>,

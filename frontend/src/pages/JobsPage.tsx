@@ -581,7 +581,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const detailStatusClass = detail?.status === 'Active'
     ? 'text-[#f97316]'
     : detail?.status === 'PendingOwnerApproval'
-      ? 'text-[#a16207]'
+      ? 'text-slate-700'
       : detail?.status === 'Completed'
         ? 'text-emerald-600'
         : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')

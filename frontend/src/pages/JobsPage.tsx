@@ -1646,14 +1646,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         ...(isMyRequestsView ? [{
                           // Talebi yapan birimin yöneticisinin onay tarihi (Owner JobDepartment) — card 6a397bf6.
                           label: 'Talebin Birim Yöneticisinin Onay Tarihi',
-                          value: formatDateTime(
+                          value: formatDueDateTime(
                             detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
                             locale,
                           ),
                         }, {
                           // Talebi alan (hedef) birimin onay tarihi (Target JobDepartment).
                           label: 'Talebi Yapan Birim Onay Tarihi',
-                          value: formatDateTime(
+                          value: formatDueDateTime(
                             detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
                             locale,
                           ),

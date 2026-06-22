@@ -1619,7 +1619,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
                               <span className={detailStatusClass}>
                                 {detail.status === 'Active'
-                                  ? 'Yapılmakta Olan'
+                                  ? 'Yapılmakta'
                                   : detail.status === 'Completed'
                                     ? 'Tamamlanmış'
                                     : getJobStatusLabel(t, detail.status)}

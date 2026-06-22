@@ -1239,7 +1239,7 @@
     "myViews": {
       "created": "Oluşturduğum Talepler",
       "pending": "Bekleyen Taleplerim",
-      "externalPending": "Birim Dışı Onay Bekleyen Talepler",
+      "externalPending": "Birim Dışı Onay Bekleyen Taleplerim",
       "approved": "Onaylanmış Taleplerim",
       "inProgress": "Yapılmakta Olan Taleplerim",
       "overdue": "Son Tarihi Geçmiş Taleplerim",

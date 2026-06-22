@@ -1652,7 +1652,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ),
                         }, {
                           // Talebi alan (hedef) birimin onay tarihi (Target JobDepartment).
-                          label: 'Talebi Yapan Birim Onay Tarihi',
+                          label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
                           value: formatDueDateTime(
                             detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
                             locale,

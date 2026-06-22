@@ -599,7 +599,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'
     return EXTERNAL_SCOPES.some(s => s.value === raw) || raw === 'rejected' ? raw : 'department-pool'
   }, [fixedScope, searchParams])
-  const includeDepartmentJobs = isMyRequestsView && isManagerLike
+  // Taleplerim yalnızca kullanıcının kendi oluşturduğu talepleri gösterir (backend "mine" scope);
+  // departman havuzu merge edilmez — aksi halde başka kullanıcıların talepleri sızıyordu (card 6a3984de).
+  const includeDepartmentJobs = false
 
   // "pending-approval" görünümü "Birime Gelen Talepler" varsayılan sayfasının kopyasıydı;
   // bu eski bağlantılar artık Birime Gelen Talepler'e yönlendirilir.

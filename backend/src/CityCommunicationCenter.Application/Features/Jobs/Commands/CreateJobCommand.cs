@@ -197,6 +197,10 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 
         foreach (var targetDeptId in targets)
         {
+            // Owner-onayı gerektirmeyen (müdür/yönetim) doğrudan oluşturmada hedef birim,
+            // owner-onay akışıyla (ApproveJobOwnerCommand) aynı sonuca ulaşmalı: hedef Approved
+            // olarak birimin havuzuna düşer ve "Birime Gelen Talepler"de görünür.
+            // Staff yolunda hedef NotRequired kalır; owner onayında sonradan Approved'a çevrilir.
             _dbContext.JobDepartments.Add(new JobDepartment
             {
                 JobDepartmentId = Guid.NewGuid(),
@@ -204,9 +208,11 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 JobId = job.JobId,
                 DepartmentId = targetDeptId,
                 Role = JobDepartmentRole.Target,
-                ApprovalStatus = JobApprovalStatus.NotRequired,
+                ApprovalStatus = requiresOwnerApproval ? JobApprovalStatus.NotRequired : JobApprovalStatus.Approved,
                 RequestedByUserId = actor.UserId,
                 RequestedAtUtc = utcNow,
+                ApprovedByUserId = requiresOwnerApproval ? null : actor.UserId,
+                DecidedAtUtc = requiresOwnerApproval ? null : utcNow,
                 CreatedByUserId = context.UserId
             });
         }

@@ -1660,7 +1660,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         }] : []),
                         { label: 'Son Tarih', value: formatDueDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (
-                        <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
+                        <div key={label} className={`flex flex-col gap-0.5 px-4 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
                           <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
                             {label}
                             {label === 'Son Tarih' && canChangeDetailDueDate && detailDueDateEdit?.jobId !== detail.jobId && (

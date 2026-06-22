@@ -252,7 +252,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
-    ['Gittiği Yer', formatJobDestinationsWithAssignees(detail)],
+    ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', detail.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', detail.priority],
     ['Durum', getJobStatusLabel(t, detail.status)],
@@ -1591,7 +1591,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
                       {
-                        label: 'Gittiği Yer',
+                        label: 'Talebin Gittiği Birim',
                         value: formatJobDestinationsWithAssignees(detail),
                       },
                       { label: 'Proje mi', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },

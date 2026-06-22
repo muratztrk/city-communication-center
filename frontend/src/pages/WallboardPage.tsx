@@ -140,7 +140,8 @@ export function WallboardPage() {
   const [items, setItems] = useState<WallboardItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null)
+  // Canlı saat: saniye saysın diye her saniye güncellenir (card 676).
+  const [now, setNow] = useState<Date>(() => new Date())
   const [refreshIntervalMs, setRefreshIntervalMs] = useState(60_000)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [page, setPage] = useState(1)
@@ -159,7 +160,6 @@ export function WallboardPage() {
         api.getJobs('active'),
       ])
       setItems(buildWallboardItems(tasks, jobs))
-      setLastUpdatedAt(new Date())
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
     } finally {
@@ -172,6 +172,12 @@ export function WallboardPage() {
     const intervalId = window.setInterval(() => void loadBoard(true), refreshIntervalMs)
     return () => window.clearInterval(intervalId)
   }, [loadBoard, refreshIntervalMs])
+
+  // Saat her saniye ilerlesin (card 676).
+  useEffect(() => {
+    const clockId = window.setInterval(() => setNow(new Date()), 1000)
+    return () => window.clearInterval(clockId)
+  }, [])
 
   useEffect(() => {
     const syncFullscreenState = () => setIsFullscreen(Boolean(document.fullscreenElement))
@@ -228,14 +234,14 @@ export function WallboardPage() {
 
   return (
     <main ref={wallboardRef} className="wallboard-page">
+      {/* Ana sayfadaki gibi en sol en üst köşeye hizalı Atatürk görseli (card 674). */}
+      <img
+        src="/header-ataturk.png"
+        alt={t('wallboard.ataturkAlt', 'Atatürk')}
+        className="pointer-events-none absolute left-0 top-0 z-10 h-16 w-auto select-none opacity-80"
+      />
       <header className="wallboard-hero">
         <div className="wallboard-brand">
-          {/* Ana sayfanın (sidebar) en sol üst köşesindeki Atatürk görseli (card 674). */}
-          <img
-            src="/header-ataturk.png"
-            alt={t('wallboard.ataturkAlt', 'Atatürk')}
-            className="h-16 w-auto select-none opacity-80 pointer-events-none"
-          />
           <button
             type="button"
             className="wallboard-icon wallboard-fullscreen-button"
@@ -263,11 +269,11 @@ export function WallboardPage() {
         </div>
         <div className="wallboard-actions">
           <div className="wallboard-clock">
-            {/* Saatin soluna takvim ikonuyla tarih (card 675). */}
+            {/* Takvim ikonuyla tarih + her saniye ilerleyen canlı saat (card 675/676). */}
             <CalendarDays className="size-5" />
-            <span>{lastUpdatedAt ? formatClockDate(lastUpdatedAt, locale) : '—'}</span>
+            <span>{formatClockDate(now, locale)}</span>
             <Clock3 className="size-5" />
-            <span>{lastUpdatedAt ? formatTime(lastUpdatedAt, locale) : '—'}</span>
+            <span>{formatTime(now, locale)}</span>
           </div>
           <label className="wallboard-refresh-control">
             <span>{t('wallboard.refreshInterval', 'Otomatik yenile')}</span>

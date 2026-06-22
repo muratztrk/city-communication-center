@@ -1,6 +1,6 @@
 # City Communication Center Teknik Tasarım Dokümanı
 
-Hazırlanma tarihi: 18 Haziran 2026
+Hazırlanma tarihi: 23 Haziran 2026
 Kapsam: City Communication Center web uygulaması, API, veri katmanı, sosyal kanal entegrasyonları ve operasyonel akışlar.
 
 ## 1. Amaç ve Kapsam
@@ -306,6 +306,14 @@ Talep tipleri:
 - Dış birim talebi
 - Vatandaş talebi
 
+Birim dışı talepte `JobDepartment` kayıtları yönlendirme zincirini taşır:
+
+- `Owner`: Talebi açan/sahip birim.
+- `Target`: Talebin gönderildiği birim.
+- `Coordinating`: Koordinasyon için eklenen birimler.
+
+Sahip birim yöneticisinin onayı `Owner.DecidedAtUtc` alanında; hedef birime ilişkin yönlendirme/onay zamanı `Target.DecidedAtUtc` alanında tutulur. Frontend talep detayında bu iki tarih ayrı alanlar olarak gösterilir. Henüz karar verilmemiş tarih alanları kullanıcıya **Onay Bekleyen** olarak sunulur.
+
 ### 8.2 Görev Modeli
 
 Görev `WorkTask` entity'siyle temsil edilir.
@@ -326,6 +334,13 @@ Görev yaşam döngüsü:
 - Rejected / reddedildi
 - Closed / kapandı
 
+Birim dışı yönlendirme davranışı:
+
+1. Talep sahip birim onayı bekliyorsa `PendingOwnerApproval` durumundadır.
+2. Sahip yönetici onayladığında talep `Active` olur; hedef `JobDepartment` kaydı onaylanır ve talep hedef birimin havuzunda görünür.
+3. Hedef birim yöneticisi uygun personeli seçtiğinde o kullanıcıya atanmış `WorkTask` kaydı üretilir.
+4. Görevlerin tamamı terminal durumdaysa iş/talep tamamlama durumu workflow kurallarıyla yeniden hesaplanır.
+
 ### 8.3 Talep Ekran Grupları
 
 Frontend talepleri farklı bağlamlarda gösterir:
@@ -338,6 +353,8 @@ Frontend talepleri farklı bağlamlarda gösterir:
 - Personelimin Görevleri: Müdürün personeline atanmış görevler.
 
 Filtreler status, tarih, son tarih, arama metni ve kolon bazlı filtreleme üzerinden çalışır.
+
+Talep ve görev detay popup'ları, durum değişimini yapan kullanıcıyı ve varsa iptal/tamamlama notunu gösterebilir. Not görüntüleme için kullanılan ortak `ConfirmDialog`, başlık alt çizgisi ve işlem anlamına göre kırmızı/yeşil kapatma düğmesi varyantlarını destekler.
 
 ## 9. Sosyal Kanal ve WhatsApp Tasarımı
 
@@ -509,6 +526,15 @@ Tek tenant frontend deploy modeli:
 - `VITE_TENANT_ID` build-time değişkeniyle tenant sabitlenir.
 - Frontend login context çağrısında `X-Tenant-Id` header gönderir.
 - Kullanıcıya belediye seçim ekranı gösterilmez.
+
+API ve frontend farklı container'larda build edildiği için backend değişikliği yalnızca frontend container'ını yeniden oluşturarak yayına alınmaz. Uygulama kodu güncellendiğinde ilgili servis(ler) yeniden build edilmelidir:
+
+```bash
+docker compose up -d --build api frontend
+docker compose ps
+```
+
+API güncellemesi sonrasında `/health` endpoint'i ve gerektiğinde `docker compose logs --tail 250 api` ile servis sağlığı doğrulanmalıdır. Bu kontrol, veritabanında oluşmuş yönlendirme/görev kayıtlarının eski API image'i nedeniyle listelerde görünmemesi gibi sürüm uyumsuzluklarını önler.
 
 ## 17. Güvenlik Tasarımı
 

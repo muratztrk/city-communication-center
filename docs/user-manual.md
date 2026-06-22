@@ -2,7 +2,7 @@
 
 **Uygulama:** City Communication Center / Yeni Tim
 **Hedef kullanıcılar:** Belediye personeli, birim yöneticileri, sistem yöneticileri ve üst düzey kullanıcılar
-**Sürüm tarihi:** 18.06.2026
+**Sürüm tarihi:** 23.06.2026
 
 ---
 
@@ -197,7 +197,7 @@ Adımlar:
 9. Varsa dosya/fotoğraf ekleyin.
 10. **Talep Oluştur** butonuna basın.
 
-Birim dışı talep akışında hedef birim talebi onaylayabilir, personele atayabilir veya yetkisi dahilinde iptal edebilir.
+Birim dışı talep, sahip birimin onayı tamamlandıktan sonra hedef birimin gelen talep havuzuna düşer. Yönetici tarafından açılan taleplerde bu onay doğrudan tamamlanabilir; diğer kullanıcılarda yönetici onayı gerekebilir. Hedef birim yöneticisi talebi ilgili personele atar; atama sonrasında görev, seçilen personelin **Görevlerim** ekranında görünür.
 
 ### 5.3 Vatandaş Talebi Oluşturma
 
@@ -241,12 +241,13 @@ Detay ekranında görülebilecek bilgiler:
 - Talep No
 - Talep Başlığı
 - Talep Yeri / Oluşturan
-- Gittiği Yer
+- Talebin Gittiği Birim
 - Proje bilgisi
 - Öncelik
 - Durum
 - Talep tarihi
-- Onay tarihi
+- Talebin Birim Yöneticisinin Onay Tarihi
+- Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi
 - Son tarih
 - Açıklama
 - Adres Bilgileri
@@ -254,6 +255,8 @@ Detay ekranında görülebilecek bilgiler:
 - Ekler / Fotoğraflar
 - Görevler
 - Müdürlük onay bilgileri
+
+Onay tarihi henüz oluşmamışsa alan **Onay Bekleyen** olarak görünür. İptal veya tamamlanma notu varsa, durum satırındaki parantezli not bağlantısına tıklayarak notu ayrı bir pencerede görebilirsiniz. İptal notu penceresinin **Kapat** düğmesi kırmızı, tamamlama notu penceresinin **Kapat** düğmesi yeşildir.
 
 ### 6.2 Talebi Yazdırma
 
@@ -298,7 +301,7 @@ Ek olarak talebin kaynağına göre birim içi, birim dışı veya tüm kayıtla
 
 Yetkiniz varsa ilgili satırdaki **Onayla** butonuna basarak talebi onaylayabilirsiniz.
 
-Birim dışı taleplerde onay sonrası personele görev atama akışı başlar.
+Birim dışı taleplerde talep, hedef birimin yöneticisi için atamaya hazır hale gelir. Yönetici personel seçtiğinde görev üretilir.
 
 ### 7.2 Personel Atama
 
@@ -367,6 +370,8 @@ Detayda görülebilecek alanlar:
 - Yönetici notu
 - Ekler / Fotoğraflar
 - Atama geçmişi
+
+Görev tamamlanmış veya iptal edilmişse durum satırındaki **(Tamamlama Notu)** ya da **(İptal Notu)** bağlantısından ilgili not açılabilir. Tamamlama notu penceresindeki **Kapat** düğmesi yeşil gösterilir.
 
 Rutin görevlerde ilgili talep bulunmadığı için talep detayları ve talep ekleri gösterilmez.
 
@@ -634,9 +639,9 @@ Listenin altında sayfa boyutu ve sayfa geçiş kontrolleri bulunur.
 ### 19.1 Birim Dışı Talep Akışı
 
 1. Kullanıcı **Talep Oluştur > Birim Dışı** ekranından talep oluşturur.
-2. Talep, hedef birimin gelen taleplerine düşer.
-3. Hedef birim yöneticisi talebi onaylar.
-4. Yönetici personele görev atar.
+2. Sahip birimin onayı tamamlanır.
+3. Talep hedef birimin **Birime Gelen Talepler** havuzuna düşer.
+4. Hedef birim yöneticisi personele görev atar.
 5. Personel görevi tamamlar.
 6. Talep tamamlanır veya kapanış onayı sürecine girer.
 

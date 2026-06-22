@@ -1692,7 +1692,7 @@ const pageKicker = isMyTasksView
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
-                  {isDepartmentTasksView && (
+                  {(isDepartmentTasksView || isStaffTasksView) && (
                     <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
                   )}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
@@ -1750,7 +1750,7 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td><span className="cell-title">{task.title}</span></td>
-                    {isDepartmentTasksView && (
+                    {(isDepartmentTasksView || isStaffTasksView) && (
                       <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
                     )}
                     {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (

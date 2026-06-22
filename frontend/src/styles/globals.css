@@ -341,6 +341,14 @@
       table-layout: fixed;
     }
 
+    /* The compact row-number header needs enough room for its desktop padding;
+       otherwise it visually collides with the parent-request-number column. */
+    .app-content-shell .my-tasks-all-table th:first-child,
+    .app-content-shell .my-tasks-all-table td:first-child {
+      width: 4.5rem;
+      min-width: 4.5rem;
+    }
+
     /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon
        modelini şişirip başlıkların üst üste binmesine yol açıyordu; boşken Taleplerim
        grid'i gibi otomatik yerleşime dön (card 577). */

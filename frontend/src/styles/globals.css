@@ -358,6 +358,11 @@
       line-height: 1.18;
     }
 
+    /* Kısa "Sıra" başlığı (ilk kolon) sarılıp "Sı/ra" olarak alt satıra geçmesin (card 677). */
+    .app-content-shell .my-tasks-all-table thead th:first-child {
+      white-space: nowrap;
+    }
+
     /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon
        modelini şişirip başlıkların üst üste binmesine yol açıyordu; boşken Taleplerim
        grid'i gibi otomatik yerleşime dön (card 577). */

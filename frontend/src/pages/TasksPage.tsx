@@ -1258,7 +1258,7 @@ const pageKicker = isMyTasksView
                                               className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
                                               onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
-                                              {t('tasks.detail.cancelNote', 'İptal Notu')}
+                                              ({t('tasks.detail.cancelNote', 'İptal Notu')})
                                             </button>
                                           ) : null}
                                           {taskDetail.currentStatus === 'Completed' && taskDetail.notes ? (
@@ -1267,7 +1267,7 @@ const pageKicker = isMyTasksView
                                               className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
                                               onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: taskDetail.notes!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
-                                              {t('tasks.detail.completionNote', 'Tamamlama Notu')}
+                                              ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
                                             </button>
                                           ) : null}
                                         </span>

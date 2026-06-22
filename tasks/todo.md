@@ -467,3 +467,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `#674` — Ekrana Yansıt (WallboardPage /display) hero'sunun en sol üst köşesine ana sayfadaki (sidebar) kurum logosu eklendi: `useTenantTheme()` → `appearance.logoUrl`, `<MunicipalitySeal compact src={logoUrl} />` `wallboard-brand`ın başına (fullscreen butonundan önce). FE build + lint PASS.
 - [x] `#675` — Ekrana Yansıt'ta saatin soluna takvim ikonu + tarih eklendi: `wallboard-clock` içine `<CalendarDays/>` + `formatClockDate(lastUpdatedAt)` (gg.aa.yyyy), mevcut Clock3+saatin soluna. `formatClockDate` helper'ı eklendi. FE build + lint PASS.
 - NOT: Canlı doğrulama bekliyor (Chrome bağlantısı kapalı).
+
+## Round 71 (Doing — #674 #675 yeniden açıldı: Ekrana Yansıt logo/saat düzeltme)
+- [x] `#674` (reopened) — Ekrana Yansıt'ta istenen görsel kurum CRESTİ değil, ana sayfa sidebar'ının sol üst köşesindeki **Atatürk** görseliymiş (`/header-ataturk.png`, ek: ataturk_ekranayansit.png). Önceki turda eklediğim `MunicipalitySeal` (tire belediyesi arması) kaldırıldı; yerine AppShell sidebar'daki ile aynı `<img src="/header-ataturk.png" className="h-16 w-auto opacity-80 pointer-events-none">` wallboard-brand başına eklendi. Kullanılmayan MunicipalitySeal/useTenantTheme importları ve logoUrl kaldırıldı.
+- [x] `#675` (reopened) — (a) Saat verisine **saniye** eklendi: `formatTime` `{hour,minute,second:'2-digit'}` → ss:dd:ss. (b) Ok ile gösterilen "tire belediyesi" arması zaten #674 kapsamında kaldırıldı (MunicipalitySeal). (Önceki turda eklenen takvim ikonu + tarih korundu.)
+- NOT: Canlı doğrulama bekliyor (Chrome bağlantısı kapalı). /header-ataturk.png public/ içinde mevcut. FE build + lint PASS.

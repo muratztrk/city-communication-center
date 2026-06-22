@@ -1265,7 +1265,7 @@ const pageKicker = isMyTasksView
                                             <button
                                               type="button"
                                               className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: taskDetail.notes!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: taskDetail.notes!, hideCancel: true, variant: 'success', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
                                               ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
                                             </button>

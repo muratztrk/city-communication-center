@@ -614,6 +614,7 @@
       "routeTask": "Görevi Yönlendir",
       "route": "Görevi Yönlendir",
       "routeShort": "Yönlendir",
+      "routeUnavailable": "Bu görev yönlendirilemez",
       "redirectReporterTaskWithinUnit": "Görevi Birim İçi Yönlendir",
       "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.",
       "returnTask": "Görevi İade Et",

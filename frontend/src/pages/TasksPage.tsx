@@ -1778,17 +1778,20 @@ const pageKicker = isMyTasksView
                         {isDepartmentTasksView
                           && isManagerLike
                           && (currentMyTaskView === 'pending' || currentMyTaskView === 'overdue')
-                          && task.jobSourceType !== 'Routine'
-                          && isActionableTaskStatus(task.currentStatus) && (
-                          <Button
-                            size="sm"
-                            type="button"
-                            className="bg-[#00a6b4] text-white shadow-sm hover:bg-[#008f9c]"
-                            onClick={() => openRouteModal(task.taskId)}
-                          >
-                            {t('tasks.actions.routeShort', 'Yönlendir')}
-                          </Button>
-                        )}
+                          && (task.jobSourceType !== 'Routine' && isActionableTaskStatus(task.currentStatus) ? (
+                            <Button
+                              size="sm"
+                              type="button"
+                              className="bg-[#00a6b4] text-white shadow-sm hover:bg-[#008f9c]"
+                              onClick={() => openRouteModal(task.taskId)}
+                            >
+                              {t('tasks.actions.routeShort', 'Yönlendir')}
+                            </Button>
+                          ) : currentMyTaskView === 'overdue' ? (
+                            <DisabledActionButton size="sm" className="bg-[#00a6b4] text-white" hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}>
+                              {t('tasks.actions.routeShort', 'Yönlendir')}
+                            </DisabledActionButton>
+                          ) : null)}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>

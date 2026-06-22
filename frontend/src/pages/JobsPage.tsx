@@ -2041,7 +2041,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
             {/* Görev Detayları — ilişkili görev varsa talep detayının sonundaki, Görevlerim
                 pop-up'ıyla aynı üç sütunlu özet kartta gösterilir (card 649). */}
-            {isMyRequestsView && detail.tasks.length > 0 && (
+            {isRequestDetailContext && detail.tasks.length > 0 && (
               <section className="form-card page-stack mb-5">
                 <div className="text-sm font-semibold text-emerald-600">
                   {t('tasks.detail.title', 'Görev Detayları')}

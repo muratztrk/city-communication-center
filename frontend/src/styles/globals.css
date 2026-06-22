@@ -352,6 +352,9 @@
       max-width: 12rem;
     }
 
+    /* Fixed-layout tables size columns from their header row. Give the final header
+       the same width as its action cells so the Actions column reaches the table edge. */
+    .app-content-shell .my-tasks-all-table thead th:last-child,
     .app-content-shell .my-tasks-all-table tbody td.actions-cell {
       width: 13.5rem;
       min-width: 13.5rem;

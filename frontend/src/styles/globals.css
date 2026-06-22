@@ -349,6 +349,15 @@
       min-width: 4.5rem;
     }
 
+    /* Sabit yerleşimde (table-layout:fixed) uzun başlıklar nowrap kalınca kolon dışına taşıp
+       komşu başlıkların ("Sıra" ↔ "Bağlı Olduğu Talep No") üzerine biniyordu; başlıklar
+       kolon içinde sarılsın (card 670). */
+    .app-content-shell .my-tasks-all-table thead th {
+      white-space: normal;
+      overflow-wrap: break-word;
+      line-height: 1.18;
+    }
+
     /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon
        modelini şişirip başlıkların üst üste binmesine yol açıyordu; boşken Taleplerim
        grid'i gibi otomatik yerleşime dön (card 577). */

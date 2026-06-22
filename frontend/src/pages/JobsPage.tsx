@@ -1648,7 +1648,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         },
                         { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
                         ...(isMyRequestsView ? [{
-                          label: 'Talebi Yapan Departman Onay Tarihi',
+                          label: 'Talebi Yapan Birim Onay Tarihi',
                           value: formatDateTime(
                             detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
                             locale,

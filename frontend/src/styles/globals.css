@@ -1541,7 +1541,7 @@
   .scope-chip--approved.active {
     background: #facc15;
     border-color: #eab308;
-    color: #422006;
+    color: #fff;
     box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
   }
 
@@ -1609,7 +1609,7 @@
   .scope-chip--in-progress-yellow.active {
     background: #facc15;
     border-color: #eab308;
-    color: #422006;
+    color: #fff;
     box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
   }
 

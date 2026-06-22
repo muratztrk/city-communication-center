@@ -24,6 +24,9 @@ export function getTaskDisplayStatus(
       return t('tasks.statusLabel.rejected', { defaultValue: 'Reddedildi' })
     case 'RevisionRequested':
       return t('tasks.statusLabel.revisionRequested', { defaultValue: 'Revize İstendi' })
+    case 'Assigned':
+    case 'InProgress':
+      return t('enum.taskStatus.InProgress', { defaultValue: 'Yapılmakta' })
     default:
       break
   }
@@ -58,6 +61,8 @@ export function getTaskStatusTone(task: { currentStatus: string; dueDateUtc: str
     case 'Cancelled': return 'cancelled'
     case 'Rejected': return 'rejected'
     case 'RevisionRequested': return 'neutral'
+    case 'Assigned':
+    case 'InProgress': return 'inProgress'
     default: break
   }
   if (isOverdue(task.dueDateUtc)) return 'overdue'

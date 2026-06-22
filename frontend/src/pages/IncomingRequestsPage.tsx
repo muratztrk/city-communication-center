@@ -41,7 +41,7 @@ import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
@@ -96,6 +96,29 @@ function formatDateTime(value: string | null | undefined, locale: string) {
 
 function getJobStatusLabel(t: ReturnType<typeof useTranslation>['t'], status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
+}
+
+function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: IncomingRequestRow): string {
+  if (row.statusDomain === 'task') {
+    return getTaskDisplayStatus(t, { currentStatus: row.status, dueDateUtc: row.dueDateUtc })
+  }
+
+  if (row.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (row.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
+  if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
+  if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()) {
+    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+  }
+  if (row.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  return getJobStatusLabel(t, row.status)
+}
+
+function getIncomingStatusPillClass(row: IncomingRequestRow): string {
+  const tone = row.statusDomain === 'task'
+    ? getTaskStatusTone({ currentStatus: row.status, dueDateUtc: row.dueDateUtc })
+    : getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc })
+  return getStatusPillClass(tone)
 }
 
 function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
@@ -462,7 +485,7 @@ export function IncomingRequestsPage() {
 
   // Bir satırın bir sütunundaki görünen metni döndürür; hem kolon filtreleri hem banner araması kullanır.
   const getColumnValue = useCallback((key: string, r: IncomingRequestRow): string => {
-    if (key === 'status') return r.statusDomain === 'task' ? getTaskStatusLabel(t, r.status) : getJobStatusLabel(t, r.status)
+    if (key === 'status') return getIncomingStatusLabel(t, r)
     if (key === 'cancelReturnStatus') return 'İptal'
     if (key === 'displayNumber') return r.displayNumber
     if (key === 'priority') return getPriorityLabel(t, r.priority)
@@ -693,7 +716,7 @@ export function IncomingRequestsPage() {
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} /></td>}
-                    {currentStatusFilter === 'all' && <td><StatusPill tone="neutral">{row.statusDomain === 'task' ? getTaskStatusLabel(t, row.status) : getJobStatusLabel(t, row.status)}</StatusPill></td>}
+                    {currentStatusFilter === 'all' && <td><StatusPill className={getIncomingStatusPillClass(row)}>{getIncomingStatusLabel(t, row)}</StatusPill></td>}
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}

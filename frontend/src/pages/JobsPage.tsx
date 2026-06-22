@@ -1600,9 +1600,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: formatJobDestinationsWithAssignees(detail),
                       },
                       { label: 'Proje mi', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
+                      // Öncelik, "Proje mi"nin alt satırına alındı (card 6a397fac).
+                      { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                     ].map(({ label, value }) => (
-                      // "Proje mi" satırının altına ayırıcı çizgi (card 542).
-                      <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Proje mi' ? ' border-b border-slate-100' : ''}`}>
+                      // Sol kolonun son satırının (Öncelik) altına ayırıcı çizgi.
+                      <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                         <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                       </div>
@@ -1611,7 +1613,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
                     <div className="divide-y divide-slate-100">
                       {[
-                        { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                         {
                           label: 'Durum',
                           // Durum + (durumu belirleyen kullanıcı) + tıklanabilir İptal/Tamamlama Notu (card 643).

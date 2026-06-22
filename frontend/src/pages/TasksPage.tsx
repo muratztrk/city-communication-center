@@ -1564,6 +1564,8 @@ const pageKicker = isMyTasksView
                           ? t('common.yes', 'Evet')
                           : t('common.no', 'Hayır'),
                       },
+                      // Öncelik, "Proje mi"nin alt satırına alındı (card 6a397fac).
+                      { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
                       ...(coordinatingDepartmentNames.length > 0
                         ? [{
                             label: 'Koordine Departmanlar',
@@ -1572,7 +1574,6 @@ const pageKicker = isMyTasksView
                         : []),
                     ]
                     const rightFields = [
-                      { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
                       {
                         label: isCrossDepartmentRequest

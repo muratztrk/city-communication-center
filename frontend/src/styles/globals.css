@@ -2658,6 +2658,14 @@
       max-height: none;
     }
   }
+
+  /* Keep the final grid column flush with the panel edge; the scrollbar overlays
+     the grid instead of reserving the blank vertical track shown at the right. */
+  @supports (overflow: overlay) {
+    .desktop-panel-scroll {
+      overflow-y: overlay;
+    }
+  }
 }@media (max-width: 960px) {
   @layer components {
     .table-container table,

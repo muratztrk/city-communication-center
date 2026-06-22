@@ -173,8 +173,22 @@ export function CreateRequestPage() {
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
 
   const myDepartmentId = useMemo(() => {
-    return activeDepartmentId || user?.departmentId || users.find(item => item.userId === user?.userId)?.departmentId || ''
-  }, [activeDepartmentId, user?.departmentId, user?.userId, users])
+    const me = users.find(item => item.userId === user?.userId)
+    const homeDepartmentId = user?.departmentId || me?.departmentId || ''
+    // Bayat/geçersiz aktif birim koruması: localStorage'daki aktif birim, kullanıcının gerçekten
+    // ait olduğu (ana + ek birimler) ya da yönettiği bir birim değilse owner kabul etme; ana birime
+    // düş. Aksi halde form, başka bir birim adına talep açar ve o birim hedef listesinden düşer.
+    const accessibleDepartmentIds = new Set<string>()
+    if (homeDepartmentId) accessibleDepartmentIds.add(homeDepartmentId)
+    me?.departments?.forEach(department => accessibleDepartmentIds.add(department.departmentId))
+    departments
+      .filter(department => department.managerUserId === user?.userId)
+      .forEach(department => accessibleDepartmentIds.add(department.departmentId))
+    if (activeDepartmentId && accessibleDepartmentIds.has(activeDepartmentId)) {
+      return activeDepartmentId
+    }
+    return homeDepartmentId
+  }, [activeDepartmentId, user?.departmentId, user?.userId, users, departments])
 
   const ownerDepartmentOptions = useMemo(() => {
     if (user?.role === 'Staff' && myDepartmentId) {

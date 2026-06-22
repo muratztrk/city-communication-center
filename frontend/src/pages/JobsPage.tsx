@@ -1634,7 +1634,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 <button
                                   type="button"
                                   className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.completionNote', 'Tamamlama Notu'), message: detail.completionNote!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: detail.completionNote!, hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                 >
                                   ({t('jobs.detail.completionNote', 'Tamamlama Notu')})
                                 </button>

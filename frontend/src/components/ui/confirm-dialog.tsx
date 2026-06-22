@@ -8,7 +8,7 @@ export interface ConfirmDialogState {
   message: string
   confirmLabel?: string
   cancelLabel?: string
-  variant?: 'destructive' | 'primary'
+  variant?: 'destructive' | 'primary' | 'success'
   hideCancel?: boolean
   onConfirm: () => void | Promise<void>
 }

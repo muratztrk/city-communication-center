@@ -1469,7 +1469,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           if (canCancel) {
                             return <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel', 'İptal')}</Button>
                           }
-                          if (isPresidencyReporter && activeJobView === 'all') {
+                          if (activeJobView === 'all') {
                             return (
                               <DisabledActionButton size="sm" variant="destructive" hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')}>
                                 {t('jobs.actions.cancel', 'İptal')}

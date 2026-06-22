@@ -1775,8 +1775,21 @@ const pageKicker = isMyTasksView
                     {showStatusColumn && <td><StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>{getTaskDisplayStatus(t, task)}</StatusPill></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
+                        {isDepartmentTasksView
+                          && isManagerLike
+                          && (currentMyTaskView === 'pending' || currentMyTaskView === 'overdue')
+                          && task.jobSourceType !== 'Routine'
+                          && isActionableTaskStatus(task.currentStatus) && (
+                          <Button
+                            size="sm"
+                            type="button"
+                            className="bg-[#00a6b4] text-white shadow-sm hover:bg-[#008f9c]"
+                            onClick={() => openRouteModal(task.taskId)}
+                          >
+                            {t('tasks.actions.routeShort', 'Yönlendir')}
+                          </Button>
+                        )}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
-                        {/* "Görevi Yönlendir" satır butonu kaldırıldı; yönlendirme Detaylar pop-up'ında yapılır (card 516). */}
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}

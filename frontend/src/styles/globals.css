@@ -341,7 +341,9 @@
          sizes. Otherwise the final cell overflows its own table and is clipped
          instead of participating in the horizontal scroll. */
       min-width: max(68rem, calc(100% + 1rem));
-      table-layout: fixed;
+      /* Fixed layout ignores the first column's minimum width when all visible
+         columns compete for space, collapsing "Sıra" and clipping Actions. */
+      table-layout: auto;
     }
 
     /* The compact row-number header needs enough room for its desktop padding;

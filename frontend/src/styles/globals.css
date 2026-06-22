@@ -354,6 +354,17 @@
       min-width: 4.5rem;
     }
 
+    /* Define the first two columns structurally as well as on their cells.
+       Browser fixed-table layout can otherwise shrink cell minimums below their
+       readable size when it calculates the column grid. */
+    .app-content-shell .my-tasks-all-table .my-tasks-all-row-number-col {
+      width: 4.5rem;
+    }
+
+    .app-content-shell .my-tasks-all-table .my-tasks-all-parent-request-col {
+      width: 13rem;
+    }
+
     /* Sabit yerleşimde (table-layout:fixed) uzun başlıklar nowrap kalınca kolon dışına taşıp
        komşu başlıkların ("Sıra" ↔ "Bağlı Olduğu Talep No") üzerine biniyordu; başlıklar
        kolon içinde sarılsın (card 670). */

@@ -702,3 +702,80 @@ Yeni özellikler için en az aşağıdaki etkiler gözden geçirilir:
 - Dosya ve gizli veri: boyut/erişim sınırı, secret redaction ve tenant izolasyonu.
 
 Mevcut taban doğrulama komutları `dotnet build backend/CityCommunicationCenter.sln`, frontend için `npm run lint` ve `npm run build`, E2E altyapısı için `tests/e2e` altında `npm test` komutlarıdır. Kritik üretim akışları bunların yanında yetkili test kullanıcılarıyla uçtan uca doğrulanmalıdır.
+
+## 28. HTTP Endpoint İndeksi
+
+Bu bölüm endpoint yüzeyinin bakım indeksidir; ayrıntılı request/response şemalarının kaynak doğruluğu shared contract'lar ve OpenAPI çıktısıdır.
+
+| Kaynak | Ana işlemler |
+| --- | --- |
+| `auth` ve `/connect/token` | Tenant context, oturum/token, interaktif doğrulama, bootstrap, mevcut kullanıcı |
+| `jobs` | Liste/detay, oluşturma, güncelleme/silme, iptal/iade, sahip/hedef onayı, koordinasyon birimi, yönetici notu, audit |
+| `tasks` | Liste/detay, rutin/manuel oluşturma, atama, havuzdan sahiplenme, ilerleme, son tarih, tamamlama, kapanış/revizyon/iptal, audit |
+| `attachments` | Talep/görev eki yükleme, indirme ve silme |
+| `departments`, `users`, `me` | Birim CRUD; kullanıcı yönetimi, dizin arama/senkronizasyonu; profil, birim ve parola işlemleri |
+| `notifications` | Liste, okunmuş işaretleme, tümünü okuma, okunmamış sayı, tercih ve push aboneliği |
+| `reports` | Dashboard, grafik, SLA, iş yükü, vatandaş kanalı, sosyal trend ve yönetici raporu |
+| `social/messages`, `citizen-conversations` | Mesaj/kategori/yönlendirme, talebe dönüştürme, konuşma okuma/yanıtlama, medya erişimi |
+| `admin`, `admin/social-settings`, `admin/routing`, `whatsapp-templates` | Tenant ayarları, rol sayfa erişimi, LDAP/auth/SMS/dosya/syslog/SLA ayarları, kanal ve yönlendirme kuralları, şablonlar |
+| `social/webhooks` | Genel sosyal ve WhatsApp webhook alma/doğrulama |
+
+Kontrat değişikliğinde endpoint, shared contract, handler, frontend API istemcisi, ekran ve OpenAPI açıklaması birlikte gözden geçirilir. Geriye dönük uyumsuz bir alan değişikliğinde yeni alan ekleme veya sürümleme tercih edilir; mevcut alanın anlamı sessizce değiştirilmez.
+
+## 29. Kontrat Alanları ve Sayfalama Kuralları
+
+`JobContracts`, `TaskContracts`, `SocialContracts`, `NotificationContracts`, `ReportingContracts` ve yönetim contract'ları API'nin transport yüzeyidir. Tip tanımları uygulama katmanındaki entity'lerin doğrudan serileştirilmesi değildir; istemcinin ihtiyaç duyduğu stabil şekli sağlar.
+
+Liste contract'larında numara, başlık, oluşturan/sahip, birim, durum, öncelik, oluşturulma/son tarih ve işlem için gerekli kimlikler bulunur. Detay contract'ları bunlara açıklama, onaylar, görevler, ekler, yönlendirme bilgisi ve audit bağlamını ekler. İstemci, görünmeyen bir alanın boş olabileceğini varsaymalı; null değerleri "kayıt yok" ile "erişim yok" olarak ayırmak için API'nin açık durum alanlarını kullanmalıdır.
+
+Liste sorgularında sayfa, sayfa boyutu, arama, tarih aralığı, kapsam/status ve ekranın desteklediği filtre/sıralama alanları kullanılır. Filtreleme ve sıralama, isteğe bağlı olarak güvenli izinli alan listesine bağlanmalıdır; kullanıcıdan gelen alan adı SQL veya dinamik sorgu parçası olarak doğrudan kullanılmamalıdır.
+
+## 30. Ekran Sözleşmesi ve İstemci Davranışı
+
+Frontend, route ve rol erişimi için `rolePageAccess.ts`, veri erişimi için merkezi `api` istemcisi, sunucu durumu için TanStack Query kullanır. Ekranlar, liste/detay mutasyonundan sonra ilgili query anahtarlarını geçersiz kılmalı veya güncellemelidir; eski listeden işlem yapılması workflow uyuşmazlıklarına yol açar.
+
+Liste ekranlarındaki kolon görünürlüğü bağlama göre değişir: talep/görev numarası, oluşturulma zamanı, talep yeri/oluşturan, başlık, görev sahibi, hedef, öncelik, proje, görev sayısı, son tarih, durum ve terminal işlem tarihleri. Yeni kolon eklenirken filtre anahtarı, sıralama davranışı, mobil/dar ekran görünümü, yazdırma ve erişilebilir başlık da birlikte değerlendirilmelidir.
+
+Onay/iptal/tamamlama notları kullanıcı görünümünde anlamlı renkte gösterilse de renk tek bilgi taşıyıcısı olmamalıdır. Modal/confirm dialog'lar klavye odağını korumalı, kapatma seçeneği sunmalı ve mutasyon sırasında çift tıklamayı önlemelidir.
+
+## 31. Tenant Ayarları ve Entegrasyon Yapılandırma Matrisi
+
+| Ayar grubu | Saklama/koruma | İşletim notu |
+| --- | --- | --- |
+| Görünüm, kurum, rol-sayfa, çalışma saatleri | Tenant ayarları | Değişiklik sonrası menü ve dashboard etkisi doğrulanır |
+| LDAP ve adaptif auth | Tenant ayarları, şifreli hassas alanlar | Bağlantı ve kullanıcı doğrulama testleri kontrollü yapılır |
+| SMS, dosya depolama, syslog | Tenant ayarları, şifreli hassas alanlar | Sağlayıcı erişimi ve hata loglama doğrulanır |
+| WhatsApp, X, Facebook, Instagram, e-Devlet, e-posta | Sosyal ayarlar, Data Protection | Token/secret loglanmaz; bağlantı testi ve webhook doğrulaması yapılır |
+| Yönlendirme kuralları | Tenant routing kayıtları | Test endpoint'i ile kural sırası ve hedef birim doğrulanır |
+| WhatsApp şablonları | Tenant şablon kayıtları | 24 saat pencere ve sağlayıcı kuralları dikkate alınır |
+
+Gizli bir ayar güncellenirken boş değer mevcut secret'ı silme anlamına gelmemelidir; sözleşme bu davranışı açıkça tanımlamalı, istemci de maskeli alanı gerçek değer sanarak tekrar göndermemelidir.
+
+## 32. Yedekleme, Geri Yükleme ve Olay Müdahalesi
+
+Yedekleme kapsamı PostgreSQL verisi, upload volume'ü, Data Protection key volume'ü ve güvenli ortam değişkeni envanteridir. Yedekler şifreli, erişimi sınırlandırılmış ve geri yükleme testi yapılmış halde tutulmalıdır.
+
+Olay müdahalesi sırası:
+
+1. Etkilenen tenant, kullanıcı, talep/görev numarası ve zaman aralığını belirleyin.
+2. API health, container durumu, yapılandırma sürümü ve correlation/audit kayıtlarını inceleyin.
+3. Sorunun UI, API, veritabanı, webhook veya dış sağlayıcı kaynaklı olduğunu ayrıştırın.
+4. Veri düzeltmesi gerekiyorsa önce yedek alın; handler dışında doğrudan update yerine onaylı bakım prosedürü ve audit kaydı kullanın.
+5. Geri yükleme sonrasında tenant izolasyonu, dosya erişimi, Data Protection ile secret çözümü ve kritik iş akışlarını test edin.
+6. Olay özeti, kök neden, yapılan işlem ve önleyici aksiyonları kayda alın.
+
+## 33. Uçtan Uca Kabul Senaryosu Kataloğu
+
+| Senaryo | Beklenen kanıt |
+| --- | --- |
+| Kimlik doğrulama | Tenant bağlamı doğru, token claim'leri mevcut, yetkisiz erişim engelli |
+| İç/dış talep | Doğru sahip/hedef birim, onay zinciri ve görev üretimi |
+| Havuz ve kişi ataması | Sadece yetkili kullanıcı atar/sahiplenir; doğru görev listesi ve geçmiş oluşur |
+| Terminal işlemler | Tamamlama, iptal, ret ve revizyon notu/durum/audit/bildirim etkisi tutarlı |
+| Sosyal mesaj | Webhook tekrarında duplicate oluşmaz; mesaj, konuşma ve talep ilişkisi izlenir |
+| Bildirim | Kalıcı kayıt ve okunmamış sayı doğru; SignalR kesilse de API'den tekrar yüklenir |
+| Dosya | Boyut sınırı, indirme yetkisi ve tenant izolasyonu korunur |
+| Yönetim ayarları | Rol sayfa erişimi, LDAP/auth, yönlendirme ve kanal ayarları beklenen etkiyi verir |
+| Dağıtım | Migration, API health, UI sürümü ve kritik kullanıcı akışları başarılı |
+
+Bu katalog, test varlığı yoksa manuel kabul kontrol listesi olarak kullanılabilir. Yeni bir iş akışı eklenirken ilgili satır genişletilir veya yeni satır eklenir; belge ve test kapsamı aynı değişiklikte güncel tutulur.

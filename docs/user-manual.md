@@ -801,3 +801,45 @@ Bir iş akışı sorunu bildirirken aşağıdaki bilgiler çözüm süresini kı
 - Ekrandaki durum ve görülen hata metni
 - Sorunu tekrar üretmek için izlenen adımlar
 - Varsa ekran görüntüsü; kişisel veri veya erişim anahtarı içermemelidir
+
+## 29. Ekran ve Liste Alanları Referansı
+
+Her liste, kullanıcı rolüne, seçili görünüme ve kayıt durumuna göre bazı kolonları gizleyebilir. Aşağıdaki katalog, ekranda beklenebilecek temel alanları belirtir.
+
+| Ekran | Ana kolonlar | Duruma bağlı kolon/işlem |
+| --- | --- | --- |
+| Taleplerim / Birimden Gidenler | Talep No, Talep Tarihi, Oluşturan, Başlık, Görev Sahibi, Gittiği Yer, Son Tarih | Onay, tamamlama veya iptal tarihi; durum; detay |
+| Birime Gelen Talepler | Talep No, Talep Tarihi, Talep Yeri/Oluşturan, Başlık, Görev Sahibi, Son Tarih | Onay/tamamlama/iptal tarihi; durum; kabul, ret, atama, detay |
+| Görevlerim / Birimdeki Görevler | Bağlı Talep No, Görev No, Görev Tarihi, Talep Yeri/Oluşturan, Başlık, Görev Sahibi, Görev Tipi, Son Tarih | Tamamlanma veya iptal tarihi; durum; sahiplenme, atama, ilerletme, detay |
+| Personelimin Görevleri | Görev ve talep tanımı, atanan kişi, son tarih, durum | Yeniden atama, son tarih güncelleme, detay |
+| Vatandaş Talepleri | Kanal, gönderen, kategori, sahip müdürlük, konum, tarih | Yazışma, kategorileme, yönlendirme, talebe dönüştürme |
+| Denetim Kayıtları | Tarih, işlem, kullanıcı, not | Arama ve kayıt bağlamını inceleme |
+
+Tüm uygun listelerde arama, tarih aralığı, kolon filtresi, sıralama ve sayfalama kullanılır. Bir filtre sonucu boşsa önce görünümü (ör. tamamlanmış/iptal/tümü), sonra tarih aralığını ve seçili birimi kontrol edin.
+
+## 30. Form Alanları ve Veri Kalitesi
+
+Talep veya görev formundaki başlık, açıklama, hedef birim, görev sahibi, öncelik ve tarih alanları iş akışının farklı aşamalarını etkiler.
+
+- **Başlık:** Listelerde ayırt edici kısa tanımdır; genel ifadelerden kaçının.
+- **Açıklama:** Yapılacak iş, konum, beklenen sonuç ve varsa vatandaş bağlamını içermelidir.
+- **Öncelik:** İş sıralaması için kullanılır; teknik olarak son tarih yerine geçmez.
+- **Başlangıç/son tarih:** Zaman planlama ve gecikme görünümünü etkiler. Tarih girildiğinde gerçekçi olmalıdır.
+- **Hedef birim ve koordinasyon birimleri:** Dış talebin nereye düştüğünü belirler; oluşturduktan sonra yönlendirme kararlarının detaydan izlenmesi gerekir.
+- **Görev sahibi:** Boş bırakılırsa iş birim havuzunda kalabilir. Bir kişiye atama, o kişinin görev listesine düşmesini sağlar.
+- **Adres, konum ve ek:** Saha işleri için doğrulanabilir konum ve açıklayıcı ek kullanılmalıdır.
+
+Zorunlu alanlar talep/görev türüne ve kurum ayarına göre değişebilir. Form gönderilmediğinde ekranda görünen doğrulama mesajını düzeltmeden ilerlenemez.
+
+## 31. Örnek Kabul Senaryoları
+
+Kullanıcılar, sistem değişikliğinden sonra bu senaryolarla temel davranışı kontrol edebilir:
+
+1. Personel birim dışı talep açar; sahip yönetici onaylar; kayıt hedef birim yöneticisinin gelen havuzunda görünür.
+2. Hedef yönetici personel atar; görev sadece ilgili kullanıcının görev listesinde görünür ve görev sahibi kolonu doğru adı gösterir.
+3. Personel tamamlanma notu yazar; görev/talep durumu güncellenir ve detaydan not okunabilir.
+4. Yetkisiz kullanıcı, başka birimin gelen talebini onaylayamaz veya görevini atayamaz.
+5. Sosyal mesaj talebe dönüştürüldüğünde kaynak mesaj ve yeni talep arasındaki bağ detaydan izlenebilir.
+6. Aynı kullanıcıda yeni bildirim oluştuğunda zil sayısı güncellenir; bildirim açıldığında doğru kayda gidilir.
+
+Bu senaryolardan birinde beklenmeyen sonuç varsa, kayıt numarası ve işlem zamanıyla destek kaydı oluşturun.

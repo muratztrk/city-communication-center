@@ -2082,7 +2082,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
                             onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: task.revisionReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                           >
-                            {t('tasks.detail.cancelNote', 'İptal Notu')}
+                            ({t('tasks.detail.cancelNote', 'İptal Notu')})
                           </button>
                         ) : null}
                         {task.currentStatus === 'Completed' && task.notes ? (
@@ -2091,7 +2091,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
                             onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: task.notes!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                           >
-                            {t('tasks.detail.completionNote', 'Tamamlama Notu')}
+                            ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
                           </button>
                         ) : null}
                       </span>

@@ -1461,10 +1461,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             </Button>
                           )
                         )}
-                        {/* Talebi oluşturan kullanıcı talebini iade edemez; yalnızca iptal edebilir. */}
-                        {isMyRequestsView && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active') && (
-                          <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel', 'İptal')}</Button>
-                        )}
+                        {/* Talebi oluşturan kullanıcı talebini iade edemez; yalnızca iptal edebilir.
+                            Başkanlık seviyesi üst düzey yönetici, "Tüm Taleplerim"de iptal edilemeyen
+                            satırlarda görsel bütünlük için pasif "İptal" görür (card 660). */}
+                        {isMyRequestsView && (() => {
+                          const canCancel = job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active'
+                          if (canCancel) {
+                            return <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel', 'İptal')}</Button>
+                          }
+                          if (isPresidencyReporter && activeJobView === 'all') {
+                            return (
+                              <DisabledActionButton size="sm" variant="destructive" hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')}>
+                                {t('jobs.actions.cancel', 'İptal')}
+                              </DisabledActionButton>
+                            )
+                          }
+                          return null
+                        })()}
                       </div>
                     </td>
                   </tr>
@@ -1553,9 +1566,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-6">
-              {/* Talep Detayları — Görevlerim popup' undaki Görev Detayları kutusuyla aynı tasarım (card 386) */}
-              <section className="mb-5 border-t border-slate-200 pt-3">
-                <div className="mb-2 text-sm font-semibold text-emerald-600">
+              {/* Talep Detayları başlığı, Görev popup'undaki "İlgili Talep Detayları"/"Görev Detayları"
+                  kutularıyla aynı kart tasarımı (form-card page-stack) — üstte sadece çizgi yerine tam
+                  kenarlıklı kart (card 650/386). */}
+              <section className="form-card page-stack mb-5">
+                <div className="text-sm font-semibold text-emerald-600">
                   {t('jobs.detail.requestInfo', 'Talep Detayları')}
                 </div>
                 <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">

@@ -19,5 +19,14 @@ export default defineConfig([
       ecmaVersion: 2023,
       globals: globals.browser,
     },
+    rules: {
+      // "_" önekli parametre/değişkenler bilerek kullanılmıyor demektir (örn. no-op
+      // applyTenantBrowserBranding(_appearance)); bu yaygın kural eksikti.
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+    },
   },
 ])

@@ -233,17 +233,9 @@
       margin-inline: auto;
     }
 
-    @media (min-width: 1680px) {
-      .app-content-shell .desktop-page-shell {
-        width: min(100%, 100rem);
-      }
-    }
-
-    @media (min-width: 1920px) {
-      .app-content-shell .desktop-page-shell {
-        width: 100%;
-      }
-    }
+    /* İçerik genişliği 1024px üstünde her zaman tam genişlik. Önceden 1680–1919px arası
+       100rem (1600px) ile sınırlıydı; tarayıcı zoom'u (%80↔%90) 1680/1920 sınırlarını geçerken
+       içerik 1600px-ortalı ↔ tam-genişlik arasında sıçrayıp reflow yapıyordu (card 638/585). */
 
     .app-content-shell .page-stack {
       gap: 0.8rem;
@@ -311,8 +303,11 @@
       line-height: 1.2;
     }
 
+    /* Filtre butonları (çipler) için biraz daha dikey nefes payı: 15.6" / yüksek zoom'da banner ile
+       gridview arasında sıkışıp üst üste binmiş görünmesinler (card 610/637). */
     .app-content-shell .desktop-page-shell > .scope-chips {
-      padding-block: 0.2rem;
+      padding-block: 0.45rem;
+      position: relative;
     }
 
     .app-content-shell .scope-chip-search-wrap {
@@ -1796,7 +1791,9 @@
         color-mix(in srgb, var(--color-secondary) 72%, #155e75) 56%,
         color-mix(in srgb, var(--color-accent) 58%, #0f766e) 100%);
     color: white;
-    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.14);
+    /* Hafif gölge: önceki 0 18px 36px gölge banner'ın ~50px altına taşıp hemen altındaki filtre
+       çiplerinin üzerine düşüyordu (çipler banner'ın altında kalmış gibi görünüyordu) (card 610/637). */
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
   }
 
   .sticky-page-header .page-title,

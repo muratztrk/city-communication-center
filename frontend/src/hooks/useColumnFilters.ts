@@ -6,7 +6,6 @@ export function useColumnFilters() {
   const setFilter = useCallback((key: string, value: string) => {
     setFilters(prev => {
       if (!value.trim()) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [key]: _removed, ...rest } = prev
         return rest
       }

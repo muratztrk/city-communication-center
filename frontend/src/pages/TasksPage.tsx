@@ -22,7 +22,7 @@ import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel, getTaskDisplayStatus } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
 interface TaskScopeFiltersProps {
@@ -1772,7 +1772,7 @@ const pageKicker = isMyTasksView
                     )}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {showStatusColumn && <td><StatusPill tone="neutral" className="text-[0.82rem]">{getTaskDisplayStatus(t, task)}</StatusPill></td>}
+                    {showStatusColumn && <td><StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>{getTaskDisplayStatus(t, task)}</StatusPill></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>

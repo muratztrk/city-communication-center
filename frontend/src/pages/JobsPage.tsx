@@ -27,7 +27,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getTaskStatusLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { TablePagination } from '../components/ui/table-pagination'
 
@@ -1387,7 +1387,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <td><StatusPill tone="neutral">{getJobDisplayStatus(t, job)}</StatusPill></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <td><StatusPill className={getStatusPillClass(getJobStatusTone(job))}>{getJobDisplayStatus(t, job)}</StatusPill></td>}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>

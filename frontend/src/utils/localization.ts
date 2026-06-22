@@ -33,6 +33,48 @@ export function getTaskDisplayStatus(
   return t('tasks.statusLabel.pending', { defaultValue: 'Bekleyen' })
 }
 
+// Gridview "Durum" sütunu arka plan rengi: Tamamlanmış yeşil, İptal/Reddedildi kırmızı,
+// Yapılmakta sarı, Son Tarihi Geçmiş turuncu, Bekleyen/diğer nötr (card 663). Renk eşlemesi
+// getJobDisplayStatus / getTaskDisplayStatus etiket mantığıyla birebir paralel.
+export type GridStatusTone = 'completed' | 'cancelled' | 'rejected' | 'inProgress' | 'overdue' | 'pending' | 'neutral'
+
+function isOverdue(dueDateUtc: string | null | undefined): boolean {
+  return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
+}
+
+export function getJobStatusTone(job: { status: string; dueDateUtc: string | null }): GridStatusTone {
+  if (job.status === 'Completed') return 'completed'
+  if (job.status === 'Cancelled') return 'cancelled'
+  if (job.status === 'Rejected') return 'rejected'
+  if (job.status === 'RevisionRequested') return 'neutral'
+  if (isOverdue(job.dueDateUtc)) return 'overdue'
+  if (job.status === 'Active') return 'inProgress'
+  return 'pending'
+}
+
+export function getTaskStatusTone(task: { currentStatus: string; dueDateUtc: string | null }): GridStatusTone {
+  switch (task.currentStatus) {
+    case 'Completed': return 'completed'
+    case 'Cancelled': return 'cancelled'
+    case 'Rejected': return 'rejected'
+    case 'RevisionRequested': return 'neutral'
+    default: break
+  }
+  if (isOverdue(task.dueDateUtc)) return 'overdue'
+  return 'pending'
+}
+
+export function getStatusPillClass(tone: GridStatusTone): string {
+  switch (tone) {
+    case 'completed': return 'bg-emerald-100 text-emerald-700 ring-emerald-200'
+    case 'cancelled':
+    case 'rejected': return 'bg-red-100 text-red-700 ring-red-200'
+    case 'inProgress': return 'bg-yellow-100 text-yellow-800 ring-yellow-200'
+    case 'overdue': return 'bg-orange-100 text-orange-700 ring-orange-200'
+    default: return ''
+  }
+}
+
 export function getPriorityLabel(t: TFunction, priority: string): string {
   return t(`enum.priority.${priority}`, { defaultValue: priority })
 }

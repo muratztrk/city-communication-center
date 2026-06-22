@@ -52,6 +52,9 @@ function formatCitizenRequestNumber(message: SocialMessage) {
     : `VT-${message.jobNumberYear}-${message.jobNumber}`
 }
 
+const DEFAULT_CHANNEL_FILTER = 'WhatsApp'
+const ALL_CHANNELS_FILTER = 'all'
+
 interface SocialMessageScopeFiltersProps {
   searchText: string
   filterFrom: string
@@ -114,7 +117,12 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const channelFilter = searchParams.get('channel') ?? ''
+  // The citizen-request inbox opens on WhatsApp, while an explicit `channel=all`
+  // keeps the All chip available as a distinct user-selected state.
+  const channelParam = searchParams.get('channel')
+  const channelFilter = channelParam === null
+    ? DEFAULT_CHANNEL_FILTER
+    : channelParam === ALL_CHANNELS_FILTER ? '' : channelParam
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -247,8 +255,7 @@ export function SocialMessagesPage() {
 
   const setChannelFilter = (channel: string) => {
     const nextParams = new URLSearchParams(searchParams)
-    if (channel) nextParams.set('channel', channel)
-    else nextParams.delete('channel')
+    nextParams.set('channel', channel || ALL_CHANNELS_FILTER)
     setSearchParams(nextParams)
   }
 

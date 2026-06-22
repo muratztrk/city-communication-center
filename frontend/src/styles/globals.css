@@ -337,7 +337,10 @@
 
     /* Görevlerim > Tüm Görevlerim: 15.6" ekranlarda Taleplerim/Tüm Taleplerim gibi dengeli grid (card 548). */
     .app-content-shell .my-tasks-all-table {
-      min-width: 68rem;
+      /* The action cells need one scrollbar-width more than the panel at desktop
+         sizes. Otherwise the final cell overflows its own table and is clipped
+         instead of participating in the horizontal scroll. */
+      min-width: max(68rem, calc(100% + 1rem));
       table-layout: fixed;
     }
 

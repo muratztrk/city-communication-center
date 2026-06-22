@@ -1,9 +1,11 @@
-import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, Clock3, LogOut, Monitor, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, CalendarDays, Clock3, LogOut, Monitor, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
+import { useTenantTheme } from '../context/ThemeContext'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -62,6 +64,10 @@ function formatDate(value: string | null, locale: string) {
 
 function formatTime(value: Date, locale: string) {
   return value.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+}
+
+function formatClockDate(value: Date, locale: string) {
+  return value.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function getPriorityRank(priority: string | null) {
@@ -132,6 +138,9 @@ export function WallboardPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const locale = getLocale(i18n.language)
+  // Ana sayfadaki (sidebar) kurum logosuyla aynı görsel (card 674).
+  const { appearance } = useTenantTheme()
+  const logoUrl = appearance.logoUrl?.trim() || null
   const wallboardRef = useRef<HTMLElement>(null)
   const [items, setItems] = useState<WallboardItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -226,6 +235,8 @@ export function WallboardPage() {
     <main ref={wallboardRef} className="wallboard-page">
       <header className="wallboard-hero">
         <div className="wallboard-brand">
+          {/* Ana sayfadaki en sol üst köşedeki kurum logosu (card 674). */}
+          <MunicipalitySeal compact src={logoUrl} alt={t('wallboard.logoAlt', 'Kurum logosu')} className="wallboard-seal" />
           <button
             type="button"
             className="wallboard-icon wallboard-fullscreen-button"
@@ -253,6 +264,9 @@ export function WallboardPage() {
         </div>
         <div className="wallboard-actions">
           <div className="wallboard-clock">
+            {/* Saatin soluna takvim ikonuyla tarih (card 675). */}
+            <CalendarDays className="size-5" />
+            <span>{lastUpdatedAt ? formatClockDate(lastUpdatedAt, locale) : '—'}</span>
             <Clock3 className="size-5" />
             <span>{lastUpdatedAt ? formatTime(lastUpdatedAt, locale) : '—'}</span>
           </div>

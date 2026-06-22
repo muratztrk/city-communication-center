@@ -462,3 +462,8 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 69 (Doing — #670: Tüm Görevlerim başlık çakışması)
 - [x] `#670` — Görevlerim → Tüm Görevlerim'de "Sıra" ile "Bağlı Olduğu Talep No" başlıkları iç içe geçiyordu. Kök: `.my-tasks-all-table` `table-layout:fixed` + başlık hücreleri `white-space:nowrap` (ortalı) → uzun "BAĞLI OLDUĞU TALEP NO" başlığı sabit kolon genişliğine sığmayıp ortadan iki yana taşıyor, dar "Sıra" kolonunun üzerine biniyordu. (Önceki düzeltme ilk kolonu 4.5rem yapmıştı ama başlık taşmasını çözmüyordu.) Çözüm: `.my-tasks-all-table thead th` için `white-space:normal; overflow-wrap:break-word; line-height:1.18` → başlıklar kolon içinde sarılıyor, taşma/çakışma yok. globals.css (1024px bloğu) sadece. FE build + lint PASS. (Canlı doğrulama bekliyor — Chrome bağlantısı kapalı.)
+
+## Round 70 (Doing — #674 #675: Ekrana Yansıt başlık)
+- [x] `#674` — Ekrana Yansıt (WallboardPage /display) hero'sunun en sol üst köşesine ana sayfadaki (sidebar) kurum logosu eklendi: `useTenantTheme()` → `appearance.logoUrl`, `<MunicipalitySeal compact src={logoUrl} />` `wallboard-brand`ın başına (fullscreen butonundan önce). FE build + lint PASS.
+- [x] `#675` — Ekrana Yansıt'ta saatin soluna takvim ikonu + tarih eklendi: `wallboard-clock` içine `<CalendarDays/>` + `formatClockDate(lastUpdatedAt)` (gg.aa.yyyy), mevcut Clock3+saatin soluna. `formatClockDate` helper'ı eklendi. FE build + lint PASS.
+- NOT: Canlı doğrulama bekliyor (Chrome bağlantısı kapalı).

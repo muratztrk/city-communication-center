@@ -586,9 +586,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     'Bekleyen Talepler',
   )
   const detailStatusClass = detail?.status === 'Active'
-    ? 'bg-orange-100 text-orange-700'
+    ? 'text-orange-700'
     : detail?.status === 'PendingOwnerApproval'
-      ? 'bg-yellow-100 text-yellow-800'
+      ? 'text-yellow-800'
       : detail?.status === 'Completed'
         ? 'text-emerald-600'
         : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
@@ -1337,7 +1337,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="jobNumber" filterValue={jobFilters['jobNumber'] ?? ''} onFilter={setJobFilter} sortKey="jobNumber" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestNo', 'Talep No')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
-                  {isDepartmentOutgoingView && <th>{t('jobs.columns.createdBy', 'Oluşturan')}</th>}
+                  {isDepartmentOutgoingView && <FilterableTh filterKey="createdByDisplayName" filterValue={jobFilters['createdByDisplayName'] ?? ''} onFilter={setJobFilter} sortKey="createdByDisplayName" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.createdBy', 'Oluşturan')}</FilterableTh>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
                   {showTaskOwnerColumn && <FilterableTh filterKey="assignedUserDisplayName" filterValue={jobFilters['assignedUserDisplayName'] ?? ''} onFilter={setJobFilter} sortKey="assignedUserDisplayName" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView)

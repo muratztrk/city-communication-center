@@ -584,9 +584,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     'Bekleyen Talepler',
   )
   const detailStatusClass = detail?.status === 'Active'
-    ? 'rounded-full bg-orange-100 px-2 py-0.5 text-orange-700 ring-1 ring-orange-200'
+    ? 'bg-orange-100 text-orange-700'
     : detail?.status === 'PendingOwnerApproval'
-      ? 'rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-800 ring-1 ring-yellow-200'
+      ? 'bg-yellow-100 text-yellow-800'
       : detail?.status === 'Completed'
         ? 'text-emerald-600'
         : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')

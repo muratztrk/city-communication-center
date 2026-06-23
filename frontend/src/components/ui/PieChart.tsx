@@ -55,14 +55,24 @@ function isTranslatableKey(key: string): boolean {
 function useResolvedLabel(rawLabel: string): string {
   const { t } = useTranslation()
   const SEP = ' – '
+  const translateLabel = (key: string) => {
+    if (!isTranslatableKey(key)) return key
+
+    // Dashboard API'si kanal ve kaynak türü etiketlerini "channel.X" / "sourceType.X"
+    // olarak gönderir; bunlar yerelleştirme dosyalarında dashboard altında tutulur.
+    const translationKey = key.startsWith('channel.') || key.startsWith('sourceType.')
+      ? `dashboard.${key}`
+      : key
+    return t(translationKey)
+  }
   const sepIdx = rawLabel.indexOf(SEP)
   if (sepIdx !== -1) {
     const prefix = rawLabel.slice(0, sepIdx)
     const key = rawLabel.slice(sepIdx + SEP.length)
-    const suffix = isTranslatableKey(key) ? t(key) : key
+    const suffix = translateLabel(key)
     return `${prefix} (${suffix})`
   }
-  return isTranslatableKey(rawLabel) ? t(rawLabel) : rawLabel
+  return translateLabel(rawLabel)
 }
 
 function LegendItem({ slice }: { slice: DashboardChartSlice }) {

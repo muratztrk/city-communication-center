@@ -561,13 +561,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && isManagerLike
     && detail != null
     && (detail.status === 'Draft' || detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
-  // Yönetici Notu: üst düzey yönetici (Reporter) ve birim yöneticileri (Manager/SystemAdmin), talebin
-  // çıkış tarafında (Taleplerim / Birimden Giden) talep tamamlanmadıysa/iptal edilmediyse ekleyebilir/
-  // değiştirebilir/silebilir (card #727). Birime Gelen ve terminal durumlarda salt-okunur.
-  const canEditManagerNote = (isMyRequestsView || isDepartmentOutgoingView)
+  // Yönetici Notu: yönetici, kendi gelen/giden talep bağlamında talep tamamlanmadığı
+  // veya iptal edilmediği sürece not ekleyebilir, değiştirebilir ya da silebilir.
+  const canEditManagerNote = (isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail)
     && (isManagerLike || isReporter)
     && detail != null
-    && detail.status !== 'Completed' && detail.status !== 'Cancelled' && detail.status !== 'Rejected'
+    && detail.status !== 'Completed' && detail.status !== 'Cancelled'
   // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468).
   const showManagerNoteColumn = isRequestDetailContext
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
@@ -1849,13 +1848,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       </h3>
                       {renderJobAddressInfo(detail)}
                     </div>
-                    {/* 3. sütun: Yönetici Notu — Adres'in sağında, 4 sütunlu hizada (card 465/466).
-                        Birimden Giden (Bekleyen) → düzenlenebilir; Birime Gelen → salt-okunur (yoksa "girilmemiş"). */}
+                    {/* 3. sütun: Yönetici Notu — aktif gelen/giden talepte yönetici tarafından düzenlenebilir. */}
                     {showManagerNoteColumn && (
                       <div className="rounded-xl border border-slate-200 bg-white p-4">
                         <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
                         {!canEditManagerNote ? (
-                          // Salt-okunur: Birime Gelen veya terminal durum / yetkisiz (card #727)
+                          // Salt-okunur: terminal durum veya yetkisiz kullanıcı.
                           detail.managerNote ? (
                             <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
                           ) : (

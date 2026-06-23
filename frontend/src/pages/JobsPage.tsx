@@ -1703,9 +1703,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ),
                         }, {
                           // Talebi alan (hedef) birimin onay tarihi (Target JobDepartment).
+                          // Birim içi talep kendi biriminde tamamlanacaksa Target kaydı oluşmaz;
+                          // bu durumda talebi gerçekleştiren yönetici de Owner olduğundan onun
+                          // onay tarihini göster (card #740).
                           label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
                           value: formatDueDateTime(
-                            detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
+                            detail.departments.find(department => department.role === 'Target')?.decidedAtUtc
+                              ?? (detail.requestType === 'InternalUnit'
+                                ? detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
+                                : null),
                             locale,
                           ),
                         }] : []),

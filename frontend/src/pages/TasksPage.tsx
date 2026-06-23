@@ -1265,7 +1265,10 @@ const pageKicker = isMyTasksView
                                             ? 'text-emerald-600'
                                             : (taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected')
                                               ? 'text-red-600'
-                                              : 'text-slate-900'}
+                                              // "Yapılmakta" (Assigned/InProgress) turuncu — Talep Detayları ile aynı (card #725).
+                                              : (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')
+                                                ? 'text-[#f97316]'
+                                                : 'text-slate-900'}
                                           >
                                             {getTaskDisplayStatus(t, taskDetail)}
                                             {taskDetail.statusActorDisplayName ? ` (${taskDetail.statusActorDisplayName})` : ''}

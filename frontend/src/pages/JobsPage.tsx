@@ -2115,7 +2115,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ? 'text-emerald-600'
                           : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
                             ? 'text-red-600'
-                            : 'text-slate-900'}
+                            // "Yapılmakta" (Assigned/InProgress) turuncu — Talep Detayları ile aynı (card #725).
+                            : (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
+                              ? 'text-[#f97316]'
+                              : 'text-slate-900'}
                         >
                           {getTaskStatusLabel(t, task.currentStatus)}
                         </span>

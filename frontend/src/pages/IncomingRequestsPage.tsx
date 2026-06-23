@@ -135,7 +135,8 @@ function getIncomingKindFilter(): IncomingKindFilter {
 function attentionPriorityColorClass(priority: string): string {
   if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
   if (priority === 'High') return 'text-red-500'
-  if (priority === 'Normal') return 'text-white'
+  // Incoming approval rows have an amber background; white text loses contrast.
+  if (priority === 'Normal') return 'text-slate-900'
   return getPriorityColorClass(priority)
 }
 

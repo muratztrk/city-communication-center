@@ -546,3 +546,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 84 (otonom 30dk döngü — #694)
 - [x] `#694` — Görev detayı "İlgili Talep Detayları" sol kolonunda son satır "Öncelik" altında kapanış çizgisi yoktu (sol kolon orta kolondan kısa → boşluk). leftFields wrapper'a `label === 'Öncelik'` border-b eklendi; #712/#713 (Son Tarih) ve JobsPage Talep Detayları (zaten border'lı) ile aynı. Ekran görseli (694.png) ile teyit. FE PASS.
 - NOT: `#731` hâlâ ertelenmiş (kullanıcı girdisi bekliyor).
+
+## Round 85 (manuel tur — #735: Yönetici Notu silme onayı)
+- [x] `#735` — Talep Detayları > Yönetici Notu düzenleme görünümündeki "Sil" eylemi artık doğrudan silmiyor: "Notu silmek istediğinize emin misiniz?" onay diyaloğu, `Sil` ve `İptal` seçenekleriyle açılıyor. Onay verilirse mevcut silme akışı çalışıyor. FE build + lint PASS. main+master, Done.

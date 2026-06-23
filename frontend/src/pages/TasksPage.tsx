@@ -411,10 +411,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     ? t('tasks.staff.allStaff', 'Tüm Personel')
     : staffUsers.find(item => item.userId === currentStaffUserId)?.displayName ?? t('tasks.staff.allStaff', 'Tüm Personel')
   const isMyTasksAllView = isMyTasksView && currentMyTaskView === 'all'
-  // Durum sütunu: Görevlerim/Birimdeki Görevler "Tüm Görevler" ve Personelimin Görevleri "Tüm Personel" görünümlerinde (card 532).
+  // Durum sütunu: Görevlerim/Birimdeki Görevler "Tüm Görevler" görünümünde (card 532) ve
+  // Personelimin Görevleri'nin tüm görünümlerinde — "Tüm Personel" + belirli personel (card #730).
   const showStatusColumn =
     ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
-    || (isStaffTasksView && currentStaffUserId === 'all')
+    || isStaffTasksView
   const staffTaskTypeParam = searchParams.get('taskType') ?? 'all'
   const currentStaffTaskType: 'all' | 'assigned' | 'routine' =
     staffTaskTypeParam === 'assigned' || staffTaskTypeParam === 'routine' ? staffTaskTypeParam : 'all'

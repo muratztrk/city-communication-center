@@ -558,3 +558,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#745` — "Görev Ekleri" başlığı/yükleme alanı Görevi Tamamla kartının başlık alanına yerleştirildi.
 - [x] `#737` — Detay modalı kapanırken aktif banner görünümünün sorgu parametreleri korunuyor; yalnızca geçici `taskId` temizleniyor. Ek değişiklik gerekmeden kart Done'a taşındı.
 - Verification: `frontend npm run build` PASS; `frontend npm run lint` PASS (yalnızca önceden var olan JobsPage hook uyarısı). #738/#739/#745 commit `540fe54`, main+master push; kartlar Done'a taşındı. #731 önceki ertelenme gerekçesi nedeniyle yeniden denenmedi.
+
+## Round 87 (otomasyon — #741; daha önce tamamlanan #736/#739 kapatıldı)
+- [x] `#741` — Birime Gelen Talepler > Onay Bekleyen satırlarında Normal öncelik metni amber zemin üzerinde beyazdı; kontrast için `text-slate-900` yapıldı. FE build PASS; lint PASS (yalnızca mevcut JobsPage hook uyarısı). Commit `ca17103`, main+master push; Done.
+- [x] `#736`, `#739` — Önceki Round 86'da doğrulanmış olan kartlar Doing'de kaldığından kod değişikliği olmadan Done'a taşındı.
+- NOT: `#731` önceki ertelenme gerekçesiyle (kullanıcı kararı bekleniyor) yeniden denenmedi ve Doing'de bırakıldı.

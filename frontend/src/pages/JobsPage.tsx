@@ -510,6 +510,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     users: User[]
     saving: boolean
     selfRequestedOwnerUserId: string | null
+    approvalRequired: boolean
   } | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
@@ -531,6 +532,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail
   const canManageCoordination = isManagerLike || isReporter
   const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
+  // Birime düşmüş dış talepte görev henüz oluşmadıysa griddeki "Onayla" eylemi
+  // personel atama penceresini açar. Detay popup'ı da aynı eylemi sunmalıdır.
+  const canAssignIncomingDetail = isIncomingRequestDetail
+    && isManagerLike
+    && detail?.requestType === 'ExternalUnit'
+    && detail.status === 'Active'
+    && (detail.tasks?.length ?? 0) === 0
   const canCancelDetail = isRequestDetailContext
     && (isManagerLike || isMyRequestsView)
     && detail != null
@@ -1053,6 +1061,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           saving: false,
           // Birim içi talepte oluşturan kişi kendini görev sahibi seçtiyse işaretle (card 616).
           selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
+          approvalRequired: jobDetail.status === 'PendingOwnerApproval',
         })
       } catch (err) {
         setError(err instanceof Error ? err.message : t('common.error'))
@@ -1080,11 +1089,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
-    const { jobId, selectedUserIds } = staffAssignModal
+    const { jobId, selectedUserIds, approvalRequired } = staffAssignModal
     setStaffAssignModal(current => current ? { ...current, saving: true } : null)
     try {
-      await api.approveJobOwner(jobId)
-      invalidateJobs(queryClient, jobId)
+      if (approvalRequired) {
+        await api.approveJobOwner(jobId)
+        invalidateJobs(queryClient, jobId)
+      }
       if (selectedUserIds.length > 0) {
         const jobDetail = await api.getJobById(jobId)
         const taskIds = jobDetail.tasks.map(task => task.taskId)
@@ -1562,7 +1573,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                {canApproveDetail && (
+                {(canApproveDetail || canAssignIncomingDetail) && (
                   <Button type="button" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>

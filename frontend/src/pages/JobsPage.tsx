@@ -1689,9 +1689,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         }] : []),
                         // Talep tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #715).
                         ...(detail.status === 'Completed'
-                          ? [{ label: 'Tamamlanma Tarihi', value: formatDateTime(detail.completedAtUtc ?? null, locale) }]
+                          ? [{ label: 'Tamamlanma Tarihi', value: <span className="text-emerald-600">{formatDateTime(detail.completedAtUtc ?? null, locale)}</span> }]
                           : detail.status === 'Cancelled'
-                            ? [{ label: 'İptal Tarihi', value: formatDateTime(detail.updatedAtUtc ?? null, locale) }]
+                            ? [{ label: 'İptal Tarihi', value: <span className="text-red-600">{formatDateTime(detail.updatedAtUtc ?? null, locale)}</span> }]
                             : []),
                         { label: 'Son Tarih', value: formatDueDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (
@@ -2168,9 +2168,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
                             // Görev tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #710).
                             ...(task.currentStatus === 'Completed'
-                              ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: formatDateTime(task.completedAtUtc ?? null, locale) }]
+                              ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: <span className="text-emerald-600">{formatDateTime(task.completedAtUtc ?? null, locale)}</span> }]
                               : task.currentStatus === 'Cancelled'
-                                ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: formatDateTime(task.updatedAtUtc ?? null, locale) }]
+                                ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(task.updatedAtUtc ?? null, locale)}</span> }]
                                 : []),
                             { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc, locale) },
                           ].map(({ label, value }) => (

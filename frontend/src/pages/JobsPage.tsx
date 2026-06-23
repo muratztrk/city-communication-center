@@ -539,6 +539,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail?.requestType === 'ExternalUnit'
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
+  // Son tarihi geçmiş kayıtlarda listede gösterilen pasif Onayla düğmesi,
+  // detay popup'ında da aynı işleme uygun olmayan durumu açıkça belirtmelidir.
+  const shouldShowDisabledIncomingApprove = isIncomingRequestDetail
+    && isManagerLike
+    && detail != null
+    && detail.dueDateUtc != null
+    && new Date(detail.dueDateUtc).getTime() < Date.now()
+    && !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(detail.status)
+    && !canApproveDetail
+    && !canAssignIncomingDetail
   const canCancelDetail = isRequestDetailContext
     && (isManagerLike || isMyRequestsView)
     && detail != null
@@ -1577,6 +1587,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button type="button" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
+                )}
+                {shouldShowDisabledIncomingApprove && (
+                  <DisabledActionButton
+                    variant="success"
+                    hoverTitle={t('jobs.actions.approveUnavailable', 'Bu kayıtta onay işlemi yapılamaz')}
+                  >
+                    {t('jobs.actions.approveOwner', 'Onayla')}
+                  </DisabledActionButton>
                 )}
                 {/* Taleplerim detayında, "Talebi İptal Et"in soluna Düzenle — tüm kullanıcı tiplerinde.
                     Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı

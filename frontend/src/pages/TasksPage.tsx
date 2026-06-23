@@ -1496,7 +1496,7 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.completionNote', 'Tamamlama Notu')}
                             </span>
                             <textarea
-                              className="field-textarea min-h-24"
+                              className="field-textarea min-h-24 placeholder:text-xs"
                               rows={2}
                               value={completionNote}
                               onChange={e => setCompletionNote(e.target.value)}

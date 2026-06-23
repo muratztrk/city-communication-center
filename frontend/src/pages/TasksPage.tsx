@@ -774,6 +774,23 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
   }
 
+  // "Görev Ekleri" sütunundaki ek dosyasını indir (auth'lu blob → object URL) (card #723).
+  const handleDownloadTaskAttachment = async (attachmentId: string, fileName: string) => {
+    try {
+      const file = await api.downloadAttachment(attachmentId)
+      const url = URL.createObjectURL(file)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1_000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('attachments.downloadFailed', 'Ek indirilemedi.'))
+    }
+  }
+
   const openDueDateEdit = () => {
     if (!taskDetail) return
     setDueDateEdit({
@@ -1458,9 +1475,18 @@ const pageKicker = isMyTasksView
                                     </span>
                                   </div>
                                   <div className="px-4 py-3">
-                                    <ul className="space-y-1 text-sm text-slate-900">
+                                    <ul className="space-y-1 text-sm">
                                       {taskDetail.attachments.map(att => (
-                                        <li key={att.attachmentId} className="break-words">{att.fileName}</li>
+                                        <li key={att.attachmentId}>
+                                          {/* Ek isimleri indirilebilir (card #723 reopened). */}
+                                          <button
+                                            type="button"
+                                            className="break-words text-left font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                            onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
+                                          >
+                                            {att.fileName}
+                                          </button>
+                                        </li>
                                       ))}
                                     </ul>
                                   </div>

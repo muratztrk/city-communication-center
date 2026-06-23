@@ -1582,9 +1582,8 @@ const pageKicker = isMyTasksView
                     const rightFields = [
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
                       {
-                        label: isCrossDepartmentRequest
-                          ? 'Talebin Birim Yöneticisinin Onay Tarihi'
-                          : 'Talep Onay Tarihi',
+                        // Hem birim-içi hem birim-dışı talepte aynı etiket kullanılır (card #706).
+                        label: 'Talebin Birim Yöneticisinin Onay Tarihi',
                         value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
                       },
                       // Cross-department talepte, talebi oluşturan birimin onay tarihinin altına

@@ -257,7 +257,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     ['Öncelik', detail.priority],
     ['Durum', getJobStatusLabel(t, detail.status)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
-    ['Talep Onay Tarihi', fd(ownerApprovalDate)],
+    ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)],
     ['Son Tarih Bilgisi', fd(detail.dueDateUtc)],
   ]
   const requestDetailTable = requestDetailRows

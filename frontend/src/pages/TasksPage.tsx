@@ -1550,7 +1550,7 @@ const pageKicker = isMyTasksView
                               </div>
                             </div>
                             {(taskDetail.attachments?.length ?? 0) > 0 && (
-                              <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-sm">
+                              <ul className="ml-auto mt-2 w-fit max-w-full space-y-1 border-t border-slate-100 pt-2 text-xs">
                                 {taskDetail.attachments.map(att => (
                                   <li key={att.attachmentId}>
                                     <button

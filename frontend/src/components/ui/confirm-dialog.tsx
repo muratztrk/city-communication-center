@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { Button } from './button'
 
 export interface ConfirmDialogState {
@@ -27,7 +28,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
     onClose()
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
@@ -63,5 +64,5 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
         </div>
       </div>
     </div>
-  )
+  , document.body)
 }

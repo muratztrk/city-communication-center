@@ -2304,7 +2304,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         document.body
       )}
 
-      {editModal && (
+      {editModal && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
           onClick={() => setEditModal(null)}
@@ -2377,9 +2377,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </Button>
             </div>
           </form>
-        </div>
+        </div>,
+        document.body
       )}
-      {staffAssignModal && (
+      {staffAssignModal && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
           onClick={() => setStaffAssignModal(null)}
@@ -2436,10 +2437,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
-      {cancelModal && (
+      {cancelModal && createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)} role="presentation">
           <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-job-dialog-title">
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
@@ -2467,7 +2469,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </Button>
             </div>
           </section>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

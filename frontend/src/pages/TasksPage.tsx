@@ -1219,7 +1219,9 @@ const pageKicker = isMyTasksView
                                     label: 'Talep Yeri / Oluşturan',
                                     value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                                   },
-                                  { label: 'Görev Sahibi', value: taskDetail.ownerDisplayName || '—' },
+                                  // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
+                                  // assignedUser önce, yoksa owner (JobsPage Görev Detayları ile aynı) (card #719).
+                                  { label: 'Görev Sahibi', value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
                                   {
                                     label: 'Görev Tipi',
                                     value: `${taskDetail.jobSourceType === 'Routine'

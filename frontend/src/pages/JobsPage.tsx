@@ -2130,6 +2130,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             // Öncelik, sol kolona Görev Tipi'nin altına taşındı (card #705/649).
                             { label: t('tasks.columns.status', 'Durum'), value: taskStatus },
                             { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
+                            // Görev tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #710).
+                            ...(task.currentStatus === 'Completed'
+                              ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: formatDateTime(task.completedAtUtc ?? null, locale) }]
+                              : task.currentStatus === 'Cancelled'
+                                ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: formatDateTime(task.updatedAtUtc ?? null, locale) }]
+                                : []),
                             { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc, locale) },
                           ].map(({ label, value }) => (
                             <div key={label} className="px-3 py-2">

@@ -1276,6 +1276,13 @@ const pageKicker = isMyTasksView
                                       ),
                                     },
                                     { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
+                                    // Görev tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #710).
+                                    // İptal tarihi için özet satırın updatedAtUtc'si kullanılır (TaskDetail'da yok).
+                                    ...(taskDetail.currentStatus === 'Completed'
+                                      ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: formatDateTime(taskDetail.completedAtUtc, locale) }]
+                                      : taskDetail.currentStatus === 'Cancelled'
+                                        ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: formatDateTime(selectedTask.updatedAtUtc ?? null, locale) }]
+                                        : []),
                                     { label: 'Son Tarih', value: formatDueDateTime(taskDetail.dueDateUtc, locale) },
                                   ].map(({ label, value }) => (
                                     <div key={label} className="flex flex-col gap-0.5 px-4 py-2">

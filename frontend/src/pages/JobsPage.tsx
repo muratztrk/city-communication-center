@@ -1867,7 +1867,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   <Button type="button" variant="success" size="sm" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={() => void handleSaveManagerNote()}>
                                     {t('common.change', 'Değiştir')}
                                   </Button>
-                                  <Button type="button" variant="destructive" size="sm" disabled={managerNoteSaving} onClick={() => void handleDeleteManagerNote()}>
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={managerNoteSaving}
+                                    onClick={() => setConfirmDialog({
+                                      title: t('common.delete', 'Sil'),
+                                      message: 'Notu silmek istediğinize emin misiniz?',
+                                      variant: 'destructive',
+                                      confirmLabel: t('common.delete', 'Sil'),
+                                      cancelLabel: t('common.cancel', 'İptal'),
+                                      onConfirm: () => void handleDeleteManagerNote(),
+                                    })}
+                                  >
                                     {t('common.delete', 'Sil')}
                                   </Button>
                                 </>

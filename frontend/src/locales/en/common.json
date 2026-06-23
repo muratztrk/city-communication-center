@@ -364,7 +364,21 @@
       "deptTotalPending": "Dept Total Pending",
       "completed": "Completed",
       "pending": "Pending",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled",
+      "approved": "Approved",
+      "inProgress": "In Progress",
+      "pendingApproval": "Pending Approval",
+      "externalPendingApproval": "External Pending Approval",
       "noData": "No data to display yet."
+    },
+    "charts": {
+      "staffTasks": "My Staff's Tasks",
+      "departmentTasks": "Department Tasks",
+      "myTasks": "My Tasks",
+      "outgoingRequests": "Outgoing Requests",
+      "incomingRequests": "Incoming Requests",
+      "myRequests": "My Requests"
     },
     "citizenChannels": {
       "title": "Citizen Request Channels"

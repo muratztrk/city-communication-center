@@ -29,6 +29,7 @@ export const queryKeys = {
     all: ['ccc', 'dashboard'] as const,
     snapshot: (range: DateRange = {}) => ['ccc', 'dashboard', 'snapshot', normalize(range)] as const,
     chart: (range: DateRange = {}) => ['ccc', 'dashboard', 'chart', normalize(range)] as const,
+    statusCharts: (range: DateRange = {}) => ['ccc', 'dashboard', 'status-charts', normalize(range)] as const,
     citizenChannels: (range: DateRange = {}) => ['ccc', 'dashboard', 'citizen-channels', normalize(range)] as const,
     executive: (range: DateRange = {}) => ['ccc', 'dashboard', 'executive', normalize(range)] as const,
   },
@@ -101,4 +102,3 @@ export const queryKeys = {
     list: () => ['ccc', 'whatsapp-templates', 'list'] as const,
   },
 }
-

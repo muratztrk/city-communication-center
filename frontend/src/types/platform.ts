@@ -27,6 +27,10 @@ export interface DashboardChartResponse {
   slices: DashboardChartSlice[];
 }
 
+export interface DashboardStatusChartsResponse {
+  charts: DashboardChartResponse[];
+}
+
 export interface Department {
   departmentId: string;
   tenantId: string;

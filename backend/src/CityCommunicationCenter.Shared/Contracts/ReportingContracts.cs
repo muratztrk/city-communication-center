@@ -21,6 +21,9 @@ public sealed record DashboardChartResponse(
     string TitleKey,
     IReadOnlyList<DashboardChartSlice> Slices);
 
+public sealed record DashboardStatusChartsResponse(
+    IReadOnlyList<DashboardChartResponse> Charts);
+
 public sealed record DashboardChartSlice(
     string Label,
     int Value,

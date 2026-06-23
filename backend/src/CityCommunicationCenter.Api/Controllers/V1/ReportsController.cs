@@ -33,6 +33,17 @@ public sealed class ReportsController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("dashboard-status-charts")]
+    [Authorize(Roles = "SystemAdmin,Manager")]
+    public async Task<ActionResult<DashboardStatusChartsResponse>> GetDashboardStatusCharts(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetDashboardStatusChartsQuery(from, to), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpGet("sla")]
     public async Task<ActionResult<SlaReportResponse>> GetSla(CancellationToken cancellationToken)
     {

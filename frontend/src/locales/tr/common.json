@@ -366,7 +366,21 @@
       "deptTotalPending": "Müdürlükte Bekleyen",
       "completed": "Tamamlanan",
       "pending": "Bekleyen",
+      "overdue": "Son Tarihi Geçmiş",
+      "cancelled": "İptal",
+      "approved": "Onaylanmış",
+      "inProgress": "Yapılmakta Olan",
+      "pendingApproval": "Onay Bekleyen",
+      "externalPendingApproval": "Birim Dışı Onay Bekleyen",
       "noData": "Henüz gösterilecek veri yok."
+    },
+    "charts": {
+      "staffTasks": "Personelimin Görevleri",
+      "departmentTasks": "Birimdeki Görevler",
+      "myTasks": "Görevlerim",
+      "outgoingRequests": "Birimden Giden Talepler",
+      "incomingRequests": "Birime Gelen Talepler",
+      "myRequests": "Taleplerim"
     },
     "citizenChannels": {
       "title": "Vatandaş Talep Kanalları"

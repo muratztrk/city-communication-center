@@ -4,6 +4,7 @@ import type {
   Attachment,
   DashboardSnapshot,
   DashboardChartResponse,
+  DashboardStatusChartsResponse,
   Department,
   DepartmentSummary,
   DirectoryUserLookup,
@@ -137,6 +138,17 @@ export const api = {
     const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardChartResponse>
+  },
+
+  async getDashboardStatusCharts(from?: string, to?: string): Promise<DashboardStatusChartsResponse> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    const url = `${API_BASE}/reports/dashboard-status-charts${qs ? `?${qs}` : ''}`
+    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
+    return response.json() as Promise<DashboardStatusChartsResponse>
   },
 
   async getCitizenChannelChart(from?: string, to?: string): Promise<DashboardChartResponse> {

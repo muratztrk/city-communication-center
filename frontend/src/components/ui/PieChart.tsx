@@ -43,6 +43,7 @@ function buildArcPath(cx: number, cy: number, outerR: number, innerR: number, st
 interface PieChartProps {
   slices: DashboardChartSlice[]
   noDataLabel?: string
+  showZeroSlices?: boolean
 }
 
 /** Resolve a label — may be a plain i18n key, a "prefix – i18n.key" compound, or a literal name. */
@@ -86,7 +87,7 @@ function LegendItem({ slice }: { slice: DashboardChartSlice }) {
   )
 }
 
-export function PieChart({ slices, noDataLabel = 'Veri yok' }: PieChartProps) {
+export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false }: PieChartProps) {
   const nonZero = slices.filter(s => s.value > 0)
 
   if (nonZero.length === 0) {
@@ -151,7 +152,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok' }: PieChartProps) {
       </svg>
 
       <ul className="flex flex-col gap-2 min-w-0 w-full">
-        {nonZero.map(slice => (
+        {(showZeroSlices ? slices : nonZero).map(slice => (
           <LegendItem key={slice.label} slice={slice} />
         ))}
       </ul>

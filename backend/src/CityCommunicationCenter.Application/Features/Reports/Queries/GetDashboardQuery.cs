@@ -85,20 +85,6 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                     context.ActiveDepartmentId,
                     cancellationToken);
 
-            var pendingJobsOwner = await _dbContext.Jobs.CountAsync(
-                j => j.TenantId == tenantId
-                    && j.Status == JobStatus.PendingOwnerApproval
-                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
-                cancellationToken);
-            var pendingJobsExternal = await _dbContext.Jobs.CountAsync(
-                j => j.TenantId == tenantId
-                    && j.Status == JobStatus.PendingExternalApproval
-                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
-                cancellationToken);
-            pendingApprovals = pendingJobsOwner + pendingJobsExternal;
-
             rejectedOrCancelledRequests = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId
                     && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled)
@@ -116,6 +102,19 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
 
             if (scopedDepartmentIds.Length > 0)
             {
+                // Dashboard yalnızca yöneticinin aktif/kapsamındaki birime ait onayları
+                // göstermelidir; tenant genelindeki bekleyen kayıtlar yanıltıcıdır.
+                pendingApprovals = await _dbContext.Jobs.CountAsync(
+                    j => j.TenantId == tenantId
+                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                        && (scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                            || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
+                                && jd.Role == JobDepartmentRole.Target
+                                && scopedDepartmentIds.Contains(jd.DepartmentId)))
+                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                    cancellationToken);
+
                 // Card 3: Outgoing pending = external jobs from this dept still awaiting approval
                 outgoingPendingCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
@@ -168,10 +167,14 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                         && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
                     cancellationToken);
 
-                // Card 8: Incoming total (jobs where dept is owner)
+                // Birime gelen toplam: birimin kendi iç talep havuzu ile hedef olduğu
+                // dış talepler birlikte sayılır.
                 incomingTotalCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
-                        && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && (scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                            || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
+                                && jd.Role == JobDepartmentRole.Target
+                                && scopedDepartmentIds.Contains(jd.DepartmentId)))
                         && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
                         && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
                     cancellationToken);

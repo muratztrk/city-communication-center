@@ -181,9 +181,45 @@ export function DashboardPage() {
       ]
     : []
 
-  // "Genel Talep Özeti" (summary) pie chart'ı kaldırıldı (card #732).
+  // Yönetici dashboard'unda her grafik, üst bölümdeki ilgili hızlı erişim
+  // kartlarının aynı dönem verisini kullanır. Böylece sayı ve görsel özet
+  // birbirinden kopmaz.
+  const managerChartCards = isManagerOrAdmin && dashboardQuery.data
+    ? [
+        ...(chartQuery.data ? [{ ...chartQuery.data, title: t('dashboard.charts.staffTasks', 'Personelimin Tüm Görevleri') }] : []),
+        {
+          title: t('dashboard.charts.departmentTasks', 'Birimdeki Tüm Görevler'),
+          slices: [
+            { label: t('dashboard.cards.deptPendingTasks', 'Birimde Bekleyen Görevler'), value: dashboardQuery.data.deptPendingTaskCount, colorHint: 'warning' },
+            { label: t('dashboard.charts.otherTasks', 'Diğer Görevler'), value: Math.max(0, dashboardQuery.data.deptTotalTaskCount - dashboardQuery.data.deptPendingTaskCount), colorHint: 'success' },
+          ],
+        },
+        {
+          title: t('dashboard.charts.myTasks', 'Görevlerim'),
+          slices: [
+            { label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'), value: dashboardQuery.data.myPendingTaskCount, colorHint: 'warning' },
+          ],
+        },
+        {
+          title: t('dashboard.charts.outgoingRequests', 'Birimden Giden Talepler'),
+          slices: [
+            { label: t('dashboard.cards.outgoingPending', 'Birimden Giden Bekleyen Talepler'), value: dashboardQuery.data.outgoingPendingCount, colorHint: 'warning' },
+            { label: t('dashboard.cards.outgoingInProgress', 'Birimden Giden Yapılmakta Olan Talepler'), value: dashboardQuery.data.outgoingInProgressCount, colorHint: 'info' },
+            { label: t('dashboard.charts.otherRequests', 'Diğer Talepler'), value: Math.max(0, dashboardQuery.data.outgoingTotalCount - dashboardQuery.data.outgoingPendingCount - dashboardQuery.data.outgoingInProgressCount), colorHint: 'success' },
+          ],
+        },
+        {
+          title: t('dashboard.charts.incomingRequests', 'Birime Gelen Tüm Talepler'),
+          slices: [
+            { label: t('dashboard.cards.incomingPendingApproval', 'Birime Gelen Onay Bekleyen Talepler'), value: dashboardQuery.data.pendingApprovalCount, colorHint: 'warning' },
+            { label: t('dashboard.charts.otherRequests', 'Diğer Talepler'), value: Math.max(0, dashboardQuery.data.incomingTotalCount - dashboardQuery.data.pendingApprovalCount), colorHint: 'success' },
+          ],
+        },
+      ]
+    : []
+
   const chartCards = [
-    ...(chartQuery.data ? [chartQuery.data] : []),
+    ...(isManagerOrAdmin ? managerChartCards : (chartQuery.data ? [chartQuery.data] : [])),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ]
 
@@ -321,9 +357,9 @@ export function DashboardPage() {
               </div>
             ))
           : chartCards.map(card => (
-              <section key={card.titleKey} className="section-card p-4 sm:p-5">
-                <div className="mb-4">
-                  <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+            <section key={'title' in card ? card.title : card.titleKey} className="section-card p-4 sm:p-5">
+              <div className="mb-4">
+                  <h2 className="text-sm font-semibold text-slate-700">{'title' in card ? card.title : t(card.titleKey)}</h2>
                 </div>
                 <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} />
               </section>

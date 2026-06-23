@@ -1614,11 +1614,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           value: (
                             <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
                               <span className={detailStatusClass}>
-                                {detail.status === 'Active'
-                                  ? 'Yapılmakta'
-                                  : detail.status === 'Completed'
-                                    ? 'Tamamlanmış'
-                                    : getJobStatusLabel(t, detail.status)}
+                                {/* Birime Gelen detayında, talep sahibi birim onaylayıp Active olsa da
+                                    hedef birimin yöneticisi henüz personel atamadıysa (görev yok) durum
+                                    "Yapılmakta" değil "Yönetici Onayı Bekliyor" gösterilir; yönetici
+                                    onaylayıp görev atayınca (taskCount>0) "Yapılmakta"ya geçer (card #704). */}
+                                {isIncomingRequestDetail && detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
+                                  ? 'Yönetici Onayı Bekliyor'
+                                  : detail.status === 'Active'
+                                    ? 'Yapılmakta'
+                                    : detail.status === 'Completed'
+                                      ? 'Tamamlanmış'
+                                      : getJobStatusLabel(t, detail.status)}
                                 {detail.statusActorDisplayName ? ` (${detail.statusActorDisplayName})` : ''}
                               </span>
                               {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (

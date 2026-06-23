@@ -1285,7 +1285,9 @@ const pageKicker = isMyTasksView
                                         : []),
                                     { label: 'Son Tarih', value: formatDueDateTime(taskDetail.dueDateUtc, locale) },
                                   ].map(({ label, value }) => (
-                                    <div key={label} className="flex flex-col gap-0.5 px-4 py-2">
+                                    // Orta kolon sol kolondan kısa olduğunda son satır "Son Tarih"in
+                                    // altına kapanış çizgisi (boşlukta border eksikliği) (card #712/#713).
+                                    <div key={label} className={`flex flex-col gap-0.5 px-4 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
                                       <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
                                         {label}
                                         {label === 'Son Tarih' && canChangeTaskDueDate && dueDateEdit?.taskId !== taskDetail.taskId && (
@@ -1620,7 +1622,8 @@ const pageKicker = isMyTasksView
                           <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
                             <div className="divide-y divide-slate-100">
                               {rightFields.map(({ label, value }) => (
-                                <div key={label} className="flex items-start gap-2 px-3 py-2">
+                                // Son satır "Son Tarih"in altına kapanış çizgisi (card #712/#713).
+                                <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
                                   <span className="w-28 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                                   <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                                 </div>

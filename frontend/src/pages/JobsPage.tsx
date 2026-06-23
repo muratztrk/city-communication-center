@@ -2150,7 +2150,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 : []),
                             { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc, locale) },
                           ].map(({ label, value }) => (
-                            <div key={label} className="px-3 py-2">
+                            // Son satır "Son Tarih"in altına kapanış çizgisi (card #712/#713, card 649 aynası).
+                            <div key={label} className={`px-3 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
                               <div className="text-xs font-semibold text-slate-500">{label}</div>
                               <div className="mt-0.5 break-words text-sm text-slate-900">{value}</div>
                             </div>

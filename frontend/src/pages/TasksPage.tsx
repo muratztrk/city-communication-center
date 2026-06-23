@@ -1685,7 +1685,7 @@ const pageKicker = isMyTasksView
                         <div className="text-sm font-semibold text-emerald-600">
                           {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
-                        <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)]">
+                        <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[48.5%_21.2%_15.15%_15.15%]">
                           <div className="min-w-0 divide-y divide-slate-100">
                             {leftFields.map(({ label, value }) => (
                               // Sol kolon orta kolondan kısa olunca son satır "Öncelik"in altına

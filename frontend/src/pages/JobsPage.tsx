@@ -1787,7 +1787,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     </div>
                     {/* 2. sütun: Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442) */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <h3 className="mb-3 text-sm font-bold text-slate-900">
+                      <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                         {t('address.detailSectionTitle', 'Adres Bilgileri')}
                       </h3>
                       {renderJobAddressInfo(detail)}
@@ -1796,7 +1796,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         Birimden Giden (Bekleyen) → düzenlenebilir; Birime Gelen → salt-okunur (yoksa "girilmemiş"). */}
                     {showManagerNoteColumn && (
                       <div className="rounded-xl border border-slate-200 bg-white p-4">
-                        <h3 className="mb-3 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
+                        <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
                         {canEditManagerNote && managerNoteSaved ? (
                           <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
                         ) : null}
@@ -1848,7 +1848,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         && (isRequestDetailContext ? isTerminalRequestStatus : !isPreApprovalStatus(detail.status))
                       return (
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <h3 className="mb-3 text-sm font-bold text-slate-900">
+                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                             {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                           </h3>
                           <AttachmentSection

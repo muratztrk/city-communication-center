@@ -1799,7 +1799,19 @@ const pageKicker = isMyTasksView
                     )}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {showStatusColumn && <td><StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>{getTaskDisplayStatus(t, task)}</StatusPill></td>}
+                    {showStatusColumn && (
+                      <td>
+                        <div className="flex flex-col items-start gap-0.5">
+                          <StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>{getTaskDisplayStatus(t, task)}</StatusPill>
+                          {/* Tamamlanmış/İptal satırlarında durumun altına ilgili tarihi göster (card #711). */}
+                          {task.currentStatus === 'Completed' && task.completedAtUtc
+                            ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(task.completedAtUtc, locale)}</span>
+                            : task.currentStatus === 'Cancelled' && task.updatedAtUtc
+                              ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(task.updatedAtUtc, locale)}</span>
+                              : null}
+                        </div>
+                      </td>
+                    )}
                     <td className="actions-cell">
                       <div className="request-actions">
                         {isDepartmentTasksView

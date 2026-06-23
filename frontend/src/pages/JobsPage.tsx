@@ -1390,7 +1390,19 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <td><StatusPill className={getStatusPillClass(getJobStatusTone(job))}>{getJobDisplayStatus(t, job)}</StatusPill></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && (
+                      <td>
+                        <div className="flex flex-col items-start gap-0.5">
+                          <StatusPill className={getStatusPillClass(getJobStatusTone(job))}>{getJobDisplayStatus(t, job)}</StatusPill>
+                          {/* Tamamlanmış/İptal satırlarında durumun altına ilgili tarihi göster (card #711). */}
+                          {job.status === 'Completed' && job.completedAtUtc
+                            ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(job.completedAtUtc, locale)}</span>
+                            : job.status === 'Cancelled' && job.updatedAtUtc
+                              ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(job.updatedAtUtc, locale)}</span>
+                              : null}
+                        </div>
+                      </td>
+                    )}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>

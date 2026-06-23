@@ -723,7 +723,19 @@ export function IncomingRequestsPage() {
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} /></td>}
-                    {currentStatusFilter === 'all' && <td><StatusPill className={getIncomingStatusPillClass(row)}>{getIncomingStatusLabel(t, row)}</StatusPill></td>}
+                    {currentStatusFilter === 'all' && (
+                      <td>
+                        <div className="flex flex-col items-start gap-0.5">
+                          <StatusPill className={getIncomingStatusPillClass(row)}>{getIncomingStatusLabel(t, row)}</StatusPill>
+                          {/* Tamamlanmış/İptal satırlarında durumun altına ilgili tarihi göster (card #711). */}
+                          {row.status === 'Completed' && row.completedAtUtc
+                            ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(row.completedAtUtc, locale)}</span>
+                            : row.status === 'Cancelled' && row.updatedAtUtc
+                              ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(row.updatedAtUtc, locale)}</span>
+                              : null}
+                        </div>
+                      </td>
+                    )}
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}

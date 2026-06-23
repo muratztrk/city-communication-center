@@ -452,10 +452,11 @@ interface JobsPageProps {
   mode?: 'external' | 'myRequests' | 'departmentOutgoing'
   notificationJobId?: string | null
   detailOnly?: boolean
+  detailContextOverride?: 'incoming' | 'social'
   onNotificationDetailClose?: () => void
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, onNotificationDetailClose }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -518,7 +519,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const isMyRequestsView = mode === 'myRequests'
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
-  const detailContext = searchParams.get('context')
+  const detailContext = detailContextOverride ?? searchParams.get('context')
   const incomingReturnStatus = searchParams.get('returnStatus')
   const detailHeaderTitle = isMyRequestsView
     ? t('nav.myRequests', 'Taleplerim')

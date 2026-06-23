@@ -29,7 +29,7 @@ import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateTasks } from '../api/cacheInvalidation'
@@ -43,6 +43,7 @@ import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
+import { JobsPage } from './JobsPage'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
@@ -294,7 +295,6 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
 export function IncomingRequestsPage() {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const locale = getLocale(i18n.language)
   const { user } = useAuth()
@@ -318,6 +318,7 @@ export function IncomingRequestsPage() {
     selectedUserIds: string[]
     selfRequestedOwnerUserId: string | null
   } | null>(null)
+  const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter()
   const showTaskOwnerColumn = ['approved', 'completed', 'cancelled'].includes(currentStatusFilter)
@@ -765,7 +766,7 @@ export function IncomingRequestsPage() {
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}
-                        <Button size="sm" variant="secondary" onClick={() => navigate(`${row.detailsPath}&returnStatus=${currentStatusFilter}`)} className="gap-1.5">
+                        <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)} className="gap-1.5">
                           {t('jobs.actions.details', 'Detaylar')}
                           <ArrowRight className="size-3.5" />
                         </Button>
@@ -929,6 +930,15 @@ export function IncomingRequestsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {detailJobId && (
+        <JobsPage
+          detailOnly
+          notificationJobId={detailJobId}
+          detailContextOverride="incoming"
+          onNotificationDetailClose={() => setDetailJobId(null)}
+        />
       )}
     </div>
   )

@@ -351,7 +351,7 @@ export function IncomingRequestsPage() {
     return () => { cancelled = true }
   }, [t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const reload = async () => {
+  const reload = useCallback(async () => {
     try {
       const [taskList, jobList] = await Promise.all([
         api.getTasks('all'),
@@ -363,7 +363,14 @@ export function IncomingRequestsPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     }
-  }
+  }, [t])
+
+  // Birime gelen havuz birden fazla yönetici tarafından değiştirilebildiği için
+  // kullanıcı sayfayı yenilemeden diğer kullanıcıların onay/atama işlemlerini görür.
+  useEffect(() => {
+    const intervalId = window.setInterval(() => { void reload() }, 30_000)
+    return () => window.clearInterval(intervalId)
+  }, [reload])
 
   const handleApproveOwner = (jobId: string) => {
     const job = jobs.find(item => item.jobId === jobId)

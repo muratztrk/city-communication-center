@@ -382,14 +382,17 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
   const managedDepartmentIds = useMemo(() => {
+    // Yönetici seçili aktif birim bağlamında çalışır. Eski/eksik ManagerUserId
+    // kayıtları, ek birimde çalışan personelin "Personelimin Görevleri"
+    // filtrelerinden kaybolmasına neden olmamalıdır.
+    if (isManagerLike && activeDeptId) return new Set([activeDeptId])
+
     const ids = departments
       .filter(department => department.managerUserId === user?.userId)
       .map(department => department.departmentId)
 
-    return activeDeptId && ids.includes(activeDeptId)
-      ? new Set([activeDeptId])
-      : new Set(ids)
-  }, [activeDeptId, departments, user?.userId])
+    return new Set(ids)
+  }, [activeDeptId, departments, isManagerLike, user?.userId])
   const staffUsers = useMemo(() => {
     return activeUsers.filter(item =>
       userBelongsToAnyDepartment(item, managedDepartmentIds) &&

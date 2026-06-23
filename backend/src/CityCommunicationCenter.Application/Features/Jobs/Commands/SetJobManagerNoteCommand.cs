@@ -43,6 +43,15 @@ public sealed class SetJobManagerNoteCommandHandler : ICommandHandler<SetJobMana
             return false;
         }
 
+        if (job.Status is JobStatus.Completed or JobStatus.Cancelled)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(request.JobId),
+                    "Tamamlanmış veya iptal edilmiş taleplere yönetici notu eklenemez.")
+            ]);
+        }
+
         var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
         job.ManagerNote = note;
         job.UpdatedAtUtc = DateTimeOffset.UtcNow;

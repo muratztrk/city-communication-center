@@ -186,6 +186,25 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             Details = assignedUserId.HasValue ? $"Assigned to: {assignedUserDisplayName}" : "Unassigned (pool)"
         });
 
+        // Görevin ilk ataması da Atama Geçmişi'nde görünsün; yönlendirme sonrası ilk atanan
+        // kullanıcı/tarih de listede yer alır (card #720).
+        if (assignedUserId.HasValue || assignedDepartmentId.HasValue)
+        {
+            _dbContext.AssignmentHistories.Add(new AssignmentHistory
+            {
+                AssignmentId = Guid.NewGuid(),
+                TenantId = tenantId,
+                TaskId = task.TaskId,
+                FromDepartmentId = null,
+                ToDepartmentId = assignedDepartmentId,
+                FromUserId = null,
+                ToUserId = assignedUserId,
+                ActionType = "Assign",
+                ActionDateUtc = utcNow,
+                CreatedByUserId = context.UserId
+            });
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);
     }

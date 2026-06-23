@@ -102,6 +102,20 @@ internal static class JobOwnerTaskProvisioning
                 EventTimeUtc = utcNow,
                 CreatedAtUtc = utcNow
             });
+            // Görevin ilk ataması Atama Geçmişi'nde görünsün (card #720).
+            dbContext.AssignmentHistories.Add(new AssignmentHistory
+            {
+                AssignmentId = Guid.NewGuid(),
+                TenantId = tenantId,
+                TaskId = task.TaskId,
+                FromDepartmentId = null,
+                ToDepartmentId = job.OwnerDepartmentId,
+                FromUserId = null,
+                ToUserId = ownerUser.UserId,
+                ActionType = "Assign",
+                ActionDateUtc = utcNow,
+                CreatedByUserId = assigningManagerId
+            });
             createdCount++;
         }
 

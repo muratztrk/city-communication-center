@@ -550,6 +550,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 85 (manuel tur — #735: Yönetici Notu silme onayı)
 - [x] `#735` — Talep Detayları > Yönetici Notu düzenleme görünümündeki "Sil" eylemi artık doğrudan silmiyor: "Notu silmek istediğinize emin misiniz?" onay diyaloğu, `Sil` ve `İptal` seçenekleriyle açılıyor. Onay verilirse mevcut silme akışı çalışıyor. FE build + lint PASS. main+master, Done.
 
+## Round 86 (manuel tur — #740: birim içi yönetici onay tarihi)
+- [x] `#740` — Birim yöneticisinin kendi biriminde oluşturup kendine atadığı birim içi talepte hedef (`Target`) departman kaydı bulunmadığından "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" boş kalıyor ve "Onay Bekleyen" yazıyordu. Talep Detayları artık bu yalnızca-birim-içi durumda Owner yöneticisinin `decidedAtUtc` değerini fallback olarak gösteriyor. FE build + lint PASS. main+master, Done.
+
 ## Round 86 (otomasyon — #732 #736 #738 #739 #745)
 - [x] `#732` — Önceki turda tamamlanan Kontrol Paneli "Genel Talep Özeti" kaldırma ve E-Devlet çevirisi için kart Done'a taşındı.
 - [x] `#736` — Yönetici Notu, çıkış tarafındaki talep tamamlanana/iptal edilene kadar düzenlenebilir; mevcut #727 akışı kart gereksinimini karşılıyor. Kart Done'a taşındı.

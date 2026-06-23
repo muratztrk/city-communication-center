@@ -553,6 +553,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 86 (manuel tur — #740: birim içi yönetici onay tarihi)
 - [x] `#740` — Birim yöneticisinin kendi biriminde oluşturup kendine atadığı birim içi talepte hedef (`Target`) departman kaydı bulunmadığından "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" boş kalıyor ve "Onay Bekleyen" yazıyordu. Talep Detayları artık bu yalnızca-birim-içi durumda Owner yöneticisinin `decidedAtUtc` değerini fallback olarak gösteriyor. FE build + lint PASS. main+master, Done.
 
+## Round 87 (manuel tur — #743 güvenlik beklemesi)
+- [ ] `#743` — Doing'de bırakıldı ve Trello'ya açıklayıcı yorum eklendi. Incoming detay popup'ındaki header `Onayla` mevcutta yalnızca `PendingOwnerApproval` yöneticisine gösteriliyor; T-2026-177 için gerçek onay bağlamı/görsel olmadan koşulu genişletmek yanlış onay veya personel atama yetkisi açabilir. Kullanıcıdan hangi onay eyleminin beklendiği netleştirilmeli. Push yapılmadı.
+
 ## Round 86 (otomasyon — #732 #736 #738 #739 #745)
 - [x] `#732` — Önceki turda tamamlanan Kontrol Paneli "Genel Talep Özeti" kaldırma ve E-Devlet çevirisi için kart Done'a taşındı.
 - [x] `#736` — Yönetici Notu, çıkış tarafındaki talep tamamlanana/iptal edilene kadar düzenlenebilir; mevcut #727 akışı kart gereksinimini karşılıyor. Kart Done'a taşındı.
@@ -566,3 +569,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#741` — Birime Gelen Talepler > Onay Bekleyen satırlarında Normal öncelik metni amber zemin üzerinde beyazdı; kontrast için `text-slate-900` yapıldı. FE build PASS; lint PASS (yalnızca mevcut JobsPage hook uyarısı). Commit `ca17103`, main+master push; Done.
 - [x] `#736`, `#739` — Önceki Round 86'da doğrulanmış olan kartlar Doing'de kaldığından kod değişikliği olmadan Done'a taşındı.
 - NOT: `#731` önceki ertelenme gerekçesiyle (kullanıcı kararı bekleniyor) yeniden denenmedi ve Doing'de bırakıldı.
+
+## Round 73 (Doing — #677: "Sıra" başlığı sarılması, #670 regresyonu)
+- [x] `#677` — Görevlerim → Tüm Görevlerim'de "Sıra" başlığı "Sı/ra" olarak alt satıra geçiyordu (15.6"/1920). Kök: #670 fix'i `.my-tasks-all-table thead th { white-space: normal }` ile TÜM başlıkları sarılabilir yaptı; kısa "Sıra" da dar ilk kolonda (4.5rem) bölündü. Çözüm: `.my-tasks-all-table thead th:first-child { white-space: nowrap }` — "Sıra" tek satır, uzun başlıklar hâlâ sarılır. globals.css. FE build + lint PASS. (Canlı doğrulama bekliyor.)

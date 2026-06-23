@@ -723,19 +723,24 @@ export function IncomingRequestsPage() {
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} /></td>}
-                    {currentStatusFilter === 'all' && (
-                      <td>
-                        <div className="flex flex-col items-start gap-0.5">
-                          <StatusPill className={getIncomingStatusPillClass(row)}>{getIncomingStatusLabel(t, row)}</StatusPill>
-                          {/* Tamamlanmış/İptal satırlarında durumun altına ilgili tarihi göster (card #711). */}
-                          {row.status === 'Completed' && row.completedAtUtc
-                            ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(row.completedAtUtc, locale)}</span>
-                            : row.status === 'Cancelled' && row.updatedAtUtc
-                              ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(row.updatedAtUtc, locale)}</span>
-                              : null}
-                        </div>
-                      </td>
-                    )}
+                    {currentStatusFilter === 'all' && (() => {
+                      // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
+                      const statusDate = row.status === 'Completed' ? row.completedAtUtc
+                        : row.status === 'Cancelled' ? row.updatedAtUtc
+                        : null
+                      return (
+                        <td>
+                          <StatusPill className={getIncomingStatusPillClass(row)}>
+                            {statusDate
+                              ? <span className="flex flex-col items-center leading-tight">
+                                  <span>{getIncomingStatusLabel(t, row)}</span>
+                                  <span className="text-[0.68rem] font-normal opacity-80">{formatDateTime(statusDate, locale)}</span>
+                                </span>
+                              : getIncomingStatusLabel(t, row)}
+                          </StatusPill>
+                        </td>
+                      )
+                    })()}
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}

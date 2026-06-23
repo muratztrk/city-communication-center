@@ -1802,19 +1802,25 @@ const pageKicker = isMyTasksView
                     )}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
-                    {showStatusColumn && (
-                      <td>
-                        <div className="flex flex-col items-start gap-0.5">
-                          <StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>{getTaskDisplayStatus(t, task)}</StatusPill>
-                          {/* Tamamlanmış/İptal satırlarında durumun altına ilgili tarihi göster (card #711). */}
-                          {task.currentStatus === 'Completed' && task.completedAtUtc
-                            ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(task.completedAtUtc, locale)}</span>
-                            : task.currentStatus === 'Cancelled' && task.updatedAtUtc
-                              ? <span className="text-[0.7rem] text-slate-500">{formatDateTime(task.updatedAtUtc, locale)}</span>
-                              : null}
-                        </div>
-                      </td>
-                    )}
+                    {showStatusColumn && (() => {
+                      // Tamamlanmış→tamamlanma, İptal→iptal tarihi; tarih durum pill'inin İÇİNDE
+                      // alt satırda gösterilir (card #714, #711'in rafine hali).
+                      const statusDate = task.currentStatus === 'Completed' ? task.completedAtUtc
+                        : task.currentStatus === 'Cancelled' ? task.updatedAtUtc
+                        : null
+                      return (
+                        <td>
+                          <StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>
+                            {statusDate
+                              ? <span className="flex flex-col items-center leading-tight">
+                                  <span>{getTaskDisplayStatus(t, task)}</span>
+                                  <span className="text-[0.68rem] font-normal opacity-80">{formatDateTime(statusDate, locale)}</span>
+                                </span>
+                              : getTaskDisplayStatus(t, task)}
+                          </StatusPill>
+                        </td>
+                      )
+                    })()}
                     <td className="actions-cell">
                       <div className="request-actions">
                         {isDepartmentTasksView

@@ -1504,12 +1504,12 @@ const pageKicker = isMyTasksView
                             />
                           </label>
                           <div className="mt-1">
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
-                              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
-                              <div className="inline-actions gap-2">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <span className="min-w-0 flex-1 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
+                              <div className="inline-actions shrink-0 gap-1.5">
                               {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
-                              <label className={`inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
-                              <Paperclip className="size-4" />
+                              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                              <Paperclip className="size-3.5" />
                               {attachmentUploading
                                 ? t('attachments.uploading', 'Yükleniyor...')
                                 : `${t('attachments.addFile', 'Dosya ekle')}${(taskDetail.attachments?.length ?? 0) > 0 ? ` (${taskDetail.attachments.length})` : ''}`}
@@ -1537,7 +1537,7 @@ const pageKicker = isMyTasksView
                                 }}
                               />
                               </label>
-                              <Button type="button" variant="primary" onClick={() => {
+                              <Button type="button" size="sm" variant="primary" onClick={() => {
                                 void handleComplete(taskDetail.taskId)
                               }}>
                                 {t('tasks.actions.complete', 'Tamamla')}

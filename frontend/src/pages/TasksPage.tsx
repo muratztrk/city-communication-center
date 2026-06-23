@@ -1226,9 +1226,11 @@ const pageKicker = isMyTasksView
                                       ? t('tasks.type.routine', 'Rutin')
                                       : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
                                   },
+                                  // Öncelik, Görev Tipi'nin hemen altına (sol kolona) alındı (card #705).
+                                  { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
                                   // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
                                 ].map(({ label, value }) => (
-                                  <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Görev Tipi' ? ' border-b border-slate-100' : ''}`}>
+                                  <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
                                     <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                                     <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                                   </div>
@@ -1237,7 +1239,7 @@ const pageKicker = isMyTasksView
                               <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
                                 <div className="divide-y divide-slate-100">
                                   {[
-                                    { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                                    // Öncelik, sol kolona Görev Tipi'nin altına taşındı (card #705).
                                     {
                                       label: 'Durum',
                                       // Durum + (durumu belirleyen kullanıcı) + tıklanabilir İptal/Tamamlama Notu (card 642).

@@ -2112,6 +2112,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
                             { label: t('tasks.columns.owner', 'Görev Sahibi'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
                             { label: t('tasks.columns.taskType', 'Görev Tipi'), value: taskType },
+                            // Öncelik, Görevlerim pop-up'ıyla aynı kalsın diye Görev Tipi'nin altına alındı (card #705/649).
+                            { label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) },
                           ].map(({ label, value }) => (
                             <div key={label} className="flex items-start gap-2 px-3 py-2">
                               <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
@@ -2121,7 +2123,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         </div>
                         <div className="divide-y divide-slate-100 border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
                           {[
-                            { label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) },
+                            // Öncelik, sol kolona Görev Tipi'nin altına taşındı (card #705/649).
                             { label: t('tasks.columns.status', 'Durum'), value: taskStatus },
                             { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
                             { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc, locale) },

@@ -1,10 +1,18 @@
 using CityCommunicationCenter.Application.Features.Users;
+using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Reports;
 
 /// <summary>Builds the manager dashboard's status-based task and request summaries.</summary>
-public sealed record GetDashboardStatusChartsQuery(DateTimeOffset? FromUtc, DateTimeOffset? ToUtc)
+public enum TaskDashboardFilter { All, Assigned, Routine }
+
+public sealed record GetDashboardStatusChartsQuery(
+    DateTimeOffset? FromUtc,
+    DateTimeOffset? ToUtc,
+    TaskDashboardFilter StaffTaskType = TaskDashboardFilter.All,
+    TaskDashboardFilter DepartmentTaskType = TaskDashboardFilter.All,
+    TaskDashboardFilter MyTaskType = TaskDashboardFilter.All)
     : IQuery<DashboardStatusChartsResponse>;
 
 public sealed class GetDashboardStatusChartsQueryHandler
@@ -56,7 +64,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 && departmentIds.Contains(task.AssignedDepartmentId.Value)
                 && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value))
-            .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc))
+            .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc, task.Job.SourceType))
             .ToListAsync(cancellationToken);
 
         var outgoingJobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
@@ -80,12 +88,12 @@ public sealed class GetDashboardStatusChartsQueryHandler
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
             && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
 
-        var staffTasksChart = await BuildStaffTasksChartAsync(tasks, tenantId, cancellationToken);
+        var staffTasksChart = await BuildStaffTasksChartAsync(FilterTasks(tasks, request.StaffTaskType), tenantId, cancellationToken);
         var charts = new[]
         {
             staffTasksChart,
-            BuildTaskChart("dashboard.charts.departmentTasks", tasks, now),
-            BuildTaskChart("dashboard.charts.myTasks", tasks.Where(task => task.AssignedUserId == context.UserId.Value), now),
+            BuildTaskChart("dashboard.charts.departmentTasks", FilterTasks(tasks, request.DepartmentTaskType), now),
+            BuildTaskChart("dashboard.charts.myTasks", FilterTasks(tasks.Where(task => task.AssignedUserId == context.UserId.Value), request.MyTaskType), now),
             BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
             BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),
             BuildJobChart("dashboard.charts.myRequests", myExternalJobs, "dashboard.chart.externalPendingApproval", now, true),
@@ -121,7 +129,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 && task.AssignedUserId == userId
                 && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value))
-            .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc))
+            .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc, task.Job.SourceType))
             .ToListAsync(cancellationToken);
         var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
             user => user.TenantId == tenantId && user.UserId == userId && user.IsActive,
@@ -225,7 +233,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
     private static bool IsOpen(WorkflowTaskStatus status) => status is not (WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected);
     private static bool IsOpen(JobStatus status) => status is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected);
 
-    private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc);
+    private static IEnumerable<TaskStatusItem> FilterTasks(IEnumerable<TaskStatusItem> tasks, TaskDashboardFilter filter) => filter switch
+    {
+        TaskDashboardFilter.Assigned => tasks.Where(task => task.SourceType != JobSourceType.Routine),
+        TaskDashboardFilter.Routine => tasks.Where(task => task.SourceType == JobSourceType.Routine),
+        _ => tasks,
+    };
+
+    private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType);
     private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks);
 
     private static readonly string[] StaffChartColors = ["primary", "success", "info", "warning", "danger", "neutral"];

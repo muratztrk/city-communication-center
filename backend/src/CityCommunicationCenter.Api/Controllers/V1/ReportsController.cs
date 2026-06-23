@@ -37,9 +37,13 @@ public sealed class ReportsController : ApiControllerBase
     public async Task<ActionResult<DashboardStatusChartsResponse>> GetDashboardStatusCharts(
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [FromQuery] TaskDashboardFilter staffTaskType = TaskDashboardFilter.All,
+        [FromQuery] TaskDashboardFilter departmentTaskType = TaskDashboardFilter.All,
+        [FromQuery] TaskDashboardFilter myTaskType = TaskDashboardFilter.All)
     {
-        var response = await _sender.Send(new GetDashboardStatusChartsQuery(from, to), cancellationToken);
+        var response = await _sender.Send(new GetDashboardStatusChartsQuery(
+            from, to, staffTaskType, departmentTaskType, myTaskType), cancellationToken);
         return Ok(response);
     }
 

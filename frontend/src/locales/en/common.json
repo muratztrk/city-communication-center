@@ -382,6 +382,11 @@
       "incomingRequests": "Incoming Requests",
       "myRequests": "My Requests"
     },
+    "taskFilter": {
+      "assigned": "Assigned",
+      "routine": "Routine",
+      "all": "All"
+    },
     "citizenChannels": {
       "title": "Citizen Request Channels"
     },

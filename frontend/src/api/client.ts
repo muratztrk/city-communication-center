@@ -140,10 +140,15 @@ export const api = {
     return response.json() as Promise<DashboardChartResponse>
   },
 
-  async getDashboardStatusCharts(from?: string, to?: string): Promise<DashboardStatusChartsResponse> {
+  async getDashboardStatusCharts(from?: string, to?: string, taskTypes?: { staff: string; department: string; mine: string }): Promise<DashboardStatusChartsResponse> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)
     if (to) params.set('to', to)
+    if (taskTypes) {
+      params.set('staffTaskType', taskTypes.staff)
+      params.set('departmentTaskType', taskTypes.department)
+      params.set('myTaskType', taskTypes.mine)
+    }
     const qs = params.toString()
     const url = `${API_BASE}/reports/dashboard-status-charts${qs ? `?${qs}` : ''}`
     const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })

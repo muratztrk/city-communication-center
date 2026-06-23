@@ -4,6 +4,9 @@ type DateRange = {
   from?: string | null
   to?: string | null
   departmentId?: string | null
+  staffTaskType?: string
+  departmentTaskType?: string
+  myTaskType?: string
 }
 
 const normalize = <T extends Record<string, unknown>>(value: T) =>

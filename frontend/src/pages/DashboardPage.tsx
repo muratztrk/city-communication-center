@@ -22,6 +22,14 @@ interface MetricCard {
 }
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
+type TaskChartFilter = 'all' | 'assigned' | 'routine'
+type TaskChartKey = 'dashboard.charts.staffTasks' | 'dashboard.charts.departmentTasks' | 'dashboard.charts.myTasks'
+
+const TASK_CHART_KEYS = new Set<TaskChartKey>([
+  'dashboard.charts.staffTasks',
+  'dashboard.charts.departmentTasks',
+  'dashboard.charts.myTasks',
+])
 
 export function DashboardPage() {
   const { t } = useTranslation()
@@ -32,6 +40,11 @@ export function DashboardPage() {
   const [period, setPeriod] = useState<Period>('monthly')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
+  const [taskChartFilters, setTaskChartFilters] = useState<Record<TaskChartKey, TaskChartFilter>>({
+    'dashboard.charts.staffTasks': 'all',
+    'dashboard.charts.departmentTasks': 'all',
+    'dashboard.charts.myTasks': 'all',
+  })
   const activeDeptId = getActiveDepartmentId()
 
   function getPeriodRange(p: Period): { from: string; to: string } {
@@ -82,8 +95,19 @@ export function DashboardPage() {
 
   const isManagerOrAdmin = role === 'Manager' || role === 'SystemAdmin'
   const statusChartsQuery = useQuery({
-    queryKey: queryKeys.dashboard.statusCharts({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
-    queryFn: () => api.getDashboardStatusCharts(activeFrom || undefined, activeTo || undefined),
+    queryKey: queryKeys.dashboard.statusCharts({
+      from: activeFrom,
+      to: activeTo,
+      departmentId: activeDeptId,
+      staffTaskType: taskChartFilters['dashboard.charts.staffTasks'],
+      departmentTaskType: taskChartFilters['dashboard.charts.departmentTasks'],
+      myTaskType: taskChartFilters['dashboard.charts.myTasks'],
+    }),
+    queryFn: () => api.getDashboardStatusCharts(activeFrom || undefined, activeTo || undefined, {
+      staff: taskChartFilters['dashboard.charts.staffTasks'],
+      department: taskChartFilters['dashboard.charts.departmentTasks'],
+      mine: taskChartFilters['dashboard.charts.myTasks'],
+    }),
     enabled: !!currentUser,
     refetchInterval: 60_000,
   })
@@ -324,8 +348,26 @@ export function DashboardPage() {
             ))
           : chartCards.map(card => (
             <section key={card.titleKey} className="section-card p-4 sm:p-5">
-              <div className="mb-4">
+              <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+                {isManagerOrAdmin && TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
+                  <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('tasks.filters.taskType', 'Görev tipi')}>
+                    {(['assigned', 'routine', 'all'] as const).map(filter => {
+                      const chartKey = card.titleKey as TaskChartKey
+                      const active = taskChartFilters[chartKey] === filter
+                      return (
+                        <button
+                          key={filter}
+                          type="button"
+                          onClick={() => setTaskChartFilters(current => ({ ...current, [chartKey]: filter }))}
+                          className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${active ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                        >
+                          {t(`dashboard.taskFilter.${filter}`, { assigned: 'Atanmış', routine: 'Rutin', all: 'Tümü' }[filter])}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
               <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices />
               </section>

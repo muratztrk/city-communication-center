@@ -384,6 +384,11 @@
       "incomingRequests": "Birime Gelen Talepler",
       "myRequests": "Taleplerim"
     },
+    "taskFilter": {
+      "assigned": "Atanmış",
+      "routine": "Rutin",
+      "all": "Tümü"
+    },
     "citizenChannels": {
       "title": "Vatandaş Talep Kanalları"
     },

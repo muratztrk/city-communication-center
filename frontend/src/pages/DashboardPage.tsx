@@ -181,21 +181,9 @@ export function DashboardPage() {
       ]
     : []
 
-  const summaryChart = dashboardQuery.data
-    ? {
-        titleKey: 'dashboard.chart.titleSummary',
-        slices: [
-          { label: 'dashboard.cards.openTasks', value: dashboardQuery.data.openTaskCount, colorHint: 'warning' },
-          { label: 'dashboard.cards.pendingApprovals', value: dashboardQuery.data.pendingApprovalCount, colorHint: 'primary' },
-          { label: 'dashboard.cards.activeMessages', value: dashboardQuery.data.activeSocialMessageCount, colorHint: 'danger' },
-          { label: 'dashboard.cards.rejectedOrCancelled', value: dashboardQuery.data.rejectedOrCancelledRequestCount, colorHint: 'neutral' },
-        ].filter(slice => slice.value > 0),
-      }
-    : null
-
+  // "Genel Talep Özeti" (summary) pie chart'ı kaldırıldı (card #732).
   const chartCards = [
     ...(chartQuery.data ? [chartQuery.data] : []),
-    ...(summaryChart ? [summaryChart] : []),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ]
 

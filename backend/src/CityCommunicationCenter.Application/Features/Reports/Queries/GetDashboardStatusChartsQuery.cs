@@ -75,9 +75,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
             && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
 
+        var staffTasksChart = await BuildStaffTasksChartAsync(tasks, tenantId, cancellationToken);
         var charts = new[]
         {
-            BuildTaskChart("dashboard.charts.staffTasks", tasks.Where(task => task.AssignedUserId.HasValue), now),
+            staffTasksChart,
             BuildTaskChart("dashboard.charts.departmentTasks", tasks, now),
             BuildTaskChart("dashboard.charts.myTasks", tasks.Where(task => task.AssignedUserId == context.UserId.Value), now),
             BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now),
@@ -100,6 +101,30 @@ public sealed class GetDashboardStatusChartsQueryHandler
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
                     && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
             .ToListAsync(cancellationToken);
+    }
+
+    private async Task<DashboardChartResponse> BuildStaffTasksChartAsync(
+        IEnumerable<TaskStatusItem> tasks,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var counts = tasks
+            .Where(task => task.AssignedUserId.HasValue)
+            .GroupBy(task => task.AssignedUserId!.Value)
+            .Select(group => new { UserId = group.Key, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ToList();
+        var userIds = counts.Select(item => item.UserId).ToArray();
+        var userNames = await _dbContext.Users.AsNoTracking()
+            .Where(user => user.TenantId == tenantId && userIds.Contains(user.UserId))
+            .ToDictionaryAsync(user => user.UserId, user => user.DisplayName, cancellationToken);
+
+        return new DashboardChartResponse("dashboard.charts.staffTasks",
+            counts.Select((item, index) => new DashboardChartSlice(
+                userNames.GetValueOrDefault(item.UserId, "—"),
+                item.Count,
+                StaffChartColors[index % StaffChartColors.Length]))
+                .ToList());
     }
 
     private static DashboardChartResponse BuildTaskChart(
@@ -144,4 +169,6 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc);
     private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks);
+
+    private static readonly string[] StaffChartColors = ["primary", "success", "info", "warning", "danger", "neutral"];
 }

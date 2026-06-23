@@ -798,12 +798,18 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const pagedJobs = useMemo(
     () => {
-      const newestFirst = [...columnFilteredJobs].sort(
-        (a, b) => new Date(b.createdAtUtc).getTime() - new Date(a.createdAtUtc).getTime(),
-      )
+      // Tamamlanmış/İptal görünümlerinde tamamlanma/iptal tarihine göre, diğerlerinde talep tarihine
+      // göre en yeni en üstte varsayılan sırala (card #722).
+      const isCompletedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed'
+      const isRejectedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected'
+      const newestFirst = [...columnFilteredJobs].sort((a, b) => {
+        const av = isCompletedView ? a.completedAtUtc : isRejectedView ? a.updatedAtUtc : a.createdAtUtc
+        const bv = isCompletedView ? b.completedAtUtc : isRejectedView ? b.updatedAtUtc : b.createdAtUtc
+        return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
+      })
       return sortJobs(newestFirst).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize)
     },
-    [columnFilteredJobs, jobsPage, jobsPageSize, sortJobs],
+    [columnFilteredJobs, jobsPage, jobsPageSize, sortJobs, isMyRequestsView, isDepartmentOutgoingView, activeJobView],
   )
 
   const setMyRequestsView = (view: MyRequestsView) => {

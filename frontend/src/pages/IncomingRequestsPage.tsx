@@ -559,8 +559,20 @@ export function IncomingRequestsPage() {
   }
 
   const pagedRows = useMemo(
-    () => sortIncoming(columnFilteredRows).slice((incomingPage - 1) * incomingPageSize, incomingPage * incomingPageSize),
-    [columnFilteredRows, incomingPage, incomingPageSize, sortIncoming],
+    () => {
+      // Tamamlanmış/İptal görünümlerinde en yeni tamamlanma/iptal tarihli en üstte varsayılan sırala (card #722).
+      const isCompleted = currentStatusFilter === 'completed'
+      const isCancelled = currentStatusFilter === 'cancelled'
+      const base = (isCompleted || isCancelled)
+        ? [...columnFilteredRows].sort((a, b) => {
+            const av = isCompleted ? a.completedAtUtc : a.updatedAtUtc
+            const bv = isCompleted ? b.completedAtUtc : b.updatedAtUtc
+            return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
+          })
+        : columnFilteredRows
+      return sortIncoming(base).slice((incomingPage - 1) * incomingPageSize, incomingPage * incomingPageSize)
+    },
+    [columnFilteredRows, incomingPage, incomingPageSize, sortIncoming, currentStatusFilter],
   )
 
   const setStatusFilter = (filter: IncomingStatusFilter) => {

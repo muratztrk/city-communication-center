@@ -561,9 +561,23 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     [visibleTasks, taskMatchesFilters, t, locale],
   )
 
+  // Kullanıcı kolon sıralaması seçmediyse, Tamamlanmış/İptal görünümlerinde en yeni tarihli en üstte
+  // olacak şekilde varsayılan sırala (tamamlanma→completedAtUtc, iptal→updatedAtUtc) (card #722).
+  const viewDefaultSortedTasks = useMemo(() => {
+    if (tasksSortKey) return columnFilteredTasks
+    const isCompleted = (isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed'
+    const isRejected = (isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected'
+    if (!isCompleted && !isRejected) return columnFilteredTasks
+    return [...columnFilteredTasks].sort((a, b) => {
+      const av = isCompleted ? a.completedAtUtc : a.updatedAtUtc
+      const bv = isCompleted ? b.completedAtUtc : b.updatedAtUtc
+      return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
+    })
+  }, [columnFilteredTasks, tasksSortKey, isMyTasksView, isDepartmentTasksView, currentMyTaskView])
+
   const pagedTasks = useMemo(
-    () => sortTasks(columnFilteredTasks).slice((tasksPage - 1) * tasksPageSize, tasksPage * tasksPageSize),
-    [columnFilteredTasks, tasksPage, tasksPageSize, sortTasks],
+    () => sortTasks(viewDefaultSortedTasks).slice((tasksPage - 1) * tasksPageSize, tasksPage * tasksPageSize),
+    [viewDefaultSortedTasks, tasksPage, tasksPageSize, sortTasks],
   )
 
   const currentMyTaskViewLabel = t(MY_TASK_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.myViews.pending', 'Bekleyen Görevlerim')

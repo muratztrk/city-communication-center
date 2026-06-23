@@ -370,8 +370,8 @@
       "inProgress": "In Progress",
       "pendingApproval": "Pending Approval",
       "externalPendingApproval": "External Pending Approval",
-      "assignedToMe": "Tasks Assigned to Me",
-      "departmentTotal": "All Department Tasks",
+      "assignedToMe": "My Tasks",
+      "departmentTotal": "Department Tasks",
       "noData": "No data to display yet."
     },
     "charts": {

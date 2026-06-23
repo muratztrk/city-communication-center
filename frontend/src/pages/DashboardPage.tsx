@@ -373,7 +373,8 @@ export function DashboardPage() {
                 ) : (
                   <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
                 )}
-                {isManagerOrAdmin && TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
+                {/* Görev tipi filtre butonları standart kullanıcılarda da görünür (Görevlerim + Birimdeki Görevler) (card 762). */}
+                {TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
                   <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('tasks.filters.taskType', 'Görev tipi')}>
                     {(['assigned', 'routine', 'all'] as const).map(filter => {
                       const chartKey = card.titleKey as TaskChartKey

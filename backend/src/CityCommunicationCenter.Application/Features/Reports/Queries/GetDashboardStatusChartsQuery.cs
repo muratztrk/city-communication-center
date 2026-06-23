@@ -138,13 +138,21 @@ public sealed class GetDashboardStatusChartsQueryHandler
             ? []
             : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
                 _dbContext, tenantId, actor, activeDepartmentId, cancellationToken, includeManagedDepartments: false);
+        // "Birimdeki Görevler" 2 dilimli grafiği görev tipine göre filtrelenir (card 762).
+        var departmentTasksQuery = _dbContext.Tasks.Where(task => task.TenantId == tenantId
+            && task.AssignedDepartmentId.HasValue
+            && departmentIds.Contains(task.AssignedDepartmentId.Value)
+            && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
+            && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value));
+        departmentTasksQuery = request.DepartmentTaskType switch
+        {
+            TaskDashboardFilter.Assigned => departmentTasksQuery.Where(task => task.Job.SourceType != JobSourceType.Routine),
+            TaskDashboardFilter.Routine => departmentTasksQuery.Where(task => task.Job.SourceType == JobSourceType.Routine),
+            _ => departmentTasksQuery,
+        };
         var departmentTaskCount = departmentIds.Length == 0
             ? 0
-            : await _dbContext.Tasks.CountAsync(task => task.TenantId == tenantId
-                && task.AssignedDepartmentId.HasValue
-                && departmentIds.Contains(task.AssignedDepartmentId.Value)
-                && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value), cancellationToken);
+            : await departmentTasksQuery.CountAsync(cancellationToken);
         var jobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.CreatedByUserId == userId
@@ -153,11 +161,12 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
         return new DashboardStatusChartsResponse(
         [
-            BuildTaskChart("dashboard.charts.myTasks", tasks, now),
+            // "Görevlerim" grafiği görev tipine göre filtrelenir (card 762).
+            BuildTaskChart("dashboard.charts.myTasks", FilterTasks(tasks, request.MyTaskType), now),
             BuildJobChart("dashboard.charts.myRequests", jobs, "dashboard.chart.pending", now, false),
             new DashboardChartResponse("dashboard.charts.departmentTasks",
             [
-                new DashboardChartSlice("dashboard.chart.assignedToMe", tasks.Count, "primary"),
+                new DashboardChartSlice("dashboard.chart.assignedToMe", FilterTasks(tasks, request.DepartmentTaskType).Count(), "primary"),
                 new DashboardChartSlice("dashboard.chart.departmentTotal", departmentTaskCount, "info"),
             ]),
         ]);

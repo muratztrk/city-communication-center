@@ -44,6 +44,8 @@ interface PieChartProps {
   slices: DashboardChartSlice[]
   noDataLabel?: string
   showZeroSlices?: boolean
+  /** Sağlanırsa lejant metinleri tıklanabilir olur ve tıklanınca bu çağrılır (card 759). */
+  onSelect?: () => void
 }
 
 /** Resolve a label — may be a plain i18n key, a "prefix – i18n.key" compound, or a literal name. */
@@ -76,18 +78,28 @@ function useResolvedLabel(rawLabel: string): string {
   return translateLabel(rawLabel)
 }
 
-function LegendItem({ slice }: { slice: DashboardChartSlice }) {
+function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?: () => void }) {
   const label = useResolvedLabel(slice.label)
   return (
     <li className="flex items-center gap-2.5 text-sm">
       <span className="shrink-0 size-2.5 rounded-full" style={{ backgroundColor: getColor(slice.colorHint) }} />
-      <span className="min-w-0 truncate text-slate-700">{label}</span>
+      {onSelect ? (
+        <button
+          type="button"
+          onClick={onSelect}
+          className="min-w-0 cursor-pointer truncate text-left text-slate-700 transition-colors hover:text-[color:var(--color-primary)] hover:underline"
+        >
+          {label}
+        </button>
+      ) : (
+        <span className="min-w-0 truncate text-slate-700">{label}</span>
+      )}
       <span className="ml-auto pl-3 font-semibold text-slate-950 tabular-nums">{slice.value}</span>
     </li>
   )
 }
 
-export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false }: PieChartProps) {
+export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false, onSelect }: PieChartProps) {
   const nonZero = slices.filter(s => s.value > 0)
 
   if (nonZero.length === 0) {
@@ -153,7 +165,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
 
       <ul className="flex flex-col gap-2 min-w-0 w-full">
         {(showZeroSlices ? slices : nonZero).map(slice => (
-          <LegendItem key={slice.label} slice={slice} />
+          <LegendItem key={slice.label} slice={slice} onSelect={onSelect} />
         ))}
       </ul>
     </div>

@@ -31,6 +31,17 @@ const TASK_CHART_KEYS = new Set<TaskChartKey>([
   'dashboard.charts.myTasks',
 ])
 
+// Pie chart başlığı + lejant metinleri tıklanınca gidilecek ilgili sayfa (card 759).
+const CHART_ROUTES: Record<string, string> = {
+  'dashboard.charts.staffTasks': '/staff-tasks',
+  'dashboard.charts.departmentTasks': '/department-tasks?flow=all',
+  'dashboard.charts.myTasks': '/my-tasks',
+  'dashboard.charts.myRequests': '/my-requests',
+  'dashboard.charts.incomingRequests': '/incoming-requests',
+  'dashboard.charts.outgoingRequests': '/outgoing-requests',
+  'dashboard.citizenChannels.title': '/social',
+}
+
 export function DashboardPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -346,10 +357,22 @@ export function DashboardPage() {
                 </div>
               </div>
             ))
-          : chartCards.map(card => (
+          : chartCards.map(card => {
+            const chartRoute = CHART_ROUTES[card.titleKey]
+            return (
             <section key={card.titleKey} className="section-card p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+                {chartRoute ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate(chartRoute)}
+                    className="cursor-pointer text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)] hover:underline"
+                  >
+                    {t(card.titleKey)}
+                  </button>
+                ) : (
+                  <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+                )}
                 {isManagerOrAdmin && TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
                   <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('tasks.filters.taskType', 'Görev tipi')}>
                     {(['assigned', 'routine', 'all'] as const).map(filter => {
@@ -369,9 +392,10 @@ export function DashboardPage() {
                   </div>
                 )}
               </div>
-              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices />
+              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={chartRoute ? () => navigate(chartRoute) : undefined} />
               </section>
-            ))}
+            )
+          })}
       </section>
 
       {dashboardQuery.isError ? (

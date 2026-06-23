@@ -1873,11 +1873,12 @@ const pageKicker = isMyTasksView
                             >
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </Button>
-                          ) : currentMyTaskView === 'overdue' ? (
+                          ) : (
+                            // Rutin/yönlendirilemeyen görevlerde de pasif "Yönlendir" — görsel bütünlük (card #729).
                             <DisabledActionButton size="sm" className="bg-[#00a6b4] text-white" hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}>
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </DisabledActionButton>
-                          ) : null)}
+                          ))}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>

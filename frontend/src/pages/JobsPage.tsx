@@ -2089,7 +2089,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </div>
                 <div className="space-y-3">
                   {detail.tasks.map(task => {
-                    const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, task.createdByDisplayName ?? detail.createdByDisplayName]
+                    // "Oluşturan" = görevi değil TALEBİ oluşturan kullanıcı (request creator). JobQueries
+                    // task.createdByDisplayName görevi oluşturan yöneticiyi veriyor; talep oluşturanı
+                    // detail.createdByDisplayName'dir (card #716). GetTasksQuery zaten talep oluşturanını
+                    // verdiği için TasksPage Görev Detayları doğruydu.
+                    const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
                       .filter(Boolean)
                       .join(' / ') || '—'
                     // "Atanmış" ise görevi ATAYAN YÖNETİCİNİN adı parantez içinde gösterilir (görev

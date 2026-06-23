@@ -1486,13 +1486,16 @@ const pageKicker = isMyTasksView
                       </div>
                       {canCompleteTask && (
                         <section className="form-card flex min-w-0 flex-col gap-2 self-start">
-                          <div>
-                            <h3 className="text-base font-extrabold text-emerald-700">
-                              {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
-                            </h3>
-                            <p className="helper-copy">
-                              {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
-                            </p>
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <h3 className="text-base font-extrabold text-emerald-700">
+                                {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
+                              </h3>
+                              <p className="helper-copy">
+                                {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
+                              </p>
+                            </div>
+                            <span className="shrink-0 border-b border-slate-200 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
                           </div>
                           <label className="job-field mt-1">
                             <span className="job-field-label">
@@ -1507,11 +1510,10 @@ const pageKicker = isMyTasksView
                             />
                           </label>
                           <div className="mt-1">
-                            <div className="flex min-w-0 items-center gap-2">
-                              <span className="min-w-0 flex-1 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
+                            <div className="flex justify-end">
                               <div className="inline-actions shrink-0 gap-1.5">
                               {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
-                              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
                               <Paperclip className="size-3.5" />
                               {attachmentUploading
                                 ? t('attachments.uploading', 'Yükleniyor...')

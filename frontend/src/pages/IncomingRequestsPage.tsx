@@ -131,12 +131,12 @@ function getIncomingKindFilter(): IncomingKindFilter {
 }
 
 
-// Sarı (dikkat) satırlarda Normal öncelik metni arka planla yeterli kontrast
-// sağlayan ve griddeki diğer öncelik metinleriyle uyumlu turuncu görünür.
+// Sarı (dikkat) satırlarda Normal öncelik, diğer grid kayıtlarıyla aynı sarı
+// öncelik rengini korur.
 function attentionPriorityColorClass(priority: string): string {
   if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
   if (priority === 'High') return 'text-red-500'
-  if (priority === 'Normal') return 'text-orange-500'
+  if (priority === 'Normal') return 'text-yellow-500'
   return getPriorityColorClass(priority)
 }
 

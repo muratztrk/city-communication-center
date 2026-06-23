@@ -1594,7 +1594,7 @@ const pageKicker = isMyTasksView
                             value: formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
                           }]
                         : []),
-                      { label: 'Son Tarih Bilgisi', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },
+                      { label: 'Son Tarih', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },
                     ]
                     return (
                       <section className="form-card page-stack mb-5">

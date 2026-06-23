@@ -1495,7 +1495,24 @@ const pageKicker = isMyTasksView
                                 {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
                               </p>
                             </div>
-                            <span className="shrink-0 border-b border-slate-200 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
+                            <div className="w-32 shrink-0 text-right">
+                              <span className="inline-block border-b border-slate-200 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
+                              {(taskDetail.attachments?.length ?? 0) > 0 && (
+                                <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
+                                  {taskDetail.attachments.map(att => (
+                                    <li key={att.attachmentId}>
+                                      <button
+                                        type="button"
+                                        className="w-full break-words text-right text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                        onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
+                                      >
+                                        {att.fileName}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
                           </div>
                           <label className="job-field mt-1">
                             <span className="job-field-label">
@@ -1549,21 +1566,6 @@ const pageKicker = isMyTasksView
                               </Button>
                               </div>
                             </div>
-                            {(taskDetail.attachments?.length ?? 0) > 0 && (
-                              <ul className="ml-auto mt-2 w-fit max-w-full space-y-1 border-t border-slate-100 pt-2 text-xs">
-                                {taskDetail.attachments.map(att => (
-                                  <li key={att.attachmentId}>
-                                    <button
-                                      type="button"
-                                      className="break-words text-left font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                      onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
-                                    >
-                                      {att.fileName}
-                                    </button>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
                           </div>
                         </section>
                       )}

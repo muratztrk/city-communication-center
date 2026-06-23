@@ -1784,7 +1784,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <div className={`mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
                     {/* 1. sütun: Koordine Departman Ekle (card 436) */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <h3 className="mb-3 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
+                      <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
                       <MultiSelectDropdown
                         options={coordinatingDepartmentOptions}
                         value={coordinatingDepartmentIds}

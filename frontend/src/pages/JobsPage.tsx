@@ -499,6 +499,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const [managerNoteDraft, setManagerNoteDraft] = useState('')
   const [managerNoteSaving, setManagerNoteSaving] = useState(false)
   const [managerNoteSaved, setManagerNoteSaved] = useState(false)
+  // Mevcut not için Değiştir/Sil moduna geçildi mi (card #727).
+  const [managerNoteEditing, setManagerNoteEditing] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
@@ -537,19 +539,18 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && !isDepartmentOutgoingView
     && detailContext !== 'incoming'
     && detailContext !== 'social'
-  // Yönetici Notu: Birimden Giden → Bekleyen detayında (hedef birim onaylamadığı sürece) düzenlenebilir;
-  // not, Birime Gelen detayında salt-okunur görünür (card 453).
-  const isJobPendingTargetApproval = detail != null
-    && (detail.status === 'PendingOwnerApproval'
-      || detail.status === 'PendingExternalApproval'
-      || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0))
   const canChangeDetailDueDate = isIncomingRequestDetail
     && isManagerLike
     && detail != null
     && (detail.status === 'Draft' || detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
-  const canEditManagerNote = isDepartmentOutgoingView && isManagerLike && isJobPendingTargetApproval
-  // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); Birimden Giden → Bekleyen'de
-  // düzenlenebilir, diğer yerlerde salt-okunur (yoksa "girilmemiş").
+  // Yönetici Notu: üst düzey yönetici (Reporter) ve birim yöneticileri (Manager/SystemAdmin), talebin
+  // çıkış tarafında (Taleplerim / Birimden Giden) talep tamamlanmadıysa/iptal edilmediyse ekleyebilir/
+  // değiştirebilir/silebilir (card #727). Birime Gelen ve terminal durumlarda salt-okunur.
+  const canEditManagerNote = (isMyRequestsView || isDepartmentOutgoingView)
+    && (isManagerLike || isReporter)
+    && detail != null
+    && detail.status !== 'Completed' && detail.status !== 'Cancelled' && detail.status !== 'Rejected'
+  // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468).
   const showManagerNoteColumn = isRequestDetailContext
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
@@ -916,6 +917,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   useEffect(() => {
     setManagerNoteDraft(detail?.managerNote ?? '')
     setManagerNoteSaved(false)
+    setManagerNoteEditing(false)
     setDetailDueDateEdit(null)
   }, [detail?.jobId]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -928,6 +930,26 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       invalidateJobs(queryClient, detail.jobId)
       await refreshDetail()
       setManagerNoteSaved(true)
+      setManagerNoteEditing(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setManagerNoteSaving(false)
+    }
+  }
+
+  // Yönetici notunu sil — setJobManagerNote(null) (card #727).
+  const handleDeleteManagerNote = async () => {
+    if (!detail) return
+    setManagerNoteSaving(true)
+    setError(null)
+    try {
+      await api.setJobManagerNote(detail.jobId, null)
+      invalidateJobs(queryClient, detail.jobId)
+      await refreshDetail()
+      setManagerNoteDraft('')
+      setManagerNoteSaved(false)
+      setManagerNoteEditing(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -1797,11 +1819,38 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {showManagerNoteColumn && (
                       <div className="rounded-xl border border-slate-200 bg-white p-4">
                         <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
-                        {canEditManagerNote && managerNoteSaved ? (
-                          <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
-                        ) : null}
-                        {canEditManagerNote ? (
+                        {!canEditManagerNote ? (
+                          // Salt-okunur: Birime Gelen veya terminal durum / yetkisiz (card #727)
+                          detail.managerNote ? (
+                            <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
+                          ) : (
+                            <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
+                          )
+                        ) : (detail.managerNote && !managerNoteEditing) ? (
+                          // Not var, düzenleme kapalı: notu göster + "Değiştir/Sil" tetikleyici (card #727)
                           <>
+                            <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
+                            <div className="mt-3 flex justify-end">
+                              <Button
+                                type="button"
+                                size="sm"
+                                className="bg-teal-700 text-white hover:bg-teal-800"
+                                onClick={() => {
+                                  setManagerNoteDraft(detail.managerNote ?? '')
+                                  setManagerNoteEditing(true)
+                                  setManagerNoteSaved(false)
+                                }}
+                              >
+                                {t('jobs.managerNote.editOrDelete', 'Değiştir/Sil')}
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          // Ekleme (not yok) veya düzenleme (not var + editing): textbox + butonlar (card #727)
+                          <>
+                            {managerNoteSaved ? (
+                              <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
+                            ) : null}
                             <textarea
                               className="field-textarea min-h-24 w-full"
                               rows={3}
@@ -1812,22 +1861,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               }}
                               placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}
                             />
-                            <div className="mt-3 flex justify-end">
-                              <Button
-                                type="button"
-                                variant="success"
-                                size="sm"
-                                disabled={managerNoteSaving}
-                                onClick={() => void handleSaveManagerNote()}
-                              >
-                                {t('common.add', 'Ekle')}
-                              </Button>
+                            <div className="mt-3 flex justify-end gap-2">
+                              {managerNoteEditing ? (
+                                <>
+                                  <Button type="button" variant="success" size="sm" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={() => void handleSaveManagerNote()}>
+                                    {t('common.change', 'Değiştir')}
+                                  </Button>
+                                  <Button type="button" variant="destructive" size="sm" disabled={managerNoteSaving} onClick={() => void handleDeleteManagerNote()}>
+                                    {t('common.delete', 'Sil')}
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button type="button" variant="success" size="sm" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={() => void handleSaveManagerNote()}>
+                                  {t('jobs.managerNote.add', 'Not Ekle')}
+                                </Button>
+                              )}
                             </div>
                           </>
-                        ) : detail.managerNote ? (
-                          <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-                        ) : (
-                          <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
                         )}
                       </div>
                     )}

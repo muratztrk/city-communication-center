@@ -422,6 +422,6 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.JobNumber, job.JobNumberYear,
             job.ManagerNote,
             depts, tasks, approvals, attachments,
-            jobStatusActorDisplayName, jobCompletionNote);
+            jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc);
     }
 }

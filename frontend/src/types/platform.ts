@@ -322,6 +322,8 @@ export interface JobDetail {
   // Durumu belirleyen kullanıcı (iptal/tamamlayan/onay bekleyen yönetici) + tamamlama notu (card 643).
   statusActorDisplayName?: string | null;
   completionNote?: string | null;
+  // Talebin son güncellenme zamanı — "Talep Detayları"nda iptal tarihi olarak kullanılır (card #715).
+  updatedAtUtc?: string | null;
 }
 
 export interface SocialConversationEntry {

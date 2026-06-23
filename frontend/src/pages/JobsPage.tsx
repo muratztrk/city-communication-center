@@ -1681,6 +1681,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             locale,
                           ),
                         }] : []),
+                        // Talep tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #715).
+                        ...(detail.status === 'Completed'
+                          ? [{ label: 'Tamamlanma Tarihi', value: formatDateTime(detail.completedAtUtc ?? null, locale) }]
+                          : detail.status === 'Cancelled'
+                            ? [{ label: 'İptal Tarihi', value: formatDateTime(detail.updatedAtUtc ?? null, locale) }]
+                            : []),
                         { label: 'Son Tarih', value: formatDueDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (
                         <div key={label} className={`flex flex-col gap-0.5 px-4 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>

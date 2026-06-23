@@ -125,4 +125,6 @@ public sealed record JobDetailResponse(
     // Durumu belirleyen kullanıcı: iptal eden / tamamlayan görevi yapan / onay bekleyen yönetici (card 643).
     string? StatusActorDisplayName = null,
     // Tamamlanan talebin görevindeki tamamlama notu (card 643).
-    string? CompletionNote = null);
+    string? CompletionNote = null,
+    // Talebin son güncellenme zamanı — "Talep Detayları"nda iptal tarihi olarak kullanılır (card #715).
+    DateTimeOffset? UpdatedAtUtc = null);

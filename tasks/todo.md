@@ -542,3 +542,7 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#734` — "Tümü/Tüm" gridview Durum pill'i içindeki tamamlanma/iptal tarihi metni bold (font-normal → font-bold) — #717'nin (siyah) devamı. 3 hücre. FE PASS.
 - [x] `#723` (reopened) — "Görev Ekleri" sütunundaki ek isimleri artık indirilebilir (api.downloadAttachment auth'lu blob → object URL, AttachmentSection yöntemiyle aynı); önceden salt isimdi. `handleDownloadTaskAttachment` eklendi. FE PASS.
 - NOT: `#731` hâlâ Doing'de ERTELENMİŞ durumda (kullanıcı girdisi bekliyor); döngü onu tekrar denemiyor.
+
+## Round 84 (otonom 30dk döngü — #694)
+- [x] `#694` — Görev detayı "İlgili Talep Detayları" sol kolonunda son satır "Öncelik" altında kapanış çizgisi yoktu (sol kolon orta kolondan kısa → boşluk). leftFields wrapper'a `label === 'Öncelik'` border-b eklendi; #712/#713 (Son Tarih) ve JobsPage Talep Detayları (zaten border'lı) ile aynı. Ekran görseli (694.png) ile teyit. FE PASS.
+- NOT: `#731` hâlâ ertelenmiş (kullanıcı girdisi bekliyor).

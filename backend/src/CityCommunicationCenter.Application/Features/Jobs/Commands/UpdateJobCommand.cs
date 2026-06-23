@@ -48,10 +48,12 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
 
-        if (job.Status is not (JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested))
+        // Talep tamamlanmadıysa veya iptal/reddedilmediyse düzenlenebilir; Yapılmakta (Active) talepler
+        // de yönetici tarafından düzenlenebilir (card #724).
+        if (job.Status is JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected)
         {
             throw new ValidationException([
-                new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "Sadece onay bekleyen veya taslak isler duzenlenebilir.")
+                new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "Tamamlanmış veya iptal edilmiş talepler düzenlenemez.")
             ]);
         }
 
@@ -79,7 +81,10 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
 
         // Birim dışı talepte hedef departmanlar değişebilir (yalnızca onay öncesi, görev yokken).
         // Owner satırı korunur; mevcut Target satırları silinip yeni seçim eklenir (card 452).
-        if (request.TargetDepartmentIds is not null && job.RequestType == JobRequestType.ExternalUnit)
+        // Active/Yapılmakta taleplerde hedef değişikliğine izin verilmez (card #724) — sadece temel
+        // alanlar güncellenir; hedef değişikliği onay-öncesi durumlarla sınırlı kalır.
+        if (request.TargetDepartmentIds is not null && job.RequestType == JobRequestType.ExternalUnit
+            && job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested)
         {
             var newTargetIds = request.TargetDepartmentIds
                 .Where(id => id != Guid.Empty && id != job.OwnerDepartmentId)

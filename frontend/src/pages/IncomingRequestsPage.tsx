@@ -255,13 +255,14 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
 }
 
 /** An external job belongs in *this department's* incoming list only when the active
- *  department is one of its targets AND the owner department has already approved it.
- *  This keeps a department's own outgoing requests out of its incoming list, and hides
- *  external requests that are still waiting on owner approval. */
+ *  department is one of its targets and the owner-side workflow has made it visible.
+ *  Current records use an Approved owner row; older/direct-manager records can already
+ *  be Active while that row is incomplete, and must not disappear from the target pool. */
 function isIncomingExternalForActiveDept(job: JobSummary, activeDeptId: string | null): boolean {
   const ownerApproved = job.departments?.some(d => d.role === 'Owner' && d.approvalStatus === 'Approved') ?? false
-  if (!ownerApproved) return false
-  if (!activeDeptId) return true // admins / no active department: show all owner-approved external requests
+  const isVisibleToTarget = ownerApproved || job.status === 'Active'
+  if (!isVisibleToTarget) return false
+  if (!activeDeptId) return true
   return job.departments?.some(d => d.role === 'Target' && d.departmentId === activeDeptId) ?? false
 }
 

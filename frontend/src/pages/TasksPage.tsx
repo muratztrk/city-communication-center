@@ -1503,9 +1503,10 @@ const pageKicker = isMyTasksView
                               placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
                             />
                           </label>
-                          <div className="mt-1 border-t border-slate-200 pt-2">
-                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
-                            <div className="mt-1.5 inline-actions justify-end gap-2">
+                          <div className="mt-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
+                              <div className="inline-actions gap-2">
                               {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
                               <label className={`inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
                               <Paperclip className="size-4" />
@@ -1541,6 +1542,7 @@ const pageKicker = isMyTasksView
                               }}>
                                 {t('tasks.actions.complete', 'Tamamla')}
                               </Button>
+                              </div>
                             </div>
                             {(taskDetail.attachments?.length ?? 0) > 0 && (
                               <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-sm">

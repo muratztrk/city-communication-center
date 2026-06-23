@@ -131,12 +131,12 @@ function getIncomingKindFilter(): IncomingKindFilter {
 }
 
 
-// Sarı (dikkat) satırlarda yalnızca Normal öncelik beyaz görünür.
+// Sarı (dikkat) satırlarda Normal öncelik metni arka planla yeterli kontrast
+// sağlayan ve griddeki diğer öncelik metinleriyle uyumlu turuncu görünür.
 function attentionPriorityColorClass(priority: string): string {
   if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
   if (priority === 'High') return 'text-red-500'
-  // Incoming approval rows have an amber background; white text loses contrast.
-  if (priority === 'Normal') return 'text-slate-900'
+  if (priority === 'Normal') return 'text-orange-500'
   return getPriorityColorClass(priority)
 }
 

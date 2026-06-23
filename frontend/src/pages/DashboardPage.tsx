@@ -72,12 +72,6 @@ export function DashboardPage() {
     queryFn: () => api.getDashboard(activeFrom || undefined, activeTo || undefined),
     refetchInterval: 60_000,
   })
-  const chartQuery = useQuery({
-    queryKey: queryKeys.dashboard.chart({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
-    queryFn: () => api.getDashboardChart(activeFrom || undefined, activeTo || undefined),
-    refetchInterval: 60_000,
-  })
-
   const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator'
   const citizenChannelQuery = useQuery({
     queryKey: queryKeys.dashboard.citizenChannels({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
@@ -90,7 +84,7 @@ export function DashboardPage() {
   const statusChartsQuery = useQuery({
     queryKey: queryKeys.dashboard.statusCharts({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
     queryFn: () => api.getDashboardStatusCharts(activeFrom || undefined, activeTo || undefined),
-    enabled: isManagerOrAdmin,
+    enabled: !!currentUser,
     refetchInterval: 60_000,
   })
   // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
@@ -190,10 +184,8 @@ export function DashboardPage() {
   // Yönetici dashboard'unda her grafik, üst bölümdeki ilgili hızlı erişim
   // kartlarının aynı dönem verisini kullanır. Böylece sayı ve görsel özet
   // birbirinden kopmaz.
-  const managerChartCards = statusChartsQuery.data?.charts ?? []
-
   const chartCards = [
-    ...(isManagerOrAdmin ? managerChartCards : (chartQuery.data ? [chartQuery.data] : [])),
+    ...(statusChartsQuery.data?.charts ?? []),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ]
 
@@ -316,7 +308,7 @@ export function DashboardPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {(chartQuery.isLoading || statusChartsQuery.isLoading || dashboardQuery.isLoading) && chartCards.length === 0
+        {(statusChartsQuery.isLoading || dashboardQuery.isLoading) && chartCards.length === 0
           ? Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="section-card p-4 sm:p-5">
                 <div className="mb-4 h-4 w-40 animate-pulse rounded bg-slate-100" />
@@ -335,7 +327,7 @@ export function DashboardPage() {
               <div className="mb-4">
                 <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
               </div>
-              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices={isManagerOrAdmin} />
+              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices />
               </section>
             ))}
       </section>

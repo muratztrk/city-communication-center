@@ -34,7 +34,6 @@ public sealed class ReportsController : ApiControllerBase
     }
 
     [HttpGet("dashboard-status-charts")]
-    [Authorize(Roles = "SystemAdmin,Manager")]
     public async Task<ActionResult<DashboardStatusChartsResponse>> GetDashboardStatusCharts(
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,

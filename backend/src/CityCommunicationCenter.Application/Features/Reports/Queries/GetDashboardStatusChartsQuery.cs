@@ -27,9 +27,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
     {
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
-        if (context.RoleCode is not ("Manager" or "SystemAdmin") || !context.UserId.HasValue)
+        if (!context.UserId.HasValue)
         {
             return new DashboardStatusChartsResponse([]);
+        }
+
+        if (context.RoleCode is not ("Manager" or "SystemAdmin"))
+        {
+            return await BuildStandardUserChartsAsync(tenantId, context.UserId.Value, request, cancellationToken);
         }
 
         var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
@@ -81,9 +86,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
             staffTasksChart,
             BuildTaskChart("dashboard.charts.departmentTasks", tasks, now),
             BuildTaskChart("dashboard.charts.myTasks", tasks.Where(task => task.AssignedUserId == context.UserId.Value), now),
-            BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now),
-            BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now),
-            BuildJobChart("dashboard.charts.myRequests", myExternalJobs, "dashboard.chart.externalPendingApproval", now),
+            BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
+            BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),
+            BuildJobChart("dashboard.charts.myRequests", myExternalJobs, "dashboard.chart.externalPendingApproval", now, true),
         };
 
         return new DashboardStatusChartsResponse(charts);
@@ -101,6 +106,33 @@ public sealed class GetDashboardStatusChartsQueryHandler
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
                     && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
             .ToListAsync(cancellationToken);
+    }
+
+    private async Task<DashboardStatusChartsResponse> BuildStandardUserChartsAsync(
+        Guid tenantId,
+        Guid userId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var tasks = await _dbContext.Tasks.AsNoTracking()
+            .Where(task => task.TenantId == tenantId
+                && task.AssignedUserId == userId
+                && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value))
+            .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc))
+            .ToListAsync(cancellationToken);
+        var jobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
+            job.TenantId == tenantId
+            && job.CreatedByUserId == userId
+            && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+            && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
+
+        return new DashboardStatusChartsResponse(
+        [
+            BuildTaskChart("dashboard.charts.myTasks", tasks, now),
+            BuildJobChart("dashboard.charts.myRequests", jobs, "dashboard.chart.pending", now, false),
+        ]);
     }
 
     private async Task<DashboardChartResponse> BuildStaffTasksChartAsync(
@@ -148,20 +180,26 @@ public sealed class GetDashboardStatusChartsQueryHandler
         string titleKey,
         IEnumerable<JobStatusItem> jobs,
         string pendingLabel,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        bool includeInProgress)
     {
         var values = jobs.ToList();
         var overdue = values.Where(job => IsOpen(job.Status) && job.DueDateUtc < now).ToList();
         var current = values.Except(overdue).ToList();
-        return new DashboardChartResponse(titleKey,
-        [
-            new DashboardChartSlice(pendingLabel, current.Count(job => job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested), "warning"),
-            new DashboardChartSlice("dashboard.chart.overdue", overdue.Count, "danger"),
-            new DashboardChartSlice("dashboard.chart.approved", current.Count(job => job.Status == JobStatus.Active && !job.HasOpenTasks), "info"),
-            new DashboardChartSlice("dashboard.chart.inProgress", current.Count(job => job.Status == JobStatus.Active && job.HasOpenTasks), "primary"),
-            new DashboardChartSlice("dashboard.chart.completed", values.Count(job => job.Status == JobStatus.Completed), "success"),
-            new DashboardChartSlice("dashboard.chart.cancelled", values.Count(job => job.Status is JobStatus.Cancelled or JobStatus.Rejected), "neutral"),
-        ]);
+        var activeJobs = current.Where(job => job.Status == JobStatus.Active).ToList();
+        var slices = new List<DashboardChartSlice>
+        {
+            new(pendingLabel, current.Count(job => job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested), "warning"),
+            new("dashboard.chart.overdue", overdue.Count, "danger"),
+            new("dashboard.chart.approved", includeInProgress ? activeJobs.Count(job => !job.HasOpenTasks) : activeJobs.Count, "info"),
+        };
+        if (includeInProgress)
+        {
+            slices.Add(new DashboardChartSlice("dashboard.chart.inProgress", activeJobs.Count(job => job.HasOpenTasks), "primary"));
+        }
+        slices.Add(new DashboardChartSlice("dashboard.chart.completed", values.Count(job => job.Status == JobStatus.Completed), "success"));
+        slices.Add(new DashboardChartSlice("dashboard.chart.cancelled", values.Count(job => job.Status is JobStatus.Cancelled or JobStatus.Rejected), "neutral"));
+        return new DashboardChartResponse(titleKey, slices);
     }
 
     private static bool IsOpen(WorkflowTaskStatus status) => status is not (WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected);

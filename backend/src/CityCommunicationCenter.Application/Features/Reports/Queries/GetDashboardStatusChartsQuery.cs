@@ -198,9 +198,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
         return new DashboardChartResponse(titleKey,
         [
             new DashboardChartSlice("dashboard.chart.pending", pending, "warning"),
-            new DashboardChartSlice("dashboard.chart.overdue", overdue, "danger"),
+            new DashboardChartSlice("dashboard.chart.overdue", overdue, "orange"),
             new DashboardChartSlice("dashboard.chart.completed", values.Count(task => task.Status == WorkflowTaskStatus.Completed), "success"),
-            new DashboardChartSlice("dashboard.chart.cancelled", values.Count(task => task.Status is WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected), "neutral"),
+            new DashboardChartSlice("dashboard.chart.cancelled", values.Count(task => task.Status is WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected), "danger"),
         ]);
     }
 
@@ -218,7 +218,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var slices = new List<DashboardChartSlice>
         {
             new(pendingLabel, current.Count(job => job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested), "warning"),
-            new("dashboard.chart.overdue", overdue.Count, "danger"),
+            new("dashboard.chart.overdue", overdue.Count, "orange"),
             new("dashboard.chart.approved", includeInProgress ? activeJobs.Count(job => !job.HasOpenTasks) : activeJobs.Count, "info"),
         };
         if (includeInProgress)
@@ -226,7 +226,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
             slices.Add(new DashboardChartSlice("dashboard.chart.inProgress", activeJobs.Count(job => job.HasOpenTasks), "primary"));
         }
         slices.Add(new DashboardChartSlice("dashboard.chart.completed", values.Count(job => job.Status == JobStatus.Completed), "success"));
-        slices.Add(new DashboardChartSlice("dashboard.chart.cancelled", values.Count(job => job.Status is JobStatus.Cancelled or JobStatus.Rejected), "neutral"));
+        slices.Add(new DashboardChartSlice("dashboard.chart.cancelled", values.Count(job => job.Status is JobStatus.Cancelled or JobStatus.Rejected), "danger"));
         return new DashboardChartResponse(titleKey, slices);
     }
 

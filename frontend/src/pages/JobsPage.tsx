@@ -1825,7 +1825,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
                   <div className={`mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
-                    {/* 1. sütun: Koordine Departman Ekle (card 436) */}
+                    {/* 1. sütun: Koordine Departman Ekle (card 436). Talep iptal/tamamlanmış/reddedilmişse
+                        (kapanmış) koordine departman eklenemez; seçim ve buton pasif (card 761). */}
+                    {(() => {
+                      const isClosedRequest = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'
+                      return (
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
                       <MultiSelectDropdown
@@ -1836,20 +1840,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         emptyText="Seçilebilir birim bulunmuyor."
                         triggerClassName="text-xs"
                         openUp
-                        disabled={coordinatingSaving}
+                        disabled={coordinatingSaving || isClosedRequest}
                       />
                       <div className="mt-3 flex justify-end">
                         <Button
                           type="button"
                           variant="success"
                           size="sm"
-                          disabled={coordinatingSaving || coordinatingDepartmentIds.length === 0}
+                          disabled={coordinatingSaving || coordinatingDepartmentIds.length === 0 || isClosedRequest}
                           onClick={() => void handleAddCoordinatingDepartments()}
                         >
                           {coordinatingSaving ? 'Ekleniyor...' : 'Koordine Departman Ekle'}
                         </Button>
                       </div>
                     </div>
+                      )
+                    })()}
                     {/* 2. sütun: Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442) */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">

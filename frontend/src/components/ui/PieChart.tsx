@@ -4,7 +4,7 @@ import type { DashboardChartSlice } from '../../types/platform'
 const COLOR_MAP: Record<string, string> = {
   primary: 'var(--color-primary)',
   success: '#22c55e',
-  warning: '#f59e0b',
+  warning: '#eab308', // "Bekleyen" sarı — turuncudan (#f97316) ayrışsın (card 760)
   danger: '#ef4444',
   info: '#06b6d4',
   neutral: '#94a3b8',

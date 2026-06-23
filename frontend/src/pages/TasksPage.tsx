@@ -1538,6 +1538,10 @@ const pageKicker = isMyTasksView
                     const isCrossDepartmentRequest =
                       taskDetail.assignedDepartmentId != null &&
                       taskDetail.assignedDepartmentId !== parentJobDetail.ownerDepartmentId
+                    // Talebi gerçekleştiren (görevin atandığı/hedef) birim — onay tarihi için (card #703).
+                    const fulfillingJobDepartment = parentJobDetail.departments.find(
+                      dept => dept.departmentId === taskDetail.assignedDepartmentId,
+                    )
                     const coordinatingDepartmentNames = parentJobDetail.departments
                       .filter(department =>
                         (department.role === 'Target' || department.role === 'Coordinating')
@@ -1577,10 +1581,18 @@ const pageKicker = isMyTasksView
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
                       {
                         label: isCrossDepartmentRequest
-                          ? "Talebi Oluşturan Departman'ın Onay Tarihi"
+                          ? 'Talebin Birim Yöneticisinin Onay Tarihi'
                           : 'Talep Onay Tarihi',
                         value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
                       },
+                      // Cross-department talepte, talebi oluşturan birimin onay tarihinin altına
+                      // talebi gerçekleştiren birimin yöneticisinin onay tarihini ekle (card #703).
+                      ...(isCrossDepartmentRequest
+                        ? [{
+                            label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
+                            value: formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
+                          }]
+                        : []),
                       { label: 'Son Tarih Bilgisi', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },
                     ]
                     return (

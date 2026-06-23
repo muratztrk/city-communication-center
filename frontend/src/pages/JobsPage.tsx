@@ -519,6 +519,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const isMyRequestsView = mode === 'myRequests'
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
   const detailContext = searchParams.get('context')
+  const incomingReturnStatus = searchParams.get('returnStatus')
   const detailHeaderTitle = isMyRequestsView
     ? t('nav.myRequests', 'Taleplerim')
     : isDepartmentOutgoingView
@@ -983,7 +984,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       return
     }
     if (mode === 'external') {
-      navigate(detailContext === 'social' ? '/social' : '/incoming-requests?kind=all', { replace: true })
+      const returnToIncoming = incomingReturnStatus === 'overdue'
+        || incomingReturnStatus === 'approved'
+        || incomingReturnStatus === 'completed'
+        || incomingReturnStatus === 'cancelled'
+        || incomingReturnStatus === 'all'
+        ? `/incoming-requests?kind=all&status=${incomingReturnStatus}`
+        : '/incoming-requests?kind=all'
+      navigate(detailContext === 'social' ? '/social' : returnToIncoming, { replace: true })
     }
   }
 

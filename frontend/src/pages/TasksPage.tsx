@@ -1253,7 +1253,7 @@ const pageKicker = isMyTasksView
                             <div className="text-sm font-semibold text-emerald-600">
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                            <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${(taskDetail.attachments?.length ?? 0) > 0 ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.7fr)_minmax(0,0.95fr)_minmax(0,0.85fr)]' : 'lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]'}`}>
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]">
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
@@ -1477,32 +1477,6 @@ const pageKicker = isMyTasksView
                                   </div>
                                 </div>
                               </div>
-                              {/* Dosya eki varsa Açıklama'nın yanına "Görev Ekleri" sütunu — ek isimleri (card #723). */}
-                              {(taskDetail.attachments?.length ?? 0) > 0 && (
-                                <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                                  <div className="border-b border-slate-200 px-4 py-2">
-                                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                      {t('tasks.detail.taskAttachments', 'Görev Ekleri')}
-                                    </span>
-                                  </div>
-                                  <div className="px-4 py-3">
-                                    <ul className="space-y-1 text-sm">
-                                      {taskDetail.attachments.map(att => (
-                                        <li key={att.attachmentId}>
-                                          {/* Ek isimleri indirilebilir (card #723 reopened). */}
-                                          <button
-                                            type="button"
-                                            className="break-words text-left font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                            onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
-                                          >
-                                            {att.fileName}
-                                          </button>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
@@ -1533,7 +1507,7 @@ const pageKicker = isMyTasksView
                             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
                             <div className="mt-1.5 inline-actions justify-end gap-2">
                               {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
-                              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                              <label className={`inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
                               <Paperclip className="size-4" />
                               {attachmentUploading
                                 ? t('attachments.uploading', 'Yükleniyor...')
@@ -1568,6 +1542,21 @@ const pageKicker = isMyTasksView
                                 {t('tasks.actions.complete', 'Tamamla')}
                               </Button>
                             </div>
+                            {(taskDetail.attachments?.length ?? 0) > 0 && (
+                              <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-sm">
+                                {taskDetail.attachments.map(att => (
+                                  <li key={att.attachmentId}>
+                                    <button
+                                      type="button"
+                                      className="break-words text-left font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                      onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
+                                    >
+                                      {att.fileName}
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
                           </div>
                         </section>
                       )}

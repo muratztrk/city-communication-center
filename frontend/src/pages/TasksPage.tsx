@@ -21,7 +21,7 @@ import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import type { Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
+import type { Attachment, Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 
@@ -346,6 +346,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [detailLoading, setDetailLoading] = useState(false)
 
   const [attachmentUploading, setAttachmentUploading] = useState(false)
+  // Tamamlama işlemi henüz yapılmadan eklenen dosyalar, detay kapatılırsa
+  // geçici işlemden arta kalmamalıdır (card #739).
+  const [pendingCompletionAttachmentIds, setPendingCompletionAttachmentIds] = useState<string[]>([])
   const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnDeptId, setReturnDeptId] = useState('')
@@ -687,6 +690,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       onConfirm: async () => {
         try {
           await api.completeTask(taskId, completionNote.trim() || undefined)
+          setPendingCompletionAttachmentIds([])
           invalidateTasks(queryClient, taskId, selectedTask?.jobId)
           setCompletionNote('')
           closeTaskDetail()
@@ -1013,6 +1017,13 @@ const pageKicker = isMyTasksView
   }, [autoOpenTaskId, selectedTask?.taskId, tasks, loading]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const closeTaskDetail = () => {
+    if (pendingCompletionAttachmentIds.length > 0) {
+      const attachmentIds = pendingCompletionAttachmentIds
+      setPendingCompletionAttachmentIds([])
+      void Promise.all(attachmentIds.map(id => api.deleteAttachment(id))).catch(() => {
+        // Modal kapanışını engelleme; silme yetkisi/bağlantı hatası sonraki açılışta görünür.
+      })
+    }
     dismissedAutoOpenTaskIdRef.current = autoOpenTaskId
     setSelectedTask(null)
     setTaskDetail(null)
@@ -1497,16 +1508,16 @@ const pageKicker = isMyTasksView
                         </div>
                       </div>
                       {canCompleteTask && (
-                        <section className="form-card flex h-full min-w-0 flex-col gap-2.5 self-stretch">
+                        <section className="form-card flex min-w-0 flex-col gap-2 self-start">
                           <div>
-                            <h3 className="text-lg font-extrabold text-slate-950">
+                            <h3 className="text-base font-extrabold text-emerald-700">
                               {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
                             </h3>
                             <p className="helper-copy">
                               {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
                             </p>
                           </div>
-                          <label className="job-field mt-3">
+                          <label className="job-field mt-1">
                             <span className="job-field-label">
                               {t('tasks.actions.completionNote', 'Tamamlama Notu')}
                             </span>
@@ -1518,9 +1529,11 @@ const pageKicker = isMyTasksView
                               placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
                             />
                           </label>
-                          <div className="inline-actions justify-end gap-2 pt-2">
-                            {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
-                            <label className={`inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                          <div className="mt-1 border-t border-slate-200 pt-2">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
+                            <div className="mt-1.5 inline-actions justify-end gap-2">
+                              {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
+                              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
                               <Paperclip className="size-4" />
                               {attachmentUploading
                                 ? t('attachments.uploading', 'Yükleniyor...')
@@ -1536,9 +1549,11 @@ const pageKicker = isMyTasksView
                                   if (!files || files.length === 0) return
                                   setAttachmentUploading(true)
                                   try {
+                                    const uploaded: Attachment[] = []
                                     for (const file of Array.from(files)) {
-                                      await api.uploadTaskAttachment(taskDetail.taskId, file)
+                                      uploaded.push(await api.uploadTaskAttachment(taskDetail.taskId, file))
                                     }
+                                    setPendingCompletionAttachmentIds(current => [...current, ...uploaded.map(attachment => attachment.attachmentId)])
                                     setTaskDetail(await api.getTaskById(taskDetail.taskId))
                                   } finally {
                                     setAttachmentUploading(false)
@@ -1546,10 +1561,13 @@ const pageKicker = isMyTasksView
                                   }
                                 }}
                               />
-                            </label>
-                            <Button type="button" variant="primary" onClick={() => handleComplete(taskDetail.taskId)}>
-                              {t('tasks.actions.complete', 'Tamamla')}
-                            </Button>
+                              </label>
+                              <Button type="button" variant="primary" onClick={() => {
+                                void handleComplete(taskDetail.taskId)
+                              }}>
+                                {t('tasks.actions.complete', 'Tamamla')}
+                              </Button>
+                            </div>
                           </div>
                         </section>
                       )}

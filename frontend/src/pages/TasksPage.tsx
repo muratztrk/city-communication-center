@@ -1853,7 +1853,7 @@ const pageKicker = isMyTasksView
                             {statusDate
                               ? <span className="flex flex-col items-center leading-tight">
                                   <span>{getTaskDisplayStatus(t, task)}</span>
-                                  <span className="text-[0.68rem] font-normal text-black">{formatDateTime(statusDate, locale)}</span>
+                                  <span className="text-[0.68rem] font-bold text-black">{formatDateTime(statusDate, locale)}</span>
                                 </span>
                               : getTaskDisplayStatus(t, task)}
                           </StatusPill>

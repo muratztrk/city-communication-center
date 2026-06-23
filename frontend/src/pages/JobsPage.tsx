@@ -1429,7 +1429,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             {statusDate
                               ? <span className="flex flex-col items-center leading-tight">
                                   <span>{getJobDisplayStatus(t, job)}</span>
-                                  <span className="text-[0.68rem] font-normal text-black">{formatDateTime(statusDate, locale)}</span>
+                                  <span className="text-[0.68rem] font-bold text-black">{formatDateTime(statusDate, locale)}</span>
                                 </span>
                               : getJobDisplayStatus(t, job)}
                           </StatusPill>

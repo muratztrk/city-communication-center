@@ -549,3 +549,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 85 (manuel tur — #735: Yönetici Notu silme onayı)
 - [x] `#735` — Talep Detayları > Yönetici Notu düzenleme görünümündeki "Sil" eylemi artık doğrudan silmiyor: "Notu silmek istediğinize emin misiniz?" onay diyaloğu, `Sil` ve `İptal` seçenekleriyle açılıyor. Onay verilirse mevcut silme akışı çalışıyor. FE build + lint PASS. main+master, Done.
+
+## Round 86 (otomasyon — #732 #736 #738 #739 #745)
+- [x] `#732` — Önceki turda tamamlanan Kontrol Paneli "Genel Talep Özeti" kaldırma ve E-Devlet çevirisi için kart Done'a taşındı.
+- [x] `#736` — Yönetici Notu, çıkış tarafındaki talep tamamlanana/iptal edilene kadar düzenlenebilir; mevcut #727 akışı kart gereksinimini karşılıyor. Kart Done'a taşındı.
+- [x] `#738` — Görev Detayları'ndaki "Görevi Tamamla" bölümü daraltıldı; başlık küçültülüp yeşile alındı.
+- [x] `#739` — Tamamlama bölümünde bu oturumda yüklenen ekler görev tamamlanmadan detay kapatılırsa siliniyor; dosya ekle düğmesi de küçültüldü.
+- [x] `#745` — "Görev Ekleri" başlığı/yükleme alanı Görevi Tamamla kartının başlık alanına yerleştirildi.
+- Verification: `frontend npm run build` PASS; `frontend npm run lint` PASS (yalnızca önceden var olan JobsPage hook uyarısı). #738/#739/#745 commit `540fe54`, main+master push; kartlar Done'a taşındı. #731 önceki ertelenme gerekçesi nedeniyle yeniden denenmedi.

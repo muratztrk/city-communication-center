@@ -556,4 +556,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#738` — Görev Detayları'ndaki "Görevi Tamamla" bölümü daraltıldı; başlık küçültülüp yeşile alındı.
 - [x] `#739` — Tamamlama bölümünde bu oturumda yüklenen ekler görev tamamlanmadan detay kapatılırsa siliniyor; dosya ekle düğmesi de küçültüldü.
 - [x] `#745` — "Görev Ekleri" başlığı/yükleme alanı Görevi Tamamla kartının başlık alanına yerleştirildi.
+- [x] `#737` — Detay modalı kapanırken aktif banner görünümünün sorgu parametreleri korunuyor; yalnızca geçici `taskId` temizleniyor. Ek değişiklik gerekmeden kart Done'a taşındı.
 - Verification: `frontend npm run build` PASS; `frontend npm run lint` PASS (yalnızca önceden var olan JobsPage hook uyarısı). #738/#739/#745 commit `540fe54`, main+master push; kartlar Done'a taşındı. #731 önceki ertelenme gerekçesi nedeniyle yeniden denenmedi.

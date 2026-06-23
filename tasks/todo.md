@@ -537,3 +537,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#730` — Personelimin Görevleri'nde belirli personel seçildiğinde de Durum sütunu (Son Tarih'ten sonra). showStatusColumn staff görünümünde currentStaffUserId kısıtından çıkarıldı (`|| isStaffTasksView`). FE PASS.
 - [x] `#732` — Kontrol Paneli'nden "Genel Talep Özeti" (summaryChart) kaldırıldı + "Vatandaş Talep Kanalları"nda ham "channel.EDevlet" düzeltildi (enum'da EDevlet vardı, channel.* çevirisinde yoktu → tr "E-Devlet"/en "e-Government" eklendi). FE PASS.
 - [ ] `#731` — **ERTELENDİ (Doing'de bırakıldı, karta yorum düşüldü).** Dashboard: "Müdürlük İş Dağılımı"→"Personelimin Tüm Görevleri" + 4 bölüm (Birimdeki/Görevlerim/Birimden Giden/Birime Gelen) için banner-buton sayımlarına bağlı pie chart. Bu sayım verileri dashboard'da yok (her sayfa client-side hesaplıyor) → yeni backend aggregation gerekir; "banner butonlardaki veriler" tam net değil; rename mevcut grafik verisiyle uyuşmuyor; görsel doğrulanamaz + prod auto-deploy. Kullanıcı girdisi bekleniyor.
+
+## Round 83 (otonom 30dk döngü — #734)
+- [x] `#734` — "Tümü/Tüm" gridview Durum pill'i içindeki tamamlanma/iptal tarihi metni bold (font-normal → font-bold) — #717'nin (siyah) devamı. 3 hücre. FE PASS.

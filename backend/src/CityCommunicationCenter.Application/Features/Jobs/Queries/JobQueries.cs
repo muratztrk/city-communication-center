@@ -333,7 +333,17 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 t.UpdatedAtUtc,
                 null,
                 t.OwnerUserId,
-                t.AssignedAtUtc))
+                t.AssignedAtUtc,
+                // JobCreatedAtUtc + HasPendingExtraTimeRequest: bu projeksiyondaki önceki varsayılan
+                // davranış korunur (expression tree pozisyon-dışı isimli argümana izin vermiyor).
+                (DateTimeOffset?)null,
+                false,
+                // Görevi atayan yöneticinin adı (card #709) — komşu AssignedUserDisplayName ile aynı desen.
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => u.UserId == t.AssigningManagerId)
+                    .Select(u => (string?)u.DisplayName)
+                    .FirstOrDefault()))
             .ToListAsync(cancellationToken);
 
         var approvals = await _dbContext.Approvals.AsNoTracking()

@@ -131,6 +131,8 @@ export interface Task {
   jobCreatedAtUtc?: string | null;
   // Yöneticide bekleyen ek süre talebi var mı — gridview "(Ek süre talebi)" işareti (card 628).
   hasPendingExtraTimeRequest?: boolean;
+  // Görevi atayan yöneticinin adı — talep detayı "Görev Detayları"nda "Atanmış (Yönetici)" (card #709).
+  assigningManagerDisplayName?: string | null;
 }
 
 export interface TaskDetail {

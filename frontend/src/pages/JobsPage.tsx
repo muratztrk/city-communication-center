@@ -2081,12 +2081,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, task.createdByDisplayName ?? detail.createdByDisplayName]
                       .filter(Boolean)
                       .join(' / ') || '—'
-                    // "Atanmış" ise atanan/yönetici adı parantez içinde gösterilir; Görevlerim
-                    // pop-up'ındaki "Atanmış (Ad)" formatıyla aynı (card #709).
+                    // "Atanmış" ise görevi ATAYAN YÖNETİCİNİN adı parantez içinde gösterilir (görev
+                    // sahibi/atanan kullanıcı değil); Görevlerim pop-up'ındaki format (card #709, reopened).
                     const taskType = task.jobSourceType === 'Routine'
                       ? t('tasks.type.routine', 'Rutin')
-                      : task.assignedUserDisplayName
-                        ? `${t('tasks.type.assigned', 'Atanmış')} (${task.assignedUserDisplayName})`
+                      : task.assigningManagerDisplayName
+                        ? `${t('tasks.type.assigned', 'Atanmış')} (${task.assigningManagerDisplayName})`
                         : t('tasks.type.assigned', 'Atanmış')
                     const taskStatus = (
                       <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">

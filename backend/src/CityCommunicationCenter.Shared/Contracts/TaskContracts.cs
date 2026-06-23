@@ -75,7 +75,9 @@ public sealed record TaskSummaryResponse(
     DateTimeOffset? JobCreatedAtUtc = null,
     // Görev için yöneticide bekleyen bir ek süre (revizyon) talebi var mı — gridview "(Ek süre talebi)"
     // işareti için. Status artık RevisionRequested'a çekilmediğinden onay üzerinden bakılır (card 628).
-    bool HasPendingExtraTimeRequest = false);
+    bool HasPendingExtraTimeRequest = false,
+    // Görevi atayan yöneticinin adı — talep detayı "Görev Detayları"nda "Atanmış (Yönetici)" için (card #709).
+    string? AssigningManagerDisplayName = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

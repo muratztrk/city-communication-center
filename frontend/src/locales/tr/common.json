@@ -372,6 +372,8 @@
       "inProgress": "Yapılmakta Olan",
       "pendingApproval": "Onay Bekleyen",
       "externalPendingApproval": "Birim Dışı Onay Bekleyen",
+      "assignedToMe": "Bana Atanan Görevler",
+      "departmentTotal": "Birimdeki Tüm Görevler",
       "noData": "Henüz gösterilecek veri yok."
     },
     "charts": {

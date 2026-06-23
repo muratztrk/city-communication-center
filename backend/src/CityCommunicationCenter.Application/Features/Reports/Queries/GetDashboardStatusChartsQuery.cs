@@ -34,7 +34,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
         if (context.RoleCode is not ("Manager" or "SystemAdmin"))
         {
-            return await BuildStandardUserChartsAsync(tenantId, context.UserId.Value, request, cancellationToken);
+            return await BuildStandardUserChartsAsync(tenantId, context.UserId.Value, context.ActiveDepartmentId, request, cancellationToken);
         }
 
         var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
@@ -111,6 +111,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
     private async Task<DashboardStatusChartsResponse> BuildStandardUserChartsAsync(
         Guid tenantId,
         Guid userId,
+        Guid? activeDepartmentId,
         GetDashboardStatusChartsQuery request,
         CancellationToken cancellationToken)
     {
@@ -122,6 +123,20 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value))
             .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc))
             .ToListAsync(cancellationToken);
+        var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
+            user => user.TenantId == tenantId && user.UserId == userId && user.IsActive,
+            cancellationToken);
+        var departmentIds = actor is null
+            ? []
+            : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                _dbContext, tenantId, actor, activeDepartmentId, cancellationToken, includeManagedDepartments: false);
+        var departmentTaskCount = departmentIds.Length == 0
+            ? 0
+            : await _dbContext.Tasks.CountAsync(task => task.TenantId == tenantId
+                && task.AssignedDepartmentId.HasValue
+                && departmentIds.Contains(task.AssignedDepartmentId.Value)
+                && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value), cancellationToken);
         var jobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.CreatedByUserId == userId
@@ -132,6 +147,11 @@ public sealed class GetDashboardStatusChartsQueryHandler
         [
             BuildTaskChart("dashboard.charts.myTasks", tasks, now),
             BuildJobChart("dashboard.charts.myRequests", jobs, "dashboard.chart.pending", now, false),
+            new DashboardChartResponse("dashboard.charts.departmentTasks",
+            [
+                new DashboardChartSlice("dashboard.chart.assignedToMe", tasks.Count, "primary"),
+                new DashboardChartSlice("dashboard.chart.departmentTotal", departmentTaskCount, "info"),
+            ]),
         ]);
     }
 

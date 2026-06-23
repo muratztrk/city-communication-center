@@ -42,6 +42,38 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.citizenChannels.title': '/social',
 }
 
+// Lejant dilim etiketi → hedef sayfadaki ilgili "banner altı buton" (scope chip) view parametresi (card 759).
+const SLICE_VIEW: Record<string, string> = {
+  'dashboard.chart.pending': 'pending',
+  'dashboard.chart.pendingApproval': 'pending',
+  'dashboard.chart.externalPendingApproval': 'external-pending',
+  'dashboard.chart.overdue': 'overdue',
+  'dashboard.chart.completed': 'completed',
+  'dashboard.chart.cancelled': 'rejected',
+  'dashboard.chart.approved': 'approved',
+  'dashboard.chart.inProgress': 'in-progress',
+}
+
+// Bir dilime tıklanınca gidilecek, ilgili scope-chip ile filtrelenmiş gridview rotası (card 759).
+function getSliceRoute(titleKey: string, sliceLabel: string): string | undefined {
+  // Vatandaş kanalları: kanal dilimi → /social?channel=X
+  if (titleKey === 'dashboard.citizenChannels.title') {
+    return sliceLabel.startsWith('channel.')
+      ? `/social?channel=${encodeURIComponent(sliceLabel.slice('channel.'.length))}`
+      : '/social'
+  }
+  // Personel grafiği dilimleri kişi adlarıdır; tekil filtre yok → genel sayfa.
+  if (titleKey === 'dashboard.charts.staffTasks') return '/staff-tasks'
+  // Standart kullanıcı "Birimdeki Görevler" 2 dilimli grafiği.
+  if (sliceLabel === 'dashboard.chart.assignedToMe') return '/my-tasks'
+  if (sliceLabel === 'dashboard.chart.departmentTotal') return '/department-tasks?flow=all'
+  const base = CHART_ROUTES[titleKey]
+  if (!base) return undefined
+  const view = SLICE_VIEW[sliceLabel]
+  if (!view) return base
+  return `${base}${base.includes('?') ? '&' : '?'}view=${view}`
+}
+
 export function DashboardPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -393,7 +425,10 @@ export function DashboardPage() {
                   </div>
                 )}
               </div>
-              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={chartRoute ? () => navigate(chartRoute) : undefined} />
+              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={slice => {
+                const route = getSliceRoute(card.titleKey, slice.label)
+                if (route) navigate(route)
+              }} />
               </section>
             )
           })}

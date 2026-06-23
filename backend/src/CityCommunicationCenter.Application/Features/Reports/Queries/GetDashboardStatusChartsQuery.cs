@@ -208,7 +208,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         [
             new DashboardChartSlice("dashboard.chart.pending", pending, "warning"),
             new DashboardChartSlice("dashboard.chart.overdue", overdue, "orange"),
-            new DashboardChartSlice("dashboard.chart.completed", values.Count(task => task.Status == WorkflowTaskStatus.Completed), "success"),
+            new DashboardChartSlice("dashboard.chart.completed", values.Count(task => task.Status == WorkflowTaskStatus.Completed), "primary"),
             new DashboardChartSlice("dashboard.chart.cancelled", values.Count(task => task.Status is WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected), "danger"),
         ]);
     }
@@ -232,9 +232,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
         };
         if (includeInProgress)
         {
-            slices.Add(new DashboardChartSlice("dashboard.chart.inProgress", activeJobs.Count(job => job.HasOpenTasks), "primary"));
+            slices.Add(new DashboardChartSlice("dashboard.chart.inProgress", activeJobs.Count(job => job.HasOpenTasks), "success"));
         }
-        slices.Add(new DashboardChartSlice("dashboard.chart.completed", values.Count(job => job.Status == JobStatus.Completed), "success"));
+        slices.Add(new DashboardChartSlice("dashboard.chart.completed", values.Count(job => job.Status == JobStatus.Completed), "primary"));
         slices.Add(new DashboardChartSlice("dashboard.chart.cancelled", values.Count(job => job.Status is JobStatus.Cancelled or JobStatus.Rejected), "danger"));
         return new DashboardChartResponse(titleKey, slices);
     }

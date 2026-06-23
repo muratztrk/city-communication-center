@@ -44,8 +44,8 @@ interface PieChartProps {
   slices: DashboardChartSlice[]
   noDataLabel?: string
   showZeroSlices?: boolean
-  /** Sağlanırsa lejant metinleri tıklanabilir olur ve tıklanınca bu çağrılır (card 759). */
-  onSelect?: () => void
+  /** Sağlanırsa lejant metinleri tıklanabilir olur; tıklanan dilim ile çağrılır (card 759). */
+  onSelect?: (slice: DashboardChartSlice) => void
 }
 
 /** Resolve a label — may be a plain i18n key, a "prefix – i18n.key" compound, or a literal name. */
@@ -78,7 +78,7 @@ function useResolvedLabel(rawLabel: string): string {
   return translateLabel(rawLabel)
 }
 
-function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?: () => void }) {
+function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?: (slice: DashboardChartSlice) => void }) {
   const label = useResolvedLabel(slice.label)
   return (
     <li className="flex items-center gap-2.5 text-sm">
@@ -86,7 +86,7 @@ function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?
       {onSelect ? (
         <button
           type="button"
-          onClick={onSelect}
+          onClick={() => onSelect(slice)}
           className="min-w-0 cursor-pointer truncate text-left text-slate-700 transition-colors hover:text-[color:var(--color-primary)] hover:underline"
         >
           {label}

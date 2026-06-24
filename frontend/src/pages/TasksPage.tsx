@@ -494,6 +494,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       result = showRequestFlowFilters ? myTasks.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter)) : myTasks
     }
 
+    if (!isStaffTasksView && currentStaffTaskType === 'routine') {
+      result = result.filter(task => task.jobSourceType === 'Routine')
+    } else if (!isStaffTasksView && currentStaffTaskType === 'assigned') {
+      result = result.filter(task => task.jobSourceType !== 'Routine')
+    }
+
     if (filterFrom || filterTo) {
       result = result.filter(task => {
         const d = task.createdAtUtc?.slice(0, 10)

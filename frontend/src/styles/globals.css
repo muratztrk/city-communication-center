@@ -888,15 +888,15 @@
   }
 
   .table-container thead th {
-    background: color-mix(in srgb, var(--color-background) 65%, white);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     padding: 0.85rem 1rem;
-    border-right: 1px solid #cbd5e1;
+    border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: left;
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #64748b;
+    color: white;
   }
 
   .table-container thead th:last-child {
@@ -924,15 +924,15 @@
     top: 0;
     z-index: 1;
     white-space: nowrap;
-    background: color-mix(in srgb, var(--color-background) 82%, white);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     padding: 0.75rem 0.9rem;
-    border-right: 1px solid #cbd5e1;
+    border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: center;
     font-size: 0.84rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #64748b;
+    color: white;
   }
 
   .data-table thead th:last-child {
@@ -958,11 +958,11 @@
   }
 
   .data-table thead th.sortable-th:hover {
-    color: var(--color-primary);
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .data-table thead th.sort-active {
-    color: var(--color-primary);
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .sortable-th-content {
@@ -2322,10 +2322,10 @@
     top: 0;
     z-index: 2;
     padding: 0.68rem 0.8rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.24);
+    border-right: 1px solid rgba(255, 255, 255, 0.22);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: #102b39;
-    color: rgba(226, 232, 240, 0.72);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    color: white;
     font-size: clamp(0.64rem, 0.72vw, 0.8rem);
     font-weight: 900;
     text-align: center;

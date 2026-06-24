@@ -1746,7 +1746,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
                             locale,
                           ),
-                        },
+                        }] : []),
                         ...(detail.requestType === 'ExternalUnit' ? [{
                           // Talebi alan (hedef) birimin onay tarihi (Target JobDepartment).
                           label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',

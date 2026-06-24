@@ -101,10 +101,10 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
 
       <div className="min-w-0 flex-1">
         <p className={`text-sm leading-snug ${!n.isRead ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
-          {n.title}
+          <NotificationStatusText value={n.title} />
         </p>
         {n.message && (
-          <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">{n.message}</p>
+          <p className="mt-0.5 text-xs text-slate-500 line-clamp-2"><NotificationStatusText value={n.message} /></p>
         )}
         <div className="mt-1 flex items-center justify-between gap-3">
           <p className="text-[0.68rem] text-slate-400">
@@ -125,6 +125,14 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
       </div>
     </li>
   )
+}
+
+function NotificationStatusText({ value }: { value: string }) {
+  return value.split(/(onaylandı|reddedildi)/gi).map((part, index) => {
+    if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
+    if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
+    return part
+  })
 }
 
 interface NotifListProps {

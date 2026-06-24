@@ -35,7 +35,7 @@ export function TablePagination({
         {' '}
         <span className="font-bold text-[color:var(--color-primary)]">{totalCount}</span>
         {totalCount > 0 && (
-          <span className="text-slate-400">
+          <span className="table-pagination-range text-slate-400">
             {' '}({from}–{to})
           </span>
         )}

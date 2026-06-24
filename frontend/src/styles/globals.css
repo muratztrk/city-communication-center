@@ -1909,6 +1909,11 @@
     color: white !important;
   }
 
+  /* Kayıt aralığı diğer sayfalardaki soluk gri tonunu korur. */
+  .my-requests-pagination .table-pagination-info .table-pagination-range {
+    color: #94a3b8 !important;
+  }
+
   .my-requests-pagination .table-pagination-divider {
     background: rgba(255, 255, 255, 0.38);
   }

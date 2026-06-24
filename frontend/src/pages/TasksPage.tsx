@@ -329,7 +329,7 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
   }
 
   const isClosedStatus = (status: string) =>
-    ['Completed', 'Cancelled', 'Rejected'].includes(status)
+    ['Completed', 'Cancelled', 'Rejected', 'PendingCloseApproval'].includes(status)
   const isOverdue = (task: Task) =>
     task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now()
 
@@ -498,7 +498,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       else if (currentTaskTypeFilter === 'assigned') byUser = byUser.filter(task => task.jobSourceType !== 'Routine')
       result = byUser
     } else if (isDepartmentTasksView) {
-      result = filterMyTasks(tasks, currentMyTaskView).filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
+      // Kontrol paneli "Birimdeki Görevler" grafiği yalnızca birime atanmış görevleri sayar.
+      const departmentTasks = tasks.filter(task =>
+        task.assignedDepartmentId != null && managedDepartmentIds.has(task.assignedDepartmentId))
+      result = filterMyTasks(departmentTasks, currentMyTaskView).filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
     } else if (!isMyTasksView) {
       result = tasks
     } else {
@@ -547,7 +550,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()

@@ -532,6 +532,9 @@ export function CreateRequestPage() {
           street: internalForm.street || '',
           openAddress: internalForm.openAddress || '',
         })
+        for (const file of pendingFiles) {
+          await api.uploadJobAttachment(editJobId, file)
+        }
         invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return
@@ -612,6 +615,9 @@ export function CreateRequestPage() {
           openAddress: externalForm.openAddress || '',
           targetDepartmentIds,
         })
+        for (const file of pendingFiles) {
+          await api.uploadJobAttachment(editJobId, file)
+        }
         invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return

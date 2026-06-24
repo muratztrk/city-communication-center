@@ -248,6 +248,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
     : `T-${detail.jobNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`
   const ownerApprovalDate = detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
+  const targetApprovalDate = detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null
   const requestDetailRows = [
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
@@ -258,6 +259,9 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     ['Durum', getJobStatusLabel(t, detail.status)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
     ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)],
+    ...(detail.requestType === 'ExternalUnit'
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApprovalDate)]]
+      : []),
     ['Son Tarih Bilgisi', fd(detail.dueDateUtc)],
   ]
   const requestDetailTable = requestDetailRows

@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Notifications;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -16,11 +18,16 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INotificationPushService _notificationPushService;
 
-    public RequestTaskRevisionCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public RequestTaskRevisionCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        INotificationPushService notificationPushService)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _notificationPushService = notificationPushService;
     }
 
     public async ValueTask<bool> Handle(RequestTaskRevisionCommand request, CancellationToken cancellationToken)
@@ -72,13 +79,16 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
             CreatedByUserId = request.ActorUserId
         });
 
+        var isExtraTimeRequest = request.ProposedDueDateUtc.HasValue;
+        var auditAction = isExtraTimeRequest ? "TaskExtraTimeRequested" : "TaskRevisionRequested";
+
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
             TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
-            Action = "TaskRevisionRequested",
+            Action = auditAction,
             ActorUserId = request.ActorUserId,
             StatusAtEvent = task.CurrentStatus.ToString(),
             Notes = request.Reason,
@@ -86,7 +96,61 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (isExtraTimeRequest)
+        {
+            var approverUserId = await ResolveExtraTimeApproverUserIdAsync(
+                tenantId,
+                task,
+                request.TargetManagerUserId,
+                cancellationToken);
+            if (approverUserId.HasValue && approverUserId.Value != request.ActorUserId)
+            {
+                var actionUrl = $"/department-tasks?taskId={task.TaskId}";
+                await InAppNotificationSender.SendAsync(
+                    _dbContext,
+                    _notificationPushService,
+                    tenantId,
+                    approverUserId.Value,
+                    "Ek süre talebi",
+                    task.Title,
+                    task.TaskId,
+                    actionUrl,
+                    request.ActorUserId,
+                    cancellationToken);
+            }
+        }
+
         return true;
+    }
+
+    private async Task<Guid?> ResolveExtraTimeApproverUserIdAsync(
+        Guid tenantId,
+        WorkTask task,
+        Guid? targetManagerUserId,
+        CancellationToken cancellationToken)
+    {
+        if (targetManagerUserId is { } explicitManager && explicitManager != Guid.Empty)
+        {
+            return explicitManager;
+        }
+
+        if (task.AssigningManagerId is { } assigningManager && assigningManager != Guid.Empty)
+        {
+            return assigningManager;
+        }
+
+        if (!task.AssignedDepartmentId.HasValue)
+        {
+            return null;
+        }
+
+        var department = await _dbContext.Departments.AsNoTracking()
+            .FirstOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.DepartmentId == task.AssignedDepartmentId.Value,
+                cancellationToken);
+
+        return department?.ManagerUserId;
     }
 }
 
@@ -96,11 +160,16 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INotificationPushService _notificationPushService;
 
-    public ApproveTaskRevisionCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public ApproveTaskRevisionCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        INotificationPushService notificationPushService)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _notificationPushService = notificationPushService;
     }
 
     public async ValueTask<bool> Handle(ApproveTaskRevisionCommand request, CancellationToken cancellationToken)
@@ -127,13 +196,16 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
 
         UpdateApproval(pendingApproval, ApprovalDecision.Approved, request.ActorUserId, request.Comment, utcNow);
 
+        var isExtraTime = await TaskRevisionNotifications.IsExtraTimeRequestAsync(
+            _dbContext, tenantId, task.TaskId, pendingApproval, cancellationToken);
+
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
             TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
-            Action = "TaskRevisionApproved",
+            Action = isExtraTime ? "TaskExtraTimeApproved" : "TaskRevisionApproved",
             ActorUserId = request.ActorUserId,
             StatusAtEvent = task.CurrentStatus.ToString(),
             Notes = request.Comment,
@@ -141,6 +213,23 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (isExtraTime && pendingApproval.CreatedByUserId is { } requesterId && requesterId != Guid.Empty)
+        {
+            var actionUrl = $"/my-tasks?taskId={task.TaskId}";
+            await InAppNotificationSender.SendAsync(
+                _dbContext,
+                _notificationPushService,
+                tenantId,
+                requesterId,
+                "Ek süre talebi onaylandı",
+                task.Title,
+                task.TaskId,
+                actionUrl,
+                request.ActorUserId,
+                cancellationToken);
+        }
+
         return true;
     }
 
@@ -169,11 +258,16 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INotificationPushService _notificationPushService;
 
-    public RejectTaskRevisionCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public RejectTaskRevisionCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        INotificationPushService notificationPushService)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _notificationPushService = notificationPushService;
     }
 
     public async ValueTask<bool> Handle(RejectTaskRevisionCommand request, CancellationToken cancellationToken)
@@ -213,13 +307,16 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
 
+        var isExtraTime = await TaskRevisionNotifications.IsExtraTimeRequestAsync(
+            _dbContext, tenantId, task.TaskId, pending, cancellationToken);
+
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
             TenantId = tenantId,
             EntityType = nameof(WorkTask),
             EntityId = task.TaskId.ToString(),
-            Action = "TaskRevisionRejected",
+            Action = isExtraTime ? "TaskExtraTimeRejected" : "TaskRevisionRejected",
             ActorUserId = request.ActorUserId,
             StatusAtEvent = task.CurrentStatus.ToString(),
             Notes = request.Comment,
@@ -227,6 +324,45 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (isExtraTime && pending.CreatedByUserId is { } requesterId && requesterId != Guid.Empty)
+        {
+            var actionUrl = $"/my-tasks?taskId={task.TaskId}";
+            await InAppNotificationSender.SendAsync(
+                _dbContext,
+                _notificationPushService,
+                tenantId,
+                requesterId,
+                "Ek süre talebi reddedildi",
+                task.Title,
+                task.TaskId,
+                actionUrl,
+                request.ActorUserId,
+                cancellationToken);
+        }
+
         return true;
+    }
+}
+
+internal static class TaskRevisionNotifications
+{
+    internal static Task<bool> IsExtraTimeRequestAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid taskId,
+        WorkflowApproval pendingApproval,
+        CancellationToken cancellationToken)
+    {
+        var windowStart = pendingApproval.CreatedAtUtc.AddSeconds(-5);
+        var windowEnd = pendingApproval.CreatedAtUtc.AddSeconds(5);
+        return dbContext.AuditLogs.AsNoTracking().AnyAsync(
+            entry => entry.TenantId == tenantId
+                && entry.EntityType == nameof(WorkTask)
+                && entry.EntityId == taskId.ToString()
+                && entry.Action == "TaskExtraTimeRequested"
+                && entry.EventTimeUtc >= windowStart
+                && entry.EventTimeUtc <= windowEnd,
+            cancellationToken);
     }
 }

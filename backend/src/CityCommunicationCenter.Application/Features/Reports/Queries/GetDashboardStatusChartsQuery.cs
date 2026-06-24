@@ -190,7 +190,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
         return new DashboardChartResponse("dashboard.charts.staffTasks",
             counts.Select((item, index) => new DashboardChartSlice(
-                userNames.GetValueOrDefault(item.UserId, "—"),
+                $"{item.UserId}|{userNames.GetValueOrDefault(item.UserId, "—")}",
                 item.Count,
                 StaffChartColors[index % StaffChartColors.Length]))
                 .ToList());

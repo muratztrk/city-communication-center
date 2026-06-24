@@ -686,6 +686,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
   const handleComplete = (taskId: string) => {
     setConfirmDialog({
+      title: t('tasks.actions.completeTitle', 'Görevi Tamamla'),
+      titleCompact: true,
+      titleDivider: true,
       message: t('tasks.actions.completeConfirm', 'Görevi tamamladığınızı onaylıyor musunuz?'),
       confirmLabel: t('common.yes', 'Evet'),
       cancelLabel: t('common.no', 'Hayır'),
@@ -2040,7 +2043,7 @@ const pageKicker = isMyTasksView
             {/* ── Görev Yönlendir (Manager) ── */}
             {returnModal.step === 'return' && (
               <>
-                <h2 className="text-xl font-extrabold text-slate-950">
+                <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
                   {t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')}
                 </h2>
                 <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde yönlendirilebilir.')}</p>

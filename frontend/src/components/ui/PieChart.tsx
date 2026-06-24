@@ -50,6 +50,7 @@ interface PieChartProps {
 
 /** Resolve a label — may be a plain i18n key, a "prefix – i18n.key" compound, or a literal name. */
 const TRANSLATABLE_PREFIXES = ['dashboard.', 'channel.', 'sourceType.']
+const STAFF_SLICE_USER_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\|/i
 
 function isTranslatableKey(key: string): boolean {
   return TRANSLATABLE_PREFIXES.some(prefix => key.startsWith(prefix))
@@ -57,6 +58,10 @@ function isTranslatableKey(key: string): boolean {
 
 function useResolvedLabel(rawLabel: string): string {
   const { t } = useTranslation()
+  const staffPipeIdx = rawLabel.indexOf('|')
+  if (staffPipeIdx > 0 && STAFF_SLICE_USER_ID.test(rawLabel)) {
+    return rawLabel.slice(staffPipeIdx + 1)
+  }
   const SEP = ' – '
   const translateLabel = (key: string) => {
     if (!isTranslatableKey(key)) return key

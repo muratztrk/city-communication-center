@@ -42,36 +42,97 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.citizenChannels.title': '/social',
 }
 
-// Lejant dilim etiketi → hedef sayfadaki ilgili "banner altı buton" (scope chip) view parametresi (card 759).
+// Lejant dilim etiketi → hedef sayfadaki ilgili scope chip (card 797).
 const SLICE_VIEW: Record<string, string> = {
   'dashboard.chart.pending': 'pending',
-  'dashboard.chart.pendingApproval': 'pending',
+  'dashboard.chart.pendingApproval': 'pending-approval',
   'dashboard.chart.externalPendingApproval': 'external-pending',
   'dashboard.chart.overdue': 'overdue',
   'dashboard.chart.completed': 'completed',
   'dashboard.chart.cancelled': 'rejected',
   'dashboard.chart.approved': 'approved',
-  'dashboard.chart.inProgress': 'in-progress',
+  'dashboard.chart.inProgress': 'approved',
 }
 
-// Bir dilime tıklanınca gidilecek, ilgili scope-chip ile filtrelenmiş gridview rotası (card 759).
-function getSliceRoute(titleKey: string, sliceLabel: string): string | undefined {
+const INCOMING_SLICE_STATUS: Record<string, string> = {
+  'dashboard.chart.pendingApproval': 'pending-approval',
+  'dashboard.chart.pending': 'pending-approval',
+  'dashboard.chart.overdue': 'overdue',
+  'dashboard.chart.approved': 'approved',
+  'dashboard.chart.inProgress': 'approved',
+  'dashboard.chart.completed': 'completed',
+  'dashboard.chart.cancelled': 'cancelled',
+}
+
+const STAFF_SLICE_USER_ID = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\|/i
+
+function parseStaffSliceUserId(sliceLabel: string): string | undefined {
+  const match = sliceLabel.match(STAFF_SLICE_USER_ID)
+  return match?.[1]
+}
+
+function withQueryParams(basePath: string, params: Record<string, string | undefined>): string {
+  const entries = Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1]))
+  if (entries.length === 0) return basePath
+  const search = new URLSearchParams(entries).toString()
+  const [path, existingQuery] = basePath.split('?')
+  if (!existingQuery) return `${path}?${search}`
+  return `${path}?${existingQuery}&${search}`
+}
+
+// Bir dilime tıklanınca gidilecek, ilgili filtrelerle gridview rotası (card 797).
+function getSliceRoute(titleKey: string, sliceLabel: string, taskChartFilter?: TaskChartFilter): string | undefined {
   // Vatandaş kanalları: kanal dilimi → /social?channel=X
   if (titleKey === 'dashboard.citizenChannels.title') {
     return sliceLabel.startsWith('channel.')
       ? `/social?channel=${encodeURIComponent(sliceLabel.slice('channel.'.length))}`
       : '/social'
   }
-  // Personel grafiği dilimleri kişi adlarıdır; tekil filtre yok → genel sayfa.
-  if (titleKey === 'dashboard.charts.staffTasks') return '/staff-tasks'
+
+  const taskTypeParam = taskChartFilter && taskChartFilter !== 'all' ? taskChartFilter : undefined
+
+  if (titleKey === 'dashboard.charts.staffTasks') {
+    return withQueryParams('/staff-tasks', {
+      userId: parseStaffSliceUserId(sliceLabel),
+      taskType: taskTypeParam,
+    })
+  }
+
+  if (titleKey === 'dashboard.charts.incomingRequests') {
+    const status = INCOMING_SLICE_STATUS[sliceLabel]
+    return status ? `/incoming-requests?status=${status}` : '/incoming-requests'
+  }
+
   // Standart kullanıcı "Birimdeki Görevler" 2 dilimli grafiği.
-  if (sliceLabel === 'dashboard.chart.assignedToMe') return '/my-tasks'
-  if (sliceLabel === 'dashboard.chart.departmentTotal') return '/department-tasks?flow=all'
+  if (sliceLabel === 'dashboard.chart.assignedToMe') {
+    return withQueryParams('/my-tasks', { taskType: taskTypeParam })
+  }
+  if (sliceLabel === 'dashboard.chart.departmentTotal') {
+    return withQueryParams('/department-tasks', { flow: 'all', taskType: taskTypeParam })
+  }
+
   const base = CHART_ROUTES[titleKey]
   if (!base) return undefined
+
   const view = SLICE_VIEW[sliceLabel]
+
+  if (titleKey === 'dashboard.charts.departmentTasks') {
+    return withQueryParams('/department-tasks', {
+      flow: 'all',
+      view,
+      taskType: taskTypeParam,
+    })
+  }
+
+  if (titleKey === 'dashboard.charts.myTasks') {
+    return withQueryParams('/my-tasks', {
+      view,
+      taskType: taskTypeParam,
+    })
+  }
+
   if (!view) return base
-  return `${base}${base.includes('?') ? '&' : '?'}view=${view}`
+  return withQueryParams(base.split('?')[0], { view })
 }
 
 export function DashboardPage() {
@@ -432,7 +493,9 @@ export function DashboardPage() {
                 )}
               </div>
               <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isReadOnlyDepartmentChart ? undefined : slice => {
-                const route = getSliceRoute(card.titleKey, slice.label)
+                const chartKey = card.titleKey as TaskChartKey
+                const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
+                const route = getSliceRoute(card.titleKey, slice.label, taskFilter)
                 if (route) navigate(route)
               }} />
               </section>

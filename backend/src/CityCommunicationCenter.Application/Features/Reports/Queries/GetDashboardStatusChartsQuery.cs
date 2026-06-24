@@ -155,9 +155,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
             && task.CurrentStatus != WorkflowTaskStatus.Cancelled
             && task.CurrentStatus != WorkflowTaskStatus.Rejected
             && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval);
-        var departmentTaskCount = departmentIds.Length == 0
+        var ownDepartmentTaskCount = departmentIds.Length == 0
             ? 0
-            : await departmentTasksQuery.CountAsync(cancellationToken);
+            : await departmentTasksQuery.CountAsync(task => task.AssignedUserId == userId, cancellationToken);
+        // Pie dilimleri birbirini dışlamalıdır: "Benim Görevlerim" birim toplamının
+        // içinde tekrar sayılırsa grafik toplamı griddeki kayıt sayısını aşar.
+        var departmentOtherTaskCount = departmentIds.Length == 0
+            ? 0
+            : await departmentTasksQuery.CountAsync(task => task.AssignedUserId != userId, cancellationToken);
         var jobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.CreatedByUserId == userId
@@ -171,8 +176,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
             BuildJobChart("dashboard.charts.myRequests", jobs, "dashboard.chart.pending", now, false),
             new DashboardChartResponse("dashboard.charts.departmentTasks",
             [
-                new DashboardChartSlice("dashboard.chart.assignedToMe", FilterTasks(tasks, request.DepartmentTaskType).Count(task => IsActionableOpen(task.Status)), "primary"),
-                new DashboardChartSlice("dashboard.chart.departmentTotal", departmentTaskCount, "info"),
+                new DashboardChartSlice("dashboard.chart.assignedToMe", ownDepartmentTaskCount, "primary"),
+                new DashboardChartSlice("dashboard.chart.departmentTotal", departmentOtherTaskCount, "info"),
             ]),
         ]);
     }

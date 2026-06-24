@@ -254,7 +254,10 @@ export function DashboardPage() {
   const chartCards = [
     ...(statusChartsQuery.data?.charts ?? []),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
-  ]
+  ].filter(card => !isReporter || (
+    card.titleKey !== 'dashboard.charts.myTasks'
+    && card.titleKey !== 'dashboard.charts.departmentTasks'
+  ))
 
   function renderCard(metric: MetricCard) {
     const Icon = metric.icon

@@ -98,6 +98,12 @@ const DEPARTMENT_STATUS_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'all', labelKey: 'tasks.departmentViews.all' },
 ]
 
+const TASK_TYPE_FILTERS: { value: 'all' | 'assigned' | 'routine'; labelKey: string }[] = [
+  { value: 'assigned', labelKey: 'dashboard.taskFilter.assigned' },
+  { value: 'routine', labelKey: 'dashboard.taskFilter.routine' },
+  { value: 'all', labelKey: 'dashboard.taskFilter.all' },
+]
+
 function availableScopes(role?: string): TaskListScope[] {
   if (role === 'SystemAdmin' || role === 'Manager') return ['pending-approval', 'department-pool', 'all']
   return ['department-pool', 'all']
@@ -443,9 +449,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const showStatusColumn =
     ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
     || isStaffTasksView
-  const staffTaskTypeParam = searchParams.get('taskType') ?? 'all'
-  const currentStaffTaskType: 'all' | 'assigned' | 'routine' =
-    staffTaskTypeParam === 'assigned' || staffTaskTypeParam === 'routine' ? staffTaskTypeParam : 'all'
+  const taskTypeParam = searchParams.get('taskType') ?? 'all'
+  const currentTaskTypeFilter: 'all' | 'assigned' | 'routine' =
+    taskTypeParam === 'assigned' || taskTypeParam === 'routine' ? taskTypeParam : 'all'
   const detailScopeLabel = isMyTasksView
     ? t('nav.myTasks', 'Görevlerim')
     : isDepartmentTasksView
@@ -488,8 +494,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         return staffUserIds.has(task.assignedUserId)
       })
       let byUser = staffTasks
-      if (currentStaffTaskType === 'routine') byUser = byUser.filter(task => task.jobSourceType === 'Routine')
-      else if (currentStaffTaskType === 'assigned') byUser = byUser.filter(task => task.jobSourceType !== 'Routine')
+      if (currentTaskTypeFilter === 'routine') byUser = byUser.filter(task => task.jobSourceType === 'Routine')
+      else if (currentTaskTypeFilter === 'assigned') byUser = byUser.filter(task => task.jobSourceType !== 'Routine')
       result = byUser
     } else if (isDepartmentTasksView) {
       result = filterMyTasks(tasks, currentMyTaskView).filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
@@ -500,9 +506,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       result = showRequestFlowFilters ? myTasks.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter)) : myTasks
     }
 
-    if (!isStaffTasksView && currentStaffTaskType === 'routine') {
+    if (!isStaffTasksView && currentTaskTypeFilter === 'routine') {
       result = result.filter(task => task.jobSourceType === 'Routine')
-    } else if (!isStaffTasksView && currentStaffTaskType === 'assigned') {
+    } else if (!isStaffTasksView && currentTaskTypeFilter === 'assigned') {
       result = result.filter(task => task.jobSourceType !== 'Routine')
     }
 
@@ -541,7 +547,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentStaffTaskType, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()
@@ -554,10 +560,13 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   useEffect(() => { setTasksPage(1) }, [taskFilters])
 
   useEffect(() => {
+    setFilterFrom(searchParams.get('from') ?? '')
+    setFilterTo(searchParams.get('to') ?? '')
+  }, [searchParams])
+
+  useEffect(() => {
     queueMicrotask(() => {
       setTasksPage(1)
-      setFilterFrom('')
-      setFilterTo('')
       setSearchText('')
       clearTaskFilters()
       setSelectedTask(null)
@@ -657,7 +666,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     clearTaskFilters()
   }
 
-  const setStaffTaskTypeFilter = (type: 'all' | 'assigned' | 'routine') => {
+  const setTaskTypeFilter = (type: 'all' | 'assigned' | 'routine') => {
     const nextParams = new URLSearchParams(searchParams)
     if (type === 'all') nextParams.delete('taskType')
     else nextParams.set('taskType', type)
@@ -1135,6 +1144,17 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
+          <span className="scope-chip-divider" aria-hidden="true">|</span>
+          {TASK_TYPE_FILTERS.map(filter => (
+            <button
+              key={filter.value}
+              type="button"
+              className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
+              onClick={() => setTaskTypeFilter(filter.value)}
+            >
+              {t(filter.labelKey)}
+            </button>
+          ))}
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>
@@ -1159,6 +1179,17 @@ const pageKicker = isMyTasksView
               {t(flow.labelKey)}
             </button>
           ))}
+          <span className="scope-chip-divider" aria-hidden="true">|</span>
+          {TASK_TYPE_FILTERS.map(filter => (
+            <button
+              key={filter.value}
+              type="button"
+              className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
+              onClick={() => setTaskTypeFilter(filter.value)}
+            >
+              {t(filter.labelKey)}
+            </button>
+          ))}
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">
@@ -1180,27 +1211,16 @@ const pageKicker = isMyTasksView
             {t('tasks.staff.allStaff', 'Tüm Personel')}
           </button>
           <span className="scope-chip-divider" aria-hidden="true">|</span>
-          <button
-            type="button"
-            className={`scope-chip scope-chip--pending${currentStaffTaskType === 'assigned' ? ' active' : ''}`}
-            onClick={() => setStaffTaskTypeFilter('assigned')}
-          >
-            {t('tasks.staff.assignedTasks', 'Atanmış Görevleri')}
-          </button>
-          <button
-            type="button"
-            className={`scope-chip scope-chip--pending${currentStaffTaskType === 'routine' ? ' active' : ''}`}
-            onClick={() => setStaffTaskTypeFilter('routine')}
-          >
-            {t('tasks.staff.routineTasks', 'Rutin Görevleri')}
-          </button>
-          <button
-            type="button"
-            className={`scope-chip scope-chip--pending${currentStaffTaskType === 'all' ? ' active' : ''}`}
-            onClick={() => setStaffTaskTypeFilter('all')}
-          >
-            {t('tasks.staff.allTasks', 'Tüm Görevleri')}
-          </button>
+          {TASK_TYPE_FILTERS.map(filter => (
+            <button
+              key={filter.value}
+              type="button"
+              className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
+              onClick={() => setTaskTypeFilter(filter.value)}
+            >
+              {t(filter.labelKey)}
+            </button>
+          ))}
         </nav>
       ) : (
         <nav className="scope-chips">

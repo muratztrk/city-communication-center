@@ -482,8 +482,8 @@ export function DashboardPage() {
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
             const periodRange = { from: activeFrom, to: activeTo }
             return (
-            <section key={card.titleKey} className="section-card relative isolate p-4 sm:p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
+            <section key={card.titleKey} className="section-card relative overflow-hidden p-4 sm:p-5">
+              <div className="relative z-10 mb-4 flex items-center justify-between gap-3">
                 {chartRoute ? (
                   <button
                     type="button"

@@ -164,8 +164,9 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
   }
 
   return (
-    <div className="relative isolate flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={`shrink-0${onSelect ? ' cursor-pointer' : ''}`}>
+    <div className="relative flex min-w-0 flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+      {/* SVG boş alanı komşu kartların lejantına binmesin diye pointer-events kapalı; yalnızca dilimler tıklanır. */}
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="pointer-events-none shrink-0">
         {segments.map((seg, i) => (
           <path
             key={i}
@@ -173,7 +174,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
             fill={seg.color}
             stroke="white"
             strokeWidth="1.5"
-            className={onSelect ? 'cursor-pointer transition-opacity hover:opacity-90' : undefined}
+            className={onSelect ? 'pointer-events-auto cursor-pointer transition-opacity hover:opacity-90' : undefined}
             onClick={onSelect ? () => onSelect(seg.slice) : undefined}
             onKeyDown={onSelect ? event => {
               if (event.key === 'Enter' || event.key === ' ') {
@@ -194,7 +195,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
         </text>
       </svg>
 
-      <ul className="flex flex-col gap-2 min-w-0 w-full">
+      <ul className="relative z-10 flex min-w-0 w-full flex-col gap-2">
         {(showZeroSlices ? slices : nonZero).map(slice => (
           <LegendItem key={slice.label} slice={slice} onSelect={onSelect} />
         ))}

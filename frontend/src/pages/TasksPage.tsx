@@ -1485,8 +1485,8 @@ const pageKicker = isMyTasksView
                         </div>
                       </div>
                       {canCompleteTask && (
-                        <section className="form-card flex min-w-0 flex-col gap-2 self-start">
-                          <div className="flex items-start justify-between gap-3">
+                        <section className="form-card grid min-w-0 self-start lg:grid-cols-[minmax(0,1fr)_12rem]">
+                          <div className="min-w-0 p-4">
                             <div>
                               <h3 className="text-base font-extrabold text-emerald-700">
                                 {t('tasks.actions.completeTitle', 'Görevi Tamamla')}
@@ -1495,39 +1495,19 @@ const pageKicker = isMyTasksView
                                 {t('tasks.actions.completeHelp', 'İsteğe bağlı tamamlama notu ekleyebilirsiniz.')}
                               </p>
                             </div>
-                            <div className="w-32 shrink-0 text-right">
-                              <span className="inline-block border-b border-slate-200 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
-                              {(taskDetail.attachments?.length ?? 0) > 0 && (
-                                <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
-                                  {taskDetail.attachments.map(att => (
-                                    <li key={att.attachmentId}>
-                                      <button
-                                        type="button"
-                                        className="w-full break-words text-right text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                        onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
-                                      >
-                                        {att.fileName}
-                                      </button>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </div>
-                          </div>
-                          <label className="job-field mt-1">
-                            <span className="job-field-label">
-                              {t('tasks.actions.completionNote', 'Tamamlama Notu')}
-                            </span>
-                            <textarea
-                              className="field-textarea min-h-24 placeholder:text-xs"
-                              rows={2}
-                              value={completionNote}
-                              onChange={e => setCompletionNote(e.target.value)}
-                              placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
-                            />
-                          </label>
-                          <div className="mt-1">
-                            <div className="flex justify-end">
+                            <label className="job-field mt-3">
+                              <span className="job-field-label">
+                                {t('tasks.actions.completionNote', 'Tamamlama Notu')}
+                              </span>
+                              <textarea
+                                className="field-textarea min-h-24 placeholder:text-xs"
+                                rows={2}
+                                value={completionNote}
+                                onChange={e => setCompletionNote(e.target.value)}
+                                placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                              />
+                            </label>
+                            <div className="mt-3 flex justify-end">
                               <div className="inline-actions shrink-0 gap-1.5">
                               {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
                               <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
@@ -1567,6 +1547,24 @@ const pageKicker = isMyTasksView
                               </div>
                             </div>
                           </div>
+                          <aside className="min-w-0 border-t border-slate-200 p-4 lg:border-l lg:border-t-0">
+                            <span className="inline-block border-b border-slate-200 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
+                            {(taskDetail.attachments?.length ?? 0) > 0 && (
+                              <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
+                                {taskDetail.attachments.map(att => (
+                                  <li key={att.attachmentId}>
+                                    <button
+                                      type="button"
+                                      className="w-full break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                      onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
+                                    >
+                                      {att.fileName}
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </aside>
                         </section>
                       )}
                     </div>

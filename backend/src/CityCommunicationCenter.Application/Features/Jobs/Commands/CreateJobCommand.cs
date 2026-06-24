@@ -120,6 +120,12 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             .Distinct()
             .ToArray() ?? [];
 
+        if (string.Equals(request.RequestType, JobRequestType.ExternalUnit.ToString(), StringComparison.OrdinalIgnoreCase)
+            && targets.Length == 0)
+        {
+            throw Validation(nameof(request.TargetDepartmentIds), "Birim dışı talep için sahip birimden farklı bir hedef birim seçilmelidir.");
+        }
+
         var sourceType = Enum.TryParse<JobSourceType>(request.SourceType, true, out var st) ? st : JobSourceType.Manual;
         var requestType = Enum.TryParse<JobRequestType>(request.RequestType, true, out var rt)
             ? rt

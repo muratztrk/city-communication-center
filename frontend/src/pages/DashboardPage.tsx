@@ -390,7 +390,10 @@ export function DashboardPage() {
               </div>
             ))
           : chartCards.map(card => {
-            const chartRoute = CHART_ROUTES[card.titleKey]
+            // Standart kullanıcıların erişemediği "Birimdeki Görevler" listesine
+            // dashboard'dan yönlendirme yapılmaz; grafik yalnızca bilgilendirme amaçlıdır.
+            const isReadOnlyDepartmentChart = !isManagerOrAdmin && card.titleKey === 'dashboard.charts.departmentTasks'
+            const chartRoute = isReadOnlyDepartmentChart ? undefined : CHART_ROUTES[card.titleKey]
             return (
             <section key={card.titleKey} className="section-card p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
@@ -425,7 +428,7 @@ export function DashboardPage() {
                   </div>
                 )}
               </div>
-              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={slice => {
+              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isReadOnlyDepartmentChart ? undefined : slice => {
                 const route = getSliceRoute(card.titleKey, slice.label)
                 if (route) navigate(route)
               }} />

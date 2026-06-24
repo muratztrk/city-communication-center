@@ -1510,11 +1510,11 @@ const pageKicker = isMyTasksView
                             <div className="mt-3 flex justify-end">
                               <div className="inline-actions shrink-0 gap-1.5">
                               {/* Görevi yapan kullanıcı opsiyonel olarak ek/fotoğraf yükleyebilir (card 528). */}
-                              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-1.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${attachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
                               <Paperclip className="size-3.5" />
                               {attachmentUploading
                                 ? t('attachments.uploading', 'Yükleniyor...')
-                                : `${t('attachments.addFile', 'Dosya ekle')}${(taskDetail.attachments?.length ?? 0) > 0 ? ` (${taskDetail.attachments.length})` : ''}`}
+                                : t('attachments.addFile', 'Dosya ekle')}
                               <input
                                 type="file"
                                 accept=".jpg,.jpeg,.png,.gif,.webp"

@@ -1383,7 +1383,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table${isMyRequestsView || isDepartmentOutgoingView ? ' data-table--zebra' : ''}`}>
+            <table className={`data-table jobs-table${isMyRequestsView ? ' my-requests-table' : ''}${isMyRequestsView || isDepartmentOutgoingView ? ' data-table--zebra' : ''}`}>
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>

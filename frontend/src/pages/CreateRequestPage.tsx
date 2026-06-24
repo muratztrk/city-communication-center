@@ -571,6 +571,17 @@ export function CreateRequestPage() {
       setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
       return
     }
+    if (!editJobId && confirmedKind !== 'external') {
+      setConfirmDialog({
+        title: 'Birim Dışı Talep Oluştur', message: 'Bu talebi oluşturmak istediğinize emin misiniz',
+        confirmLabel: 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
+        onConfirm: () => {
+          setConfirmedKind('external')
+          window.setTimeout(() => (document.getElementById('external-request-form') as HTMLFormElement | null)?.requestSubmit(), 0)
+        },
+      })
+      return
+    }
 
     setSaving(true)
     setError(null)
@@ -623,6 +634,7 @@ export function CreateRequestPage() {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setSaving(false)
+      setConfirmedKind(null)
     }
   }
 
@@ -802,7 +814,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'external' ? (
-        <form className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateExternal}>
+        <form id="external-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{isReporter ? t('requests.create.reporterFormTitle', 'Talep Oluştur') : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}</h2>
             <p className="helper-copy">{isReporter ? t('requests.create.reporterFormDescription', 'Talep kaydını başlatmak için temel bilgileri girin.') : t('requests.create.externalFormDescription', 'Birim dışı talep kaydını başlatmak için temel bilgileri girin.')}</p>

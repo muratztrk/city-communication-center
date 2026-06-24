@@ -599,6 +599,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     'Bekleyen Talepler',
   )
   const detailStatusClass = detail?.status === 'Active'
+    || (isDepartmentOutgoingView && detail?.status === 'PendingOwnerApproval')
     ? 'text-[#f97316]'
     : detail?.status === 'PendingOwnerApproval'
       ? 'text-slate-700'

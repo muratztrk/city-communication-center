@@ -1893,6 +1893,8 @@
     --pagination-control-border: rgba(255, 255, 255, 0.28);
     --pagination-control-hover-bg: rgba(255, 255, 255, 0.2);
     --pagination-control-hover-border: rgba(255, 255, 255, 0.45);
+    --pagination-control-fg: rgba(255, 255, 255, 0.55);
+    --pagination-control-fg-disabled: rgba(255, 255, 255, 0.38);
   }
 
   .table-pagination-info {
@@ -2012,18 +2014,19 @@
     cursor: not-allowed;
   }
 
-  /* Koyu bar: nav okları ile pasif sayfa numaraları aynı yarı saydam yeşil kutu. */
+  /* Koyu bar: pasif sayfa numaraları nav oklarıyla aynı soluk gri ton. */
   .table-pagination-bar .table-pagination-control:not(.active) {
     border: 1px solid var(--pagination-control-border) !important;
     background-color: var(--pagination-control-bg) !important;
     background-image: none !important;
     box-shadow: none !important;
-    color: rgba(255, 255, 255, 0.88) !important;
+    color: var(--pagination-control-fg) !important;
     opacity: 1 !important;
   }
 
   .table-pagination-bar button.table-pagination-page.table-pagination-control:not(.active) {
     background-color: var(--pagination-control-bg) !important;
+    color: var(--pagination-control-fg) !important;
   }
 
   .table-pagination-bar .table-pagination-control:not(.active) svg {
@@ -2032,19 +2035,19 @@
 
   .table-pagination-bar .table-pagination-control:not(.active):hover:not(:disabled) {
     background-color: var(--pagination-control-hover-bg) !important;
-    color: white !important;
+    color: rgba(255, 255, 255, 0.82) !important;
     border-color: var(--pagination-control-hover-border) !important;
   }
 
   .table-pagination-bar .table-pagination-control:not(.active):disabled {
     cursor: not-allowed;
-    color: rgba(255, 255, 255, 0.55) !important;
+    color: var(--pagination-control-fg-disabled) !important;
   }
 
   .table-pagination-bar .table-pagination-page:hover:not(.active) {
     background-color: var(--pagination-control-hover-bg) !important;
     border-color: var(--pagination-control-hover-border) !important;
-    color: white !important;
+    color: rgba(255, 255, 255, 0.82) !important;
   }
 
   .table-pagination-bar .table-pagination-select {

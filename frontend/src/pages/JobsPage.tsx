@@ -1089,6 +1089,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
 
     setConfirmDialog({
+      title: isDepartmentOutgoingView ? 'Birimden Giden Talep' : undefined,
       message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
       variant: 'primary',
       confirmLabel: t('common.approve', 'Onayla'),

@@ -105,7 +105,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     {
                         entityTitle = taskRec.Title;
                         if (taskRec.TaskNumber.HasValue)
-                            entityNumber = $"Görev No: {FormatNumber("G", taskRec.TaskNumber.Value, taskRec.TaskNumberYear)}";
+                            entityNumber = FormatNumber("G", taskRec.TaskNumber.Value, taskRec.TaskNumberYear);
                     }
                     else if (!isTask && jobsById.TryGetValue(a.EntityId, out var jobRec))
                     {
@@ -116,8 +116,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
                     var messageParts = new List<string>();
                     if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
-                    if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
                     if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
+                    if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
                     var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
                     if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
 

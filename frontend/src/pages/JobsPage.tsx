@@ -2097,12 +2097,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
                   : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
-                <div className="mb-5 grid gap-4 lg:grid-cols-2">
+                <div className="mb-5 grid gap-4 lg:grid-cols-3">
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <h3 className="mb-3 text-sm font-bold text-slate-900">
                       {t('address.detailSectionTitle', 'Adres Bilgileri')}
                     </h3>
                     {renderJobAddressInfo(detail)}
+                  </section>
+                  <section className="rounded-xl border border-slate-200 bg-white p-4">
+                    <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                      {t('jobs.managerNote.title', 'Yönetici Notu')}
+                    </h3>
+                    {detail.managerNote ? (
+                      <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
+                    ) : (
+                      <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
+                    )}
                   </section>
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <h3 className="mb-3 text-sm font-bold text-slate-900">

@@ -941,10 +941,7 @@
 
   /* "Taleplerim" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
   .my-requests-table thead th {
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--color-primary) 92%, #0f172a) 0%,
-      color-mix(in srgb, var(--color-secondary) 72%, #155e75) 56%,
-      color-mix(in srgb, var(--color-accent) 58%, #0f766e) 100%);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }
@@ -1896,10 +1893,7 @@
   /* Yalnızca "Taleplerim" sayfalaması tablo başlığıyla aynı banner görünümünü taşır. */
   .table-pagination-bar.my-requests-pagination {
     border-top-color: rgba(255, 255, 255, 0.22);
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--color-primary) 92%, #0f172a) 0%,
-      color-mix(in srgb, var(--color-secondary) 72%, #155e75) 56%,
-      color-mix(in srgb, var(--color-accent) 58%, #0f766e) 100%);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     color: white;
   }
 

@@ -1905,6 +1905,10 @@
     color: white;
   }
 
+  .my-requests-pagination .table-pagination-info span {
+    color: white !important;
+  }
+
   .my-requests-pagination .table-pagination-divider {
     background: rgba(255, 255, 255, 0.38);
   }

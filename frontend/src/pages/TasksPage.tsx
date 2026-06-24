@@ -182,6 +182,8 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Görev Tarihi', fd(taskDetail.createdAtUtc)],
     ['Son Tarih', fd(taskDetail.dueDateUtc)],
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('')
+  const ownerApproval = parentJob?.departments.find(department => department.role === 'Owner')
+  const targetApproval = parentJob?.departments.find(department => department.role === 'Target')
   const parentJobRows = parentJob ? [
     ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
     ['Talep Başlığı', parentJob.title],
@@ -189,6 +191,10 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
+    ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApproval?.decidedAtUtc)],
+    ...(parentJob.requestType === 'ExternalUnit'
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApproval?.decidedAtUtc)]]
+      : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('') : ''
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDisplayNumber)}</title><style>

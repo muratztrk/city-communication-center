@@ -6,6 +6,8 @@ import { Button } from './button'
 export interface ConfirmDialogState {
   title?: string
   titleDivider?: boolean
+  /** Smaller title styling for compact confirmation popups. */
+  titleCompact?: boolean
   message: string
   confirmLabel?: string
   cancelLabel?: string
@@ -47,7 +49,9 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
           <X className="size-4" />
         </button>
         {state.title && (
-          <h2 className={`text-lg font-bold text-slate-950 ${state.titleDivider ? 'mb-3 border-b border-slate-200 pb-2' : 'mb-2'}`}>
+          <h2
+            className={`text-slate-950 ${state.titleCompact ? 'text-base font-semibold' : 'text-lg font-bold'} ${state.titleDivider ? 'mb-3 border-b border-slate-200 pb-2' : 'mb-2'}`}
+          >
             {state.title}
           </h2>
         )}

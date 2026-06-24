@@ -15,6 +15,7 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { useAuth } from '../context/AuthContext'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import type { Department, User } from '../types/platform'
+import { isPresidencyLevelDepartment } from '../utils/departments'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -205,14 +206,16 @@ export function CreateRequestPage() {
   }, [departments, myDepartmentId, user?.role, user?.userId])
 
   const targetDepartmentOptions = useMemo(() => {
-    return departments.filter(department => department.departmentId !== externalForm.ownerDepartmentId)
+    return departments.filter(department =>
+      department.departmentId !== externalForm.ownerDepartmentId
+      && !isPresidencyLevelDepartment(department))
   }, [departments, externalForm.ownerDepartmentId])
 
   const coordinatedDepartmentOptions = useMemo(() => {
     return departments.filter(department =>
-      department.departmentId !== externalForm.ownerDepartmentId &&
-      department.departmentId !== externalForm.targetDepartmentId
-    )
+      department.departmentId !== externalForm.ownerDepartmentId
+      && department.departmentId !== externalForm.targetDepartmentId
+      && !isPresidencyLevelDepartment(department))
   }, [departments, externalForm.ownerDepartmentId, externalForm.targetDepartmentId])
 
   // Birim İçi talepte "Görev Sahibi Kişi/Birim": yalnızca birim yöneticisi/sorumlusu,
@@ -501,7 +504,10 @@ export function CreateRequestPage() {
     }
     if (!editJobId && confirmedKind !== 'internal') {
       setConfirmDialog({
-        title: 'Birim İçi Talep Oluştur', message: 'Bu talebi oluşturmak istediğinize emin misiniz',
+        title: 'Birim İçi Talep Oluştur',
+        message: 'Bu talebi oluşturmak istediğinize emin misiniz?',
+        titleCompact: true,
+        titleDivider: true,
         confirmLabel: 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
         onConfirm: () => {
           setConfirmedKind('internal')
@@ -573,7 +579,10 @@ export function CreateRequestPage() {
     }
     if (!editJobId && confirmedKind !== 'external') {
       setConfirmDialog({
-        title: 'Birim Dışı Talep Oluştur', message: 'Bu talebi oluşturmak istediğinize emin misiniz',
+        title: 'Birim Dışı Talep Oluştur',
+        message: 'Bu talebi oluşturmak istediğinize emin misiniz?',
+        titleCompact: true,
+        titleDivider: true,
         confirmLabel: 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
         onConfirm: () => {
           setConfirmedKind('external')

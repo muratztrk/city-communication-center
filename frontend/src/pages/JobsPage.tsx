@@ -1090,6 +1090,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
     setConfirmDialog({
       title: isDepartmentOutgoingView ? 'Birimden Giden Talep' : undefined,
+      titleCompact: isDepartmentOutgoingView,
+      titleDivider: isDepartmentOutgoingView,
       message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
       variant: 'primary',
       confirmLabel: t('common.approve', 'Onayla'),
@@ -2466,7 +2468,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <XIcon className="size-4" />
             </button>
-            <h2 id="cancel-job-dialog-title" className="pr-8 text-xl font-extrabold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
+            <h2 id="cancel-job-dialog-title" className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
             <p className="mt-2 text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
             <label className="job-field mt-5">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>

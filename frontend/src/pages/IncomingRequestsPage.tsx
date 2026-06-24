@@ -835,7 +835,7 @@ export function IncomingRequestsPage() {
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <X className="size-4" />
             </button>
-            <h2 id="cancel-incoming-job-dialog-title" className="pr-8 text-xl font-extrabold text-slate-950">
+            <h2 id="cancel-incoming-job-dialog-title" className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">
               {cancelModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
             </h2>
             <p className="mt-2 text-base font-medium leading-6 text-slate-700">

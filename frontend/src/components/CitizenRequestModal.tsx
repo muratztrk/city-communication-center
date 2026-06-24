@@ -13,6 +13,7 @@ import { MultiSelectDropdown } from './ui/multi-select-dropdown'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { ConversationPanel } from './ConversationPanel'
 import type { Department, SocialMessage } from '../types/platform'
+import { isPresidencyLevelDepartment } from '../utils/departments'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -67,12 +68,17 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
   const [error, setError] = useState<string | null>(null)
 
   const targetDepartmentOptions = useMemo(
-    () => departments.filter(department => department.departmentId !== ownerDepartmentId),
+    () => departments.filter(department =>
+      department.departmentId !== ownerDepartmentId
+      && !isPresidencyLevelDepartment(department)),
     [departments, ownerDepartmentId],
   )
   const coordinatedDepartmentOptions = useMemo(
     () => departments
-      .filter(department => department.departmentId !== ownerDepartmentId && department.departmentId !== targetDepartmentId)
+      .filter(department =>
+        department.departmentId !== ownerDepartmentId
+        && department.departmentId !== targetDepartmentId
+        && !isPresidencyLevelDepartment(department))
       .map(department => ({ value: department.departmentId, label: department.name })),
     [departments, ownerDepartmentId, targetDepartmentId],
   )

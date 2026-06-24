@@ -1939,6 +1939,45 @@
     border-color: var(--color-primary);
   }
 
+  /* Koyu pagination bar: nav butonları, sayfa boyutu ve pasif sayfa numaraları aynı beyaz kutu stili (card 787). */
+  .table-pagination-bar .table-pagination-btn,
+  .table-pagination-bar .table-pagination-page:not(.active),
+  .table-pagination-bar .table-pagination-select {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background-color: white;
+    color: #64748b;
+  }
+
+  .table-pagination-bar .table-pagination-btn svg {
+    color: currentColor;
+  }
+
+  .table-pagination-bar .table-pagination-btn:hover:not(:disabled),
+  .table-pagination-bar .table-pagination-page:not(.active):hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, white);
+    color: var(--color-primary);
+    border-color: color-mix(in srgb, var(--color-primary) 30%, white);
+  }
+
+  .table-pagination-bar .table-pagination-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background-color: white;
+    color: #64748b;
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .table-pagination-bar .table-pagination-select:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 30%, white);
+  }
+
+  .table-pagination-bar .table-pagination-page.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    font-weight: 800;
+  }
+
   .table-pagination-pages {
     display: flex;
     align-items: center;
@@ -1980,26 +2019,6 @@
     color: rgba(255, 255, 255, 0.72);
     font-size: 0.78rem;
     user-select: none;
-  }
-
-  .table-pagination-bar .table-pagination-btn {
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background: white;
-    color: #64748b;
-  }
-
-  .table-pagination-bar .table-pagination-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--color-primary) 10%, white);
-    color: var(--color-primary);
-    border-color: color-mix(in srgb, var(--color-primary) 30%, white);
-  }
-
-  .table-pagination-bar .table-pagination-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    background: white;
-    color: #64748b;
-    border-color: rgba(255, 255, 255, 0.35);
   }
 
   .table-pagination-btn {

@@ -1485,7 +1485,7 @@ const pageKicker = isMyTasksView
                         </div>
                       </div>
                       {canCompleteTask && (
-                        <section className="form-card grid min-w-0 self-start lg:grid-cols-[minmax(0,1fr)_12rem]">
+                        <section className="form-card grid min-w-0 self-start lg:grid-cols-[minmax(0,1fr)_9rem]">
                           <div className="min-w-0 p-4">
                             <div>
                               <h3 className="text-base font-extrabold text-emerald-700">

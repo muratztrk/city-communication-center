@@ -69,7 +69,11 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             var managerTaskIds = await NotificationAudience.GetManagerDepartmentTaskIdsAsync(
                 _dbContext, tenantId, userId, cancellationToken);
             var jobRecords = await _dbContext.Jobs.AsNoTracking()
-                .Where(j => j.TenantId == tenantId && (j.CreatedByUserId == userId || managerJobIds.Contains(j.JobId)))
+                .Where(j => j.TenantId == tenantId && (
+                    j.CreatedByUserId == userId
+                    || managerJobIds.Contains(j.JobId)
+                    || _dbContext.Tasks.Any(task => task.JobId == j.JobId
+                        && (task.AssignedUserId == userId || task.OwnerUserId == userId))))
                 .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
@@ -161,6 +165,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         "JobReturnRequested" => "Talep iade edildi",
         "JobReturnedToPending" => "Talep onaya geri döndü",
         "JobSupportAdded" => "Destek kaydı eklendi",
+        "JobManagerNoteAdded" => "Yönetici notu eklendi",
+        "JobManagerNoteDeleted" => "Yönetici notu silindi",
         "TaskCreated" => "Görev oluşturuldu",
         "RoutineTaskCreated" => "Rutin görev oluşturuldu",
         "TaskAssigned" => "Görev atandı",

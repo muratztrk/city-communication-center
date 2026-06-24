@@ -53,9 +53,26 @@ public sealed class SetJobManagerNoteCommandHandler : ICommandHandler<SetJobMana
         }
 
         var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+        var utcNow = DateTimeOffset.UtcNow;
         job.ManagerNote = note;
-        job.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
+
+        // Göreve atanmış kullanıcı, yönetici notu eklendiğinde bildirim akışında bu
+        // değişikliği görebilsin. Bildirim sorgusu denetim kayıtlarını kullanır.
+        _dbContext.AuditLogs.Add(new AuditLog
+        {
+            AuditLogId = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = nameof(Job),
+            EntityId = job.JobId.ToString(),
+            Action = note is null ? "JobManagerNoteDeleted" : "JobManagerNoteAdded",
+            ActorUserId = actor.UserId,
+            StatusAtEvent = job.Status.ToString(),
+            Notes = note,
+            Details = note,
+            EventTimeUtc = utcNow,
+        });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

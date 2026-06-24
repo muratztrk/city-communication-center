@@ -1564,6 +1564,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             </table>
           </div>
           <TablePagination
+            className={isMyRequestsView ? 'my-requests-pagination' : undefined}
             totalCount={columnFilteredJobs.length}
             pageSize={jobsPageSize}
             currentPage={jobsPage}

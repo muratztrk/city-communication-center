@@ -1890,6 +1890,25 @@
     font-size: 0.78rem;
   }
 
+  /* Yalnızca "Taleplerim" sayfalaması tablo başlığıyla aynı banner görünümünü taşır. */
+  .table-pagination-bar.my-requests-pagination {
+    border-top-color: rgba(255, 255, 255, 0.22);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    color: white;
+  }
+
+  .my-requests-pagination .table-pagination-info,
+  .my-requests-pagination .table-pagination-info .text-slate-400,
+  .my-requests-pagination .table-pagination-info .text-slate-500,
+  .my-requests-pagination .table-pagination-info .text-slate-700,
+  .my-requests-pagination .table-pagination-info .text-\[color\:var\(--color-primary\)\] {
+    color: white;
+  }
+
+  .my-requests-pagination .table-pagination-divider {
+    background: rgba(255, 255, 255, 0.38);
+  }
+
   .table-pagination-info {
     display: flex;
     align-items: center;

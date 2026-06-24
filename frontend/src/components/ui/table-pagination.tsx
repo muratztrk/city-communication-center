@@ -10,6 +10,7 @@ interface TablePaginationProps {
   onPageSizeChange: (size: number) => void
   onPageChange: (page: number) => void
   pageSizeOptions?: number[]
+  className?: string
 }
 
 export function TablePagination({
@@ -19,6 +20,7 @@ export function TablePagination({
   onPageSizeChange,
   onPageChange,
   pageSizeOptions = PAGE_SIZE_OPTIONS,
+  className,
 }: TablePaginationProps) {
   const { t } = useTranslation()
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
@@ -26,7 +28,7 @@ export function TablePagination({
   const to = Math.min(currentPage * pageSize, totalCount)
 
   return (
-    <div className="table-pagination-bar">
+    <div className={`table-pagination-bar${className ? ` ${className}` : ''}`}>
       {/* Left: total + range */}
       <span className="table-pagination-info">
         <span className="font-semibold text-slate-700">{t('pagination.total', 'Toplam Sayı')}:</span>

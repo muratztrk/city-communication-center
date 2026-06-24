@@ -1,4 +1,4 @@
-import { Bold, Italic, List, ListOrdered, Underline } from 'lucide-react'
+import { List, ListOrdered, type LucideIcon } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface RichTextEditorProps {
@@ -19,10 +19,10 @@ const RICH_TEXT_TAG_PATTERN = /<\/?(p|div|br|ul|ol|li|strong|b|em|i|u|span)\b/i
 const SAFE_FONT_SIZE_RE = /^\d+(\.\d+)?(px|pt|em|rem)$/
 const SAFE_FONT_FAMILY_RE = /^[\w\s,'".-]+$/
 
-const TOOLBAR_COMMANDS: Array<{ command: RichTextCommand; label: string; icon: typeof Bold }> = [
-  { command: 'bold', label: 'Kalın', icon: Bold },
-  { command: 'italic', label: 'İtalik', icon: Italic },
-  { command: 'underline', label: 'Altı Çizgili', icon: Underline },
+const TOOLBAR_COMMANDS: Array<{ command: RichTextCommand; label: string; icon?: LucideIcon; text?: string }> = [
+  { command: 'bold', label: 'Kalın', text: 'K' },
+  { command: 'italic', label: 'İtalik', text: 'T' },
+  { command: 'underline', label: 'Altı Çizgili', text: 'A' },
   { command: 'insertUnorderedList', label: 'Madde İşareti', icon: List },
   { command: 'insertOrderedList', label: 'Numaralı Liste', icon: ListOrdered },
 ]
@@ -210,7 +210,7 @@ export function RichTextEditor({
   return (
     <div className="rich-text-editor">
       <div className="rich-text-toolbar" aria-label="Rich text controls">
-        {TOOLBAR_COMMANDS.map(({ command, label, icon: Icon }, index) => (
+        {TOOLBAR_COMMANDS.map(({ command, label, icon: Icon, text }, index) => (
           <Fragment key={command}>
             {index === 3 ? <span className="rich-text-toolbar-divider" aria-hidden="true" /> : null}
             <button
@@ -222,7 +222,17 @@ export function RichTextEditor({
               onMouseDown={event => event.preventDefault()}
               onClick={() => runCommand(command)}
             >
-              <Icon className="size-4" />
+              {Icon ? (
+                <Icon className="size-4" />
+              ) : (
+                <span
+                  className={`inline-flex min-w-[1rem] items-center justify-center text-sm font-bold leading-none ${
+                    command === 'italic' ? 'italic' : command === 'underline' ? 'underline' : ''
+                  }`}
+                >
+                  {text}
+                </span>
+              )}
             </button>
           </Fragment>
         ))}

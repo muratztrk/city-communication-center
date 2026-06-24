@@ -18,6 +18,7 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
+import { RichTextContent } from '../components/ui/RichTextContent'
 import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
@@ -133,6 +134,11 @@ function stripHtmlTags(value: string | null | undefined) {
   return (parsed.body.innerText || parsed.body.textContent || '').replace(/\u00a0/g, ' ').trim()
 }
 
+function resolveTaskDescription(taskDetail: TaskDetail, parentJob: JobDetail | null): string {
+  if (taskDetail.description?.trim()) return taskDetail.description
+  return parentJob?.description ?? ''
+}
+
 function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
@@ -160,7 +166,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
   const win = window.open('', '_blank', getCenteredPopupFeatures(820, detailModalHeight))
   if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
-  const description = stripHtmlTags(taskDetail.description)
+  const description = stripHtmlTags(resolveTaskDescription(taskDetail, parentJob))
   const gorevTipi = taskDetail.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
   const taskDisplayNumber = taskSummary
     ? formatTaskDisplayNumber(taskSummary)
@@ -1478,9 +1484,11 @@ const pageKicker = isMyTasksView
                                   </span>
                                 </div>
                                 <div className="px-4 py-3">
-                                  <div className="whitespace-pre-wrap text-sm leading-6 text-slate-900">
-                                    {stripHtmlTags(taskDetail.description) || t('tasks.detail.noDescription', 'Açıklama yok')}
-                                  </div>
+                                  <RichTextContent
+                                    value={resolveTaskDescription(taskDetail, parentJobDetail)}
+                                    emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                                    className="rich-text-content text-sm leading-6 text-slate-900"
+                                  />
                                 </div>
                               </div>
                             </div>

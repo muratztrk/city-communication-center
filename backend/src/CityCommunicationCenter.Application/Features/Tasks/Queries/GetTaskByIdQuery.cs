@@ -27,6 +27,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             .Select(entity => new
             {
                 entity.Title,
+                entity.Description,
                 entity.RequestType,
                 entity.SourceType
             })
@@ -113,7 +114,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             job is null ? null : job.RequestType.ToString(),
             job is null ? null : job.SourceType.ToString(),
             task.Title,
-            task.Description,
+            ResolveTaskDescription(task.Description, job?.Description),
             task.Priority,
             task.CurrentStatus.ToString(),
             task.AssignedDepartmentId,
@@ -159,5 +160,15 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             task.TaskNumber,
             task.TaskNumberYear,
             statusActorDisplayName);
+    }
+
+    private static string ResolveTaskDescription(string? taskDescription, string? jobDescription)
+    {
+        if (!string.IsNullOrWhiteSpace(taskDescription))
+        {
+            return taskDescription;
+        }
+
+        return jobDescription ?? string.Empty;
     }
 }

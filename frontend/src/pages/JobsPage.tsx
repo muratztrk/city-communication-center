@@ -2311,7 +2311,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                             {t('tasks.detail.description', 'Açıklama')}
                           </div>
-                          <RichTextContent value={task.description ?? ''} emptyText={t('tasks.detail.noDescription', 'Açıklama yok')} className="rich-text-content text-sm leading-6 text-slate-900" />
+                          <RichTextContent
+                            value={task.description?.trim() ? task.description : detail.description}
+                            emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                            className="rich-text-content text-sm leading-6 text-slate-900"
+                          />
                         </div>
                       </div>
                     )

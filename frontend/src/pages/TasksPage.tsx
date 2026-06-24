@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateTasks } from '../api/cacheInvalidation'
+import { invalidateTasks, invalidateNotifications } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { Button } from '../components/ui/button'
@@ -406,6 +406,15 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       item.roleCode !== 'Manager' &&
       item.roleCode !== 'SystemAdmin')
   }, [activeUsers, managedDepartmentIds, user?.userId])
+  const staffUserParam = searchParams.get('userId') ?? 'all'
+  const currentStaffUserId = staffUserParam === 'all' ? 'all' : staffUserParam
+  const staffFilterUsers = useMemo(() => {
+    if (currentStaffUserId === 'all' || staffUsers.some(item => item.userId === currentStaffUserId)) {
+      return staffUsers
+    }
+    const selected = activeUsers.find(item => item.userId === currentStaffUserId)
+    return selected ? [selected, ...staffUsers] : staffUsers
+  }, [activeUsers, currentStaffUserId, staffUsers])
   const staffUserIds = useMemo(() => new Set(staffUsers.map(item => item.userId)), [staffUsers])
   const returnDeptUsers = useMemo(() => {
     if (!returnDeptId) return []
@@ -417,11 +426,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       .filter(item => userBelongsToAnyDepartment(item, new Set([returnDeptId])))
       .filter(item => item.userId !== currentAssigneeId)
   }, [activeUsers, returnDeptId, returnModal, tasks])
-  const staffUserParam = searchParams.get('userId') ?? 'all'
-  const currentStaffUserId = staffUserParam !== 'all' && staffUserIds.has(staffUserParam) ? staffUserParam : 'all'
   const currentStaffUserLabel = currentStaffUserId === 'all'
     ? t('tasks.staff.allStaff', 'Tüm Personel')
-    : staffUsers.find(item => item.userId === currentStaffUserId)?.displayName ?? t('tasks.staff.allStaff', 'Tüm Personel')
+    : staffUsers.find(item => item.userId === currentStaffUserId)?.displayName
+      ?? activeUsers.find(item => item.userId === currentStaffUserId)?.displayName
+      ?? t('tasks.staff.allStaff', 'Tüm Personel')
   const isMyTasksAllView = isMyTasksView && currentMyTaskView === 'all'
   // Durum sütunu: Görevlerim/Birimdeki Görevler "Tüm Görevler" görünümünde (card 532) ve
   // Personelimin Görevleri'nin tüm görünümlerinde — "Tüm Personel" + belirli personel (card #730).
@@ -467,8 +476,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     let result: typeof tasks
 
     if (isStaffTasksView) {
-      const staffTasks = tasks.filter(task => task.assignedUserId && staffUserIds.has(task.assignedUserId))
-      let byUser = currentStaffUserId === 'all' ? staffTasks : staffTasks.filter(task => task.assignedUserId === currentStaffUserId)
+      const staffTasks = tasks.filter(task => {
+        if (!task.assignedUserId) return false
+        if (currentStaffUserId !== 'all') return task.assignedUserId === currentStaffUserId
+        return staffUserIds.has(task.assignedUserId)
+      })
+      let byUser = staffTasks
       if (currentStaffTaskType === 'routine') byUser = byUser.filter(task => task.jobSourceType === 'Routine')
       else if (currentStaffTaskType === 'assigned') byUser = byUser.filter(task => task.jobSourceType !== 'Routine')
       result = byUser
@@ -865,6 +878,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       const reason = `${t('tasks.actions.extraTimeRequest', 'Ek süre iste')}: ${proposedDueDateUtc}`
       await api.requestTaskRevision(extraTimeEdit.taskId, reason, proposedDueDateUtc)
       invalidateTasks(queryClient, extraTimeEdit.taskId, taskDetail.jobId)
+      invalidateNotifications(queryClient)
       const updatedDetail = await api.getTaskById(extraTimeEdit.taskId)
       setTaskDetail(updatedDetail)
       setTasks(current => current.map(task =>
@@ -915,6 +929,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     try {
       await api.approveTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'), extraTimeReview.proposedDueDateUtc)
       await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
+      invalidateNotifications(queryClient)
       setExtraTimeReview(null)
       showToast(t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'))
     } catch (err) {
@@ -929,6 +944,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     try {
       await api.rejectTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
       await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
+      invalidateNotifications(queryClient)
       setExtraTimeReview(null)
       showToast(t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'), 'error')
     } catch (err) {
@@ -1134,7 +1150,7 @@ const pageKicker = isMyTasksView
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">
-          {staffUsers.map(item => (
+          {staffFilterUsers.map(item => (
             <button
               key={item.userId}
               type="button"

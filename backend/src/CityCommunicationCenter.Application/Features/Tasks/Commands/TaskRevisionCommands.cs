@@ -66,6 +66,11 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
         var stepOrder = await _dbContext.Approvals.CountAsync(
             e => e.SubjectType == ApprovalSubjectType.TaskRevision && e.SubjectId == task.TaskId, cancellationToken) + 1;
 
+        var isExtraTimeRequest = request.ProposedDueDateUtc.HasValue;
+        var approverUserId = isExtraTimeRequest
+            ? await ResolveExtraTimeApproverUserIdAsync(tenantId, task, request.TargetManagerUserId, cancellationToken)
+            : request.TargetManagerUserId ?? task.AssigningManagerId ?? task.OwnerUserId;
+
         _dbContext.Approvals.Add(new WorkflowApproval
         {
             ApprovalId = Guid.NewGuid(),
@@ -73,13 +78,12 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
             SubjectType = ApprovalSubjectType.TaskRevision,
             SubjectId = task.TaskId,
             StepOrder = stepOrder,
-            ApproverUserId = request.TargetManagerUserId ?? task.AssigningManagerId ?? Guid.Empty,
+            ApproverUserId = approverUserId ?? Guid.Empty,
             Decision = ApprovalDecision.Pending,
             Comment = request.Reason,
             CreatedByUserId = request.ActorUserId
         });
 
-        var isExtraTimeRequest = request.ProposedDueDateUtc.HasValue;
         var auditAction = isExtraTimeRequest ? "TaskExtraTimeRequested" : "TaskRevisionRequested";
 
         _dbContext.AuditLogs.Add(new AuditLog
@@ -97,28 +101,20 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        if (isExtraTimeRequest)
+        if (isExtraTimeRequest && approverUserId is Guid managerId && managerId != Guid.Empty)
         {
-            var approverUserId = await ResolveExtraTimeApproverUserIdAsync(
+            var actionUrl = $"/department-tasks?taskId={task.TaskId}";
+            await InAppNotificationSender.SendAsync(
+                _dbContext,
+                _notificationPushService,
                 tenantId,
-                task,
-                request.TargetManagerUserId,
+                managerId,
+                "Ek süre talebi",
+                task.Title,
+                task.TaskId,
+                actionUrl,
+                request.ActorUserId,
                 cancellationToken);
-            if (approverUserId.HasValue && approverUserId.Value != request.ActorUserId)
-            {
-                var actionUrl = $"/department-tasks?taskId={task.TaskId}";
-                await InAppNotificationSender.SendAsync(
-                    _dbContext,
-                    _notificationPushService,
-                    tenantId,
-                    approverUserId.Value,
-                    "Ek süre talebi",
-                    task.Title,
-                    task.TaskId,
-                    actionUrl,
-                    request.ActorUserId,
-                    cancellationToken);
-            }
         }
 
         return true;
@@ -214,20 +210,24 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        if (isExtraTime && pendingApproval.CreatedByUserId is { } requesterId && requesterId != Guid.Empty)
+        if (isExtraTime)
         {
-            var actionUrl = $"/my-tasks?taskId={task.TaskId}";
-            await InAppNotificationSender.SendAsync(
-                _dbContext,
-                _notificationPushService,
-                tenantId,
-                requesterId,
-                "Ek süre talebi onaylandı",
-                task.Title,
-                task.TaskId,
-                actionUrl,
-                request.ActorUserId,
-                cancellationToken);
+            var requesterId = pendingApproval.CreatedByUserId ?? task.AssignedUserId;
+            if (requesterId is Guid recipient && recipient != Guid.Empty && recipient != request.ActorUserId)
+            {
+                var actionUrl = $"/my-tasks?taskId={task.TaskId}";
+                await InAppNotificationSender.SendAsync(
+                    _dbContext,
+                    _notificationPushService,
+                    tenantId,
+                    recipient,
+                    "Ek süre talebi onaylandı",
+                    task.Title,
+                    task.TaskId,
+                    actionUrl,
+                    request.ActorUserId,
+                    cancellationToken);
+            }
         }
 
         return true;
@@ -325,20 +325,24 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        if (isExtraTime && pending.CreatedByUserId is { } requesterId && requesterId != Guid.Empty)
+        if (isExtraTime)
         {
-            var actionUrl = $"/my-tasks?taskId={task.TaskId}";
-            await InAppNotificationSender.SendAsync(
-                _dbContext,
-                _notificationPushService,
-                tenantId,
-                requesterId,
-                "Ek süre talebi reddedildi",
-                task.Title,
-                task.TaskId,
-                actionUrl,
-                request.ActorUserId,
-                cancellationToken);
+            var requesterId = pending.CreatedByUserId ?? task.AssignedUserId;
+            if (requesterId is Guid recipient && recipient != Guid.Empty && recipient != request.ActorUserId)
+            {
+                var actionUrl = $"/my-tasks?taskId={task.TaskId}";
+                await InAppNotificationSender.SendAsync(
+                    _dbContext,
+                    _notificationPushService,
+                    tenantId,
+                    recipient,
+                    "Ek süre talebi reddedildi",
+                    task.Title,
+                    task.TaskId,
+                    actionUrl,
+                    request.ActorUserId,
+                    cancellationToken);
+            }
         }
 
         return true;
@@ -354,15 +358,17 @@ internal static class TaskRevisionNotifications
         WorkflowApproval pendingApproval,
         CancellationToken cancellationToken)
     {
-        var windowStart = pendingApproval.CreatedAtUtc.AddSeconds(-5);
-        var windowEnd = pendingApproval.CreatedAtUtc.AddSeconds(5);
+        if (pendingApproval.Comment?.Contains("Ek süre iste", StringComparison.OrdinalIgnoreCase) == true
+            || pendingApproval.Comment?.Contains("extra time", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return Task.FromResult(true);
+        }
+
         return dbContext.AuditLogs.AsNoTracking().AnyAsync(
             entry => entry.TenantId == tenantId
                 && entry.EntityType == nameof(WorkTask)
                 && entry.EntityId == taskId.ToString()
-                && entry.Action == "TaskExtraTimeRequested"
-                && entry.EventTimeUtc >= windowStart
-                && entry.EventTimeUtc <= windowEnd,
+                && entry.Action == "TaskExtraTimeRequested",
             cancellationToken);
     }
 }

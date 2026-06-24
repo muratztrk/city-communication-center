@@ -56,8 +56,7 @@ function isTranslatableKey(key: string): boolean {
   return TRANSLATABLE_PREFIXES.some(prefix => key.startsWith(prefix))
 }
 
-function useResolvedLabel(rawLabel: string): string {
-  const { t } = useTranslation()
+function resolveSliceLabel(rawLabel: string, t: ReturnType<typeof useTranslation>['t']): string {
   const staffPipeIdx = rawLabel.indexOf('|')
   if (staffPipeIdx > 0 && STAFF_SLICE_USER_ID.test(rawLabel)) {
     return rawLabel.slice(staffPipeIdx + 1)
@@ -65,9 +64,6 @@ function useResolvedLabel(rawLabel: string): string {
   const SEP = ' – '
   const translateLabel = (key: string) => {
     if (!isTranslatableKey(key)) return key
-
-    // Dashboard API'si kanal ve kaynak türü etiketlerini "channel.X" / "sourceType.X"
-    // olarak gönderir; bunlar yerelleştirme dosyalarında dashboard altında tutulur.
     const translationKey = key.startsWith('channel.') || key.startsWith('sourceType.')
       ? `dashboard.${key}`
       : key
@@ -77,10 +73,14 @@ function useResolvedLabel(rawLabel: string): string {
   if (sepIdx !== -1) {
     const prefix = rawLabel.slice(0, sepIdx)
     const key = rawLabel.slice(sepIdx + SEP.length)
-    const suffix = translateLabel(key)
-    return `${prefix} (${suffix})`
+    return `${prefix} (${translateLabel(key)})`
   }
   return translateLabel(rawLabel)
+}
+
+function useResolvedLabel(rawLabel: string): string {
+  const { t } = useTranslation()
+  return resolveSliceLabel(rawLabel, t)
 }
 
 function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?: (slice: DashboardChartSlice) => void }) {
@@ -105,6 +105,7 @@ function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?
 }
 
 export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false, onSelect }: PieChartProps) {
+  const { t } = useTranslation()
   const nonZero = slices.filter(s => s.value > 0)
 
   if (nonZero.length === 0) {
@@ -156,9 +157,26 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
 
   return (
     <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={`shrink-0${onSelect ? ' cursor-pointer' : ''}`}>
         {segments.map((seg, i) => (
-          <path key={i} d={seg.path} fill={seg.color} stroke="white" strokeWidth="1.5" />
+          <path
+            key={i}
+            d={seg.path}
+            fill={seg.color}
+            stroke="white"
+            strokeWidth="1.5"
+            className={onSelect ? 'cursor-pointer transition-opacity hover:opacity-90' : undefined}
+            onClick={onSelect ? () => onSelect(seg.slice) : undefined}
+            onKeyDown={onSelect ? event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onSelect(seg.slice)
+              }
+            } : undefined}
+            role={onSelect ? 'button' : undefined}
+            tabIndex={onSelect ? 0 : undefined}
+            aria-label={onSelect ? resolveSliceLabel(seg.slice.label, t) : undefined}
+          />
         ))}
         <text x={cx} y={cy - 6} textAnchor="middle" fontSize="18" fontWeight="700" fill="#0f172a">
           {total}

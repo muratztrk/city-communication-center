@@ -239,29 +239,119 @@ function getVisibleDetailModalHeight(fallback = 832): number {
   return Math.round(activeRect?.height ?? fallback)
 }
 
-function printJobDetail(detail: import('../types/platform').JobDetail, locale: string, t: TFunction) {
+function buildPrintJobStatusLabel(detail: JobDetail, t: TFunction): string {
+  let status = detail.status === 'Active' && detail.tasks.length === 0
+    ? 'Yönetici Onayı Bekliyor'
+    : detail.status === 'Active'
+      ? 'Yapılmakta'
+      : detail.status === 'Completed'
+        ? 'Tamamlanmış'
+        : getJobStatusLabel(t, detail.status)
+  if (detail.statusActorDisplayName) {
+    status += ` (${detail.statusActorDisplayName})`
+  }
+  if ((detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason) {
+    status += ` — İptal Notu: ${detail.cancelReason}`
+  }
+  if (detail.status === 'Completed' && detail.completionNote) {
+    status += ` — Tamamlama Notu: ${detail.completionNote}`
+  }
+  return status
+}
+
+function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFunction): string {
+  if (detail.tasks.length === 0) {
+    return '<div class="section"><div class="section-title">Görev Detayları</div><p style="color:#888;font-size:11px">Görev yok</p></div>'
+  }
+
+  const taskBlocks = detail.tasks.map((task, index) => {
+    const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
+      .filter(Boolean)
+      .join(' / ') || '—'
+    const taskType = task.jobSourceType === 'Routine'
+      ? t('tasks.type.routine', 'Rutin')
+      : task.assigningManagerDisplayName
+        ? `${t('tasks.type.assigned', 'Atanmış')} (${task.assigningManagerDisplayName})`
+        : t('tasks.type.assigned', 'Atanmış')
+    const taskNumber = task.taskNumber != null
+      ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}`
+      : '—'
+    const owner = task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—'
+    let statusText = getTaskStatusLabel(t, task.currentStatus)
+    if (task.currentStatus === 'Cancelled' && task.revisionReason) {
+      statusText += ` — İptal Notu: ${task.revisionReason}`
+    }
+    if (task.currentStatus === 'Completed' && task.notes) {
+      statusText += ` — Tamamlama Notu: ${task.notes}`
+    }
+
+    const rows: Array<[string, string]> = [
+      [t('tasks.columns.taskNo', 'Görev No'), taskNumber],
+      [t('tasks.columns.title', 'Görev Başlığı'), task.title],
+      [t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), taskLocation],
+      [t('tasks.columns.owner', 'Görev Sahibi'), owner],
+      [t('tasks.columns.taskType', 'Görev Tipi'), taskType],
+      [t('tasks.columns.priority', 'Öncelik'), getPriorityLabel(t, task.priority)],
+      [t('tasks.columns.status', 'Durum'), statusText],
+      [t('tasks.columns.taskDate', 'Görev Tarihi'), formatDateTime(task.createdAtUtc ?? null, locale)],
+    ]
+    if (task.currentStatus === 'Completed') {
+      rows.push([t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), formatDateTime(task.completedAtUtc ?? null, locale)])
+    } else if (task.currentStatus === 'Cancelled') {
+      rows.push([t('tasks.columns.cancelledAt', 'İptal Tarihi'), formatDateTime(task.updatedAtUtc ?? null, locale)])
+    }
+    rows.push([t('tasks.columns.dueDate', 'Son Tarih'), formatDateTime(task.dueDateUtc, locale)])
+
+    const tableRows = rows
+      .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`)
+      .join('')
+    const description = stripHtmlTags(task.description?.trim() ? task.description : detail.description)
+    const separator = index > 0 ? 'margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed #cbd5e1' : ''
+
+    return `<div style="${separator}">
+      <div class="subsection-title">Görev ${index + 1}</div>
+      <table><tbody>${tableRows}</tbody></table>
+      <div style="margin-top:8px">
+        <div class="subsection-title" style="margin-bottom:4px">${escHtml(t('tasks.detail.description', 'Açıklama'))}</div>
+        <div class="desc">${description ? escHtml(description).replace(/\n/g, '<br/>') : '<em>Açıklama yok</em>'}</div>
+      </div>
+    </div>`
+  }).join('')
+
+  return `<div class="section">
+    <div class="section-title">${escHtml(t('tasks.detail.title', 'Görev Detayları'))} (${detail.tasks.length})</div>
+    ${taskBlocks}
+  </div>`
+}
+
+function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
   const detailModalHeight = getVisibleDetailModalHeight()
   const win = window.open('', '_blank', getCenteredPopupFeatures(820, detailModalHeight))
   if (!win) return
-  const fd = (d: string | null) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+  const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
     ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
     : `T-${detail.jobNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`
   const ownerApprovalDate = detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
   const targetApprovalDate = detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null
-  const requestDetailRows = [
+  const requestDetailRows: Array<[string, string]> = [
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
-    ['Proje mi', detail.isProject ? 'Evet' : 'Hayır'],
-    ['Öncelik', detail.priority],
-    ['Durum', getJobStatusLabel(t, detail.status)],
+    ['Proje mi', detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')],
+    ['Öncelik', getPriorityLabel(t, detail.priority)],
+    ['Durum', buildPrintJobStatusLabel(detail, t)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
     ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)],
     ...(detail.requestType === 'ExternalUnit'
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApprovalDate)]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApprovalDate)] as [string, string]]
       : []),
+    ...(detail.status === 'Completed'
+      ? [['Tamamlanma Tarihi', fd(detail.completedAtUtc)] as [string, string]]
+      : detail.status === 'Cancelled'
+        ? [['İptal Tarihi', fd(detail.updatedAtUtc ?? null)] as [string, string]]
+        : []),
     ['Son Tarih Bilgisi', fd(detail.dueDateUtc)],
   ]
   const requestDetailTable = requestDetailRows
@@ -278,7 +368,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     .join('')
   const managerNote = detail.managerNote?.trim()
   const description = stripHtmlTags(detail.description)
-  const taskRows = detail.tasks.map(tk => `<tr><td>${escHtml(tk.title)}</td><td>${escHtml(tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—')}</td></tr>`).join('')
+  const taskDetailSections = buildPrintTaskDetailSections(detail, locale, t)
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
   win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(jobDisplayNumber)}</title><style>
     @page{margin:0}
@@ -288,6 +378,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     .meta{font-size:11px;color:#444;margin-bottom:1rem;line-height:1.7}
     .section{margin-top:1.5rem}
     .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #9ca3af;padding-bottom:3px;margin-bottom:8px;color:#333}
+    .subsection-title{font-size:11px;font-weight:bold;color:#475569;margin:10px 0 6px}
     table{width:100%;border-collapse:collapse;font-size:11px}
     th,td{border:1px solid #9ca3af;padding:4px 8px;text-align:left}
     th{width:34%}
@@ -317,10 +408,7 @@ function printJobDetail(detail: import('../types/platform').JobDetail, locale: s
     <div class="section-title">Ekler / Fotoğraflar (${(detail.attachments ?? []).length})</div>
     ${attachItems ? `<ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>` : '<p style="color:#888;font-size:11px">Talep için ek/fotoğraf bulunmamaktadır.</p>'}
   </div>
-  <div class="section">
-    <div class="section-title">Görevler (${detail.tasks.length})</div>
-    ${detail.tasks.length === 0 ? '<p style="color:#888;font-size:11px">Görev yok</p>' : `<table><thead><tr><th>Başlık</th><th>Atanan</th></tr></thead><tbody>${taskRows}</tbody></table>`}
-  </div>
+  ${taskDetailSections}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <div class="page-number">1 / 1</div>
   <script>window.onload=function(){window.print()}</script>

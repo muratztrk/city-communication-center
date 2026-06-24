@@ -11,6 +11,7 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
+import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { useAuth } from '../context/AuthContext'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import type { Department, User } from '../types/platform'
@@ -162,6 +163,8 @@ export function CreateRequestPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [confirmedKind, setConfirmedKind] = useState<RequestKind | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
   const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
@@ -496,6 +499,17 @@ export function CreateRequestPage() {
       setError(t('tasks.newRequest.ownerUserRequired', 'Lütfen en az bir personel seçiniz.'))
       return
     }
+    if (!editJobId && confirmedKind !== 'internal') {
+      setConfirmDialog({
+        title: 'Birim İçi Talep Oluştur', message: 'Bu talebi oluşturmak istediğinize emin misiniz',
+        confirmLabel: 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
+        onConfirm: () => {
+          setConfirmedKind('internal')
+          window.setTimeout(() => (document.getElementById('internal-request-form') as HTMLFormElement | null)?.requestSubmit(), 0)
+        },
+      })
+      return
+    }
 
     setSaving(true)
     setError(null)
@@ -542,6 +556,7 @@ export function CreateRequestPage() {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setSaving(false)
+      setConfirmedKind(null)
     }
   }
 
@@ -708,7 +723,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'internal' ? (
-        <form className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
+        <form id="internal-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.internalFormTitle', 'Birim İçi Talep Oluştur')}</h2>
             <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Birim içi talep kaydını başlatmak için temel bilgileri giriniz.')}</p>
@@ -998,6 +1013,7 @@ export function CreateRequestPage() {
           </div>
         </form>
       ) : null}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
 }

@@ -150,6 +150,11 @@ public sealed class GetDashboardStatusChartsQueryHandler
             TaskDashboardFilter.Routine => departmentTasksQuery.Where(task => task.Job.SourceType == JobSourceType.Routine),
             _ => departmentTasksQuery,
         };
+        departmentTasksQuery = departmentTasksQuery.Where(task =>
+            task.CurrentStatus != WorkflowTaskStatus.Completed
+            && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+            && task.CurrentStatus != WorkflowTaskStatus.Rejected
+            && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval);
         var departmentTaskCount = departmentIds.Length == 0
             ? 0
             : await departmentTasksQuery.CountAsync(cancellationToken);
@@ -166,7 +171,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
             BuildJobChart("dashboard.charts.myRequests", jobs, "dashboard.chart.pending", now, false),
             new DashboardChartResponse("dashboard.charts.departmentTasks",
             [
-                new DashboardChartSlice("dashboard.chart.assignedToMe", FilterTasks(tasks, request.DepartmentTaskType).Count(), "primary"),
+                new DashboardChartSlice("dashboard.chart.assignedToMe", FilterTasks(tasks, request.DepartmentTaskType).Count(task => IsActionableOpen(task.Status)), "primary"),
                 new DashboardChartSlice("dashboard.chart.departmentTotal", departmentTaskCount, "info"),
             ]),
         ]);
@@ -202,8 +207,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
         DateTimeOffset now)
     {
         var values = tasks.ToList();
-        var overdue = values.Count(task => IsOpen(task.Status) && task.DueDateUtc < now);
-        var pending = values.Count(task => IsOpen(task.Status) && !(task.DueDateUtc < now));
+        var overdue = values.Count(task => IsActionableOpen(task.Status) && task.DueDateUtc < now);
+        var pending = values.Count(task => IsActionableOpen(task.Status) && !(task.DueDateUtc < now));
         return new DashboardChartResponse(titleKey,
         [
             new DashboardChartSlice("dashboard.chart.pending", pending, "warning"),
@@ -221,25 +226,44 @@ public sealed class GetDashboardStatusChartsQueryHandler
         bool includeInProgress)
     {
         var values = jobs.ToList();
-        var overdue = values.Where(job => IsOpen(job.Status) && job.DueDateUtc < now).ToList();
-        var current = values.Except(overdue).ToList();
-        var activeJobs = current.Where(job => job.Status == JobStatus.Active).ToList();
+        var pending = values.Count(job => MatchesJobPendingSlice(job.Status, pendingLabel));
+        // Onay bekleyen kayıtlar son tarihi geçmiş olsa da bekleyen dilimde kalır; gecikme dilimi
+        // yalnızca aktif/yürüyen işler için kullanılır (üst kartlarla aynı mantık).
+        var overdue = values.Count(job =>
+            IsOpen(job.Status)
+            && job.DueDateUtc < now
+            && !MatchesJobPendingSlice(job.Status, pendingLabel));
+        var activeNotOverdue = values.Where(job =>
+            job.Status == JobStatus.Active
+            && !(job.DueDateUtc < now)).ToList();
         var slices = new List<DashboardChartSlice>
         {
-            new(pendingLabel, current.Count(job => job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested), "warning"),
-            new("dashboard.chart.overdue", overdue.Count, "orange"),
-            new("dashboard.chart.approved", includeInProgress ? activeJobs.Count(job => !job.HasOpenTasks) : activeJobs.Count, "info"),
+            new(pendingLabel, pending, "warning"),
+            new("dashboard.chart.overdue", overdue, "orange"),
+            new("dashboard.chart.approved", includeInProgress ? activeNotOverdue.Count(job => !job.HasOpenTasks) : activeNotOverdue.Count, "info"),
         };
         if (includeInProgress)
         {
-            slices.Add(new DashboardChartSlice("dashboard.chart.inProgress", activeJobs.Count(job => job.HasOpenTasks), "success"));
+            slices.Add(new DashboardChartSlice("dashboard.chart.inProgress", activeNotOverdue.Count(job => job.HasOpenTasks), "success"));
         }
         slices.Add(new DashboardChartSlice("dashboard.chart.completed", values.Count(job => job.Status == JobStatus.Completed), "primary"));
         slices.Add(new DashboardChartSlice("dashboard.chart.cancelled", values.Count(job => job.Status is JobStatus.Cancelled or JobStatus.Rejected), "danger"));
         return new DashboardChartResponse(titleKey, slices);
     }
 
-    private static bool IsOpen(WorkflowTaskStatus status) => status is not (WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected);
+    private static bool MatchesJobPendingSlice(JobStatus status, string pendingLabel) => pendingLabel switch
+    {
+        "dashboard.chart.pendingApproval" or "dashboard.chart.externalPendingApproval" or "dashboard.chart.pending"
+            => status is JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval,
+        _ => status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested,
+    };
+
+    private static bool IsActionableOpen(WorkflowTaskStatus status) => status is not (
+        WorkflowTaskStatus.Completed
+        or WorkflowTaskStatus.Cancelled
+        or WorkflowTaskStatus.Rejected
+        or WorkflowTaskStatus.PendingCloseApproval);
+
     private static bool IsOpen(JobStatus status) => status is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected);
 
     private static IEnumerable<TaskStatusItem> FilterTasks(IEnumerable<TaskStatusItem> tasks, TaskDashboardFilter filter) => filter switch

@@ -146,15 +146,14 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
   const isOverdue = row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()
   const isClosed = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
 
-  if (filter === 'overdue') return !isClosed && isOverdue
-  if (isOverdue && !isClosed) return false
-
   if (filter === 'pending-approval') {
-    // Personel ataması bekleyen aktif birim dışı talepler (ör. Üst Düzey Yönetici'nin oluşturduğu)
-    // de yöneticinin aksiyonunu beklediği için "Onay Bekleyen Talepler" altında listelenir.
+    // Son tarihi geçmiş olsa bile onay bekleyen kayıtlar bu görünümde kalır (dashboard kartlarıyla uyum).
     return row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval' || row.status === 'PendingApproval'
       || row.assignTargetDepartmentId != null
   }
+
+  if (filter === 'overdue') return !isClosed && isOverdue
+  if (isOverdue && !isClosed) return false
 
   if (filter === 'completed') {
     return row.status === 'Completed'
@@ -306,8 +305,8 @@ export function IncomingRequestsPage() {
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
   const [incomingPageSize, setIncomingPageSize] = useState(10)
-  const [filterFrom, setFilterFrom] = useState('')
-  const [filterTo, setFilterTo] = useState('')
+  const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
+  const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
   const [searchText, setSearchText] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ row: IncomingRequestRow; reason: string; saving: boolean } | null>(null)

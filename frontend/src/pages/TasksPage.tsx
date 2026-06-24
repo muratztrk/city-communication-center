@@ -368,8 +368,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   // Bilgilendirme balonu: çoğu işlem yeşil (success); ek süre reddi gibi olumsuz sonuçlar kırmızı (error, card 627).
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
-  const [filterFrom, setFilterFrom] = useState('')
-  const [filterTo, setFilterTo] = useState('')
+  const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
+  const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
   const [searchText, setSearchText] = useState('')
   const dismissedAutoOpenTaskIdRef = useRef<string | null>(null)
   const autoOpenInFlightRef = useRef<string | null>(null)

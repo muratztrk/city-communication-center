@@ -80,8 +80,21 @@ function withQueryParams(basePath: string, params: Record<string, string | undef
   return `${path}?${existingQuery}&${search}`
 }
 
+function periodQueryParams(from: string, to: string): Record<string, string | undefined> {
+  if (!from && !to) return {}
+  return {
+    from: from ? from.slice(0, 10) : undefined,
+    to: to ? to.slice(0, 10) : undefined,
+  }
+}
+
 // Bir dilime tıklanınca gidilecek, ilgili filtrelerle gridview rotası (card 797).
-function getSliceRoute(titleKey: string, sliceLabel: string, taskChartFilter?: TaskChartFilter): string | undefined {
+function getSliceRoute(
+  titleKey: string,
+  sliceLabel: string,
+  taskChartFilter?: TaskChartFilter,
+  period?: { from: string; to: string },
+): string | undefined {
   // Vatandaş kanalları: kanal dilimi → /social?channel=X
   if (titleKey === 'dashboard.citizenChannels.title') {
     return sliceLabel.startsWith('channel.')
@@ -90,25 +103,30 @@ function getSliceRoute(titleKey: string, sliceLabel: string, taskChartFilter?: T
   }
 
   const taskTypeParam = taskChartFilter && taskChartFilter !== 'all' ? taskChartFilter : undefined
+  const dateParams = period ? periodQueryParams(period.from, period.to) : {}
 
   if (titleKey === 'dashboard.charts.staffTasks') {
     return withQueryParams('/staff-tasks', {
       userId: parseStaffSliceUserId(sliceLabel),
       taskType: taskTypeParam,
+      ...dateParams,
     })
   }
 
   if (titleKey === 'dashboard.charts.incomingRequests') {
     const status = INCOMING_SLICE_STATUS[sliceLabel]
-    return status ? `/incoming-requests?status=${status}` : '/incoming-requests'
+    return withQueryParams('/incoming-requests', {
+      status: status === 'pending-approval' ? undefined : status,
+      ...dateParams,
+    })
   }
 
   // Standart kullanıcı "Birimdeki Görevler" 2 dilimli grafiği.
   if (sliceLabel === 'dashboard.chart.assignedToMe') {
-    return withQueryParams('/my-tasks', { taskType: taskTypeParam })
+    return withQueryParams('/my-tasks', { taskType: taskTypeParam, ...dateParams })
   }
   if (sliceLabel === 'dashboard.chart.departmentTotal') {
-    return withQueryParams('/department-tasks', { flow: 'all', taskType: taskTypeParam })
+    return withQueryParams('/department-tasks', { flow: 'all', taskType: taskTypeParam, ...dateParams })
   }
 
   const base = CHART_ROUTES[titleKey]
@@ -121,6 +139,7 @@ function getSliceRoute(titleKey: string, sliceLabel: string, taskChartFilter?: T
       flow: 'all',
       view,
       taskType: taskTypeParam,
+      ...dateParams,
     })
   }
 
@@ -128,11 +147,12 @@ function getSliceRoute(titleKey: string, sliceLabel: string, taskChartFilter?: T
     return withQueryParams('/my-tasks', {
       view,
       taskType: taskTypeParam,
+      ...dateParams,
     })
   }
 
-  if (!view) return base
-  return withQueryParams(base.split('?')[0], { view })
+  if (!view) return withQueryParams(base.split('?')[0], dateParams)
+  return withQueryParams(base.split('?')[0], { view, ...dateParams })
 }
 
 export function DashboardPage() {
@@ -458,13 +478,19 @@ export function DashboardPage() {
             // dashboard'dan yönlendirme yapılmaz; grafik yalnızca bilgilendirme amaçlıdır.
             const isReadOnlyDepartmentChart = !isManagerOrAdmin && card.titleKey === 'dashboard.charts.departmentTasks'
             const chartRoute = isReadOnlyDepartmentChart ? undefined : CHART_ROUTES[card.titleKey]
+            const chartKey = card.titleKey as TaskChartKey
+            const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
+            const periodRange = { from: activeFrom, to: activeTo }
             return (
-            <section key={card.titleKey} className="section-card p-4 sm:p-5">
+            <section key={card.titleKey} className="section-card relative isolate p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
                 {chartRoute ? (
                   <button
                     type="button"
-                    onClick={() => navigate(chartRoute)}
+                    onClick={() => navigate(withQueryParams(chartRoute, {
+                      taskType: taskFilter && taskFilter !== 'all' ? taskFilter : undefined,
+                      ...periodQueryParams(activeFrom, activeTo),
+                    }))}
                     className="cursor-pointer border-b border-current pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
                   >
                     {t(card.titleKey)}
@@ -476,7 +502,6 @@ export function DashboardPage() {
                 {TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
                   <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('tasks.filters.taskType', 'Görev tipi')}>
                     {(['assigned', 'routine', 'all'] as const).map(filter => {
-                      const chartKey = card.titleKey as TaskChartKey
                       const active = taskChartFilters[chartKey] === filter
                       return (
                         <button
@@ -493,9 +518,7 @@ export function DashboardPage() {
                 )}
               </div>
               <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isReadOnlyDepartmentChart ? undefined : slice => {
-                const chartKey = card.titleKey as TaskChartKey
-                const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
-                const route = getSliceRoute(card.titleKey, slice.label, taskFilter)
+                const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange)
                 if (route) navigate(route)
               }} />
               </section>

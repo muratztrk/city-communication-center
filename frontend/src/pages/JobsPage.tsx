@@ -417,8 +417,7 @@ function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOu
 
   if (view === 'pending') {
     return jobs.filter(job =>
-      (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
-      && !isJobOverdue(job))
+      job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
   }
 
   if (view === 'approved') {
@@ -513,8 +512,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     selfRequestedOwnerUserId: string | null
     approvalRequired: boolean
   } | null>(null)
-  const [filterFrom, setFilterFrom] = useState('')
-  const [filterTo, setFilterTo] = useState('')
+  const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
+  const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
   const [searchText, setSearchText] = useState('')
 
   const isMyRequestsView = mode === 'myRequests'

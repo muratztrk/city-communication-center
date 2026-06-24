@@ -85,21 +85,29 @@ function useResolvedLabel(rawLabel: string): string {
 
 function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?: (slice: DashboardChartSlice) => void }) {
   const label = useResolvedLabel(slice.label)
-  return (
-    <li className="flex items-center gap-2.5 text-sm">
+  const content = (
+    <>
       <span className="shrink-0 size-2.5 rounded-full" style={{ backgroundColor: getColor(slice.colorHint) }} />
-      {onSelect ? (
+      <span className="min-w-0 truncate text-slate-700">{label}</span>
+      <span className="ml-auto pl-3 font-semibold text-slate-950 tabular-nums">{slice.value}</span>
+    </>
+  )
+  if (onSelect) {
+    return (
+      <li>
         <button
           type="button"
           onClick={() => onSelect(slice)}
-          className="min-w-0 cursor-pointer truncate text-left text-slate-700 transition-colors hover:text-[color:var(--color-primary)] hover:underline"
+          className="flex w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-md px-1 py-0.5 text-left text-sm transition-colors hover:bg-slate-50 hover:text-[color:var(--color-primary)]"
         >
-          {label}
+          {content}
         </button>
-      ) : (
-        <span className="min-w-0 truncate text-slate-700">{label}</span>
-      )}
-      <span className="ml-auto pl-3 font-semibold text-slate-950 tabular-nums">{slice.value}</span>
+      </li>
+    )
+  }
+  return (
+    <li className="flex items-center gap-2.5 px-1 py-0.5 text-sm">
+      {content}
     </li>
   )
 }
@@ -156,7 +164,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+    <div className="relative isolate flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={`shrink-0${onSelect ? ' cursor-pointer' : ''}`}>
         {segments.map((seg, i) => (
           <path

@@ -502,13 +502,13 @@ export function CreateRequestPage() {
       setError(t('tasks.newRequest.ownerUserRequired', 'Lütfen en az bir personel seçiniz.'))
       return
     }
-    if (!editJobId && confirmedKind !== 'internal') {
+    if (confirmedKind !== 'internal') {
       setConfirmDialog({
-        title: 'Birim İçi Talep Oluştur',
-        message: 'Bu talebi oluşturmak istediğinize emin misiniz?',
+        title: editJobId ? 'Birim İçi Talep Güncelle' : 'Birim İçi Talep Oluştur',
+        message: editJobId ? 'Bu talebi güncellemek istediğinize emin misiniz?' : 'Bu talebi oluşturmak istediğinize emin misiniz?',
         titleCompact: true,
         titleDivider: true,
-        confirmLabel: 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
+        confirmLabel: editJobId ? 'Güncelle' : 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
         onConfirm: () => {
           setConfirmedKind('internal')
           window.setTimeout(() => (document.getElementById('internal-request-form') as HTMLFormElement | null)?.requestSubmit(), 0)
@@ -580,13 +580,13 @@ export function CreateRequestPage() {
       setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
       return
     }
-    if (!editJobId && confirmedKind !== 'external') {
+    if (confirmedKind !== 'external') {
       setConfirmDialog({
-        title: 'Birim Dışı Talep Oluştur',
-        message: 'Bu talebi oluşturmak istediğinize emin misiniz?',
+        title: editJobId ? 'Birim Dışı Talep Güncelle' : 'Birim Dışı Talep Oluştur',
+        message: editJobId ? 'Bu talebi güncellemek istediğinize emin misiniz?' : 'Bu talebi oluşturmak istediğinize emin misiniz?',
         titleCompact: true,
         titleDivider: true,
-        confirmLabel: 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
+        confirmLabel: editJobId ? 'Güncelle' : 'Talep Oluştur', cancelLabel: 'İptal', variant: 'success',
         onConfirm: () => {
           setConfirmedKind('external')
           window.setTimeout(() => (document.getElementById('external-request-form') as HTMLFormElement | null)?.requestSubmit(), 0)

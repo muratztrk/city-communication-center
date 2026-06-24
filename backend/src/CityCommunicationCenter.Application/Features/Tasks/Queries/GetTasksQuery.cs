@@ -88,6 +88,13 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                             managedDepartmentIds.Contains(entity.AssignedDepartmentId!.Value)),
                     _ => tasks.Where(_ => false)
                 },
+            TaskQueryScope.Department => actor is null
+                ? tasks.Where(_ => false)
+                : accessibleDepartmentIds.Length == 0
+                    ? tasks.Where(_ => false)
+                    : tasks.Where(entity =>
+                        entity.AssignedDepartmentId.HasValue &&
+                        accessibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value)),
             _ => tasks
         };
 
@@ -222,6 +229,7 @@ internal enum TaskQueryScope
 {
     All,
     Mine,
+    Department,
     DepartmentPool,
     PendingApproval
 }
@@ -239,6 +247,7 @@ internal static class TaskQueryScopeParser
         {
             "all" => TaskQueryScope.All,
             "mine" => TaskQueryScope.Mine,
+            "department" => TaskQueryScope.Department,
             "department-pool" => TaskQueryScope.DepartmentPool,
             "pending-approval" => TaskQueryScope.PendingApproval,
             _ => throw new ValidationException([

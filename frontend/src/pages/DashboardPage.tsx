@@ -82,10 +82,7 @@ function withQueryParams(basePath: string, params: Record<string, string | undef
 
 function periodQueryParams(from: string, to: string): Record<string, string | undefined> {
   if (!from && !to) return {}
-  return {
-    from: from ? from.slice(0, 10) : undefined,
-    to: to ? to.slice(0, 10) : undefined,
-  }
+  return { from: from || undefined, to: to || undefined }
 }
 
 // Bir dilime tıklanınca gidilecek, ilgili filtrelerle gridview rotası (card 797).

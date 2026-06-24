@@ -330,8 +330,10 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
 
   const isClosedStatus = (status: string) =>
     ['Completed', 'Cancelled', 'Rejected', 'PendingCloseApproval'].includes(status)
-  const isOverdue = (task: Task) =>
-    task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now()
+  const isOverdue = (task: Task) => {
+    if (!task.dueDateUtc) return false
+    return task.dueDateUtc < new Date().toISOString()
+  }
 
   if (view === 'overdue') {
     return tasks.filter(task => !isClosedStatus(task.currentStatus) && isOverdue(task))
@@ -517,10 +519,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     if (filterFrom || filterTo) {
       result = result.filter(task => {
-        const d = task.createdAtUtc?.slice(0, 10)
-        if (!d) return false
-        if (filterFrom && d < filterFrom.slice(0, 10)) return false
-        if (filterTo && d > filterTo.slice(0, 10)) return false
+        const created = task.createdAtUtc
+        if (!created) return false
+        if (filterFrom && created < filterFrom) return false
+        if (filterTo && created > filterTo) return false
         return true
       })
     }

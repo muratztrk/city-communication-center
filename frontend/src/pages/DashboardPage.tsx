@@ -398,12 +398,12 @@ export function DashboardPage() {
                   <button
                     type="button"
                     onClick={() => navigate(chartRoute)}
-                    className="cursor-pointer text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)] hover:underline"
+                    className="cursor-pointer border-b border-current pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
                   >
                     {t(card.titleKey)}
                   </button>
                 ) : (
-                  <h2 className="text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+                  <h2 className="border-b border-current pb-0.5 text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
                 )}
                 {/* Görev tipi filtre butonları standart kullanıcılarda da görünür (Görevlerim + Birimdeki Görevler) (card 762). */}
                 {TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (

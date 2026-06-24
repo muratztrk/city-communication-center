@@ -1889,6 +1889,10 @@
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
     font-size: 0.78rem;
     color: white;
+    --pagination-control-bg: color-mix(in srgb, white 14%, var(--color-header-from));
+    --pagination-control-border: rgba(255, 255, 255, 0.32);
+    --pagination-control-hover-bg: color-mix(in srgb, white 22%, var(--color-header-from));
+    --pagination-control-hover-border: rgba(255, 255, 255, 0.48);
   }
 
   .table-pagination-info {
@@ -2007,11 +2011,11 @@
     cursor: not-allowed;
   }
 
-  /* Koyu bar: pasif sayfa numaraları ve nav okları aynı yeşil ton — beyaz kutu yok. */
+  /* Koyu bar: pasif sayfa numaraları ve nav okları tek yeşil ton — disabled dahil. */
   .table-pagination-bar .table-pagination-btn,
   .table-pagination-bar .table-pagination-page:not(.active) {
-    border: 1px solid rgba(255, 255, 255, 0.32) !important;
-    background-color: color-mix(in srgb, white 14%, var(--color-header-from)) !important;
+    border: 1px solid var(--pagination-control-border) !important;
+    background: var(--pagination-control-bg) !important;
     color: white !important;
   }
 
@@ -2021,17 +2025,16 @@
 
   .table-pagination-bar .table-pagination-btn:hover:not(:disabled),
   .table-pagination-bar .table-pagination-page:not(.active):hover {
-    background-color: color-mix(in srgb, white 22%, var(--color-header-from)) !important;
+    background: var(--pagination-control-hover-bg) !important;
     color: white !important;
-    border-color: rgba(255, 255, 255, 0.48) !important;
+    border-color: var(--pagination-control-hover-border) !important;
   }
 
   .table-pagination-bar .table-pagination-btn:disabled {
-    opacity: 1;
     cursor: not-allowed;
-    background-color: color-mix(in srgb, white 8%, var(--color-header-from)) !important;
-    color: rgba(255, 255, 255, 0.42) !important;
-    border-color: rgba(255, 255, 255, 0.22) !important;
+    background: var(--pagination-control-bg) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    border-color: var(--pagination-control-border) !important;
   }
 
   .table-pagination-bar .table-pagination-select {

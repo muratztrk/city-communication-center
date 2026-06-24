@@ -1939,45 +1939,6 @@
     border-color: var(--color-primary);
   }
 
-  /* Koyu pagination bar: nav butonları, sayfa boyutu ve pasif sayfa numaraları aynı beyaz kutu stili (card 787). */
-  .table-pagination-bar .table-pagination-btn,
-  .table-pagination-bar .table-pagination-page:not(.active),
-  .table-pagination-bar .table-pagination-select {
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background-color: color-mix(in srgb, var(--color-primary) 58%, white) !important;
-    color: white !important;
-  }
-
-  .table-pagination-bar .table-pagination-btn svg {
-    color: currentColor;
-  }
-
-  .table-pagination-bar .table-pagination-btn:hover:not(:disabled),
-  .table-pagination-bar .table-pagination-page:not(.active):hover {
-    background: color-mix(in srgb, var(--color-primary) 10%, white);
-    color: var(--color-primary);
-    border-color: color-mix(in srgb, var(--color-primary) 30%, white);
-  }
-
-  .table-pagination-bar .table-pagination-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    background-color: white;
-    color: #64748b;
-    border-color: rgba(255, 255, 255, 0.35);
-  }
-
-  .table-pagination-bar .table-pagination-select:hover {
-    border-color: color-mix(in srgb, var(--color-primary) 30%, white);
-  }
-
-  .table-pagination-bar .table-pagination-page.active {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-    font-weight: 800;
-  }
-
   .table-pagination-pages {
     display: flex;
     align-items: center;
@@ -2046,38 +2007,51 @@
     cursor: not-allowed;
   }
 
-  /* Koyu bar içinde tüm nav kontrolleri aynı beyaz kutu — genel .table-pagination-btn kurallarından sonra (card 787). */
+  /* Koyu bar: pasif sayfa numaraları ve nav okları aynı yeşil ton — beyaz kutu yok. */
   .table-pagination-bar .table-pagination-btn,
-  .table-pagination-bar .table-pagination-page:not(.active),
-  .table-pagination-bar .table-pagination-select {
-    border: 1px solid rgba(255, 255, 255, 0.35) !important;
-    background-color: #ffffff !important;
-    color: #64748b !important;
+  .table-pagination-bar .table-pagination-page:not(.active) {
+    border: 1px solid rgba(255, 255, 255, 0.32) !important;
+    background-color: color-mix(in srgb, white 14%, var(--color-header-from)) !important;
+    color: white !important;
+  }
+
+  .table-pagination-bar .table-pagination-btn svg {
+    color: currentColor;
+  }
+
+  .table-pagination-bar .table-pagination-btn:hover:not(:disabled),
+  .table-pagination-bar .table-pagination-page:not(.active):hover {
+    background-color: color-mix(in srgb, white 22%, var(--color-header-from)) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.48) !important;
+  }
+
+  .table-pagination-bar .table-pagination-btn:disabled {
+    opacity: 1;
+    cursor: not-allowed;
+    background-color: color-mix(in srgb, white 8%, var(--color-header-from)) !important;
+    color: rgba(255, 255, 255, 0.42) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
   }
 
   .table-pagination-bar .table-pagination-select {
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    background-color: #ffffff !important;
+    color: #334155 !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: right 0.35rem center !important;
   }
 
-  .table-pagination-bar .table-pagination-btn:hover:not(:disabled),
-  .table-pagination-bar .table-pagination-page:not(.active):hover {
-    background-color: color-mix(in srgb, var(--color-primary) 10%, white) !important;
-    color: var(--color-primary) !important;
+  .table-pagination-bar .table-pagination-select:hover {
     border-color: color-mix(in srgb, var(--color-primary) 30%, white) !important;
-  }
-
-  .table-pagination-bar .table-pagination-btn:disabled {
-    background-color: #ffffff !important;
-    color: #64748b !important;
-    border-color: rgba(255, 255, 255, 0.35) !important;
   }
 
   .table-pagination-bar .table-pagination-page.active {
     background: var(--color-primary) !important;
     color: white !important;
     border-color: var(--color-primary) !important;
+    font-weight: 800;
   }
 
   /* ────────────────────────────────────────────────────────────── */

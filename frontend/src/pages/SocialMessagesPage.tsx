@@ -1,4 +1,4 @@
-import { MapPin, MessageSquare, Search, X } from 'lucide-react'
+import { MapPin, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -363,16 +363,6 @@ export function SocialMessagesPage() {
                       </div>
                     </td>
                   </tr>
-                  {message.content ? (
-                    <tr className="bg-slate-50/70">
-                      <td colSpan={7}>
-                        <div className="flex items-center gap-2 py-0.5">
-                          <MessageSquare className="mt-0.5 size-4 shrink-0 text-[color:var(--color-primary)]" />
-                          <p className="text-sm text-slate-700 truncate max-w-xl">{message.content}</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : null}
                   {hasLocation(message) ? (
                     <tr className="bg-slate-50/70">
                       <td colSpan={7}>

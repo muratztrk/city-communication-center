@@ -1884,37 +1884,27 @@
     flex-wrap: wrap;
     gap: 0.5rem 0.75rem;
     padding: 0.6rem 1rem;
-    border-top: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
     font-size: 0.78rem;
-  }
-
-  /* Yalnızca "Taleplerim" sayfalaması tablo başlığıyla aynı banner görünümünü taşır. */
-  .table-pagination-bar.my-requests-pagination {
-    border-top-color: rgba(255, 255, 255, 0.22);
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     color: white;
   }
 
-  .my-requests-pagination .table-pagination-info,
-  .my-requests-pagination .table-pagination-info .text-slate-400,
-  .my-requests-pagination .table-pagination-info .text-slate-500,
-  .my-requests-pagination .table-pagination-info .text-slate-700,
-  .my-requests-pagination .table-pagination-info .text-\[color\:var\(--color-primary\)\] {
-    color: white;
-  }
-
-  .my-requests-pagination .table-pagination-info span {
+  .table-pagination-info {
     color: white !important;
   }
 
-  /* Kayıt aralığı diğer sayfalardaki soluk gri tonunu korur. */
-  .my-requests-pagination .table-pagination-info .table-pagination-range {
+  .table-pagination-info span {
+    color: white !important;
+  }
+
+  /* Kayıt aralığı tüm tablolarda soluk gri tonunu korur. */
+  .table-pagination-info .table-pagination-range {
     color: #94a3b8 !important;
   }
 
-  .my-requests-pagination .table-pagination-divider {
+  .table-pagination-divider {
     background: rgba(255, 255, 255, 0.38);
   }
 
@@ -1922,7 +1912,7 @@
     display: flex;
     align-items: center;
     gap: 0.3rem;
-    color: #64748b;
+    color: white;
   }
 
   .table-pagination-divider {
@@ -2426,67 +2416,6 @@
 
   .wallboard-table tbody tr:last-child td {
     border-bottom: 0;
-  }
-
-  /* Pagination bar inherits wallboard dark theme */
-  .wallboard-table-shell .table-pagination-bar {
-    background: #0c2030;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0 0 1rem 1rem;
-  }
-
-  .wallboard-table-shell .table-pagination-info {
-    color: rgba(226, 232, 240, 0.65);
-  }
-
-  .wallboard-table-shell .table-pagination-info .text-slate-500 {
-    color: rgba(226, 232, 240, 0.50);
-  }
-
-  .wallboard-table-shell .table-pagination-divider {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  .wallboard-table-shell .table-pagination-ellipsis {
-    color: rgba(226, 232, 240, 0.45);
-  }
-
-  .wallboard-table-shell .table-pagination-select {
-    background: #102b39;
-    border-color: rgba(255, 255, 255, 0.18);
-    color: rgba(226, 232, 240, 0.85);
-  }
-
-  .wallboard-table-shell .table-pagination-btn {
-    background: #102b39;
-    border-color: rgba(255, 255, 255, 0.15);
-    color: rgba(226, 232, 240, 0.75);
-  }
-
-  .wallboard-table-shell .table-pagination-btn:hover:not(:disabled) {
-    background: #163544;
-    color: white;
-  }
-
-  .wallboard-table-shell .table-pagination-btn:disabled {
-    opacity: 0.25;
-  }
-
-  .wallboard-table-shell .table-pagination-page {
-    background: transparent;
-    color: rgba(226, 232, 240, 0.70);
-    border-color: transparent;
-  }
-
-  .wallboard-table-shell .table-pagination-page:hover {
-    background: #163544;
-    color: white;
-  }
-
-  .wallboard-table-shell .table-pagination-page.active {
-    background: var(--color-primary);
-    color: white;
-    border-color: transparent;
   }
 
   .wallboard-row.citizen td:first-child {

@@ -490,7 +490,7 @@ export function SocialMessagesPage() {
                       {[
                         { label: 'Son Tarih Bilgisi', value: formatDueDateTime(detailJob.dueDateUtc, getLocale(i18n.language)) },
                         { label: 'Koordineli mi', value: detailJob.isCoordinated ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
-                        { label: 'Kaynak', value: detailJob.sourceType },
+                        { label: 'Kaynak', value: t(`dashboard.sourceType.${detailJob.sourceType}`, detailJob.sourceType) },
                       ].map(({ label, value }) => (
                         <div key={label} className="flex items-start gap-2 px-3 py-2">
                           <span className="w-28 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>

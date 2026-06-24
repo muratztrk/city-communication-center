@@ -403,8 +403,10 @@
     },
     "sourceType": {
       "Manual": "Manual Entry",
+      "SocialMessage": "Social Media Message",
       "CitizenRequest": "Citizen Application",
-      "Integration": "Integration"
+      "Integration": "Integration",
+      "Routine": "Routine Task"
     },
     "period": {
       "label": "Period",

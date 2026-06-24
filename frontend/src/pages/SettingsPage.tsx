@@ -1974,7 +1974,7 @@ export function SettingsPage() {
             <h2 className="text-xl font-extrabold text-slate-950">{t('settings.socialConfig.sectionTitle')}</h2>
             <p className="helper-copy">{t('settings.socialConfig.sectionDescription')}</p>
           </div>
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid items-start gap-4 xl:grid-cols-2">
             {CHANNELS.map(channel => {
               const status = socialStatus[channel.statusKey]
               return (

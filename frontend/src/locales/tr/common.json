@@ -405,8 +405,10 @@
     },
     "sourceType": {
       "Manual": "Manuel Giriş",
+      "SocialMessage": "Sosyal Medya Mesajı",
       "CitizenRequest": "Vatandaş Başvurusu",
-      "Integration": "Entegrasyon"
+      "Integration": "Entegrasyon",
+      "Routine": "Rutin Görev"
     },
     "period": {
       "label": "Dönem",

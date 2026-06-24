@@ -1944,8 +1944,8 @@
   .table-pagination-bar .table-pagination-page:not(.active),
   .table-pagination-bar .table-pagination-select {
     border: 1px solid rgba(255, 255, 255, 0.35);
-    background-color: white !important;
-    color: #64748b !important;
+    background-color: color-mix(in srgb, var(--color-primary) 58%, white) !important;
+    color: white !important;
   }
 
   .table-pagination-bar .table-pagination-btn svg {

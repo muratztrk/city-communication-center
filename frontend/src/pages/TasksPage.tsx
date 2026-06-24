@@ -1881,6 +1881,16 @@ const pageKicker = isMyTasksView
                             {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
                           </div>
                         )}
+                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.lastExtraTimeRequestDecision === 'Approved' && (
+                          <div className="mt-1 text-xs font-bold text-emerald-600">
+                            {t('tasks.actions.extraTimeApproved', 'Ek süre talebi onaylandı')}
+                          </div>
+                        )}
+                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.lastExtraTimeRequestDecision === 'Rejected' && (
+                          <div className="mt-1 text-xs font-bold text-red-600">
+                            {t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi')}
+                          </div>
+                        )}
                       </td>
                     )}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}

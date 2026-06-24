@@ -188,7 +188,15 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                 _dbContext.Approvals.Any(approval =>
                     approval.SubjectType == ApprovalSubjectType.TaskRevision
                     && approval.SubjectId == task.TaskId
-                    && approval.Decision == ApprovalDecision.Pending)))
+                    && approval.Decision == ApprovalDecision.Pending),
+                // Birden fazla ek süre talebi olabileceğinden, yalnızca en son sonuçlanan karar gösterilir.
+                _dbContext.Approvals
+                    .Where(approval => approval.SubjectType == ApprovalSubjectType.TaskRevision
+                        && approval.SubjectId == task.TaskId
+                        && approval.Decision != ApprovalDecision.Pending)
+                    .OrderByDescending(approval => approval.DecisionDateUtc)
+                    .Select(approval => (string?)approval.Decision.ToString())
+                    .FirstOrDefault()))
             .ToListAsync(cancellationToken);
     }
 

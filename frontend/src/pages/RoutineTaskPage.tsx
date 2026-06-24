@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateTasks } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
+import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
@@ -58,6 +59,7 @@ export function RoutineTaskPage() {
   const [form, setForm] = useState<FormState>(INITIAL)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -76,9 +78,7 @@ export function RoutineTaskPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.title.trim() || !form.description.trim()) return
+  const executeCreate = async () => {
     setSubmitting(true)
     setError(null)
     try {
@@ -92,7 +92,6 @@ export function RoutineTaskPage() {
         street: form.street || null,
         openAddress: form.openAddress || null,
       })
-      // Eklenen dosya/fotoğraflar oluşturulan göreve yüklenir (Detay > Ekler/Fotoğraflar'da görünür).
       for (const file of pendingFiles) {
         await api.uploadTaskAttachment(task.taskId, file)
       }
@@ -103,6 +102,21 @@ export function RoutineTaskPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.title.trim() || !form.description.trim()) return
+    setConfirmDialog({
+      title: t('nav.createRoutineTask', 'Rutin Görev Oluştur'),
+      message: t('routineTask.createConfirm', 'Bu görevi oluşturmak istediğinize emin misiniz?'),
+      titleCompact: true,
+      titleDivider: true,
+      confirmLabel: t('routineTask.createConfirmButton', 'Görev Oluştur'),
+      cancelLabel: t('common.cancel', 'İptal'),
+      variant: 'success',
+      onConfirm: () => { void executeCreate() },
+    })
   }
 
   const canSubmit = !submitting && form.title.trim() !== '' && form.description.trim() !== ''
@@ -317,6 +331,7 @@ export function RoutineTaskPage() {
           </div>
         </div>
       </form>
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
 }

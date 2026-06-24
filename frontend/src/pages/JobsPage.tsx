@@ -1908,7 +1908,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
                             ) : null}
                             <textarea
-                              className="field-textarea min-h-24 w-full"
+                              className="field-textarea min-h-24 w-full text-xs placeholder:text-xs"
                               rows={3}
                               value={managerNoteDraft}
                               onChange={e => {

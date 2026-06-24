@@ -83,20 +83,16 @@ export function TablePagination({
         </button>
 
         <span className="table-pagination-pages">
-          {buildPageNumbers(currentPage, totalPages).map((p, i) =>
-            p === '…' ? (
-              <span key={`ellipsis-${i}`} className="table-pagination-ellipsis">…</span>
-            ) : (
-              <button
-                key={p}
-                type="button"
-                className={`table-pagination-page table-pagination-control${p === currentPage ? ' active' : ''}`}
-                onClick={() => onPageChange(p as number)}
-              >
-                {p}
-              </button>
-            ),
-          )}
+          {buildPageNumbers(currentPage, totalPages).map(p => (
+            <button
+              key={p}
+              type="button"
+              className={`table-pagination-page table-pagination-control${p === currentPage ? ' active' : ''}`}
+              onClick={() => onPageChange(p)}
+            >
+              {p}
+            </button>
+          ))}
         </span>
 
         <button
@@ -122,21 +118,14 @@ export function TablePagination({
   )
 }
 
-function buildPageNumbers(current: number, total: number): (number | '…')[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
-  const pages: (number | '…')[] = []
-  const delta = 1
+/** En fazla 3 ardışık sayfa numarası göster; uzun listelerde << >> ile gezinilir. */
+function buildPageNumbers(current: number, total: number): number[] {
+  if (total <= 3) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
 
-  const range = [
-    Math.max(2, current - delta),
-    Math.min(total - 1, current + delta),
-  ]
-
-  pages.push(1)
-  if (range[0] > 2) pages.push('…')
-  for (let i = range[0]; i <= range[1]; i++) pages.push(i)
-  if (range[1] < total - 1) pages.push('…')
-  pages.push(total)
-
-  return pages
+  let start = current - 1
+  if (start < 1) start = 1
+  if (start + 2 > total) start = total - 2
+  return [start, start + 1, start + 2]
 }

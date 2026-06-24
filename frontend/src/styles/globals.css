@@ -1966,7 +1966,8 @@
     transition: background 0.12s, color 0.12s, border-color 0.12s;
   }
 
-  .table-pagination-page:hover {
+  /* Koyu bar dışındaki tablolarda hover; bar içinde control sınıfı geçerli olur. */
+  .table-pagination-page:hover:not(.active) {
     background: rgba(255, 255, 255, 0.14);
     color: white;
     border-color: rgba(255, 255, 255, 0.55);
@@ -2014,10 +2015,15 @@
   /* Koyu bar: nav okları ile pasif sayfa numaraları aynı yarı saydam yeşil kutu. */
   .table-pagination-bar .table-pagination-control:not(.active) {
     border: 1px solid var(--pagination-control-border) !important;
-    background: var(--pagination-control-bg) !important;
+    background-color: var(--pagination-control-bg) !important;
     background-image: none !important;
-    color: white !important;
+    box-shadow: none !important;
+    color: rgba(255, 255, 255, 0.88) !important;
     opacity: 1 !important;
+  }
+
+  .table-pagination-bar button.table-pagination-page.table-pagination-control:not(.active) {
+    background-color: var(--pagination-control-bg) !important;
   }
 
   .table-pagination-bar .table-pagination-control:not(.active) svg {
@@ -2025,7 +2031,7 @@
   }
 
   .table-pagination-bar .table-pagination-control:not(.active):hover:not(:disabled) {
-    background: var(--pagination-control-hover-bg) !important;
+    background-color: var(--pagination-control-hover-bg) !important;
     color: white !important;
     border-color: var(--pagination-control-hover-border) !important;
   }
@@ -2033,6 +2039,12 @@
   .table-pagination-bar .table-pagination-control:not(.active):disabled {
     cursor: not-allowed;
     color: rgba(255, 255, 255, 0.55) !important;
+  }
+
+  .table-pagination-bar .table-pagination-page:hover:not(.active) {
+    background-color: var(--pagination-control-hover-bg) !important;
+    border-color: var(--pagination-control-hover-border) !important;
+    color: white !important;
   }
 
   .table-pagination-bar .table-pagination-select {

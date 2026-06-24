@@ -65,7 +65,7 @@ export function TablePagination({
       <span className="flex items-center gap-1">
         <button
           type="button"
-          className="table-pagination-btn"
+          className="table-pagination-btn table-pagination-control"
           disabled={currentPage === 1}
           onClick={() => onPageChange(1)}
           title={t('pagination.first', 'İlk Sayfa')}
@@ -74,7 +74,7 @@ export function TablePagination({
         </button>
         <button
           type="button"
-          className="table-pagination-btn"
+          className="table-pagination-btn table-pagination-control"
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
           title={t('pagination.prev', 'Önceki Sayfa')}
@@ -90,7 +90,7 @@ export function TablePagination({
               <button
                 key={p}
                 type="button"
-                className={`table-pagination-page${p === currentPage ? ' active' : ''}`}
+                className={`table-pagination-page table-pagination-control${p === currentPage ? ' active' : ''}`}
                 onClick={() => onPageChange(p as number)}
               >
                 {p}
@@ -101,7 +101,7 @@ export function TablePagination({
 
         <button
           type="button"
-          className="table-pagination-btn"
+          className="table-pagination-btn table-pagination-control"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           title={t('pagination.next', 'Sonraki Sayfa')}
@@ -110,7 +110,7 @@ export function TablePagination({
         </button>
         <button
           type="button"
-          className="table-pagination-btn"
+          className="table-pagination-btn table-pagination-control"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(totalPages)}
           title={t('pagination.last', 'Son Sayfa')}

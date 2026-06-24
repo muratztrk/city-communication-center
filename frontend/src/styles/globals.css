@@ -1889,10 +1889,10 @@
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
     font-size: 0.78rem;
     color: white;
-    --pagination-control-bg: color-mix(in srgb, white 14%, var(--color-header-from));
-    --pagination-control-border: rgba(255, 255, 255, 0.32);
-    --pagination-control-hover-bg: color-mix(in srgb, white 22%, var(--color-header-from));
-    --pagination-control-hover-border: rgba(255, 255, 255, 0.48);
+    --pagination-control-bg: rgba(255, 255, 255, 0.12);
+    --pagination-control-border: rgba(255, 255, 255, 0.28);
+    --pagination-control-hover-bg: rgba(255, 255, 255, 0.2);
+    --pagination-control-hover-border: rgba(255, 255, 255, 0.45);
   }
 
   .table-pagination-info {
@@ -2011,30 +2011,28 @@
     cursor: not-allowed;
   }
 
-  /* Koyu bar: pasif sayfa numaraları ve nav okları tek yeşil ton — disabled dahil. */
-  .table-pagination-bar .table-pagination-btn,
-  .table-pagination-bar .table-pagination-page:not(.active) {
+  /* Koyu bar: nav okları ile pasif sayfa numaraları aynı yarı saydam yeşil kutu. */
+  .table-pagination-bar .table-pagination-control:not(.active) {
     border: 1px solid var(--pagination-control-border) !important;
     background: var(--pagination-control-bg) !important;
+    background-image: none !important;
     color: white !important;
+    opacity: 1 !important;
   }
 
-  .table-pagination-bar .table-pagination-btn svg {
+  .table-pagination-bar .table-pagination-control:not(.active) svg {
     color: currentColor;
   }
 
-  .table-pagination-bar .table-pagination-btn:hover:not(:disabled),
-  .table-pagination-bar .table-pagination-page:not(.active):hover {
+  .table-pagination-bar .table-pagination-control:not(.active):hover:not(:disabled) {
     background: var(--pagination-control-hover-bg) !important;
     color: white !important;
     border-color: var(--pagination-control-hover-border) !important;
   }
 
-  .table-pagination-bar .table-pagination-btn:disabled {
+  .table-pagination-bar .table-pagination-control:not(.active):disabled {
     cursor: not-allowed;
-    background: var(--pagination-control-bg) !important;
     color: rgba(255, 255, 255, 0.55) !important;
-    border-color: var(--pagination-control-border) !important;
   }
 
   .table-pagination-bar .table-pagination-select {
@@ -2050,7 +2048,7 @@
     border-color: color-mix(in srgb, var(--color-primary) 30%, white) !important;
   }
 
-  .table-pagination-bar .table-pagination-page.active {
+  .table-pagination-bar .table-pagination-control.active {
     background: var(--color-primary) !important;
     color: white !important;
     border-color: var(--color-primary) !important;

@@ -138,6 +138,7 @@ export function EDevletActivityPlanPage() {
       title: editingPlanId
         ? t('edevletActivityPlan.editTitle', 'Faaliyet Planını Düzenle')
         : t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur'),
+      titleDivider: !editingPlanId,
       message: editingPlanId
         ? t('edevletActivityPlan.updateConfirm', 'Faaliyet planındaki değişiklikleri kaydetmek istediğinize emin misiniz?')
         : t('edevletActivityPlan.createConfirm', 'Faaliyet planını kaydetmek istediğinize emin misiniz?'),
@@ -296,7 +297,7 @@ export function EDevletActivityPlanPage() {
               required
             />
           </div>
-          <Button type="submit" disabled={!canSubmit} className="min-h-28 w-full gap-2 self-end">
+          <Button type="submit" disabled={!canSubmit} className="min-h-14 w-full gap-2 self-end">
             <Send className="size-4" />
             {submitting
               ? t('common.saving', 'Kaydediliyor...')

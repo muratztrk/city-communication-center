@@ -117,6 +117,18 @@ function isPreApprovalStatus(status: string): boolean {
   return status === 'Draft' || status === 'PendingOwnerApproval' || status === 'PendingExternalApproval' || status === 'RevisionRequested'
 }
 
+function canOperatorEditPendingExternalJob(
+  role: string | undefined,
+  job: { requestType: string; sourceType: string; status: string; taskCount?: number; tasks?: unknown[] | null },
+): boolean {
+  if (role !== 'Operator') return false
+  if (job.requestType !== 'ExternalUnit') return false
+  if (job.sourceType !== 'SocialMessage' && job.sourceType !== 'CitizenRequest') return false
+  const taskCount = job.taskCount ?? job.tasks?.length ?? 0
+  return job.status === 'PendingExternalApproval'
+    || (job.status === 'Active' && taskCount === 0)
+}
+
 function isClosedJobStatus(status: string): boolean {
   return status === 'Completed' || status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested'
 }
@@ -1544,6 +1556,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           const canReporterEdit = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
                           const canEdit =
                           canReporterEdit
+                          || canOperatorEditPendingExternalJob(user?.role, job)
                           || isPreApprovalStatus(job.status)
                           || (isManagerLike && (
                             (job.requestType === 'ExternalUnit' && job.status === 'PendingExternalApproval')
@@ -1681,7 +1694,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     (card 648/653/654). */}
                 {isMyRequestsView && detail != null && (() => {
                   const canReporterEdit = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
-                  const canEditDetailJob = canReporterEdit || isPreApprovalStatus(detail.status) || (isManagerLike && (
+                  const canEditDetailJob = canReporterEdit
+                    || canOperatorEditPendingExternalJob(user?.role, { ...detail, taskCount: detail.tasks?.length ?? 0 })
+                    || isPreApprovalStatus(detail.status)
+                    || (isManagerLike && (
                     (detail.requestType === 'ExternalUnit' && detail.status === 'PendingExternalApproval')
                     || (detail.requestType === 'InternalUnit' && detail.status === 'Active')
                     || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0)

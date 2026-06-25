@@ -1233,7 +1233,7 @@ const pageKicker = isMyTasksView
                 {canRouteTaskDetail && selectedTask && (
                   <Button
                     type="button"
-                    className="bg-[#00a6b4] text-white shadow-sm hover:bg-[#008f9c]"
+                    className="bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
                     onClick={() => openRouteModal(selectedTask.taskId)}
                   >
                     {t('tasks.actions.route', 'Görevi Yönlendir')}
@@ -2014,14 +2014,14 @@ const pageKicker = isMyTasksView
                             <Button
                               size="sm"
                               type="button"
-                              className="bg-[#00a6b4] text-white shadow-sm hover:bg-[#008f9c]"
+                              className="bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
                               onClick={() => openRouteModal(task.taskId)}
                             >
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </Button>
                           ) : (
                             // Rutin/yönlendirilemeyen görevlerde de pasif "Yönlendir" — görsel bütünlük (card #729).
-                            <DisabledActionButton size="sm" className="bg-[#00a6b4] text-white" hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}>
+                            <DisabledActionButton size="sm" className="bg-[#007985] text-white" hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}>
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </DisabledActionButton>
                           ))}

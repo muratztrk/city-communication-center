@@ -83,8 +83,16 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         // Owner satırı korunur; mevcut Target satırları silinip yeni seçim eklenir (card 452).
         // Active/Yapılmakta taleplerde hedef değişikliğine izin verilmez (card #724) — sadece temel
         // alanlar güncellenir; hedef değişikliği onay-öncesi durumlarla sınırlı kalır.
+        // Vatandaş Talep Operatörü, sosyal kaynaklı birim dışı talebi hedef birim onaylamadan düzenleyebilir.
+        var canOperatorEditTargetsBeforeTargetApproval = actor.RoleCode == RoleCode.Operator
+            && job.RequestType == JobRequestType.ExternalUnit
+            && job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest
+            && job.Status == JobStatus.Active
+            && !await _dbContext.Tasks.AnyAsync(t => t.JobId == job.JobId && t.TenantId == tenantId, cancellationToken);
+
         if (request.TargetDepartmentIds is not null && job.RequestType == JobRequestType.ExternalUnit
-            && job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested)
+            && (job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested
+                || canOperatorEditTargetsBeforeTargetApproval))
         {
             var newTargetIds = request.TargetDepartmentIds
                 .Where(id => id != Guid.Empty && id != job.OwnerDepartmentId)

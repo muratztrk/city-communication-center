@@ -136,7 +136,9 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 : targets.Length > 0
                     ? JobRequestType.ExternalUnit
                     : JobRequestType.InternalUnit;
-        var requiresOwnerApproval = actor.RoleCode == RoleCode.Staff;
+        var requiresOwnerApproval = actor.RoleCode == RoleCode.Staff
+            || (actor.RoleCode == RoleCode.Operator
+                && sourceType is not (JobSourceType.SocialMessage or JobSourceType.CitizenRequest));
         var ownerTaskNotes = JobOwnerTaskProvisioning.CreateOwnerTaskNotes(ownerUserIds);
         var dueDateUtc = request.DueDateUtc;
         if (!requiresOwnerApproval && dueDateUtc is null)

@@ -702,7 +702,7 @@
   },
   "social": {
     "title": "Vatandaş Talep Akışı",
-    "subtitle": "Gelen mesajları yönlendirin ve işe dönüştürün.",
+    "subtitle": "Gelen mesajları yönlendirin ve talebe dönüştürün.",
     "total": "mesaj",
     "routedSummary": "yönlendirildi",
     "convertedSummary": "işe dönüştü",

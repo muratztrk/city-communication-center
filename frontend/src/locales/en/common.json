@@ -697,7 +697,7 @@
   },
   "social": {
     "title": "Citizen Request Flow",
-    "subtitle": "Route incoming messages and convert them into tasks.",
+    "subtitle": "Route incoming messages and convert them into requests.",
     "total": "messages",
     "routedSummary": "routed",
     "convertedSummary": "converted to task",

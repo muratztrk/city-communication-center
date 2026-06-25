@@ -1,12 +1,15 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
-import { StatusPill } from '../components/ui/status-pill'
+import { DateTimePicker } from '../components/ui/date-time-picker'
+import { FilterableTh } from '../components/ui/FilterableTh'
 import { TablePagination } from '../components/ui/table-pagination'
+import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useSortable } from '../hooks/useSortable'
 import { getLocale } from '../utils/localization'
 
 interface ActivityPlanRow {
@@ -21,6 +24,10 @@ interface ActivityPlanRow {
   status: string
 }
 
+type PlanRowView = ActivityPlanRow & {
+  planNoDisplay: string
+}
+
 type PlanScope = 'daily' | 'past'
 
 const SCOPE_FILTERS: Array<{ value: PlanScope; labelKey: string; fallback: string; chipClass: string }> = [
@@ -28,9 +35,16 @@ const SCOPE_FILTERS: Array<{ value: PlanScope; labelKey: string; fallback: strin
   { value: 'past', labelKey: 'edevletActivityPlans.scope.past', fallback: 'Geçmiş Faaliyet', chipClass: 'scope-chip--all' },
 ]
 
+const SEARCH_COLUMN_KEYS = ['planNoDisplay', 'createdAtUtc', 'activityTypeName', 'neighborhood', 'street', 'description'] as const
+
 function formatPlanNumber(planNumber: number | null, planNumberYear: number | null) {
   if (!planNumber || !planNumberYear) return '—'
   return `FN-${planNumberYear}-${planNumber}`
+}
+
+function formatDateTime(value: string | null | undefined, locale: string) {
+  if (!value) return ''
+  return new Date(value).toLocaleString(locale)
 }
 
 function isSameLocalDay(left: Date, right: Date) {
@@ -49,6 +63,7 @@ export function EDevletActivityPlansListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const locale = getLocale(i18n.language)
   const scopeParam = searchParams.get('view')
   const scope: PlanScope = scopeParam === 'past' ? 'past' : 'daily'
   const [plans, setPlans] = useState<ActivityPlanRow[]>([])
@@ -57,6 +72,12 @@ export function EDevletActivityPlansListPage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [filterFrom, setFilterFrom] = useState('')
+  const [filterTo, setFilterTo] = useState('')
+  const [searchText, setSearchText] = useState('')
+
+  const { sortKey: plansSortKey, sortDir: plansSortDir, toggleSort: _togglePlansSort, sortItems: sortPlans } = useSortable()
+  const { filters: planFilters, setFilter: setPlanFilter, clearFilters: clearPlanFilters, matchesFilters: planMatchesFilters } = useColumnFilters()
 
   const loadPlans = useCallback(async () => {
     setLoading(true)
@@ -74,19 +95,78 @@ export function EDevletActivityPlansListPage() {
     void loadPlans()
   }, [loadPlans])
 
-  const filteredPlans = useMemo(
-    () => plans.filter(plan => isPlanInScope(plan.createdAtUtc, scope)),
+  const getColumnValue = useCallback((key: string, plan: PlanRowView): string => {
+    if (key === 'planNo') return plan.planNoDisplay
+    if (key === 'createdAtUtc') return formatDateTime(plan.createdAtUtc, locale)
+    return String((plan as unknown as Record<string, unknown>)[key] ?? '')
+  }, [locale])
+
+  const scopedPlans = useMemo(
+    () => plans
+      .filter(plan => isPlanInScope(plan.createdAtUtc, scope))
+      .map(plan => ({
+        ...plan,
+        planNoDisplay: formatPlanNumber(plan.planNumber, plan.planNumberYear),
+      })),
     [plans, scope],
   )
 
+  const visiblePlans = useMemo(() => {
+    let result = scopedPlans
+    if (filterFrom || filterTo) {
+      result = result.filter(plan => {
+        const date = plan.createdAtUtc.slice(0, 10)
+        if (filterFrom && date < filterFrom.slice(0, 10)) return false
+        if (filterTo && date > filterTo.slice(0, 10)) return false
+        return true
+      })
+    }
+    if (searchText.trim()) {
+      const query = searchText.toLocaleLowerCase('tr')
+      result = result.filter(plan =>
+        SEARCH_COLUMN_KEYS.some(key => {
+          const display = key === 'planNoDisplay'
+            ? plan.planNoDisplay
+            : key === 'createdAtUtc'
+              ? formatDateTime(plan.createdAtUtc, locale)
+              : String(plan[key] ?? '')
+          return display.toLocaleLowerCase('tr').includes(query)
+        }),
+      )
+    }
+    return result
+  }, [scopedPlans, filterFrom, filterTo, searchText, locale])
+
+  const columnFilteredPlans = useMemo(
+    () => visiblePlans.filter(plan => planMatchesFilters(plan, getColumnValue)),
+    [visiblePlans, planMatchesFilters, getColumnValue],
+  )
+
+  const sortedPlans = useMemo(
+    () => sortPlans(columnFilteredPlans),
+    [columnFilteredPlans, sortPlans],
+  )
+
   const paginatedPlans = useMemo(
-    () => filteredPlans.slice((currentPage - 1) * pageSize, currentPage * pageSize),
-    [filteredPlans, currentPage, pageSize],
+    () => sortedPlans.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [sortedPlans, currentPage, pageSize],
   )
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [scope, pageSize, filteredPlans.length])
+  }, [scope, pageSize, filterFrom, filterTo, searchText, planFilters, sortedPlans.length])
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setCurrentPage(1)
+      clearPlanFilters()
+    })
+  }, [scope, clearPlanFilters])
+
+  const togglePlansSort = (key: string) => {
+    _togglePlansSort(key)
+    setCurrentPage(1)
+  }
 
   const setScope = (nextScope: PlanScope) => {
     setSearchParams(current => {
@@ -131,7 +211,28 @@ export function EDevletActivityPlansListPage() {
               {t('edevletActivityPlans.subtitle', 'Biriminize ait günlük faaliyet planlarını görüntüleyin ve yönetin.')}
             </p>
           </div>
-          <StatusPill tone="info">{filteredPlans.length} {t('edevletActivityPlans.recordCount', 'kayıt')}</StatusPill>
+          <div className="ml-auto mt-auto shrink-0">
+            <div className="scope-chips-filters">
+              <div className="scope-chip-search-wrap">
+                <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
+                <input
+                  type="text"
+                  className="scope-chip-search-input"
+                  placeholder={t('common.search', 'Ara...')}
+                  value={searchText}
+                  onChange={event => setSearchText(event.target.value)}
+                />
+                {searchText ? (
+                  <button type="button" onClick={() => setSearchText('')} className="scope-chip-search-clear shrink-0 font-extrabold transition-colors" aria-label={t('common.clear', 'Temizle')}>
+                    <X className="size-3.5" strokeWidth={3} />
+                  </button>
+                ) : null}
+              </div>
+              <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder={t('filters.startDate', 'Başlangıç tarihi')} className="scope-chip-date" forceDown />
+              <span className="text-xs text-white/60">–</span>
+              <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder={t('filters.endDate', 'Bitiş tarihi')} className="scope-chip-date" forceDown />
+            </div>
+          </div>
         </div>
       </header>
 
@@ -155,16 +256,16 @@ export function EDevletActivityPlansListPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table">
+            <table className={`data-table${paginatedPlans.length === 0 ? ' data-table--empty' : ''}`}>
               <thead>
                 <tr>
-                  <th>{t('edevletActivityPlans.columns.rowNo', 'Sıra No')}</th>
-                  <th>{t('edevletActivityPlans.columns.planNo', 'Faaliyet No')}</th>
-                  <th>{t('edevletActivityPlans.columns.date', 'Tarih')}</th>
-                  <th>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</th>
-                  <th>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</th>
-                  <th>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak/Bulvar')}</th>
-                  <th>{t('edevletActivityPlans.columns.description', 'Açıklama')}</th>
+                  <th className="w-10 text-center">{t('edevletActivityPlans.columns.rowNo', 'Sıra No')}</th>
+                  <FilterableTh filterKey="planNo" filterValue={planFilters['planNo'] ?? ''} onFilter={setPlanFilter} sortKey="planNoDisplay" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.planNo', 'Faaliyet No')}</FilterableTh>
+                  <FilterableTh filterKey="createdAtUtc" filterValue={planFilters['createdAtUtc'] ?? ''} onFilter={setPlanFilter} sortKey="createdAtUtc" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.date', 'Tarih')}</FilterableTh>
+                  <FilterableTh filterKey="activityTypeName" filterValue={planFilters['activityTypeName'] ?? ''} onFilter={setPlanFilter} sortKey="activityTypeName" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</FilterableTh>
+                  <FilterableTh filterKey="neighborhood" filterValue={planFilters['neighborhood'] ?? ''} onFilter={setPlanFilter} sortKey="neighborhood" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</FilterableTh>
+                  <FilterableTh filterKey="street" filterValue={planFilters['street'] ?? ''} onFilter={setPlanFilter} sortKey="street" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak/Bulvar')}</FilterableTh>
+                  <FilterableTh filterKey="description" filterValue={planFilters['description'] ?? ''} onFilter={setPlanFilter} sortKey="description" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.description', 'Açıklama')}</FilterableTh>
                   <th className="text-center">{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -173,9 +274,9 @@ export function EDevletActivityPlansListPage() {
                   const isCancelled = plan.status === 'Cancelled'
                   return (
                     <tr key={plan.planId}>
-                      <td>{(currentPage - 1) * pageSize + index + 1}</td>
-                      <td>{formatPlanNumber(plan.planNumber, plan.planNumberYear)}</td>
-                      <td>{new Date(plan.createdAtUtc).toLocaleString(getLocale(i18n.language))}</td>
+                      <td className="text-center">{(currentPage - 1) * pageSize + index + 1}</td>
+                      <td>{plan.planNoDisplay}</td>
+                      <td>{formatDateTime(plan.createdAtUtc, locale)}</td>
                       <td>{plan.activityTypeName}</td>
                       <td>{plan.neighborhood ?? '—'}</td>
                       <td>{plan.street ?? '—'}</td>
@@ -207,7 +308,7 @@ export function EDevletActivityPlansListPage() {
                     </tr>
                   )
                 })}
-                {filteredPlans.length === 0 ? (
+                {sortedPlans.length === 0 ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="empty-state">
@@ -222,7 +323,7 @@ export function EDevletActivityPlansListPage() {
             </table>
           </div>
           <TablePagination
-            totalCount={filteredPlans.length}
+            totalCount={sortedPlans.length}
             pageSize={pageSize}
             currentPage={currentPage}
             onPageSizeChange={setPageSize}

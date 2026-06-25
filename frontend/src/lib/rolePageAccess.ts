@@ -23,15 +23,16 @@ export const PAGE_ACCESS_ITEMS = [
 export type PageAccessKey = typeof PAGE_ACCESS_ITEMS[number]['key']
 export type RolePageAccessMatrix = Record<RoleCode, Record<PageAccessKey, boolean>>
 
+/** Pages configurable under the e-Devlet Günlük Faaliyet Planı role column. */
+export const EDEVLET_ROLE_PAGE_KEYS = ['edevletActivityPlan', 'edevletActivityPlansList'] as const satisfies readonly PageAccessKey[]
+
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'
 export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 
 export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce((matrix, role) => {
   matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
     if (role === 'EDevletActivityPlan') {
-      pages[page.key] = page.key === 'dashboard'
-        || page.key === 'edevletActivityPlan'
-        || page.key === 'edevletActivityPlansList'
+      pages[page.key] = EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
       return pages
     }
     if (role === 'Operator') {
@@ -64,7 +65,9 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       }
       return pages
     }, {} as Record<PageAccessKey, boolean>)
-    matrix[role].dashboard = true
+    if (role !== 'EDevletActivityPlan') {
+      matrix[role].dashboard = true
+    }
     matrix[role].settings = role === 'SystemAdmin'
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true

@@ -19,6 +19,7 @@ import { useTenantTheme } from '../context/ThemeContext'
 import { DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
 import {
   DEFAULT_ROLE_PAGE_ACCESS,
+  EDEVLET_ROLE_PAGE_KEYS,
   PAGE_ACCESS_ITEMS,
   ROLE_CODES,
   loadRolePageAccessMatrix,
@@ -1967,6 +1968,11 @@ export function SettingsPage() {
                   <tr key={page.key}>
                     <td className="font-semibold">{t(page.labelKey)}</td>
                     {ROLE_CODES.map(role => {
+                      const hiddenForEdevletRole = role === 'EDevletActivityPlan'
+                        && !EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
+                      if (hiddenForEdevletRole) {
+                        return <td key={`${role}-${page.key}`} aria-hidden="true" />
+                      }
                       const disabled = page.key === 'dashboard' || page.key === 'settings'
                       return (
                         <td key={`${role}-${page.key}`}>

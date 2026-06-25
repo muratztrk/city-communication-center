@@ -55,12 +55,19 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
         jd.UpdatedByUserId = actor.UserId;
 
         var all = await _dbContext.JobDepartments.Where(e => e.JobId == job.JobId).ToListAsync(cancellationToken);
+        var targets = all.Where(x => x.Role == JobDepartmentRole.Target).ToList();
         var ownerOk = all.Any(x => x.Role == JobDepartmentRole.Owner && x.ApprovalStatus == JobApprovalStatus.Approved);
-        var targetsOk = all.Where(x => x.Role == JobDepartmentRole.Target)
-            .All(x => x.ApprovalStatus == JobApprovalStatus.Approved || x.ApprovalStatus == JobApprovalStatus.NotRequired);
+        var targetsOk = targets.All(x => x.ApprovalStatus == JobApprovalStatus.Approved || x.ApprovalStatus == JobApprovalStatus.NotRequired);
+        var isCoordinatedExternal = job.RequestType == JobRequestType.ExternalUnit
+            && (job.IsCoordinated || targets.Count > 1);
 
         var createdTaskCount = 0;
-        if (ownerOk && targetsOk)
+        // Koordine taleplerde ilk hedef birim onayı talebi aktive eder; diğer hedefler bağımsız onaylar (card #866).
+        var shouldActivate = isCoordinatedExternal
+            ? ownerOk
+            : ownerOk && targetsOk;
+
+        if (shouldActivate)
         {
             job.Status = JobStatus.Active;
             job.UpdatedAtUtc = utcNow;
@@ -79,8 +86,11 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
                         utcNow, settings.DefaultSlaHours, tenantId, request.DepartmentId, cancellationToken);
                 }
             }
-            createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(
-                _dbContext, tenantId, job, actor.UserId, utcNow, cancellationToken);
+            if (!isCoordinatedExternal)
+            {
+                createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(
+                    _dbContext, tenantId, job, actor.UserId, utcNow, cancellationToken);
+            }
         }
 
         _dbContext.AuditLogs.Add(new AuditLog

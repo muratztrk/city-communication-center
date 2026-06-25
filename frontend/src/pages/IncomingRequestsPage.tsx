@@ -256,7 +256,7 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     detailsPath: `/request-details?context=incoming&jobId=${job.jobId}`,
     assignTargetDepartmentId,
     pendingTargetApprovalDepartmentId,
-    approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
+    approvedAtUtc: activeTarget?.decidedAtUtc ?? ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
     createdByRoleCode: job.createdByRoleCode ?? null,

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Send, Volume2, X } from 'lucide-react'
+import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, Volume2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { Button } from '../components/ui/button'
-import { ChannelIcon } from '../components/ui/channel-icon'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
+import { DateTimePicker } from '../components/ui/date-time-picker'
 import { StatusPill } from '../components/ui/status-pill'
 import type {
   CitizenConversationSummary,
@@ -474,6 +474,8 @@ export function WhatsAppConversationsPage() {
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(searchParams.get('phone') ?? '')
+  const [filterFrom, setFilterFrom] = useState('')
+  const [filterTo, setFilterTo] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
@@ -510,10 +512,20 @@ export function WhatsAppConversationsPage() {
 
   const normalizedSearchPhone = normalizePhone(search)
   const normalizedSearchName = search.toLocaleLowerCase('tr')
-  const filtered = conversations.filter(conversation =>
-    (normalizedSearchPhone.length > 0 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
-    || (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName),
-  )
+  const filtered = conversations.filter(conversation => {
+    const matchesSearch = normalizedSearchPhone.length === 0 && normalizedSearchName.length === 0
+      ? true
+      : (normalizedSearchPhone.length > 0 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
+        || (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName)
+        || normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone)
+    if (!matchesSearch) return false
+    if (filterFrom || filterTo) {
+      const date = conversation.lastMessageAt.slice(0, 10)
+      if (filterFrom && date < filterFrom.slice(0, 10)) return false
+      if (filterTo && date > filterTo.slice(0, 10)) return false
+    }
+    return true
+  })
 
   const handleReadMarked = useCallback(() => {
     setConversations(prev =>
@@ -540,21 +552,32 @@ export function WhatsAppConversationsPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
+            <div className="page-kicker">{t('nav.social', 'Vatandaş Talepleri')}</div>
             <h1 className="page-title">{t('whatsapp.title')}</h1>
             <p className="page-subtitle">{t('whatsapp.subtitle')}</p>
           </div>
-          {conversations.length > 0 && (
-            <div className="inline-actions">
-              <StatusPill className="banner-status-pill">
-                {conversations.length} konuşma
-              </StatusPill>
-              {conversations.reduce((s, c) => s + c.unreadCount, 0) > 0 && (
-                <StatusPill tone="warning" className="banner-status-pill">
-                  {conversations.reduce((s, c) => s + c.unreadCount, 0)} {t('whatsapp.unread')}
-                </StatusPill>
-              )}
+          <div className="ml-auto mt-auto shrink-0">
+            <div className="scope-chips-filters">
+              <div className="scope-chip-search-wrap">
+                <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
+                <input
+                  type="text"
+                  className="scope-chip-search-input"
+                  placeholder={t('whatsapp.searchPlaceholder', 'Telefon numarasıyla ara…')}
+                  value={search}
+                  onChange={event => setSearch(event.target.value)}
+                />
+                {search ? (
+                  <button type="button" onClick={() => setSearch('')} className="scope-chip-search-clear shrink-0 font-extrabold transition-colors" aria-label={t('common.clear', 'Temizle')}>
+                    <X className="size-3.5" strokeWidth={3} />
+                  </button>
+                ) : null}
+              </div>
+              <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder={t('filters.startDate', 'Başlangıç tarihi')} className="scope-chip-date" forceDown />
+              <span className="text-xs text-white/60">–</span>
+              <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder={t('filters.endDate', 'Bitiş tarihi')} className="scope-chip-date" forceDown />
             </div>
-          )}
+          </div>
         </div>
       </header>
 
@@ -562,18 +585,6 @@ export function WhatsAppConversationsPage() {
       <div className="flex flex-1 min-h-0 overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
         {/* Left: conversation list */}
         <div className="w-80 shrink-0 flex flex-col border-r border-[color:var(--color-border)]">
-          <div className="px-3 py-2.5 border-b border-[color:var(--color-border)]">
-            <div className="relative">
-              <ChannelIcon channel="WhatsApp" className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-[#25d366]" />
-              <input
-                type="search"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder={t('whatsapp.searchPlaceholder')}
-                className="field-input w-full pl-10 text-sm"
-              />
-            </div>
-          </div>
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-32">

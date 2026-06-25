@@ -6,6 +6,7 @@ import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
+import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -44,7 +45,13 @@ function formatPlanNumber(planNumber: number | null, planNumberYear: number | nu
 
 function formatDateTime(value: string | null | undefined, locale: string) {
   if (!value) return ''
-  return new Date(value).toLocaleString(locale)
+  return new Date(value).toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 function isSameLocalDay(left: Date, right: Date) {
@@ -256,7 +263,7 @@ export function EDevletActivityPlansListPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table${paginatedPlans.length === 0 ? ' data-table--empty' : ''}`}>
+            <table className={`data-table jobs-table data-table--zebra${paginatedPlans.length === 0 ? ' data-table--empty' : ''}`}>
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('edevletActivityPlans.columns.rowNo', 'Sıra No')}</th>
@@ -274,9 +281,11 @@ export function EDevletActivityPlansListPage() {
                   const isCancelled = plan.status === 'Cancelled'
                   return (
                     <tr key={plan.planId}>
-                      <td className="text-center">{(currentPage - 1) * pageSize + index + 1}</td>
-                      <td>{plan.planNoDisplay}</td>
-                      <td>{formatDateTime(plan.createdAtUtc, locale)}</td>
+                      <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(currentPage - 1) * pageSize + index + 1}</td>
+                      <td className="table-number-cell font-mono text-xs text-slate-500">
+                        <div className="table-number-cell__value">{plan.planNoDisplay}</div>
+                      </td>
+                      <td><DateCell value={plan.createdAtUtc} locale={locale} /></td>
                       <td>{plan.activityTypeName}</td>
                       <td>{plan.neighborhood ?? '—'}</td>
                       <td>{plan.street ?? '—'}</td>

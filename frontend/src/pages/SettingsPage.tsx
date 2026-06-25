@@ -1969,6 +1969,7 @@ export function SettingsPage() {
                     <td className="font-semibold">{t(page.labelKey)}</td>
                     {ROLE_CODES.map(role => {
                       const hiddenForEdevletRole = role === 'EDevletActivityPlan'
+                        && page.key !== 'dashboard'
                         && !EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
                       if (hiddenForEdevletRole) {
                         return <td key={`${role}-${page.key}`} aria-hidden="true" />

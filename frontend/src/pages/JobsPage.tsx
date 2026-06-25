@@ -697,15 +697,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     'Bekleyen Talepler',
   )
   const detailStatusClass = detail?.status === 'Active'
-    || (isDepartmentOutgoingView && detail?.status === 'PendingOwnerApproval')
+    || detail?.status === 'PendingOwnerApproval'
+    || detail?.status === 'PendingExternalApproval'
     ? 'text-[#f97316]'
-    : detail?.status === 'PendingOwnerApproval'
-      ? 'text-slate-700'
-      : detail?.status === 'Completed'
-        ? 'text-emerald-600'
-        : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
-          ? 'text-red-600'
-          : 'text-slate-900'
+    : detail?.status === 'Completed'
+      ? 'text-emerald-600'
+      : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
+        ? 'text-red-600'
+        : 'text-slate-900'
   const scope = useMemo<JobListScope>(() => {
     if (fixedScope) return fixedScope
     const raw = (searchParams.get('scope') as JobListScope | null) ?? 'department-pool'

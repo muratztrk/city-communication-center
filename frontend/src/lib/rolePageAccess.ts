@@ -32,7 +32,8 @@ export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce((matrix, role) => {
   matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
     if (role === 'EDevletActivityPlan') {
-      pages[page.key] = EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
+      pages[page.key] = page.key === 'dashboard'
+        || EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
       return pages
     }
     if (role === 'Operator') {
@@ -65,9 +66,7 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       }
       return pages
     }, {} as Record<PageAccessKey, boolean>)
-    if (role !== 'EDevletActivityPlan') {
-      matrix[role].dashboard = true
-    }
+    matrix[role].dashboard = true
     matrix[role].settings = role === 'SystemAdmin'
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true

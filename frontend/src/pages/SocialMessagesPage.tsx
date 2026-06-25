@@ -92,6 +92,7 @@ export function SocialMessagesPage() {
   const [error, setError] = useState('')
   // "Talep Oluştur" pop-up'ı için seçilen vatandaş mesajı (card 443).
   const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
+  const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
@@ -151,8 +152,14 @@ export function SocialMessagesPage() {
 
   const handleRequestCreated = () => {
     setRequestModalMessage(null)
+    setRequestModalEditJobId(null)
     void reload()
     invalidateSocialMessages(queryClient, requestModalMessage?.socialMessageId)
+  }
+
+  const openRequestModal = (message: SocialMessage) => {
+    setRequestModalEditJobId(message.jobId)
+    setRequestModalMessage(message)
   }
 
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
@@ -325,15 +332,16 @@ export function SocialMessagesPage() {
                             {t('social.goToConversation', 'Yazışmaya Git')}
                           </Button>
                         ) : null}
-                        {message.jobId ? (
-                          <DisabledActionButton size="sm" variant="success" hoverTitle={t('social.requestAlreadyCreated', 'Talep zaten oluşturulmuş')}>
-                            {t('nav.createRequest', 'Talep Oluştur')}
-                          </DisabledActionButton>
-                        ) : (
-                          <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
-                            {t('nav.createRequest', 'Talep Oluştur')}
-                          </Button>
-                        )}
+                        <Button
+                          size="sm"
+                          type="button"
+                          variant="success"
+                          onClick={() => openRequestModal(message)}
+                        >
+                          {message.jobId
+                            ? t('social.editRequest', 'Talep Düzenle')
+                            : t('nav.createRequest', 'Talep Oluştur')}
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -383,7 +391,11 @@ export function SocialMessagesPage() {
         <CitizenRequestModal
           message={requestModalMessage}
           departments={departments}
-          onClose={() => setRequestModalMessage(null)}
+          editJobId={requestModalEditJobId}
+          onClose={() => {
+            setRequestModalMessage(null)
+            setRequestModalEditJobId(null)
+          }}
           onCreated={handleRequestCreated}
         />
       )}

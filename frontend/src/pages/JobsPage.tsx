@@ -30,6 +30,7 @@ import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { TablePagination } from '../components/ui/table-pagination'
+import { printHtmlDocument } from '../utils/printDocument'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -221,24 +222,6 @@ function stripHtmlTags(value: string | null | undefined) {
   return (parsed.body.innerText || parsed.body.textContent || '').replace(/\u00a0/g, ' ').trim()
 }
 
-function getCenteredPopupFeatures(width: number, height: number): string {
-  const screenLeft = window.screenX ?? window.screenLeft ?? 0
-  const screenTop = window.screenY ?? window.screenTop ?? 0
-  const viewportWidth = window.outerWidth || document.documentElement.clientWidth || window.screen.width
-  const viewportHeight = window.outerHeight || document.documentElement.clientHeight || window.screen.height
-  const left = Math.max(0, Math.round(screenLeft + (viewportWidth - width) / 2))
-  const top = Math.max(0, Math.round(screenTop + (viewportHeight - height) / 2))
-  return `width=${width},height=${height},left=${left},top=${top}`
-}
-
-function getVisibleDetailModalHeight(fallback = 832): number {
-  const modals = Array.from(document.querySelectorAll<HTMLElement>('.detail-modal-shell'))
-    .map(element => element.getBoundingClientRect())
-    .filter(rect => rect.width > 0 && rect.height > 0)
-  const activeRect = modals[modals.length - 1]
-  return Math.round(activeRect?.height ?? fallback)
-}
-
 function buildPrintJobStatusLabel(detail: JobDetail, t: TFunction): string {
   let status = detail.status === 'Active' && detail.tasks.length === 0
     ? 'Yönetici Onayı Bekliyor'
@@ -305,16 +288,11 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
     const tableRows = rows
       .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`)
       .join('')
-    const description = stripHtmlTags(task.description?.trim() ? task.description : detail.description)
     const separator = index > 0 ? 'margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed #cbd5e1' : ''
 
     return `<div style="${separator}">
       <div class="subsection-title">Görev ${index + 1}</div>
       <table><tbody>${tableRows}</tbody></table>
-      <div style="margin-top:8px">
-        <div class="subsection-title" style="margin-bottom:4px">${escHtml(t('tasks.detail.description', 'Açıklama'))}</div>
-        <div class="desc">${description ? escHtml(description).replace(/\n/g, '<br/>') : '<em>Açıklama yok</em>'}</div>
-      </div>
     </div>`
   }).join('')
 
@@ -325,9 +303,6 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
 }
 
 function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
-  const detailModalHeight = getVisibleDetailModalHeight()
-  const win = window.open('', '_blank', getCenteredPopupFeatures(820, detailModalHeight))
-  if (!win) return
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
     ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
@@ -370,7 +345,7 @@ function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
   const description = stripHtmlTags(detail.description)
   const taskDetailSections = buildPrintTaskDetailSections(detail, locale, t)
   const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
-  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(jobDisplayNumber)}</title><style>
+  printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(jobDisplayNumber)}</title><style>
     @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     h1{font-size:18px;margin:4px 0 8px}
@@ -413,7 +388,6 @@ function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
   <div class="page-number">1 / 1</div>
   <script>window.onload=function(){window.print()}</script>
   </body></html>`)
-  win.document.close()
 }
 
 function getMyRequestsView(value: string | null, isManager: boolean, isReporter: boolean): MyRequestsView {
@@ -1505,12 +1479,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <tbody>
                 {pagedJobs.length === 0 && (
                   <tr>
-                    <td colSpan={99} className="empty-state text-center">
-                      {isMyRequestsView
-                        ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
-                        : isDepartmentOutgoingView
-                          ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
-                          : t('jobs.empty')}
+                    <td colSpan={99}>
+                      <div className="empty-state text-center">
+                        {isMyRequestsView
+                          ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
+                          : isDepartmentOutgoingView
+                            ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
+                            : t('jobs.empty')}
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -1718,11 +1694,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     >
                       {t('jobs.actions.edit', 'Düzenle')}
                     </Button>
-                  ) : (
+                  ) : isManagerLike || isPresidencyReporter ? (
                     <DisabledActionButton className="bg-teal-700 text-white" hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
                       {t('jobs.actions.edit', 'Düzenle')}
                     </DisabledActionButton>
-                  )
+                  ) : null
                 })()}
                 {canCancelDetail && (
                   <Button
@@ -2190,7 +2166,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               return (
                 <div className="mb-5 grid gap-4 lg:grid-cols-3">
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
-                    <h3 className="mb-3 text-sm font-bold text-slate-900">
+                    <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                       {t('address.detailSectionTitle', 'Adres Bilgileri')}
                     </h3>
                     {renderJobAddressInfo(detail)}

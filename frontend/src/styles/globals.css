@@ -1840,11 +1840,7 @@
     padding: 1rem 1.1rem;
     border: 1px solid color-mix(in srgb, var(--color-primary) 24%, white);
     border-radius: var(--radius-2xl);
-    background:
-      linear-gradient(135deg,
-        color-mix(in srgb, var(--color-primary) 92%, #0f172a) 0%,
-        color-mix(in srgb, var(--color-secondary) 72%, #155e75) 56%,
-        color-mix(in srgb, var(--color-accent) 58%, #0f766e) 100%);
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     color: white;
     /* Hafif gölge: önceki 0 18px 36px gölge banner'ın ~50px altına taşıp hemen altındaki filtre
        çiplerinin üzerine düşüyordu (çipler banner'ın altında kalmış gibi görünüyordu) (card 610/637). */

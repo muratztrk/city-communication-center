@@ -714,6 +714,7 @@
     "defaultTaskTitle": "{{handle}} talebi",
     "defaultTaskDescription": "{{handle}} tarafından iletilen vatandaş talebi mesajı",
     "empty": "Henüz mesaj bulunmuyor",
+    "goToConversation": "Yazışmaya Git",
     "delete": "Sil",
     "deleteConfirm": "Bu mesajı silmek istediğinizden emin misiniz?"
   },

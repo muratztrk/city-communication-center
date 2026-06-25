@@ -714,7 +714,9 @@ export function IncomingRequestsPage() {
               <tbody>
                 {pagedRows.length === 0 && (
                   <tr>
-                    <td colSpan={99} className="empty-state text-center">{t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}</td>
+                    <td colSpan={99}>
+                      <div className="empty-state text-center">{t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}</div>
+                    </td>
                   </tr>
                 )}
                 {pagedRows.map((row, index) => (

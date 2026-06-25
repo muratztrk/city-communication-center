@@ -5,7 +5,7 @@ import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
@@ -16,6 +16,7 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import type { Department, JobDetail, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
+import { TablePagination } from '../components/ui/table-pagination'
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
@@ -116,6 +117,7 @@ function formatJobDestinationsWithAssignees(job: JobDetail): string {
 
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   // The citizen-request inbox opens on WhatsApp, while an explicit `channel=all`
   // keeps the All chip available as a distinct user-selected state.
@@ -135,6 +137,8 @@ export function SocialMessagesPage() {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
+  const [messagesPage, setMessagesPage] = useState(1)
+  const [messagesPageSize, setMessagesPageSize] = useState(10)
 
   useEffect(() => {
     let isActive = true
@@ -243,6 +247,15 @@ export function SocialMessagesPage() {
     [filteredMessages, socialMatchesFilters],
   )
 
+  useEffect(() => {
+    setMessagesPage(1)
+  }, [channelFilter, filterFrom, filterTo, searchText, socialFilters])
+
+  const pagedMessages = useMemo(
+    () => columnFilteredMessages.slice((messagesPage - 1) * messagesPageSize, messagesPage * messagesPageSize),
+    [columnFilteredMessages, messagesPage, messagesPageSize],
+  )
+
   const channelQuickFilters: { value: string; label: string }[] = [
     { value: 'Phone', label: t('nav.socialPhone', 'Çağrı') },
     { value: 'Instagram', label: 'Instagram' },
@@ -314,7 +327,7 @@ export function SocialMessagesPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table">
+          <table className={`data-table${pagedMessages.length === 0 ? ' data-table--empty' : ''}`}>
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -327,10 +340,10 @@ export function SocialMessagesPage() {
               </tr>
             </thead>
             <tbody>
-              {columnFilteredMessages.map((message, index) => (
+              {pagedMessages.map((message, index) => (
                 <Fragment key={message.socialMessageId}>
                   <tr>
-                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(messagesPage - 1) * messagesPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">{formatCitizenRequestNumber(message)}</td>
                     <td>
                       <span className="inline-flex items-center gap-1.5">
@@ -343,11 +356,7 @@ export function SocialMessagesPage() {
                     <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
-                        {!message.jobId ? (
-                          <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
-                            {t('nav.createRequest', 'Talep Oluştur')}
-                          </Button>
-                        ) : message.jobId ? (
+                        {message.jobId ? (
                           <Button
                             size="sm"
                             type="button"
@@ -357,9 +366,22 @@ export function SocialMessagesPage() {
                           >
                             {t('jobs.actions.details', 'Detaylar')}
                           </Button>
-                        ) : (
-                          <span className="text-sm text-slate-400">{t('common.none')}</span>
-                        )}
+                        ) : null}
+                        {message.channel === 'WhatsApp' ? (
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant="secondary"
+                            onClick={() => navigate(`/whatsapp?phone=${encodeURIComponent(message.citizenHandle)}`)}
+                          >
+                            {t('social.goToConversation', 'Yazışmaya Git')}
+                          </Button>
+                        ) : null}
+                        {!message.jobId ? (
+                          <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
+                            {t('nav.createRequest', 'Talep Oluştur')}
+                          </Button>
+                        ) : null}
                       </div>
                     </td>
                   </tr>
@@ -388,13 +410,20 @@ export function SocialMessagesPage() {
               {columnFilteredMessages.length === 0 ? (
                 <tr>
                   <td colSpan={7}>
-                    <div className="empty-state">{t('social.empty')}</div>
+                    <div className="empty-state text-center">{t('social.empty')}</div>
                   </td>
                 </tr>
               ) : null}
             </tbody>
           </table>
         </div>
+        <TablePagination
+          totalCount={columnFilteredMessages.length}
+          pageSize={messagesPageSize}
+          currentPage={messagesPage}
+          onPageSizeChange={setMessagesPageSize}
+          onPageChange={setMessagesPage}
+        />
       </section>
 
       {/* "Talep Oluştur" → Birim Dışı Talep Oluştur formu (card 443). */}

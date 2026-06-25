@@ -424,13 +424,13 @@ export function DashboardPage() {
             {dashboardQuery.isLoading
               ? (
                 <>
-                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
-                    {Array.from({ length: 5 }).map((_, i) => (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
-                    {Array.from({ length: 5 }).map((_, i) => (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
@@ -439,7 +439,7 @@ export function DashboardPage() {
               : (
                 // Tek grid: Vatandaş Talepleri ayrı satıra taşmadan Birimde Bekleyen
                 // Görevler'in yanında akar.
-                <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[...managerRow1, ...managerRow2].map(renderCard)}
                 </div>
               )}

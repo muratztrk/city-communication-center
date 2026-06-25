@@ -130,7 +130,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
       role="presentation"
     >
       <div
-        className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="flex max-h-[min(78dvh,44rem)] w-full max-w-[68rem] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         {/* Header */}
@@ -165,133 +165,139 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
             />
           </div>
 
-          {/* Birim Dışı Talep Oluştur formu */}
+          {/* Birim Dışı Talep Oluştur formu — CreateRequestPage external layout ile aynı 2 kolon */}
           <form className="flex min-h-0 flex-col overflow-y-auto p-5" onSubmit={handleSubmit}>
-            <div className="grid gap-3">
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-req-title">
-                  {t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="citizen-req-title"
-                  className="field-input"
-                  value={title}
-                  onChange={event => setTitle(event.target.value)}
-                  required
-                />
-              </div>
+            <div className="grid gap-4 xl:grid-cols-2">
+              <div className="grid content-start gap-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="job-field">
+                    <label className="job-field-label" htmlFor="citizen-req-title">
+                      {t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="citizen-req-title"
+                      className="field-input"
+                      value={title}
+                      onChange={event => setTitle(event.target.value)}
+                      required
+                    />
+                  </div>
 
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-req-target">
-                  {t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="citizen-req-target"
-                  className="field-select"
-                  value={targetDepartmentId}
-                  onChange={event => setTargetDepartmentId(event.target.value)}
-                >
-                  <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
-                  {targetDepartmentOptions.map(department => (
-                    <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-req-coordinated">
-                  {t('jobs.form.isCoordinated', 'Koordineli talep mi?')}
-                </label>
-                <select
-                  id="citizen-req-coordinated"
-                  className="field-select"
-                  value={isCoordinated ? 'yes' : 'no'}
-                  onChange={event => {
-                    const next = event.target.value === 'yes'
-                    setIsCoordinated(next)
-                    if (!next) setCoordinatedDepartmentIds([])
-                  }}
-                >
-                  <option value="no">{t('common.no', 'Hayır')}</option>
-                  <option value="yes">{t('common.yes', 'Evet')}</option>
-                </select>
-              </div>
-
-              {isCoordinated ? (
-                <div className="job-field">
-                  <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
-                  <MultiSelectDropdown
-                    options={coordinatedDepartmentOptions}
-                    value={coordinatedDepartmentIds}
-                    onChange={setCoordinatedDepartmentIds}
-                    placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
-                    emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                  />
-                  <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
+                  <div className="job-field">
+                    <label className="job-field-label" htmlFor="citizen-req-target">
+                      {t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="citizen-req-target"
+                      className="field-select"
+                      value={targetDepartmentId}
+                      onChange={event => setTargetDepartmentId(event.target.value)}
+                    >
+                      <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
+                      {targetDepartmentOptions.map(department => (
+                        <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              ) : null}
 
-              <div className="grid gap-3 md:grid-cols-2">
                 <div className="job-field">
-                  <label className="job-field-label" htmlFor="citizen-req-priority">{t('jobs.form.priority', 'Öncelik')}</label>
-                  <select id="citizen-req-priority" className="field-select" value={priority} onChange={event => setPriority(event.target.value)}>
-                    <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                    <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                    <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                  </select>
-                </div>
-                <div className="job-field">
-                  <label className="job-field-label" htmlFor="citizen-req-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
-                  <select id="citizen-req-project" className="field-select" value={isProject ? 'yes' : 'no'} onChange={event => setIsProject(event.target.value === 'yes')}>
+                  <label className="job-field-label" htmlFor="citizen-req-coordinated">
+                    {t('jobs.form.isCoordinated', 'Koordineli talep mi?')}
+                  </label>
+                  <select
+                    id="citizen-req-coordinated"
+                    className="field-select"
+                    value={isCoordinated ? 'yes' : 'no'}
+                    onChange={event => {
+                      const next = event.target.value === 'yes'
+                      setIsCoordinated(next)
+                      if (!next) setCoordinatedDepartmentIds([])
+                    }}
+                  >
                     <option value="no">{t('common.no', 'Hayır')}</option>
                     <option value="yes">{t('common.yes', 'Evet')}</option>
                   </select>
                 </div>
+
+                {isCoordinated ? (
+                  <div className="job-field">
+                    <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
+                    <MultiSelectDropdown
+                      options={coordinatedDepartmentOptions}
+                      value={coordinatedDepartmentIds}
+                      onChange={setCoordinatedDepartmentIds}
+                      placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
+                      emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                    />
+                    <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
+                  </div>
+                ) : null}
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="job-field">
+                    <label className="job-field-label" htmlFor="citizen-req-priority">{t('jobs.form.priority', 'Öncelik')}</label>
+                    <select id="citizen-req-priority" className="field-select" value={priority} onChange={event => setPriority(event.target.value)}>
+                      <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                    </select>
+                  </div>
+                  <div className="job-field">
+                    <label className="job-field-label" htmlFor="citizen-req-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
+                    <select id="citizen-req-project" className="field-select" value={isProject ? 'yes' : 'no'} onChange={event => setIsProject(event.target.value === 'yes')}>
+                      <option value="no">{t('common.no', 'Hayır')}</option>
+                      <option value="yes">{t('common.yes', 'Evet')}</option>
+                    </select>
+                  </div>
+                  <div className="job-field">
+                    <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
+                    <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
+                  </div>
+                  <div className="job-field">
+                    <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
+                    <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
+                  </div>
+                </div>
+
                 <div className="job-field">
-                  <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
-                  <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
-                </div>
-                <div className="job-field">
-                  <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
-                  <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
-                </div>
-              </div>
-
-              <div className="job-field">
-                <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
-                <div className="grid gap-2 md:grid-cols-2">
+                  <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <input
+                      className="field-input"
+                      placeholder={t('address.neighborhoodLabel', 'Mahalle')}
+                      value={neighborhood}
+                      onChange={event => setNeighborhood(event.target.value)}
+                    />
+                    <input
+                      className="field-input"
+                      placeholder={t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+                      value={street}
+                      onChange={event => setStreet(event.target.value)}
+                    />
+                  </div>
                   <input
-                    className="field-input"
-                    placeholder={t('address.neighborhoodLabel', 'Mahalle')}
-                    value={neighborhood}
-                    onChange={event => setNeighborhood(event.target.value)}
-                  />
-                  <input
-                    className="field-input"
-                    placeholder={t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
-                    value={street}
-                    onChange={event => setStreet(event.target.value)}
+                    className="field-input mt-2"
+                    placeholder={t('address.openAddressLabel', 'Açık Adres')}
+                    value={openAddress}
+                    onChange={event => setOpenAddress(event.target.value)}
                   />
                 </div>
-                <input
-                  className="field-input mt-2"
-                  placeholder={t('address.openAddressLabel', 'Açık Adres')}
-                  value={openAddress}
-                  onChange={event => setOpenAddress(event.target.value)}
-                />
               </div>
 
-              <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="text-red-500">*</span></span>
-                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-40" />
+              <div className="grid content-start gap-3">
+                <div className="job-field min-h-0">
+                  <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="text-red-500">*</span></span>
+                  <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-52" />
+                </div>
+
+                {error ? <div className="error">{error}</div> : null}
+
+                <Button type="submit" disabled={saving} className="gap-2">
+                  <Send className="size-4" />
+                  {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+                </Button>
               </div>
-
-              {error ? <div className="error">{error}</div> : null}
-
-              <Button type="submit" disabled={saving} className="gap-2">
-                <Send className="size-4" />
-                {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
-              </Button>
             </div>
           </form>
         </div>

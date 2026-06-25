@@ -709,6 +709,7 @@
     "defaultTaskTitle": "{{handle}} request",
     "defaultTaskDescription": "Social media message received from {{handle}}",
     "empty": "No messages found yet",
+    "goToConversation": "Go to Conversation",
     "delete": "Delete",
     "deleteConfirm": "Are you sure you want to delete this message?"
   },

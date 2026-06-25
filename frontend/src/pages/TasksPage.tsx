@@ -25,6 +25,7 @@ import { useAuth } from '../context/AuthContext'
 import type { Attachment, Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
+import { printHtmlDocument } from '../utils/printDocument'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -149,28 +150,7 @@ function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function getCenteredPopupFeatures(width: number, height: number): string {
-  const screenLeft = window.screenX ?? window.screenLeft ?? 0
-  const screenTop = window.screenY ?? window.screenTop ?? 0
-  const viewportWidth = window.outerWidth || document.documentElement.clientWidth || window.screen.width
-  const viewportHeight = window.outerHeight || document.documentElement.clientHeight || window.screen.height
-  const left = Math.max(0, Math.round(screenLeft + (viewportWidth - width) / 2))
-  const top = Math.max(0, Math.round(screenTop + (viewportHeight - height) / 2))
-  return `width=${width},height=${height},left=${left},top=${top}`
-}
-
-function getVisibleDetailModalHeight(fallback = 832): number {
-  const modals = Array.from(document.querySelectorAll<HTMLElement>('.detail-modal-shell'))
-    .map(element => element.getBoundingClientRect())
-    .filter(rect => rect.width > 0 && rect.height > 0)
-  const activeRect = modals[modals.length - 1]
-  return Math.round(activeRect?.height ?? fallback)
-}
-
 function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
-  const detailModalHeight = getVisibleDetailModalHeight()
-  const win = window.open('', '_blank', getCenteredPopupFeatures(820, detailModalHeight))
-  if (!win) return
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const description = stripHtmlTags(resolveTaskDescription(taskDetail, parentJob))
   const gorevTipi = taskDetail.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
@@ -203,7 +183,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('') : ''
-  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDisplayNumber)}</title><style>
+  printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDisplayNumber)}</title><style>
     @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
     .section{margin-top:1.5rem}
@@ -232,7 +212,6 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
   <div class="page-number">1 / 1</div>
   <script>window.onload=function(){window.print()}</script>
   </body></html>`)
-  win.document.close()
 }
 
 
@@ -1811,7 +1790,7 @@ const pageKicker = isMyTasksView
                     return (
                   <div className="grid gap-4">
                     <section className="form-card page-stack">
-                      <h3 className="mb-1 text-sm font-bold text-slate-900">
+                      <h3 className="mb-1 text-sm font-semibold text-emerald-600">
                         {t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}
                       </h3>
                         <div className="grid gap-2">
@@ -1820,7 +1799,7 @@ const pageKicker = isMyTasksView
                               key={item.assignmentId}
                               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700"
                             >
-                              <div className="font-semibold text-slate-950">
+                              <div className="text-slate-950">
                                 {getDepartmentName(item.toDepartmentId)} · {getUserName(item.toUserId)}
                               </div>
                               <div className="text-xs text-slate-500">
@@ -1883,14 +1862,16 @@ const pageKicker = isMyTasksView
               <tbody>
                 {pagedTasks.length === 0 && (
                   <tr>
-                    <td colSpan={99} className="empty-state text-center">
-                      {isMyTasksView
-                        ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
-                        : isDepartmentTasksView
-                          ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
-                          : isStaffTasksView
-                            ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
-                            : t('tasks.empty', 'No tasks')}
+                    <td colSpan={99}>
+                      <div className="empty-state text-center">
+                        {isMyTasksView
+                          ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
+                          : isDepartmentTasksView
+                            ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
+                            : isStaffTasksView
+                              ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
+                              : t('tasks.empty', 'No tasks')}
+                      </div>
                     </td>
                   </tr>
                 )}

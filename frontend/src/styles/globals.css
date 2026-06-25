@@ -2110,7 +2110,8 @@
   .table-pagination-bar .table-pagination-select {
     border: 1px solid var(--pagination-control-border) !important;
     background-color: var(--pagination-control-bg) !important;
-    color: var(--pagination-control-fg) !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+    color-scheme: dark;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.55' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: right 0.35rem center !important;
@@ -2120,6 +2121,11 @@
     background-color: var(--pagination-control-hover-bg) !important;
     border-color: var(--pagination-control-hover-border) !important;
     color: rgba(255, 255, 255, 0.82) !important;
+  }
+
+  .table-pagination-bar .table-pagination-select option {
+    background-color: var(--color-header-from, #103a5b);
+    color: #ffffff;
   }
 
   .table-pagination-bar .table-pagination-control.active {
@@ -2458,6 +2464,10 @@
     color: rgba(255, 255, 255, 0.9);
   }
 
+  .wallboard-table thead {
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+  }
+
   .wallboard-table thead th {
     position: sticky;
     top: 0;
@@ -2465,7 +2475,7 @@
     padding: 0.68rem 0.8rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background: transparent;
     color: white;
     font-size: clamp(0.64rem, 0.72vw, 0.8rem);
     font-weight: 900;

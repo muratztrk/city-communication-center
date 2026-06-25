@@ -1725,12 +1725,18 @@ const pageKicker = isMyTasksView
                         : []),
                       { label: 'Son Tarih', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },
                     ]
+                    const isCompletedTask = taskDetail.currentStatus === 'Completed'
+                    const addressFields = [
+                      { label: t('address.neighborhoodLabel', 'Mahalle'), value: parentJobDetail.neighborhood },
+                      { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: parentJobDetail.street },
+                      { label: t('address.openAddressLabel', 'Açık Adres'), value: parentJobDetail.openAddress },
+                    ].filter(field => field.value != null && field.value.trim() !== '')
                     return (
                       <section className="form-card page-stack mb-5">
                         <div className="text-sm font-semibold text-emerald-600">
                           {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
-                        <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[48.5%_21.2%_15.15%_15.15%]">
+                        <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${isCompletedTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]' : 'lg:grid-cols-[48.5%_21.2%_15.15%_15.15%]'}`}>
                           <div className="min-w-0 divide-y divide-slate-100">
                             {leftFields.map(({ label, value }) => (
                               // Sol kolon orta kolondan kısa olunca son satır "Öncelik"in altına
@@ -1754,30 +1760,79 @@ const pageKicker = isMyTasksView
                               ))}
                             </div>
                           </div>
-                          {/* 3. sütun: Yönetici Notu — ilgili talebin notu, salt-okunur (card 519) */}
-                          <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                            <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                              {t('jobs.managerNote.title', 'Yönetici Notu')}
-                            </div>
-                            {parentJobDetail.managerNote ? (
-                              <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
-                            ) : (
-                              <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
-                            )}
-                          </div>
-                          {/* 4. sütun: Ekler / Fotoğraflar — talep oluşturulurken eklenen dosyalar, salt-okunur (card 519/527) */}
-                          <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                            <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                              {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                            </div>
-                            <AttachmentSection
-                              attachments={parentJobDetail.attachments}
-                              readOnly
-                              compact
-                              emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-                            />
-                          </div>
+                          {!isCompletedTask ? (
+                            <>
+                              {/* 3. sütun: Yönetici Notu — ilgili talebin notu, salt-okunur (card 519) */}
+                              <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
+                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  {t('jobs.managerNote.title', 'Yönetici Notu')}
+                                </div>
+                                {parentJobDetail.managerNote ? (
+                                  <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
+                                ) : (
+                                  <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
+                                )}
+                              </div>
+                              {/* 4. sütun: Ekler / Fotoğraflar — talep oluşturulurken eklenen dosyalar, salt-okunur (card 519/527) */}
+                              <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
+                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                                </div>
+                                <AttachmentSection
+                                  attachments={parentJobDetail.attachments}
+                                  readOnly
+                                  compact
+                                  emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                                />
+                              </div>
+                            </>
+                          ) : null}
                         </div>
+                        {/* Tamamlanmış görevlerde talep özeti altında Adres / Yönetici Notu / Ekler satırı (JobsPage ile aynı). */}
+                        {isCompletedTask ? (
+                          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                            <section className="rounded-xl border border-slate-200 bg-white p-4">
+                              <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                                {t('address.detailSectionTitle', 'Adres Bilgileri')}
+                              </h3>
+                              {addressFields.length === 0 ? (
+                                <p className="text-sm text-slate-400">{t('address.empty', 'Adres bilgisi girilmemiş.')}</p>
+                              ) : (
+                                <dl className="space-y-2">
+                                  {addressFields.map(field => (
+                                    <div key={field.label}>
+                                      <dt className="text-xs font-semibold text-slate-500">{field.label}</dt>
+                                      <dd className="break-words text-sm text-slate-900">{field.value}</dd>
+                                    </div>
+                                  ))}
+                                </dl>
+                              )}
+                            </section>
+                            <section className="rounded-xl border border-slate-200 bg-white p-4">
+                              <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                                {t('jobs.managerNote.title', 'Yönetici Notu')}
+                              </h3>
+                              {parentJobDetail.managerNote ? (
+                                <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
+                              ) : (
+                                <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
+                              )}
+                            </section>
+                            <section className="rounded-xl border border-slate-200 bg-white p-4">
+                              <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                                {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                              </h3>
+                              <AttachmentSection
+                                attachments={parentJobDetail.attachments ?? []}
+                                readOnly
+                                emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                              />
+                              <p className="mt-2 text-xs font-medium text-amber-600">
+                                {t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
+                              </p>
+                            </section>
+                          </div>
+                        ) : null}
                       </section>
                     )
                   })()}

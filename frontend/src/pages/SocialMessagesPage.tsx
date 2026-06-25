@@ -11,6 +11,7 @@ import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
+import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { Department, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
@@ -153,10 +154,13 @@ export function SocialMessagesPage() {
   const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
 
   const filteredMessages = useMemo(() => {
-    // Varsayılan görünümde WhatsApp satırlarını gizle; WhatsApp çipine tıklanınca gridde göster.
-    let result = messages.filter(message => channelFilter
-      ? message.channel === channelFilter
-      : message.channel !== 'WhatsApp')
+    const showAllChannels = channelParam === ALL_CHANNELS_FILTER
+    // Varsayılan görünümde WhatsApp; "Tümü" seçilince tüm kanallar (WhatsApp dahil).
+    let result = messages.filter(message => {
+      if (channelFilter) return message.channel === channelFilter
+      if (showAllChannels) return true
+      return message.channel !== 'WhatsApp'
+    })
 
     if (filterFrom || filterTo) {
       result = result.filter(message => {
@@ -180,7 +184,7 @@ export function SocialMessagesPage() {
     }
 
     return sortSocial(result)
-  }, [channelFilter, filterFrom, filterTo, messages, searchText, sortSocial])
+  }, [channelFilter, channelParam, filterFrom, filterTo, messages, searchText, sortSocial])
 
   const columnFilteredMessages = useMemo(
     () => filteredMessages.filter(m => socialMatchesFilters(m)),
@@ -305,22 +309,30 @@ export function SocialMessagesPage() {
                           >
                             {t('jobs.actions.details', 'Detaylar')}
                           </Button>
-                        ) : null}
+                        ) : (
+                          <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
+                            {t('jobs.actions.details', 'Detaylar')}
+                          </DisabledActionButton>
+                        )}
                         {message.channel === 'WhatsApp' ? (
                           <Button
                             size="sm"
                             type="button"
-                            variant="secondary"
+                            className="bg-[#00a6b4] text-white hover:bg-[#00919e]"
                             onClick={() => navigate(`/whatsapp?phone=${encodeURIComponent(message.citizenHandle)}`)}
                           >
                             {t('social.goToConversation', 'Yazışmaya Git')}
                           </Button>
                         ) : null}
-                        {!message.jobId ? (
+                        {message.jobId ? (
+                          <DisabledActionButton size="sm" variant="success" hoverTitle={t('social.requestAlreadyCreated', 'Talep zaten oluşturulmuş')}>
+                            {t('nav.createRequest', 'Talep Oluştur')}
+                          </DisabledActionButton>
+                        ) : (
                           <Button size="sm" type="button" variant="success" onClick={() => setRequestModalMessage(message)}>
                             {t('nav.createRequest', 'Talep Oluştur')}
                           </Button>
-                        ) : null}
+                        )}
                       </div>
                     </td>
                   </tr>

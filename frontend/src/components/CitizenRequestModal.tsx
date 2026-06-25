@@ -133,8 +133,11 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
         className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex shrink-0 items-center justify-between gap-3 bg-gradient-to-r from-[color:var(--color-primary)] to-[color:var(--color-secondary,var(--color-primary))] px-5 py-3">
+        {/* Header — sayfa banner'ı ile aynı yeşil geçiş */}
+        <div
+          className="flex shrink-0 items-center justify-between gap-3 px-5 py-3 text-white"
+          style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
+        >
           <div className="min-w-0">
             <div className="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-white/70">
               {t('social.title', 'Vatandaş Talepleri')}
@@ -146,7 +149,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
           <button
             type="button"
             onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25"
+            className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
             aria-label={t('common.close', 'Kapat')}
           >
             <X className="size-4" />
@@ -166,17 +169,20 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
           </div>
 
           {/* Birim Dışı Talep Oluştur formu */}
-          <form className="flex min-h-0 flex-col overflow-y-auto p-5" onSubmit={handleSubmit}>
-            <div className="grid gap-3">
-              <div className="grid gap-3 sm:grid-cols-2">
+          <form className="citizen-request-form flex min-h-0 flex-col overflow-y-auto p-4" onSubmit={handleSubmit}>
+            <div className="grid gap-2.5">
+              <div className="grid gap-2.5 sm:grid-cols-2">
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-title">
-                    {t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-red-500">*</span>
+                    {t('tasks.newRequest.title', 'Talep Başlığı')}{' '}
+                    <span className="text-[0.68rem] font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="citizen-req-title"
                     className="field-input"
                     value={title}
+                    maxLength={50}
                     onChange={event => setTitle(event.target.value)}
                     required
                   />

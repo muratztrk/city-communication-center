@@ -1274,6 +1274,36 @@
     gap: 0.35rem;
   }
 
+  .citizen-request-form .job-field-label {
+    font-size: 0.72rem;
+  }
+
+  .citizen-request-form .field-input,
+  .citizen-request-form .field-select {
+    min-height: 2.1rem;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.82rem;
+  }
+
+  .citizen-request-form .helper-copy {
+    font-size: 0.72rem;
+  }
+
+  .citizen-request-form .rich-text-toolbar {
+    min-height: 2rem;
+    padding: 0.25rem 0.35rem;
+  }
+
+  .citizen-request-form .rich-text-toolbar-button {
+    width: 1.55rem;
+    height: 1.55rem;
+  }
+
+  .citizen-request-form .rich-text-editable {
+    font-size: 0.82rem;
+    min-height: 6.5rem;
+  }
+
   .request-actions button,
   .request-actions a {
     flex: 0 0 auto;
@@ -1920,6 +1950,15 @@
   }
 
   .table-pagination-info span {
+    color: white !important;
+  }
+
+  .table-pagination-bar .table-pagination-label {
+    color: #94a3b8 !important;
+    font-weight: 600;
+  }
+
+  .table-pagination-bar .table-pagination-total-count {
     color: white !important;
   }
 

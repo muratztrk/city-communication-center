@@ -31,11 +31,11 @@ export function TablePagination({
     <div className={`table-pagination-bar${className ? ` ${className}` : ''}`}>
       {/* Left: total + range */}
       <span className="table-pagination-info">
-        <span className="font-semibold text-slate-700">{t('pagination.total', 'Toplam Sayı')}:</span>
+        <span className="table-pagination-label font-semibold">{t('pagination.total', 'Toplam Sayı')}:</span>
         {' '}
-        <span className="font-bold text-[color:var(--color-primary)]">{totalCount}</span>
+        <span className="table-pagination-total-count font-bold">{totalCount}</span>
         {totalCount > 0 && (
-          <span className="table-pagination-range text-slate-400">
+          <span className="table-pagination-range">
             {' '}({from}–{to})
           </span>
         )}
@@ -55,7 +55,7 @@ export function TablePagination({
             <option key={size} value={size}>{size}</option>
           ))}
         </select>
-        <span className="text-slate-500">{t('pagination.perPage', 'Sayfa Başına Kayıt')}</span>
+        <span className="table-pagination-label">{t('pagination.perPage', 'Sayfa Başına Kayıt')}</span>
       </span>
 
       {/* Divider */}

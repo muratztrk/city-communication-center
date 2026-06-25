@@ -1845,7 +1845,7 @@ const pageKicker = isMyTasksView
                     return (
                   <div className="grid gap-4">
                     <section className="form-card page-stack">
-                      <h3 className="mb-1 text-sm font-semibold text-emerald-600">
+                      <h3 className="mb-2 border-b border-slate-200 pb-2 text-sm font-semibold text-emerald-600">
                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                       </h3>
                         <div className="grid gap-2">

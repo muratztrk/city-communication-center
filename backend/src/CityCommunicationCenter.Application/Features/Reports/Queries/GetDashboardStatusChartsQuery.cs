@@ -151,10 +151,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
             _ => departmentTasksQuery,
         };
         departmentTasksQuery = departmentTasksQuery.Where(task =>
-            task.CurrentStatus != WorkflowTaskStatus.Completed
-            && task.CurrentStatus != WorkflowTaskStatus.Cancelled
-            && task.CurrentStatus != WorkflowTaskStatus.Rejected
-            && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval);
+            task.CurrentStatus != WorkflowTaskStatus.Cancelled
+            && task.CurrentStatus != WorkflowTaskStatus.Rejected);
         var ownDepartmentTaskCount = departmentIds.Length == 0
             ? 0
             : await departmentTasksQuery.CountAsync(task => task.AssignedUserId == userId, cancellationToken);
@@ -188,7 +186,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
         CancellationToken cancellationToken)
     {
         var counts = tasks
-            .Where(task => task.AssignedUserId.HasValue)
+            .Where(task => task.AssignedUserId.HasValue
+                && task.Status is not (WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected))
             .GroupBy(task => task.AssignedUserId!.Value)
             .Select(group => new { UserId = group.Key, Count = group.Count() })
             .OrderByDescending(item => item.Count)
@@ -281,5 +280,5 @@ public sealed class GetDashboardStatusChartsQueryHandler
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType);
     private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks);
 
-    private static readonly string[] StaffChartColors = ["primary", "success", "info", "warning", "danger", "neutral"];
+    private static readonly string[] StaffChartColors = ["primary", "success", "info", "warning", "neutral"];
 }

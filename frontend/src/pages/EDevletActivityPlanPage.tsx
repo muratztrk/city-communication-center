@@ -202,7 +202,10 @@ export function EDevletActivityPlanPage() {
               </select>
             </div>
             <div className="grid gap-1">
-              <span className="job-field-label">{t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle/Düzenle/Sil (max 50 Karakter)')}</span>
+              <span className="job-field-label">
+                {t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle/Düzenle/Sil')}
+                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(max 50 Karakter)')}</span>
+              </span>
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   className="field-input min-w-[10rem] flex-1"
@@ -265,7 +268,9 @@ export function EDevletActivityPlanPage() {
             </div>
             <div className="grid gap-1">
               <label className="text-sm font-semibold text-slate-500" htmlFor="activity-street">
-                {t('edevletActivityPlan.streetLabel', 'Cadde / Sokak / Bulvar (max 50 Karakter)')} <span className="text-red-500">*</span>
+                {t('edevletActivityPlan.streetLabel', 'Cadde / Sokak / Bulvar')}
+                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(max 50 Karakter)')}</span>
+                <span className="text-red-500"> *</span>
               </label>
               <input
                 id="activity-street"

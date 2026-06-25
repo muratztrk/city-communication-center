@@ -50,6 +50,7 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             message.CitizenRequestNumber,
             message.CitizenRequestNumberYear,
             message.ReceivedAtUtc,
+            message.UpdatedAtUtc,
             message.Latitude,
             message.Longitude,
             string.IsNullOrWhiteSpace(message.Tags)

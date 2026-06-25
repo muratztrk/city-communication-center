@@ -1,3 +1,4 @@
+import { DateCell } from '../components/ui/date-cell'
 import { MapPin, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
@@ -30,6 +31,10 @@ function formatCitizenRequestNumber(message: SocialMessage) {
   if (message.citizenRequestNumber == null) return '—'
   const year = message.citizenRequestNumberYear ?? new Date(message.receivedAtUtc).getFullYear()
   return `VT-${year}-${message.citizenRequestNumber}`
+}
+
+function getSocialMessageLastDate(message: SocialMessage) {
+  return message.updatedAtUtc ?? message.receivedAtUtc
 }
 
 const DEFAULT_CHANNEL_FILTER = 'WhatsApp'
@@ -71,6 +76,7 @@ function SocialMessageScopeFilters({ searchText, filterFrom, filterTo, onSearch,
 
 export function SocialMessagesPage() {
   const { t, i18n } = useTranslation()
+  const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   // The citizen-request inbox opens on WhatsApp, while an explicit `channel=all`
@@ -262,15 +268,16 @@ export function SocialMessagesPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className={`data-table social-messages-table${pagedMessages.length === 0 ? ' data-table--empty' : ''}`}>
+          <table className={`data-table jobs-table data-table--zebra social-messages-table${pagedMessages.length === 0 ? ' data-table--empty' : ''}`}>
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh filterKey="jobNumber" filterValue={socialFilters['jobNumber'] ?? ''} onFilter={setSocialFilter} sortKey="jobNumber" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenRequestNo', 'Vatandaş Talep No')}</FilterableTh>
+                <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenRequestDate', 'Vatandaş Talep Tarihi')}</FilterableTh>
                 <FilterableTh filterKey="channel" filterValue={socialFilters['channel'] ?? ''} onFilter={setSocialFilter} sortKey="channel" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.channel')}</FilterableTh>
                 <FilterableTh filterKey="citizenHandle" filterValue={socialFilters['citizenHandle'] ?? ''} onFilter={setSocialFilter} sortKey="citizenHandle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.sender')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
-                <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.date')}</FilterableTh>
+                <FilterableTh filterKey="updatedAtUtc" filterValue={socialFilters['updatedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="updatedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.lastDate', 'Son Tarih')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
@@ -279,7 +286,10 @@ export function SocialMessagesPage() {
                 <Fragment key={message.socialMessageId}>
                   <tr>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(messagesPage - 1) * messagesPageSize + index + 1}</td>
-                    <td className="table-number-cell font-mono text-xs text-slate-500">{formatCitizenRequestNumber(message)}</td>
+                    <td className="table-number-cell font-mono text-xs text-slate-500">
+                      <div className="table-number-cell__value">{formatCitizenRequestNumber(message)}</div>
+                    </td>
+                    <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
                     <td>
                       <span className="inline-flex items-center gap-1.5">
                         <ChannelIcon channel={message.channel} className="size-4 shrink-0" />
@@ -288,7 +298,7 @@ export function SocialMessagesPage() {
                     </td>
                     <td className="font-semibold">@{message.citizenHandle}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
-                    <td>{new Date(message.receivedAtUtc).toLocaleString(getLocale(i18n.language))}</td>
+                    <td><DateCell value={getSocialMessageLastDate(message)} locale={locale} /></td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
                         {message.jobId ? (
@@ -329,7 +339,7 @@ export function SocialMessagesPage() {
                   </tr>
                   {hasLocation(message) ? (
                     <tr className="bg-slate-50/70">
-                      <td colSpan={7}>
+                      <td colSpan={8}>
                         <section className="grid gap-2">
                           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600">
                             <MapPin className="size-4 text-[color:var(--color-primary)]" />
@@ -351,7 +361,7 @@ export function SocialMessagesPage() {
               ))}
               {columnFilteredMessages.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <div className="empty-state text-center">{t('social.empty')}</div>
                   </td>
                 </tr>

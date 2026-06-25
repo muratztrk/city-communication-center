@@ -64,6 +64,7 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                 entity.CitizenRequestNumber,
                 entity.CitizenRequestNumberYear,
                 entity.ReceivedAtUtc,
+                entity.UpdatedAtUtc,
                 entity.Latitude,
                 entity.Longitude))
             .ToListAsync(cancellationToken);

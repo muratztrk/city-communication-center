@@ -61,6 +61,7 @@ public sealed record SocialMessageSummaryResponse(
     int? CitizenRequestNumber,
     int? CitizenRequestNumberYear,
     DateTimeOffset ReceivedAtUtc,
+    DateTimeOffset? UpdatedAtUtc,
     double? Latitude,
     double? Longitude);
 
@@ -79,6 +80,7 @@ public sealed record SocialMessageDetailResponse(
     int? CitizenRequestNumber,
     int? CitizenRequestNumberYear,
     DateTimeOffset ReceivedAtUtc,
+    DateTimeOffset? UpdatedAtUtc,
     double? Latitude,
     double? Longitude,
     IReadOnlyCollection<string> Tags);

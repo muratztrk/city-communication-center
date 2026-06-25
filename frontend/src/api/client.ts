@@ -841,6 +841,7 @@ export const api = {
       citizenRequestNumber: detail.citizenRequestNumber ?? null,
       citizenRequestNumberYear: detail.citizenRequestNumberYear ?? null,
       receivedAtUtc: detail.receivedAtUtc,
+      updatedAtUtc: detail.updatedAtUtc ?? null,
       latitude: detail.latitude,
       longitude: detail.longitude,
     }

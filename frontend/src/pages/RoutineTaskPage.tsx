@@ -237,11 +237,11 @@ export function RoutineTaskPage() {
 
                 <div className="job-field min-h-0">
                   <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                  <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+                  <div className="grid gap-3 lg:grid-cols-2 lg:items-stretch">
                     <div
                       role="button"
                       tabIndex={submitting ? -1 : 0}
-                      className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${submitting ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+                      className={`request-photo-dropzone flex h-full min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${submitting ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
                       onClick={() => !submitting && fileInputRef.current?.click()}
                       onKeyDown={event => event.key === 'Enter' && !submitting && fileInputRef.current?.click()}
                       onDragOver={event => event.preventDefault()}
@@ -267,7 +267,7 @@ export function RoutineTaskPage() {
                         }}
                       />
                     </div>
-                    <div className="min-h-[5.5rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    <div className="flex h-full min-h-[5.5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2">
                       {pendingFiles.length === 0 ? (
                         <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
                       ) : (

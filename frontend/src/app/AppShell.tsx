@@ -156,11 +156,11 @@ export function AppShell() {
     .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; compact?: boolean }
+  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean }
 
   const navItemConfigs: NavLinkConfigEx[] = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
-    { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: t('nav.edevletActivityPlan', 'e-Devlet Günlük Faaliyet Planı Oluştur'), icon: ClipboardPlus, compact: true },
+    { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri, "WhatsApp Konuşmaları" alt öğesiyle açılır bir grup olarak gösterilir (card 621).
@@ -188,12 +188,12 @@ export function AppShell() {
         items.push({
           type: 'group',
           label: item.label,
-          icon: item.icon,
+          icon: item.icon!,
           path: item.path,
           children: item.children.map(child => ({ path: child.path, label: child.label, icon: child.icon, newTab: child.newTab })),
         })
       } else {
-        items.push({ path: item.path, label: item.label, icon: item.icon, newTab: item.newTab, compact: item.compact })
+        items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, newTab: item.newTab })
       }
       if (item.separatorAfter) items.push({ type: 'separator' })
     }

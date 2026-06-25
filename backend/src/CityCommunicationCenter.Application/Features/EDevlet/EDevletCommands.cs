@@ -33,6 +33,7 @@ public sealed class CreateEDevletActivityTypeCommandValidator : AbstractValidato
     public CreateEDevletActivityTypeCommandValidator()
     {
         RuleFor(c => c.Name).NotEmpty().WithMessage("Faaliyet tipi adi zorunludur.");
+        RuleFor(c => c.Name).MaximumLength(50).WithMessage("Faaliyet tipi adi en fazla 50 karakter olabilir.");
     }
 }
 
@@ -73,6 +74,7 @@ public sealed class UpdateEDevletActivityTypeCommandValidator : AbstractValidato
     public UpdateEDevletActivityTypeCommandValidator()
     {
         RuleFor(c => c.Name).NotEmpty().WithMessage("Faaliyet tipi adi zorunludur.");
+        RuleFor(c => c.Name).MaximumLength(50).WithMessage("Faaliyet tipi adi en fazla 50 karakter olabilir.");
     }
 }
 
@@ -146,9 +148,10 @@ public sealed class CreateEDevletDailyActivityPlanCommandValidator : AbstractVal
     {
         RuleFor(c => c.ActivityTypeId).NotEmpty().WithMessage("Faaliyet tipi secilmelidir.");
         RuleFor(c => c.Description).NotEmpty().WithMessage("Aciklama zorunludur.");
-        RuleFor(c => c.Description).MaximumLength(50).WithMessage("Aciklama en fazla 50 karakter olabilir.");
+        RuleFor(c => c.Description).MaximumLength(100).WithMessage("Aciklama en fazla 100 karakter olabilir.");
         RuleFor(c => c.Neighborhood).NotEmpty().WithMessage("Mahalle secilmelidir.");
         RuleFor(c => c.Street).NotEmpty().WithMessage("Cadde / sokak / bulvar zorunludur.");
+        RuleFor(c => c.Street).MaximumLength(50).WithMessage("Cadde / sokak / bulvar en fazla 50 karakter olabilir.");
     }
 }
 

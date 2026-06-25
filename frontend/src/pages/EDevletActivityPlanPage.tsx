@@ -26,6 +26,10 @@ const INITIAL: FormState = {
   street: '',
 }
 
+const TYPE_NAME_MAX = 50
+const STREET_MAX = 50
+const DESCRIPTION_MAX = 100
+
 export function EDevletActivityPlanPage() {
   const { t } = useTranslation()
   const [form, setForm] = useState<FormState>(INITIAL)
@@ -104,9 +108,9 @@ export function EDevletActivityPlanPage() {
     event.preventDefault()
     if (!form.activityTypeId || !form.description.trim() || !form.neighborhood || !form.street.trim()) return
     setConfirmDialog({
-      title: t('nav.edevletActivityPlan', 'e-Devlet Günlük Faaliyet Planı Oluştur'),
+      title: t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur'),
       message: t('edevletActivityPlan.createConfirm', 'Faaliyet planını kaydetmek istediğinize emin misiniz?'),
-      confirmLabel: t('common.save', 'Kaydet'),
+      confirmLabel: t('edevletActivityPlan.submit', 'Faaliyet Planı Oluştur'),
       cancelLabel: t('common.cancel', 'İptal'),
       variant: 'success',
       onConfirm: () => { void executeCreate() },
@@ -156,12 +160,13 @@ export function EDevletActivityPlanPage() {
               </select>
             </div>
             <div className="grid gap-1">
-              <span className="job-field-label">{t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle/Düzenle/Sil')}</span>
+              <span className="job-field-label">{t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle/Düzenle/Sil (max 50 Karakter)')}</span>
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   className="field-input min-w-[10rem] flex-1"
                   placeholder={t('edevletActivityPlan.newTypePlaceholder', 'Yeni faaliyet tipi adı')}
                   value={typeName}
+                  maxLength={TYPE_NAME_MAX}
                   onChange={event => setTypeName(event.target.value)}
                 />
                 <Button type="button" variant="secondary" onClick={() => { void handleSaveType() }}>
@@ -218,13 +223,14 @@ export function EDevletActivityPlanPage() {
             </div>
             <div className="grid gap-1">
               <label className="text-sm font-semibold text-slate-500" htmlFor="activity-street">
-                {t('address.streetLabel', 'Cadde / Sokak / Bulvar')} <span className="text-red-500">*</span>
+                {t('edevletActivityPlan.streetLabel', 'Cadde / Sokak / Bulvar (max 50 Karakter)')} <span className="text-red-500">*</span>
               </label>
               <input
                 id="activity-street"
                 className="field-input"
                 placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                 value={form.street}
+                maxLength={STREET_MAX}
                 onChange={event => setForm(current => ({ ...current, street: event.target.value }))}
                 required
               />
@@ -235,13 +241,13 @@ export function EDevletActivityPlanPage() {
         <div className="job-field">
           <label className="job-field-label" htmlFor="activity-description">
             {t('tasks.detail.description', 'Açıklama')}
-            <span className="text-xs font-normal text-slate-400"> {t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>
+            <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 100 karakter)')}</span>
             <span className="text-red-500"> *</span>
           </label>
           <textarea
             id="activity-description"
-            className="field-textarea min-h-24"
-            maxLength={50}
+            className="field-textarea min-h-28 text-base leading-relaxed"
+            maxLength={DESCRIPTION_MAX}
             value={form.description}
             onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
             placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
@@ -251,7 +257,7 @@ export function EDevletActivityPlanPage() {
 
         <Button type="submit" disabled={!canSubmit} className="gap-2 self-start">
           <Send className="size-4" />
-          {submitting ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+          {submitting ? t('common.saving', 'Kaydediliyor...') : t('edevletActivityPlan.submit', 'Faaliyet Planı Oluştur')}
         </Button>
       </form>
 

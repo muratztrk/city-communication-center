@@ -359,7 +359,9 @@ export function SocialMessagesPage() {
                             size="sm"
                             type="button"
                             className="bg-[#007985] text-white hover:bg-[#006570]"
-                            onClick={() => navigate(`/whatsapp?phone=${encodeURIComponent(message.citizenHandle)}`)}
+                            onClick={() => navigate(
+                              `/whatsapp?phone=${encodeURIComponent(message.citizenHandle)}&at=${encodeURIComponent(message.receivedAtUtc)}&messageId=${encodeURIComponent(message.socialMessageId)}`,
+                            )}
                           >
                             {t('social.goToConversation', 'Yazışmaya Git')}
                           </Button>

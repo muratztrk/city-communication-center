@@ -34,6 +34,33 @@ function normalizePhone(phone: string): string {
   return phone.replace(/\D/g, '').replace(/^0(?=5\d{9}$)/, '90')
 }
 
+function findClosestTimelineEntryIndex(
+  timeline: CitizenConversationTimelineEntry[],
+  anchorAtUtc: string,
+  anchorSocialMessageId?: string | null,
+): number {
+  if (anchorSocialMessageId) {
+    const exactIndex = timeline.findIndex(entry => entry.socialMessageId === anchorSocialMessageId)
+    if (exactIndex >= 0) return exactIndex
+  }
+
+  const anchorTime = new Date(anchorAtUtc).getTime()
+  if (Number.isNaN(anchorTime) || timeline.length === 0) {
+    return Math.max(timeline.length - 1, 0)
+  }
+
+  let bestIndex = 0
+  let bestDiff = Number.POSITIVE_INFINITY
+  for (let index = 0; index < timeline.length; index += 1) {
+    const diff = Math.abs(new Date(timeline[index].sentAt).getTime() - anchorTime)
+    if (diff < bestDiff) {
+      bestDiff = diff
+      bestIndex = index
+    }
+  }
+  return bestIndex
+}
+
 function formatRelativeTime(dateStr: string, locale: string): string {
   const d = new Date(dateStr)
   const diffMs = Date.now() - d.getTime()
@@ -242,6 +269,8 @@ function TemplatePicker({
 function ConversationDetail({
   conversationId,
   templates,
+  anchorAtUtc,
+  anchorSocialMessageId,
   onClose,
   onReadMarked,
   onOpenCreateRequest,
@@ -250,6 +279,8 @@ function ConversationDetail({
 }: {
   conversationId: string
   templates: WhatsAppMessageTemplate[]
+  anchorAtUtc?: string | null
+  anchorSocialMessageId?: string | null
   onClose?: () => void
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId: string) => void
@@ -261,7 +292,10 @@ function ConversationDetail({
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
+  const [highlightEntryIndex, setHighlightEntryIndex] = useState<number | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const entryRefs = useRef<Map<number, HTMLDivElement>>(new Map())
+  const anchorAppliedRef = useRef(false)
 
   const loadDetail = useCallback(async () => {
     setLoading(true)
@@ -282,8 +316,31 @@ function ConversationDetail({
   }, [conversationId, loadDetail, onReadMarked])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [detail?.timeline.length])
+    anchorAppliedRef.current = false
+    entryRefs.current.clear()
+  }, [conversationId, anchorAtUtc, anchorSocialMessageId])
+
+  useEffect(() => {
+    if (loading || !detail || detail.timeline.length === 0) return
+
+    if (anchorAtUtc && !anchorAppliedRef.current) {
+      const targetIndex = findClosestTimelineEntryIndex(detail.timeline, anchorAtUtc, anchorSocialMessageId)
+      const targetElement = entryRefs.current.get(targetIndex)
+      if (targetElement) {
+        anchorAppliedRef.current = true
+        window.setTimeout(() => {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          setHighlightEntryIndex(targetIndex)
+          window.setTimeout(() => setHighlightEntryIndex(null), 2500)
+        }, 50)
+        return
+      }
+    }
+
+    if (!anchorAtUtc) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [anchorAtUtc, anchorSocialMessageId, detail, loading])
 
   const handleSend = async () => {
     const text = replyText.trim()
@@ -357,8 +414,17 @@ function ConversationDetail({
         ) : !detail || detail.timeline.length === 0 ? (
           <p className="text-center text-sm text-slate-400 mt-8">{t('social.noMessages', 'Henüz mesaj yok')}</p>
         ) : (
-          detail.timeline.map((entry, i) => (
-            <EntryBubble key={entry.entryId || i} entry={entry} />
+          detail.timeline.map((entry, index) => (
+            <div
+              key={entry.entryId || index}
+              ref={element => {
+                if (element) entryRefs.current.set(index, element)
+                else entryRefs.current.delete(index)
+              }}
+              className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-white/90 ring-offset-2 ring-offset-transparent transition-shadow' : undefined}
+            >
+              <EntryBubble entry={entry} />
+            </div>
           ))
         )}
         <div ref={bottomRef} />
@@ -465,6 +531,8 @@ export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const requestedPhone = searchParams.get('phone') ?? ''
+  const requestedAt = searchParams.get('at') ?? ''
+  const requestedMessageId = searchParams.get('messageId') ?? ''
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -623,9 +691,11 @@ export function WhatsAppConversationsPage() {
         <div className="flex-1 min-w-0">
           {selectedId ? (
             <ConversationDetail
-              key={`${selectedId}-${detailRefreshKey}`}
+              key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}`}
               conversationId={selectedId}
               templates={templates}
+              anchorAtUtc={requestedAt || null}
+              anchorSocialMessageId={requestedMessageId || null}
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
               onOpenEditRequest={(socialMessageId, jobId) => { void handleOpenEditRequest(socialMessageId, jobId) }}

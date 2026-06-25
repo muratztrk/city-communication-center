@@ -210,7 +210,6 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
   </div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <div class="page-number">1 / 1</div>
-  <script>window.onload=function(){window.print()}</script>
   </body></html>`)
 }
 
@@ -1584,7 +1583,7 @@ const pageKicker = isMyTasksView
                           <aside className="min-w-0 border-t border-slate-200 p-4 lg:border-l lg:border-t-0">
                             <span className="inline-block border-b border-slate-200 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Görev Ekleri</span>
                             {(taskDetail.attachments?.length ?? 0) > 0 && (
-                              <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
+                              <ul className="mt-2 space-y-1 text-[11px] leading-4">
                                 {taskDetail.attachments.map(att => (
                                   <li key={att.attachmentId}>
                                     <button

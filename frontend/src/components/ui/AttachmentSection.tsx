@@ -163,7 +163,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
 
       {/* Dosya listesi — Talep Detayları ve görev tamamlama paneliyle aynı görünüm (card #855). */}
       {attachments.length > 0 && displayMode === 'list' && (
-        <ul className="space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
+        <ul className="space-y-1 text-[11px] leading-4">
           {attachments.map(att => (
             <li key={att.attachmentId} className="flex min-w-0 items-start gap-2">
               <button

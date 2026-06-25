@@ -269,6 +269,7 @@ export const api = {
     departmentId: string | null
     additionalDepartmentIds?: string[]
     roleCode: string
+    additionalRoleCodes?: string[]
     isActive: boolean
     sourceType: string
     externalIdentityId: string | null
@@ -288,6 +289,7 @@ export const api = {
     departmentId: string
     additionalDepartmentIds?: string[]
     roleCode: string
+    additionalRoleCodes?: string[]
     isActive: boolean
   }): Promise<User> {
     const response = await fetchWithCredentials(`${API_BASE}/users/${userId}`, {

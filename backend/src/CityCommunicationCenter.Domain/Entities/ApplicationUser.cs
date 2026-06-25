@@ -24,6 +24,8 @@ public sealed class ApplicationUser : AuditableTenantEntity, IHasDatabaseIndexDe
 
     public RoleCode RoleCode { get; set; } = RoleCode.Staff;
 
+    public string? AdditionalRoleCodesJson { get; set; }
+
     public UserSource UserSource { get; set; } = UserSource.Manual;
 
     public bool IsActive { get; set; } = true;

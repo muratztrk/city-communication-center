@@ -482,6 +482,11 @@
     "additionalDepartmentsPlaceholder": "Select additional departments",
     "additionalDepartmentsEmpty": "No additional departments are available.",
     "additionalDepartmentsHelp": "The user can switch the active department from the top-right selector.",
+    "additionalRoles": "Additional roles",
+    "additionalRolesShort": "Additional roles",
+    "additionalRolesPlaceholder": "Select additional roles",
+    "additionalRolesEmpty": "No additional roles are available.",
+    "additionalRolesHelp": "Users can hold multiple roles in addition to their primary role.",
     "role": "Role",
     "password": "Password",
     "passwordPlaceholder": "At least 8 characters",
@@ -1082,7 +1087,8 @@
       "Manager": "Manager",
       "Operator": "Operator",
       "Staff": "Staff",
-      "Reporter": "Reporter"
+      "Reporter": "Reporter",
+      "EDevletActivityPlan": "e-Government Daily Activity Plan"
     },
     "taskType": {
       "CitizenRequest": "Citizen Request",

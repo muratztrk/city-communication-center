@@ -70,6 +70,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("phone");
 
+                    b.Property<string>("AdditionalRoleCodesJson")
+                        .HasColumnType("text")
+                        .HasColumnName("additionalrolecodesjson");
+
                     b.Property<string>("RoleCode")
                         .IsRequired()
                         .HasColumnType("text")

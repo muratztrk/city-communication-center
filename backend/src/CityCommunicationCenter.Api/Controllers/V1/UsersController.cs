@@ -68,6 +68,7 @@ public sealed class UsersController : ApiControllerBase
                 request.DepartmentId ?? Guid.Empty,
                 request.AdditionalDepartmentIds,
                 request.RoleCode,
+                request.AdditionalRoleCodes,
                 request.IsActive,
                 request.SourceType,
                 request.ExternalIdentityId,
@@ -95,7 +96,7 @@ public sealed class UsersController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var response = await _sender.Send(
-            new UpdateUserCommand(userId, request.DepartmentId, request.AdditionalDepartmentIds, request.RoleCode, request.IsActive),
+            new UpdateUserCommand(userId, request.DepartmentId, request.AdditionalDepartmentIds, request.RoleCode, request.AdditionalRoleCodes, request.IsActive),
             cancellationToken);
 
         return Ok(response);

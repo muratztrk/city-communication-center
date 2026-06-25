@@ -47,11 +47,23 @@ public sealed class GetAuthenticatedUserProfileQueryHandler : IQueryHandler<GetA
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
+        var roleClaims = principal.FindAll(ClaimTypes.Role)
+            .Select(claim => claim.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        var primaryRole = roleClaims.FirstOrDefault()
+            ?? principal.FindFirst("role")?.Value;
+        var additionalRoles = roleClaims
+            .Where(value => !string.Equals(value, primaryRole, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
         var response = new AuthenticatedUserProfileResponse(
             userIdValue,
             principal.FindFirst(ClaimTypes.Email)?.Value ?? principal.FindFirst("email")?.Value,
             principal.FindFirst(ClaimTypes.Name)?.Value ?? principal.FindFirst("name")?.Value,
-            principal.FindFirst(ClaimTypes.Role)?.Value ?? principal.FindFirst("role")?.Value,
+            primaryRole,
+            additionalRoles.Length > 0 ? additionalRoles : null,
             principal.FindFirst("tenant_id")?.Value,
             principal.FindFirst("department_id")?.Value,
             departmentName,

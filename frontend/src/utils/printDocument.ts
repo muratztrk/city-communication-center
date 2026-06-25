@@ -26,4 +26,25 @@ export function printHtmlDocument(html: string, options?: { width?: number; heig
   printWindow.document.open()
   printWindow.document.write(html)
   printWindow.document.close()
+
+  const script = printWindow.document.createElement('script')
+  script.textContent = `
+    window.addEventListener('load', function () {
+      var closed = false;
+      function closePrintWindow() {
+        if (closed) return;
+        closed = true;
+        window.close();
+      }
+      window.onafterprint = closePrintWindow;
+      if (window.matchMedia) {
+        window.matchMedia('print').addEventListener('change', function (event) {
+          if (!event.matches) closePrintWindow();
+        });
+      }
+      window.setTimeout(closePrintWindow, 60_000);
+      window.print();
+    });
+  `
+  printWindow.document.body.appendChild(script)
 }

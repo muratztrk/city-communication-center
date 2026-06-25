@@ -410,7 +410,6 @@ function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
   ${taskDetailSections}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <div class="page-number">1 / 1</div>
-  <script>window.onload=function(){window.print()}</script>
   </body></html>`)
 }
 
@@ -2433,7 +2432,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   {t('tasks.detail.attachments', 'Görev Ekleri')}
                                 </div>
                                 {(task.attachments?.length ?? 0) > 0 ? (
-                                  <ul className="space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
+                                  <ul className="space-y-1 text-[11px] leading-4">
                                     {task.attachments!.map(att => (
                                       <li key={att.attachmentId}>
                                         <button

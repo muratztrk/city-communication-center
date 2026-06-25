@@ -21,7 +21,7 @@ import { useTenantTheme } from '../context/ThemeContext'
 import { api } from '../api/client'
 import { getActiveDepartmentId, setActiveDepartmentId } from '../api/http'
 import { queryKeys } from '../api/queryKeys'
-import { canRoleAccessPage, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
+import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 
@@ -181,7 +181,7 @@ export function AppShell() {
   ]
 
   const navItems = navItemConfigs.reduce<SidebarNavItem[]>((items, item) => {
-    const canUse = item.requiredRole ? user?.role === item.requiredRole : item.pageKey ? canRoleAccessPage(user?.role, item.pageKey) : false
+    const canUse = item.requiredRole ? user?.role === item.requiredRole : item.pageKey ? canAnyRoleAccessPage(getEffectiveUserRoles(user), item.pageKey) : false
     if (canUse) {
       if (item.separatorBefore && items.length > 0) items.push({ type: 'separator' })
       if (item.children && item.children.length > 0) {

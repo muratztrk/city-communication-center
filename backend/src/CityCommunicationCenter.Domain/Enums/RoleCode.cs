@@ -6,5 +6,6 @@ public enum RoleCode
     Operator,
     Manager,
     Staff,
-    Reporter
+    Reporter,
+    EDevletActivityPlan
 }

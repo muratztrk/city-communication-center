@@ -362,6 +362,13 @@ public sealed class AuthController : ControllerBase
             identity.AddClaim(new Claim(Claims.PreferredUsername, payload.Username));
         }
         identity.AddClaim(new Claim(Claims.Role, payload.RoleCode));
+        foreach (var additionalRole in payload.AdditionalRoleCodes)
+        {
+            if (!string.Equals(additionalRole, payload.RoleCode, StringComparison.OrdinalIgnoreCase))
+            {
+                identity.AddClaim(new Claim(Claims.Role, additionalRole));
+            }
+        }
         identity.AddClaim(new Claim("tenant_id", tenantId));
         identity.AddClaim(new Claim("tenantId", tenantId));
         identity.AddClaim(new Claim("tenant_name", payload.TenantName));

@@ -10,6 +10,7 @@ public sealed record CreateUserCommand(
     Guid DepartmentId,
     IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
+    IReadOnlyCollection<string>? AdditionalRoleCodes,
     bool IsActive,
     string SourceType,
     string? ExternalIdentityId,
@@ -255,6 +256,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         }
 
         _dbContext.Users.Add(user);
+        UserRoleAccess.ApplyAdditionalRoleCodes(user, request.AdditionalRoleCodes);
         await UserDepartmentAccess.ReplaceAdditionalAssignmentsAsync(
             _dbContext,
             tenantId,
@@ -284,6 +286,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             sourceType.ToString(),
             user.Title,
             user.Phone,
-            departments);
+            departments,
+            UserRoleAccess.GetAdditionalRoleCodeStrings(user));
     }
 }

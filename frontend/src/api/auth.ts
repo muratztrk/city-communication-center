@@ -44,6 +44,7 @@ interface AuthenticatedUserProfileResponse {
   email: string | null
   displayName: string | null
   role: string | null
+  additionalRoles?: string[] | null
   tenantId: string | null
   departmentId: string | null
   departmentName: string | null
@@ -117,15 +118,25 @@ function parseJwtPayload(token: string): JwtPayload {
   return JSON.parse(new TextDecoder().decode(bytes)) as JwtPayload
 }
 
+function readRoleClaims(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
+  }
+
+  return typeof value === 'string' && value.length > 0 ? [value] : []
+}
+
 function buildUserFromToken(token: string, tenantNameOverride?: string): AuthUser {
   const payload = parseJwtPayload(token)
+  const roleClaims = readRoleClaims(payload.role)
 
   return {
     userId: String(payload.sub ?? ''),
     username: readClaimValue(payload.preferred_username),
     displayName: readClaimValue(payload.displayName ?? payload.name),
     email: readClaimValue(payload.email),
-    role: readClaimValue(payload.role),
+    role: roleClaims[0] ?? '',
+    additionalRoles: roleClaims.slice(1),
     tenantId: readClaimValue(payload.tenant_id ?? payload.tenantId),
     tenantName: tenantNameOverride ?? readClaimValue(payload.tenant_name),
     departmentId: readClaimValue(payload.department_id),
@@ -152,6 +163,7 @@ function buildUserFromProfileResponse(response: AuthenticatedUserProfileResponse
     displayName: response.displayName ?? existingUser?.displayName ?? '',
     email: response.email ?? existingUser?.email ?? '',
     role: response.role ?? existingUser?.role ?? '',
+    additionalRoles: response.additionalRoles ?? existingUser?.additionalRoles ?? [],
     tenantId: response.tenantId ?? existingUser?.tenantId ?? '',
     tenantName: existingUser?.tenantName ?? '',
     departmentId: response.departmentId ?? existingUser?.departmentId ?? '',

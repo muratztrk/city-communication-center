@@ -1,4 +1,4 @@
-export const ROLE_CODES = ['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter'] as const
+export const ROLE_CODES = ['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter', 'EDevletActivityPlan'] as const
 
 export type RoleCode = typeof ROLE_CODES[number]
 
@@ -27,6 +27,10 @@ export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 
 export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce((matrix, role) => {
   matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
+    if (role === 'EDevletActivityPlan') {
+      pages[page.key] = page.key === 'dashboard' || page.key === 'edevletActivityPlan'
+      return pages
+    }
     pages[page.key] = page.key !== 'settings' || role === 'SystemAdmin'
     return pages
   }, {} as Record<PageAccessKey, boolean>)
@@ -47,6 +51,9 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     }, {} as Record<PageAccessKey, boolean>)
     matrix[role].dashboard = true
     matrix[role].settings = role === 'SystemAdmin'
+    if (role === 'EDevletActivityPlan') {
+      matrix[role].edevletActivityPlan = true
+    }
     return matrix
   }, {} as RolePageAccessMatrix)
 }
@@ -80,6 +87,22 @@ export function saveRolePageAccessMatrix(matrix: RolePageAccessMatrix) {
 }
 
 export function canRoleAccessPage(role: string | undefined, pageKey: PageAccessKey): boolean {
-  if (!role || !isRoleCode(role)) return false
-  return loadRolePageAccessMatrix()[role][pageKey]
+  if (!role) return false
+  return canAnyRoleAccessPage([role], pageKey)
+}
+
+export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | undefined, pageKey: PageAccessKey): boolean {
+  const matrix = loadRolePageAccessMatrix()
+  return (roles ?? [])
+    .filter((role): role is RoleCode => !!role && isRoleCode(role))
+    .some(role => matrix[role][pageKey])
+}
+
+export function getEffectiveUserRoles(user: { role?: string; additionalRoles?: string[] } | null | undefined): string[] {
+  if (!user?.role) return []
+  const roles = [user.role]
+  for (const role of user.additionalRoles ?? []) {
+    if (role && !roles.includes(role)) roles.push(role)
+  }
+  return roles
 }

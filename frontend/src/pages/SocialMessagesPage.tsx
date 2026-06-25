@@ -206,6 +206,7 @@ export function SocialMessagesPage() {
     { value: 'X', label: 'X' },
     { value: 'Email', label: t('nav.socialEmail', 'E-posta') },
     { value: 'WebForm', label: t('nav.socialWebForm', 'Web Formu') },
+    { value: 'EDevlet', label: t('settings.citizen.channels.EDevlet', 'e-Devlet') },
     { value: '', label: t('nav.socialAll', 'Tümü') },
   ]
 

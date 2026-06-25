@@ -1,5 +1,7 @@
 namespace CityCommunicationCenter.Infrastructure.Services;
 
+using CityCommunicationCenter.Application.Features.Users;
+
 public sealed class UserAuthenticationService : IUserAuthenticationService, IAuthenticationModeProvider, IUserManagementConfigurationProvider
 {
     private readonly CityCommunicationCenterDbContext _dbContext;
@@ -288,6 +290,7 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
             user.DisplayName,
             user.Email ?? string.Empty,
             user.RoleCode.ToString(),
+            UserRoleAccess.GetAdditionalRoleCodeStrings(user),
             tenantName,
             authenticationMode);
     }

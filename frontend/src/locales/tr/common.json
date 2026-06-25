@@ -484,6 +484,11 @@
     "additionalDepartmentsPlaceholder": "Ek birim/müdürlük seçin",
     "additionalDepartmentsEmpty": "Seçilebilir ek birim bulunmuyor.",
     "additionalDepartmentsHelp": "Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.",
+    "additionalRoles": "Ek roller",
+    "additionalRolesShort": "Ek roller",
+    "additionalRolesPlaceholder": "Ek rol seçin",
+    "additionalRolesEmpty": "Seçilebilir ek rol bulunmuyor.",
+    "additionalRolesHelp": "Kullanıcı birincil role ek olarak birden fazla yetki alabilir.",
     "role": "Rol",
     "password": "Parola",
     "passwordPlaceholder": "En az 8 karakter",
@@ -1112,7 +1117,8 @@
       "Manager": "Müdür",
       "Operator": "Vatandaş Talep Operatörü",
       "Staff": "Standart",
-      "Reporter": "Üst Düzey Yönetici"
+      "Reporter": "Üst Düzey Yönetici",
+      "EDevletActivityPlan": "e-Devlet Günlük Faaliyet Planı"
     },
     "taskType": {
       "CitizenRequest": "Vatandaş Talebi",

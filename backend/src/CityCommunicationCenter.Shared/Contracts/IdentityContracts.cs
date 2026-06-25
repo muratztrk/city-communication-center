@@ -35,7 +35,8 @@ public sealed record UserSummaryResponse(
     string UserSource,
     string? Title = null,
     string? Phone = null,
-    IReadOnlyList<DepartmentSummaryResponse>? Departments = null);
+    IReadOnlyList<DepartmentSummaryResponse>? Departments = null,
+    IReadOnlyList<string>? AdditionalRoleCodes = null);
 
 public sealed record CreateUserRequest(
     string? Username,
@@ -45,6 +46,7 @@ public sealed record CreateUserRequest(
     Guid? DepartmentId,
     IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
+    IReadOnlyCollection<string>? AdditionalRoleCodes,
     bool IsActive,
     string SourceType,
     string? ExternalIdentityId,
@@ -54,6 +56,7 @@ public sealed record UpdateUserRequest(
     Guid DepartmentId,
     IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
+    IReadOnlyCollection<string>? AdditionalRoleCodes,
     bool IsActive);
 
 public sealed record UserLookupResponse(
@@ -142,6 +145,7 @@ public sealed record AuthenticatedUserProfileResponse(
     string? Email,
     string? DisplayName,
     string? Role,
+    IReadOnlyList<string>? AdditionalRoles,
     string? TenantId,
     string? DepartmentId,
     string? DepartmentName,

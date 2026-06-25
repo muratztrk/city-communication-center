@@ -52,6 +52,7 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             user.DisplayName,
             user.Email,
             user.RoleCode,
+            user.AdditionalRoleCodes,
             user.TenantName,
             user.AuthenticationMode);
     }

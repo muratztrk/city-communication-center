@@ -19,8 +19,12 @@ import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User, UserManagementContext } from '../types/platform'
 import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
+import { ROLE_CODES } from '../lib/rolePageAccess'
 
 type CreateMode = 'manual' | 'ldap'
+
+const PRIMARY_ROLE_CODES = [...ROLE_CODES]
+const ADDITIONAL_ROLE_CODES = ['Operator', 'Staff', 'Reporter', 'EDevletActivityPlan'] as const
 
 const DEFAULT_USER_FORM = {
   username: '',
@@ -30,6 +34,7 @@ const DEFAULT_USER_FORM = {
   departmentId: '',
   additionalDepartmentIds: [] as string[],
   roleCode: 'Staff',
+  additionalRoleCodes: [] as string[],
   isActive: true,
   externalIdentityId: null as string | null,
 }
@@ -66,7 +71,7 @@ export function UsersPage() {
   const [error, setError] = useState('')
   const [newUser, setNewUser] = useState(DEFAULT_USER_FORM)
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState({ departmentId: '', additionalDepartmentIds: [] as string[], roleCode: '', isActive: true })
+  const [editForm, setEditForm] = useState({ departmentId: '', additionalDepartmentIds: [] as string[], roleCode: '', additionalRoleCodes: [] as string[], isActive: true })
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
   const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
@@ -229,6 +234,7 @@ export function UsersPage() {
         departmentId: newUser.departmentId || null,
         additionalDepartmentIds: newUser.additionalDepartmentIds.filter(id => id !== newUser.departmentId),
         roleCode: newUser.roleCode,
+        additionalRoleCodes: newUser.additionalRoleCodes.filter(role => role !== newUser.roleCode),
         isActive: newUser.isActive,
         sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
         externalIdentityId: createMode === 'ldap' ? newUser.externalIdentityId : null,
@@ -249,6 +255,7 @@ export function UsersPage() {
       departmentId: user.departmentId,
       additionalDepartmentIds: getUserDepartmentIds(user).filter(id => id !== user.departmentId),
       roleCode: user.roleCode,
+      additionalRoleCodes: user.additionalRoleCodes ?? [],
       isActive: user.isActive,
     })
   }
@@ -573,12 +580,30 @@ export function UsersPage() {
           <div className="grid gap-4 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-end">
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.role')}</span>
-              <select aria-label={t('users.role')} className="field-select" value={newUser.roleCode} onChange={event => setNewUser(current => ({ ...current, roleCode: event.target.value }))}>
-                {['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter'].map(roleCode => (
+              <select aria-label={t('users.role')} className="field-select" value={newUser.roleCode} onChange={event => setNewUser(current => ({
+                ...current,
+                roleCode: event.target.value,
+                additionalRoleCodes: current.additionalRoleCodes.filter(role => role !== event.target.value),
+              }))}>
+                {PRIMARY_ROLE_CODES.map(roleCode => (
                   <option key={roleCode} value={roleCode}>{getRoleLabel(t, roleCode)}</option>
                 ))}
               </select>
             </label>
+
+            <div className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('users.additionalRoles', 'Ek roller')}</span>
+              <MultiSelectDropdown
+                options={ADDITIONAL_ROLE_CODES
+                  .filter(roleCode => roleCode !== newUser.roleCode)
+                  .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
+                value={newUser.additionalRoleCodes}
+                onChange={additionalRoleCodes => setNewUser(current => ({ ...current, additionalRoleCodes }))}
+                placeholder={t('users.additionalRolesPlaceholder', 'Ek rol seçin')}
+                emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
+              />
+              <span className="helper-copy">{t('users.additionalRolesHelp', 'Kullanıcı birincil role ek olarak birden fazla yetki alabilir.')}</span>
+            </div>
 
             <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
               <input className="field-checkbox" checked={newUser.isActive} type="checkbox" onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))} />
@@ -653,11 +678,26 @@ export function UsersPage() {
                       </div>
                     </td>
                     <td>
-                      <select className="field-select text-sm" value={editForm.roleCode} onChange={e => setEditForm(c => ({ ...c, roleCode: e.target.value }))}>
-                        {['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter'].map(roleCode => (
-                          <option key={roleCode} value={roleCode}>{getRoleLabel(t, roleCode)}</option>
-                        ))}
-                      </select>
+                      <div className="grid min-w-[14rem] gap-2">
+                        <select className="field-select text-sm" value={editForm.roleCode} onChange={e => setEditForm(c => ({
+                          ...c,
+                          roleCode: e.target.value,
+                          additionalRoleCodes: c.additionalRoleCodes.filter(role => role !== e.target.value),
+                        }))}>
+                          {PRIMARY_ROLE_CODES.map(roleCode => (
+                            <option key={roleCode} value={roleCode}>{getRoleLabel(t, roleCode)}</option>
+                          ))}
+                        </select>
+                        <MultiSelectDropdown
+                          options={ADDITIONAL_ROLE_CODES
+                            .filter(roleCode => roleCode !== editForm.roleCode)
+                            .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
+                          value={editForm.additionalRoleCodes}
+                          onChange={additionalRoleCodes => setEditForm(c => ({ ...c, additionalRoleCodes }))}
+                          placeholder={t('users.additionalRolesShort', 'Ek roller')}
+                          emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
+                        />
+                      </div>
                     </td>
                     <td><StatusPill tone="info">{getUserSourceLabel(t, user.userSource)}</StatusPill></td>
                     <td>
@@ -695,7 +735,14 @@ export function UsersPage() {
                         ) : null}
                       </div>
                     </td>
-                    <td><StatusPill tone={user.roleCode === 'SystemAdmin' ? 'danger' : user.roleCode === 'Manager' ? 'warning' : 'info'}>{getRoleLabel(t, user.roleCode)}</StatusPill></td>
+                    <td>
+                      <div className="grid gap-1">
+                        <StatusPill tone={user.roleCode === 'SystemAdmin' ? 'danger' : user.roleCode === 'Manager' ? 'warning' : 'info'}>{getRoleLabel(t, user.roleCode)}</StatusPill>
+                        {(user.additionalRoleCodes ?? []).map(roleCode => (
+                          <StatusPill key={roleCode} tone="neutral">{getRoleLabel(t, roleCode)}</StatusPill>
+                        ))}
+                      </div>
+                    </td>
                     <td><StatusPill tone="info">{getUserSourceLabel(t, user.userSource)}</StatusPill></td>
                     <td>
                       <StatusPill tone={user.isActive ? 'success' : 'danger'}>

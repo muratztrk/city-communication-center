@@ -23,5 +23,6 @@ public sealed record AuthenticatedUserDescriptor(
     string DisplayName,
     string Email,
     string RoleCode,
+    IReadOnlyList<string> AdditionalRoleCodes,
     string TenantName,
     string AuthenticationMode);

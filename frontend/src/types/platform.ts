@@ -49,6 +49,7 @@ export interface User {
   displayName: string;
   email: string | null;
   roleCode: string;
+  additionalRoleCodes?: string[] | null;
   isActive: boolean;
   userSource: string;
   title: string | null;
@@ -545,6 +546,7 @@ export interface AuthUser {
   displayName: string;
   email: string;
   role: string;
+  additionalRoles?: string[];
   tenantId: string;
   tenantName: string;
   departmentId: string;

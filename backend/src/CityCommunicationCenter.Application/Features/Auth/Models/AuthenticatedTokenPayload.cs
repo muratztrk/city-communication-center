@@ -8,5 +8,6 @@ public sealed record AuthenticatedTokenPayload(
     string DisplayName,
     string Email,
     string RoleCode,
+    IReadOnlyList<string> AdditionalRoleCodes,
     string TenantName,
     string AuthenticationMode);

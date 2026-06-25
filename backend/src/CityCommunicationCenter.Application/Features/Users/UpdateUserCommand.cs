@@ -7,6 +7,7 @@ public sealed record UpdateUserCommand(
     Guid DepartmentId,
     IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
+    IReadOnlyCollection<string>? AdditionalRoleCodes,
     bool IsActive) : ICommand<UserSummaryResponse>;
 
 public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
@@ -83,6 +84,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
         user.DepartmentId = request.DepartmentId;
         user.RoleCode = roleCode;
         user.IsActive = request.IsActive;
+        UserRoleAccess.ApplyAdditionalRoleCodes(user, request.AdditionalRoleCodes);
         user.UpdatedAtUtc = DateTimeOffset.UtcNow;
         user.UpdatedByUserId = context.UserId;
 
@@ -115,6 +117,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             user.UserSource.ToString(),
             user.Title,
             user.Phone,
-            departments);
+            departments,
+            UserRoleAccess.GetAdditionalRoleCodeStrings(user));
     }
 }

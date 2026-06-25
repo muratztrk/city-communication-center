@@ -1,4 +1,4 @@
-import { Building2, FileText, MapPin, MessageSquareMore, Paperclip, Send, Workflow, X } from 'lucide-react'
+import { Building2, MapPin, MessageSquareMore, Paperclip, Send, Workflow } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -132,7 +132,6 @@ function getRequestedOwnerUserIds(
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png']
 const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -449,73 +448,68 @@ export function CreateRequestPage() {
   const renderPhotoUpload = (className?: string) => (
     <div className={['job-field', className].filter(Boolean).join(' ')}>
       <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-      <div
-        role="button"
-        tabIndex={saving ? -1 : 0}
-        className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
-        onClick={() => !saving && fileInputRef.current?.click()}
-        onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
-        onDragOver={event => event.preventDefault()}
-        onDrop={event => {
-          event.preventDefault()
-          if (saving) return
-          setFileError(null)
-          for (const file of Array.from(event.dataTransfer.files)) {
-            const err = validateFile(file)
-            if (err) { setFileError(err); return }
-            setPendingFiles(prev => [...prev, file])
-          }
-        }}
-      >
-        <Paperclip className="mb-1 size-4 text-slate-400" />
-        <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
-        <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, GIF, WebP — maks. 5 MB')}</span>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={ACCEPT_ATTR}
-          multiple
-          className="hidden"
-          disabled={saving}
-          onChange={event => {
+      <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+        <div
+          role="button"
+          tabIndex={saving ? -1 : 0}
+          className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+          onClick={() => !saving && fileInputRef.current?.click()}
+          onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
+          onDragOver={event => event.preventDefault()}
+          onDrop={event => {
+            event.preventDefault()
+            if (saving) return
             setFileError(null)
-            for (const file of Array.from(event.target.files ?? [])) {
+            for (const file of Array.from(event.dataTransfer.files)) {
               const err = validateFile(file)
               if (err) { setFileError(err); return }
               setPendingFiles(prev => [...prev, file])
             }
-            if (fileInputRef.current) fileInputRef.current.value = ''
           }}
-        />
-      </div>
-      {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
-      <div className="relative min-h-0">
-        {pendingFiles.length > 0 && (
-          <div className="absolute inset-x-0 top-full z-20 mt-1 max-h-28 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-md">
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+        >
+          <Paperclip className="mb-1 size-4 text-slate-400" />
+          <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
+          <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, GIF, WebP — maks. 5 MB')}</span>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPT_ATTR}
+            multiple
+            className="hidden"
+            disabled={saving}
+            onChange={event => {
+              setFileError(null)
+              for (const file of Array.from(event.target.files ?? [])) {
+                const err = validateFile(file)
+                if (err) { setFileError(err); return }
+                setPendingFiles(prev => [...prev, file])
+              }
+              if (fileInputRef.current) fileInputRef.current.value = ''
+            }}
+          />
+        </div>
+        <div className="min-h-[5.5rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
+          {pendingFiles.length === 0 ? (
+            <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+          ) : (
+            <ul className="space-y-1 text-xs">
               {pendingFiles.map((file, idx) => (
-                <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                  {IMAGE_EXTENSIONS.includes(fileExtension(file.name)) ? (
-                    <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
-                  ) : (
-                    <div className="flex h-20 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
-                      <FileText className="size-6" />
-                      <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{file.name}</span>
-                    </div>
-                  )}
+                <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
+                  <span className="min-w-0 flex-1 break-words font-medium text-slate-700">{file.name}</span>
                   <button
                     type="button"
-                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"
+                    className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
                     onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
                   >
-                    <X className="size-3" />
+                    {t('common.delete', 'Sil')}
                   </button>
-                </div>
+                </li>
               ))}
-            </div>
-          </div>
-        )}
+            </ul>
+          )}
+        </div>
       </div>
+      {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
     </div>
   )
 
@@ -550,11 +544,11 @@ export function CreateRequestPage() {
             />
           </div>
         </div>
-        <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">
+        <div className="grid gap-2">
           <label className="grid gap-1 min-h-0">
             <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
             <textarea
-              className="field-textarea h-full min-h-[5.5rem] resize-none"
+              className="field-textarea min-h-[5.5rem] resize-none"
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
               value={form.openAddress}
               onChange={e => setField('openAddress', e.target.value)}
@@ -1073,6 +1067,92 @@ export function CreateRequestPage() {
             <p className="helper-copy">{t('settings.citizen.sectionDescription', 'Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.')}</p>
           </div>
           <div className="grid content-start gap-3">
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
+              <input id="citizen-request-title" className="field-input" type="text" maxLength={50} value={citizenForm.title} onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))} required />
+            </div>
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="citizen-request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
+              <select
+                id="citizen-request-target-dept"
+                className="field-select"
+                value={citizenForm.targetDepartmentId}
+                onChange={event => setCitizenForm(current => ({ ...current, targetDepartmentId: event.target.value }))}
+                required
+              >
+                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
+                {citizenTargetDepartmentOptions.map(department => (
+                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="citizen-request-is-coordinated">{t('jobs.form.isCoordinated', 'Koordineli talep mi?')}</label>
+              <select
+                id="citizen-request-is-coordinated"
+                className="field-select"
+                value={citizenForm.isCoordinated ? 'yes' : 'no'}
+                onChange={event => setCitizenForm(current => ({
+                  ...current,
+                  isCoordinated: event.target.value === 'yes',
+                  coordinatedDepartmentIds: event.target.value === 'yes' ? current.coordinatedDepartmentIds : [],
+                }))}
+              >
+                <option value="no">{t('common.no', 'Hayır')}</option>
+                <option value="yes">{t('common.yes', 'Evet')}</option>
+              </select>
+            </div>
+            {citizenForm.isCoordinated ? (
+              <div className="job-field">
+                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
+                <MultiSelectDropdown
+                  options={citizenCoordinatedDepartmentOptions}
+                  value={citizenForm.coordinatedDepartmentIds}
+                  onChange={coordinatedDepartmentIds => setCitizenForm(current => ({ ...current, coordinatedDepartmentIds }))}
+                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
+                  emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                />
+                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
+              </div>
+            ) : null}
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-priority">{t('jobs.form.priority', 'Öncelik')}</label>
+                <select id="citizen-request-priority" className="field-select" value={citizenForm.priority} onChange={event => setCitizenForm(current => ({ ...current, priority: event.target.value }))}>
+                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                </select>
+              </div>
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
+                <select id="citizen-request-is-project" className="field-select" value={citizenForm.isProject ? 'yes' : 'no'} onChange={event => setCitizenForm(current => ({ ...current, isProject: event.target.value === 'yes' }))}>
+                  <option value="no">{t('common.no', 'Hayır')}</option>
+                  <option value="yes">{t('common.yes', 'Evet')}</option>
+                </select>
+              </div>
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-start-date">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
+                <DateTimePicker id="citizen-request-start-date" value={citizenForm.startDateUtc} onChange={value => setCitizenForm(current => ({ ...current, startDateUtc: value }))} />
+              </div>
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-due-date">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
+                <DateTimePicker id="citizen-request-due-date" value={citizenForm.dueDateUtc} onChange={value => setCitizenForm(current => ({ ...current, dueDateUtc: value }))} />
+              </div>
+            </div>
+            {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
+            <div className="job-field min-h-0">
+              <span className="job-field-label">{t('settings.citizen.content', 'Talep İçeriği')} <span className="text-red-500">*</span></span>
+              <RichTextEditor
+                value={citizenForm.content}
+                onChange={content => setCitizenForm(current => ({ ...current, content }))}
+                required
+                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin içeriğini girin...')}
+                minHeight="min-h-48"
+              />
+            </div>
+          </div>
+          <div className="grid content-start gap-3">
             {renderRequestTypeField()}
             <div className="job-field">
               <span className="job-field-label">{t('settings.citizen.channel', 'Kanal')}</span>
@@ -1158,92 +1238,6 @@ export function CreateRequestPage() {
                   title={t('location.mapPreview', 'Konum Önizleme')}
                 />
               )}
-            </div>
-          </div>
-          <div className="grid content-start gap-3">
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
-              <input id="citizen-request-title" className="field-input" type="text" maxLength={50} value={citizenForm.title} onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))} required />
-            </div>
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="citizen-request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
-              <select
-                id="citizen-request-target-dept"
-                className="field-select"
-                value={citizenForm.targetDepartmentId}
-                onChange={event => setCitizenForm(current => ({ ...current, targetDepartmentId: event.target.value }))}
-                required
-              >
-                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
-                {citizenTargetDepartmentOptions.map(department => (
-                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="citizen-request-is-coordinated">{t('jobs.form.isCoordinated', 'Koordineli talep mi?')}</label>
-              <select
-                id="citizen-request-is-coordinated"
-                className="field-select"
-                value={citizenForm.isCoordinated ? 'yes' : 'no'}
-                onChange={event => setCitizenForm(current => ({
-                  ...current,
-                  isCoordinated: event.target.value === 'yes',
-                  coordinatedDepartmentIds: event.target.value === 'yes' ? current.coordinatedDepartmentIds : [],
-                }))}
-              >
-                <option value="no">{t('common.no', 'Hayır')}</option>
-                <option value="yes">{t('common.yes', 'Evet')}</option>
-              </select>
-            </div>
-            {citizenForm.isCoordinated ? (
-              <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
-                <MultiSelectDropdown
-                  options={citizenCoordinatedDepartmentOptions}
-                  value={citizenForm.coordinatedDepartmentIds}
-                  onChange={coordinatedDepartmentIds => setCitizenForm(current => ({ ...current, coordinatedDepartmentIds }))}
-                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
-                  emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                />
-                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
-              </div>
-            ) : null}
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-request-priority">{t('jobs.form.priority', 'Öncelik')}</label>
-                <select id="citizen-request-priority" className="field-select" value={citizenForm.priority} onChange={event => setCitizenForm(current => ({ ...current, priority: event.target.value }))}>
-                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                </select>
-              </div>
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
-                <select id="citizen-request-is-project" className="field-select" value={citizenForm.isProject ? 'yes' : 'no'} onChange={event => setCitizenForm(current => ({ ...current, isProject: event.target.value === 'yes' }))}>
-                  <option value="no">{t('common.no', 'Hayır')}</option>
-                  <option value="yes">{t('common.yes', 'Evet')}</option>
-                </select>
-              </div>
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-request-start-date">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
-                <DateTimePicker id="citizen-request-start-date" value={citizenForm.startDateUtc} onChange={value => setCitizenForm(current => ({ ...current, startDateUtc: value }))} />
-              </div>
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-request-due-date">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
-                <DateTimePicker id="citizen-request-due-date" value={citizenForm.dueDateUtc} onChange={value => setCitizenForm(current => ({ ...current, dueDateUtc: value }))} />
-              </div>
-            </div>
-            {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
-            <div className="job-field min-h-0">
-              <span className="job-field-label">{t('settings.citizen.content', 'Talep İçeriği')} <span className="text-red-500">*</span></span>
-              <RichTextEditor
-                value={citizenForm.content}
-                onChange={content => setCitizenForm(current => ({ ...current, content }))}
-                required
-                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin içeriğini girin...')}
-                minHeight="min-h-48"
-              />
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />

@@ -2,7 +2,7 @@ import { lazy, Suspense, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
-import { canRoleAccessPage, type PageAccessKey } from '../lib/rolePageAccess'
+import { canAnyRoleAccessPage, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
 
 const AppShell = lazy(() => import('./AppShell').then(module => ({ default: module.AppShell })))
 const AuditLogsPage = lazy(() => import('../pages/AuditLogsPage').then(module => ({ default: module.AuditLogsPage })))
@@ -34,8 +34,8 @@ function LoadingScreen() {
   )
 }
 
-function PageAccessGate({ pageKey, role, children }: { pageKey: PageAccessKey; role?: string; children: ReactNode }) {
-  return canRoleAccessPage(role, pageKey) ? children : <Navigate to="/dashboard" replace />
+function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
+  return canAnyRoleAccessPage(getEffectiveUserRoles(user), pageKey) ? children : <Navigate to="/dashboard" replace />
 }
 
 function ManagerOnlyGate({ role, children }: { role?: string; children: ReactNode }) {
@@ -63,31 +63,31 @@ export default function App() {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        <Route path="/display" element={<PageAccessGate pageKey="display" role={user?.role}><WallboardPage /></PageAccessGate>} />
+        <Route path="/display" element={<PageAccessGate pageKey="display" user={user}><WallboardPage /></PageAccessGate>} />
         <Route element={<AppShell />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" role={user?.role}><DashboardPage /></PageAccessGate>} />
-          <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" role={user?.role}><EDevletActivityPlanPage /></PageAccessGate>} />
-          <Route path="/requests/new" element={<PageAccessGate pageKey="createRequest" role={user?.role}><CreateRequestPage /></PageAccessGate>} />
-          <Route path="/routine-tasks/new" element={<PageAccessGate pageKey="createRoutineTask" role={user?.role}><RoutineTaskPage /></PageAccessGate>} />
-          <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" role={user?.role}><TasksPage fixedScope="mine" /></PageAccessGate>} />
-          <Route path="/my-requests" element={<PageAccessGate pageKey="myRequests" role={user?.role}><JobsPage mode="myRequests" fixedScope="mine" /></PageAccessGate>} />
+          <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage /></PageAccessGate>} />
+          <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlanPage /></PageAccessGate>} />
+          <Route path="/requests/new" element={<PageAccessGate pageKey="createRequest" user={user}><CreateRequestPage /></PageAccessGate>} />
+          <Route path="/routine-tasks/new" element={<PageAccessGate pageKey="createRoutineTask" user={user}><RoutineTaskPage /></PageAccessGate>} />
+          <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" user={user}><TasksPage fixedScope="mine" /></PageAccessGate>} />
+          <Route path="/my-requests" element={<PageAccessGate pageKey="myRequests" user={user}><JobsPage mode="myRequests" fixedScope="mine" /></PageAccessGate>} />
           <Route path="/outgoing-requests" element={<ManagerOnlyGate role={user?.role}><JobsPage mode="departmentOutgoing" fixedScope="outgoing-department" /></ManagerOnlyGate>} />
           <Route path="/department-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="departmentTasks" fixedScope="department" /></ManagerOnlyGate>} />
           <Route path="/staff-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="staffTasks" fixedScope="all" /></ManagerOnlyGate>} />
           <Route path="/tasks" element={<Navigate to="/incoming-requests?kind=all" replace />} />
           <Route path="/jobs" element={<Navigate to="/incoming-requests?kind=all" replace />} />
-          <Route path="/request-details" element={<PageAccessGate pageKey="jobs" role={user?.role}><JobsPage /></PageAccessGate>} />
-          <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" role={user?.role}><IncomingRequestsPage /></PageAccessGate>} />
-          <Route path="/social" element={<PageAccessGate pageKey="social" role={user?.role}><SocialMessagesPage /></PageAccessGate>} />
-          <Route path="/whatsapp" element={<PageAccessGate pageKey="social" role={user?.role}><WhatsAppConversationsPage /></PageAccessGate>} />
-          <Route path="/departments" element={<PageAccessGate pageKey="departments" role={user?.role}><DepartmentsPage /></PageAccessGate>} />
-          <Route path="/users" element={<PageAccessGate pageKey="users" role={user?.role}><UsersPage /></PageAccessGate>} />
-          <Route path="/audit" element={<PageAccessGate pageKey="audit" role={user?.role}><AuditLogsPage /></PageAccessGate>} />
+          <Route path="/request-details" element={<PageAccessGate pageKey="jobs" user={user}><JobsPage /></PageAccessGate>} />
+          <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" user={user}><IncomingRequestsPage /></PageAccessGate>} />
+          <Route path="/social" element={<PageAccessGate pageKey="social" user={user}><SocialMessagesPage /></PageAccessGate>} />
+          <Route path="/whatsapp" element={<PageAccessGate pageKey="social" user={user}><WhatsAppConversationsPage /></PageAccessGate>} />
+          <Route path="/departments" element={<PageAccessGate pageKey="departments" user={user}><DepartmentsPage /></PageAccessGate>} />
+          <Route path="/users" element={<PageAccessGate pageKey="users" user={user}><UsersPage /></PageAccessGate>} />
+          <Route path="/audit" element={<PageAccessGate pageKey="audit" user={user}><AuditLogsPage /></PageAccessGate>} />
           <Route
             path="/settings"
-            element={user?.role === 'SystemAdmin' && canRoleAccessPage(user?.role, 'settings') ? <SettingsPage /> : <Navigate to="/dashboard" replace />}
+            element={user?.role === 'SystemAdmin' && canAnyRoleAccessPage(getEffectiveUserRoles(user), 'settings') ? <SettingsPage /> : <Navigate to="/dashboard" replace />}
           />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

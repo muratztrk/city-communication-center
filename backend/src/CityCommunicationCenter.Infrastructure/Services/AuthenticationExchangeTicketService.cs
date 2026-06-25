@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using CityCommunicationCenter.Application.Features.Users;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
@@ -85,6 +86,7 @@ internal sealed class AuthenticationExchangeTicketService : IAuthenticationExcha
             user.DisplayName,
             user.Email ?? string.Empty,
             user.RoleCode.ToString(),
+            UserRoleAccess.GetAdditionalRoleCodeStrings(user),
             tenant.DisplayName,
             authenticationMode);
     }

@@ -490,10 +490,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       result = showRequestFlowFilters ? myTasks.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter)) : myTasks
     }
 
-    if (!isStaffTasksView && currentTaskTypeFilter === 'routine') {
-      result = result.filter(task => task.jobSourceType === 'Routine')
-    } else if (!isStaffTasksView && currentTaskTypeFilter === 'assigned') {
-      result = result.filter(task => task.jobSourceType !== 'Routine')
+    if (isDepartmentTasksView) {
+      if (currentTaskTypeFilter === 'routine') {
+        result = result.filter(task => task.jobSourceType === 'Routine')
+      } else if (currentTaskTypeFilter === 'assigned') {
+        result = result.filter(task => task.jobSourceType !== 'Routine')
+      }
     }
 
     if (filterFrom || filterTo) {
@@ -1128,17 +1130,6 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
-          <span className="scope-chip-divider" aria-hidden="true">|</span>
-          {TASK_TYPE_FILTERS.map(filter => (
-            <button
-              key={filter.value}
-              type="button"
-              className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
-              onClick={() => setTaskTypeFilter(filter.value)}
-            >
-              {t(filter.labelKey)}
-            </button>
-          ))}
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>

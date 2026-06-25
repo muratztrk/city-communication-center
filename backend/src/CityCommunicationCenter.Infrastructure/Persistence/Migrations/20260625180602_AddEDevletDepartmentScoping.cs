@@ -55,9 +55,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 UPDATE edevletactivitytypes AS t
                 SET departmentid = d.departmentid
                 FROM (
-                    SELECT tenantid, MIN(departmentid) AS departmentid
+                    SELECT DISTINCT ON (tenantid) tenantid, departmentid
                     FROM departments
-                    GROUP BY tenantid
+                    ORDER BY tenantid, departmentid
                 ) AS d
                 WHERE t.tenantid = d.tenantid
                   AND t.departmentid = '00000000-0000-0000-0000-000000000000';
@@ -71,9 +71,9 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 UPDATE edevletdailyactivityplans AS p
                 SET departmentid = d.departmentid
                 FROM (
-                    SELECT tenantid, MIN(departmentid) AS departmentid
+                    SELECT DISTINCT ON (tenantid) tenantid, departmentid
                     FROM departments
-                    GROUP BY tenantid
+                    ORDER BY tenantid, departmentid
                 ) AS d
                 WHERE p.tenantid = d.tenantid
                   AND p.departmentid = '00000000-0000-0000-0000-000000000000';

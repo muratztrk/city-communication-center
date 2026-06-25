@@ -11,6 +11,8 @@ export interface SidebarNavLinkItem {
   label: string
   icon: LucideIcon
   newTab?: boolean
+  /** Long labels: smaller type so the full text fits on one line. */
+  compact?: boolean
 }
 
 export interface SidebarNavGroupItem {
@@ -78,7 +80,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
     const Icon = item.icon
     const className = cn(
       'flex w-full min-w-0 items-center rounded-xl border text-left font-semibold transition-colors duration-150',
-      collapsed ? 'justify-center gap-0 px-0 py-2.5 text-sm' : nested ? 'gap-2.5 px-3 py-1.5 text-xs' : 'gap-3 px-3 py-2 text-sm',
+      collapsed ? 'justify-center gap-0 px-0 py-2.5 text-sm' : nested ? 'gap-2.5 px-3 py-1.5 text-xs' : item.compact ? 'gap-3 px-3 py-2 text-[0.68rem] leading-snug' : 'gap-3 px-3 py-2 text-sm',
       isActive
         ? 'border-white/10 bg-white text-slate-950 shadow-sm'
         : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',

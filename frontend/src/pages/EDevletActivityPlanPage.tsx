@@ -1,4 +1,4 @@
-import { ClipboardList, Send } from 'lucide-react'
+import { Send } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
@@ -124,8 +124,11 @@ export function EDevletActivityPlanPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('nav.edevletActivityPlan', 'e-Devlet Günlük Faaliyet Planı')}</div>
-            <h1 className="page-title">{t('nav.edevletActivityPlan', 'e-Devlet Günlük Faaliyet Planı Oluştur')}</h1>
+            <div className="page-kicker">{t('edevletActivityPlan.kicker', 'e-Devlet entegrasyonu')}</div>
+            <h1 className="page-title">{t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur')}</h1>
+            <p className="page-subtitle text-base">
+              {t('edevletActivityPlan.subtitle', 'Belediyenizin günlük faaliyet planını oluşturarak vatandaşlarınızla paylaşınız.')}
+            </p>
           </div>
         </div>
       </header>
@@ -133,16 +136,6 @@ export function EDevletActivityPlanPage() {
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
 
       <form onSubmit={handleSubmit} className="section-card request-form request-form--readable grid gap-4">
-        <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-            <ClipboardList className="size-5" />
-          </span>
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-950">{t('nav.edevletActivityPlan', 'e-Devlet Günlük Faaliyet Planı Oluştur')}</h2>
-            <p className="helper-copy mt-0.5 text-base leading-6">{t('edevletActivityPlan.formDescription', 'Günlük faaliyet planı kaydı oluşturun.')}</p>
-          </div>
-        </div>
-
         <div className="job-field">
           <div className="grid items-end gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <div className="grid gap-1">

@@ -16,9 +16,12 @@ public sealed class GetEDevletActivityTypesQueryHandler : IQueryHandler<GetEDevl
     public async ValueTask<IReadOnlyList<EDevletActivityTypeResponse>> Handle(GetEDevletActivityTypesQuery request, CancellationToken cancellationToken)
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var (_, departmentIds) = await EDevletDepartmentAccess.RequireUserAndDepartmentsAsync(
+            _dbContext, _tenantContextAccessor, cancellationToken);
+
         return await _dbContext.EDevletActivityTypes
             .AsNoTracking()
-            .Where(entity => entity.TenantId == tenantId)
+            .Where(entity => entity.TenantId == tenantId && departmentIds.Contains(entity.DepartmentId))
             .OrderBy(entity => entity.SortOrder)
             .ThenBy(entity => entity.Name)
             .Select(entity => new EDevletActivityTypeResponse(entity.ActivityTypeId, entity.Name, entity.SortOrder))
@@ -51,13 +54,17 @@ public sealed class CreateEDevletActivityTypeCommandHandler : ICommandHandler<Cr
     public async ValueTask<EDevletActivityTypeResponse> Handle(CreateEDevletActivityTypeCommand request, CancellationToken cancellationToken)
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var (user, _) = await EDevletDepartmentAccess.RequireUserAndDepartmentsAsync(
+            _dbContext, _tenantContextAccessor, cancellationToken);
+
         var maxSort = await _dbContext.EDevletActivityTypes
-            .Where(entity => entity.TenantId == tenantId)
+            .Where(entity => entity.TenantId == tenantId && entity.DepartmentId == user.DepartmentId)
             .MaxAsync(entity => (int?)entity.SortOrder, cancellationToken) ?? 0;
         var entity = new EDevletActivityType
         {
             ActivityTypeId = Guid.NewGuid(),
             TenantId = tenantId,
+            DepartmentId = user.DepartmentId,
             Name = request.Name.Trim(),
             SortOrder = maxSort + 1,
         };
@@ -92,9 +99,12 @@ public sealed class UpdateEDevletActivityTypeCommandHandler : ICommandHandler<Up
     public async ValueTask<bool> Handle(UpdateEDevletActivityTypeCommand request, CancellationToken cancellationToken)
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var (_, departmentIds) = await EDevletDepartmentAccess.RequireUserAndDepartmentsAsync(
+            _dbContext, _tenantContextAccessor, cancellationToken);
         var entity = await _dbContext.EDevletActivityTypes
             .FirstOrDefaultAsync(e => e.ActivityTypeId == request.ActivityTypeId && e.TenantId == tenantId, cancellationToken);
         if (entity is null) return false;
+        EDevletDepartmentAccess.EnsureDepartmentAccess(entity.DepartmentId, departmentIds);
         entity.Name = request.Name.Trim();
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -118,9 +128,12 @@ public sealed class DeleteEDevletActivityTypeCommandHandler : ICommandHandler<De
     public async ValueTask<bool> Handle(DeleteEDevletActivityTypeCommand request, CancellationToken cancellationToken)
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var (_, departmentIds) = await EDevletDepartmentAccess.RequireUserAndDepartmentsAsync(
+            _dbContext, _tenantContextAccessor, cancellationToken);
         var entity = await _dbContext.EDevletActivityTypes
             .FirstOrDefaultAsync(e => e.ActivityTypeId == request.ActivityTypeId && e.TenantId == tenantId, cancellationToken);
         if (entity is null) return false;
+        EDevletDepartmentAccess.EnsureDepartmentAccess(entity.DepartmentId, departmentIds);
         var inUse = await _dbContext.EDevletDailyActivityPlans
             .AnyAsync(plan => plan.ActivityTypeId == request.ActivityTypeId && plan.TenantId == tenantId, cancellationToken);
         if (inUse)
@@ -170,16 +183,25 @@ public sealed class CreateEDevletDailyActivityPlanCommandHandler : ICommandHandl
     {
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
+        var (user, departmentIds) = await EDevletDepartmentAccess.RequireUserAndDepartmentsAsync(
+            _dbContext, _tenantContextAccessor, cancellationToken);
+
         var activityType = await _dbContext.EDevletActivityTypes
             .AsNoTracking()
             .FirstOrDefaultAsync(entity => entity.ActivityTypeId == request.ActivityTypeId && entity.TenantId == tenantId, cancellationToken)
             ?? throw ValidationExceptionFactory.Field(nameof(request.ActivityTypeId), "Faaliyet tipi bulunamadi.");
+        EDevletDepartmentAccess.EnsureDepartmentAccess(activityType.DepartmentId, departmentIds);
 
+        var utcNow = DateTimeOffset.UtcNow;
         var plan = new EDevletDailyActivityPlan
         {
             PlanId = Guid.NewGuid(),
             TenantId = tenantId,
+            DepartmentId = user.DepartmentId,
             ActivityTypeId = request.ActivityTypeId,
+            PlanNumberYear = utcNow.Year,
+            PlanNumber = await SequenceNumberHelper.NextEDevletPlanNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken),
+            Status = EDevletDailyActivityPlanStatus.Active,
             Description = request.Description.Trim(),
             Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim(),
             Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
@@ -196,6 +218,9 @@ public sealed class CreateEDevletDailyActivityPlanCommandHandler : ICommandHandl
             plan.Neighborhood,
             plan.Street,
             plan.OpenAddress,
+            plan.PlanNumber,
+            plan.PlanNumberYear,
+            plan.Status.ToString(),
             plan.CreatedAtUtc);
     }
 }

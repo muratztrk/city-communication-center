@@ -1231,4 +1231,91 @@ export const api = {
     })
     await ensureOk(response, i18n.t('errors.edevletDailyPlanCreateFailed', 'Faaliyet planı kaydedilemedi.'))
   },
+
+  async getEDevletDailyActivityPlans(): Promise<Array<{
+    planId: string
+    planNumber: number | null
+    planNumberYear: number | null
+    createdAtUtc: string
+    activityTypeName: string
+    neighborhood: string | null
+    street: string | null
+    description: string
+    status: string
+  }>> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.edevletDailyPlansLoadFailed', 'Faaliyet planları yüklenemedi.'))
+    return response.json() as Promise<Array<{
+      planId: string
+      planNumber: number | null
+      planNumberYear: number | null
+      createdAtUtc: string
+      activityTypeName: string
+      neighborhood: string | null
+      street: string | null
+      description: string
+      status: string
+    }>>
+  },
+
+  async getEDevletDailyActivityPlan(planId: string): Promise<{
+    planId: string
+    activityTypeId: string
+    activityTypeName: string
+    description: string
+    neighborhood: string | null
+    street: string | null
+    openAddress: string | null
+    planNumber: number | null
+    planNumberYear: number | null
+    status: string
+    createdAtUtc: string
+  }> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.edevletDailyPlanLoadFailed', 'Faaliyet planı yüklenemedi.'))
+    return response.json() as Promise<{
+      planId: string
+      activityTypeId: string
+      activityTypeName: string
+      description: string
+      neighborhood: string | null
+      street: string | null
+      openAddress: string | null
+      planNumber: number | null
+      planNumberYear: number | null
+      status: string
+      createdAtUtc: string
+    }>
+  },
+
+  async updateEDevletDailyActivityPlan(planId: string, payload: {
+    activityTypeId: string
+    description: string
+    neighborhood?: string | null
+    street?: string | null
+    openAddress?: string | null
+  }): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.edevletDailyPlanUpdateFailed', 'Faaliyet planı güncellenemedi.'))
+  },
+
+  async cancelEDevletDailyActivityPlan(planId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}/cancel`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.edevletDailyPlanCancelFailed', 'Faaliyet planı iptal edilemedi.'))
+  },
+
+  async duplicateEDevletDailyActivityPlan(planId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}/duplicate`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.edevletDailyPlanDuplicateFailed', 'Faaliyet planı oluşturulamadı.'))
+  },
 }

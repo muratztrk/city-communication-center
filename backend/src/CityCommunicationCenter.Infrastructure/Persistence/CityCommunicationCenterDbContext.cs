@@ -621,6 +621,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.ToTable("edevletactivitytypes");
         builder.HasKey(entity => entity.ActivityTypeId);
         builder.Property(entity => entity.Name).HasMaxLength(200);
+        builder.HasIndex(entity => new { entity.TenantId, entity.DepartmentId });
         ApplyLowerCaseColumnNames(builder);
     }
 
@@ -629,6 +630,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.ToTable("edevletdailyactivityplans");
         builder.HasKey(entity => entity.PlanId);
         builder.Property(entity => entity.Description).HasMaxLength(4000);
+        builder.Property(entity => entity.Status).HasConversion<string>().HasMaxLength(32);
+        builder.HasIndex(entity => new { entity.TenantId, entity.DepartmentId });
         builder.HasOne(entity => entity.ActivityType)
             .WithMany()
             .HasForeignKey(entity => entity.ActivityTypeId)

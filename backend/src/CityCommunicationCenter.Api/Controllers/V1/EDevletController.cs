@@ -65,4 +65,59 @@ public sealed class EDevletController : ApiControllerBase
             cancellationToken);
         return Created(string.Empty, response);
     }
+
+    [HttpGet("daily-plans")]
+    [ProducesResponseType<IEnumerable<EDevletDailyActivityPlanListItemResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<EDevletDailyActivityPlanListItemResponse>>> GetDailyPlans(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetEDevletDailyActivityPlansQuery(), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("daily-plans/{planId:guid}")]
+    [ProducesResponseType<EDevletDailyActivityPlanResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EDevletDailyActivityPlanResponse>> GetDailyPlan(Guid planId, CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetEDevletDailyActivityPlanByIdQuery(planId), cancellationToken);
+        return response is null ? NotFound() : Ok(response);
+    }
+
+    [HttpPut("daily-plans/{planId:guid}")]
+    [ProducesResponseType<EDevletDailyActivityPlanResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EDevletDailyActivityPlanResponse>> UpdateDailyPlan(
+        Guid planId,
+        [FromBody] UpdateEDevletDailyActivityPlanRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new UpdateEDevletDailyActivityPlanCommand(
+                planId,
+                request.ActivityTypeId,
+                request.Description,
+                request.Neighborhood,
+                request.Street,
+                request.OpenAddress),
+            cancellationToken);
+        return response is null ? NotFound() : Ok(response);
+    }
+
+    [HttpPost("daily-plans/{planId:guid}/cancel")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CancelDailyPlan(Guid planId, CancellationToken cancellationToken)
+    {
+        var cancelled = await _sender.Send(new CancelEDevletDailyActivityPlanCommand(planId), cancellationToken);
+        return cancelled ? NoContent() : NotFound();
+    }
+
+    [HttpPost("daily-plans/{planId:guid}/duplicate")]
+    [ProducesResponseType<EDevletDailyActivityPlanResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EDevletDailyActivityPlanResponse>> DuplicateDailyPlan(Guid planId, CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new DuplicateEDevletDailyActivityPlanCommand(planId), cancellationToken);
+        return response is null ? NotFound() : Created(string.Empty, response);
+    }
 }

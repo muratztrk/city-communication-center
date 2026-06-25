@@ -1,6 +1,7 @@
 import { Send } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -32,11 +33,15 @@ const DESCRIPTION_MAX = 100
 
 export function EDevletActivityPlanPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const editingPlanId = searchParams.get('planId')
   const [form, setForm] = useState<FormState>(INITIAL)
   const [activityTypes, setActivityTypes] = useState<ActivityType[]>([])
   const [typeName, setTypeName] = useState('')
   const [editingTypeId, setEditingTypeId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [loadingPlan, setLoadingPlan] = useState(Boolean(editingPlanId))
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
@@ -46,6 +51,22 @@ export function EDevletActivityPlanPage() {
       .then(setActivityTypes)
       .catch(err => setError(err instanceof Error ? err.message : t('common.error')))
   }, [t])
+
+  useEffect(() => {
+    if (!editingPlanId) return
+    setLoadingPlan(true)
+    void api.getEDevletDailyActivityPlan(editingPlanId)
+      .then(plan => {
+        setForm({
+          activityTypeId: plan.activityTypeId,
+          description: plan.description,
+          neighborhood: plan.neighborhood ?? '',
+          street: plan.street ?? '',
+        })
+      })
+      .catch(err => setError(err instanceof Error ? err.message : t('common.error')))
+      .finally(() => setLoadingPlan(false))
+  }, [editingPlanId, t])
 
   const reloadTypes = async () => {
     setActivityTypes(await api.getEDevletActivityTypes())
@@ -85,18 +106,24 @@ export function EDevletActivityPlanPage() {
     }
   }
 
-  const executeCreate = async () => {
+  const executeSave = async () => {
     setSubmitting(true)
     setError(null)
     try {
-      await api.createEDevletDailyActivityPlan({
+      const payload = {
         activityTypeId: form.activityTypeId,
         description: form.description.trim(),
         neighborhood: form.neighborhood,
         street: form.street,
         openAddress: null,
-      })
-      setForm(INITIAL)
+      }
+      if (editingPlanId) {
+        await api.updateEDevletDailyActivityPlan(editingPlanId, payload)
+        navigate('/edevlet/activity-plans')
+      } else {
+        await api.createEDevletDailyActivityPlan(payload)
+        setForm(INITIAL)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -108,20 +135,30 @@ export function EDevletActivityPlanPage() {
     event.preventDefault()
     if (!form.activityTypeId || !form.description.trim() || !form.neighborhood || !form.street.trim()) return
     setConfirmDialog({
-      title: t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur'),
-      message: t('edevletActivityPlan.createConfirm', 'Faaliyet planını kaydetmek istediğinize emin misiniz?'),
-      confirmLabel: t('edevletActivityPlan.submit', 'Faaliyet Planı Oluştur'),
+      title: editingPlanId
+        ? t('edevletActivityPlan.editTitle', 'Faaliyet Planını Düzenle')
+        : t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur'),
+      message: editingPlanId
+        ? t('edevletActivityPlan.updateConfirm', 'Faaliyet planındaki değişiklikleri kaydetmek istediğinize emin misiniz?')
+        : t('edevletActivityPlan.createConfirm', 'Faaliyet planını kaydetmek istediğinize emin misiniz?'),
+      confirmLabel: editingPlanId
+        ? t('common.save', 'Kaydet')
+        : t('edevletActivityPlan.submit', 'Faaliyet Planı Oluştur'),
       cancelLabel: t('common.cancel', 'İptal'),
       variant: 'success',
-      onConfirm: () => { void executeCreate() },
+      onConfirm: () => { void executeSave() },
     })
   }
 
-  const canSubmit = !submitting
+  const canSubmit = !submitting && !loadingPlan
     && form.activityTypeId !== ''
     && form.description.trim() !== ''
     && form.neighborhood !== ''
     && form.street.trim() !== ''
+
+  if (loadingPlan) {
+    return <div className="loading">{t('common.loading')}</div>
+  }
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -129,7 +166,11 @@ export function EDevletActivityPlanPage() {
         <div className="page-header-row">
           <div className="space-y-1">
             <div className="page-kicker">{t('edevletActivityPlan.kicker', 'e-Devlet entegrasyonu')}</div>
-            <h1 className="page-title">{t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur')}</h1>
+            <h1 className="page-title">
+              {editingPlanId
+                ? t('edevletActivityPlan.editTitle', 'Faaliyet Planını Düzenle')
+                : t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur')}
+            </h1>
             <p className="page-subtitle text-base">
               {t('edevletActivityPlan.subtitle', 'Belediyenizin günlük faaliyet planını oluşturarak vatandaşlarınızla paylaşınız.')}
             </p>
@@ -238,27 +279,32 @@ export function EDevletActivityPlanPage() {
           </div>
         </div>
 
-        <div className="job-field">
-          <label className="job-field-label" htmlFor="activity-description">
-            {t('tasks.detail.description', 'Açıklama')}
-            <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 100 karakter)')}</span>
-            <span className="text-red-500"> *</span>
-          </label>
-          <textarea
-            id="activity-description"
-            className="field-textarea min-h-28 text-base leading-relaxed"
-            maxLength={DESCRIPTION_MAX}
-            value={form.description}
-            onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
-            placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
-            required
-          />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+          <div className="job-field lg:w-1/2">
+            <label className="job-field-label" htmlFor="activity-description">
+              {t('tasks.detail.description', 'Açıklama')}
+              <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 100 karakter)')}</span>
+              <span className="text-red-500"> *</span>
+            </label>
+            <textarea
+              id="activity-description"
+              className="field-textarea min-h-28 w-full text-base leading-relaxed"
+              maxLength={DESCRIPTION_MAX}
+              value={form.description}
+              onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
+              placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
+              required
+            />
+          </div>
+          <Button type="submit" disabled={!canSubmit} className="gap-2 self-start lg:mb-1 lg:shrink-0">
+            <Send className="size-4" />
+            {submitting
+              ? t('common.saving', 'Kaydediliyor...')
+              : editingPlanId
+                ? t('common.save', 'Kaydet')
+                : t('edevletActivityPlan.submit', 'Faaliyet Planı Oluştur')}
+          </Button>
         </div>
-
-        <Button type="submit" disabled={!canSubmit} className="gap-2 self-start">
-          <Send className="size-4" />
-          {submitting ? t('common.saving', 'Kaydediliyor...') : t('edevletActivityPlan.submit', 'Faaliyet Planı Oluştur')}
-        </Button>
       </form>
 
       {confirmDialog ? <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} /> : null}

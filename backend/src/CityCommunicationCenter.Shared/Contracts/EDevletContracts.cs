@@ -24,4 +24,25 @@ public sealed record EDevletDailyActivityPlanResponse(
     string? Neighborhood,
     string? Street,
     string? OpenAddress,
+    int? PlanNumber,
+    int? PlanNumberYear,
+    string Status,
     DateTimeOffset CreatedAtUtc);
+
+public sealed record UpdateEDevletDailyActivityPlanRequest(
+    Guid ActivityTypeId,
+    string Description,
+    string? Neighborhood,
+    string? Street,
+    string? OpenAddress);
+
+public sealed record EDevletDailyActivityPlanListItemResponse(
+    Guid PlanId,
+    int? PlanNumber,
+    int? PlanNumberYear,
+    DateTimeOffset CreatedAtUtc,
+    string ActivityTypeName,
+    string? Neighborhood,
+    string? Street,
+    string Description,
+    string Status);

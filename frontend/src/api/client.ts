@@ -820,13 +820,18 @@ export const api = {
     category?: string
     latitude?: number
     longitude?: number
-  }): Promise<void> {
+  }): Promise<string> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify(payload),
     })
     await ensureOk(response, i18n.t('errors.socialCreateFailed'))
+    const data = await response.json() as { socialMessageId?: string }
+    if (!data.socialMessageId) {
+      throw new Error(i18n.t('errors.socialCreateFailed'))
+    }
+    return data.socialMessageId
   },
 
   async routeSocialMessage(socialMessageId: string, departmentId?: string): Promise<void> {

@@ -48,6 +48,17 @@ interface CitizenFormState {
   category: string
   latitude: string
   longitude: string
+  title: string
+  targetDepartmentId: string
+  isCoordinated: boolean
+  coordinatedDepartmentIds: string[]
+  priority: string
+  isProject: boolean
+  startDateUtc: string
+  dueDateUtc: string
+  neighborhood: string
+  street: string
+  openAddress: string
 }
 
 const EMPTY_INTERNAL_FORM: InternalFormState = {
@@ -79,6 +90,17 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   category: '',
   latitude: '',
   longitude: '',
+  title: '',
+  targetDepartmentId: '',
+  isCoordinated: false,
+  coordinatedDepartmentIds: [],
+  priority: 'Normal',
+  isProject: false,
+  startDateUtc: '',
+  dueDateUtc: '',
+  neighborhood: '',
+  street: '',
+  openAddress: '',
 }
 
 const CITIZEN_CHANNELS = ['Facebook', 'Instagram', 'X', 'Email', 'WebForm', 'WhatsApp', 'Other']
@@ -217,6 +239,21 @@ export function CreateRequestPage() {
       && department.departmentId !== externalForm.targetDepartmentId
       && !isPresidencyLevelDepartment(department))
   }, [departments, externalForm.ownerDepartmentId, externalForm.targetDepartmentId])
+
+  const citizenTargetDepartmentOptions = useMemo(() => {
+    return departments.filter(department =>
+      department.departmentId !== myDepartmentId
+      && !isPresidencyLevelDepartment(department))
+  }, [departments, myDepartmentId])
+
+  const citizenCoordinatedDepartmentOptions = useMemo(() => {
+    return departments
+      .filter(department =>
+        department.departmentId !== myDepartmentId
+        && department.departmentId !== citizenForm.targetDepartmentId
+        && !isPresidencyLevelDepartment(department))
+      .map(department => ({ value: department.departmentId, label: department.name }))
+  }, [departments, myDepartmentId, citizenForm.targetDepartmentId])
 
   // Birim İçi talepte "Görev Sahibi Kişi/Birim": yalnızca birim yöneticisi/sorumlusu,
   // kendisi dahil birimin tüm personellerini görev sahibi olarak seçebilir.
@@ -655,6 +692,14 @@ export function CreateRequestPage() {
 
   const handleCreateCitizen = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (!myDepartmentId) {
+      setError(t('tasks.newRequest.noDepartment', 'Departman bilgisi bulunamadı.'))
+      return
+    }
+    if (!citizenForm.targetDepartmentId) {
+      setError(t('requests.create.targetDepartmentRequired', 'Talebin gideceği birim seçilmelidir.'))
+      return
+    }
     if (!hasRichTextContent(citizenForm.content)) {
       setError(t('settings.citizen.contentRequired', 'Talep içeriği gereklidir.'))
       return
@@ -663,7 +708,7 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
-      await api.createSocialMessage({
+      const socialMessageId = await api.createSocialMessage({
         channel: citizenForm.channel,
         citizenHandle: citizenForm.citizenHandle.trim(),
         content: citizenForm.content.trim(),
@@ -671,7 +716,25 @@ export function CreateRequestPage() {
         latitude: citizenForm.latitude ? parseFloat(citizenForm.latitude) : undefined,
         longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
       })
-      invalidateSocialMessages(queryClient)
+      await api.convertSocialMessageToJob(socialMessageId, {
+        title: citizenForm.title.trim() || citizenForm.category.trim() || citizenForm.citizenHandle.trim(),
+        description: citizenForm.content.trim(),
+        ownerDepartmentId: myDepartmentId,
+        priority: citizenForm.priority,
+        requestType: 'ExternalUnit',
+        targetDepartmentIds: [
+          citizenForm.targetDepartmentId,
+          ...(citizenForm.isCoordinated ? citizenForm.coordinatedDepartmentIds : []),
+        ],
+        isProject: citizenForm.isProject,
+        startDateUtc: toApiDateTime(citizenForm.startDateUtc),
+        dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
+        neighborhood: citizenForm.neighborhood || null,
+        street: citizenForm.street || null,
+        openAddress: citizenForm.openAddress || null,
+      })
+      invalidateSocialMessages(queryClient, socialMessageId)
+      invalidateJobs(queryClient)
       setCitizenForm(EMPTY_CITIZEN_FORM)
       navigate('/requests/new')
     } catch (err) {
@@ -929,7 +992,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'citizen' ? (
-        <form className="section-card grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
+        <form className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.citizenFormTitle', 'Vatandaş Talebi Oluştur')}</h2>
             <p className="helper-copy">{t('settings.citizen.sectionDescription', 'Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.')}</p>
@@ -1023,8 +1086,82 @@ export function CreateRequestPage() {
             </div>
           </div>
           <div className="grid content-start gap-3">
-            <label className="job-field">
-              <span className="job-field-label">{t('settings.citizen.content', 'Talep İçeriği')}</span>
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
+              <input id="citizen-request-title" className="field-input" type="text" maxLength={50} value={citizenForm.title} onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))} required />
+            </div>
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="citizen-request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
+              <select
+                id="citizen-request-target-dept"
+                className="field-select"
+                value={citizenForm.targetDepartmentId}
+                onChange={event => setCitizenForm(current => ({ ...current, targetDepartmentId: event.target.value }))}
+                required
+              >
+                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
+                {citizenTargetDepartmentOptions.map(department => (
+                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="job-field">
+              <label className="job-field-label" htmlFor="citizen-request-is-coordinated">{t('jobs.form.isCoordinated', 'Koordineli talep mi?')}</label>
+              <select
+                id="citizen-request-is-coordinated"
+                className="field-select"
+                value={citizenForm.isCoordinated ? 'yes' : 'no'}
+                onChange={event => setCitizenForm(current => ({
+                  ...current,
+                  isCoordinated: event.target.value === 'yes',
+                  coordinatedDepartmentIds: event.target.value === 'yes' ? current.coordinatedDepartmentIds : [],
+                }))}
+              >
+                <option value="no">{t('common.no', 'Hayır')}</option>
+                <option value="yes">{t('common.yes', 'Evet')}</option>
+              </select>
+            </div>
+            {citizenForm.isCoordinated ? (
+              <div className="job-field">
+                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
+                <MultiSelectDropdown
+                  options={citizenCoordinatedDepartmentOptions}
+                  value={citizenForm.coordinatedDepartmentIds}
+                  onChange={coordinatedDepartmentIds => setCitizenForm(current => ({ ...current, coordinatedDepartmentIds }))}
+                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
+                  emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                />
+                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
+              </div>
+            ) : null}
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-priority">{t('jobs.form.priority', 'Öncelik')}</label>
+                <select id="citizen-request-priority" className="field-select" value={citizenForm.priority} onChange={event => setCitizenForm(current => ({ ...current, priority: event.target.value }))}>
+                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                </select>
+              </div>
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
+                <select id="citizen-request-is-project" className="field-select" value={citizenForm.isProject ? 'yes' : 'no'} onChange={event => setCitizenForm(current => ({ ...current, isProject: event.target.value === 'yes' }))}>
+                  <option value="no">{t('common.no', 'Hayır')}</option>
+                  <option value="yes">{t('common.yes', 'Evet')}</option>
+                </select>
+              </div>
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-start-date">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
+                <DateTimePicker id="citizen-request-start-date" value={citizenForm.startDateUtc} onChange={value => setCitizenForm(current => ({ ...current, startDateUtc: value }))} />
+              </div>
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-due-date">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
+                <DateTimePicker id="citizen-request-due-date" value={citizenForm.dueDateUtc} onChange={value => setCitizenForm(current => ({ ...current, dueDateUtc: value }))} />
+              </div>
+            </div>
+            {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
+            <div className="job-field min-h-0">
+              <span className="job-field-label">{t('settings.citizen.content', 'Talep İçeriği')} <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={citizenForm.content}
                 onChange={content => setCitizenForm(current => ({ ...current, content }))}
@@ -1032,10 +1169,10 @@ export function CreateRequestPage() {
                 placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin içeriğini girin...')}
                 minHeight="min-h-48"
               />
-            </label>
+            </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+              {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
             </Button>
           </div>
         </form>

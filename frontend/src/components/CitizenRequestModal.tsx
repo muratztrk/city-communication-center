@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateSocialMessages } from '../api/cacheInvalidation'
+import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
@@ -19,6 +19,7 @@ import { isPresidencyLevelDepartment } from '../utils/departments'
 interface CitizenRequestModalProps {
   message: SocialMessage
   departments: Department[]
+  editJobId?: string | null
   onClose: () => void
   onCreated: () => void
 }
@@ -47,10 +48,11 @@ function escapeHtml(value: string): string {
  * Vatandaş talebini "Birim Dışı Talep Oluştur" formuyla, ilgili WhatsApp konuşması yan tarafta
  * görünür şekilde bir pop-up içinde oluşturur (card 443).
  */
-export function CitizenRequestModal({ message, departments, onClose, onCreated }: CitizenRequestModalProps) {
+export function CitizenRequestModal({ message, departments, editJobId = null, onClose, onCreated }: CitizenRequestModalProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
+  const isEditMode = Boolean(editJobId)
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
   const [title, setTitle] = useState(message.category?.trim() || `@${message.citizenHandle}`)
@@ -66,9 +68,51 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
   const [street, setStreet] = useState('')
   const [openAddress, setOpenAddress] = useState('')
   const [saving, setSaving] = useState(false)
+  const [loadingJob, setLoadingJob] = useState(isEditMode)
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [confirmedSubmit, setConfirmedSubmit] = useState(false)
+
+  useEffect(() => {
+    if (!editJobId) {
+      setLoadingJob(false)
+      return
+    }
+
+    let cancelled = false
+    setLoadingJob(true)
+    void api.getJobById(editJobId)
+      .then(job => {
+        if (cancelled || !job) return
+        const targetIds = (job.departments ?? [])
+          .filter(department => department.role === 'Target')
+          .map(department => department.departmentId)
+        setTitle(job.title)
+        setDescription(job.description ?? (message.content ? `<p>${escapeHtml(message.content)}</p>` : ''))
+        setTargetDepartmentId(targetIds[0] ?? '')
+        setIsCoordinated(targetIds.length > 1)
+        setCoordinatedDepartmentIds(targetIds.slice(1))
+        setPriority(job.priority)
+        setIsProject(job.isProject)
+        setStartDateUtc(job.startDateUtc ?? '')
+        setDueDateUtc(job.dueDateUtc ?? '')
+        setNeighborhood(job.neighborhood ?? '')
+        setStreet(job.street ?? '')
+        setOpenAddress(job.openAddress ?? '')
+      })
+      .catch(loadError => {
+        if (!cancelled) {
+          setError(loadError instanceof Error ? loadError.message : t('common.error'))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingJob(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [editJobId, message.content, t])
 
   const targetDepartmentOptions = useMemo(
     () => departments.filter(department =>
@@ -103,11 +147,15 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
 
     if (!confirmedSubmit) {
       setConfirmDialog({
-        title: t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur'),
-        message: t('requests.create.confirmCreate', 'Bu talebi oluşturmak istediğinize emin misiniz?'),
+        title: isEditMode
+          ? t('requests.create.externalFormTitleUpdate', 'Birim Dışı Talep Güncelle')
+          : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur'),
+        message: isEditMode
+          ? t('requests.create.confirmUpdate', 'Bu talebi güncellemek istediğinize emin misiniz?')
+          : t('requests.create.confirmCreate', 'Bu talebi oluşturmak istediğinize emin misiniz?'),
         titleCompact: true,
         titleDivider: true,
-        confirmLabel: t('tasks.newRequest.submit', 'Talep Oluştur'),
+        confirmLabel: isEditMode ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur'),
         cancelLabel: t('common.cancel', 'İptal'),
         variant: 'success',
         onConfirm: () => {
@@ -121,6 +169,33 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
     setSaving(true)
     setError(null)
     try {
+      if (isEditMode && editJobId) {
+        await api.updateJob(editJobId, {
+          title: title.trim() || `@${message.citizenHandle}`,
+          description: description.trim(),
+          priority,
+          startDateUtc: toApiDateTime(startDateUtc),
+          dueDateUtc: toApiDateTime(dueDateUtc),
+          isProject,
+          neighborhood: neighborhood || null,
+          street: street || null,
+          openAddress: openAddress || null,
+          targetDepartmentIds: [targetDepartmentId, ...(isCoordinated ? coordinatedDepartmentIds : [])],
+        })
+        await api.updateSocialMessage(message.socialMessageId, {
+          channel: message.channel,
+          citizenHandle: message.citizenHandle,
+          content: description.trim(),
+          category: message.category ?? undefined,
+          latitude: message.latitude ?? undefined,
+          longitude: message.longitude ?? undefined,
+        })
+        invalidateSocialMessages(queryClient, message.socialMessageId)
+        invalidateJobs(queryClient, editJobId)
+        onCreated()
+        return
+      }
+
       await api.convertSocialMessageToJob(message.socialMessageId, {
         title: title.trim() || `@${message.citizenHandle}`,
         description: description.trim(),
@@ -165,7 +240,9 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
               {t('social.title', 'Vatandaş Talepleri')}
             </div>
             <h2 className="text-base font-extrabold text-white">
-              {t('requests.create.externalTitle', 'Birim Dışı')} — {t('nav.createRequest', 'Talep Oluştur')}
+              {t('requests.create.externalTitle', 'Birim Dışı')} — {isEditMode
+                ? t('social.editRequest', 'Talep Düzenle')
+                : t('nav.createRequest', 'Talep Oluştur')}
             </h2>
           </div>
           <button
@@ -192,6 +269,9 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
 
           {/* Birim Dışı Talep Oluştur formu */}
           <form id="citizen-request-form" className="citizen-request-form flex min-h-0 flex-col overflow-y-auto p-4" onSubmit={handleSubmit}>
+            {loadingJob ? (
+              <div className="flex flex-1 items-center justify-center py-12 text-sm text-slate-500">{t('common.loading')}</div>
+            ) : (
             <div className="grid gap-2.5">
               <div className="grid gap-2.5 sm:grid-cols-2">
                 <div className="job-field">
@@ -318,11 +398,16 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
 
               {error ? <div className="error">{error}</div> : null}
 
-              <Button type="submit" disabled={saving} className="gap-2">
+              <Button type="submit" disabled={saving || loadingJob} className="gap-2">
                 <Send className="size-4" />
-                {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+                {saving
+                  ? t('common.saving', 'Kaydediliyor...')
+                  : isEditMode
+                    ? t('common.update', 'Güncelle')
+                    : t('tasks.newRequest.submit', 'Talep Oluştur')}
               </Button>
             </div>
+            )}
           </form>
         </div>
       </div>

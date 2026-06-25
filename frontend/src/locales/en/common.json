@@ -717,6 +717,7 @@
     "taskTitlePlaceholder": "Task title",
     "defaultTaskTitle": "{{handle}} request",
     "defaultTaskDescription": "Social media message received from {{handle}}",
+    "editRequest": "Edit Request",
     "empty": "No messages found yet",
     "goToConversation": "Go to Conversation",
     "delete": "Delete",

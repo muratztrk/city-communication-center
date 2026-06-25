@@ -722,6 +722,7 @@
     "taskTitlePlaceholder": "İş başlığı",
     "defaultTaskTitle": "{{handle}} talebi",
     "defaultTaskDescription": "{{handle}} tarafından iletilen vatandaş talebi mesajı",
+    "editRequest": "Talep Düzenle",
     "empty": "Henüz mesaj bulunmuyor",
     "goToConversation": "Yazışmaya Git",
     "delete": "Sil",

@@ -266,7 +266,7 @@ export function EDevletActivityPlansListPage() {
             <table className={`data-table jobs-table data-table--zebra${paginatedPlans.length === 0 ? ' data-table--empty' : ''}`}>
               <thead>
                 <tr>
-                  <th className="w-10 text-center">{t('edevletActivityPlans.columns.rowNo', 'Sıra No')}</th>
+                  <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <FilterableTh filterKey="planNo" filterValue={planFilters['planNo'] ?? ''} onFilter={setPlanFilter} sortKey="planNoDisplay" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.planNo', 'Faaliyet No')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={planFilters['createdAtUtc'] ?? ''} onFilter={setPlanFilter} sortKey="createdAtUtc" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.date', 'Tarih')}</FilterableTh>
                   <FilterableTh filterKey="activityTypeName" filterValue={planFilters['activityTypeName'] ?? ''} onFilter={setPlanFilter} sortKey="activityTypeName" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</FilterableTh>

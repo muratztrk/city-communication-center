@@ -245,6 +245,7 @@ function ConversationDetail({
   onClose,
   onReadMarked,
   onOpenCreateRequest,
+  onOpenEditRequest,
   onOpenViewJob,
 }: {
   conversationId: string
@@ -252,6 +253,7 @@ function ConversationDetail({
   onClose?: () => void
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId: string) => void
+  onOpenEditRequest: (socialMessageId: string, jobId: string) => void
   onOpenViewJob: (jobId: string) => void
 }) {
   const { t } = useTranslation()
@@ -369,20 +371,18 @@ function ConversationDetail({
             {t('whatsapp.tickets')}
           </p>
           <div className="flex flex-wrap gap-2">
-            {primaryTicket.jobId ? (
-              <DisabledActionButton size="sm" variant="success" hoverTitle={t('social.requestAlreadyCreated', 'Talep zaten oluşturulmuş')}>
-                {t('nav.createRequest', 'Talep Oluştur')}
-              </DisabledActionButton>
-            ) : (
-              <Button
-                size="sm"
-                type="button"
-                variant="success"
-                onClick={() => onOpenCreateRequest(primaryTicket.socialMessageId)}
-              >
-                {t('nav.createRequest', 'Talep Oluştur')}
-              </Button>
-            )}
+            <Button
+              size="sm"
+              type="button"
+              variant="success"
+              onClick={() => primaryTicket.jobId
+                ? onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId)
+                : onOpenCreateRequest(primaryTicket.socialMessageId)}
+            >
+              {primaryTicket.jobId
+                ? t('social.editRequest', 'Talep Düzenle')
+                : t('nav.createRequest', 'Talep Oluştur')}
+            </Button>
             {primaryTicket.jobId ? (
               <Button
                 size="sm"
@@ -471,6 +471,7 @@ export function WhatsAppConversationsPage() {
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
+  const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(searchParams.get('phone') ?? '')
@@ -535,14 +536,27 @@ export function WhatsAppConversationsPage() {
 
   const handleOpenCreateRequest = useCallback(async (socialMessageId: string) => {
     try {
+      setRequestModalEditJobId(null)
       setRequestModalMessage(await api.getSocialMessageById(socialMessageId))
     } catch {
+      setRequestModalEditJobId(null)
+      setRequestModalMessage(null)
+    }
+  }, [])
+
+  const handleOpenEditRequest = useCallback(async (socialMessageId: string, jobId: string) => {
+    try {
+      setRequestModalEditJobId(jobId)
+      setRequestModalMessage(await api.getSocialMessageById(socialMessageId))
+    } catch {
+      setRequestModalEditJobId(null)
       setRequestModalMessage(null)
     }
   }, [])
 
   const handleRequestCreated = useCallback(() => {
     setRequestModalMessage(null)
+    setRequestModalEditJobId(null)
     void loadConversations()
     setDetailRefreshKey(key => key + 1)
   }, [loadConversations])
@@ -616,6 +630,7 @@ export function WhatsAppConversationsPage() {
               templates={templates}
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
+              onOpenEditRequest={(socialMessageId, jobId) => { void handleOpenEditRequest(socialMessageId, jobId) }}
               onOpenViewJob={setDetailJobId}
             />
           ) : (
@@ -631,7 +646,11 @@ export function WhatsAppConversationsPage() {
         <CitizenRequestModal
           message={requestModalMessage}
           departments={departments}
-          onClose={() => setRequestModalMessage(null)}
+          editJobId={requestModalEditJobId}
+          onClose={() => {
+            setRequestModalMessage(null)
+            setRequestModalEditJobId(null)
+          }}
           onCreated={handleRequestCreated}
         />
       ) : null}

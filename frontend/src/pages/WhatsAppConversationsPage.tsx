@@ -379,9 +379,7 @@ function ConversationDetail({
                 ? onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId)
                 : onOpenCreateRequest(primaryTicket.socialMessageId)}
             >
-              {primaryTicket.jobId
-                ? t('social.editRequest', 'Talep Düzenle')
-                : t('nav.createRequest', 'Talep Oluştur')}
+              {t('nav.createRequest', 'Talep Oluştur')}
             </Button>
             {primaryTicket.jobId ? (
               <Button

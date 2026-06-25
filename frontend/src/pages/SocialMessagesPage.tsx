@@ -1,6 +1,7 @@
 import { DateCell } from '../components/ui/date-cell'
 import { MapPin, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -8,12 +9,12 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateSocialMessages } from '../api/cacheInvalidation'
+import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
-import type { Department, SocialMessage } from '../types/platform'
+import type { Department, JobSummary, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -35,6 +36,12 @@ function formatCitizenRequestNumber(message: SocialMessage) {
 
 function getSocialMessageLastDate(message: SocialMessage) {
   return message.updatedAtUtc ?? message.receivedAtUtc
+}
+
+function canCancelLinkedJob(status: JobSummary['status'] | undefined) {
+  return status === 'PendingOwnerApproval'
+    || status === 'PendingExternalApproval'
+    || status === 'Active'
 }
 
 const DEFAULT_CHANNEL_FILTER = 'WhatsApp'
@@ -88,11 +95,13 @@ export function SocialMessagesPage() {
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
+  const [jobsById, setJobsById] = useState<Map<string, JobSummary>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   // "Talep Oluştur" pop-up'ı için seçilen vatandaş mesajı (card 443).
   const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
   const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
+  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
@@ -106,14 +115,16 @@ export function SocialMessagesPage() {
     void Promise.all([
       api.getSocialMessages(),
       api.getDepartments(),
+      api.getJobs('all'),
     ])
-      .then(([messageList, departmentList]) => {
+      .then(([messageList, departmentList, jobList]) => {
         if (!isActive) {
           return
         }
 
         setMessages(messageList)
         setDepartments(departmentList)
+        setJobsById(new Map(jobList.map(job => [job.jobId, job])))
       })
       .catch(loadError => {
         if (isActive) {
@@ -136,13 +147,15 @@ export function SocialMessagesPage() {
     setError('')
 
     try {
-      const [messageList, departmentList] = await Promise.all([
+      const [messageList, departmentList, jobList] = await Promise.all([
         api.getSocialMessages(),
         api.getDepartments(),
+        api.getJobs('all'),
       ])
 
       setMessages(messageList)
       setDepartments(departmentList)
+      setJobsById(new Map(jobList.map(job => [job.jobId, job])))
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
     } finally {
@@ -160,6 +173,21 @@ export function SocialMessagesPage() {
   const openRequestModal = (message: SocialMessage) => {
     setRequestModalEditJobId(message.jobId)
     setRequestModalMessage(message)
+  }
+
+  const handleCancelConfirm = async () => {
+    if (!cancelModal || !cancelModal.reason.trim()) return
+    setCancelModal(current => current ? { ...current, saving: true } : null)
+    try {
+      await api.cancelJob(cancelModal.jobId, cancelModal.reason.trim())
+      invalidateJobs(queryClient, cancelModal.jobId)
+      invalidateSocialMessages(queryClient)
+      setCancelModal(null)
+      await reload()
+    } catch (cancelError) {
+      setError(cancelError instanceof Error ? cancelError.message : t('common.error'))
+      setCancelModal(current => current ? { ...current, saving: false } : null)
+    }
   }
 
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
@@ -289,7 +317,11 @@ export function SocialMessagesPage() {
               </tr>
             </thead>
             <tbody>
-              {pagedMessages.map((message, index) => (
+              {pagedMessages.map((message, index) => {
+                const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
+                const canCancelJob = message.jobId && canCancelLinkedJob(linkedJob?.status)
+
+                return (
                 <Fragment key={message.socialMessageId}>
                   <tr>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(messagesPage - 1) * messagesPageSize + index + 1}</td>
@@ -342,6 +374,26 @@ export function SocialMessagesPage() {
                             ? t('social.editRequest', 'Talep Düzenle')
                             : t('nav.createRequest', 'Talep Oluştur')}
                         </Button>
+                        {canCancelJob ? (
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant="destructive"
+                            onClick={() => setCancelModal({ jobId: message.jobId!, reason: '', saving: false })}
+                          >
+                            {t('jobs.actions.cancel', 'İptal Et')}
+                          </Button>
+                        ) : (
+                          <DisabledActionButton
+                            size="sm"
+                            variant="destructive"
+                            hoverTitle={message.jobId
+                              ? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')
+                              : t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}
+                          >
+                            {t('jobs.actions.cancel', 'İptal Et')}
+                          </DisabledActionButton>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -366,7 +418,8 @@ export function SocialMessagesPage() {
                     </tr>
                   ) : null}
                 </Fragment>
-              ))}
+                )
+              })}
               {columnFilteredMessages.length === 0 ? (
                 <tr>
                   <td colSpan={8}>
@@ -408,6 +461,38 @@ export function SocialMessagesPage() {
           notificationJobId={detailJobId}
           onNotificationDetailClose={() => setDetailJobId(null)}
         />
+      )}
+
+      {cancelModal && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)} role="presentation">
+          <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={event => event.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-social-job-dialog-title">
+            <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <X className="size-4" />
+            </button>
+            <h2 id="cancel-social-job-dialog-title" className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
+            <p className="mt-2 text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
+            <label className="job-field mt-5">
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+              <textarea
+                className="field-textarea"
+                rows={3}
+                value={cancelModal.reason}
+                onChange={event => setCancelModal(current => current ? { ...current, reason: event.target.value } : null)}
+                placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
+                autoFocus
+              />
+            </label>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
+                {t('common.dismiss', 'Vazgeç')}
+              </Button>
+              <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
+                {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
+              </Button>
+            </div>
+          </section>
+        </div>,
+        document.body,
       )}
     </div>
   )

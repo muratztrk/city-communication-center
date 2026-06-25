@@ -8,6 +8,7 @@ import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
+import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { DateTimePicker } from './ui/date-time-picker'
 import { MultiSelectDropdown } from './ui/multi-select-dropdown'
 import { RichTextEditor } from './ui/RichTextEditor'
@@ -66,6 +67,8 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
   const [openAddress, setOpenAddress] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [confirmedSubmit, setConfirmedSubmit] = useState(false)
 
   const targetDepartmentOptions = useMemo(
     () => departments.filter(department =>
@@ -98,6 +101,23 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
       return
     }
 
+    if (!confirmedSubmit) {
+      setConfirmDialog({
+        title: t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur'),
+        message: t('requests.create.confirmCreate', 'Bu talebi oluşturmak istediğinize emin misiniz?'),
+        titleCompact: true,
+        titleDivider: true,
+        confirmLabel: t('tasks.newRequest.submit', 'Talep Oluştur'),
+        cancelLabel: t('common.cancel', 'İptal'),
+        variant: 'success',
+        onConfirm: () => {
+          setConfirmedSubmit(true)
+          window.setTimeout(() => (document.getElementById('citizen-request-form') as HTMLFormElement | null)?.requestSubmit(), 0)
+        },
+      })
+      return
+    }
+
     setSaving(true)
     setError(null)
     try {
@@ -120,6 +140,8 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : t('common.error'))
       setSaving(false)
+    } finally {
+      setConfirmedSubmit(false)
     }
   }
 
@@ -169,7 +191,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
           </div>
 
           {/* Birim Dışı Talep Oluştur formu */}
-          <form className="citizen-request-form flex min-h-0 flex-col overflow-y-auto p-4" onSubmit={handleSubmit}>
+          <form id="citizen-request-form" className="citizen-request-form flex min-h-0 flex-col overflow-y-auto p-4" onSubmit={handleSubmit}>
             <div className="grid gap-2.5">
               <div className="grid gap-2.5 sm:grid-cols-2">
                 <div className="job-field">
@@ -304,6 +326,7 @@ export function CitizenRequestModal({ message, departments, onClose, onCreated }
           </form>
         </div>
       </div>
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>,
     document.body
   )

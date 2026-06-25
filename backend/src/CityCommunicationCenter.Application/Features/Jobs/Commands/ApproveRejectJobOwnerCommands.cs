@@ -61,38 +61,52 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
             job.JobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, utcNow.Year, cancellationToken);
         }
 
-        // One-step approval: the owner manager's approval activates the job directly.
-        // For external (birim dışı) requests the job drops into the target department's
-        // pool as Active — there is no separate target-manager approval step.
+        // One-step approval: the owner manager's approval activates the job directly for
+        // single-target external requests. Coordinated multi-target externals require each
+        // target department to approve separately (card #861).
         var createdTaskCount = 0;
-        job.Status = JobStatus.Active;
-        if (job.DueDateUtc is null)
+        var isCoordinatedExternal = job.RequestType == JobRequestType.ExternalUnit && targets.Count > 1;
+        if (isCoordinatedExternal)
         {
-            var settings = await _dbContext.TenantSettings.FirstOrDefaultAsync(cancellationToken);
-            if (settings is not null && settings.DefaultSlaHours > 0)
+            job.Status = JobStatus.PendingExternalApproval;
+            foreach (var target in targets)
             {
-                job.DueDateUtc = await _slaCalculator.CalculateDueDateAsync(
-                    utcNow, settings.DefaultSlaHours, tenantId, job.OwnerDepartmentId, cancellationToken);
-            }
-        }
-        if (targets.Count > 0)
-        {
-            // External: accept the targets into their pool. The target department
-            // assigns its own staff afterwards, so no owner tasks are created here.
-            foreach (var t in targets)
-            {
-                t.ApprovalStatus = JobApprovalStatus.Approved;
-                t.ApprovedByUserId = actor.UserId;
-                t.DecidedAtUtc = utcNow;
-                t.UpdatedAtUtc = utcNow;
-                t.UpdatedByUserId = actor.UserId;
+                target.ApprovalStatus = JobApprovalStatus.Pending;
+                target.ApprovedByUserId = null;
+                target.DecidedAtUtc = null;
+                target.UpdatedAtUtc = utcNow;
+                target.UpdatedByUserId = actor.UserId;
             }
         }
         else
         {
-            // Internal: the owner department does the work — provision owner tasks.
-            createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(
-                _dbContext, tenantId, job, actor.UserId, utcNow, cancellationToken);
+            job.Status = JobStatus.Active;
+            if (job.DueDateUtc is null)
+            {
+                var settings = await _dbContext.TenantSettings.FirstOrDefaultAsync(cancellationToken);
+                if (settings is not null && settings.DefaultSlaHours > 0)
+                {
+                    job.DueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                        utcNow, settings.DefaultSlaHours, tenantId, job.OwnerDepartmentId, cancellationToken);
+                }
+            }
+
+            if (targets.Count > 0)
+            {
+                foreach (var t in targets)
+                {
+                    t.ApprovalStatus = JobApprovalStatus.Approved;
+                    t.ApprovedByUserId = actor.UserId;
+                    t.DecidedAtUtc = utcNow;
+                    t.UpdatedAtUtc = utcNow;
+                    t.UpdatedByUserId = actor.UserId;
+                }
+            }
+            else
+            {
+                createdTaskCount = await JobOwnerTaskProvisioning.EnsureOwnerTasksAsync(
+                    _dbContext, tenantId, job, actor.UserId, utcNow, cancellationToken);
+            }
         }
 
         job.UpdatedAtUtc = utcNow;

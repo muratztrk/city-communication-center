@@ -224,13 +224,15 @@ function toInternalRow(task: Task): IncomingRequestRow {
 
 function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRequestRow {
   const ownerDept = job.departments?.find(d => d.role === 'Owner')
-  // Active external job that landed in this department's pool and still needs staff assigned
   const activeTarget = activeDeptId
     ? job.departments?.find(d => d.role === 'Target' && d.departmentId === activeDeptId)
     : undefined
-  const assignTargetDepartmentId = activeTarget && job.status === 'Active' && job.taskCount === 0
+  const targetPending = activeTarget?.approvalStatus === 'Pending'
+  const targetApproved = activeTarget?.approvalStatus === 'Approved' || activeTarget?.approvalStatus === 'NotRequired'
+  const assignTargetDepartmentId = targetApproved && activeTarget && job.status === 'Active' && job.taskCount === 0
     ? activeTarget.departmentId
     : null
+  const displayStatus = targetPending ? 'PendingExternalApproval' : job.status
   return {
     id: job.jobId,
     jobId: job.jobId,
@@ -238,7 +240,7 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     kind: 'external',
     statusDomain: 'job',
     title: job.title,
-    status: job.status,
+    status: displayStatus,
     priority: job.priority,
     departmentName: job.ownerDepartmentName,
     createdBy: job.createdByDisplayName,
@@ -259,8 +261,12 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
  *  Current records use an Approved owner row; older/direct-manager records can already
  *  be Active while that row is incomplete, and must not disappear from the target pool. */
 function isIncomingExternalForActiveDept(job: JobSummary, activeDeptId: string | null): boolean {
+  if (job.status === 'PendingOwnerApproval') return false
+
   const ownerApproved = job.departments?.some(d => d.role === 'Owner' && d.approvalStatus === 'Approved') ?? false
-  const isVisibleToTarget = ownerApproved || job.status === 'Active'
+  const isVisibleToTarget = ownerApproved
+    || job.status === 'Active'
+    || job.status === 'PendingExternalApproval'
   if (!isVisibleToTarget) return false
   if (!activeDeptId) return true
   return job.departments?.some(d => d.role === 'Target' && d.departmentId === activeDeptId) ?? false

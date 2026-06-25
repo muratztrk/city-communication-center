@@ -153,6 +153,13 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             }
         }
 
+        var isCoordinatedExternal = requestType == JobRequestType.ExternalUnit && targets.Length > 1;
+        var initialJobStatus = requiresOwnerApproval
+            ? JobStatus.PendingOwnerApproval
+            : isCoordinatedExternal
+                ? JobStatus.PendingExternalApproval
+                : JobStatus.Active;
+
         var job = new Job
         {
             JobId = Guid.NewGuid(),
@@ -160,7 +167,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             Title = request.Title.Trim(),
             Description = request.Description.Trim(),
             OwnerDepartmentId = request.OwnerDepartmentId,
-            Status = requiresOwnerApproval ? JobStatus.PendingOwnerApproval : JobStatus.Active,
+            Status = initialJobStatus,
             Priority = request.Priority.Trim(),
             RequestType = requestType,
             IsProject = request.IsProject,
@@ -175,7 +182,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim(),
             Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
             OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim(),
-            IsCoordinated = targets.Length > 0,
+            IsCoordinated = isCoordinatedExternal,
             CreatedByUserId = context.UserId
         };
 
@@ -207,10 +214,12 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 
         foreach (var targetDeptId in targets)
         {
-            // Owner-onayı gerektirmeyen (müdür/yönetim) doğrudan oluşturmada hedef birim,
-            // owner-onay akışıyla (ApproveJobOwnerCommand) aynı sonuca ulaşmalı: hedef Approved
-            // olarak birimin havuzuna düşer ve "Birime Gelen Talepler"de görünür.
-            // Staff yolunda hedef NotRequired kalır; owner onayında sonradan Approved'a çevrilir.
+            var targetApprovalStatus = isCoordinatedExternal
+                ? JobApprovalStatus.Pending
+                : requiresOwnerApproval
+                    ? JobApprovalStatus.NotRequired
+                    : JobApprovalStatus.Approved;
+
             _dbContext.JobDepartments.Add(new JobDepartment
             {
                 JobDepartmentId = Guid.NewGuid(),
@@ -218,11 +227,11 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 JobId = job.JobId,
                 DepartmentId = targetDeptId,
                 Role = JobDepartmentRole.Target,
-                ApprovalStatus = requiresOwnerApproval ? JobApprovalStatus.NotRequired : JobApprovalStatus.Approved,
+                ApprovalStatus = targetApprovalStatus,
                 RequestedByUserId = actor.UserId,
                 RequestedAtUtc = utcNow,
-                ApprovedByUserId = requiresOwnerApproval ? null : actor.UserId,
-                DecidedAtUtc = requiresOwnerApproval ? null : utcNow,
+                ApprovedByUserId = isCoordinatedExternal || requiresOwnerApproval ? null : actor.UserId,
+                DecidedAtUtc = isCoordinatedExternal || requiresOwnerApproval ? null : utcNow,
                 CreatedByUserId = context.UserId
             });
         }

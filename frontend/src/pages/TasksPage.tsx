@@ -1499,20 +1499,56 @@ const pageKicker = isMyTasksView
                                   ))}
                                 </div>
                               </div>
-                              <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                                <div className="border-b border-slate-200 px-4 py-2">
-                                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    {t('tasks.detail.description', 'Açıklama')}
-                                  </span>
+                              {(() => {
+                                const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
+                                return (
+                              <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${isCompletedTaskDetail ? ' grid lg:grid-cols-2' : ''}`}>
+                                <div className="min-w-0">
+                                  <div className="border-b border-slate-200 px-4 py-2">
+                                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                      {t('tasks.detail.description', 'Açıklama')}
+                                    </span>
+                                  </div>
+                                  <div className="px-4 py-3">
+                                    <RichTextContent
+                                      value={resolveTaskDescription(taskDetail, parentJobDetail)}
+                                      emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                                      className="rich-text-content text-sm leading-6 text-slate-900"
+                                    />
+                                  </div>
                                 </div>
-                                <div className="px-4 py-3">
-                                  <RichTextContent
-                                    value={resolveTaskDescription(taskDetail, parentJobDetail)}
-                                    emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                                    className="rich-text-content text-sm leading-6 text-slate-900"
-                                  />
-                                </div>
+                                {isCompletedTaskDetail ? (
+                                  <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
+                                    <div className="border-b border-slate-200 px-4 py-2">
+                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        {t('tasks.detail.attachments', 'Görev Ekleri')}
+                                      </span>
+                                    </div>
+                                    <div className="px-4 py-3">
+                                      {(taskDetail.attachments?.length ?? 0) > 0 ? (
+                                        <ul className="space-y-1 text-[11px] leading-4">
+                                          {taskDetail.attachments!.map(att => (
+                                            <li key={att.attachmentId}>
+                                              <button
+                                                type="button"
+                                                className="w-full break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                                onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
+                                              >
+                                                {att.fileName}
+                                              </button>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      ) : (
+                                        <p className="text-sm text-slate-400">{t('attachments.taskEmpty', 'Görev için ek/fotoğraf bulunmamaktadır.')}</p>
+                                      )}
+                                      <p className="mt-2 text-xs font-medium text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
+                                    </div>
+                                  </div>
+                                ) : null}
                               </div>
+                                )
+                              })()}
                             </div>
                           </div>
                         </div>

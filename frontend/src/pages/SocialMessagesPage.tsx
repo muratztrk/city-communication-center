@@ -200,6 +200,7 @@ export function SocialMessagesPage() {
   )
 
   const channelQuickFilters: { value: string; label: string }[] = [
+    { value: 'WhatsApp', label: 'WhatsApp' },
     { value: 'Phone', label: t('nav.socialPhone', 'Çağrı') },
     { value: 'Instagram', label: 'Instagram' },
     { value: 'Facebook', label: 'Facebook' },
@@ -244,16 +245,6 @@ export function SocialMessagesPage() {
       </header>
 
       <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
-        {/* WhatsApp butonu gridi WhatsApp kanalına filtreler; konuşma sayfasına yönlendirmez (card 658). */}
-        <button
-          type="button"
-          className={`scope-chip scope-chip--pending${channelFilter === 'WhatsApp' ? ' active' : ''}`}
-          onClick={() => setChannelFilter('WhatsApp')}
-          title={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}
-        >
-          <ChannelIcon channel="WhatsApp" className="size-3.5 shrink-0" />
-          WhatsApp
-        </button>
         {channelQuickFilters.map(filter => (
           <button
             key={filter.value || 'all'}

@@ -1243,7 +1243,7 @@
     "jobStatus": {
       "Draft": "Taslak",
       "PendingOwnerApproval": "Yönetici Onayı Bekliyor",
-      "PendingExternalApproval": "Hedef Onayı Bekliyor",
+      "PendingExternalApproval": "Yönetici Onayı Bekliyor",
       "Active": "Yapılmakta Olan",
       "Completed": "Tamamlandı",
       "Rejected": "Reddedildi",
@@ -1270,7 +1270,7 @@
       "departmentPool": "Onaylanmış Talepler",
       "rejected": "İptal Talepler",
       "pendingOwnerApproval": "Yönetici Onayı Bekleyen",
-      "pendingExternalApproval": "Hedef Onayı Bekleyen",
+      "pendingExternalApproval": "Yönetici Onayı Bekleyen",
       "active": "Aktif",
       "overdue": "Son Tarihi Geçmiş Talepler",
       "all": "Tümü"

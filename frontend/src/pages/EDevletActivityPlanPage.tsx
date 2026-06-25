@@ -122,7 +122,7 @@ export function EDevletActivityPlanPage() {
         navigate('/edevlet/activity-plans')
       } else {
         await api.createEDevletDailyActivityPlan(payload)
-        setForm(INITIAL)
+        navigate('/edevlet/activity-plans')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -279,8 +279,8 @@ export function EDevletActivityPlanPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-          <div className="job-field lg:w-1/2">
+        <div className="grid gap-3 lg:grid-cols-2 lg:items-end">
+          <div className="job-field">
             <label className="job-field-label" htmlFor="activity-description">
               {t('tasks.detail.description', 'Açıklama')}
               <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 100 karakter)')}</span>
@@ -296,7 +296,7 @@ export function EDevletActivityPlanPage() {
               required
             />
           </div>
-          <Button type="submit" disabled={!canSubmit} className="gap-2 self-start lg:mb-1 lg:shrink-0">
+          <Button type="submit" disabled={!canSubmit} className="min-h-28 w-full gap-2 self-end">
             <Send className="size-4" />
             {submitting
               ? t('common.saving', 'Kaydediliyor...')

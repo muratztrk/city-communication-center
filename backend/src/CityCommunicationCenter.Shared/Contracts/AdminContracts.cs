@@ -102,13 +102,6 @@ public sealed record TestLdapUserCredentialsResponse(
     string? Email,
     string? Message);
 
-public sealed record ImportLdapUsersResponse(
-    int Discovered,
-    int Created,
-    int Skipped,
-    int Failed,
-    IReadOnlyList<string> Messages);
-
 public sealed record TenantAuthenticationPolicyResponse(
     bool AutomaticSignInEnabled,
     string AutomaticSignInMode,

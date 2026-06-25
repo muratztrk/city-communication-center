@@ -39,8 +39,6 @@
   <data name="ValidationManualPasswordRequired" xml:space="preserve"><value>Password is required for manual users.</value></data>
   <data name="ValidationLdapDisabled" xml:space="preserve"><value>LDAP integration is not enabled for this environment.</value></data>
   <data name="ValidationLdapSearchUnavailable" xml:space="preserve"><value>LDAP directory search is not available for this tenant.</value></data>
-  <data name="ValidationLdapImportEmpty" xml:space="preserve"><value>No LDAP users were found to import. Check Search Base and connectivity settings.</value></data>
-  <data name="ValidationLdapImportMissingDepartment" xml:space="preserve"><value>LDAP record is missing department information.</value></data>
   <data name="ValidationLdapUserNotFound" xml:space="preserve"><value>The selected LDAP user could not be found in the directory.</value></data>
   <data name="ValidationAutomaticSignInModeRequired" xml:space="preserve"><value>A valid automatic sign-in mode must be selected.</value></data>
   <data name="ValidationSecondFactorProviderRequired" xml:space="preserve"><value>A valid second-factor provider must be selected.</value></data>

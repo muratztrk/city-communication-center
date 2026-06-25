@@ -1,5 +1,4 @@
 using CityCommunicationCenter.Application.Features.Admin;
-using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
@@ -203,13 +202,6 @@ public sealed class AdminController : ApiControllerBase
         }
 
         return Ok(new TestLdapUserCredentialsResponse(true, result.DisplayName, result.Email, "Authentication successful."));
-    }
-
-    [HttpPost("tenants/{tenantId:guid}/ldap-settings/import-users")]
-    public async Task<ActionResult<ImportLdapUsersResponse>> ImportLdapUsers(Guid tenantId, CancellationToken cancellationToken)
-    {
-        var response = await _sender.Send(new ImportLdapUsersCommand(tenantId), cancellationToken);
-        return Ok(response);
     }
 
     [HttpGet("tenants/{tenantId:guid}/authentication-policy")]

@@ -275,7 +275,6 @@ export function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [ldapTestStatus, setLdapTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
-  const [ldapImportStatus, setLdapImportStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => loadRolePageAccessMatrix())
@@ -727,28 +726,6 @@ export function SettingsPage() {
       })
     } catch {
       setLdapUserTestStatus({ type: 'error', message: t('settings.ldapTestUserFailed') })
-    }
-  }
-
-  const importAllLdapUsers = async () => {
-    if (!user?.tenantId || !tenantLdapSettings.canSearch) return
-    setLdapImportStatus({ type: 'loading', message: t('settings.ldapImportRunning') })
-    try {
-      const result = await api.importLdapUsers(user.tenantId)
-      setLdapImportStatus({
-        type: 'success',
-        message: t('settings.ldapImportSuccess', {
-          discovered: result.discovered,
-          created: result.created,
-          skipped: result.skipped,
-          failed: result.failed,
-        }),
-      })
-    } catch (importError) {
-      setLdapImportStatus({
-        type: 'error',
-        message: importError instanceof Error ? importError.message : t('settings.ldapImportFailed'),
-      })
     }
   }
 
@@ -1679,8 +1656,7 @@ export function SettingsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.ldapSearchBase')}</span>
-                  <input aria-label={t('settings.ldapSearchBase')} className="field-input" placeholder="OU=Tire Belediyesi,DC=Tirebel,DC=gov" value={tenantLdapSettings.searchBase ?? ''} onChange={event => setTenantLdapSettings(current => ({ ...current, searchBase: event.target.value || null }))} />
-                  <span className="helper-copy">{t('settings.ldapSearchBaseHint')}</span>
+                  <input aria-label={t('settings.ldapSearchBase')} className="field-input" value={tenantLdapSettings.searchBase ?? ''} onChange={event => setTenantLdapSettings(current => ({ ...current, searchBase: event.target.value || null }))} />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.ldapBindDn')}</span>
@@ -1750,30 +1726,6 @@ export function SettingsPage() {
                         {ldapUserTestStatus.message}
                       </div>
                     ) : null}
-                  </div>
-
-                  <div className="border-t border-slate-200 pt-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="text-sm font-semibold text-slate-700">{t('settings.ldapImportAllUsers')}</div>
-                        <p className="helper-copy mt-1">{t('settings.ldapImportAllUsersDescription')}</p>
-                        {ldapImportStatus.type !== 'idle' ? (
-                          <div className={`mt-2 text-sm font-medium ${ldapImportStatus.type === 'success' ? 'text-emerald-700' : ldapImportStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
-                            {ldapImportStatus.type === 'success' ? '✅ ' : ldapImportStatus.type === 'error' ? '❌ ' : '⏳ '}
-                            {ldapImportStatus.message}
-                          </div>
-                        ) : null}
-                      </div>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => void importAllLdapUsers()}
-                        disabled={!tenantLdapSettings.canSearch || ldapImportStatus.type === 'loading'}
-                      >
-                        {ldapImportStatus.type === 'loading' ? t('settings.ldapImportRunning') : t('settings.ldapImportAllUsers')}
-                      </Button>
-                    </div>
                   </div>
                 </div>
               ) : null}

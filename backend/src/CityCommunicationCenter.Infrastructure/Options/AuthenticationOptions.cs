@@ -17,10 +17,6 @@ public sealed class LdapAuthenticationOptions
 
     public int SearchResultLimit { get; set; } = 20;
 
-    public int ImportPageSize { get; set; } = 500;
-
-    public int ImportResultLimit { get; set; } = 5000;
-
     public string? Host { get; set; }
 
     public int Port { get; set; } = 389;

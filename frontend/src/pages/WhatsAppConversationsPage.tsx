@@ -1,18 +1,23 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Send, Volume2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
+import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { StatusPill } from '../components/ui/status-pill'
 import type {
   CitizenConversationSummary,
   CitizenConversationDetail,
   CitizenConversationTimelineEntry,
+  Department,
+  SocialMessage,
   WhatsAppMessageTemplate,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
+import { JobsPage } from './JobsPage'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -239,14 +244,17 @@ function ConversationDetail({
   templates,
   onClose,
   onReadMarked,
+  onOpenCreateRequest,
+  onOpenViewJob,
 }: {
   conversationId: string
   templates: WhatsAppMessageTemplate[]
   onClose?: () => void
   onReadMarked?: () => void
+  onOpenCreateRequest: (socialMessageId: string) => void
+  onOpenViewJob: (jobId: string) => void
 }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
@@ -297,6 +305,7 @@ function ConversationDetail({
   }
 
   const openTicket = detail?.tickets.slice().reverse().find(t => t.status !== 'Closed')
+  const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
 
   return (
@@ -353,28 +362,41 @@ function ConversationDetail({
         <div ref={bottomRef} />
       </div>
 
-      {/* Linked tickets sidebar strip */}
-      {detail && detail.tickets.length > 0 && (
+      {/* Linked ticket actions */}
+      {detail && primaryTicket && (
         <div className="shrink-0 px-4 py-2 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] space-y-1.5">
           <p className="text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-muted-foreground)]">
             {t('whatsapp.tickets')}
           </p>
           <div className="flex flex-wrap gap-2">
-            {detail.tickets.map(ticket => (
-              <button
-                key={ticket.socialMessageId}
+            {primaryTicket.jobId ? (
+              <DisabledActionButton size="sm" variant="success" hoverTitle={t('social.requestAlreadyCreated', 'Talep zaten oluşturulmuş')}>
+                {t('nav.createRequest', 'Talep Oluştur')}
+              </DisabledActionButton>
+            ) : (
+              <Button
+                size="sm"
                 type="button"
-                onClick={() => navigate(`/social`)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-[color:var(--color-border)] bg-[color:var(--color-surface-raised)] hover:bg-[color:var(--color-border)] transition-colors"
+                variant="success"
+                onClick={() => onOpenCreateRequest(primaryTicket.socialMessageId)}
               >
-                <span className={`size-1.5 rounded-full shrink-0 ${
-                  ticket.status === 'Closed' ? 'bg-slate-400' :
-                  ticket.status === 'New' ? 'bg-amber-400' : 'bg-emerald-500'
-                }`} />
-                {ticket.category ?? t('whatsapp.viewTicket')}
-                {ticket.jobId && <span className="text-[color:var(--color-primary)]">→ İş</span>}
-              </button>
-            ))}
+                {t('nav.createRequest', 'Talep Oluştur')}
+              </Button>
+            )}
+            {primaryTicket.jobId ? (
+              <Button
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={() => onOpenViewJob(primaryTicket.jobId!)}
+              >
+                {t('whatsapp.viewTicket', 'Talebi Görüntüle')}
+              </Button>
+            ) : (
+              <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
+                {t('whatsapp.viewTicket', 'Talebi Görüntüle')}
+              </DisabledActionButton>
+            )}
           </div>
         </div>
       )}
@@ -447,19 +469,25 @@ export function WhatsAppConversationsPage() {
   const requestedPhone = searchParams.get('phone') ?? ''
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
+  const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(searchParams.get('phone') ?? '')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
   const loadConversations = useCallback(async () => {
     setLoading(true)
     try {
-      const [convData, tplData] = await Promise.all([
+      const [convData, tplData, departmentList] = await Promise.all([
         api.getCitizenConversations(),
         api.getWhatsAppTemplates(),
+        api.getDepartments(),
       ])
       setConversations(convData)
       setTemplates(tplData)
+      setDepartments(departmentList)
     } finally {
       setLoading(false)
     }
@@ -492,6 +520,20 @@ export function WhatsAppConversationsPage() {
       prev.map(c => c.citizenConversationId === selectedId ? { ...c, unreadCount: 0 } : c),
     )
   }, [selectedId])
+
+  const handleOpenCreateRequest = useCallback(async (socialMessageId: string) => {
+    try {
+      setRequestModalMessage(await api.getSocialMessageById(socialMessageId))
+    } catch {
+      setRequestModalMessage(null)
+    }
+  }, [])
+
+  const handleRequestCreated = useCallback(() => {
+    setRequestModalMessage(null)
+    void loadConversations()
+    setDetailRefreshKey(key => key + 1)
+  }, [loadConversations])
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -558,10 +600,12 @@ export function WhatsAppConversationsPage() {
         <div className="flex-1 min-w-0">
           {selectedId ? (
             <ConversationDetail
-              key={selectedId}
+              key={`${selectedId}-${detailRefreshKey}`}
               conversationId={selectedId}
               templates={templates}
               onReadMarked={handleReadMarked}
+              onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
+              onOpenViewJob={setDetailJobId}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">
@@ -571,6 +615,25 @@ export function WhatsAppConversationsPage() {
           )}
         </div>
       </div>
+
+      {requestModalMessage ? (
+        <CitizenRequestModal
+          message={requestModalMessage}
+          departments={departments}
+          onClose={() => setRequestModalMessage(null)}
+          onCreated={handleRequestCreated}
+        />
+      ) : null}
+
+      {detailJobId ? (
+        <JobsPage
+          mode="myRequests"
+          fixedScope="mine"
+          detailOnly
+          notificationJobId={detailJobId}
+          onNotificationDetailClose={() => setDetailJobId(null)}
+        />
+      ) : null}
     </div>
   )
 }

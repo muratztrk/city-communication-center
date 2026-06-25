@@ -696,7 +696,7 @@
     }
   },
   "social": {
-    "title": "Social Media",
+    "title": "Citizen Request Flow",
     "subtitle": "Route incoming messages and convert them into tasks.",
     "total": "messages",
     "routedSummary": "routed",

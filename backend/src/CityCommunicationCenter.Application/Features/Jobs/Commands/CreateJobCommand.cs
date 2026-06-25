@@ -63,18 +63,20 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         // Auth: Staff can only create for own dept, Manager for managed dept, Admin for any
         if (!isSystemAdmin)
         {
-            if (actor.RoleCode == RoleCode.Staff &&
+            if (actor.RoleCode is RoleCode.Staff or RoleCode.Operator &&
                 !await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, actor, request.OwnerDepartmentId, cancellationToken, includeManagedDepartments: false))
             {
-                throw new ForbiddenAccessException("Personel sadece kendi mudurlugu icin is olusturabilir.");
+                throw new ForbiddenAccessException(actor.RoleCode == RoleCode.Staff
+                    ? "Personel sadece kendi mudurlugu icin is olusturabilir."
+                    : "Operator sadece kendi mudurlugu icin is olusturabilir.");
             }
             if (actor.RoleCode == RoleCode.Manager &&
                 !await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, request.OwnerDepartmentId, cancellationToken))
             {
                 throw new ForbiddenAccessException("Mudur sadece yonettigi mudurluk icin is olusturabilir.");
             }
-            // Üst Düzey Yönetici (Reporter) talep oluşturabilir; sahip müdürlük kısıtı uygulanmaz.
-            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager && actor.RoleCode != RoleCode.Reporter)
+            // Üst Düzey Yönetici (Reporter) ve Vatandaş Talep Operatörü talep oluşturabilir; sahip müdürlük kısıtı uygulanmaz (Reporter).
+            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager && actor.RoleCode != RoleCode.Reporter && actor.RoleCode != RoleCode.Operator)
             {
                 throw new ForbiddenAccessException("Bu rol is olusturamaz.");
             }

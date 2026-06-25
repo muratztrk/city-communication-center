@@ -56,7 +56,7 @@ interface ChannelConfig {
   id: ChannelType
   titleKey: string
   descriptionKey: string
-  statusKey: keyof Omit<SocialSettingsStatus, 'whatsAppAutoNotify'>
+  statusKey: keyof Omit<SocialSettingsStatus, 'whatsAppAutoNotify' | 'whatsAppPublic'>
   fields: { key: string; labelKey: string; secret?: boolean }[]
 }
 
@@ -369,6 +369,19 @@ export function SettingsPage() {
         setLoadedAppearance(nextAppearance)
         setSocialStatus(socialResponse)
         setWhatsAppAutoNotify(socialResponse.whatsAppAutoNotify ?? false)
+        if (socialResponse.whatsAppPublic) {
+          setSocialForms(current => ({
+            ...current,
+            whatsapp: {
+              ...current.whatsapp,
+              businessAccountId: socialResponse.whatsAppPublic?.businessAccountId ?? '',
+              phoneNumberId: socialResponse.whatsAppPublic?.phoneNumberId ?? '',
+              webhookVerifyToken: socialResponse.whatsAppPublic?.webhookVerifyToken ?? '',
+              accessToken: '',
+              appSecret: '',
+            },
+          }))
+        }
         setRoutingConfig(routingResponse)
         setDepartments(departmentResponse)
         setWorkingHoursForm(workingHoursResponse)
@@ -498,6 +511,20 @@ export function SettingsPage() {
     const status = await api.getSocialSettingsStatus()
     setSocialStatus(status)
     setWhatsAppAutoNotify(status.whatsAppAutoNotify ?? false)
+    if (status.whatsAppPublic) {
+      setSocialForms(current => ({
+        ...current,
+        whatsapp: {
+          ...current.whatsapp,
+          businessAccountId: status.whatsAppPublic?.businessAccountId ?? '',
+          phoneNumberId: status.whatsAppPublic?.phoneNumberId ?? '',
+          webhookVerifyToken: status.whatsAppPublic?.webhookVerifyToken ?? '',
+          // Gizli alanlar API'den dönmez; boş bırakılırsa kayıtta mevcut değer korunur.
+          accessToken: '',
+          appSecret: '',
+        },
+      }))
+    }
   }
 
   const saveMunicipalityDistrict = (event: FormEvent) => {
@@ -1998,7 +2025,13 @@ export function SettingsPage() {
                       {channel.fields.map(field => (
                         <label className="grid gap-2 text-sm font-semibold text-slate-700" key={field.key}>
                           <span>{t(field.labelKey)}</span>
-                          <input className="field-input" type={field.secret ? 'password' : 'text'} value={socialForms[channel.id][field.key] ?? ''} onChange={event => updateSocialField(channel.id, field.key, event.target.value)} />
+                          <input
+                            className="field-input"
+                            type={field.secret ? 'password' : 'text'}
+                            value={socialForms[channel.id][field.key] ?? ''}
+                            placeholder={field.secret && status.configured ? t('settings.socialConfig.secretPlaceholder', 'Değiştirmek için yeni değer girin') : undefined}
+                            onChange={event => updateSocialField(channel.id, field.key, event.target.value)}
+                          />
                         </label>
                       ))}
                       {channel.id === 'whatsapp' && whatsAppWebhookUrl ? (

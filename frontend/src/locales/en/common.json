@@ -953,6 +953,7 @@
       "configure": "Configure",
       "saved": "Settings saved.",
       "deleted": "Configuration deleted.",
+      "secretPlaceholder": "Enter a new value to change",
       "x": "X (Twitter)",
       "facebook": "Facebook",
       "instagram": "Instagram",

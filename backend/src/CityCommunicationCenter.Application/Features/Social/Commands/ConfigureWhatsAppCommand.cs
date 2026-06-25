@@ -17,13 +17,15 @@ public sealed class ConfigureWhatsAppCommandHandler : ICommandHandler<ConfigureW
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var settings = _settingsProvider.GetSettings(tenantId) ?? new SocialMediaSettings();
+        var existing = settings.WhatsApp;
+
         settings.WhatsApp = new WhatsAppSettings
         {
-            BusinessAccountId = request.Request.BusinessAccountId,
-            PhoneNumberId = request.Request.PhoneNumberId,
-            AccessToken = request.Request.AccessToken,
-            AppSecret = request.Request.AppSecret,
-            WebhookVerifyToken = request.Request.WebhookVerifyToken,
+            BusinessAccountId = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.BusinessAccountId, existing?.BusinessAccountId),
+            PhoneNumberId = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.PhoneNumberId, existing?.PhoneNumberId),
+            AccessToken = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.AccessToken, existing?.AccessToken),
+            AppSecret = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.AppSecret, existing?.AppSecret),
+            WebhookVerifyToken = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.WebhookVerifyToken, existing?.WebhookVerifyToken),
             AutoNotify = request.Request.AutoNotify
         };
 

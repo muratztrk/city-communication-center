@@ -584,6 +584,11 @@ export interface SocialSettingsStatus {
   eDevlet: SocialChannelStatus;
   email: SocialChannelStatus;
   whatsAppAutoNotify: boolean;
+  whatsAppPublic?: {
+    businessAccountId?: string | null;
+    phoneNumberId?: string | null;
+    webhookVerifyToken?: string | null;
+  } | null;
 }
 
 export interface SocialSettingsSaveResult {

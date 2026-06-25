@@ -95,7 +95,13 @@ public sealed record SocialSettingsStatusResponse(
     SocialChannelStatusResponse WhatsApp,
     SocialChannelStatusResponse EDevlet,
     SocialChannelStatusResponse Email,
-    bool WhatsAppAutoNotify = false);
+    bool WhatsAppAutoNotify = false,
+    WhatsAppPublicSettingsResponse? WhatsAppPublic = null);
+
+public sealed record WhatsAppPublicSettingsResponse(
+    string? BusinessAccountId,
+    string? PhoneNumberId,
+    string? WebhookVerifyToken);
 
 public sealed record XSettingsRequest(
     string? ApiKey,

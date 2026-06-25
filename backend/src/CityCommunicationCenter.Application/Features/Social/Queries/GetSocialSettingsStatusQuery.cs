@@ -47,6 +47,12 @@ public sealed class GetSocialSettingsStatusQueryHandler : IQueryHandler<GetSocia
                 !string.IsNullOrEmpty(settings?.Email?.ImapHost) && !string.IsNullOrEmpty(settings?.Email?.ImapUser),
                 !string.IsNullOrEmpty(settings?.Email?.ImapHost),
                 !string.IsNullOrEmpty(settings?.Email?.ImapUser)),
-            WhatsAppAutoNotify: settings?.WhatsApp?.AutoNotify ?? false));
+            WhatsAppAutoNotify: settings?.WhatsApp?.AutoNotify ?? false,
+            WhatsAppPublic: settings?.WhatsApp is null
+                ? null
+                : new WhatsAppPublicSettingsResponse(
+                    settings.WhatsApp.BusinessAccountId,
+                    settings.WhatsApp.PhoneNumberId,
+                    settings.WhatsApp.WebhookVerifyToken)));
     }
 }

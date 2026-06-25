@@ -968,6 +968,7 @@
       "configure": "Yapılandır",
       "saved": "Ayarlar kaydedildi.",
       "deleted": "Yapılandırma silindi.",
+      "secretPlaceholder": "Değiştirmek için yeni değer girin",
       "x": "X (Twitter)",
       "facebook": "Facebook",
       "instagram": "Instagram",

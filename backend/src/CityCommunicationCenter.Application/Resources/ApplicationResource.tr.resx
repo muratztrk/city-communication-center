@@ -39,6 +39,8 @@
   <data name="ValidationManualPasswordRequired" xml:space="preserve"><value>Manuel kullanıcılar için şifre zorunludur.</value></data>
   <data name="ValidationLdapDisabled" xml:space="preserve"><value>Bu ortam için LDAP entegrasyonu etkin değil.</value></data>
   <data name="ValidationLdapSearchUnavailable" xml:space="preserve"><value>Bu tenant için LDAP dizin araması kullanılamıyor.</value></data>
+  <data name="ValidationLdapImportEmpty" xml:space="preserve"><value>LDAP dizininde içe aktarılacak kullanıcı bulunamadı. Search Base ve bağlantı ayarlarını kontrol edin.</value></data>
+  <data name="ValidationLdapImportMissingDepartment" xml:space="preserve"><value>LDAP kaydında birim bilgisi yok.</value></data>
   <data name="ValidationLdapUserNotFound" xml:space="preserve"><value>Seçilen LDAP kullanıcısı dizinde bulunamadı.</value></data>
   <data name="ValidationAutomaticSignInModeRequired" xml:space="preserve"><value>Geçerli bir otomatik giriş modu seçilmelidir.</value></data>
   <data name="ValidationSecondFactorProviderRequired" xml:space="preserve"><value>Geçerli bir ikinci doğrulama sağlayıcısı seçilmelidir.</value></data>

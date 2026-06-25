@@ -6,6 +6,8 @@ public interface ILdapAuthenticationService
 
     Task<IReadOnlyList<LdapDirectoryUser>> SearchUsersAsync(Guid tenantId, string query, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<LdapDirectoryUser>> ListAllUsersAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
     Task<LdapDirectoryUser?> FindUserByUsernameAsync(Guid tenantId, string username, CancellationToken cancellationToken = default);
 
     Task<LdapDirectoryUser?> FindUserByExternalIdentityAsync(Guid tenantId, string externalIdentityId, CancellationToken cancellationToken = default);

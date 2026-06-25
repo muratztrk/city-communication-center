@@ -8,12 +8,16 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
     private readonly ITenantLdapSettingsService _tenantLdapSettingsService;
     private readonly ILogger<LdapAuthenticationService> _logger;
     private readonly int _searchResultLimit;
+    private readonly int _importPageSize;
+    private readonly int _importResultLimit;
 
     public LdapAuthenticationService(ITenantLdapSettingsService tenantLdapSettingsService, IOptions<AuthenticationOptions> options, ILogger<LdapAuthenticationService> logger)
     {
         _tenantLdapSettingsService = tenantLdapSettingsService;
         _logger = logger;
         _searchResultLimit = Math.Clamp(options.Value.Ldap.SearchResultLimit, 1, 50);
+        _importPageSize = Math.Clamp(options.Value.Ldap.ImportPageSize, 50, 1000);
+        _importResultLimit = Math.Clamp(options.Value.Ldap.ImportResultLimit, 100, 20000);
     }
 
     public async Task<LdapAuthenticatedUser?> AuthenticateAsync(Guid tenantId, string username, string password, CancellationToken cancellationToken = default)
@@ -78,6 +82,33 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         }
 
         return await Task.Run(() => SearchUsersInternal(settings, query), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<LdapDirectoryUser>> ListAllUsersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var settings = await _tenantLdapSettingsService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
+        if (!settings.CanSearch)
+        {
+            return [];
+        }
+
+        if (settings.MockUsers.Count > 0 && string.IsNullOrWhiteSpace(settings.Host))
+        {
+            return settings.MockUsers
+                .Where(candidate => !IsMachineAccount(candidate.Username))
+                .Select(candidate => new LdapDirectoryUser(
+                    candidate.ExternalIdentityId,
+                    candidate.Username,
+                    candidate.DisplayName,
+                    candidate.Email,
+                    null))
+                .DistinctBy(candidate => candidate.ExternalIdentityId, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(candidate => candidate.DisplayName)
+                .Take(_importResultLimit)
+                .ToArray();
+        }
+
+        return await Task.Run(() => ListAllUsersInternal(settings), cancellationToken);
     }
 
     public async Task<LdapDirectoryUser?> FindUserByUsernameAsync(Guid tenantId, string username, CancellationToken cancellationToken = default)
@@ -258,21 +289,8 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             return response.Entries
                 .Cast<SearchResultEntry>()
                 .Where(entry => !IsMachineAccountEntry(entry))
-                .Select(entry => new LdapDirectoryUser(
-                    GetDistinguishedName(entry) ?? string.Empty,
-                    GetAttribute(entry, "sAMAccountName")
-                        ?? GetAttribute(entry, "userPrincipalName")
-                        ?? GetAttribute(entry, "mail")
-                        ?? string.Empty,
-                    GetAttribute(entry, "displayName")
-                        ?? GetAttribute(entry, "sAMAccountName")
-                        ?? GetAttribute(entry, "userPrincipalName")
-                        ?? string.Empty,
-                    GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
-                    ResolveDepartment(entry),
-                    GetAttribute(entry, "description"),
-                    GetAttribute(entry, "telephoneNumber")))
-                .Where(entry => !string.IsNullOrWhiteSpace(entry.ExternalIdentityId))
+                .Select(MapDirectoryUser)
+                .Where(entry => !string.IsNullOrWhiteSpace(entry.ExternalIdentityId) && !string.IsNullOrWhiteSpace(entry.Username))
                 .DistinctBy(entry => entry.ExternalIdentityId, StringComparer.OrdinalIgnoreCase)
                 .OrderBy(entry => entry.DisplayName)
                 .Take(GetSearchResultLimit())
@@ -283,6 +301,99 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             _logger.LogWarning(ex, "LDAP search failed for query '{Query}'", query);
             return [];
         }
+    }
+
+    private IReadOnlyList<LdapDirectoryUser> ListAllUsersInternal(TenantLdapRuntimeSettings settings)
+    {
+        if (!settings.CanSearch || string.IsNullOrWhiteSpace(settings.Host) || string.IsNullOrWhiteSpace(settings.SearchBase))
+        {
+            return [];
+        }
+
+        var identifier = new LdapDirectoryIdentifier(settings.Host, settings.Port);
+        using var connection = CreateConnection(settings, identifier);
+
+        try
+        {
+            BindWithServiceAccount(connection, settings, "list all directory users");
+            var attributes = new[]
+            {
+                "distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
+                "cn", "givenName", "sn", "physicalDeliveryOfficeName", "department", "description", "telephoneNumber",
+            };
+            var filter = BuildDirectorySearchFilter(settings.UserAttribute, []);
+            var collected = new List<LdapDirectoryUser>(_importPageSize);
+            byte[]? cookie = null;
+
+            do
+            {
+                var pageRequest = new PageResultRequestControl(_importPageSize) { Cookie = cookie };
+                var request = new SearchRequest(settings.SearchBase, filter, SearchScope.Subtree, attributes)
+                {
+                    TimeLimit = TimeSpan.FromMinutes(2),
+                };
+                request.Controls.Add(pageRequest);
+
+                var response = (SearchResponse)connection.SendRequest(request);
+                foreach (SearchResultEntry entry in response.Entries)
+                {
+                    if (IsMachineAccountEntry(entry))
+                    {
+                        continue;
+                    }
+
+                    var mapped = MapDirectoryUser(entry);
+                    if (string.IsNullOrWhiteSpace(mapped.ExternalIdentityId) || string.IsNullOrWhiteSpace(mapped.Username))
+                    {
+                        continue;
+                    }
+
+                    collected.Add(mapped);
+                    if (collected.Count >= _importResultLimit)
+                    {
+                        break;
+                    }
+                }
+
+                cookie = null;
+                foreach (DirectoryControl control in response.Controls)
+                {
+                    if (control is PageResultResponseControl pageResponse)
+                    {
+                        cookie = pageResponse.Cookie;
+                    }
+                }
+            }
+            while (cookie is { Length: > 0 } && collected.Count < _importResultLimit);
+
+            return collected
+                .DistinctBy(entry => entry.ExternalIdentityId, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(entry => entry.DisplayName)
+                .ToArray();
+        }
+        catch (LdapException ex)
+        {
+            _logger.LogWarning(ex, "LDAP bulk list failed for search base {SearchBase}", settings.SearchBase);
+            return [];
+        }
+    }
+
+    private static LdapDirectoryUser MapDirectoryUser(SearchResultEntry entry)
+    {
+        return new LdapDirectoryUser(
+            GetDistinguishedName(entry) ?? string.Empty,
+            GetAttribute(entry, "sAMAccountName")
+                ?? GetAttribute(entry, "userPrincipalName")
+                ?? GetAttribute(entry, "mail")
+                ?? string.Empty,
+            GetAttribute(entry, "displayName")
+                ?? GetAttribute(entry, "sAMAccountName")
+                ?? GetAttribute(entry, "userPrincipalName")
+                ?? string.Empty,
+            GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
+            ResolveDepartment(entry),
+            GetAttribute(entry, "description"),
+            GetAttribute(entry, "telephoneNumber"));
     }
 
     private LdapDirectoryUser? FindUserByExternalIdentityInternal(TenantLdapRuntimeSettings settings, string externalIdentityId)

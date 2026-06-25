@@ -404,6 +404,15 @@ export const api = {
     return response.json()
   },
 
+  async importLdapUsers(tenantId: string): Promise<{ discovered: number; created: number; skipped: number; failed: number; messages: string[] }> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/ldap-settings/import-users`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.tenantLdapImportFailed'))
+    return response.json()
+  },
+
   async getTenantAuthenticationPolicy(tenantId: string): Promise<TenantAuthenticationPolicy> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/authentication-policy`, {
       headers: await getAuthHeaders(),

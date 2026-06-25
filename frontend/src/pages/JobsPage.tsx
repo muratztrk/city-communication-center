@@ -2198,7 +2198,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     )}
                   </section>
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
-                    <h3 className="mb-3 text-sm font-bold text-slate-900">
+                    <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                       {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
                     </h3>
                     <AttachmentSection

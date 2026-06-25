@@ -5,8 +5,10 @@ using System.Text;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
+[ApiController]
 [Route("api/v1/social/webhooks")]
-public sealed class SocialWebhooksController : ApiControllerBase
+[AllowAnonymous]
+public sealed class SocialWebhooksController : ControllerBase
 {
     private const string WebhookSecretHeader = "X-CCC-Webhook-Secret";
     private const string MetaSignatureHeader = "X-Hub-Signature-256";
@@ -28,7 +30,6 @@ public sealed class SocialWebhooksController : ApiControllerBase
     }
 
     [HttpPost("{channel}")]
-    [AllowAnonymous]
     [TenantRequired]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> Receive(
@@ -44,13 +45,12 @@ public sealed class SocialWebhooksController : ApiControllerBase
         }
 
         var messageId = await _sender.Send(
-            new ReceiveSocialWebhookCommand(channel, CurrentContext.UserId, request),
+            new ReceiveSocialWebhookCommand(channel, null, request),
             cancellationToken);
         return Accepted(new { messageId });
     }
 
     [HttpGet("whatsapp/{tenantId:guid}")]
-    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public IActionResult VerifyWhatsApp(
@@ -71,7 +71,6 @@ public sealed class SocialWebhooksController : ApiControllerBase
     }
 
     [HttpPost("whatsapp/{tenantId:guid}")]
-    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ReceiveWhatsApp(Guid tenantId, CancellationToken cancellationToken)

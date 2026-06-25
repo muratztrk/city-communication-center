@@ -1,4 +1,4 @@
-import { ClipboardList, FileText, Paperclip, Send, X } from 'lucide-react'
+import { ClipboardList, Paperclip, Send } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -33,7 +33,6 @@ const INITIAL: FormState = {
 
 // Talep oluşturma formuyla aynı dosya kuralları (card 575).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png']
 const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -238,59 +237,58 @@ export function RoutineTaskPage() {
 
                 <div className="job-field min-h-0">
                   <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                  <div
-                    role="button"
-                    tabIndex={submitting ? -1 : 0}
-                    className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${submitting ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
-                    onClick={() => !submitting && fileInputRef.current?.click()}
-                    onKeyDown={event => event.key === 'Enter' && !submitting && fileInputRef.current?.click()}
-                    onDragOver={event => event.preventDefault()}
-                    onDrop={event => {
-                      event.preventDefault()
-                      if (submitting) return
-                      addFiles(event.dataTransfer.files)
-                    }}
-                  >
-                    <Paperclip className="mb-1 size-4 text-slate-400" />
-                    <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
-                    <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}</span>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept={ACCEPT_ATTR}
-                      multiple
-                      className="hidden"
-                      disabled={submitting}
-                      onChange={event => {
-                        addFiles(event.target.files)
-                        if (fileInputRef.current) fileInputRef.current.value = ''
+                  <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+                    <div
+                      role="button"
+                      tabIndex={submitting ? -1 : 0}
+                      className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${submitting ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+                      onClick={() => !submitting && fileInputRef.current?.click()}
+                      onKeyDown={event => event.key === 'Enter' && !submitting && fileInputRef.current?.click()}
+                      onDragOver={event => event.preventDefault()}
+                      onDrop={event => {
+                        event.preventDefault()
+                        if (submitting) return
+                        addFiles(event.dataTransfer.files)
                       }}
-                    />
+                    >
+                      <Paperclip className="mb-1 size-4 text-slate-400" />
+                      <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
+                      <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}</span>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept={ACCEPT_ATTR}
+                        multiple
+                        className="hidden"
+                        disabled={submitting}
+                        onChange={event => {
+                          addFiles(event.target.files)
+                          if (fileInputRef.current) fileInputRef.current.value = ''
+                        }}
+                      />
+                    </div>
+                    <div className="min-h-[5.5rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                      {pendingFiles.length === 0 ? (
+                        <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+                      ) : (
+                        <ul className="space-y-1 text-xs">
+                          {pendingFiles.map((file, idx) => (
+                            <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
+                              <span className="min-w-0 flex-1 break-words font-medium text-slate-700">{file.name}</span>
+                              <button
+                                type="button"
+                                className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                                onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                              >
+                                {t('common.delete', 'Sil')}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                   {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
-                  {pendingFiles.length > 0 && (
-                    <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                      {pendingFiles.map((file, idx) => (
-                        <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                          {IMAGE_EXTENSIONS.includes(fileExtension(file.name)) ? (
-                            <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
-                          ) : (
-                            <div className="flex h-20 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
-                              <FileText className="size-6" />
-                              <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{file.name}</span>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"
-                            onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
-                          >
-                            <X className="size-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

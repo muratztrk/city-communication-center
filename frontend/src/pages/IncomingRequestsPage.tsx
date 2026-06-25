@@ -78,6 +78,8 @@ type IncomingRequestRow = {
   detailsPath: string
   /** For Active external jobs where the active department is a target with no tasks yet: the target dept to assign staff for */
   assignTargetDepartmentId: string | null
+  /** For coordinated external jobs awaiting this target department's approval */
+  pendingTargetApprovalDepartmentId: string | null
   approvedAtUtc: string | null
   completedAtUtc: string | null
   updatedAtUtc: string | null
@@ -215,6 +217,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     createdAtUtc: task.jobCreatedAtUtc ?? task.createdAtUtc ?? null,
     detailsPath: `/request-details?context=incoming&jobId=${task.jobId}`,
     assignTargetDepartmentId: null,
+    pendingTargetApprovalDepartmentId: null,
     approvedAtUtc: task.createdAtUtc ?? null,
     completedAtUtc: task.completedAtUtc ?? null,
     updatedAtUtc: task.updatedAtUtc ?? null,
@@ -230,6 +233,9 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
   const targetPending = activeTarget?.approvalStatus === 'Pending'
   const targetApproved = activeTarget?.approvalStatus === 'Approved' || activeTarget?.approvalStatus === 'NotRequired'
   const assignTargetDepartmentId = targetApproved && activeTarget && job.status === 'Active' && job.taskCount === 0
+    ? activeTarget.departmentId
+    : null
+  const pendingTargetApprovalDepartmentId = targetPending && activeTarget
     ? activeTarget.departmentId
     : null
   const displayStatus = targetPending ? 'PendingExternalApproval' : job.status
@@ -249,6 +255,7 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/request-details?context=incoming&jobId=${job.jobId}`,
     assignTargetDepartmentId,
+    pendingTargetApprovalDepartmentId,
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
@@ -290,6 +297,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     createdAtUtc: job.createdAtUtc,
     detailsPath: `/request-details?context=incoming&jobId=${job.jobId}`,
     assignTargetDepartmentId: null,
+    pendingTargetApprovalDepartmentId: null,
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
@@ -396,6 +404,24 @@ export function IncomingRequestsPage() {
       approvalType: 'assign',
       selectedUserIds: [],
       selfRequestedOwnerUserId: null,
+    })
+  }
+
+  const handleApproveTarget = (jobId: string, departmentId: string) => {
+    setConfirmDialog({
+      message: t('jobs.approveTargetConfirm', 'Bu koordine talebi onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveJobTarget(jobId, departmentId)
+          invalidateJobs(queryClient, jobId)
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
     })
   }
 
@@ -609,6 +635,7 @@ export function IncomingRequestsPage() {
   const canApproveRow = (row: IncomingRequestRow) =>
     isManagerLike && (
       (row.statusDomain === 'job' && row.status === 'PendingOwnerApproval')
+      || (row.statusDomain === 'job' && Boolean(row.pendingTargetApprovalDepartmentId))
       || (row.statusDomain === 'job' && Boolean(row.assignTargetDepartmentId))
       || (row.statusDomain === 'task' && row.status === 'PendingCloseApproval')
     )
@@ -780,6 +807,11 @@ export function IncomingRequestsPage() {
                         {/* Onayla — onay bekleyen iş satırlarında */}
                         {canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </Button>
+                        )}
+                        {canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetApprovalDepartmentId!)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}

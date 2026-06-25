@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
-import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 
 interface ActivityType {
@@ -18,7 +17,6 @@ interface FormState {
   description: string
   neighborhood: string
   street: string
-  openAddress: string
 }
 
 const INITIAL: FormState = {
@@ -26,7 +24,6 @@ const INITIAL: FormState = {
   description: '',
   neighborhood: '',
   street: '',
-  openAddress: '',
 }
 
 export function EDevletActivityPlanPage() {
@@ -91,9 +88,9 @@ export function EDevletActivityPlanPage() {
       await api.createEDevletDailyActivityPlan({
         activityTypeId: form.activityTypeId,
         description: form.description.trim(),
-        neighborhood: form.neighborhood || null,
-        street: form.street || null,
-        openAddress: form.openAddress || null,
+        neighborhood: form.neighborhood,
+        street: form.street,
+        openAddress: null,
       })
       setForm(INITIAL)
     } catch (err) {
@@ -105,7 +102,7 @@ export function EDevletActivityPlanPage() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (!form.activityTypeId || !form.description.trim()) return
+    if (!form.activityTypeId || !form.description.trim() || !form.neighborhood || !form.street.trim()) return
     setConfirmDialog({
       title: t('nav.edevletActivityPlan', 'e-Devlet Günlük Faaliyet Planı Oluştur'),
       message: t('edevletActivityPlan.createConfirm', 'Faaliyet planını kaydetmek istediğinize emin misiniz?'),
@@ -115,6 +112,12 @@ export function EDevletActivityPlanPage() {
       onConfirm: () => { void executeCreate() },
     })
   }
+
+  const canSubmit = !submitting
+    && form.activityTypeId !== ''
+    && form.description.trim() !== ''
+    && form.neighborhood !== ''
+    && form.street.trim() !== ''
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -141,78 +144,119 @@ export function EDevletActivityPlanPage() {
         </div>
 
         <div className="job-field">
-          <label className="job-field-label" htmlFor="activity-type">{t('edevletActivityPlan.activityType', 'Faaliyet Tipi')} <span className="text-red-500">*</span></label>
-          <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
-            <select
-              id="activity-type"
-              className="field-select"
-              value={form.activityTypeId}
-              onChange={event => setForm(current => ({ ...current, activityTypeId: event.target.value }))}
-              required
-            >
-              <option value="">{t('edevletActivityPlan.activityTypePlaceholder', 'Faaliyet tipi seçin')}</option>
-              {activityTypes.map(type => (
-                <option key={type.activityTypeId} value={type.activityTypeId}>{type.name}</option>
-              ))}
-            </select>
-            <Button type="button" variant="secondary" onClick={() => {
-              const selected = activityTypes.find(type => type.activityTypeId === form.activityTypeId)
-              if (!selected) return
-              setEditingTypeId(selected.activityTypeId)
-              setTypeName(selected.name)
-            }}>
-              {t('common.edit', 'Düzenle')}
-            </Button>
-            <Button type="button" variant="destructive" disabled={!form.activityTypeId} onClick={() => {
-              if (!form.activityTypeId) return
-              void handleDeleteType(form.activityTypeId)
-            }}>
-              {t('common.delete', 'Sil')}
-            </Button>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <input
-              className="field-input min-w-[12rem] flex-1"
-              placeholder={t('edevletActivityPlan.newTypePlaceholder', 'Yeni faaliyet tipi adı')}
-              value={typeName}
-              onChange={event => setTypeName(event.target.value)}
-            />
-            <Button type="button" variant="secondary" onClick={() => { void handleSaveType() }}>
-              {editingTypeId ? t('common.update', 'Güncelle') : t('common.add', 'Ekle')}
-            </Button>
-            {editingTypeId ? (
-              <Button type="button" variant="ghost" onClick={() => { setEditingTypeId(null); setTypeName('') }}>
-                {t('common.cancel', 'İptal')}
-              </Button>
-            ) : null}
+          <div className="grid items-end gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+            <div className="grid gap-1">
+              <label className="job-field-label" htmlFor="activity-type">
+                {t('edevletActivityPlan.activityType', 'Faaliyet Tipi')} <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="activity-type"
+                className="field-select"
+                value={form.activityTypeId}
+                onChange={event => setForm(current => ({ ...current, activityTypeId: event.target.value }))}
+                required
+              >
+                <option value="">{t('edevletActivityPlan.activityTypePlaceholder', 'Faaliyet tipi seçin')}</option>
+                {activityTypes.map(type => (
+                  <option key={type.activityTypeId} value={type.activityTypeId}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-1">
+              <span className="job-field-label">{t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle/Düzenle/Sil')}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  className="field-input min-w-[10rem] flex-1"
+                  placeholder={t('edevletActivityPlan.newTypePlaceholder', 'Yeni faaliyet tipi adı')}
+                  value={typeName}
+                  onChange={event => setTypeName(event.target.value)}
+                />
+                <Button type="button" variant="secondary" onClick={() => { void handleSaveType() }}>
+                  {editingTypeId ? t('common.update', 'Güncelle') : t('common.add', 'Ekle')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={!form.activityTypeId}
+                  onClick={() => {
+                    const selected = activityTypes.find(type => type.activityTypeId === form.activityTypeId)
+                    if (!selected) return
+                    setEditingTypeId(selected.activityTypeId)
+                    setTypeName(selected.name)
+                  }}
+                >
+                  {t('common.edit', 'Düzenle')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={!form.activityTypeId}
+                  onClick={() => {
+                    if (!form.activityTypeId) return
+                    void handleDeleteType(form.activityTypeId)
+                  }}
+                >
+                  {t('common.delete', 'Sil')}
+                </Button>
+                {editingTypeId ? (
+                  <Button type="button" variant="ghost" onClick={() => { setEditingTypeId(null); setTypeName('') }}>
+                    {t('common.cancel', 'İptal')}
+                  </Button>
+                ) : null}
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="job-field">
-          <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi')}</span>
-          <div className="grid gap-2">
-            <div className="grid gap-2 md:grid-cols-2">
-              <select className="field-select" value={form.neighborhood} onChange={event => setForm(current => ({ ...current, neighborhood: event.target.value }))}>
+          <span className="job-field-label">{t('address.sectionTitleRequired', 'Adres Bilgisi')} <span className="text-red-500">*</span></span>
+          <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid gap-1">
+              <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')} <span className="text-red-500">*</span></span>
+              <select
+                className="field-select"
+                value={form.neighborhood}
+                onChange={event => setForm(current => ({ ...current, neighborhood: event.target.value }))}
+                required
+              >
                 <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
                 {neighborhoods.map(n => <option key={n} value={n}>{n}</option>)}
               </select>
-              <input className="field-input" placeholder={t('address.streetPlaceholder', 'Cadde / Sokak / Bulvar')} value={form.street} onChange={event => setForm(current => ({ ...current, street: event.target.value }))} />
             </div>
-            <textarea className="field-input min-h-24" placeholder={t('address.openAddressPlaceholder', 'Açık adres')} value={form.openAddress} onChange={event => setForm(current => ({ ...current, openAddress: event.target.value }))} />
+            <div className="grid gap-1">
+              <label className="text-sm font-semibold text-slate-500" htmlFor="activity-street">
+                {t('address.streetLabel', 'Cadde / Sokak / Bulvar')} <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="activity-street"
+                className="field-input"
+                placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                value={form.street}
+                onChange={event => setForm(current => ({ ...current, street: event.target.value }))}
+                required
+              />
+            </div>
           </div>
         </div>
 
-        <div className="job-field min-h-0">
-          <span className="job-field-label">{t('tasks.detail.description', 'Açıklama')} <span className="text-red-500">*</span></span>
-          <RichTextEditor
+        <div className="job-field">
+          <label className="job-field-label" htmlFor="activity-description">
+            {t('tasks.detail.description', 'Açıklama')}
+            <span className="text-xs font-normal text-slate-400"> {t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>
+            <span className="text-red-500"> *</span>
+          </label>
+          <textarea
+            id="activity-description"
+            className="field-textarea min-h-24"
+            maxLength={50}
             value={form.description}
-            onChange={description => setForm(current => ({ ...current, description }))}
-            minHeight="min-h-48"
+            onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
             placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
+            required
           />
         </div>
 
-        <Button type="submit" disabled={submitting || !form.activityTypeId} className="gap-2 self-start">
+        <Button type="submit" disabled={!canSubmit} className="gap-2 self-start">
           <Send className="size-4" />
           {submitting ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
         </Button>

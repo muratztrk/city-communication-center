@@ -146,6 +146,9 @@ public sealed class CreateEDevletDailyActivityPlanCommandValidator : AbstractVal
     {
         RuleFor(c => c.ActivityTypeId).NotEmpty().WithMessage("Faaliyet tipi secilmelidir.");
         RuleFor(c => c.Description).NotEmpty().WithMessage("Aciklama zorunludur.");
+        RuleFor(c => c.Description).MaximumLength(50).WithMessage("Aciklama en fazla 50 karakter olabilir.");
+        RuleFor(c => c.Neighborhood).NotEmpty().WithMessage("Mahalle secilmelidir.");
+        RuleFor(c => c.Street).NotEmpty().WithMessage("Cadde / sokak / bulvar zorunludur.");
     }
 }
 

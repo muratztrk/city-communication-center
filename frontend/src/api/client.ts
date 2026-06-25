@@ -765,6 +765,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
   },
 
+  async approveJobTarget(jobId: string, departmentId: string, comment?: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/target-approval/${departmentId}/approve`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ comment: comment || null }),
+    })
+    await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
+  },
+
   async rejectJobOwner(jobId: string, reason: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/owner-approval/reject`, {
       method: 'POST',

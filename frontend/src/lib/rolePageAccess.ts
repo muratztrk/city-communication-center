@@ -31,6 +31,10 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
       pages[page.key] = page.key === 'dashboard' || page.key === 'edevletActivityPlan'
       return pages
     }
+    if (role === 'Operator') {
+      pages[page.key] = page.key !== 'settings' && page.key !== 'edevletActivityPlan'
+      return pages
+    }
     pages[page.key] = page.key !== 'settings' || role === 'SystemAdmin'
     return pages
   }, {} as Record<PageAccessKey, boolean>)
@@ -53,6 +57,9 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     matrix[role].settings = role === 'SystemAdmin'
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true
+    }
+    if (role === 'Operator') {
+      matrix[role].edevletActivityPlan = false
     }
     return matrix
   }, {} as RolePageAccessMatrix)

@@ -622,6 +622,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail
   const canManageCoordination = isManagerLike || isReporter
   const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
+  const activeIncomingTarget = detail?.departments?.find(
+    department => department.role === 'Target' && department.departmentId === activeDeptId,
+  )
+  const canApproveTargetDetail = isIncomingRequestDetail
+    && isManagerLike
+    && detail?.requestType === 'ExternalUnit'
+    && detail.status === 'PendingExternalApproval'
+    && activeIncomingTarget?.approvalStatus === 'Pending'
+    && Boolean(activeDeptId)
   // Birime düşmüş dış talepte görev henüz oluşmadıysa griddeki "Onayla" eylemi
   // personel atama penceresini açar. Detay popup'ı da aynı eylemi sunmalıdır.
   const canAssignIncomingDetail = isIncomingRequestDetail
@@ -638,6 +647,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && new Date(detail.dueDateUtc).getTime() < Date.now()
     && !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(detail.status)
     && !canApproveDetail
+    && !canApproveTargetDetail
     && !canAssignIncomingDetail
   const canCancelDetail = isRequestDetailContext
     && (isManagerLike || isMyRequestsView)
@@ -1213,6 +1223,25 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     })
   }
 
+  const handleApproveTarget = (jobId: string, departmentId: string) => {
+    setConfirmDialog({
+      message: t('jobs.approveTargetConfirm', 'Bu koordine talebi onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveJobTarget(jobId, departmentId)
+          invalidateJobs(queryClient, jobId)
+          await refreshDetail()
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
+  }
+
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
     const { jobId, selectedUserIds, approvalRequired } = staffAssignModal
@@ -1705,6 +1734,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <div className="flex shrink-0 items-center gap-2">
                 {(canApproveDetail || canAssignIncomingDetail) && (
                   <Button type="button" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
+                    {t('jobs.actions.approveOwner', 'Onayla')}
+                  </Button>
+                )}
+                {canApproveTargetDetail && activeDeptId && (
+                  <Button type="button" variant="success" onClick={() => handleApproveTarget(detail.jobId, activeDeptId)}>
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}

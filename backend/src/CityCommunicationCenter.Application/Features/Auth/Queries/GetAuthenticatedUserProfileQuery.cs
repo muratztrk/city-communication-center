@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Application.Features.Auth;
 
@@ -38,15 +39,6 @@ public sealed class GetAuthenticatedUserProfileQueryHandler : IQueryHandler<GetA
 
         var userIdValue = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? principal.FindFirst("sub")?.Value;
         string? userSource = null;
-        if (Guid.TryParse(userIdValue, out var userId) && userId != Guid.Empty)
-        {
-            userSource = await _dbContext.Users
-                .IgnoreQueryFilters()
-                .Where(entity => entity.UserId == userId)
-                .Select(entity => entity.UserSource.ToString())
-                .FirstOrDefaultAsync(cancellationToken);
-        }
-
         var roleClaims = principal.FindAll(ClaimTypes.Role)
             .Select(claim => claim.Value)
             .Where(value => !string.IsNullOrWhiteSpace(value))
@@ -57,6 +49,20 @@ public sealed class GetAuthenticatedUserProfileQueryHandler : IQueryHandler<GetA
         var additionalRoles = roleClaims
             .Where(value => !string.Equals(value, primaryRole, StringComparison.OrdinalIgnoreCase))
             .ToArray();
+
+        if (Guid.TryParse(userIdValue, out var userId) && userId != Guid.Empty)
+        {
+            var dbUser = await _dbContext.Users
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(entity => entity.UserId == userId, cancellationToken);
+            if (dbUser is not null)
+            {
+                userSource = dbUser.UserSource.ToString();
+                primaryRole = dbUser.RoleCode.ToString();
+                additionalRoles = UserRoleAccess.GetAdditionalRoleCodeStrings(dbUser).ToArray();
+            }
+        }
 
         var response = new AuthenticatedUserProfileResponse(
             userIdValue,

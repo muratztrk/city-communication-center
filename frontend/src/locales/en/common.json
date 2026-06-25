@@ -156,6 +156,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "edevletActivityPlan": "Create e-Government Daily Activity Plan",
+    "edevletActivityPlansList": "e-Government Daily Activity Plans List",
     "createRequest": "Create Request",
     "createRoutineTask": "Create Routine Task",
     "myTasks": "My Tasks",

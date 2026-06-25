@@ -70,7 +70,7 @@ export default function App() {
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage /></PageAccessGate>} />
           <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlanPage /></PageAccessGate>} />
-          <Route path="/edevlet/activity-plans" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlansListPage /></PageAccessGate>} />
+          <Route path="/edevlet/activity-plans" element={<PageAccessGate pageKey="edevletActivityPlansList" user={user}><EDevletActivityPlansListPage /></PageAccessGate>} />
           <Route path="/requests/new" element={<PageAccessGate pageKey="createRequest" user={user}><CreateRequestPage /></PageAccessGate>} />
           <Route path="/routine-tasks/new" element={<PageAccessGate pageKey="createRoutineTask" user={user}><RoutineTaskPage /></PageAccessGate>} />
           <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" user={user}><TasksPage fixedScope="mine" /></PageAccessGate>} />

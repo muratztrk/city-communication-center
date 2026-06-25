@@ -5,6 +5,7 @@ export type RoleCode = typeof ROLE_CODES[number]
 export const PAGE_ACCESS_ITEMS = [
   { key: 'dashboard', path: '/dashboard', labelKey: 'nav.dashboard' },
   { key: 'edevletActivityPlan', path: '/edevlet/activity-plan', labelKey: 'nav.edevletActivityPlan' },
+  { key: 'edevletActivityPlansList', path: '/edevlet/activity-plans', labelKey: 'nav.edevletActivityPlansList' },
   { key: 'createRequest', path: '/requests/new', labelKey: 'nav.createRequest' },
   { key: 'createRoutineTask', path: '/routine-tasks/new', labelKey: 'nav.createRoutineTask' },
   { key: 'myTasks', path: '/my-tasks', labelKey: 'nav.myTasks' },
@@ -28,11 +29,15 @@ export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce((matrix, role) => {
   matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
     if (role === 'EDevletActivityPlan') {
-      pages[page.key] = page.key === 'dashboard' || page.key === 'edevletActivityPlan'
+      pages[page.key] = page.key === 'dashboard'
+        || page.key === 'edevletActivityPlan'
+        || page.key === 'edevletActivityPlansList'
       return pages
     }
     if (role === 'Operator') {
-      pages[page.key] = page.key !== 'settings' && page.key !== 'edevletActivityPlan'
+      pages[page.key] = page.key !== 'settings'
+        && page.key !== 'edevletActivityPlan'
+        && page.key !== 'edevletActivityPlansList'
       return pages
     }
     pages[page.key] = page.key !== 'settings' || role === 'SystemAdmin'
@@ -50,16 +55,24 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
   return ROLE_CODES.reduce((matrix, role) => {
     matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
       const configured = source[role]?.[page.key]
-      pages[page.key] = typeof configured === 'boolean' ? configured : DEFAULT_ROLE_PAGE_ACCESS[role][page.key]
+      if (typeof configured === 'boolean') {
+        pages[page.key] = configured
+      } else if (page.key === 'edevletActivityPlansList' && typeof source[role]?.edevletActivityPlan === 'boolean') {
+        pages[page.key] = source[role].edevletActivityPlan
+      } else {
+        pages[page.key] = DEFAULT_ROLE_PAGE_ACCESS[role][page.key]
+      }
       return pages
     }, {} as Record<PageAccessKey, boolean>)
     matrix[role].dashboard = true
     matrix[role].settings = role === 'SystemAdmin'
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true
+      matrix[role].edevletActivityPlansList = true
     }
     if (role === 'Operator') {
       matrix[role].edevletActivityPlan = false
+      matrix[role].edevletActivityPlansList = false
     }
     return matrix
   }, {} as RolePageAccessMatrix)

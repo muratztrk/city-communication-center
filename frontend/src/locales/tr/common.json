@@ -156,6 +156,7 @@
   "nav": {
     "dashboard": "Kontrol Paneli",
     "edevletActivityPlan": "e-Devlet Günlük Faaliyet Planı Oluştur",
+    "edevletActivityPlansList": "e-Devlet Günlük Faaliyet Planları Listesi",
     "createRequest": "Talep Oluştur",
     "createRoutineTask": "Rutin Görev Oluştur",
     "myTasks": "Görevlerim",

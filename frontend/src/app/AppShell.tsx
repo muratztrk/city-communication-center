@@ -161,7 +161,7 @@ export function AppShell() {
   const navItemConfigs: NavLinkConfigEx[] = [
     { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
-    { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
+    { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri, "WhatsApp Konuşmaları" alt öğesiyle açılır bir grup olarak gösterilir (card 621).

@@ -1,7 +1,7 @@
 import { Pencil, Plus, XCircle } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -20,14 +20,36 @@ interface ActivityPlanRow {
   status: string
 }
 
+type PlanScope = 'daily' | 'past'
+
+const SCOPE_FILTERS: Array<{ value: PlanScope; labelKey: string; fallback: string; chipClass: string }> = [
+  { value: 'daily', labelKey: 'edevletActivityPlans.scope.daily', fallback: 'Günlük Faaliyetler', chipClass: 'scope-chip--approved' },
+  { value: 'past', labelKey: 'edevletActivityPlans.scope.past', fallback: 'Geçmiş Faaliyet', chipClass: 'scope-chip--all' },
+]
+
 function formatPlanNumber(planNumber: number | null, planNumberYear: number | null) {
   if (!planNumber || !planNumberYear) return '—'
   return `${planNumberYear}-${String(planNumber).padStart(4, '0')}`
 }
 
+function isSameLocalDay(left: Date, right: Date) {
+  return left.getFullYear() === right.getFullYear()
+    && left.getMonth() === right.getMonth()
+    && left.getDate() === right.getDate()
+}
+
+function isPlanInScope(createdAtUtc: string, scope: PlanScope) {
+  const created = new Date(createdAtUtc)
+  const isToday = isSameLocalDay(created, new Date())
+  return scope === 'daily' ? isToday : !isToday
+}
+
 export function EDevletActivityPlansListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const scopeParam = searchParams.get('view')
+  const scope: PlanScope = scopeParam === 'past' ? 'past' : 'daily'
   const [plans, setPlans] = useState<ActivityPlanRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -48,6 +70,23 @@ export function EDevletActivityPlansListPage() {
   useEffect(() => {
     void loadPlans()
   }, [loadPlans])
+
+  const filteredPlans = useMemo(
+    () => plans.filter(plan => isPlanInScope(plan.createdAtUtc, scope)),
+    [plans, scope],
+  )
+
+  const setScope = (nextScope: PlanScope) => {
+    setSearchParams(current => {
+      const next = new URLSearchParams(current)
+      if (nextScope === 'daily') {
+        next.delete('view')
+      } else {
+        next.set('view', nextScope)
+      }
+      return next
+    }, { replace: true })
+  }
 
   const handleCancel = (plan: ActivityPlanRow) => {
     setConfirmDialog({
@@ -81,16 +120,13 @@ export function EDevletActivityPlansListPage() {
           try {
             await api.duplicateEDevletDailyActivityPlan(plan.planId)
             await loadPlans()
+            setScope('daily')
           } catch (err) {
             setError(err instanceof Error ? err.message : t('common.error'))
           }
         })()
       },
     })
-  }
-
-  if (loading) {
-    return <div className="loading">{t('common.loading')}</div>
   }
 
   return (
@@ -104,89 +140,110 @@ export function EDevletActivityPlansListPage() {
               {t('edevletActivityPlans.subtitle', 'Biriminize ait günlük faaliyet planlarını görüntüleyin ve yönetin.')}
             </p>
           </div>
-          <StatusPill tone="info">{plans.length} {t('edevletActivityPlans.recordCount', 'kayıt')}</StatusPill>
+          <StatusPill tone="info">{filteredPlans.length} {t('edevletActivityPlans.recordCount', 'kayıt')}</StatusPill>
         </div>
       </header>
 
+      <nav className="scope-chips" aria-label={t('edevletActivityPlans.title', 'e-Devlet Günlük Faaliyet Planları Listesi')}>
+        {SCOPE_FILTERS.map(filter => (
+          <button
+            key={filter.value}
+            type="button"
+            className={`scope-chip ${filter.chipClass}${filter.value === scope ? ' active' : ''}`}
+            onClick={() => setScope(filter.value)}
+          >
+            {t(filter.labelKey, filter.fallback)}
+          </button>
+        ))}
+      </nav>
+
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
 
-      <section className="section-card desktop-page-fill">
-        <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('edevletActivityPlans.columns.rowNo', 'Sıra No')}</th>
-                <th>{t('edevletActivityPlans.columns.planNo', 'Faaliyet No')}</th>
-                <th>{t('edevletActivityPlans.columns.date', 'Tarih')}</th>
-                <th>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</th>
-                <th>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</th>
-                <th>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak/Bulvar')}</th>
-                <th>{t('edevletActivityPlans.columns.description', 'Açıklama')}</th>
-                <th>{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {plans.map((plan, index) => {
-                const isCancelled = plan.status === 'Cancelled'
-                return (
-                  <tr key={plan.planId}>
-                    <td>{index + 1}</td>
-                    <td>{formatPlanNumber(plan.planNumber, plan.planNumberYear)}</td>
-                    <td>{new Date(plan.createdAtUtc).toLocaleString(getLocale(i18n.language))}</td>
-                    <td>{plan.activityTypeName}</td>
-                    <td>{plan.neighborhood ?? '—'}</td>
-                    <td>{plan.street ?? '—'}</td>
-                    <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
-                    <td>
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="secondary"
-                          className="gap-1.5"
-                          disabled={isCancelled}
-                          onClick={() => navigate(`/edevlet/activity-plan?planId=${plan.planId}`)}
-                        >
-                          <Pencil className="size-3.5" />
-                          {t('common.edit', 'Düzenle')}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="secondary"
-                          className="gap-1.5"
-                          onClick={() => handleDuplicate(plan)}
-                        >
-                          <Plus className="size-3.5" />
-                          {t('edevletActivityPlans.createAction', 'Oluştur')}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="destructive"
-                          className="gap-1.5"
-                          disabled={isCancelled}
-                          onClick={() => handleCancel(plan)}
-                        >
-                          <XCircle className="size-3.5" />
-                          {t('edevletActivityPlans.cancelAction', 'İptal Et')}
-                        </Button>
+      {loading ? (
+        <div className="loading">{t('common.loading')}</div>
+      ) : (
+        <section className="section-card desktop-page-fill">
+          <div className="table-wrap desktop-panel-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{t('edevletActivityPlans.columns.rowNo', 'Sıra No')}</th>
+                  <th>{t('edevletActivityPlans.columns.planNo', 'Faaliyet No')}</th>
+                  <th>{t('edevletActivityPlans.columns.date', 'Tarih')}</th>
+                  <th>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</th>
+                  <th>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</th>
+                  <th>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak/Bulvar')}</th>
+                  <th>{t('edevletActivityPlans.columns.description', 'Açıklama')}</th>
+                  <th>{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPlans.map((plan, index) => {
+                  const isCancelled = plan.status === 'Cancelled'
+                  return (
+                    <tr key={plan.planId}>
+                      <td>{index + 1}</td>
+                      <td>{formatPlanNumber(plan.planNumber, plan.planNumberYear)}</td>
+                      <td>{new Date(plan.createdAtUtc).toLocaleString(getLocale(i18n.language))}</td>
+                      <td>{plan.activityTypeName}</td>
+                      <td>{plan.neighborhood ?? '—'}</td>
+                      <td>{plan.street ?? '—'}</td>
+                      <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
+                      <td>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            className="gap-1.5"
+                            disabled={isCancelled}
+                            onClick={() => navigate(`/edevlet/activity-plan?planId=${plan.planId}`)}
+                          >
+                            <Pencil className="size-3.5" />
+                            {t('common.edit', 'Düzenle')}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            className="gap-1.5"
+                            onClick={() => handleDuplicate(plan)}
+                          >
+                            <Plus className="size-3.5" />
+                            {t('edevletActivityPlans.createAction', 'Oluştur')}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            className="gap-1.5"
+                            disabled={isCancelled}
+                            onClick={() => handleCancel(plan)}
+                          >
+                            <XCircle className="size-3.5" />
+                            {t('edevletActivityPlans.cancelAction', 'İptal Et')}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+                {filteredPlans.length === 0 ? (
+                  <tr>
+                    <td colSpan={8}>
+                      <div className="empty-state">
+                        {scope === 'daily'
+                          ? t('edevletActivityPlans.emptyDaily', 'Bugün oluşturulmuş faaliyet planı bulunmuyor.')
+                          : t('edevletActivityPlans.emptyPast', 'Geçmiş faaliyet planı bulunmuyor.')}
                       </div>
                     </td>
                   </tr>
-                )
-              })}
-              {plans.length === 0 ? (
-                <tr>
-                  <td colSpan={8}>
-                    <div className="empty-state">{t('edevletActivityPlans.empty', 'Henüz faaliyet planı bulunmuyor.')}</div>
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {confirmDialog ? <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} /> : null}
     </div>

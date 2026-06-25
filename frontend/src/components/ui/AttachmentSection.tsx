@@ -23,9 +23,11 @@ interface AttachmentSectionProps {
   readOnly?: boolean
   emptyText?: string
   compact?: boolean
+  /** gallery: kutucuk önizleme; list: yalnızca dosya adı bağlantıları (card #855). */
+  displayMode?: 'gallery' | 'list'
 }
 
-export function AttachmentSection({ attachments, onUpload, onDelete, disabled, readOnly = false, emptyText, compact = false }: AttachmentSectionProps) {
+export function AttachmentSection({ attachments, onUpload, onDelete, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery' }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -159,8 +161,37 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
         <p className="text-sm text-slate-400">{emptyText}</p>
       )}
 
+      {/* Dosya listesi — Talep Detayları ve görev tamamlama paneliyle aynı görünüm (card #855). */}
+      {attachments.length > 0 && displayMode === 'list' && (
+        <ul className="space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
+          {attachments.map(att => (
+            <li key={att.attachmentId} className="flex min-w-0 items-start gap-2">
+              <button
+                type="button"
+                className="min-w-0 flex-1 break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800 disabled:cursor-wait"
+                disabled={downloadingId === att.attachmentId}
+                onClick={() => void handleDownload(att)}
+              >
+                {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
+              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  title={t('attachments.deleteConfirm', 'Sil')}
+                  disabled={deletingId === att.attachmentId || isDisabled}
+                  className="shrink-0 text-[10px] font-medium text-red-500 hover:text-red-600 disabled:cursor-not-allowed"
+                  onClick={() => void handleDelete(att.attachmentId)}
+                >
+                  {deletingId === att.attachmentId ? '…' : t('common.delete', 'Sil')}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
       {/* Thumbnail gallery */}
-      {attachments.length > 0 && (
+      {attachments.length > 0 && displayMode === 'gallery' && (
         <div className={galleryClassName}>
           {attachments.map(att => (
             <div

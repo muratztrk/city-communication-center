@@ -140,8 +140,135 @@ internal static class TaskWorkflowAuthorization
         var job = await dbContext.Jobs.FirstOrDefaultAsync(entity => entity.JobId == jobId, cancellationToken);
         if (job is null) return null;
 
+        var targetDepartments = await dbContext.JobDepartments
+            .Where(entity => entity.JobId == jobId && entity.Role == JobDepartmentRole.Target)
+            .Select(entity => new TargetDepartmentSnapshot(entity.DepartmentId, entity.ApprovalStatus))
+            .ToListAsync(cancellationToken);
+
+        if (job.IsCoordinated || targetDepartments.Count > 1)
+        {
+            return await RecomputeCoordinatedJobCompletionAsync(dbContext, job, targetDepartments, cancellationToken);
+        }
+
+        return await RecomputeStandardJobCompletionAsync(dbContext, job, cancellationToken);
+    }
+
+    private sealed record TargetDepartmentSnapshot(Guid DepartmentId, JobApprovalStatus ApprovalStatus);
+
+    private static async Task<Domain.Enums.JobStatus?> RecomputeCoordinatedJobCompletionAsync(
+        IApplicationDbContext dbContext,
+        Job job,
+        IReadOnlyList<TargetDepartmentSnapshot> targetDepartments,
+        CancellationToken cancellationToken)
+    {
+        if (targetDepartments.Count == 0)
+        {
+            return await RecomputeStandardJobCompletionAsync(dbContext, job, cancellationToken);
+        }
+
+        static bool IsParticipating(JobApprovalStatus status) =>
+            status is JobApprovalStatus.Approved or JobApprovalStatus.NotRequired;
+
+        var participatingTargetIds = targetDepartments
+            .Where(target => IsParticipating(target.ApprovalStatus))
+            .Select(target => target.DepartmentId)
+            .ToHashSet();
+
+        var allTargetsRejected = targetDepartments.All(target => target.ApprovalStatus == JobApprovalStatus.Rejected);
+        if (allTargetsRejected && participatingTargetIds.Count == 0)
+        {
+            if (job.Status is Domain.Enums.JobStatus.Completed
+                or Domain.Enums.JobStatus.Cancelled
+                or Domain.Enums.JobStatus.Rejected)
+            {
+                return null;
+            }
+
+            job.Status = Domain.Enums.JobStatus.Cancelled;
+            job.CompletionPercentage = 0;
+            return Domain.Enums.JobStatus.Cancelled;
+        }
+
+        if (participatingTargetIds.Count == 0)
+        {
+            return null;
+        }
+
+        var allTargetsDecided = targetDepartments.All(target =>
+            target.ApprovalStatus is JobApprovalStatus.Approved
+                or JobApprovalStatus.Rejected
+                or JobApprovalStatus.NotRequired);
+        if (!allTargetsDecided)
+        {
+            return null;
+        }
+
+        var taskQuery = dbContext.Tasks.Where(entity => entity.JobId == job.JobId);
+        if (job.RequestType == JobRequestType.ExternalUnit)
+        {
+            taskQuery = taskQuery.Where(entity =>
+                entity.AssignedDepartmentId.HasValue
+                && participatingTargetIds.Contains(entity.AssignedDepartmentId.Value));
+        }
+        else
+        {
+            taskQuery = taskQuery.Where(entity =>
+                !entity.AssignedDepartmentId.HasValue
+                || participatingTargetIds.Contains(entity.AssignedDepartmentId.Value)
+                || entity.AssignedDepartmentId == job.OwnerDepartmentId);
+        }
+
+        var tasks = await taskQuery
+            .Select(entity => new
+            {
+                entity.AssignedDepartmentId,
+                entity.CurrentStatus,
+                entity.CompletionPercentage
+            })
+            .ToListAsync(cancellationToken);
+
+        foreach (var targetId in participatingTargetIds)
+        {
+            var targetTasks = tasks
+                .Where(task => task.AssignedDepartmentId == targetId)
+                .ToList();
+            if (targetTasks.Count == 0)
+            {
+                job.CompletionPercentage = tasks.Count == 0
+                    ? 0
+                    : tasks.Sum(task =>
+                        task.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (task.CompletionPercentage ?? 0)) / tasks.Count;
+                return null;
+            }
+
+            if (!targetTasks.All(task => task.CurrentStatus == WorkflowTaskStatus.Completed))
+            {
+                var total = tasks.Sum(task =>
+                    task.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (task.CompletionPercentage ?? 0));
+                job.CompletionPercentage = total / tasks.Count;
+                return null;
+            }
+        }
+
+        if (tasks.Count == 0)
+        {
+            job.CompletionPercentage = 0;
+            return null;
+        }
+
+        job.CompletionPercentage = 100;
+        job.Status = Domain.Enums.JobStatus.Completed;
+        job.CompletedAtUtc = DateTimeOffset.UtcNow;
+        return Domain.Enums.JobStatus.Completed;
+    }
+
+    private static async Task<Domain.Enums.JobStatus?> RecomputeStandardJobCompletionAsync(
+        IApplicationDbContext dbContext,
+        Job job,
+        CancellationToken cancellationToken)
+    {
         var tasks = await dbContext.Tasks
-            .Where(entity => entity.JobId == jobId)
+            .Where(entity => entity.JobId == job.JobId)
             .Select(entity => new { entity.CurrentStatus, entity.CompletionPercentage })
             .ToListAsync(cancellationToken);
         if (tasks.Count == 0)

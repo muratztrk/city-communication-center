@@ -1,3 +1,6 @@
+using CityCommunicationCenter.Application.Features.Tasks;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
+
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 public sealed record ApproveJobTargetCommand(Guid JobId, Guid DepartmentId, Guid? ActorUserId, string? Comment) : ICommand<bool>;
@@ -147,21 +150,24 @@ public sealed class RejectJobTargetCommandHandler : ICommandHandler<RejectJobTar
         jd.UpdatedAtUtc = utcNow;
         jd.UpdatedByUserId = actor.UserId;
 
-        // if the only target and rejected, mark job as Rejected
-        var anyTargetApproved = await _dbContext.JobDepartments.AnyAsync(
-            e => e.JobId == job.JobId
-                && e.Role == JobDepartmentRole.Target
-                && e.ApprovalStatus == JobApprovalStatus.Approved, cancellationToken);
-        var anyTargetPending = await _dbContext.JobDepartments.AnyAsync(
-            e => e.JobId == job.JobId
-                && e.Role == JobDepartmentRole.Target
-                && e.ApprovalStatus == JobApprovalStatus.Pending, cancellationToken);
+        // Hedef birim reddettiğinde o birime ait açık görevleri iptal et (card #856).
+        var activeTargetTasks = await _dbContext.Tasks
+            .Where(task => task.JobId == job.JobId
+                && task.TenantId == tenantId
+                && task.AssignedDepartmentId == request.DepartmentId
+                && task.CurrentStatus != WorkflowTaskStatus.Completed
+                && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                && task.CurrentStatus != WorkflowTaskStatus.Rejected)
+            .ToListAsync(cancellationToken);
 
-        if (!anyTargetApproved && !anyTargetPending && jd.Role == JobDepartmentRole.Target)
+        foreach (var targetTask in activeTargetTasks)
         {
-            job.Status = JobStatus.Rejected;
-            job.CancelReason = request.Reason;
+            targetTask.CurrentStatus = WorkflowTaskStatus.Cancelled;
+            targetTask.RevisionReason = request.Reason;
+            targetTask.UpdatedAtUtc = utcNow;
+            targetTask.UpdatedByUserId = actor.UserId;
         }
+
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
 
@@ -178,6 +184,16 @@ public sealed class RejectJobTargetCommandHandler : ICommandHandler<RejectJobTar
             Notes = request.Reason,
             Details = request.Reason
         });
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var previousStatus = job.Status;
+        var newJobStatus = await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, job.JobId, cancellationToken);
+        if (newJobStatus.HasValue && job.Status != previousStatus)
+        {
+            job.UpdatedAtUtc = utcNow;
+            job.UpdatedByUserId = actor.UserId;
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

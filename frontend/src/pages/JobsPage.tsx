@@ -2076,6 +2076,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           <AttachmentSection
                             attachments={detail.attachments ?? []}
                             readOnly={!canEditJobAttachments}
+                            displayMode="list"
                             emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
                             onUpload={canEditJobAttachments ? async (file, onProgress) => {
                               setAttachmentUploading(true)
@@ -2232,6 +2233,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <AttachmentSection
                       attachments={detail.attachments ?? []}
                       readOnly
+                      displayMode="list"
                       emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
                     />
                     {showAttachmentLockNotice && (

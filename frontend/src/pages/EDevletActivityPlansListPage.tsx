@@ -1,4 +1,4 @@
-import { Pencil, Plus, XCircle } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -6,6 +6,7 @@ import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
+import { TablePagination } from '../components/ui/table-pagination'
 import { getLocale } from '../utils/localization'
 
 interface ActivityPlanRow {
@@ -29,7 +30,7 @@ const SCOPE_FILTERS: Array<{ value: PlanScope; labelKey: string; fallback: strin
 
 function formatPlanNumber(planNumber: number | null, planNumberYear: number | null) {
   if (!planNumber || !planNumberYear) return '—'
-  return `${planNumberYear}-${String(planNumber).padStart(4, '0')}`
+  return `FN-${planNumberYear}-${planNumber}`
 }
 
 function isSameLocalDay(left: Date, right: Date) {
@@ -54,6 +55,8 @@ export function EDevletActivityPlansListPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   const loadPlans = useCallback(async () => {
     setLoading(true)
@@ -75,6 +78,15 @@ export function EDevletActivityPlansListPage() {
     () => plans.filter(plan => isPlanInScope(plan.createdAtUtc, scope)),
     [plans, scope],
   )
+
+  const paginatedPlans = useMemo(
+    () => filteredPlans.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [filteredPlans, currentPage, pageSize],
+  )
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [scope, pageSize, filteredPlans.length])
 
   const setScope = (nextScope: PlanScope) => {
     setSearchParams(current => {
@@ -100,27 +112,6 @@ export function EDevletActivityPlansListPage() {
           try {
             await api.cancelEDevletDailyActivityPlan(plan.planId)
             await loadPlans()
-          } catch (err) {
-            setError(err instanceof Error ? err.message : t('common.error'))
-          }
-        })()
-      },
-    })
-  }
-
-  const handleDuplicate = (plan: ActivityPlanRow) => {
-    setConfirmDialog({
-      title: t('edevletActivityPlans.duplicateTitle', 'Faaliyet Planı Oluştur'),
-      message: t('edevletActivityPlans.duplicateConfirm', 'Seçili kayıttan yeni bir faaliyet planı oluşturulsun mu?'),
-      confirmLabel: t('edevletActivityPlans.createAction', 'Oluştur'),
-      cancelLabel: t('common.cancel', 'İptal'),
-      variant: 'success',
-      onConfirm: () => {
-        void (async () => {
-          try {
-            await api.duplicateEDevletDailyActivityPlan(plan.planId)
-            await loadPlans()
-            setScope('daily')
           } catch (err) {
             setError(err instanceof Error ? err.message : t('common.error'))
           }
@@ -174,23 +165,23 @@ export function EDevletActivityPlansListPage() {
                   <th>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</th>
                   <th>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak/Bulvar')}</th>
                   <th>{t('edevletActivityPlans.columns.description', 'Açıklama')}</th>
-                  <th>{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
+                  <th className="text-center">{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredPlans.map((plan, index) => {
+                {paginatedPlans.map((plan, index) => {
                   const isCancelled = plan.status === 'Cancelled'
                   return (
                     <tr key={plan.planId}>
-                      <td>{index + 1}</td>
+                      <td>{(currentPage - 1) * pageSize + index + 1}</td>
                       <td>{formatPlanNumber(plan.planNumber, plan.planNumberYear)}</td>
                       <td>{new Date(plan.createdAtUtc).toLocaleString(getLocale(i18n.language))}</td>
                       <td>{plan.activityTypeName}</td>
                       <td>{plan.neighborhood ?? '—'}</td>
                       <td>{plan.street ?? '—'}</td>
                       <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
-                      <td>
-                        <div className="flex flex-wrap gap-2">
+                      <td className="actions-cell">
+                        <div className="flex flex-wrap justify-center gap-2">
                           <Button
                             type="button"
                             size="sm"
@@ -205,22 +196,10 @@ export function EDevletActivityPlansListPage() {
                           <Button
                             type="button"
                             size="sm"
-                            variant="secondary"
-                            className="gap-1.5"
-                            onClick={() => handleDuplicate(plan)}
-                          >
-                            <Plus className="size-3.5" />
-                            {t('edevletActivityPlans.createAction', 'Oluştur')}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
                             variant="destructive"
-                            className="gap-1.5"
                             disabled={isCancelled}
                             onClick={() => handleCancel(plan)}
                           >
-                            <XCircle className="size-3.5" />
                             {t('edevletActivityPlans.cancelAction', 'İptal Et')}
                           </Button>
                         </div>
@@ -242,6 +221,13 @@ export function EDevletActivityPlansListPage() {
               </tbody>
             </table>
           </div>
+          <TablePagination
+            totalCount={filteredPlans.length}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageSizeChange={setPageSize}
+            onPageChange={setCurrentPage}
+          />
         </section>
       )}
 

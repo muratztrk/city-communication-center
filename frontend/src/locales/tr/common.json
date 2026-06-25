@@ -678,6 +678,7 @@
       "cancelNote": "İptal Notu",
       "completionNote": "Tamamlama Notu",
       "assignmentHistory": "Atama Geçmişi",
+      "taskAssignmentHistory": "Görev Atama Geçmişi",
       "noAssignmentHistory": "Atama geçmişi yok"
     }
   },

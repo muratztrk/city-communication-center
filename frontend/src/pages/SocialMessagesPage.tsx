@@ -267,7 +267,7 @@ export function SocialMessagesPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className={`data-table${pagedMessages.length === 0 ? ' data-table--empty' : ''}`}>
+          <table className={`data-table social-messages-table${pagedMessages.length === 0 ? ' data-table--empty' : ''}`}>
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -378,9 +378,9 @@ export function SocialMessagesPage() {
       {detailJobId && (
         <JobsPage
           mode="myRequests"
+          fixedScope="mine"
           detailOnly
           notificationJobId={detailJobId}
-          detailContextOverride="social"
           onNotificationDetailClose={() => setDetailJobId(null)}
         />
       )}

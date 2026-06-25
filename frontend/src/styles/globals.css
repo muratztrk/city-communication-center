@@ -887,8 +887,12 @@
     border-spacing: 0;
   }
 
-  .table-container thead th {
+  .table-container thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+  }
+
+  .table-container thead th {
+    background: transparent;
     padding: 0.85rem 1rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: left;
@@ -919,12 +923,16 @@
     border-spacing: 0;
   }
 
+  .data-table thead {
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+  }
+
   .data-table thead th {
     position: sticky;
     top: 0;
     z-index: 1;
     white-space: nowrap;
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background: transparent;
     padding: 0.75rem 0.9rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: center;
@@ -941,9 +949,13 @@
 
   /* "Taleplerim" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
   .my-requests-table thead th {
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background: transparent;
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
+  }
+
+  .my-requests-table thead {
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
   .my-requests-table thead th.sortable-th:hover,
@@ -1247,9 +1259,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.45rem;
     min-width: 11rem;
+  }
+
+  .social-messages-table .actions-cell {
+    min-width: 18rem;
+  }
+
+  .social-messages-table .request-actions {
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 0.35rem;
   }
 
   .request-actions button,

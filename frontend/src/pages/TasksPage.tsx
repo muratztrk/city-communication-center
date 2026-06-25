@@ -1846,7 +1846,7 @@ const pageKicker = isMyTasksView
                   <div className="grid gap-4">
                     <section className="form-card page-stack">
                       <h3 className="mb-1 text-sm font-semibold text-emerald-600">
-                        {t('tasks.detail.assignmentHistory', 'Atama Geçmişi')}
+                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                       </h3>
                         <div className="grid gap-2">
                           {taskDetail.assignmentHistory.map(item => (
@@ -1855,7 +1855,9 @@ const pageKicker = isMyTasksView
                               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700"
                             >
                               <div className="text-slate-950">
-                                {getDepartmentName(item.toDepartmentId)} · {getUserName(item.toUserId)}
+                                <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
+                                {' · '}
+                                <span className="font-bold">{getUserName(item.toUserId)}</span>
                               </div>
                               <div className="text-xs text-slate-500">
                                 {new Date(item.actionDateUtc).toLocaleString(locale)}

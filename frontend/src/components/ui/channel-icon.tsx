@@ -65,6 +65,8 @@ export function ChannelIcon({ channel, className = 'size-4' }: ChannelIconProps)
       return <Mail className={className} style={{ color: '#6366f1' }} aria-label="E-posta" />
     case 'WebForm':
       return <Globe className={className} style={{ color: '#10b981' }} aria-label="Web Formu" />
+    case 'EDevlet':
+      return <img src="/icons/e-devlet.svg" className={className} alt="e-Devlet" />
     default:
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label={channel}>

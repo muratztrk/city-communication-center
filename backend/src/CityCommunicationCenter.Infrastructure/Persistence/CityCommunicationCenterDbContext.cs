@@ -46,6 +46,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<UserDepartmentAssignment> UserDepartmentAssignments => Set<UserDepartmentAssignment>();
+    public DbSet<EDevletActivityType> EDevletActivityTypes => Set<EDevletActivityType>();
+    public DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans => Set<EDevletDailyActivityPlan>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -106,6 +108,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigurePushSubscription(modelBuilder.Entity<PushSubscription>());
         ConfigureAttachment(modelBuilder.Entity<Attachment>());
         ConfigureUserDepartmentAssignment(modelBuilder.Entity<UserDepartmentAssignment>());
+        ConfigureEDevletActivityType(modelBuilder.Entity<EDevletActivityType>());
+        ConfigureEDevletDailyActivityPlan(modelBuilder.Entity<EDevletDailyActivityPlan>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -128,6 +132,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<PushSubscription>());
         ApplyTenantFilter(modelBuilder.Entity<Attachment>());
         ApplyTenantFilter(modelBuilder.Entity<UserDepartmentAssignment>());
+        ApplyTenantFilter(modelBuilder.Entity<EDevletActivityType>());
+        ApplyTenantFilter(modelBuilder.Entity<EDevletDailyActivityPlan>());
 
         ApplyInstallSeedData(modelBuilder);
     }
@@ -607,6 +613,26 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.HasIndex(nameof(UserDepartmentAssignment.TenantId), nameof(UserDepartmentAssignment.UserId), nameof(UserDepartmentAssignment.DepartmentId))
             .IsUnique()
             .HasDatabaseName("ix_userdeptassign_tenantid_userid_deptid_unique");
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureEDevletActivityType(EntityTypeBuilder<EDevletActivityType> builder)
+    {
+        builder.ToTable("edevletactivitytypes");
+        builder.HasKey(entity => entity.ActivityTypeId);
+        builder.Property(entity => entity.Name).HasMaxLength(200);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureEDevletDailyActivityPlan(EntityTypeBuilder<EDevletDailyActivityPlan> builder)
+    {
+        builder.ToTable("edevletdailyactivityplans");
+        builder.HasKey(entity => entity.PlanId);
+        builder.Property(entity => entity.Description).HasMaxLength(4000);
+        builder.HasOne(entity => entity.ActivityType)
+            .WithMany()
+            .HasForeignKey(entity => entity.ActivityTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
         ApplyLowerCaseColumnNames(builder);
     }
 

@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Features;
+
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record CreateSocialMessageCommand(
@@ -23,11 +25,13 @@ public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSo
     public async ValueTask<Guid> Handle(CreateSocialMessageCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.TenantId!.Value;
+        var utcNow = DateTimeOffset.UtcNow;
 
         var message = new SocialMessage
         {
             SocialMessageId = Guid.NewGuid(),
-            TenantId = context.TenantId!.Value,
+            TenantId = tenantId,
             Channel = request.Channel,
             // Prefix with MANUAL- to satisfy the unique (TenantId, Channel, ExternalMessageId) constraint
             ExternalMessageId = $"MANUAL-{Guid.NewGuid():N}",
@@ -37,8 +41,11 @@ public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSo
             Latitude = request.Latitude,
             Longitude = request.Longitude,
             Status = SocialMessageStatus.New,
-            ReceivedAtUtc = DateTimeOffset.UtcNow,
+            ReceivedAtUtc = utcNow,
             CreatedByUserId = request.ActorUserId,
+            CitizenRequestNumberYear = utcNow.Year,
+            CitizenRequestNumber = await SequenceNumberHelper.NextCitizenRequestNumberAsync(
+                _dbContext, tenantId, utcNow.Year, cancellationToken),
         };
 
         _dbContext.SocialMessages.Add(message);

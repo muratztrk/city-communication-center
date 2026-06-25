@@ -24,6 +24,11 @@ public sealed class SocialMessage : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public Guid? JobId { get; set; }
 
+    /// <summary>VT-2026-1 format citizen request number (separate from job T- numbers).</summary>
+    public int? CitizenRequestNumber { get; set; }
+
+    public int? CitizenRequestNumberYear { get; set; }
+
     public DateTimeOffset ReceivedAtUtc { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>Response content sent back to the citizen</summary>

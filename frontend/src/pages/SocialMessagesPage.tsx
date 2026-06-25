@@ -27,10 +27,9 @@ function getLocationMapUrl(latitude: number, longitude: number) {
 }
 
 function formatCitizenRequestNumber(message: SocialMessage) {
-  if (message.jobNumber == null) return '—'
-  return message.jobNumberYear == null
-    ? `VT-${message.jobNumber}`
-    : `VT-${message.jobNumberYear}-${message.jobNumber}`
+  if (message.citizenRequestNumber == null) return '—'
+  const year = message.citizenRequestNumberYear ?? new Date(message.receivedAtUtc).getFullYear()
+  return `VT-${year}-${message.citizenRequestNumber}`
 }
 
 const DEFAULT_CHANNEL_FILTER = 'WhatsApp'

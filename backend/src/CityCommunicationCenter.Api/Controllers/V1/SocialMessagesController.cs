@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using CityCommunicationCenter.Application.Features.Social;
+using CityCommunicationCenter.Application.Features;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Domain.Enums;
 
@@ -53,6 +54,33 @@ public sealed class SocialMessagesController : ApiControllerBase
             cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { messageId }, new { socialMessageId = messageId });
+    }
+
+    [HttpPut("{messageId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(
+        Guid messageId,
+        [FromBody] UpdateSocialMessageRequest request,
+        CancellationToken cancellationToken)
+    {
+        var channel = Enum.TryParse<SocialChannel>(request.Channel, ignoreCase: true, out var parsed)
+            ? parsed
+            : SocialChannel.Other;
+
+        var updated = await _sender.Send(
+            new UpdateSocialMessageCommand(
+                messageId,
+                CurrentContext.UserId,
+                channel,
+                request.CitizenHandle,
+                request.Content,
+                request.Category,
+                request.Latitude,
+                request.Longitude),
+            cancellationToken);
+        if (!updated) return NotFound();
+        return NoContent();
     }
 
     [HttpGet("{messageId:guid}")]

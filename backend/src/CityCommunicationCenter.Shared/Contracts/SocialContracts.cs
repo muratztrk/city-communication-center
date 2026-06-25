@@ -31,6 +31,14 @@ public sealed record CreateSocialMessageRequest(
     double? Latitude,
     double? Longitude);
 
+public sealed record UpdateSocialMessageRequest(
+    string Channel,
+    string CitizenHandle,
+    string Content,
+    string? Category,
+    double? Latitude,
+    double? Longitude);
+
 public sealed record SocialWebhookRequest(
     string ExternalMessageId,
     string CitizenHandle,
@@ -50,8 +58,8 @@ public sealed record SocialMessageSummaryResponse(
     Guid? AssignedDepartmentId,
     string? AssignedDepartmentName,
     Guid? JobId,
-    int? JobNumber,
-    int? JobNumberYear,
+    int? CitizenRequestNumber,
+    int? CitizenRequestNumberYear,
     DateTimeOffset ReceivedAtUtc,
     double? Latitude,
     double? Longitude);
@@ -68,6 +76,8 @@ public sealed record SocialMessageDetailResponse(
     Guid? AssignedDepartmentId,
     string? AssignedDepartmentName,
     Guid? JobId,
+    int? CitizenRequestNumber,
+    int? CitizenRequestNumberYear,
     DateTimeOffset ReceivedAtUtc,
     double? Latitude,
     double? Longitude,

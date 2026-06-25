@@ -346,6 +346,49 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     .FirstOrDefault()))
             .ToListAsync(cancellationToken);
 
+        var taskIds = tasks.Select(task => task.TaskId).ToList();
+        if (taskIds.Count > 0)
+        {
+            var taskDescriptions = await _dbContext.Tasks
+                .AsNoTracking()
+                .Where(task => taskIds.Contains(task.TaskId))
+                .Select(task => new { task.TaskId, task.Description })
+                .ToDictionaryAsync(task => task.TaskId, task => task.Description, cancellationToken);
+
+            var taskAttachmentRows = await _dbContext.Attachments
+                .AsNoTracking()
+                .Where(attachment => attachment.TenantId == tenantId
+                    && attachment.EntityType == "Task"
+                    && taskIds.Contains(attachment.EntityId))
+                .OrderBy(attachment => attachment.CreatedAtUtc)
+                .Select(attachment => new
+                {
+                    attachment.EntityId,
+                    Response = new AttachmentResponse(
+                        attachment.AttachmentId,
+                        attachment.FileName,
+                        attachment.ContentType,
+                        attachment.FileSizeBytes,
+                        attachment.RelativeUrl,
+                        attachment.CreatedAtUtc),
+                })
+                .ToListAsync(cancellationToken);
+
+            var attachmentsByTask = taskAttachmentRows
+                .GroupBy(row => row.EntityId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => (IReadOnlyCollection<AttachmentResponse>)group.Select(row => row.Response).ToList());
+
+            tasks = tasks
+                .Select(task => task with
+                {
+                    Description = taskDescriptions.GetValueOrDefault(task.TaskId),
+                    Attachments = attachmentsByTask.GetValueOrDefault(task.TaskId) ?? Array.Empty<AttachmentResponse>(),
+                })
+                .ToList();
+        }
+
         var approvals = await _dbContext.Approvals.AsNoTracking()
             .Where(a => a.SubjectType == ApprovalSubjectType.Job && a.SubjectId == job.JobId)
             .OrderBy(a => a.StepOrder)

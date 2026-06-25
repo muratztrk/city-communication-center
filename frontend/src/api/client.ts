@@ -813,6 +813,44 @@ export const api = {
     return response.json() as Promise<SocialMessage[]>
   },
 
+  async getSocialMessageById(socialMessageId: string): Promise<SocialMessage> {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.socialMessageLoadFailed', 'Vatandaş talebi yüklenemedi.'))
+    const detail = await response.json() as SocialMessage & { socialMessageId?: string }
+    return {
+      socialMessageId: detail.socialMessageId ?? socialMessageId,
+      channel: detail.channel,
+      citizenHandle: detail.citizenHandle,
+      content: detail.content ?? null,
+      category: detail.category ?? null,
+      status: detail.status,
+      assignedDepartmentId: detail.assignedDepartmentId ?? null,
+      assignedDepartmentName: detail.assignedDepartmentName ?? null,
+      jobId: detail.jobId ?? null,
+      citizenRequestNumber: detail.citizenRequestNumber ?? null,
+      citizenRequestNumberYear: detail.citizenRequestNumberYear ?? null,
+      receivedAtUtc: detail.receivedAtUtc,
+      latitude: detail.latitude,
+      longitude: detail.longitude,
+    }
+  },
+
+  async updateSocialMessage(socialMessageId: string, payload: {
+    channel: string
+    citizenHandle: string
+    content: string
+    category?: string
+    latitude?: number
+    longitude?: number
+  }): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.socialUpdateFailed', 'Vatandaş talebi güncellenemedi.'))
+  },
+
   async createSocialMessage(payload: {
     channel: string
     citizenHandle: string
@@ -1133,5 +1171,53 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/audit-log`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.auditLoadFailed'))
     return response.json() as Promise<EntityAuditLogEntry[]>
+  },
+
+  async getEDevletActivityTypes(): Promise<Array<{ activityTypeId: string; name: string; sortOrder: number }>> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/activity-types`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.edevletActivityTypesLoadFailed', 'Faaliyet tipleri yüklenemedi.'))
+    return response.json() as Promise<Array<{ activityTypeId: string; name: string; sortOrder: number }>>
+  },
+
+  async createEDevletActivityType(name: string): Promise<{ activityTypeId: string; name: string; sortOrder: number }> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/activity-types`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ name }),
+    })
+    await ensureOk(response, i18n.t('errors.edevletActivityTypeCreateFailed', 'Faaliyet tipi oluşturulamadı.'))
+    return response.json() as Promise<{ activityTypeId: string; name: string; sortOrder: number }>
+  },
+
+  async updateEDevletActivityType(activityTypeId: string, name: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/activity-types/${activityTypeId}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ name }),
+    })
+    await ensureOk(response, i18n.t('errors.edevletActivityTypeUpdateFailed', 'Faaliyet tipi güncellenemedi.'))
+  },
+
+  async deleteEDevletActivityType(activityTypeId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/activity-types/${activityTypeId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.edevletActivityTypeDeleteFailed', 'Faaliyet tipi silinemedi.'))
+  },
+
+  async createEDevletDailyActivityPlan(payload: {
+    activityTypeId: string
+    description: string
+    neighborhood?: string | null
+    street?: string | null
+    openAddress?: string | null
+  }): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.edevletDailyPlanCreateFailed', 'Faaliyet planı kaydedilemedi.'))
   },
 }

@@ -23,6 +23,8 @@ public interface IApplicationDbContext
     DbSet<PushSubscription> PushSubscriptions { get; }
     DbSet<Attachment> Attachments { get; }
     DbSet<UserDepartmentAssignment> UserDepartmentAssignments { get; }
+    DbSet<EDevletActivityType> EDevletActivityTypes { get; }
+    DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

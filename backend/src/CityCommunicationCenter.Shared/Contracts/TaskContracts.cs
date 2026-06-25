@@ -79,7 +79,10 @@ public sealed record TaskSummaryResponse(
     // Sonuçlanmış en güncel ek süre talebinin kararı; gridview Son Tarih altında gösterilir (card 772).
     string? LastExtraTimeRequestDecision = null,
     // Görevi atayan yöneticinin adı — talep detayı "Görev Detayları"nda "Atanmış (Yönetici)" için (card #709).
-    string? AssigningManagerDisplayName = null);
+    string? AssigningManagerDisplayName = null,
+    // Talep detayı görev kartında açıklama + ekler (card #853).
+    string? Description = null,
+    IReadOnlyCollection<AttachmentResponse>? Attachments = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

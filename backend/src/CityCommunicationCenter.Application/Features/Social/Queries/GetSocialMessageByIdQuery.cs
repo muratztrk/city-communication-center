@@ -47,6 +47,8 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             message.AssignedDepartmentId,
             assignedDepartmentName,
             message.JobId,
+            message.CitizenRequestNumber,
+            message.CitizenRequestNumberYear,
             message.ReceivedAtUtc,
             message.Latitude,
             message.Longitude,

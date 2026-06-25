@@ -17,6 +17,7 @@ const TasksPage = lazy(() => import('../pages/TasksPage').then(module => ({ defa
 const UsersPage = lazy(() => import('../pages/UsersPage').then(module => ({ default: module.UsersPage })))
 const JobsPage = lazy(() => import('../pages/JobsPage').then(module => ({ default: module.JobsPage })))
 const WallboardPage = lazy(() => import('../pages/WallboardPage').then(module => ({ default: module.WallboardPage })))
+const EDevletActivityPlanPage = lazy(() => import('../pages/EDevletActivityPlanPage').then(module => ({ default: module.EDevletActivityPlanPage })))
 const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(module => ({ default: module.RoutineTaskPage })))
 const WhatsAppConversationsPage = lazy(() => import('../pages/WhatsAppConversationsPage').then(module => ({ default: module.WhatsAppConversationsPage })))
 
@@ -67,6 +68,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" role={user?.role}><DashboardPage /></PageAccessGate>} />
+          <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" role={user?.role}><EDevletActivityPlanPage /></PageAccessGate>} />
           <Route path="/requests/new" element={<PageAccessGate pageKey="createRequest" role={user?.role}><CreateRequestPage /></PageAccessGate>} />
           <Route path="/routine-tasks/new" element={<PageAccessGate pageKey="createRoutineTask" role={user?.role}><RoutineTaskPage /></PageAccessGate>} />
           <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" role={user?.role}><TasksPage fixedScope="mine" /></PageAccessGate>} />

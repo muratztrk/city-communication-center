@@ -124,6 +124,7 @@ export interface Task {
   createdByDisplayName?: string | null;
   createdAtUtc?: string;
   ownerDisplayName?: string | null;
+  attachments?: Attachment[];
   taskNumber?: number | null;
   taskNumberYear?: number | null;
   ownerDepartmentName?: string | null;
@@ -351,8 +352,8 @@ export interface SocialMessage {
   assignedDepartmentId: string | null;
   assignedDepartmentName: string | null;
   jobId: string | null;
-  jobNumber: number | null;
-  jobNumberYear: number | null;
+  citizenRequestNumber: number | null;
+  citizenRequestNumberYear: number | null;
   receivedAtUtc: string;
   latitude?: number | null;
   longitude?: number | null;

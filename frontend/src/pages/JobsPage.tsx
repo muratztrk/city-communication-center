@@ -129,6 +129,18 @@ function canOperatorEditPendingExternalJob(
     || (job.status === 'Active' && taskCount === 0)
 }
 
+function getRequestEditPath(
+  job: { jobId: string; requestType: string; sourceType: string },
+  role?: string,
+): string {
+  if (role === 'Operator'
+    && job.requestType === 'ExternalUnit'
+    && (job.sourceType === 'SocialMessage' || job.sourceType === 'CitizenRequest')) {
+    return `/requests/new?kind=citizen&editJobId=${job.jobId}`
+  }
+  return `/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`
+}
+
 function isClosedJobStatus(status: string): boolean {
   return status === 'Completed' || status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested'
 }
@@ -1122,6 +1134,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
   }
 
+  const handleDownloadTaskAttachment = async (attachmentId: string, fileName: string) => {
+    try {
+      const file = await api.downloadAttachment(attachmentId)
+      const url = URL.createObjectURL(file)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1_000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('attachments.downloadFailed', 'Ek indirilemedi.'))
+    }
+  }
+
   const handleCancel = (jobId: string) => {
     setCancelModal({ jobId, reason: '', saving: false })
   }
@@ -1569,7 +1597,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               <Button
                                 size="sm"
                                 className="bg-teal-700 text-white hover:bg-teal-800"
-                                onClick={() => navigate(`/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`)}
+                                onClick={() => navigate(getRequestEditPath(job, user?.role))}
                               >
                                 {t('jobs.actions.edit', 'Düzenle')}
                               </Button>
@@ -1706,7 +1734,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <Button
                       type="button"
                       className="bg-teal-700 text-white hover:bg-teal-800"
-                      onClick={() => navigate(`/requests/new?kind=${detail.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${detail.jobId}`)}
+                      onClick={() => navigate(getRequestEditPath(detail, user?.role))}
                     >
                       {t('jobs.actions.edit', 'Düzenle')}
                     </Button>
@@ -2386,14 +2414,54 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ))}
                         </div>
                         <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                          <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            {t('tasks.detail.description', 'Açıklama')}
-                          </div>
-                          <RichTextContent
-                            value={task.description?.trim() ? task.description : detail.description}
-                            emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                            className="rich-text-content text-sm leading-6 text-slate-900"
-                          />
+                          {detail.status === 'Completed' && task.currentStatus === 'Completed' ? (
+                            <div className="grid min-h-full gap-3 lg:grid-cols-2">
+                              <div className="min-w-0 border-b border-slate-200 pb-3 lg:border-b-0 lg:border-r lg:pr-3 lg:pb-0">
+                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  {t('tasks.detail.description', 'Açıklama')}
+                                </div>
+                                <RichTextContent
+                                  value={task.description?.trim() ? task.description : detail.description}
+                                  emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                                  className="rich-text-content text-sm leading-6 text-slate-900"
+                                />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  {t('tasks.detail.attachments', 'Görev Ekleri')}
+                                </div>
+                                {(task.attachments?.length ?? 0) > 0 ? (
+                                  <ul className="space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-4">
+                                    {task.attachments!.map(att => (
+                                      <li key={att.attachmentId}>
+                                        <button
+                                          type="button"
+                                          className="w-full break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                          onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
+                                        >
+                                          {att.fileName}
+                                        </button>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="text-sm text-slate-400">{t('attachments.taskEmpty', 'Görev için ek/fotoğraf bulunmamaktadır.')}</p>
+                                )}
+                                <p className="mt-2 text-xs text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                {t('tasks.detail.description', 'Açıklama')}
+                              </div>
+                              <RichTextContent
+                                value={task.description?.trim() ? task.description : detail.description}
+                                emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                                className="rich-text-content text-sm leading-6 text-slate-900"
+                              />
+                            </>
+                          )}
                         </div>
                       </div>
                     )

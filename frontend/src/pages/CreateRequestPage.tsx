@@ -103,7 +103,7 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   openAddress: '',
 }
 
-const CITIZEN_CHANNELS = ['Facebook', 'Instagram', 'X', 'Email', 'WebForm', 'WhatsApp', 'Other']
+const CITIZEN_CHANNELS = ['WhatsApp', 'Phone', 'Instagram', 'Facebook', 'X', 'Email', 'WebForm', 'EDevlet', 'Other'] as const
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
 function getRequestedOwnerUserIds(
@@ -327,7 +327,7 @@ export function CreateRequestPage() {
 
   // Düzenleme modunda mevcut talep verilerini forma yükle (card 452).
   useEffect(() => {
-    if (!editJobId || editPrefilled) return
+    if (!editJobId || editPrefilled || selectedKind === 'citizen') return
     let cancelled = false
     api.getJobById(editJobId)
       .then(job => {
@@ -366,7 +366,46 @@ export function CreateRequestPage() {
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
     return () => { cancelled = true }
-  }, [editJobId, editPrefilled, t])
+  }, [editJobId, editPrefilled, selectedKind, t])
+
+  const [editSocialMessageId, setEditSocialMessageId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!editJobId || editPrefilled || selectedKind !== 'citizen') return
+    let cancelled = false
+    api.getJobById(editJobId)
+      .then(async job => {
+        if (cancelled || !job?.sourceRefId) return
+        const message = await api.getSocialMessageById(job.sourceRefId)
+        if (cancelled || !message) return
+        const targetIds = (job.departments ?? [])
+          .filter(department => department.role === 'Target')
+          .map(department => department.departmentId)
+        setEditSocialMessageId(message.socialMessageId)
+        setCitizenForm({
+          channel: message.channel,
+          citizenHandle: message.citizenHandle,
+          content: message.content ?? job.description ?? '',
+          category: message.category ?? '',
+          latitude: message.latitude != null ? String(message.latitude) : '',
+          longitude: message.longitude != null ? String(message.longitude) : '',
+          title: job.title,
+          targetDepartmentId: targetIds[0] ?? '',
+          isCoordinated: targetIds.length > 1,
+          coordinatedDepartmentIds: targetIds.slice(1),
+          priority: job.priority,
+          isProject: job.isProject,
+          startDateUtc: job.startDateUtc ?? '',
+          dueDateUtc: job.dueDateUtc ?? '',
+          neighborhood: job.neighborhood ?? '',
+          street: job.street ?? '',
+          openAddress: job.openAddress ?? '',
+        })
+        setEditPrefilled(true)
+      })
+      .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
+    return () => { cancelled = true }
+  }, [editJobId, editPrefilled, selectedKind, t])
 
   useEffect(() => {
     if (editJobId) return // düzenleme modunda sahip birim talepten gelir; varsayılanla ezme.
@@ -450,29 +489,33 @@ export function CreateRequestPage() {
         />
       </div>
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
-      {pendingFiles.length > 0 && (
-        <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {pendingFiles.map((file, idx) => (
-            <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-              {IMAGE_EXTENSIONS.includes(fileExtension(file.name)) ? (
-                <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
-              ) : (
-                <div className="flex h-20 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
-                  <FileText className="size-6" />
-                  <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{file.name}</span>
+      <div className="relative min-h-0">
+        {pendingFiles.length > 0 && (
+          <div className="absolute inset-x-0 top-full z-20 mt-1 max-h-28 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-md">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {pendingFiles.map((file, idx) => (
+                <div key={idx} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                  {IMAGE_EXTENSIONS.includes(fileExtension(file.name)) ? (
+                    <img src={URL.createObjectURL(file)} alt={file.name} className="h-20 w-full object-cover" />
+                  ) : (
+                    <div className="flex h-20 w-full flex-col items-center justify-center gap-1 px-2 text-slate-500">
+                      <FileText className="size-6" />
+                      <span className="line-clamp-2 break-all text-center text-[10px] font-medium leading-tight">{file.name}</span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"
+                    onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                  >
+                    <X className="size-3" />
+                  </button>
                 </div>
-              )}
-              <button
-                type="button"
-                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow transition-opacity group-hover:opacity-100 hover:bg-white"
-                onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
-              >
-                <X className="size-3" />
-              </button>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   )
 
@@ -708,6 +751,38 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      if (editJobId && editSocialMessageId) {
+        await api.updateJob(editJobId, {
+          title: citizenForm.title.trim() || citizenForm.category.trim() || citizenForm.citizenHandle.trim(),
+          description: citizenForm.content.trim(),
+          priority: citizenForm.priority,
+          startDateUtc: toApiDateTime(citizenForm.startDateUtc),
+          dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
+          isProject: citizenForm.isProject,
+          neighborhood: citizenForm.neighborhood || null,
+          street: citizenForm.street || null,
+          openAddress: citizenForm.openAddress || null,
+          targetDepartmentIds: [
+            citizenForm.targetDepartmentId,
+            ...(citizenForm.isCoordinated ? citizenForm.coordinatedDepartmentIds : []),
+          ],
+        })
+        await api.updateSocialMessage(editSocialMessageId, {
+          channel: citizenForm.channel,
+          citizenHandle: citizenForm.citizenHandle.trim(),
+          content: citizenForm.content.trim(),
+          category: citizenForm.category.trim() || undefined,
+          latitude: citizenForm.latitude ? parseFloat(citizenForm.latitude) : undefined,
+          longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
+        })
+        invalidateSocialMessages(queryClient, editSocialMessageId)
+        invalidateJobs(queryClient, editJobId)
+        setCitizenForm(EMPTY_CITIZEN_FORM)
+        setEditSocialMessageId(null)
+        navigate('/social')
+        return
+      }
+
       const socialMessageId = await api.createSocialMessage({
         channel: citizenForm.channel,
         citizenHandle: citizenForm.citizenHandle.trim(),
@@ -1001,7 +1076,7 @@ export function CreateRequestPage() {
             {renderRequestTypeField()}
             <div className="job-field">
               <span className="job-field-label">{t('settings.citizen.channel', 'Kanal')}</span>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {CITIZEN_CHANNELS.map(channel => (
                   <button
                     key={channel}
@@ -1172,7 +1247,7 @@ export function CreateRequestPage() {
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
             </Button>
           </div>
         </form>

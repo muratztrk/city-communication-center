@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Features;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -49,6 +50,8 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         // Group by citizen phone so we can find/create conversation threads
         var byCitizen = newMessages.GroupBy(m => m.CitizenHandle);
         var savedCount = 0;
+        int? nextCitizenRequestNumber = null;
+        var citizenRequestNumberYear = DateTimeOffset.UtcNow.Year;
 
         // Load existing CitizenConversations for all phones in this batch
         var allPhones = byCitizen.Select(g => g.Key).ToArray();
@@ -113,7 +116,11 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         ReceivedAtUtc = msg.ReceivedAtUtc,
                         Status = SocialMessageStatus.New,
                         CitizenConversationId = conversation.CitizenConversationId,
+                        CitizenRequestNumberYear = citizenRequestNumberYear,
+                        CitizenRequestNumber = nextCitizenRequestNumber ??= await SequenceNumberHelper.NextCitizenRequestNumberAsync(
+                            _dbContext, request.TenantId, citizenRequestNumberYear, cancellationToken),
                     };
+                    nextCitizenRequestNumber++;
                     _dbContext.SocialMessages.Add(thread);
                 }
                 else

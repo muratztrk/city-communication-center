@@ -155,6 +155,7 @@
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
+    "edevletActivityPlan": "e-Devlet Günlük Faaliyet Planı Oluştur",
     "createRequest": "Talep Oluştur",
     "createRoutineTask": "Rutin Görev Oluştur",
     "myTasks": "Görevlerim",
@@ -1078,6 +1079,8 @@
         "Email": "E-Posta",
         "WebForm": "Web Formu",
         "WhatsApp": "WhatsApp",
+        "Phone": "Çağrı",
+        "EDevlet": "e-Devlet",
         "Other": "Diğer"
       }
     },
@@ -1149,6 +1152,9 @@
       "Instagram": "Instagram",
       "WhatsApp": "WhatsApp",
       "Phone": "Çağrı",
+      "Email": "e-Posta",
+      "WebForm": "Web Formu",
+      "EDevlet": "e-Devlet",
       "Other": "Diğer"
     },
     "departmentType": {

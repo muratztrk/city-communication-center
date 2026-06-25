@@ -64,7 +64,7 @@ public sealed class SocialWebhooksController : ControllerBase
             string.IsNullOrWhiteSpace(challenge) ||
             !SecretsMatch(settings?.WebhookVerifyToken, verifyToken))
         {
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden);
         }
 
         return Content(challenge, "text/plain", Encoding.UTF8);

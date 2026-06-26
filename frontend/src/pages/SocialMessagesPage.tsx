@@ -39,6 +39,17 @@ function formatCitizenRequestNumber(message: SocialMessage, locale: string) {
   return locale.startsWith('tr') ? `VT-${year}-Onay Bekleyen` : `VT-${year}-Pending Approval`
 }
 
+function formatDateTime(value: string | null | undefined, locale: string): string {
+  if (!value) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
+  return new Date(value).toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 function formatCitizenPhoneDisplay(value: string | null | undefined): string {
   if (!value) return '—'
   const digits = value.replace(/\D/g, '')
@@ -287,13 +298,14 @@ export function SocialMessagesPage() {
     return {
       ...message,
       dueDateUtc,
+      jobNumber: formatCitizenRequestNumber(message, locale),
       citizenName: getSocialMessageCitizenName(message),
       citizenPhone: getSocialMessageCitizenPhone(message),
       whatsAppPhone: getSocialMessageWhatsAppPhone(message),
       priority: linkedJob?.priority ?? '',
       statusSortText: linkedJob ? getLinkedJobDisplayStatus(t, linkedJob, dueDateUtc) : '',
     }
-  }), [messages, jobsById, t])
+  }), [messages, jobsById, locale, t])
 
   const filteredMessages = useMemo(() => {
     const showAllChannels = channelParam === ALL_CHANNELS_FILTER
@@ -348,12 +360,25 @@ export function SocialMessagesPage() {
 
   const columnFilteredMessages = useMemo(
     () => filteredMessages.filter(m => socialMatchesFilters(m, (key, item) => {
-      if (key === 'citizenPhone') {
-        return String((item as Record<string, unknown>).citizenPhone ?? '').replace(/\D/g, '').replace(/^90/, '')
+      const row = item as SocialMessage & {
+        jobNumber?: string
+        citizenPhone?: string
+        dueDateUtc?: string | null
+        statusSortText?: string
       }
+      if (key === 'citizenPhone') {
+        return String(row.citizenPhone ?? '').replace(/\D/g, '').replace(/^90/, '')
+      }
+      if (key === 'jobNumber') return row.jobNumber ?? formatCitizenRequestNumber(row, locale)
+      if (key === 'receivedAtUtc') return formatDateTime(row.receivedAtUtc, locale)
+      if (key === 'dueDateUtc') {
+        if (!row.dueDateUtc) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
+        return formatDateTime(row.dueDateUtc, locale)
+      }
+      if (key === 'channel') return getSocialChannelLabel(t, row.channel)
       return String((item as Record<string, unknown>)[key] ?? '')
     })),
-    [filteredMessages, socialMatchesFilters],
+    [filteredMessages, locale, socialMatchesFilters, t],
   )
 
   useEffect(() => {

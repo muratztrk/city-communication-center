@@ -132,7 +132,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const isEditMode = Boolean(editJobId)
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
-  const [citizenHandle, setCitizenHandle] = useState(() => resolveInitialCitizenName(message))
+  const [citizenHandle, setCitizenHandle] = useState(() => (
+    forceNewRequest && !editJobId ? '' : resolveInitialCitizenName(message)
+  ))
   const [citizenPhone, setCitizenPhone] = useState(() => resolveInitialCitizenPhone(message))
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -165,7 +167,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     setPendingFiles([])
     setFileError(null)
     setError(null)
-    setCitizenHandle(resolveInitialCitizenName(message))
+    setCitizenHandle('')
     setCitizenPhone(resolveInitialCitizenPhone(message))
   }, [forceNewRequest, editJobId, message])
 

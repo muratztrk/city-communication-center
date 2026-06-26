@@ -366,47 +366,51 @@ function ConversationDetail({
 
       {/* Linked ticket actions */}
       {detail && primaryTicket && (
-        <div className="shrink-0 px-4 py-2 border-t border-[color:var(--color-border)] bg-slate-50 space-y-1.5">
+        <div className="shrink-0 px-4 py-3.5 border-t border-[color:var(--color-border)] bg-slate-50 space-y-2.5">
           <div className="flex items-center justify-between gap-3 min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-muted-foreground)] shrink-0">
               {t('whatsapp.tickets')}
             </p>
             {openTicket ? (
-              <div className={`ml-auto flex items-center justify-end gap-1.5 text-[11px] font-semibold text-right ${
-                windowOpen ? 'text-emerald-700' : 'text-amber-700'
-              }`}>
+              <div className="ml-auto flex items-center justify-end gap-1.5 text-[11px] font-semibold text-right text-slate-900">
                 {windowOpen
-                  ? <><Clock className="size-3.5 shrink-0" /> 24 saatlik pencere açık — serbest metin veya şablon gönderebilirsiniz</>
+                  ? <><Clock className="size-3.5 shrink-0" /> 24 saatlik metin veya şablon gönderebilirsiniz</>
                   : <><AlertCircle className="size-3.5 shrink-0" /> 24 saatlik pencere kapalı — yalnızca şablon gönderilebilir</>
                 }
               </div>
             ) : null}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              type="button"
-              variant="success"
-              onClick={() => primaryTicket.jobId
-                ? onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId)
-                : onOpenCreateRequest(primaryTicket.socialMessageId)}
-            >
-              {t('nav.createRequest', 'Talep Oluştur')}
-            </Button>
-            {primaryTicket.jobId ? (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 type="button"
-                variant="secondary"
-                onClick={() => onOpenViewJob(primaryTicket.jobId!)}
+                variant="success"
+                onClick={() => primaryTicket.jobId
+                  ? onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId)
+                  : onOpenCreateRequest(primaryTicket.socialMessageId)}
               >
-                {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
+                {t('nav.createRequest', 'Talep Oluştur')}
               </Button>
-            ) : (
-              <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
-                {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
-              </DisabledActionButton>
-            )}
+              {primaryTicket.jobId ? (
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => onOpenViewJob(primaryTicket.jobId!)}
+                >
+                  {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
+                </Button>
+              ) : (
+                <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
+                  {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
+                </DisabledActionButton>
+              )}
+            </div>
+            <TemplatePicker
+              templates={templates}
+              onSelect={content => setReplyText(content)}
+            />
           </div>
         </div>
       )}
@@ -414,9 +418,9 @@ function ConversationDetail({
       {/* Reply input */}
       {openTicket ? (
         <div className="shrink-0 border-t border-[color:var(--color-border)] bg-slate-50">
-          <div className="flex items-end gap-2 px-3 pt-2 pb-1">
+          <div className="flex items-end gap-2 px-3 pt-2.5 pb-2">
             <textarea
-              rows={1}
+              rows={3}
               value={replyText}
               onChange={e => setReplyText(e.target.value)}
               onKeyDown={e => {
@@ -427,7 +431,7 @@ function ConversationDetail({
               }}
               placeholder={windowOpen ? t('whatsapp.replyPlaceholder') : 'Şablon seçin…'}
               disabled={!windowOpen && templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp')).length === 0}
-              className="field-input flex-1 resize-none min-h-[2.4rem] max-h-28 py-2 text-sm disabled:opacity-50"
+              className="field-input flex-1 resize-none min-h-[5.5rem] max-h-36 py-2 text-sm disabled:opacity-50"
             />
             <Button
               size="sm"
@@ -438,15 +442,11 @@ function ConversationDetail({
               {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
             </Button>
           </div>
-          <div className="flex items-center gap-2 px-3 pb-2">
-            <TemplatePicker
-              templates={templates}
-              onSelect={content => setReplyText(content)}
-            />
-            {!windowOpen && (
+          {!windowOpen ? (
+            <div className="px-3 pb-2">
               <span className="text-[11px] text-amber-600 font-medium">Yalnızca şablon gönderilebilir</span>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="px-4 py-3 border-t border-[color:var(--color-border)] bg-slate-50 shrink-0">

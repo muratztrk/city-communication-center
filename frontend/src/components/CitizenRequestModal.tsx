@@ -338,7 +338,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)]">
           <div className="min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r">
             <ConversationPanel
               socialMessageId={message.socialMessageId}
@@ -433,39 +433,44 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="job-field">
-                  <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
-                  <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
-                </div>
-                <div className="job-field">
-                  <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
-                  <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
-                </div>
-              </div>
-
               <div className="job-field">
                 <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
-                <div className="grid gap-2 md:grid-cols-3">
-                  <input
-                    className="field-input"
-                    placeholder={t('address.neighborhoodLabel', 'Mahalle')}
-                    value={neighborhood}
-                    onChange={event => setNeighborhood(event.target.value)}
-                  />
-                  <input
-                    className="field-input"
-                    placeholder={t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
-                    value={street}
-                    onChange={event => setStreet(event.target.value)}
-                  />
+                <div className="grid gap-2 md:grid-cols-3 md:grid-rows-2 md:items-stretch">
+                  <div className="job-field min-h-0">
+                    <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
+                    <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
+                  </div>
+                  <div className="job-field min-h-0">
+                    <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
+                    <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
+                  </div>
+                  <label className="job-field flex min-h-0 flex-col gap-1 md:row-span-2">
+                    <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+                    <textarea
+                      className="field-textarea min-h-0 flex-1 resize-none"
+                      placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+                      value={openAddress}
+                      onChange={event => setOpenAddress(event.target.value)}
+                    />
+                  </label>
+                  <div className="job-field min-h-0">
+                    <input
+                      className="field-input"
+                      placeholder={t('address.neighborhoodLabel', 'Mahalle')}
+                      value={neighborhood}
+                      onChange={event => setNeighborhood(event.target.value)}
+                    />
+                  </div>
+                  <label className="job-field grid min-h-0 gap-1">
+                    <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                    <input
+                      className="field-input"
+                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                      value={street}
+                      onChange={event => setStreet(event.target.value)}
+                    />
+                  </label>
                 </div>
-                <input
-                  className="field-input mt-2"
-                  placeholder={t('address.openAddressLabel', 'Açık Adres')}
-                  value={openAddress}
-                  onChange={event => setOpenAddress(event.target.value)}
-                />
               </div>
 
               <div className="job-field">

@@ -1085,6 +1085,19 @@
     color: #dc2626;
   }
 
+  .filterable-th--filtered .filterable-th-label {
+    color: #ef4444;
+    font-weight: 800;
+  }
+
+  .data-table thead th.filterable-th--filtered .filterable-th-label {
+    color: #ef4444;
+  }
+
+  .data-table thead th.filterable-th--filtered.sort-active .filterable-th-label {
+    color: #ef4444;
+  }
+
   /* Column filter popover (rendered in a portal on <body>) */
   .col-filter-popover {
     position: fixed;

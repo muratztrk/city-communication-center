@@ -285,22 +285,24 @@ export function EDevletActivityPlanPage() {
           </div>
         </div>
 
-        <div className="job-field">
-          <label className="job-field-label" htmlFor="activity-description">
-            {t('tasks.detail.description', 'Açıklama')}
-            <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 100 karakter)')}</span>
-            <span className="text-red-500"> *</span>
-          </label>
-          <textarea
-            id="activity-description"
-            className="field-textarea min-h-28 w-full text-base leading-relaxed"
-            maxLength={DESCRIPTION_MAX}
-            value={form.description}
-            onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
-            placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
-            required
-          />
-          <Button type="submit" disabled={!canSubmit} className="mt-3 gap-2 self-start">
+        <div className="grid gap-3 lg:grid-cols-2 lg:items-end">
+          <div className="job-field">
+            <label className="job-field-label" htmlFor="activity-description">
+              {t('tasks.detail.description', 'Açıklama')}
+              <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 100 karakter)')}</span>
+              <span className="text-red-500"> *</span>
+            </label>
+            <textarea
+              id="activity-description"
+              className="field-textarea min-h-28 w-full text-base leading-relaxed"
+              maxLength={DESCRIPTION_MAX}
+              value={form.description}
+              onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
+              placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
+              required
+            />
+          </div>
+          <Button type="submit" disabled={!canSubmit} className="min-h-14 w-full gap-2 self-end">
             <Send className="size-4" />
             {submitting
               ? t('common.saving', 'Kaydediliyor...')

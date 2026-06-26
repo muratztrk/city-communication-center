@@ -28,6 +28,12 @@ public sealed class WhatsAppMessageTemplate : AuditableTenantEntity, IHasDatabas
 
     public bool TimedReplyEnabled { get; set; }
 
+    /// <summary>Local date in yyyy-MM-dd format.</summary>
+    public string? TimedReplyStartDate { get; set; }
+
+    /// <summary>Local date in yyyy-MM-dd format.</summary>
+    public string? TimedReplyEndDate { get; set; }
+
     /// <summary>Local time in HH:mm format.</summary>
     public string? TimedReplyStartTime { get; set; }
 

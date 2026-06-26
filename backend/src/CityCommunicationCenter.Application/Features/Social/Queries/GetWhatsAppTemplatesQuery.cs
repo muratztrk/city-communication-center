@@ -42,6 +42,8 @@ public sealed class GetWhatsAppTemplatesQueryHandler
                 t.QueryType,
                 ParseKeywords(t.KeywordsJson),
                 t.TimedReplyEnabled,
+                t.TimedReplyStartDate,
+                t.TimedReplyEndDate,
                 t.TimedReplyStartTime,
                 t.TimedReplyEndTime,
                 ParseKeywords(t.ActiveDaysJson)))

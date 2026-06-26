@@ -419,6 +419,8 @@ export interface WhatsAppMessageTemplate {
   queryType: string;
   keywords: string[];
   timedReplyEnabled: boolean;
+  timedReplyStartDate: string;
+  timedReplyEndDate: string;
   timedReplyStartTime: string;
   timedReplyEndTime: string;
   activeDays: string[];

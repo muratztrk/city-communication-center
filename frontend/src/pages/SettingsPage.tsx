@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { Paintbrush, Settings2, ShieldCheck, UsersRound, CalendarClock, Clock, Save } from 'lucide-react'
+import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +10,7 @@ import { API_ORIGIN } from '../api/config'
 import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
+import { DateTimePicker } from '../components/ui/date-time-picker'
 import { Toast } from '../components/ui/toast'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -218,14 +219,23 @@ const TEMPLATE_WEEKDAY_OPTIONS = [
   { id: 'sunday', label: 'Pazar', group: 'weekend' as const },
 ]
 const ALL_TEMPLATE_WEEKDAYS = TEMPLATE_WEEKDAY_OPTIONS.map(day => day.id)
-const TEMPLATE_WEEKDAY_IDS = TEMPLATE_WEEKDAY_OPTIONS.filter(day => day.group === 'weekday').map(day => day.id)
-const TEMPLATE_WEEKEND_IDS = TEMPLATE_WEEKDAY_OPTIONS.filter(day => day.group === 'weekend').map(day => day.id)
+
+function toTemplateDatePickerValue(value: string | null | undefined): string {
+  if (!value?.trim()) return ''
+  return value.includes('T') ? value : `${value}T00:00`
+}
+
+function fromTemplateDatePickerValue(value: string): string {
+  if (!value.trim()) return ''
+  return value.split('T')[0] ?? ''
+}
 
 const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
   name: '', content: '', isActive: true, channel: 'Genel',
   isGeneral: false, autoReply: false, replyDelaySecs: 30,
   hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [],
-  timedReplyEnabled: false, timedReplyStartTime: '17:30', timedReplyEndTime: '08:30',
+  timedReplyEnabled: false, timedReplyStartDate: '', timedReplyEndDate: '',
+  timedReplyStartTime: '17:30', timedReplyEndTime: '08:30',
   activeDays: [...ALL_TEMPLATE_WEEKDAYS],
 }
 
@@ -963,6 +973,8 @@ export function SettingsPage() {
     setTemplateForm({
       ...EMPTY_TEMPLATE_FORM,
       ...rest,
+      timedReplyStartDate: rest.timedReplyStartDate || '',
+      timedReplyEndDate: rest.timedReplyEndDate || '',
       timedReplyStartTime: rest.timedReplyStartTime || '17:30',
       timedReplyEndTime: rest.timedReplyEndTime || '08:30',
       activeDays: rest.activeDays?.length ? rest.activeDays : [...ALL_TEMPLATE_WEEKDAYS],
@@ -995,15 +1007,6 @@ export function SettingsPage() {
       activeDays: current.activeDays.includes(dayId)
         ? current.activeDays.filter(day => day !== dayId)
         : [...current.activeDays, dayId],
-    }))
-  }
-
-  const setTemplateDayGroup = (dayIds: string[], enabled: boolean) => {
-    setTemplateForm(current => ({
-      ...current,
-      activeDays: enabled
-        ? Array.from(new Set([...current.activeDays, ...dayIds]))
-        : current.activeDays.filter(day => !dayIds.includes(day)),
     }))
   }
 
@@ -2383,11 +2386,35 @@ export function SettingsPage() {
 
                 {templateForm.timedReplyEnabled ? (
                   <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 page-stack">
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                        <span>Başlama Tarihi</span>
+                        <DateTimePicker
+                          value={toTemplateDatePickerValue(templateForm.timedReplyStartDate)}
+                          onChange={value => setTemplateForm(current => ({
+                            ...current,
+                            timedReplyStartDate: fromTemplateDatePickerValue(value),
+                          }))}
+                          placeholder="Başlama tarihi"
+                          forceDown
+                        />
+                      </label>
+                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                        <span>Bitiş Tarihi</span>
+                        <DateTimePicker
+                          value={toTemplateDatePickerValue(templateForm.timedReplyEndDate)}
+                          onChange={value => setTemplateForm(current => ({
+                            ...current,
+                            timedReplyEndDate: fromTemplateDatePickerValue(value),
+                          }))}
+                          placeholder="Bitiş tarihi"
+                          forceDown
+                        />
+                      </label>
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                         <span>Başlama Saati</span>
                         <div className="relative">
-                          <CalendarClock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                          <Clock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                           <input
                             className="field-input pl-10"
                             type="time"
@@ -2411,30 +2438,7 @@ export function SettingsPage() {
                     </div>
 
                     <div className="page-stack">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span className="text-sm font-semibold text-slate-700">Aktif Günler</span>
-                        <button
-                          type="button"
-                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                          onClick={() => setTemplateDayGroup(TEMPLATE_WEEKDAY_IDS, true)}
-                        >
-                          Hafta içi
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                          onClick={() => setTemplateDayGroup(TEMPLATE_WEEKEND_IDS, true)}
-                        >
-                          Hafta sonu
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                          onClick={() => setTemplateForm(current => ({ ...current, activeDays: [...ALL_TEMPLATE_WEEKDAYS] }))}
-                        >
-                          Tüm günler
-                        </button>
-                      </div>
+                      <span className="text-sm font-semibold text-slate-700">Aktif Günler</span>
                       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                         {TEMPLATE_WEEKDAY_OPTIONS.map(day => (
                           <label key={day.id} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">

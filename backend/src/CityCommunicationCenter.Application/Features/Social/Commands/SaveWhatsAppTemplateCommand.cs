@@ -44,6 +44,8 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
             existing.QueryType = request.Data.QueryType;
             existing.KeywordsJson = keywordsJson;
             existing.TimedReplyEnabled = request.Data.TimedReplyEnabled;
+            existing.TimedReplyStartDate = NormalizeDate(request.Data.TimedReplyStartDate);
+            existing.TimedReplyEndDate = NormalizeDate(request.Data.TimedReplyEndDate);
             existing.TimedReplyStartTime = NormalizeTime(request.Data.TimedReplyStartTime);
             existing.TimedReplyEndTime = NormalizeTime(request.Data.TimedReplyEndTime);
             existing.ActiveDaysJson = activeDaysJson;
@@ -69,6 +71,8 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
                 QueryType = request.Data.QueryType,
                 KeywordsJson = keywordsJson,
                 TimedReplyEnabled = request.Data.TimedReplyEnabled,
+                TimedReplyStartDate = NormalizeDate(request.Data.TimedReplyStartDate),
+                TimedReplyEndDate = NormalizeDate(request.Data.TimedReplyEndDate),
                 TimedReplyStartTime = NormalizeTime(request.Data.TimedReplyStartTime),
                 TimedReplyEndTime = NormalizeTime(request.Data.TimedReplyEndTime),
                 ActiveDaysJson = activeDaysJson,
@@ -78,6 +82,16 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
             await _dbContext.SaveChangesAsync(cancellationToken);
             return template.TemplateId;
         }
+    }
+
+    private static string? NormalizeDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var trimmed = value.Trim();
+        var datePart = trimmed.Split('T', StringSplitOptions.RemoveEmptyEntries)[0];
+        return string.IsNullOrWhiteSpace(datePart) ? null : datePart;
     }
 
     private static string? NormalizeTime(string? value)

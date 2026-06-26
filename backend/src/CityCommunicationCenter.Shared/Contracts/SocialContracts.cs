@@ -216,6 +216,8 @@ public sealed record WhatsAppMessageTemplateDto(
     string QueryType,
     IReadOnlyList<string> Keywords,
     bool TimedReplyEnabled,
+    string? TimedReplyStartDate,
+    string? TimedReplyEndDate,
     string? TimedReplyStartTime,
     string? TimedReplyEndTime,
     IReadOnlyList<string> ActiveDays);
@@ -232,6 +234,8 @@ public sealed record WhatsAppMessageTemplateRequest(
     string QueryType,
     IReadOnlyList<string> Keywords,
     bool TimedReplyEnabled,
+    string? TimedReplyStartDate,
+    string? TimedReplyEndDate,
     string? TimedReplyStartTime,
     string? TimedReplyEndTime,
     IReadOnlyList<string> ActiveDays);

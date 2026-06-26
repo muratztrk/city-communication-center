@@ -1053,7 +1053,7 @@
       "citizenHandle": "Citizen / Sender",
       "citizenName": "Citizen Name / Sender",
       "citizenNamePlaceholder": "Citizen name",
-      "citizenPhone": "Citizen Phone Number",
+      "citizenPhone": "Citizen Phone No",
       "citizenPhoneHint": "(without leading 0)",
       "citizenPhoneInvalid": "Citizen phone number must be 10 digits.",
       "citizenHandlePlaceholder": "e.g. @username or full name",

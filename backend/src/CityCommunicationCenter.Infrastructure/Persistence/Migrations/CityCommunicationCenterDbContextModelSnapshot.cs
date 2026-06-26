@@ -1703,9 +1703,17 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("timedreplyenabled");
 
+                    b.Property<string>("TimedReplyEndDate")
+                        .HasColumnType("text")
+                        .HasColumnName("timedreplyenddate");
+
                     b.Property<string>("TimedReplyEndTime")
                         .HasColumnType("text")
                         .HasColumnName("timedreplyendtime");
+
+                    b.Property<string>("TimedReplyStartDate")
+                        .HasColumnType("text")
+                        .HasColumnName("timedreplystartdate");
 
                     b.Property<string>("TimedReplyStartTime")
                         .HasColumnType("text")

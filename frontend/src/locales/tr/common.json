@@ -1081,7 +1081,7 @@
       "citizenHandle": "Vatandaş / Gönderen",
       "citizenName": "Vatandaş İsmi / Gönderen",
       "citizenNamePlaceholder": "Vatandaş ismi",
-      "citizenPhone": "Vatandaş Telefon Numarası",
+      "citizenPhone": "Vatandaş Telefon No",
       "citizenPhoneHint": "(Başında 0 olmadan ekleyin)",
       "citizenPhoneInvalid": "Vatandaş telefon numarası 10 haneli olmalıdır.",
       "citizenHandlePlaceholder": "Vatandaş ismi ya da Telefon Numarası",

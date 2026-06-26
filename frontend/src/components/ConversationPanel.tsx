@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Send, X, Loader2 } from 'lucide-react'
+import { CalendarClock, Loader2, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { SocialConversationEntry } from '../types/platform'
@@ -8,6 +8,7 @@ import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
+import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { getLocale } from '../utils/localization'
 import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
@@ -60,7 +61,8 @@ function EntryBubble({
         {isPlaceholderBracketContent(entry.content) && !hasMedia && (
           <p className="italic opacity-70 text-xs">{formatBracketContent(entry.content)}</p>
         )}
-        <p className={`mt-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'} text-right`}>
+        <p className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
+          <CalendarClock className="size-3 shrink-0" />
           {new Date(entry.sentAt).toLocaleString(getLocale(i18n.language), { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
         </p>
       </div>
@@ -79,7 +81,12 @@ export function ConversationPanel({ socialMessageId, citizenHandle, onClose, can
     queryKey: queryKeys.socialMessages.conversation(socialMessageId),
     queryFn: () => api.getSocialConversation(socialMessageId),
   })
+  const templatesQuery = useQuery({
+    queryKey: queryKeys.whatsappTemplates.list(),
+    queryFn: () => api.getWhatsAppTemplates(),
+  })
   const entries = useMemo(() => conversationQuery.data ?? [], [conversationQuery.data])
+  const templates = templatesQuery.data ?? []
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -152,8 +159,12 @@ export function ConversationPanel({ socialMessageId, citizenHandle, onClose, can
             onChange={e => setReplyText(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}
             placeholder={t('social.replyPlaceholder', 'Yanıt yaz…')}
-            className="field-input flex-1 resize-none min-h-[2.4rem] max-h-28 py-2 text-sm"
+            className="field-input min-w-0 flex-1 resize-none min-h-[2.4rem] max-h-28 max-w-[calc(100%-7.5rem)] py-2 text-sm"
             style={{ height: 'auto' }}
+          />
+          <WhatsAppTemplatePicker
+            templates={templates}
+            onSelect={content => setReplyText(content)}
           />
           <Button size="sm" onClick={() => void handleSend()} disabled={!replyText.trim() || sending} className="shrink-0 self-end">
             {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}

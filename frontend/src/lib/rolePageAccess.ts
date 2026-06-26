@@ -36,7 +36,7 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
         || EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
       return pages
     }
-    if (role === 'Operator') {
+    if (role === 'Operator' || role === 'Manager' || role === 'Staff' || role === 'Reporter') {
       pages[page.key] = page.key !== 'settings'
         && page.key !== 'edevletActivityPlan'
         && page.key !== 'edevletActivityPlansList'
@@ -72,7 +72,7 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       matrix[role].edevletActivityPlan = true
       matrix[role].edevletActivityPlansList = true
     }
-    if (role === 'Operator') {
+    if (role === 'Operator' || role === 'Manager' || role === 'Staff' || role === 'Reporter') {
       matrix[role].edevletActivityPlan = false
       matrix[role].edevletActivityPlansList = false
     }
@@ -115,9 +115,17 @@ export function canRoleAccessPage(role: string | undefined, pageKey: PageAccessK
 
 export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | undefined, pageKey: PageAccessKey): boolean {
   const matrix = loadRolePageAccessMatrix()
-  return (roles ?? [])
+  const effectiveRoles = (roles ?? [])
     .filter((role): role is RoleCode => !!role && isRoleCode(role))
-    .some(role => matrix[role][pageKey])
+
+  if (EDEVLET_ROLE_PAGE_KEYS.includes(pageKey as typeof EDEVLET_ROLE_PAGE_KEYS[number])) {
+    if (effectiveRoles.includes('SystemAdmin')) {
+      return matrix.SystemAdmin[pageKey]
+    }
+    return effectiveRoles.includes('EDevletActivityPlan')
+  }
+
+  return effectiveRoles.some(role => matrix[role][pageKey])
 }
 
 export function getEffectiveUserRoles(user: { role?: string; additionalRoles?: string[] } | null | undefined): string[] {

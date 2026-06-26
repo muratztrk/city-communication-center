@@ -276,7 +276,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
     if (!confirmedSubmit) {
       setConfirmDialog({
-        title: t('jobs.detail.citizenRequest', 'Vatandaş Talebi'),
+        title: isEditMode ? 'Vatandaş Talebi Güncelle' : 'Vatandaş Talebi Oluştur',
         message: isEditMode
           ? t('requests.create.confirmUpdate', 'Bu talebi güncellemek istediğinize emin misiniz?')
           : t('requests.create.confirmCreate', 'Bu talebi oluşturmak istediğinize emin misiniz?'),

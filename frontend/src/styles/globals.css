@@ -370,7 +370,21 @@
     .app-content-shell .my-tasks-all-table thead th {
       white-space: nowrap;
       overflow-wrap: normal;
-      line-height: 1.2;
+      line-height: 1.1;
+      padding-top: 0.48rem;
+      padding-bottom: 0.48rem;
+      vertical-align: middle;
+    }
+
+    .app-content-shell .my-tasks-table .filterable-th-content,
+    .app-content-shell .my-tasks-all-table .filterable-th-content {
+      min-height: 0;
+      align-items: center;
+    }
+
+    .app-content-shell .my-tasks-table .col-filter-btn,
+    .app-content-shell .my-tasks-all-table .col-filter-btn {
+      padding: 0 2px;
     }
 
     /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon
@@ -956,6 +970,23 @@
 
   .my-requests-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+  }
+
+  .my-tasks-table thead th {
+    position: static;
+    top: auto;
+    background: transparent;
+    border-right-color: rgba(255, 255, 255, 0.22);
+    color: white;
+  }
+
+  .my-tasks-table thead {
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+  }
+
+  .my-tasks-table thead th.sortable-th:hover,
+  .my-tasks-table thead th.sort-active {
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .my-requests-table thead th.sortable-th:hover,

@@ -759,6 +759,25 @@ export function CreateRequestPage() {
       setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
       return
     }
+    if (confirmedKind !== 'citizen') {
+      const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
+      setConfirmDialog({
+        title: editJobId && linkedSocialMessageId ? 'Vatandaş Talebi Güncelle' : 'Vatandaş Talebi Oluştur',
+        message: editJobId && linkedSocialMessageId
+          ? 'Bu talebi güncellemek istediğinize emin misiniz?'
+          : 'Bu talebi oluşturmak istediğinize emin misiniz?',
+        titleCompact: true,
+        titleDivider: true,
+        confirmLabel: editJobId && linkedSocialMessageId ? 'Güncelle' : 'Talep Oluştur',
+        cancelLabel: 'İptal',
+        variant: 'success',
+        onConfirm: () => {
+          setConfirmedKind('citizen')
+          window.setTimeout(() => (document.getElementById('citizen-request-form') as HTMLFormElement | null)?.requestSubmit(), 0)
+        },
+      })
+      return
+    }
 
     setSaving(true)
     setError(null)
@@ -830,6 +849,7 @@ export function CreateRequestPage() {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setSaving(false)
+      setConfirmedKind(null)
     }
   }
 
@@ -1055,7 +1075,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'citizen' ? (
-        <form className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
+        <form id="citizen-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.citizenFormTitle', 'Vatandaş Talebi Oluştur')}</h2>
             <p className="helper-copy">{t('settings.citizen.sectionDescription', 'Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.')}</p>

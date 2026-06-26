@@ -340,7 +340,7 @@ function ConversationDetail({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[color:var(--color-border)] bg-[color:var(--color-surface)] shrink-0">
+      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[color:var(--color-border)] bg-slate-50 shrink-0">
         {detail ? (
           <div className="min-w-0">
             <p className="font-bold text-sm text-[color:var(--color-foreground)] truncate">
@@ -402,7 +402,7 @@ function ConversationDetail({
 
       {/* Linked ticket actions */}
       {detail && primaryTicket && (
-        <div className="shrink-0 px-4 py-2 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] space-y-1.5">
+        <div className="shrink-0 px-4 py-2 border-t border-[color:var(--color-border)] bg-slate-50 space-y-1.5">
           <p className="text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-muted-foreground)]">
             {t('whatsapp.tickets')}
           </p>
@@ -451,7 +451,7 @@ function ConversationDetail({
 
       {/* Reply input */}
       {openTicket ? (
-        <div className="shrink-0 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
+        <div className="shrink-0 border-t border-[color:var(--color-border)] bg-slate-50">
           <div className="flex items-end gap-2 px-3 pt-2 pb-1">
             <textarea
               rows={1}
@@ -487,7 +487,7 @@ function ConversationDetail({
           </div>
         </div>
       ) : (
-        <div className="px-4 py-3 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] shrink-0">
+        <div className="px-4 py-3 border-t border-[color:var(--color-border)] bg-slate-50 shrink-0">
           <p className="text-xs text-[color:var(--color-muted-foreground)] text-center">{t('whatsapp.noTickets')}</p>
         </div>
       )}
@@ -632,9 +632,9 @@ export function WhatsAppConversationsPage() {
       </header>
 
       {/* Split panel layout */}
-      <div className="flex flex-1 min-h-0 overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
+      <div className="flex flex-1 min-h-0 overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-slate-50">
         {/* Left: conversation list */}
-        <div className="w-80 shrink-0 flex flex-col border-r border-[color:var(--color-border)]">
+        <div className="w-80 shrink-0 flex flex-col border-r border-[color:var(--color-border)] bg-slate-50">
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-32">
@@ -658,7 +658,7 @@ export function WhatsAppConversationsPage() {
         </div>
 
         {/* Right: conversation detail */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 bg-slate-50">
           {selectedId ? (
             <ConversationDetail
               key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}`}

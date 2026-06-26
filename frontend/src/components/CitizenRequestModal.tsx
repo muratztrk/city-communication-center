@@ -372,7 +372,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                 </label>
                 <label className="job-field">
                   <span className="job-field-label">
-                    {t('settings.citizen.citizenPhone', 'Vatandaş Telefon Numarası (Başında 0 olmadan ekleyin)')}{' '}
+                    {t('settings.citizen.citizenPhone', 'Vatandaş Telefon Numarası')}{' '}
+                    <span className="text-xs font-normal text-slate-400">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </span>
                   <input

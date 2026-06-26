@@ -98,6 +98,12 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 .Where(id => id != Guid.Empty && id != job.OwnerDepartmentId)
                 .Distinct()
                 .ToArray();
+            if (newTargetIds.Length > 1)
+            {
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(nameof(request.TargetDepartmentIds), "Talep icin yalnizca bir hedef birim secilebilir.")
+                ]);
+            }
             var existingTargets = await _dbContext.JobDepartments
                 .Where(jd => jd.JobId == job.JobId && jd.TenantId == tenantId && jd.Role == JobDepartmentRole.Target)
                 .ToListAsync(cancellationToken);
@@ -117,7 +123,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                     CreatedByUserId = actor.UserId,
                 });
             }
-            job.IsCoordinated = newTargetIds.Length > 1;
+            job.IsCoordinated = false;
         }
 
         _dbContext.AuditLogs.Add(new AuditLog

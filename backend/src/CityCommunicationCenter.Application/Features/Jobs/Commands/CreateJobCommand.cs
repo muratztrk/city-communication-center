@@ -128,6 +128,16 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             throw Validation(nameof(request.TargetDepartmentIds), "Birim dışı talep için sahip birimden farklı bir hedef birim seçilmelidir.");
         }
 
+        if (targets.Length > 1)
+        {
+            throw Validation(nameof(request.TargetDepartmentIds), "Talep icin yalnizca bir hedef birim secilebilir.");
+        }
+
+        if (ownerUserIds.Length > 1)
+        {
+            throw Validation(nameof(request.OwnerUserIds), "Talep icin yalnizca bir gorev sahibi secilebilir.");
+        }
+
         var sourceType = Enum.TryParse<JobSourceType>(request.SourceType, true, out var st) ? st : JobSourceType.Manual;
         var requestType = Enum.TryParse<JobRequestType>(request.RequestType, true, out var rt)
             ? rt

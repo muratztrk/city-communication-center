@@ -1260,7 +1260,7 @@
     }
   },
   "jobs": {
-    "subtitle": "Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.",
+    "subtitle": "Birim dışı gelen talepleri izleyin ve görevleri takip edin.",
     "myRequestsKicker": "Talep Takibi",
     "myRequestsSubtitle": "Oluşturduğunuz talepleri durumlarına göre takip edin.",
     "outgoingSubtitle": "Biriminizden diğer birimlere gönderilen talepleri durumlarına göre takip edin.",

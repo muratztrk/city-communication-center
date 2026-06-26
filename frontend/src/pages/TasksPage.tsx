@@ -1699,12 +1699,6 @@ const pageKicker = isMyTasksView
                     const fulfillingJobDepartment = parentJobDetail.departments.find(
                       dept => dept.departmentId === taskDetail.assignedDepartmentId,
                     )
-                    const coordinatingDepartmentNames = parentJobDetail.departments
-                      .filter(department =>
-                        (department.role === 'Target' || department.role === 'Coordinating')
-                        && department.departmentId !== taskDetail.assignedDepartmentId)
-                      .map(department => department.departmentName)
-                      .filter((name): name is string => Boolean(name))
                     const leftFields = [
                       {
                         label: 'Talep No',
@@ -1727,12 +1721,6 @@ const pageKicker = isMyTasksView
                       },
                       // Öncelik, "Proje mi"nin alt satırına alındı (card 6a397fac).
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
-                      ...(coordinatingDepartmentNames.length > 0
-                        ? [{
-                            label: 'Koordine Departmanlar',
-                            value: coordinatingDepartmentNames.join(', '),
-                          }]
-                        : []),
                     ]
                     const rightFields = [
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },

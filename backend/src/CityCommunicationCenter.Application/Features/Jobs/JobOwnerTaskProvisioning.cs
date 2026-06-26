@@ -30,6 +30,10 @@ internal static class JobOwnerTaskProvisioning
         CancellationToken cancellationToken)
     {
         var ownerUserIds = await GetRequestedOwnerUserIdsAsync(dbContext, job.JobId, cancellationToken);
+        if (ownerUserIds.Length > 1)
+        {
+            ownerUserIds = [ownerUserIds[0]];
+        }
         if (ownerUserIds.Length == 0) return 0;
 
         var ownerUsers = await dbContext.Users

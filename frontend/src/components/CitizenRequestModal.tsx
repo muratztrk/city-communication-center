@@ -10,7 +10,6 @@ import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { DateTimePicker } from './ui/date-time-picker'
-import { MultiSelectDropdown } from './ui/multi-select-dropdown'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { ConversationPanel } from './ConversationPanel'
 import type { Department, SocialMessage } from '../types/platform'
@@ -58,8 +57,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
   const [title, setTitle] = useState(message.category?.trim() || `@${message.citizenHandle}`)
   const [description, setDescription] = useState(message.content ? `<p>${escapeHtml(message.content)}</p>` : '')
   const [targetDepartmentId, setTargetDepartmentId] = useState('')
-  const [isCoordinated, setIsCoordinated] = useState(false)
-  const [coordinatedDepartmentIds, setCoordinatedDepartmentIds] = useState<string[]>([])
   const [priority, setPriority] = useState('Normal')
   const [isProject, setIsProject] = useState(false)
   const [startDateUtc, setStartDateUtc] = useState('')
@@ -90,8 +87,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         setTitle(job.title)
         setDescription(job.description ?? (message.content ? `<p>${escapeHtml(message.content)}</p>` : ''))
         setTargetDepartmentId(targetIds[0] ?? '')
-        setIsCoordinated(targetIds.length > 1)
-        setCoordinatedDepartmentIds(targetIds.slice(1))
         setPriority(job.priority)
         setIsProject(job.isProject)
         setStartDateUtc(job.startDateUtc ?? '')
@@ -120,16 +115,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
       && !isPresidencyLevelDepartment(department)),
     [departments, ownerDepartmentId],
   )
-  const coordinatedDepartmentOptions = useMemo(
-    () => departments
-      .filter(department =>
-        department.departmentId !== ownerDepartmentId
-        && department.departmentId !== targetDepartmentId
-        && !isPresidencyLevelDepartment(department))
-      .map(department => ({ value: department.departmentId, label: department.name })),
-    [departments, ownerDepartmentId, targetDepartmentId],
-  )
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!ownerDepartmentId) {
@@ -180,7 +165,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
           neighborhood: neighborhood || null,
           street: street || null,
           openAddress: openAddress || null,
-          targetDepartmentIds: [targetDepartmentId, ...(isCoordinated ? coordinatedDepartmentIds : [])],
+          targetDepartmentIds: [targetDepartmentId],
         })
         await api.updateSocialMessage(message.socialMessageId, {
           channel: message.channel,
@@ -202,7 +187,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         ownerDepartmentId,
         priority,
         requestType: 'ExternalUnit',
-        targetDepartmentIds: [targetDepartmentId, ...(isCoordinated ? coordinatedDepartmentIds : [])],
+        targetDepartmentIds: [targetDepartmentId],
         isProject,
         startDateUtc: toApiDateTime(startDateUtc),
         dueDateUtc: toApiDateTime(dueDateUtc),
@@ -307,39 +292,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                   </select>
                 </div>
               </div>
-
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-req-coordinated">
-                  {t('jobs.form.isCoordinated', 'Koordineli talep mi?')}
-                </label>
-                <select
-                  id="citizen-req-coordinated"
-                  className="field-select"
-                  value={isCoordinated ? 'yes' : 'no'}
-                  onChange={event => {
-                    const next = event.target.value === 'yes'
-                    setIsCoordinated(next)
-                    if (!next) setCoordinatedDepartmentIds([])
-                  }}
-                >
-                  <option value="no">{t('common.no', 'Hayır')}</option>
-                  <option value="yes">{t('common.yes', 'Evet')}</option>
-                </select>
-              </div>
-
-              {isCoordinated ? (
-                <div className="job-field">
-                  <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
-                  <MultiSelectDropdown
-                    options={coordinatedDepartmentOptions}
-                    value={coordinatedDepartmentIds}
-                    onChange={setCoordinatedDepartmentIds}
-                    placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
-                    emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                  />
-                  <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
-                </div>
-              ) : null}
 
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="job-field">

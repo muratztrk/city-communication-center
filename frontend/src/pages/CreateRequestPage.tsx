@@ -9,7 +9,6 @@ import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
-import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { useAuth } from '../context/AuthContext'
@@ -26,7 +25,7 @@ interface InternalFormState {
   dueDateUtc: string
   isProject: boolean
   ownerDepartmentId: string
-  /** Her string bir görev-atama satırı; boş string = havuz görevi */
+  /** Tek görev sahibi; boş string = birim havuzu */
   ownerUserIds: string[]
   neighborhood: string
   street: string
@@ -36,8 +35,6 @@ interface InternalFormState {
 interface ExternalFormState extends InternalFormState {
   ownerDepartmentId: string
   targetDepartmentId: string
-  isCoordinated: boolean
-  coordinatedDepartmentIds: string[]
   startDateUtc: string
 }
 
@@ -50,8 +47,6 @@ interface CitizenFormState {
   longitude: string
   title: string
   targetDepartmentId: string
-  isCoordinated: boolean
-  coordinatedDepartmentIds: string[]
   priority: string
   isProject: boolean
   startDateUtc: string
@@ -78,8 +73,6 @@ const EMPTY_EXTERNAL_FORM: ExternalFormState = {
   ...EMPTY_INTERNAL_FORM,
   ownerDepartmentId: '',
   targetDepartmentId: '',
-  isCoordinated: false,
-  coordinatedDepartmentIds: [],
   startDateUtc: '',
 }
 
@@ -92,8 +85,6 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   longitude: '',
   title: '',
   targetDepartmentId: '',
-  isCoordinated: false,
-  coordinatedDepartmentIds: [],
   priority: 'Normal',
   isProject: false,
   startDateUtc: '',
@@ -232,27 +223,11 @@ export function CreateRequestPage() {
       && !isPresidencyLevelDepartment(department))
   }, [departments, externalForm.ownerDepartmentId])
 
-  const coordinatedDepartmentOptions = useMemo(() => {
-    return departments.filter(department =>
-      department.departmentId !== externalForm.ownerDepartmentId
-      && department.departmentId !== externalForm.targetDepartmentId
-      && !isPresidencyLevelDepartment(department))
-  }, [departments, externalForm.ownerDepartmentId, externalForm.targetDepartmentId])
-
   const citizenTargetDepartmentOptions = useMemo(() => {
     return departments.filter(department =>
       department.departmentId !== myDepartmentId
       && !isPresidencyLevelDepartment(department))
   }, [departments, myDepartmentId])
-
-  const citizenCoordinatedDepartmentOptions = useMemo(() => {
-    return departments
-      .filter(department =>
-        department.departmentId !== myDepartmentId
-        && department.departmentId !== citizenForm.targetDepartmentId
-        && !isPresidencyLevelDepartment(department))
-      .map(department => ({ value: department.departmentId, label: department.name }))
-  }, [departments, myDepartmentId, citizenForm.targetDepartmentId])
 
   // Birim İçi talepte "Görev Sahibi Kişi/Birim": yalnızca birim yöneticisi/sorumlusu,
   // kendisi dahil birimin tüm personellerini görev sahibi olarak seçebilir.
@@ -351,8 +326,6 @@ export function CreateRequestPage() {
             ...common,
             startDateUtc: job.startDateUtc ?? '',
             targetDepartmentId: targetIds[0] ?? '',
-            coordinatedDepartmentIds: targetIds.slice(1),
-            isCoordinated: targetIds.length > 1,
           }))
         } else {
           setInternalForm(current => ({
@@ -390,8 +363,6 @@ export function CreateRequestPage() {
           longitude: message.longitude != null ? String(message.longitude) : '',
           title: job.title,
           targetDepartmentId: targetIds[0] ?? '',
-          isCoordinated: targetIds.length > 1,
-          coordinatedDepartmentIds: targetIds.slice(1),
           priority: job.priority,
           isProject: job.isProject,
           startDateUtc: job.startDateUtc ?? '',
@@ -571,9 +542,9 @@ export function CreateRequestPage() {
       setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
       return
     }
-    // Yönetici/sorumlu için personel seçimi zorunludur (en az bir kişi).
+    // Yönetici/sorumlu için personel seçimi zorunludur (tek kişi).
     if (isManagerLike && internalForm.ownerUserIds.filter(id => id.trim() !== '').length === 0) {
-      setError(t('tasks.newRequest.ownerUserRequired', 'Lütfen en az bir personel seçiniz.'))
+      setError(t('tasks.newRequest.ownerUserRequired', 'Lütfen bir personel seçiniz.'))
       return
     }
     if (confirmedKind !== 'internal') {
@@ -672,10 +643,7 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
-      const targetDepartmentIds = [
-        externalForm.targetDepartmentId,
-        ...(externalForm.isCoordinated ? externalForm.coordinatedDepartmentIds : []),
-      ]
+      const targetDepartmentIds = [externalForm.targetDepartmentId]
       if (editJobId) {
         await api.updateJob(editJobId, {
           title: externalForm.title.trim(),
@@ -756,10 +724,7 @@ export function CreateRequestPage() {
           neighborhood: citizenForm.neighborhood || null,
           street: citizenForm.street || null,
           openAddress: citizenForm.openAddress || null,
-          targetDepartmentIds: [
-            citizenForm.targetDepartmentId,
-            ...(citizenForm.isCoordinated ? citizenForm.coordinatedDepartmentIds : []),
-          ],
+          targetDepartmentIds: [citizenForm.targetDepartmentId],
         })
         await api.updateSocialMessage(editSocialMessageId, {
           channel: citizenForm.channel,
@@ -791,10 +756,7 @@ export function CreateRequestPage() {
         ownerDepartmentId: myDepartmentId,
         priority: citizenForm.priority,
         requestType: 'ExternalUnit',
-        targetDepartmentIds: [
-          citizenForm.targetDepartmentId,
-          ...(citizenForm.isCoordinated ? citizenForm.coordinatedDepartmentIds : []),
-        ],
+        targetDepartmentIds: [citizenForm.targetDepartmentId],
         isProject: citizenForm.isProject,
         startDateUtc: toApiDateTime(citizenForm.startDateUtc),
         dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
@@ -919,14 +881,17 @@ export function CreateRequestPage() {
                 {isManagerLike && <span className="text-red-500"> *</span>}
               </span>
               {isManagerLike ? (
-                // Yönetici/sorumlu birden fazla personel seçebilir (1 talep → birden çok görev).
-                <MultiSelectDropdown
-                  options={internalOwnerUserOptions.map(option => ({ value: option.userId, label: option.displayName }))}
-                  value={internalForm.ownerUserIds.filter(id => id.trim() !== '')}
-                  onChange={ids => setInternalForm(current => ({ ...current, ownerUserIds: ids.length > 0 ? ids : [''] }))}
-                  placeholder={t('tasks.newRequest.selectStaff', 'Personel seçiniz')}
-                  emptyText={t('tasks.newRequest.noStaff', 'Personel bulunamadı')}
-                />
+                <select
+                  className="field-select"
+                  value={internalForm.ownerUserIds[0] ?? ''}
+                  onChange={e => setInternalForm(current => ({ ...current, ownerUserIds: e.target.value ? [e.target.value] : [''] }))}
+                  required
+                >
+                  <option value="">{t('tasks.newRequest.selectStaff', 'Personel seçiniz')}</option>
+                  {internalOwnerUserOptions.map(option => (
+                    <option key={option.userId} value={option.userId}>{option.displayName}</option>
+                  ))}
+                </select>
               ) : (
                 <select
                   className="field-select"
@@ -986,35 +951,6 @@ export function CreateRequestPage() {
                 ))}
               </select>
             </div>
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="request-is-coordinated">{t('jobs.form.isCoordinated', 'Koordineli talep mi?')}</label>
-              <select
-                id="request-is-coordinated"
-                className="field-select"
-                value={externalForm.isCoordinated ? 'yes' : 'no'}
-                onChange={e => setExternalForm(current => ({
-                  ...current,
-                  isCoordinated: e.target.value === 'yes',
-                  coordinatedDepartmentIds: e.target.value === 'yes' ? current.coordinatedDepartmentIds : [],
-                }))}
-              >
-                <option value="no">{t('common.no', 'Hayır')}</option>
-                <option value="yes">{t('common.yes', 'Evet')}</option>
-              </select>
-            </div>
-            {externalForm.isCoordinated ? (
-              <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
-                <MultiSelectDropdown
-                  options={coordinatedDepartmentOptions.map(d => ({ value: d.departmentId, label: d.name }))}
-                  value={externalForm.coordinatedDepartmentIds}
-                  onChange={coordinatedDepartmentIds => setExternalForm(current => ({ ...current, coordinatedDepartmentIds }))}
-                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
-                  emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                />
-                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
-              </div>
-            ) : null}
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-priority">{t('jobs.form.priority')}</label>
@@ -1086,35 +1022,6 @@ export function CreateRequestPage() {
                 ))}
               </select>
             </div>
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="citizen-request-is-coordinated">{t('jobs.form.isCoordinated', 'Koordineli talep mi?')}</label>
-              <select
-                id="citizen-request-is-coordinated"
-                className="field-select"
-                value={citizenForm.isCoordinated ? 'yes' : 'no'}
-                onChange={event => setCitizenForm(current => ({
-                  ...current,
-                  isCoordinated: event.target.value === 'yes',
-                  coordinatedDepartmentIds: event.target.value === 'yes' ? current.coordinatedDepartmentIds : [],
-                }))}
-              >
-                <option value="no">{t('common.no', 'Hayır')}</option>
-                <option value="yes">{t('common.yes', 'Evet')}</option>
-              </select>
-            </div>
-            {citizenForm.isCoordinated ? (
-              <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.coordinatedDepartments', 'Koordine Departmanlar')}</span>
-                <MultiSelectDropdown
-                  options={citizenCoordinatedDepartmentOptions}
-                  value={citizenForm.coordinatedDepartmentIds}
-                  onChange={coordinatedDepartmentIds => setCitizenForm(current => ({ ...current, coordinatedDepartmentIds }))}
-                  placeholder={t('requests.create.coordinatedDepartmentsPlaceholder', 'Koordine Departman seçin')}
-                  emptyText={t('requests.create.coordinatedDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                />
-                <span className="helper-copy">{t('jobs.form.coordinatedDepartmentsHelp', 'Koordineli olarak dahil edilecek ek departmanlar.')}</span>
-              </div>
-            ) : null}
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="citizen-request-priority">{t('jobs.form.priority', 'Öncelik')}</label>

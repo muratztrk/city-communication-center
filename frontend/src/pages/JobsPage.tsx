@@ -24,7 +24,6 @@ import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
-import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
@@ -583,8 +582,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   } | null>(null)
   const [editSaving, setEditSaving] = useState(false)
   const [detailDueDateEdit, setDetailDueDateEdit] = useState<{ jobId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
-  const [coordinatingDepartmentIds, setCoordinatingDepartmentIds] = useState<string[]>([])
-  const [coordinatingSaving, setCoordinatingSaving] = useState(false)
   const [managerNoteDraft, setManagerNoteDraft] = useState('')
   const [managerNoteSaving, setManagerNoteSaving] = useState(false)
   const [managerNoteSaved, setManagerNoteSaved] = useState(false)
@@ -973,7 +970,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const openDetail = async (jobId: string) => {
     setDetailLoading(true)
-    setCoordinatingDepartmentIds([])
     try {
       const d = await api.getJobById(jobId)
       setDetail(d)
@@ -1116,30 +1112,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         ))}
       </dl>
     )
-  }
-
-  const coordinatingDepartmentOptions = useMemo(() => {
-    const existingIds = new Set(detail?.departments.map(department => department.departmentId) ?? [])
-    return departments
-      .filter(department => !existingIds.has(department.departmentId))
-      .map(department => ({ value: department.departmentId, label: department.name }))
-      .sort((a, b) => a.label.localeCompare(b.label, locale))
-  }, [departments, detail?.departments, locale])
-
-  const handleAddCoordinatingDepartments = async () => {
-    if (!detail || coordinatingDepartmentIds.length === 0) return
-    setCoordinatingSaving(true)
-    setError(null)
-    try {
-      await api.addJobCoordinatingDepartments(detail.jobId, coordinatingDepartmentIds)
-      invalidateJobs(queryClient, detail.jobId)
-      setCoordinatingDepartmentIds([])
-      await refreshDetail()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-    } finally {
-      setCoordinatingSaving(false)
-    }
   }
 
   const handleDownloadTaskAttachment = async (attachmentId: string, fileName: string) => {
@@ -1411,7 +1383,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 ? t('jobs.myRequestsSubtitle', 'Oluşturduğunuz talepleri durumlarına göre takip edin.')
                 : isDepartmentOutgoingView
                   ? t('jobs.outgoingSubtitle', 'Biriminizden diğer birimlere gönderilen talepleri durumlarına göre takip edin.')
-                  : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin, koordine müdürlükleri yönetin ve görevleri takip edin.')}
+                  : t('jobs.subtitle', 'Birim dışı gelen talepleri izleyin ve görevleri takip edin.')}
             </p>
           </div>
           <div className="ml-auto mt-auto shrink-0">
@@ -1967,39 +1939,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
-                  <div className={`mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
-                    {/* 1. sütun: Koordine Departman Ekle (card 436). Talep iptal/tamamlanmış/reddedilmişse
-                        (kapanmış) koordine departman eklenemez; seçim ve buton pasif (card 761). */}
-                    {(() => {
-                      const isClosedRequest = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'
-                      return (
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">Koordine Departman Ekle</h3>
-                      <MultiSelectDropdown
-                        options={coordinatingDepartmentOptions}
-                        value={coordinatingDepartmentIds}
-                        onChange={setCoordinatingDepartmentIds}
-                        placeholder="Koordine Departman seçin"
-                        emptyText="Seçilebilir birim bulunmuyor."
-                        triggerClassName="text-xs"
-                        openUp
-                        disabled={coordinatingSaving || isClosedRequest}
-                      />
-                      <div className="mt-3 flex justify-end">
-                        <Button
-                          type="button"
-                          variant="success"
-                          size="sm"
-                          disabled={coordinatingSaving || coordinatingDepartmentIds.length === 0 || isClosedRequest}
-                          onClick={() => void handleAddCoordinatingDepartments()}
-                        >
-                          {coordinatingSaving ? 'Ekleniyor...' : 'Koordine Departman Ekle'}
-                        </Button>
-                      </div>
-                    </div>
-                      )
-                    })()}
-                    {/* 2. sütun: Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442) */}
+                  <div className={`mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+                    {/* Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442) */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                       <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                         {t('address.detailSectionTitle', 'Adres Bilgileri')}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { AlertCircle, CalendarClock, Clock, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
+import { AlertCircle, CalendarClock, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -333,12 +333,9 @@ function ConversationDetail({
             <p className="text-sm font-bold text-[color:var(--color-muted-foreground)] shrink-0 underline underline-offset-4 decoration-[color:var(--color-muted-foreground)]">
               {t('whatsapp.tickets')}
             </p>
-            {openTicket ? (
+            {openTicket && !windowOpen ? (
               <div className="ml-auto flex items-center justify-end gap-1.5 text-[11px] font-semibold text-right text-slate-900">
-                {windowOpen
-                  ? <><Clock className="size-3.5 shrink-0" /> 24 saatlik metin veya şablon gönderebilirsiniz</>
-                  : <><AlertCircle className="size-3.5 shrink-0" /> 24 saatlik pencere kapalı — yalnızca şablon gönderilebilir</>
-                }
+                <AlertCircle className="size-3.5 shrink-0" /> 24 saatlik pencere kapalı — yalnızca şablon gönderilebilir
               </div>
             ) : null}
           </div>

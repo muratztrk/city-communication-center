@@ -1,6 +1,6 @@
 import { API_BASE, API_ORIGIN, TENANT_ID } from './config'
 import i18n from '../i18n'
-import { parseRolePageAccessMatrix, saveRolePageAccessMatrix } from '../lib/rolePageAccess'
+import { parseRolePageAccessMatrix, saveRolePageAccessMatrix, DEFAULT_ROLE_PAGE_ACCESS } from '../lib/rolePageAccess'
 import type {
   AuthSession,
   AuthUser,
@@ -223,10 +223,7 @@ function writeCookieSession(user: AuthUser): AuthSession {
 }
 
 function syncRolePageAccess(value: string | null | undefined): void {
-  const matrix = parseRolePageAccessMatrix(value)
-  if (matrix) {
-    saveRolePageAccessMatrix(matrix)
-  }
+  saveRolePageAccessMatrix(parseRolePageAccessMatrix(value) ?? DEFAULT_ROLE_PAGE_ACCESS)
 }
 
 async function requestJson<T>(url: string, init: RequestInit, fallbackMessage: string): Promise<T> {

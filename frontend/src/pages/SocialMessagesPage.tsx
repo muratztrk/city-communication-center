@@ -30,10 +30,12 @@ function getLocationMapUrl(latitude: number, longitude: number) {
   return `https://www.openstreetmap.org/export/embed.html?bbox=${(longitude - 0.005).toFixed(6)},${(latitude - 0.005).toFixed(6)},${(longitude + 0.005).toFixed(6)},${(latitude + 0.005).toFixed(6)}&layer=mapnik&marker=${latitude},${longitude}`
 }
 
-function formatCitizenRequestNumber(message: SocialMessage) {
-  if (message.citizenRequestNumber == null) return '—'
+function formatCitizenRequestNumber(message: SocialMessage, locale: string) {
   const year = message.citizenRequestNumberYear ?? new Date(message.receivedAtUtc).getFullYear()
-  return `VT-${year}-${message.citizenRequestNumber}`
+  if (message.citizenRequestNumber != null) {
+    return `VT-${year}-${message.citizenRequestNumber}`
+  }
+  return locale.startsWith('tr') ? `VT-${year}-Onay Bekleyen` : `VT-${year}-Pending Approval`
 }
 
 function formatCitizenPhoneDisplay(value: string | null | undefined): string {
@@ -269,7 +271,7 @@ export function SocialMessagesPage() {
     if (searchText.trim()) {
       const query = searchText.toLocaleLowerCase('tr')
       result = result.filter(message => [
-        formatCitizenRequestNumber(message),
+        formatCitizenRequestNumber(message, locale),
         message.channel,
         getSocialMessageCitizenName(message),
         getSocialMessageCitizenPhone(message),
@@ -283,7 +285,7 @@ export function SocialMessagesPage() {
     }
 
     return sortSocial(result)
-  }, [channelFilter, channelParam, displayMessages, filterFrom, filterTo, searchText, sortSocial])
+  }, [channelFilter, channelParam, displayMessages, filterFrom, filterTo, locale, searchText, sortSocial])
 
   useEffect(() => {
     const phoneParam = searchParams.get('phone')?.trim()
@@ -399,7 +401,7 @@ export function SocialMessagesPage() {
                   <tr>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(messagesPage - 1) * messagesPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
-                      <div className="table-number-cell__value">{formatCitizenRequestNumber(message)}</div>
+                      <div className="table-number-cell__value">{formatCitizenRequestNumber(message, locale)}</div>
                       {linkedJob ? (
                         <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(linkedJob.priority)}`}>
                           (Öncelik:{getPriorityLabel(t, linkedJob.priority)})

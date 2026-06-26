@@ -930,9 +930,9 @@
   .data-table thead th {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 1;
     white-space: nowrap;
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background: transparent;
     padding: 0.75rem 0.9rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: center;
@@ -949,7 +949,7 @@
 
   /* "Taleplerim" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
   .my-requests-table thead th {
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background: transparent;
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }
@@ -2761,24 +2761,33 @@
 
 @media (min-width: 768px) {
   @layer components {
-    /* Sayfa banner'ı main ile birlikte kayar; gridview iç scroll tuzağı kaldırılır (card 871). */
     .desktop-page-shell {
-      display: grid;
+      display: flex;
+      flex-direction: column;
       min-height: 0;
       overflow: visible;
     }
 
     .desktop-page-fill {
-      display: block;
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
       min-height: 0;
-      overflow: visible;
+      overflow: hidden;
     }
 
-    .desktop-page-shell .table-wrap,
     .desktop-panel-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
       max-height: none;
-      overflow-y: visible;
-      flex: none;
+    }
+  }
+
+  /* Keep the final grid column flush with the panel edge; the scrollbar overlays
+     the grid instead of reserving the blank vertical track shown at the right. */
+  @supports (overflow: overlay) {
+    .desktop-panel-scroll {
+      overflow-y: overlay;
     }
   }
 }@media (max-width: 960px) {

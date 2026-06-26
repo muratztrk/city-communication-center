@@ -437,57 +437,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
               </div>
 
               <div className="job-field">
-                <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                <div className="flex flex-wrap items-start gap-3">
-                  <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-1.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
-                    <Paperclip className="size-3.5" />
-                    {t('attachments.addFile', 'Dosya ekle')}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept={ACCEPT_ATTR}
-                      multiple
-                      className="hidden"
-                      disabled={saving}
-                      onChange={event => {
-                        for (const file of Array.from(event.target.files ?? [])) {
-                          addPendingFile(file)
-                        }
-                        if (fileInputRef.current) fileInputRef.current.value = ''
-                      }}
-                    />
-                  </label>
-                  <div className="w-full max-w-[50%] min-h-[2.5rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                    {pendingFiles.length === 0 ? (
-                      <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
-                    ) : (
-                      <ul className="space-y-1 text-xs">
-                        {pendingFiles.map((file, idx) => (
-                          <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
-                            <button
-                              type="button"
-                              className="min-w-0 flex-1 break-words text-left font-medium text-slate-700 underline-offset-2 hover:underline"
-                              onClick={() => downloadPendingFile(file)}
-                            >
-                              {file.name}
-                            </button>
-                            <button
-                              type="button"
-                              className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
-                              onClick={() => setPendingFiles(current => current.filter((_, i) => i !== idx))}
-                            >
-                              {t('common.delete', 'Sil')}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                {fileError ? <div className="mt-1 text-xs text-red-500">{fileError}</div> : null}
-              </div>
-
-              <div className="job-field">
                 <div className="grid gap-2 md:grid-cols-2">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
@@ -521,7 +470,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
                     <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
                   </div>
-                  <label className="job-field flex min-h-0 flex-col gap-1 md:row-span-2">
+                  <label className="job-field flex min-h-0 flex-col gap-1 md:col-start-3 md:row-span-2 md:row-start-1">
                     <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
                       className="field-textarea field-textarea--compact min-h-0 flex-1 resize-none"
@@ -530,6 +479,56 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                       onChange={event => setOpenAddress(event.target.value)}
                     />
                   </label>
+                  <div className="job-field md:col-span-2">
+                    <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
+                    <div className="flex items-start gap-3">
+                      <label className={`inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-1.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
+                        <Paperclip className="size-3.5" />
+                        {t('attachments.addFile', 'Dosya ekle')}
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept={ACCEPT_ATTR}
+                          multiple
+                          className="hidden"
+                          disabled={saving}
+                          onChange={event => {
+                            for (const file of Array.from(event.target.files ?? [])) {
+                              addPendingFile(file)
+                            }
+                            if (fileInputRef.current) fileInputRef.current.value = ''
+                          }}
+                        />
+                      </label>
+                      <div className="min-h-[2.5rem] flex-1 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                        {pendingFiles.length === 0 ? (
+                          <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+                        ) : (
+                          <ul className="space-y-1 text-xs">
+                            {pendingFiles.map((file, idx) => (
+                              <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
+                                <button
+                                  type="button"
+                                  className="min-w-0 flex-1 break-words text-left font-medium text-slate-700 underline-offset-2 hover:underline"
+                                  onClick={() => downloadPendingFile(file)}
+                                >
+                                  {file.name}
+                                </button>
+                                <button
+                                  type="button"
+                                  className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                                  onClick={() => setPendingFiles(current => current.filter((_, i) => i !== idx))}
+                                >
+                                  {t('common.delete', 'Sil')}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                    {fileError ? <div className="mt-1 text-xs text-red-500">{fileError}</div> : null}
+                  </div>
                 </div>
               </div>
 

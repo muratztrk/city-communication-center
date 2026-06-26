@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features;
 
 namespace CityCommunicationCenter.Application.Features.Social;
@@ -11,10 +12,14 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
     : ICommandHandler<ReceiveWhatsAppWebhookCommand, int>
 {
     private readonly IApplicationDbContext _dbContext;
+    private readonly IWhatsAppTemplateAutoReplyService _autoReplyService;
 
-    public ReceiveWhatsAppWebhookCommandHandler(IApplicationDbContext dbContext)
+    public ReceiveWhatsAppWebhookCommandHandler(
+        IApplicationDbContext dbContext,
+        IWhatsAppTemplateAutoReplyService autoReplyService)
     {
         _dbContext = dbContext;
+        _autoReplyService = autoReplyService;
     }
 
     public async ValueTask<int> Handle(
@@ -52,6 +57,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         var savedCount = 0;
         int? nextCitizenRequestNumber = null;
         var citizenRequestNumberYear = DateTimeOffset.UtcNow.Year;
+        var pendingAutoReplies = new List<PendingWhatsAppAutoReply>();
 
         // Load existing CitizenConversations for all phones in this batch
         var allPhones = byCitizen.Select(g => g.Key).ToArray();
@@ -150,11 +156,30 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     SentAt = msg.ReceivedAtUtc
                 });
 
+                pendingAutoReplies.Add(new PendingWhatsAppAutoReply(
+                    request.TenantId,
+                    thread.SocialMessageId,
+                    citizenHandle,
+                    msg.Content,
+                    msg.ReceivedAtUtc));
+
                 savedCount++;
             }
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        foreach (var pending in pendingAutoReplies)
+        {
+            await _autoReplyService.ScheduleForInboundMessageAsync(
+                pending.TenantId,
+                pending.SocialMessageId,
+                pending.CitizenHandle,
+                pending.InboundContent,
+                pending.ReceivedAtUtc,
+                cancellationToken);
+        }
+
         return savedCount;
     }
 
@@ -258,4 +283,11 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         DateTimeOffset ReceivedAtUtc,
         double? Latitude,
         double? Longitude);
+
+    private sealed record PendingWhatsAppAutoReply(
+        Guid TenantId,
+        Guid SocialMessageId,
+        string CitizenHandle,
+        string InboundContent,
+        DateTimeOffset ReceivedAtUtc);
 }

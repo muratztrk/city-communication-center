@@ -223,7 +223,7 @@ function TemplatePicker({
         size="sm"
         variant="secondary"
         onClick={() => setOpen(v => !v)}
-        className="gap-1"
+        className="h-9 gap-1"
       >
         <FileText className="size-3.5" />
         Şablon

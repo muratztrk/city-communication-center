@@ -39,11 +39,13 @@ function formatCitizenRequestNumber(message: SocialMessage) {
 function formatCitizenPhoneDisplay(value: string | null | undefined): string {
   if (!value) return '—'
   const digits = value.replace(/\D/g, '')
-  if (digits.length === 10) {
-    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8)}`
-  }
-  if (digits.length === 12 && digits.startsWith('90')) {
-    return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
+  const localDigits = digits.length === 12 && digits.startsWith('90')
+    ? digits.slice(2)
+    : digits.length === 11 && digits.startsWith('0')
+      ? digits.slice(1)
+      : digits
+  if (localDigits.length === 10) {
+    return `${localDigits.slice(0, 3)} ${localDigits.slice(3, 6)} ${localDigits.slice(6, 8)} ${localDigits.slice(8)}`
   }
   return value
 }

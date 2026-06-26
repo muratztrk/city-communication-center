@@ -519,14 +519,20 @@ export function WhatsAppConversationsPage() {
   const loadConversations = useCallback(async () => {
     setLoading(true)
     try {
-      const [convData, tplData, departmentList] = await Promise.all([
+      const [convResult, tplResult, departmentResult] = await Promise.allSettled([
         api.getCitizenConversations(),
         api.getWhatsAppTemplates(),
         api.getDepartments(),
       ])
-      setConversations(convData)
-      setTemplates(tplData)
-      setDepartments(departmentList)
+      if (convResult.status === 'fulfilled') {
+        setConversations(convResult.value)
+      }
+      if (tplResult.status === 'fulfilled') {
+        setTemplates(tplResult.value)
+      }
+      if (departmentResult.status === 'fulfilled') {
+        setDepartments(departmentResult.value)
+      }
     } finally {
       setLoading(false)
     }

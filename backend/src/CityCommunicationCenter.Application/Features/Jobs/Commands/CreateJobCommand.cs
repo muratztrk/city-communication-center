@@ -146,9 +146,24 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 : targets.Length > 0
                     ? JobRequestType.ExternalUnit
                     : JobRequestType.InternalUnit;
+        var isCitizenRequest = requestType == JobRequestType.Citizen
+            || sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest;
         var requiresOwnerApproval = actor.RoleCode == RoleCode.Staff
-            || (actor.RoleCode == RoleCode.Operator
-                && sourceType is not (JobSourceType.SocialMessage or JobSourceType.CitizenRequest));
+            || (actor.RoleCode == RoleCode.Operator && !isCitizenRequest);
+
+        if (actor.RoleCode == RoleCode.Operator && isCitizenRequest && targets.Length > 0)
+        {
+            var targetDepartments = await _dbContext.Departments
+                .AsNoTracking()
+                .Where(department => department.TenantId == tenantId && targets.Contains(department.DepartmentId))
+                .Select(department => new { department.Name, department.DepartmentType })
+                .ToListAsync(cancellationToken);
+
+            if (targetDepartments.Any(department => IsPresidencyLevelDepartment(department.Name, department.DepartmentType)))
+            {
+                throw Validation(nameof(request.TargetDepartmentIds), "Baskanlik seviyesi birimlere vatandas talebi olusturulamaz.");
+            }
+        }
         var ownerTaskNotes = JobOwnerTaskProvisioning.CreateOwnerTaskNotes(ownerUserIds);
         var dueDateUtc = request.DueDateUtc;
         if (!requiresOwnerApproval && dueDateUtc is null)
@@ -314,4 +329,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 
     private static ValidationException Validation(string p, string m) =>
         new([new FluentValidation.Results.ValidationFailure(p, m)]);
+
+    private static bool IsPresidencyLevelDepartment(string name, string departmentType) =>
+        string.Equals(name, "Başkanlık", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(departmentType, "Daire", StringComparison.OrdinalIgnoreCase);
 }

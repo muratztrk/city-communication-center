@@ -67,6 +67,7 @@ public sealed record SocialMessageSummaryResponse(
     int? CitizenRequestNumberYear,
     DateTimeOffset ReceivedAtUtc,
     DateTimeOffset? UpdatedAtUtc,
+    DateTimeOffset? DueDateUtc,
     double? Latitude,
     double? Longitude);
 

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 
@@ -10,11 +11,16 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ISlaCalculatorService _slaCalculator;
 
-    public GetSocialMessagesQueryHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public GetSocialMessagesQueryHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _slaCalculator = slaCalculator;
     }
 
     public async ValueTask<IReadOnlyList<SocialMessageSummaryResponse>> Handle(GetSocialMessagesQuery request, CancellationToken cancellationToken)
@@ -46,9 +52,9 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                 && visibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value));
         }
 
-        return await query
+        var rows = await query
             .OrderByDescending(entity => entity.ReceivedAtUtc)
-            .Select(entity => new SocialMessageSummaryResponse(
+            .Select(entity => new SocialMessageRow(
                 entity.SocialMessageId,
                 entity.Channel.ToString(),
                 entity.CitizenHandle,
@@ -103,9 +109,58 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                 entity.CitizenRequestNumberYear,
                 entity.ReceivedAtUtc,
                 entity.UpdatedAtUtc,
+                entity.JobId == null
+                    ? null
+                    : _dbContext.Jobs
+                        .AsNoTracking()
+                        .Where(job => job.JobId == entity.JobId)
+                        .Select(job => job.DueDateUtc)
+                        .FirstOrDefault(),
                 entity.Latitude,
                 entity.Longitude))
             .ToListAsync(cancellationToken);
+
+        var settings = await _dbContext.TenantSettings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(setting => setting.TenantId == tenantId, cancellationToken);
+        var defaultSlaHours = settings?.DefaultSlaHours ?? 0;
+
+        var results = new List<SocialMessageSummaryResponse>(rows.Count);
+        foreach (var row in rows)
+        {
+            var dueDateUtc = row.JobDueDateUtc;
+            if (dueDateUtc is null && defaultSlaHours > 0)
+            {
+                dueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                    row.ReceivedAtUtc,
+                    defaultSlaHours,
+                    tenantId,
+                    row.AssignedDepartmentId,
+                    cancellationToken);
+            }
+
+            results.Add(new SocialMessageSummaryResponse(
+                row.SocialMessageId,
+                row.Channel,
+                row.CitizenHandle,
+                row.CitizenName,
+                row.CitizenPhone,
+                row.Content,
+                row.Category,
+                row.Status,
+                row.AssignedDepartmentId,
+                row.AssignedDepartmentName,
+                row.JobId,
+                row.CitizenRequestNumber,
+                row.CitizenRequestNumberYear,
+                row.ReceivedAtUtc,
+                row.UpdatedAtUtc,
+                dueDateUtc,
+                row.Latitude,
+                row.Longitude));
+        }
+
+        return results;
     }
 
     private async Task<Guid[]> GetVisibleDepartmentIdsAsync(ApplicationUser actor, Guid tenantId, Guid? activeDepartmentId, CancellationToken cancellationToken)
@@ -157,4 +212,24 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
             return [];
         }
     }
+
+    private sealed record SocialMessageRow(
+        Guid SocialMessageId,
+        string Channel,
+        string CitizenHandle,
+        string? CitizenName,
+        string? CitizenPhone,
+        string? Content,
+        string? Category,
+        string Status,
+        Guid? AssignedDepartmentId,
+        string? AssignedDepartmentName,
+        Guid? JobId,
+        int? CitizenRequestNumber,
+        int? CitizenRequestNumberYear,
+        DateTimeOffset ReceivedAtUtc,
+        DateTimeOffset? UpdatedAtUtc,
+        DateTimeOffset? JobDueDateUtc,
+        double? Latitude,
+        double? Longitude);
 }

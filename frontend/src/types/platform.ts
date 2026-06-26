@@ -361,6 +361,7 @@ export interface SocialMessage {
   citizenRequestNumberYear: number | null;
   receivedAtUtc: string;
   updatedAtUtc: string | null;
+  dueDateUtc?: string | null;
   latitude?: number | null;
   longitude?: number | null;
 }

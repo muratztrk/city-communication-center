@@ -1,4 +1,5 @@
 import { DateCell } from '../components/ui/date-cell'
+import { DueDatePill } from '../components/ui/due-date-pill'
 import { MapPin, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -80,16 +81,16 @@ function getSocialMessageWhatsAppPhone(message: SocialMessage): string | null {
   return null
 }
 
-function getSocialMessageLastDate(message: SocialMessage) {
-  return message.updatedAtUtc ?? message.receivedAtUtc
+function getSocialMessageDueDate(message: SocialMessage, linkedJob?: JobSummary): string | null {
+  return message.dueDateUtc ?? linkedJob?.dueDateUtc ?? null
 }
 
-function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary): string {
+function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary, dueDateUtc: string | null): string {
   if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
-  if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
+  if (dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()) {
     return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
   }
   if (job.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
@@ -107,22 +108,22 @@ const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: stri
   { value: 'cancelled', labelKey: 'social.requestStatus.cancelled', fallback: 'İptal' },
 ]
 
-function getSocialMessageStatusKey(job: JobSummary | undefined): Exclude<SocialRequestStatusFilter, 'all'> {
+function getSocialMessageStatusKey(job: JobSummary | undefined, dueDateUtc: string | null): Exclude<SocialRequestStatusFilter, 'all'> {
   if (!job) return 'pending-approval'
 
   if (job.status === 'Completed') return 'completed'
   if (job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested') return 'cancelled'
 
-  const isOverdue = job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()
+  const isOverdue = dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
   if (isOverdue) return 'overdue'
   if (job.status === 'Active') return 'in-progress'
 
   return 'pending-approval'
 }
 
-function matchesSocialRequestStatusFilter(job: JobSummary | undefined, filter: SocialRequestStatusFilter): boolean {
+function matchesSocialRequestStatusFilter(job: JobSummary | undefined, dueDateUtc: string | null, filter: SocialRequestStatusFilter): boolean {
   if (filter === 'all') return true
-  return getSocialMessageStatusKey(job) === filter
+  return getSocialMessageStatusKey(job, dueDateUtc) === filter
 }
 
 function canCancelLinkedJob(status: JobSummary['status'] | undefined) {
@@ -282,13 +283,15 @@ export function SocialMessagesPage() {
 
   const displayMessages = useMemo(() => messages.map(message => {
     const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
+    const dueDateUtc = getSocialMessageDueDate(message, linkedJob)
     return {
       ...message,
+      dueDateUtc,
       citizenName: getSocialMessageCitizenName(message),
       citizenPhone: getSocialMessageCitizenPhone(message),
       whatsAppPhone: getSocialMessageWhatsAppPhone(message),
       priority: linkedJob?.priority ?? '',
-      statusSortText: linkedJob ? getLinkedJobDisplayStatus(t, linkedJob) : '',
+      statusSortText: linkedJob ? getLinkedJobDisplayStatus(t, linkedJob, dueDateUtc) : '',
     }
   }), [messages, jobsById, t])
 
@@ -329,7 +332,7 @@ export function SocialMessagesPage() {
     if (requestStatusFilter !== 'all') {
       result = result.filter(message => {
         const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
-        return matchesSocialRequestStatusFilter(linkedJob, requestStatusFilter)
+        return matchesSocialRequestStatusFilter(linkedJob, message.dueDateUtc ?? null, requestStatusFilter)
       })
     }
 
@@ -448,7 +451,7 @@ export function SocialMessagesPage() {
                 <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
                 <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş İsmi')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
-                <FilterableTh filterKey="updatedAtUtc" filterValue={socialFilters['updatedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="updatedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.lastDate', 'Son Tarih')}</FilterableTh>
+                <FilterableTh filterKey="dueDateUtc" filterValue={socialFilters['dueDateUtc'] ?? ''} onFilter={setSocialFilter} sortKey="dueDateUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.lastDate', 'Son Tarih')}</FilterableTh>
                 <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
@@ -480,11 +483,11 @@ export function SocialMessagesPage() {
                     <td className="font-semibold">{message.citizenPhone}</td>
                     <td className="font-semibold">{message.citizenName}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
-                    <td><DateCell value={getSocialMessageLastDate(message)} locale={locale} /></td>
+                    <td><DueDatePill value={message.dueDateUtc} locale={locale} completedAtUtc={linkedJob?.completedAtUtc} /></td>
                     <td>
                       {linkedJob ? (
                         <StatusPill className={getStatusPillClass(getJobStatusTone(linkedJob))}>
-                          {getLinkedJobDisplayStatus(t, linkedJob)}
+                          {getLinkedJobDisplayStatus(t, linkedJob, message.dueDateUtc ?? null)}
                         </StatusPill>
                       ) : (
                         '—'

@@ -1134,13 +1134,13 @@ export function CreateRequestPage() {
             </div>
             <div className="job-field">
               <span className="job-field-label">{t('settings.citizen.channel', 'Talep Kanalı')}</span>
-              <div className="grid grid-cols-9 gap-1">
+              <div className="flex w-full gap-1">
                 {CITIZEN_CHANNELS.map(channel => (
                   <button
                     key={channel}
                     type="button"
                     onClick={() => setCitizenForm(current => ({ ...current, channel }))}
-                    className={`flex flex-col items-center gap-1 rounded-lg border px-1 py-2 text-[0.68rem] font-semibold transition-colors ${
+                    className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border px-1 py-2 text-[0.68rem] font-semibold transition-colors ${
                       citizenForm.channel === channel
                         ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/8 text-[color:var(--color-primary)]'
                         : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100'

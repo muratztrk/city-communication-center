@@ -20,6 +20,7 @@ interface CitizenRequestModalProps {
   message: SocialMessage
   departments: Department[]
   editJobId?: string | null
+  forceNewRequest?: boolean
   onClose: () => void
   onCreated: () => void
 }
@@ -122,7 +123,7 @@ function sanitizeCitizenName(value: string | null | undefined): string {
 /**
  * Vatandaş talebini ilgili WhatsApp konuşması yan tarafta görünür şekilde bir pop-up içinde oluşturur.
  */
-export function CitizenRequestModal({ message, departments, editJobId = null, onClose, onCreated }: CitizenRequestModalProps) {
+export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, onClose, onCreated }: CitizenRequestModalProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -148,6 +149,24 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [confirmedSubmit, setConfirmedSubmit] = useState(false)
+
+  useEffect(() => {
+    if (!forceNewRequest || editJobId) return
+    setTitle('')
+    setDescription('')
+    setTargetDepartmentId('')
+    setPriority('Normal')
+    setStartDateUtc('')
+    setDueDateUtc('')
+    setNeighborhood('')
+    setStreet('')
+    setOpenAddress('')
+    setPendingFiles([])
+    setFileError(null)
+    setError(null)
+    setCitizenHandle(resolveInitialCitizenName(message))
+    setCitizenPhone(resolveInitialCitizenPhone(message))
+  }, [forceNewRequest, editJobId, message])
 
   useEffect(() => {
     if (!editJobId) {
@@ -308,7 +327,19 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         return
       }
 
-      const job = await api.convertSocialMessageToJob(message.socialMessageId, {
+      let convertMessageId = message.socialMessageId
+      if (forceNewRequest && message.jobId) {
+        convertMessageId = await api.createSocialMessage({
+          channel: message.channel,
+          citizenHandle: trimmedPhone.length === 10 ? `90${trimmedPhone}` : trimmedPhone,
+          content: description.trim(),
+          category: message.category ?? undefined,
+          latitude: message.latitude ?? undefined,
+          longitude: message.longitude ?? undefined,
+        })
+      }
+
+      const job = await api.convertSocialMessageToJob(convertMessageId, {
         title: trimmedTitle,
         description: description.trim(),
         ownerDepartmentId,
@@ -324,7 +355,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         citizenName: trimmedHandle,
         citizenPhone: trimmedPhone,
       })
-      await api.updateSocialMessage(message.socialMessageId, {
+      await api.updateSocialMessage(convertMessageId, {
         channel: message.channel,
         citizenHandle: trimmedHandle,
         content: description.trim(),
@@ -335,7 +366,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
       if (pendingFiles.length > 0) {
         await uploadPendingFiles(job.jobId)
       }
-      invalidateSocialMessages(queryClient, message.socialMessageId)
+      invalidateSocialMessages(queryClient, convertMessageId)
       onCreated()
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : t('common.error'))
@@ -474,7 +505,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-3 md:items-start">
+                <div className="grid gap-2 md:grid-cols-3 md:items-stretch">
                   <div className="grid gap-2">
                     <label className="job-field grid gap-1">
                       <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>

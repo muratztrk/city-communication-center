@@ -430,6 +430,7 @@ export function WhatsAppConversationsPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
   const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
+  const [requestModalForceNew, setRequestModalForceNew] = useState(false)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(searchParams.get('phone') ?? '')
   const [filterFrom, setFilterFrom] = useState('')
@@ -510,10 +511,12 @@ export function WhatsAppConversationsPage() {
   const handleOpenCreateRequest = useCallback(async (socialMessageId: string) => {
     try {
       setRequestModalEditJobId(null)
+      setRequestModalForceNew(true)
       const message = await api.getSocialMessageById(socialMessageId)
       setRequestModalMessage(enrichMessageWithConversation(message, selectedId))
     } catch {
       setRequestModalEditJobId(null)
+      setRequestModalForceNew(false)
       setRequestModalMessage(null)
     }
   }, [enrichMessageWithConversation, selectedId])
@@ -521,10 +524,12 @@ export function WhatsAppConversationsPage() {
   const handleOpenEditRequest = useCallback(async (socialMessageId: string, jobId: string) => {
     try {
       setRequestModalEditJobId(jobId)
+      setRequestModalForceNew(false)
       const message = await api.getSocialMessageById(socialMessageId)
       setRequestModalMessage(enrichMessageWithConversation(message, selectedId))
     } catch {
       setRequestModalEditJobId(null)
+      setRequestModalForceNew(false)
       setRequestModalMessage(null)
     }
   }, [enrichMessageWithConversation, selectedId])
@@ -532,6 +537,7 @@ export function WhatsAppConversationsPage() {
   const handleRequestCreated = useCallback(() => {
     setRequestModalMessage(null)
     setRequestModalEditJobId(null)
+    setRequestModalForceNew(false)
     void loadConversations()
     setDetailRefreshKey(key => key + 1)
   }, [loadConversations])
@@ -630,9 +636,11 @@ export function WhatsAppConversationsPage() {
           message={requestModalMessage}
           departments={departments}
           editJobId={requestModalEditJobId}
+          forceNewRequest={requestModalForceNew}
           onClose={() => {
             setRequestModalMessage(null)
             setRequestModalEditJobId(null)
+            setRequestModalForceNew(false)
           }}
           onCreated={handleRequestCreated}
         />

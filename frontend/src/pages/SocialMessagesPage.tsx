@@ -14,9 +14,9 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
-import type { JobSummary, SocialMessage } from '../types/platform'
+import type { Department, JobSummary, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
-import { buildCitizenRequestUrl } from '../utils/citizenRequests'
+import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { TablePagination } from '../components/ui/table-pagination'
 import { JobsPage } from './JobsPage'
 
@@ -94,9 +94,12 @@ export function SocialMessagesPage() {
     : channelParam === ALL_CHANNELS_FILTER ? '' : channelParam
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
   const [jobsById, setJobsById] = useState<Map<string, JobSummary>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
+  const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
   const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
@@ -110,14 +113,16 @@ export function SocialMessagesPage() {
 
     void Promise.all([
       api.getSocialMessages(),
+      api.getDepartments(),
       api.getJobs('all'),
     ])
-      .then(([messageList, jobList]) => {
+      .then(([messageList, departmentList, jobList]) => {
         if (!isActive) {
           return
         }
 
         setMessages(messageList)
+        setDepartments(departmentList)
         setJobsById(new Map(jobList.map(job => [job.jobId, job])))
       })
       .catch(loadError => {
@@ -141,12 +146,14 @@ export function SocialMessagesPage() {
     setError('')
 
     try {
-      const [messageList, jobList] = await Promise.all([
+      const [messageList, departmentList, jobList] = await Promise.all([
         api.getSocialMessages(),
+        api.getDepartments(),
         api.getJobs('all'),
       ])
 
       setMessages(messageList)
+      setDepartments(departmentList)
       setJobsById(new Map(jobList.map(job => [job.jobId, job])))
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
@@ -155,12 +162,16 @@ export function SocialMessagesPage() {
     }
   }
 
+  const handleRequestCreated = () => {
+    setRequestModalMessage(null)
+    setRequestModalEditJobId(null)
+    void reload()
+    invalidateSocialMessages(queryClient, requestModalMessage?.socialMessageId)
+  }
+
   const openRequestModal = (message: SocialMessage) => {
-    navigate(buildCitizenRequestUrl({
-      socialMessageId: message.socialMessageId,
-      editJobId: message.jobId,
-      returnTo: 'social',
-    }))
+    setRequestModalEditJobId(message.jobId)
+    setRequestModalMessage(message)
   }
 
   const handleCancelConfirm = async () => {
@@ -429,7 +440,19 @@ export function SocialMessagesPage() {
         />
       </section>
 
-      {/* "Talep Oluştur" → Birim Dışı Talep Oluştur formu (card 443). */}
+      {requestModalMessage && (
+        <CitizenRequestModal
+          message={requestModalMessage}
+          departments={departments}
+          editJobId={requestModalEditJobId}
+          onClose={() => {
+            setRequestModalMessage(null)
+            setRequestModalEditJobId(null)
+          }}
+          onCreated={handleRequestCreated}
+        />
+      )}
+
       {detailJobId && (
         <JobsPage
           mode="myRequests"

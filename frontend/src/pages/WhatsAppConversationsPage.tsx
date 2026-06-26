@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, Volume2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { StatusPill } from '../components/ui/status-pill'
+import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
   CitizenConversationSummary,
   CitizenConversationDetail,
   CitizenConversationTimelineEntry,
+  Department,
+  SocialMessage,
   WhatsAppMessageTemplate,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
 import { JobsPage } from './JobsPage'
-import { buildCitizenRequestUrl } from '../utils/citizenRequests'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -527,29 +529,34 @@ function ConversationDetail({
 
 export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const requestedPhone = searchParams.get('phone') ?? ''
   const requestedAt = searchParams.get('at') ?? ''
   const requestedMessageId = searchParams.get('messageId') ?? ''
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
+  const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(searchParams.get('phone') ?? '')
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
   const loadConversations = useCallback(async () => {
     setLoading(true)
     try {
-      const [convData, tplData] = await Promise.all([
+      const [convData, tplData, departmentList] = await Promise.all([
         api.getCitizenConversations(),
         api.getWhatsAppTemplates(),
+        api.getDepartments(),
       ])
       setConversations(convData)
       setTemplates(tplData)
+      setDepartments(departmentList)
     } finally {
       setLoading(false)
     }
@@ -593,13 +600,32 @@ export function WhatsAppConversationsPage() {
     )
   }, [selectedId])
 
-  const handleOpenCreateRequest = useCallback((socialMessageId: string) => {
-    navigate(buildCitizenRequestUrl({ socialMessageId, returnTo: 'whatsapp' }))
-  }, [navigate])
+  const handleOpenCreateRequest = useCallback(async (socialMessageId: string) => {
+    try {
+      setRequestModalEditJobId(null)
+      setRequestModalMessage(await api.getSocialMessageById(socialMessageId))
+    } catch {
+      setRequestModalEditJobId(null)
+      setRequestModalMessage(null)
+    }
+  }, [])
 
-  const handleOpenEditRequest = useCallback((socialMessageId: string, jobId: string) => {
-    navigate(buildCitizenRequestUrl({ socialMessageId, editJobId: jobId, returnTo: 'whatsapp' }))
-  }, [navigate])
+  const handleOpenEditRequest = useCallback(async (socialMessageId: string, jobId: string) => {
+    try {
+      setRequestModalEditJobId(jobId)
+      setRequestModalMessage(await api.getSocialMessageById(socialMessageId))
+    } catch {
+      setRequestModalEditJobId(null)
+      setRequestModalMessage(null)
+    }
+  }, [])
+
+  const handleRequestCreated = useCallback(() => {
+    setRequestModalMessage(null)
+    setRequestModalEditJobId(null)
+    void loadConversations()
+    setDetailRefreshKey(key => key + 1)
+  }, [loadConversations])
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -665,14 +691,14 @@ export function WhatsAppConversationsPage() {
         <div className="flex-1 min-w-0">
           {selectedId ? (
             <ConversationDetail
-              key={`${selectedId}-${requestedAt}-${requestedMessageId}`}
+              key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}`}
               conversationId={selectedId}
               templates={templates}
               anchorAtUtc={requestedAt || null}
               anchorSocialMessageId={requestedMessageId || null}
               onReadMarked={handleReadMarked}
-              onOpenCreateRequest={handleOpenCreateRequest}
-              onOpenEditRequest={handleOpenEditRequest}
+              onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
+              onOpenEditRequest={(socialMessageId, jobId) => { void handleOpenEditRequest(socialMessageId, jobId) }}
               onOpenViewJob={setDetailJobId}
             />
           ) : (
@@ -683,6 +709,19 @@ export function WhatsAppConversationsPage() {
           )}
         </div>
       </div>
+
+      {requestModalMessage ? (
+        <CitizenRequestModal
+          message={requestModalMessage}
+          departments={departments}
+          editJobId={requestModalEditJobId}
+          onClose={() => {
+            setRequestModalMessage(null)
+            setRequestModalEditJobId(null)
+          }}
+          onCreated={handleRequestCreated}
+        />
+      ) : null}
 
       {detailJobId ? (
         <JobsPage

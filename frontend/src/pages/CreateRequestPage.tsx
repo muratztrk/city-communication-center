@@ -77,7 +77,7 @@ const EMPTY_EXTERNAL_FORM: ExternalFormState = {
 }
 
 const EMPTY_CITIZEN_FORM: CitizenFormState = {
-  channel: 'Other',
+  channel: 'WhatsApp',
   citizenHandle: '',
   content: '',
   category: '',
@@ -299,10 +299,6 @@ export function CreateRequestPage() {
     navigate(`/requests/new?kind=${kind}`)
   }
 
-  const getRequestTypeLabel = (kind: RequestKind | null) => {
-    return requestTypeOptions.find(option => option.value === kind)?.label ?? ''
-  }
-
   useEffect(() => {
     const handler = () => setActiveDepartmentId(getActiveDepartmentId())
     window.addEventListener('activeDepartmentChanged', handler)
@@ -457,13 +453,6 @@ export function CreateRequestPage() {
     }
   }, [isReporter, selectedKind, navigate])
 
-
-  const renderRequestTypeField = () => (
-    <div className="job-field">
-      <label className="job-field-label" htmlFor="request-kind">{t('requests.create.typeLabel', 'Talep Tipi')}</label>
-      <input id="request-kind" className="field-input bg-slate-50 font-semibold text-slate-700" value={getRequestTypeLabel(selectedKind)} readOnly />
-    </div>
-  )
 
   const renderPhotoUpload = (className?: string) => (
     <div className={['job-field', className].filter(Boolean).join(' ')}>
@@ -1101,17 +1090,17 @@ export function CreateRequestPage() {
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
           </div>
           <div className="grid content-start gap-3">
-            <div className="job-field min-h-0">
-              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-red-500">*</span></span>
-              <RichTextEditor
-                value={citizenForm.content}
-                onChange={content => setCitizenForm(current => ({ ...current, content }))}
+            <label className="job-field">
+              <span className="job-field-label">{t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+              <input
+                className="field-input"
                 required
-                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin açıklamasını girin...')}
-                minHeight="min-h-48"
+                maxLength={50}
+                placeholder={t('settings.citizen.citizenHandlePlaceholder', 'Vatandaş ismi ya da Telefon Numarası')}
+                value={citizenForm.citizenHandle}
+                onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
               />
-            </div>
-            {renderRequestTypeField()}
+            </label>
             <div className="job-field">
               <span className="job-field-label">{t('settings.citizen.channel', 'Talep Kanalı')}</span>
               <div className="grid grid-cols-9 gap-1">
@@ -1132,17 +1121,16 @@ export function CreateRequestPage() {
                 ))}
               </div>
             </div>
-            <label className="job-field">
-              <span className="job-field-label">{t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
-              <input
-                className="field-input"
+            <div className="job-field min-h-0">
+              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-red-500">*</span></span>
+              <RichTextEditor
+                value={citizenForm.content}
+                onChange={content => setCitizenForm(current => ({ ...current, content }))}
                 required
-                maxLength={50}
-                placeholder={t('settings.citizen.citizenHandlePlaceholder', 'Vatandaş ismi ya da Telefon Numarası')}
-                value={citizenForm.citizenHandle}
-                onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
+                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin açıklamasını girin...')}
+                minHeight="min-h-48"
               />
-            </label>
+            </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
               {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}

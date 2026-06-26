@@ -986,6 +986,10 @@ export function CreateRequestPage() {
               )}
             </div>
             {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
+            <Button type="submit" disabled={saving || loading} className="gap-2 self-start">
+              <Send className="size-4" />
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+            </Button>
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
@@ -997,10 +1001,6 @@ export function CreateRequestPage() {
                 minHeight="min-h-64"
               />
             </div>
-            <Button type="submit" disabled={saving || loading} className="gap-2">
-              <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
-            </Button>
           </div>
         </form>
       ) : null}
@@ -1057,6 +1057,10 @@ export function CreateRequestPage() {
               </div>
             </div>
             {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })))}
+            <Button type="submit" disabled={saving || loading} className="gap-2 self-start">
+              <Send className="size-4" />
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+            </Button>
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
@@ -1068,10 +1072,6 @@ export function CreateRequestPage() {
                 minHeight="min-h-64"
               />
             </div>
-            <Button type="submit" disabled={saving || loading} className="gap-2">
-              <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
-            </Button>
           </div>
         </form>
       ) : null}
@@ -1123,6 +1123,10 @@ export function CreateRequestPage() {
               </div>
             </div>
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
+            <Button type="submit" disabled={saving || loading} className="gap-2 self-start">
+              <Send className="size-4" />
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+            </Button>
           </div>
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
@@ -1184,10 +1188,6 @@ export function CreateRequestPage() {
                 minHeight="min-h-48"
               />
             </div>
-            <Button type="submit" disabled={saving || loading} className="gap-2">
-              <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
-            </Button>
           </div>
         </form>
       ) : null}

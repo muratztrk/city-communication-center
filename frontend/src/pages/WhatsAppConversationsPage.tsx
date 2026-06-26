@@ -374,9 +374,9 @@ function ConversationDetail({
       {/* Reply input */}
       {openTicket ? (
         <div className="shrink-0 border-t border-[color:var(--color-border)] bg-slate-50">
-          <div className="flex items-end gap-2 px-3 pt-2.5 pb-2">
+          <div className="flex items-end gap-2 px-3 pt-3 pb-3">
             <textarea
-              rows={2}
+              rows={3}
               value={replyText}
               onChange={e => setReplyText(e.target.value)}
               onKeyDown={e => {
@@ -387,7 +387,7 @@ function ConversationDetail({
               }}
               placeholder={windowOpen ? t('whatsapp.replyPlaceholder') : 'Şablon seçin…'}
               disabled={!windowOpen && templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp')).length === 0}
-              className="field-input flex-1 resize-none min-h-[2.75rem] max-h-28 py-1.5 text-base disabled:opacity-50"
+              className="field-input flex-1 resize-none min-h-[4.5rem] max-h-28 py-2 text-base disabled:opacity-50"
             />
             <Button
               size="sm"

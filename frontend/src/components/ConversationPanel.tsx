@@ -159,12 +159,12 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       {canReply && (
         <div className="flex items-end gap-2 px-3 py-3 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] shrink-0">
           <textarea
-            rows={1}
+            rows={3}
             value={replyText}
             onChange={e => setReplyText(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}
             placeholder={t('social.replyPlaceholder', 'Yanıt yaz…')}
-            className="field-input min-w-0 flex-1 resize-none min-h-[2.4rem] max-h-28 max-w-[calc(100%-7.5rem)] py-2 text-sm"
+            className="field-input min-w-0 flex-1 resize-none min-h-[4.5rem] max-h-28 max-w-[calc(100%-7.5rem)] py-2 text-sm"
             style={{ height: 'auto' }}
           />
           <WhatsAppTemplatePicker

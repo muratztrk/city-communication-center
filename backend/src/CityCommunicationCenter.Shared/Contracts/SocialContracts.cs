@@ -31,7 +31,8 @@ public sealed record CreateSocialMessageRequest(
     string Content,
     string? Category,
     double? Latitude,
-    double? Longitude);
+    double? Longitude,
+    Guid? CitizenConversationId = null);
 
 public sealed record UpdateSocialMessageRequest(
     string Channel,

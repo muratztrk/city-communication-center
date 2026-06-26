@@ -879,6 +879,7 @@ export const api = {
     category?: string
     latitude?: number
     longitude?: number
+    citizenConversationId?: string
   }): Promise<string> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages`, {
       method: 'POST',

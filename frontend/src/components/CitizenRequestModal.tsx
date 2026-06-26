@@ -4,7 +4,7 @@ import { Paperclip, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
+import { invalidateJobs, invalidateConversations, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
@@ -21,6 +21,7 @@ interface CitizenRequestModalProps {
   departments: Department[]
   editJobId?: string | null
   forceNewRequest?: boolean
+  citizenConversationId?: string | null
   onClose: () => void
   onCreated: () => void
 }
@@ -123,7 +124,7 @@ function sanitizeCitizenName(value: string | null | undefined): string {
 /**
  * Vatandaş talebini ilgili WhatsApp konuşması yan tarafta görünür şekilde bir pop-up içinde oluşturur.
  */
-export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, onClose, onCreated }: CitizenRequestModalProps) {
+export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, citizenConversationId = null, onClose, onCreated }: CitizenRequestModalProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -328,7 +329,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       }
 
       let convertMessageId = message.socialMessageId
-      if (forceNewRequest && message.jobId) {
+      const shouldCreateFreshMessage = forceNewRequest && Boolean(citizenConversationId || message.jobId)
+      if (shouldCreateFreshMessage) {
         convertMessageId = await api.createSocialMessage({
           channel: message.channel,
           citizenHandle: trimmedPhone.length === 10 ? `90${trimmedPhone}` : trimmedPhone,
@@ -336,6 +338,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           category: message.category ?? undefined,
           latitude: message.latitude ?? undefined,
           longitude: message.longitude ?? undefined,
+          citizenConversationId: citizenConversationId ?? undefined,
         })
       }
 
@@ -367,6 +370,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         await uploadPendingFiles(job.jobId)
       }
       invalidateSocialMessages(queryClient, convertMessageId)
+      if (citizenConversationId) {
+        invalidateConversations(queryClient, citizenConversationId, convertMessageId)
+      }
       onCreated()
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : t('common.error'))

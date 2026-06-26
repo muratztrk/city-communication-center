@@ -9,7 +9,8 @@ public sealed record CreateSocialMessageCommand(
     string Content,
     string? Category,
     double? Latitude,
-    double? Longitude) : ICommand<Guid>;
+    double? Longitude,
+    Guid? CitizenConversationId = null) : ICommand<Guid>;
 
 public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSocialMessageCommand, Guid>
 {
@@ -28,6 +29,23 @@ public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSo
         var tenantId = context.TenantId!.Value;
         var utcNow = DateTimeOffset.UtcNow;
 
+        Guid? citizenConversationId = null;
+        if (request.CitizenConversationId is Guid conversationId)
+        {
+            var conversationExists = await _dbContext.CitizenConversations
+                .AsNoTracking()
+                .AnyAsync(
+                    conversation => conversation.CitizenConversationId == conversationId
+                        && conversation.TenantId == tenantId,
+                    cancellationToken);
+            if (!conversationExists)
+            {
+                throw new InvalidOperationException("WhatsApp konusmasi bulunamadi.");
+            }
+
+            citizenConversationId = conversationId;
+        }
+
         var message = new SocialMessage
         {
             SocialMessageId = Guid.NewGuid(),
@@ -43,6 +61,7 @@ public sealed class CreateSocialMessageCommandHandler : ICommandHandler<CreateSo
             Status = SocialMessageStatus.New,
             ReceivedAtUtc = utcNow,
             CreatedByUserId = request.ActorUserId,
+            CitizenConversationId = citizenConversationId,
             CitizenRequestNumberYear = utcNow.Year,
             CitizenRequestNumber = await SequenceNumberHelper.NextCitizenRequestNumberAsync(
                 _dbContext, tenantId, utcNow.Year, cancellationToken),

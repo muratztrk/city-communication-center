@@ -50,7 +50,8 @@ public sealed class SocialMessagesController : ApiControllerBase
                 request.Content,
                 request.Category,
                 request.Latitude,
-                request.Longitude),
+                request.Longitude,
+                request.CitizenConversationId),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { messageId }, new { socialMessageId = messageId });

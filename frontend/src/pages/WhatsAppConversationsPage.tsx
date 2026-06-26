@@ -637,6 +637,7 @@ export function WhatsAppConversationsPage() {
           departments={departments}
           editJobId={requestModalEditJobId}
           forceNewRequest={requestModalForceNew}
+          citizenConversationId={selectedId}
           onClose={() => {
             setRequestModalMessage(null)
             setRequestModalEditJobId(null)

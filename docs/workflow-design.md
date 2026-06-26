@@ -145,7 +145,27 @@ flowchart TD
     E --> F["Müdür tekrar değerlendirir"]
 ```
 
-## 9. Süresi Geçmiş Talep/Görev Mantığı
+## 9. Son Tarih ve SLA Hesabı
+
+Son tarih, kurumun **Varsayılan SLA (saat)** tenant ayarı ve isteğe bağlı **hafta sonu hariç tutma** kuralı ile belirlenir.
+
+```mermaid
+flowchart TD
+    A["Kayıt oluşturulur veya onaylanır"] --> B{Elle son tarih girildi mi?}
+    B -->|Evet| C["Girilen son tarih kullanılır"]
+    B -->|Hayır| D{Onay bekliyor mu?}
+    D -->|Evet| E["Son tarih atanmaz — grid: Onay Bekleyen"]
+    D -->|Hayır| F["Başlangıç + SLA saat"]
+    F --> G{Hafta sonu hariç?}
+    G -->|Hayır| H["startUtc.AddHours(slaHours)"]
+    G -->|Evet| I["Yalnızca hafta içi saatler sayılır"]
+```
+
+**Vatandaş Talepleri** listesinde kayıt henüz talebe dönüşmemişse Son Tarih, mesajın alındığı tarih + SLA ile gösterilir; talebe dönüştükten sonra bağlı talebin `DueDateUtc` değeri kullanılır.
+
+Detaylı kullanıcı açıklaması için bkz. `docs/user-manual.md` bölüm 17.6.
+
+## 10. Süresi Geçmiş Talep/Görev Mantığı
 
 Bir talep veya görev şu koşullarda süresi geçmiş sayılır:
 
@@ -159,7 +179,7 @@ Bu kayıtlar ilgili ekranlarda özel filtrelerle gösterilir:
 - Birime Gelen Talepler > Son Tarihi Geçmiş Talepler
 - Birimden Giden Talepler > Son Tarihi Geçmiş Talepler
 
-## 10. Bildirim Akışı
+## 11. Bildirim Akışı
 
 ```mermaid
 flowchart TD
@@ -181,7 +201,7 @@ Bildirim kaynakları:
 - Revizyon
 - Sosyal mesaj
 
-## 11. İptal ve Geri Gönderme
+## 12. İptal ve Geri Gönderme
 
 İptal:
 
@@ -195,7 +215,7 @@ Geri gönderme:
 - Açıklama girilmelidir.
 - Kaynak birim düzeltme veya yeniden yönlendirme yapabilir.
 
-## 12. İş Akışı Tasarım İlkeleri
+## 13. İş Akışı Tasarım İlkeleri
 
 - Kullanıcı yalnızca rolü ve birimi kapsamındaki kayıtları görmelidir.
 - Departman havuzu görevleri açık kişi ataması olmadan bekleyebilir.

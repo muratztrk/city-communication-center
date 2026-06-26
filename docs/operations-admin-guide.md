@@ -36,6 +36,40 @@ Tenant ayarları belediye bazlıdır. Başlıca ayar grupları:
 
 Gizli alanlar veritabanında Data Protection ile korunur.
 
+### 2.1 SLA ve Son Tarih Ayarları
+
+Son tarih hesabı tenant bazlı iki ayardan etkilenir:
+
+| Ayar | Konum | Açıklama |
+| --- | --- | --- |
+| **Varsayılan SLA (saat)** | Ayarlar > Genel | Talep/görev oluşturulurken elle son tarih girilmediğinde kullanılan süre. Varsayılan kurulum: **48 saat**. |
+| **SLA hafta sonu ayarları** | Ayarlar > SLA hafta sonu | Cumartesi/pazarın SLA süresine sayılmaması; isteğe bağlı birim muafiyet listesi |
+
+**Hesaplama mantığı** (`SlaCalculatorService`):
+
+1. Hafta sonu hariç tutma kapalıysa: `Son Tarih = başlangıç + N saat`
+2. Hafta sonu hariç tutma açıksa: saatler yalnızca hafta içi günlerde ilerler; muaf birimler için normal saat eklemesi uygulanır
+
+**Başlangıç anı** iş akışına göre değişir:
+
+- Onay gerektirmeyen talep oluşturma → oluşturma anı
+- Onay sonrası → onay anı
+- Görev atama / rutin görev → atama veya oluşturma anı
+- Vatandaş mesajı (henüz talep yok) → mesajın alındığı an (`ReceivedAtUtc`)
+
+**Operatör ve onay:**
+
+- Operatörün açtığı **vatandaş talebi** doğrudan SLA alır (birim yöneticisi onayı yok).
+- Operatörün **birim içi/dışı** talepleri personel gibi onay bekler; onay öncesi son tarih atanmaz.
+
+Değişiklik sonrası kontrol listesi:
+
+- Yeni açılan talep/görevde Son Tarih sütunu beklenen sürede doluyor mu?
+- Vatandaş Talepleri gridinde henüz talebe dönüşmemiş satırlarda Son Tarih = Vatandaş Talep Tarihi + SLA mı?
+- Hafta sonu hariç ayarı açıksa pazartesi sabahı açılan kayıtlarda cumartesi/pazar sayılmıyor mu?
+
+---
+
 ## 3. Kullanıcı Yönetimi
 
 Kullanıcı ekranında yapılabilen işlemler:

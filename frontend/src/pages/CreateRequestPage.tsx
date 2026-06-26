@@ -528,7 +528,6 @@ export function CreateRequestPage() {
   const renderAddressFields = (
     form: { neighborhood: string; street: string; openAddress: string },
     setField: (field: 'neighborhood' | 'street' | 'openAddress', value: string) => void,
-    afterOpenAddress?: React.ReactNode,
   ) => (
     <div className="job-field">
       <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
@@ -558,18 +557,15 @@ export function CreateRequestPage() {
           </div>
         </div>
         <div className="grid gap-2">
-          <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-            <label className="grid gap-1 min-h-0">
-              <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
-              <textarea
-                className="field-textarea min-h-[5.5rem] resize-none"
-                placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
-                value={form.openAddress}
-                onChange={e => setField('openAddress', e.target.value)}
-              />
-            </label>
-            {afterOpenAddress}
-          </div>
+          <label className="grid gap-1 min-h-0">
+            <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+            <textarea
+              className="field-textarea min-h-[5.5rem] resize-none"
+              placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+              value={form.openAddress}
+              onChange={e => setField('openAddress', e.target.value)}
+            />
+          </label>
           {renderPhotoUpload('min-h-0')}
         </div>
       </div>
@@ -989,14 +985,7 @@ export function CreateRequestPage() {
                 </select>
               )}
             </div>
-            {renderAddressFields(
-              internalForm,
-              (field, value) => setInternalForm(current => ({ ...current, [field]: value })),
-              <Button type="submit" disabled={saving || loading} className="gap-2 self-start">
-                <Send className="size-4" />
-                {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
-              </Button>,
-            )}
+            {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
@@ -1008,6 +997,10 @@ export function CreateRequestPage() {
                 minHeight="min-h-64"
               />
             </div>
+            <Button type="submit" disabled={saving || loading} className="gap-2">
+              <Send className="size-4" />
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+            </Button>
           </div>
         </form>
       ) : null}
@@ -1063,14 +1056,7 @@ export function CreateRequestPage() {
                 <DateTimePicker id="request-due-date" value={externalForm.dueDateUtc} onChange={v => setExternalForm(current => ({ ...current, dueDateUtc: v }))} />
               </div>
             </div>
-            {renderAddressFields(
-              externalForm,
-              (field, value) => setExternalForm(current => ({ ...current, [field]: value })),
-              <Button type="submit" disabled={saving || loading} className="gap-2 self-start">
-                <Send className="size-4" />
-                {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
-              </Button>,
-            )}
+            {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })))}
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
@@ -1082,6 +1068,10 @@ export function CreateRequestPage() {
                 minHeight="min-h-64"
               />
             </div>
+            <Button type="submit" disabled={saving || loading} className="gap-2">
+              <Send className="size-4" />
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+            </Button>
           </div>
         </form>
       ) : null}
@@ -1132,14 +1122,7 @@ export function CreateRequestPage() {
                 <DateTimePicker id="citizen-request-due-date" value={citizenForm.dueDateUtc} onChange={value => setCitizenForm(current => ({ ...current, dueDateUtc: value }))} />
               </div>
             </div>
-            {renderAddressFields(
-              citizenForm,
-              (field, value) => setCitizenForm(current => ({ ...current, [field]: value })),
-              <Button type="submit" disabled={saving || loading} className="gap-2 self-start">
-                <Send className="size-4" />
-                {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
-              </Button>,
-            )}
+            {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
           </div>
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
@@ -1201,6 +1184,10 @@ export function CreateRequestPage() {
                 minHeight="min-h-48"
               />
             </div>
+            <Button type="submit" disabled={saving || loading} className="gap-2">
+              <Send className="size-4" />
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+            </Button>
           </div>
         </form>
       ) : null}

@@ -1305,6 +1305,19 @@
     gap: 0.35rem;
   }
 
+  /* Vatandaş Talepleri: yeşil thead satır yüksekliği paging bar ile aynı (0.6rem / 1rem). */
+  .app-content-shell .social-messages-table thead th {
+    padding: 0.6rem 1rem;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    vertical-align: middle;
+  }
+
+  .app-content-shell .social-messages-table .filterable-th-content {
+    align-items: center;
+    min-height: 0;
+  }
+
   .citizen-request-form .job-field-label {
     font-size: 0.82rem;
     font-weight: 600;

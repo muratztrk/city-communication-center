@@ -26,7 +26,7 @@ import type { Attachment, Department, JobDetail, Task, TaskDetail, TaskListScope
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { printHtmlDocument } from '../utils/printDocument'
-import { isCitizenRequestJob } from '../utils/citizenRequests'
+import { isCitizenRequestJob, buildWhatsAppConversationUrl } from '../utils/citizenRequests'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -1230,6 +1230,17 @@ const pageKicker = isMyTasksView
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {parentJobDetail
+                  && isCitizenRequestJob(parentJobDetail)
+                  && buildWhatsAppConversationUrl(parentJobDetail) && (
+                  <Button
+                    type="button"
+                    className="bg-[#007985] text-white hover:bg-[#006570]"
+                    onClick={() => navigate(buildWhatsAppConversationUrl(parentJobDetail)!)}
+                  >
+                    {t('social.goToConversation', 'Yazışmaya Git')}
+                  </Button>
+                )}
                 {canRouteTaskDetail && selectedTask && (
                   <Button
                     type="button"

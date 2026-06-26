@@ -28,7 +28,7 @@ import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
-import { isCitizenRequestJob } from '../utils/citizenRequests'
+import { isCitizenRequestJob, buildWhatsAppConversationUrl } from '../utils/citizenRequests'
 import { TablePagination } from '../components/ui/table-pagination'
 import { printHtmlDocument } from '../utils/printDocument'
 
@@ -1705,6 +1705,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {isCitizenRequestDetail && buildWhatsAppConversationUrl(detail) && (
+                  <Button
+                    type="button"
+                    className="bg-[#007985] text-white hover:bg-[#006570]"
+                    onClick={() => navigate(buildWhatsAppConversationUrl(detail)!)}
+                  >
+                    {t('social.goToConversation', 'Yazışmaya Git')}
+                  </Button>
+                )}
                 {(canApproveDetail || canAssignIncomingDetail) && (
                   <Button type="button" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
                     {t('jobs.actions.approveOwner', 'Onayla')}

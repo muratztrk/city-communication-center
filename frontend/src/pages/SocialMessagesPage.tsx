@@ -283,8 +283,20 @@ export function SocialMessagesPage() {
     return sortSocial(result)
   }, [channelFilter, channelParam, displayMessages, filterFrom, filterTo, searchText, sortSocial])
 
+  useEffect(() => {
+    const phoneParam = searchParams.get('phone')?.trim()
+    if (!phoneParam) return
+    const digits = phoneParam.replace(/\D/g, '').replace(/^90(?=\d{10}$)/, '').replace(/^0(?=\d{10}$)/, '')
+    if (digits) setSocialFilter('citizenPhone', digits)
+  }, [searchParams, setSocialFilter])
+
   const columnFilteredMessages = useMemo(
-    () => filteredMessages.filter(m => socialMatchesFilters(m)),
+    () => filteredMessages.filter(m => socialMatchesFilters(m, (key, item) => {
+      if (key === 'citizenPhone') {
+        return String((item as Record<string, unknown>).citizenPhone ?? '').replace(/\D/g, '').replace(/^90/, '')
+      }
+      return String((item as Record<string, unknown>)[key] ?? '')
+    })),
     [filteredMessages, socialMatchesFilters],
   )
 

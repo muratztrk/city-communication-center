@@ -1020,16 +1020,10 @@ export function SettingsPage() {
   }
 
   const toggleWeekendAllHours = () => {
-    setTemplateForm(current => {
-      const next = !current.timedReplyWeekendAllHours
-      return {
-        ...current,
-        timedReplyWeekendAllHours: next,
-        activeDays: next
-          ? Array.from(new Set([...current.activeDays, ...TEMPLATE_WEEKEND_DAY_IDS]))
-          : current.activeDays,
-      }
-    })
+    setTemplateForm(current => ({
+      ...current,
+      timedReplyWeekendAllHours: !current.timedReplyWeekendAllHours,
+    }))
   }
 
   const persistTemplate = async (successMessage = 'Şablon kaydedildi.') => {

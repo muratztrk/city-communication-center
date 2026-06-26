@@ -744,7 +744,7 @@
     "blocked": "Engellendi",
     "newTicket": "Yeni Talep Aç",
     "viewTicket": "Talebi Görüntüle",
-    "viewLastTicket": "Numaranın Oluşturduğu Son Talep",
+    "viewRequestsByNumber": "Numaranın Oluşturduğu Talepler",
     "mediaLoadFailed": "Medya yüklenemedi",
     "addAsRequestAttachment": "Talep Eki Olarak Ekle",
     "tickets": "Bağlı Talepler",

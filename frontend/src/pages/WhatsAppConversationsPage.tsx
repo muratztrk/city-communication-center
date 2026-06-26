@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { AlertCircle, CalendarClock, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
-import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
@@ -16,7 +15,6 @@ import type {
   WhatsAppMessageTemplate,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
-import { JobsPage } from './JobsPage'
 import { SocialConversationMediaBubble } from '../components/SocialConversationMediaBubble'
 import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
@@ -33,6 +31,13 @@ function formatPhone(phone: string): string {
 
 function normalizePhone(phone: string): string {
   return phone.replace(/\D/g, '').replace(/^0(?=5\d{9}$)/, '90')
+}
+
+function toLocalPhoneFilterDigits(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1)
+  return digits
 }
 
 function findClosestTimelineEntryIndex(
@@ -243,7 +248,7 @@ function ConversationDetail({
   onReadMarked,
   onOpenCreateRequest,
   onOpenEditRequest,
-  onOpenViewJob,
+  onOpenViewRequests,
 }: {
   conversationId: string
   templates: WhatsAppMessageTemplate[]
@@ -252,7 +257,7 @@ function ConversationDetail({
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId: string) => void
   onOpenEditRequest: (socialMessageId: string, jobId: string) => void
-  onOpenViewJob: (jobId: string) => void
+  onOpenViewRequests: (citizenPhone: string) => void
 }) {
   const { t } = useTranslation()
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
@@ -392,20 +397,14 @@ function ConversationDetail({
               >
                 {t('nav.createRequest', 'Talep Oluştur')}
               </Button>
-              {primaryTicket.jobId ? (
-                <Button
-                  size="sm"
-                  type="button"
-                  variant="secondary"
-                  onClick={() => onOpenViewJob(primaryTicket.jobId!)}
-                >
-                  {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
-                </Button>
-              ) : (
-                <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
-                  {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
-                </DisabledActionButton>
-              )}
+              <Button
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={() => onOpenViewRequests(detail.citizenPhone)}
+              >
+                {t('whatsapp.viewRequestsByNumber', 'Numaranın Oluşturduğu Talepler')}
+              </Button>
             </div>
             <TemplatePicker
               templates={templates}
@@ -461,6 +460,7 @@ function ConversationDetail({
 
 export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const requestedPhone = searchParams.get('phone') ?? ''
   const requestedAt = searchParams.get('at') ?? ''
@@ -470,7 +470,6 @@ export function WhatsAppConversationsPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
   const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
-  const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(searchParams.get('phone') ?? '')
   const [filterFrom, setFilterFrom] = useState('')
@@ -565,6 +564,12 @@ export function WhatsAppConversationsPage() {
     setDetailRefreshKey(key => key + 1)
   }, [loadConversations])
 
+  const handleOpenViewRequests = useCallback((citizenPhone: string) => {
+    const digits = toLocalPhoneFilterDigits(citizenPhone)
+    if (!digits) return
+    navigate(`/social?phone=${encodeURIComponent(digits)}&channel=all`)
+  }, [navigate])
+
   return (
     <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
@@ -637,7 +642,7 @@ export function WhatsAppConversationsPage() {
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
               onOpenEditRequest={(socialMessageId, jobId) => { void handleOpenEditRequest(socialMessageId, jobId) }}
-              onOpenViewJob={setDetailJobId}
+              onOpenViewRequests={handleOpenViewRequests}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">
@@ -658,17 +663,6 @@ export function WhatsAppConversationsPage() {
             setRequestModalEditJobId(null)
           }}
           onCreated={handleRequestCreated}
-        />
-      ) : null}
-
-      {detailJobId ? (
-        <JobsPage
-          mode="myRequests"
-          fixedScope="mine"
-          detailOnly
-          detailContextOverride="social"
-          notificationJobId={detailJobId}
-          onNotificationDetailClose={() => setDetailJobId(null)}
         />
       ) : null}
     </div>

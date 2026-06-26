@@ -90,11 +90,16 @@ function extractPhoneDigits(value: string): string {
   return digits.length > 10 ? digits.slice(-10) : digits
 }
 
+function isBlankCitizenLabel(value: string): boolean {
+  const normalized = normalizeCitizenHandle(value)
+  return !normalized || ['-', '—', '–'].includes(normalized)
+}
+
 function resolveInitialCitizenName(message: SocialMessage): string {
   for (const candidate of [message.citizenName, message.citizenHandle]) {
     if (!candidate?.trim()) continue
     const normalized = normalizeCitizenHandle(candidate)
-    if (normalized && !looksLikePhone(normalized)) return normalized
+    if (normalized && !looksLikePhone(normalized) && !isBlankCitizenLabel(normalized)) return normalized
   }
   return ''
 }
@@ -111,7 +116,7 @@ function resolveInitialCitizenPhone(message: SocialMessage): string {
 function sanitizeCitizenName(value: string | null | undefined): string {
   if (!value?.trim()) return ''
   const normalized = normalizeCitizenHandle(value)
-  return normalized && !looksLikePhone(normalized) ? normalized : ''
+  return normalized && !looksLikePhone(normalized) && !isBlankCitizenLabel(normalized) ? normalized : ''
 }
 
 /**
@@ -469,104 +474,102 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-2">
-                  <label className="job-field grid gap-1">
-                    <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-                    <select
-                      className="field-select"
-                      value={neighborhood}
-                      onChange={event => setNeighborhood(event.target.value)}
-                    >
-                      <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-                      {neighborhoods.map(item => (
-                        <option key={item} value={item}>{item}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="job-field grid gap-1">
-                    <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
-                    <input
-                      className="field-input"
-                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                      value={street}
-                      onChange={event => setStreet(event.target.value)}
-                    />
-                  </label>
-                </div>
-                <div className="grid gap-2 md:grid-cols-3 md:items-stretch">
-                  <div className="grid gap-2 md:col-span-2 md:row-span-2">
-                    <div className="grid gap-2 md:grid-cols-2">
-                      <div className="job-field min-h-0">
-                        <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
-                        <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
-                      </div>
-                      <div className="job-field min-h-0">
-                        <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
-                        <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
-                      </div>
-                    </div>
+                <div className="grid gap-2 md:grid-cols-3 md:items-start">
+                  <div className="grid gap-2">
+                    <label className="job-field grid gap-1">
+                      <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                      <select
+                        className="field-select"
+                        value={neighborhood}
+                        onChange={event => setNeighborhood(event.target.value)}
+                      >
+                        <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
+                        {neighborhoods.map(item => (
+                          <option key={item} value={item}>{item}</option>
+                        ))}
+                      </select>
+                    </label>
                     <div className="job-field min-h-0">
-                      <div className="flex items-start gap-3">
-                        <div className="flex shrink-0 flex-col gap-1">
-                          <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                          <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-1.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
-                            <Paperclip className="size-3.5" />
-                            {t('attachments.addFile', 'Dosya ekle')}
-                            <input
-                              ref={fileInputRef}
-                              type="file"
-                              accept={ACCEPT_ATTR}
-                              multiple
-                              className="hidden"
-                              disabled={saving}
-                              onChange={event => {
-                                for (const file of Array.from(event.target.files ?? [])) {
-                                  addPendingFile(file)
-                                }
-                                if (fileInputRef.current) fileInputRef.current.value = ''
-                              }}
-                            />
-                          </label>
-                        </div>
-                        <div className="min-h-[3.75rem] max-h-[3.75rem] flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                          {pendingFiles.length === 0 ? (
-                            <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
-                          ) : (
-                            <ul className="space-y-1 text-xs">
-                              {pendingFiles.map((file, idx) => (
-                                <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
-                                  <button
-                                    type="button"
-                                    className="min-w-0 flex-1 break-words text-left font-medium text-slate-700 underline-offset-2 hover:underline"
-                                    onClick={() => downloadPendingFile(file)}
-                                  >
-                                    {file.name}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
-                                    onClick={() => setPendingFiles(current => current.filter((_, i) => i !== idx))}
-                                  >
-                                    {t('common.delete', 'Sil')}
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                      {fileError ? <div className="mt-1 text-xs text-red-500">{fileError}</div> : null}
+                      <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
+                      <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
                     </div>
                   </div>
-                  <label className="job-field flex min-h-0 flex-col gap-1 md:col-start-3 md:row-span-2 md:row-start-1">
+                  <div className="grid gap-2">
+                    <label className="job-field grid gap-1">
+                      <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                      <input
+                        className="field-input"
+                        placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                        value={street}
+                        onChange={event => setStreet(event.target.value)}
+                      />
+                    </label>
+                    <div className="job-field min-h-0">
+                      <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
+                      <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
+                    </div>
+                  </div>
+                  <label className="job-field flex min-h-0 flex-col gap-1 self-stretch">
                     <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
-                      className="field-textarea field-textarea--compact min-h-0 flex-1 resize-none"
+                      className="field-textarea field-textarea--compact min-h-[7.5rem] flex-1 resize-none"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}
                     />
                   </label>
+                </div>
+                <div className="job-field min-h-0 mt-2">
+                  <div className="flex items-start gap-3">
+                    <div className="flex shrink-0 flex-col gap-1">
+                      <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
+                      <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-1.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
+                        <Paperclip className="size-3.5" />
+                        {t('attachments.addFile', 'Dosya ekle')}
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept={ACCEPT_ATTR}
+                          multiple
+                          className="hidden"
+                          disabled={saving}
+                          onChange={event => {
+                            for (const file of Array.from(event.target.files ?? [])) {
+                              addPendingFile(file)
+                            }
+                            if (fileInputRef.current) fileInputRef.current.value = ''
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <div className="min-h-[3.75rem] max-h-[3.75rem] flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                      {pendingFiles.length === 0 ? (
+                        <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+                      ) : (
+                        <ul className="space-y-1 text-xs">
+                          {pendingFiles.map((file, idx) => (
+                            <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
+                              <button
+                                type="button"
+                                className="min-w-0 flex-1 break-words text-left font-medium text-slate-700 underline-offset-2 hover:underline"
+                                onClick={() => downloadPendingFile(file)}
+                              >
+                                {file.name}
+                              </button>
+                              <button
+                                type="button"
+                                className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                                onClick={() => setPendingFiles(current => current.filter((_, i) => i !== idx))}
+                              >
+                                {t('common.delete', 'Sil')}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                  {fileError ? <div className="mt-1 text-xs text-red-500">{fileError}</div> : null}
                 </div>
               </div>
 

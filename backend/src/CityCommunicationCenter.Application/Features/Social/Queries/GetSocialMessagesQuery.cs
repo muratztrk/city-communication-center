@@ -51,6 +51,20 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                 entity.SocialMessageId,
                 entity.Channel.ToString(),
                 entity.CitizenHandle,
+                entity.JobId == null
+                    ? null
+                    : _dbContext.Jobs
+                        .AsNoTracking()
+                        .Where(job => job.JobId == entity.JobId)
+                        .Select(job => job.CitizenName)
+                        .FirstOrDefault(),
+                entity.JobId == null
+                    ? null
+                    : _dbContext.Jobs
+                        .AsNoTracking()
+                        .Where(job => job.JobId == entity.JobId)
+                        .Select(job => job.CitizenPhone)
+                        .FirstOrDefault(),
                 entity.Content,
                 entity.Category,
                 entity.Status.ToString(),

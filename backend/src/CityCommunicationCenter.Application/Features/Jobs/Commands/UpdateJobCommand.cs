@@ -15,7 +15,9 @@ public sealed record UpdateJobCommand(
     string? Neighborhood = null,
     string? Street = null,
     string? OpenAddress = null,
-    IReadOnlyCollection<Guid>? TargetDepartmentIds = null) : ICommand<bool>;
+    IReadOnlyCollection<Guid>? TargetDepartmentIds = null,
+    string? CitizenName = null,
+    string? CitizenPhone = null) : ICommand<bool>;
 
 public sealed class UpdateJobCommandValidator : AbstractValidator<UpdateJobCommand>
 {
@@ -76,6 +78,8 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         if (request.Neighborhood is not null) job.Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood;
         if (request.Street is not null) job.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street;
         if (request.OpenAddress is not null) job.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress;
+        if (request.CitizenName is not null) job.CitizenName = string.IsNullOrWhiteSpace(request.CitizenName) ? null : request.CitizenName.Trim();
+        if (request.CitizenPhone is not null) job.CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim();
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
 

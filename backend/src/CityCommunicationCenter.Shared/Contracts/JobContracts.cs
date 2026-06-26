@@ -33,7 +33,9 @@ public sealed record UpdateJobRequest(
     string? Neighborhood = null,
     string? Street = null,
     string? OpenAddress = null,
-    IReadOnlyCollection<Guid>? TargetDepartmentIds = null);
+    IReadOnlyCollection<Guid>? TargetDepartmentIds = null,
+    string? CitizenName = null,
+    string? CitizenPhone = null);
 
 public sealed record CancelJobRequest(string Reason);
 

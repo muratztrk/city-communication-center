@@ -41,6 +41,7 @@ interface ExternalFormState extends InternalFormState {
 interface CitizenFormState {
   channel: string
   citizenHandle: string
+  citizenPhone: string
   content: string
   category: string
   latitude: string
@@ -79,6 +80,7 @@ const EMPTY_EXTERNAL_FORM: ExternalFormState = {
 const EMPTY_CITIZEN_FORM: CitizenFormState = {
   channel: 'WhatsApp',
   citizenHandle: '',
+  citizenPhone: '',
   content: '',
   category: '',
   latitude: '',
@@ -381,7 +383,8 @@ export function CreateRequestPage() {
         setEditSocialMessageId(message.socialMessageId)
         setCitizenForm({
           channel: message.channel,
-          citizenHandle: message.citizenHandle,
+          citizenHandle: job.citizenName ?? message.citizenHandle,
+          citizenPhone: job.citizenPhone ?? '',
           content: message.content ?? job.description ?? '',
           category: message.category ?? '',
           latitude: message.latitude != null ? String(message.latitude) : '',
@@ -751,19 +754,27 @@ export function CreateRequestPage() {
       setError(t('settings.citizen.citizenHandleRequired', 'Vatandaş / Gönderen gereklidir.'))
       return
     }
+    const trimmedPhone = citizenForm.citizenPhone.replace(/\D/g, '')
+    if (trimmedPhone.length !== 10) {
+      setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
+      return
+    }
 
     setSaving(true)
     setError(null)
+    const trimmedName = citizenForm.citizenHandle.trim()
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
       if (editJobId && linkedSocialMessageId) {
         await api.updateJob(editJobId, {
-          title: citizenForm.title.trim() || citizenForm.citizenHandle.trim(),
+          title: citizenForm.title.trim() || trimmedName,
           description: citizenForm.content.trim(),
           priority: citizenForm.priority,
           startDateUtc: toApiDateTime(citizenForm.startDateUtc),
           dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
           isProject: false,
+          citizenName: trimmedName,
+          citizenPhone: trimmedPhone,
           neighborhood: citizenForm.neighborhood || null,
           street: citizenForm.street || null,
           openAddress: citizenForm.openAddress || null,
@@ -771,7 +782,7 @@ export function CreateRequestPage() {
         })
         await api.updateSocialMessage(linkedSocialMessageId, {
           channel: citizenForm.channel,
-          citizenHandle: citizenForm.citizenHandle.trim(),
+          citizenHandle: trimmedName,
           content: citizenForm.content.trim(),
         })
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
@@ -783,7 +794,7 @@ export function CreateRequestPage() {
       }
 
       const convertPayload = {
-        title: citizenForm.title.trim() || citizenForm.citizenHandle.trim(),
+        title: citizenForm.title.trim() || trimmedName,
         description: citizenForm.content.trim(),
         ownerDepartmentId: myDepartmentId,
         priority: citizenForm.priority,
@@ -795,6 +806,8 @@ export function CreateRequestPage() {
         neighborhood: citizenForm.neighborhood || null,
         street: citizenForm.street || null,
         openAddress: citizenForm.openAddress || null,
+        citizenName: trimmedName,
+        citizenPhone: trimmedPhone,
       }
 
       if (linkedSocialMessageId) {
@@ -803,7 +816,7 @@ export function CreateRequestPage() {
       } else {
         const socialMessageId = await api.createSocialMessage({
           channel: citizenForm.channel,
-          citizenHandle: citizenForm.citizenHandle.trim(),
+          citizenHandle: trimmedName,
           content: citizenForm.content.trim(),
         })
         await api.convertSocialMessageToJob(socialMessageId, convertPayload)
@@ -1090,17 +1103,35 @@ export function CreateRequestPage() {
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
           </div>
           <div className="grid content-start gap-3">
-            <label className="job-field">
-              <span className="job-field-label">{t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
-              <input
-                className="field-input"
-                required
-                maxLength={50}
-                placeholder={t('settings.citizen.citizenHandlePlaceholder', 'Vatandaş ismi ya da Telefon Numarası')}
-                value={citizenForm.citizenHandle}
-                onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
-              />
-            </label>
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="job-field">
+                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş İsmi / Gönderen')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+                <input
+                  className="field-input"
+                  required
+                  maxLength={50}
+                  placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
+                  value={citizenForm.citizenHandle}
+                  onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
+                />
+              </label>
+              <label className="job-field">
+                <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Vatandaş Telefon Numarası (Başında 0 olmadan ekleyin)')} <span className="text-red-500">*</span></span>
+                <input
+                  className="field-input"
+                  required
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={10}
+                  placeholder="5XXXXXXXXX"
+                  value={citizenForm.citizenPhone}
+                  onChange={event => setCitizenForm(current => ({
+                    ...current,
+                    citizenPhone: event.target.value.replace(/\D/g, '').slice(0, 10),
+                  }))}
+                />
+              </label>
+            </div>
             <div className="job-field">
               <span className="job-field-label">{t('settings.citizen.channel', 'Talep Kanalı')}</span>
               <div className="grid grid-cols-9 gap-1">

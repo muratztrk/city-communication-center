@@ -17,7 +17,9 @@ public sealed record ConvertSocialMessageToJobCommand(
     DateTimeOffset? StartDateUtc = null,
     string? Neighborhood = null,
     string? Street = null,
-    string? OpenAddress = null) : ICommand<JobSummaryResponse?>;
+    string? OpenAddress = null,
+    string? CitizenName = null,
+    string? CitizenPhone = null) : ICommand<JobSummaryResponse?>;
 
 public sealed class ConvertSocialMessageToJobCommandValidator : AbstractValidator<ConvertSocialMessageToJobCommand>
 {
@@ -74,8 +76,8 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             request.Priority,
             RequestType: request.RequestType ?? JobRequestType.Citizen.ToString(),
             IsProject: request.IsProject,
-            CitizenName: message.CitizenHandle,
-            CitizenPhone: null,
+            CitizenName: ResolveCitizenName(request.CitizenName, message.CitizenHandle),
+            CitizenPhone: ResolveCitizenPhone(request.CitizenPhone, message.CitizenHandle),
             StartDateUtc: request.StartDateUtc,
             request.DueDateUtc,
             TargetDepartmentIds: request.TargetDepartmentIds,
@@ -95,4 +97,33 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
 
         return jobSummary;
     }
+
+    private static string? ResolveCitizenName(string? requestedName, string citizenHandle)
+    {
+        if (!string.IsNullOrWhiteSpace(requestedName))
+        {
+            return requestedName.Trim();
+        }
+
+        return LooksLikePhone(citizenHandle) ? null : citizenHandle.Trim();
+    }
+
+    private static string? ResolveCitizenPhone(string? requestedPhone, string citizenHandle)
+    {
+        if (!string.IsNullOrWhiteSpace(requestedPhone))
+        {
+            return requestedPhone.Trim();
+        }
+
+        return LooksLikePhone(citizenHandle) ? NormalizePhoneDigits(citizenHandle) : null;
+    }
+
+    private static bool LooksLikePhone(string value)
+    {
+        var digits = NormalizePhoneDigits(value);
+        return digits.Length is >= 10 and <= 12;
+    }
+
+    private static string NormalizePhoneDigits(string value)
+        => new(value.Where(char.IsDigit).ToArray());
 }

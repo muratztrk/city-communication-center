@@ -235,6 +235,8 @@ export interface UpdateJobRequest {
   street?: string | null;
   openAddress?: string | null;
   targetDepartmentIds?: string[] | null;
+  citizenName?: string | null;
+  citizenPhone?: string | null;
 }
 
 export interface JobSummary {
@@ -347,6 +349,8 @@ export interface SocialMessage {
   socialMessageId: string;
   channel: string;
   citizenHandle: string;
+  citizenName?: string | null;
+  citizenPhone?: string | null;
   content: string | null;
   category: string | null;
   status: string;

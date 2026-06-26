@@ -21,7 +21,9 @@ public sealed record ConvertSocialMessageToJobRequest(
     DateTimeOffset? StartDateUtc = null,
     string? Neighborhood = null,
     string? Street = null,
-    string? OpenAddress = null);
+    string? OpenAddress = null,
+    string? CitizenName = null,
+    string? CitizenPhone = null);
 
 public sealed record CreateSocialMessageRequest(
     string Channel,
@@ -52,6 +54,8 @@ public sealed record SocialMessageSummaryResponse(
     Guid SocialMessageId,
     string Channel,
     string CitizenHandle,
+    string? CitizenName,
+    string? CitizenPhone,
     string? Content,
     string? Category,
     string Status,

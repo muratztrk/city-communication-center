@@ -228,6 +228,7 @@ builder.Services.AddMediator(options =>
 
 builder.Services.AddApplicationServices();
 builder.Services.AddScoped<InitialPasswordSeeder>();
+builder.Services.AddScoped<WhatsAppTemplateSeeder>();
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
 {
@@ -271,6 +272,8 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Envi
     await dbContext.Database.MigrateAsync();
     var passwordSeeder = scope.ServiceProvider.GetRequiredService<InitialPasswordSeeder>();
     await passwordSeeder.SeedAsync();
+    var templateSeeder = scope.ServiceProvider.GetRequiredService<WhatsAppTemplateSeeder>();
+    await templateSeeder.SeedAsync();
 }
 
 app.UseRouting();

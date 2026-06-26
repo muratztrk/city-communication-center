@@ -34,6 +34,35 @@ function formatCitizenRequestNumber(message: SocialMessage) {
   return `VT-${year}-${message.citizenRequestNumber}`
 }
 
+function formatCitizenPhoneDisplay(value: string | null | undefined): string {
+  if (!value) return '—'
+  const digits = value.replace(/\D/g, '')
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8)}`
+  }
+  if (digits.length === 12 && digits.startsWith('90')) {
+    return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
+  }
+  return value
+}
+
+function looksLikePhone(value: string): boolean {
+  const digits = value.replace(/\D/g, '')
+  return digits.length >= 10 && digits.length <= 12
+}
+
+function getSocialMessageCitizenName(message: SocialMessage): string {
+  if (message.citizenName?.trim()) return message.citizenName.trim()
+  if (looksLikePhone(message.citizenHandle)) return '—'
+  return message.citizenHandle.replace(/^@+/, '')
+}
+
+function getSocialMessageCitizenPhone(message: SocialMessage): string {
+  if (message.citizenPhone?.trim()) return formatCitizenPhoneDisplay(message.citizenPhone)
+  if (looksLikePhone(message.citizenHandle)) return formatCitizenPhoneDisplay(message.citizenHandle)
+  return '—'
+}
+
 function getSocialMessageLastDate(message: SocialMessage) {
   return message.updatedAtUtc ?? message.receivedAtUtc
 }
@@ -192,10 +221,16 @@ export function SocialMessagesPage() {
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
   const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
 
+  const displayMessages = useMemo(() => messages.map(message => ({
+    ...message,
+    citizenName: getSocialMessageCitizenName(message),
+    citizenPhone: getSocialMessageCitizenPhone(message),
+  })), [messages])
+
   const filteredMessages = useMemo(() => {
     const showAllChannels = channelParam === ALL_CHANNELS_FILTER
     // Varsayılan görünümde WhatsApp; "Tümü" seçilince tüm kanallar (WhatsApp dahil).
-    let result = messages.filter(message => {
+    let result = displayMessages.filter(message => {
       if (channelFilter) return message.channel === channelFilter
       if (showAllChannels) return true
       return message.channel !== 'WhatsApp'
@@ -215,6 +250,8 @@ export function SocialMessagesPage() {
       result = result.filter(message => [
         formatCitizenRequestNumber(message),
         message.channel,
+        getSocialMessageCitizenName(message),
+        getSocialMessageCitizenPhone(message),
         message.citizenHandle,
         message.content,
         message.category,
@@ -223,7 +260,7 @@ export function SocialMessagesPage() {
     }
 
     return sortSocial(result)
-  }, [channelFilter, channelParam, filterFrom, filterTo, messages, searchText, sortSocial])
+  }, [channelFilter, channelParam, displayMessages, filterFrom, filterTo, searchText, sortSocial])
 
   const columnFilteredMessages = useMemo(
     () => filteredMessages.filter(m => socialMatchesFilters(m)),
@@ -309,7 +346,8 @@ export function SocialMessagesPage() {
                 <FilterableTh filterKey="jobNumber" filterValue={socialFilters['jobNumber'] ?? ''} onFilter={setSocialFilter} sortKey="jobNumber" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenRequestNo', 'Vatandaş Talep No')}</FilterableTh>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenRequestDate', 'Vatandaş Talep Tarihi')}</FilterableTh>
                 <FilterableTh filterKey="channel" filterValue={socialFilters['channel'] ?? ''} onFilter={setSocialFilter} sortKey="channel" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.channel')}</FilterableTh>
-                <FilterableTh filterKey="citizenHandle" filterValue={socialFilters['citizenHandle'] ?? ''} onFilter={setSocialFilter} sortKey="citizenHandle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.sender')}</FilterableTh>
+                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
+                <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş İsmi')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
                 <FilterableTh filterKey="updatedAtUtc" filterValue={socialFilters['updatedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="updatedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.lastDate', 'Son Tarih')}</FilterableTh>
                 <th>{t('common.actions')}</th>
@@ -334,7 +372,8 @@ export function SocialMessagesPage() {
                         <span className="font-medium">{getSocialChannelLabel(t, message.channel)}</span>
                       </span>
                     </td>
-                    <td className="font-semibold">@{message.citizenHandle}</td>
+                    <td className="font-mono text-xs">{message.citizenPhone}</td>
+                    <td className="font-semibold">{message.citizenName}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
                     <td><DateCell value={getSocialMessageLastDate(message)} locale={locale} /></td>
                     <td className="actions-cell">

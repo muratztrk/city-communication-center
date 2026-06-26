@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
+import { AlertCircle, CalendarClock, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -108,7 +108,8 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
         {isPlaceholderBracketContent(entry.content) && !hasMedia && (
           <p className="italic opacity-70 text-xs">{formatBracketContent(entry.content)}</p>
         )}
-        <p className={`mt-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'} text-right`}>
+        <p className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
+          <CalendarClock className="size-3 shrink-0" />
           {new Date(entry.sentAt).toLocaleString(locale, { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
         </p>
       </div>
@@ -134,8 +135,8 @@ function ConversationListItem({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left px-4 py-3 border-b border-[color:var(--color-border)] transition-colors hover:bg-[color:var(--color-surface-raised)] ${
-        selected ? 'bg-[color:var(--color-surface-raised)] border-l-2 border-l-[color:var(--color-primary)]' : ''
+      className={`w-full text-left px-4 py-3 border-b border-[color:var(--color-border)] transition-colors bg-slate-50 hover:bg-slate-100 ${
+        selected ? 'bg-slate-100 border-l-2 border-l-[color:var(--color-primary)]' : ''
       }`}
     >
       <div className="flex items-start justify-between gap-2 min-w-0">

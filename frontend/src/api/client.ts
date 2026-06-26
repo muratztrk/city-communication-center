@@ -918,6 +918,8 @@ export const api = {
       neighborhood?: string | null
       street?: string | null
       openAddress?: string | null
+      citizenName?: string | null
+      citizenPhone?: string | null
     },
   ): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/convert`, {

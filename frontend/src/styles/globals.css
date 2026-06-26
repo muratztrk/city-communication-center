@@ -1275,7 +1275,23 @@
   }
 
   .citizen-request-form .job-field-label {
-    font-size: 0.72rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--color-muted-foreground);
+  }
+
+  .citizen-request-form .field-hint {
+    font-size: 0.68rem;
+    font-weight: 400;
+    text-transform: lowercase;
+    color: rgb(148 163 184);
+  }
+
+  .citizen-request-form .field-textarea--compact {
+    font-size: 0.75rem;
+    line-height: 1.35;
   }
 
   .citizen-request-form .field-input,

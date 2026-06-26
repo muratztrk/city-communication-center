@@ -358,7 +358,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                 <label className="job-field">
                   <span className="job-field-label">
                     {t('settings.citizen.citizenName', 'Vatandaş İsmi / Gönderen')}{' '}
-                    <span className="text-[0.68rem] font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
+                    <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </span>
                   <input
@@ -371,9 +371,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                   />
                 </label>
                 <label className="job-field">
-                  <span className="job-field-label !normal-case">
+                  <span className="job-field-label">
                     {t('settings.citizen.citizenPhone', 'Vatandaş Telefon No')}{' '}
-                    <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span>{' '}
+                    <span className="field-hint">{t('settings.citizen.citizenPhoneHint', '(başında 0 olmadan ekleyin)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </span>
                   <input
@@ -393,7 +393,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-title">
                     {t('tasks.newRequest.title', 'Talep Başlığı')}{' '}
-                    <span className="text-[0.68rem] font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
+                    <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -435,6 +435,15 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
 
               <div className="job-field">
                 <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
+                <label className="job-field grid gap-1">
+                  <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                  <input
+                    className="field-input"
+                    placeholder={t('address.neighborhoodPlaceholder', 'Mahalle')}
+                    value={neighborhood}
+                    onChange={event => setNeighborhood(event.target.value)}
+                  />
+                </label>
                 <div className="grid gap-2 md:grid-cols-3 md:grid-rows-2 md:items-stretch">
                   <div className="job-field min-h-0">
                     <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
@@ -445,24 +454,16 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
                   </div>
                   <label className="job-field flex min-h-0 flex-col gap-1 md:row-span-2">
-                    <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+                    <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
-                      className="field-textarea min-h-0 flex-1 resize-none"
+                      className="field-textarea field-textarea--compact min-h-0 flex-1 resize-none"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}
                     />
                   </label>
-                  <div className="job-field min-h-0">
-                    <input
-                      className="field-input"
-                      placeholder={t('address.neighborhoodLabel', 'Mahalle')}
-                      value={neighborhood}
-                      onChange={event => setNeighborhood(event.target.value)}
-                    />
-                  </div>
-                  <label className="job-field grid min-h-0 gap-1">
-                    <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                  <label className="job-field grid min-h-0 gap-1 md:col-span-2">
+                    <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
                     <input
                       className="field-input"
                       placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}

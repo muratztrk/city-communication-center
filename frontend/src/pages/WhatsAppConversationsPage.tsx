@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, Volume2, X } from 'lucide-react'
+import { AlertCircle, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -18,6 +18,8 @@ import type {
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
 import { JobsPage } from './JobsPage'
+import { SocialConversationMediaBubble } from '../components/SocialConversationMediaBubble'
+import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -72,45 +74,6 @@ function formatRelativeTime(dateStr: string, locale: string): string {
   return d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
 }
 
-// ─── media bubble ────────────────────────────────────────────────────────────
-
-function MediaBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
-  const mime = entry.mediaMimeType ?? ''
-  const mediaUrl = api.getSocialMediaUrl(entry.socialMessageId, entry.entryId)
-  if (mime.startsWith('image/')) {
-    return (
-      <img
-        src={mediaUrl}
-        alt="media"
-        className="max-w-[16rem] max-h-48 rounded-xl object-cover border border-white/20 cursor-pointer"
-        onClick={() => window.open(mediaUrl, '_blank')}
-      />
-    )
-  }
-  if (mime.startsWith('video/')) {
-    return <video src={mediaUrl} controls className="max-w-[16rem] max-h-48 rounded-xl border border-white/20" />
-  }
-  if (mime.startsWith('audio/')) {
-    return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl">
-        <Volume2 className="size-4 shrink-0" />
-        <audio src={mediaUrl} controls className="h-7" />
-      </div>
-    )
-  }
-  return (
-    <a
-      href={mediaUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl text-sm font-semibold underline-offset-2 hover:underline"
-    >
-      <FileText className="size-4 shrink-0" />
-      {mime || 'Dosya'}
-    </a>
-  )
-}
-
 // ─── timeline entry bubble ───────────────────────────────────────────────────
 
 function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
@@ -130,14 +93,20 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
       >
         {hasMedia && (
           <div className="mb-1.5">
-            <MediaBubble entry={entry} />
+            <SocialConversationMediaBubble
+              key={`${entry.socialMessageId}-${entry.entryId}`}
+              socialMessageId={entry.socialMessageId}
+              entryId={entry.entryId}
+              mediaMimeType={entry.mediaMimeType}
+              direction={entry.direction}
+            />
           </div>
         )}
-        {entry.content && !entry.content.startsWith('[') && (
+        {entry.content && !isPlaceholderBracketContent(entry.content) && (
           <p className="whitespace-pre-wrap break-words leading-snug">{entry.content}</p>
         )}
-        {entry.content.startsWith('[') && !hasMedia && (
-          <p className="italic opacity-70 text-xs">{entry.content}</p>
+        {isPlaceholderBracketContent(entry.content) && !hasMedia && (
+          <p className="italic opacity-70 text-xs">{formatBracketContent(entry.content)}</p>
         )}
         <p className={`mt-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'} text-right`}>
           {new Date(entry.sentAt).toLocaleString(locale, { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
@@ -454,11 +423,11 @@ function ConversationDetail({
                 variant="secondary"
                 onClick={() => onOpenViewJob(primaryTicket.jobId!)}
               >
-                {t('whatsapp.viewTicket', 'Talebi Görüntüle')}
+                {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
               </Button>
             ) : (
               <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
-                {t('whatsapp.viewTicket', 'Talebi Görüntüle')}
+                {t('whatsapp.viewLastTicket', 'Numaranın Oluşturduğu Son Talep')}
               </DisabledActionButton>
             )}
           </div>

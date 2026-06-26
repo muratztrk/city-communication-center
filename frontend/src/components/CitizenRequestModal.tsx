@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Send, X } from 'lucide-react'
+import { Paperclip, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -23,6 +23,25 @@ interface CitizenRequestModalProps {
   onCreated: () => void
 }
 
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
+const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
+function fileExtension(name: string): string {
+  const dot = name.lastIndexOf('.')
+  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
+
+function validateFile(file: File): string | null {
+  if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
+    return 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    return 'Dosya boyutu 5 MB\'ı aşamaz.'
+  }
+  return null
+}
+
 function toApiDateTime(value: string): string | null {
   return value ? new Date(value).toISOString() : null
 }
@@ -43,18 +62,23 @@ function escapeHtml(value: string): string {
     .replace(/>/g, '&gt;')
 }
 
+function normalizeCitizenHandle(value: string): string {
+  return value.trim().replace(/^@+/, '')
+}
+
 /**
- * Vatandaş talebini "Birim Dışı Talep Oluştur" formuyla, ilgili WhatsApp konuşması yan tarafta
- * görünür şekilde bir pop-up içinde oluşturur (card 443).
+ * Vatandaş talebini ilgili WhatsApp konuşması yan tarafta görünür şekilde bir pop-up içinde oluşturur.
  */
 export function CitizenRequestModal({ message, departments, editJobId = null, onClose, onCreated }: CitizenRequestModalProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const isEditMode = Boolean(editJobId)
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
-  const [title, setTitle] = useState(message.category?.trim() || `@${message.citizenHandle}`)
+  const [citizenHandle, setCitizenHandle] = useState(normalizeCitizenHandle(message.citizenHandle))
+  const [title, setTitle] = useState(message.category?.trim() || normalizeCitizenHandle(message.citizenHandle))
   const [description, setDescription] = useState(message.content ? `<p>${escapeHtml(message.content)}</p>` : '')
   const [targetDepartmentId, setTargetDepartmentId] = useState('')
   const [priority, setPriority] = useState('Normal')
@@ -64,6 +88,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
   const [neighborhood, setNeighborhood] = useState('')
   const [street, setStreet] = useState('')
   const [openAddress, setOpenAddress] = useState('')
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
+  const [fileError, setFileError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [loadingJob, setLoadingJob] = useState(isEditMode)
   const [error, setError] = useState<string | null>(null)
@@ -115,10 +141,45 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
       && !isPresidencyLevelDepartment(department)),
     [departments, ownerDepartmentId],
   )
+
+  const addPendingFile = (file: File) => {
+    const validationError = validateFile(file)
+    if (validationError) {
+      setFileError(validationError)
+      return
+    }
+    setFileError(null)
+    setPendingFiles(current => {
+      if (current.some(existing => existing.name === file.name && existing.size === file.size)) {
+        return current
+      }
+      return [...current, file]
+    })
+  }
+
+  const downloadPendingFile = (file: File) => {
+    const url = URL.createObjectURL(file)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = file.name
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const uploadPendingFiles = async (jobId: string) => {
+    for (const file of pendingFiles) {
+      await api.uploadJobAttachment(jobId, file)
+    }
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!ownerDepartmentId) {
       setError(t('social.ownerDepartmentRequired', 'Önce bir müdürlük seçin.'))
+      return
+    }
+    if (!citizenHandle.trim()) {
+      setError(t('settings.citizen.citizenHandleRequired', 'Vatandaş / Gönderen gereklidir.'))
       return
     }
     if (!targetDepartmentId) {
@@ -132,9 +193,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
 
     if (!confirmedSubmit) {
       setConfirmDialog({
-        title: isEditMode
-          ? t('requests.create.externalFormTitleUpdate', 'Birim Dışı Talep Güncelle')
-          : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur'),
+        title: t('jobs.detail.citizenRequest', 'Vatandaş Talebi'),
         message: isEditMode
           ? t('requests.create.confirmUpdate', 'Bu talebi güncellemek istediğinize emin misiniz?')
           : t('requests.create.confirmCreate', 'Bu talebi oluşturmak istediğinize emin misiniz?'),
@@ -153,10 +212,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
 
     setSaving(true)
     setError(null)
+    const trimmedHandle = citizenHandle.trim()
+    const trimmedTitle = title.trim() || trimmedHandle
     try {
       if (isEditMode && editJobId) {
         await api.updateJob(editJobId, {
-          title: title.trim() || `@${message.citizenHandle}`,
+          title: trimmedTitle,
           description: description.trim(),
           priority,
           startDateUtc: toApiDateTime(startDateUtc),
@@ -169,20 +230,23 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         })
         await api.updateSocialMessage(message.socialMessageId, {
           channel: message.channel,
-          citizenHandle: message.citizenHandle,
+          citizenHandle: trimmedHandle,
           content: description.trim(),
           category: message.category ?? undefined,
           latitude: message.latitude ?? undefined,
           longitude: message.longitude ?? undefined,
         })
+        if (pendingFiles.length > 0) {
+          await uploadPendingFiles(editJobId)
+        }
         invalidateSocialMessages(queryClient, message.socialMessageId)
         invalidateJobs(queryClient, editJobId)
         onCreated()
         return
       }
 
-      await api.convertSocialMessageToJob(message.socialMessageId, {
-        title: title.trim() || `@${message.citizenHandle}`,
+      const job = await api.convertSocialMessageToJob(message.socialMessageId, {
+        title: trimmedTitle,
         description: description.trim(),
         ownerDepartmentId,
         priority,
@@ -195,6 +259,17 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         street: street || null,
         openAddress: openAddress || null,
       })
+      await api.updateSocialMessage(message.socialMessageId, {
+        channel: message.channel,
+        citizenHandle: trimmedHandle,
+        content: description.trim(),
+        category: message.category ?? undefined,
+        latitude: message.latitude ?? undefined,
+        longitude: message.longitude ?? undefined,
+      })
+      if (pendingFiles.length > 0) {
+        await uploadPendingFiles(job.jobId)
+      }
       invalidateSocialMessages(queryClient, message.socialMessageId)
       onCreated()
     } catch (submitError) {
@@ -215,7 +290,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
-        {/* Header — sayfa banner'ı ile aynı yeşil geçiş */}
         <div
           className="flex shrink-0 items-center justify-between gap-3 px-5 py-3 text-white"
           style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
@@ -225,9 +299,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
               {t('social.title', 'Vatandaş Talepleri')}
             </div>
             <h2 className="text-base font-extrabold text-white">
-              {t('requests.create.externalTitle', 'Birim Dışı')} — {isEditMode
-                ? t('social.editRequest', 'Talep Düzenle')
-                : t('nav.createRequest', 'Talep Oluştur')}
+              {t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
             </h2>
           </div>
           <button
@@ -240,24 +312,37 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
           </button>
         </div>
 
-        {/* Body: conversation (left) + external request form (right) */}
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
-          {/* İlgili WhatsApp konuşması */}
           <div className="min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r">
             <ConversationPanel
               socialMessageId={message.socialMessageId}
               citizenHandle={message.citizenHandle}
               onClose={onClose}
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
+              onAddMediaAsAttachment={addPendingFile}
             />
           </div>
 
-          {/* Birim Dışı Talep Oluştur formu */}
           <form id="citizen-request-form" className="citizen-request-form flex min-h-0 flex-col overflow-y-auto p-4" onSubmit={handleSubmit}>
             {loadingJob ? (
               <div className="flex flex-1 items-center justify-center py-12 text-sm text-slate-500">{t('common.loading')}</div>
             ) : (
             <div className="grid gap-2.5">
+              <label className="job-field">
+                <span className="job-field-label">
+                  {t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')}{' '}
+                  <span className="text-[0.68rem] font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
+                  <span className="text-red-500">*</span>
+                </span>
+                <input
+                  className="field-input"
+                  value={citizenHandle}
+                  maxLength={50}
+                  required
+                  onChange={event => setCitizenHandle(event.target.value)}
+                />
+              </label>
+
               <div className="grid gap-2.5 sm:grid-cols-2">
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-title">
@@ -341,6 +426,72 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                   value={openAddress}
                   onChange={event => setOpenAddress(event.target.value)}
                 />
+              </div>
+
+              <div className="job-field">
+                <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
+                <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+                  <div
+                    role="button"
+                    tabIndex={saving ? -1 : 0}
+                    className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+                    onClick={() => !saving && fileInputRef.current?.click()}
+                    onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
+                    onDragOver={event => event.preventDefault()}
+                    onDrop={event => {
+                      event.preventDefault()
+                      if (saving) return
+                      for (const file of Array.from(event.dataTransfer.files)) {
+                        addPendingFile(file)
+                      }
+                    }}
+                  >
+                    <Paperclip className="mb-1 size-4 text-slate-400" />
+                    <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
+                    <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, GIF, WebP — maks. 5 MB')}</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept={ACCEPT_ATTR}
+                      multiple
+                      className="hidden"
+                      disabled={saving}
+                      onChange={event => {
+                        for (const file of Array.from(event.target.files ?? [])) {
+                          addPendingFile(file)
+                        }
+                        if (fileInputRef.current) fileInputRef.current.value = ''
+                      }}
+                    />
+                  </div>
+                  <div className="min-h-[5.5rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    {pendingFiles.length === 0 ? (
+                      <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+                    ) : (
+                      <ul className="space-y-1 text-xs">
+                        {pendingFiles.map((file, idx) => (
+                          <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
+                            <button
+                              type="button"
+                              className="min-w-0 flex-1 break-words text-left font-medium text-slate-700 underline-offset-2 hover:underline"
+                              onClick={() => downloadPendingFile(file)}
+                            >
+                              {file.name}
+                            </button>
+                            <button
+                              type="button"
+                              className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                              onClick={() => setPendingFiles(current => current.filter((_, i) => i !== idx))}
+                            >
+                              {t('common.delete', 'Sil')}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                {fileError ? <div className="mt-1 text-xs text-red-500">{fileError}</div> : null}
               </div>
 
               <div className="job-field min-h-0">

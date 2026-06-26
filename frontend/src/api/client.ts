@@ -90,6 +90,15 @@ export const api = {
     return response.blob()
   },
 
+  async downloadSocialMedia(socialMessageId: string, entryId: string): Promise<Blob> {
+    const response = await fetchWithCredentials(
+      `${API_BASE}/social/messages/${socialMessageId}/conversation/media/${entryId}`,
+      { headers: await getAuthHeaders() },
+    )
+    await ensureOk(response, i18n.t('whatsapp.mediaLoadFailed', 'Medya indirilemedi'))
+    return response.blob()
+  },
+
   async getMyDepartments(): Promise<DepartmentSummary[]> {
     const response = await fetchWithCredentials(`${API_BASE}/me/departments`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.departmentsLoadFailed', 'Birim bilgileri yüklenemedi'))

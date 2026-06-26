@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Send, X, Loader2, FileText, Volume2 } from 'lucide-react'
+import { Send, X, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { SocialConversationEntry } from '../types/platform'
@@ -7,7 +7,9 @@ import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
+import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
 import { getLocale } from '../utils/localization'
+import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -15,57 +17,18 @@ interface ConversationPanelProps {
   onClose: () => void
   canReply?: boolean
   onReplySent?: () => void
+  onAddMediaAsAttachment?: (file: File) => void
 }
 
-function MediaBubble({ entry, socialMessageId }: { entry: SocialConversationEntry; socialMessageId: string }) {
-  const mime = entry.mediaMimeType ?? ''
-  const mediaUrl = api.getSocialMediaUrl(socialMessageId, entry.entryId)
-
-  if (mime.startsWith('image/')) {
-    return (
-      <img
-        src={mediaUrl}
-        alt="media"
-        className="max-w-[16rem] max-h-48 rounded-xl object-cover border border-white/20 cursor-pointer"
-        onClick={() => window.open(mediaUrl, '_blank')}
-      />
-    )
-  }
-
-  if (mime.startsWith('video/')) {
-    return (
-      <video
-        src={mediaUrl}
-        controls
-        className="max-w-[16rem] max-h-48 rounded-xl border border-white/20"
-      />
-    )
-  }
-
-  if (mime.startsWith('audio/')) {
-    return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl">
-        <Volume2 className="size-4 shrink-0" />
-        <audio src={mediaUrl} controls className="h-7" />
-      </div>
-    )
-  }
-
-  // document / other
-  return (
-    <a
-      href={mediaUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl text-sm font-semibold underline-offset-2 hover:underline"
-    >
-      <FileText className="size-4 shrink-0" />
-      {mime || 'Dosya'}
-    </a>
-  )
-}
-
-function EntryBubble({ entry, socialMessageId }: { entry: SocialConversationEntry; socialMessageId: string }) {
+function EntryBubble({
+  entry,
+  socialMessageId,
+  onAddMediaAsAttachment,
+}: {
+  entry: SocialConversationEntry
+  socialMessageId: string
+  onAddMediaAsAttachment?: (file: File) => void
+}) {
   const { i18n } = useTranslation()
   const isInbound = entry.direction === 'Inbound'
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
@@ -81,14 +44,21 @@ function EntryBubble({ entry, socialMessageId }: { entry: SocialConversationEntr
       >
         {hasMedia && (
           <div className="mb-1.5">
-            <MediaBubble entry={entry} socialMessageId={socialMessageId} />
+            <SocialConversationMediaBubble
+              key={`${socialMessageId}-${entry.entryId}`}
+              socialMessageId={socialMessageId}
+              entryId={entry.entryId}
+              mediaMimeType={entry.mediaMimeType}
+              direction={entry.direction}
+              onAddAsAttachment={onAddMediaAsAttachment}
+            />
           </div>
         )}
-        {entry.content && !entry.content.startsWith('[') && (
+        {entry.content && !isPlaceholderBracketContent(entry.content) && (
           <p className="whitespace-pre-wrap break-words leading-snug">{entry.content}</p>
         )}
-        {entry.content.startsWith('[') && !hasMedia && (
-          <p className="italic opacity-70 text-xs">{entry.content}</p>
+        {isPlaceholderBracketContent(entry.content) && !hasMedia && (
+          <p className="italic opacity-70 text-xs">{formatBracketContent(entry.content)}</p>
         )}
         <p className={`mt-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'} text-right`}>
           {new Date(entry.sentAt).toLocaleString(getLocale(i18n.language), { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
@@ -98,7 +68,7 @@ function EntryBubble({ entry, socialMessageId }: { entry: SocialConversationEntr
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, onClose, canReply = true, onReplySent }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, onClose, canReply = true, onReplySent, onAddMediaAsAttachment }: ConversationPanelProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [replyText, setReplyText] = useState('')
@@ -162,7 +132,12 @@ export function ConversationPanel({ socialMessageId, citizenHandle, onClose, can
           <p className="text-center text-sm text-slate-400 mt-8">{t('social.noMessages', 'Henüz mesaj yok')}</p>
         ) : (
           entries.map((entry, i) => (
-            <EntryBubble key={entry.entryId || i} entry={entry} socialMessageId={socialMessageId} />
+            <EntryBubble
+              key={entry.entryId || i}
+              entry={entry}
+              socialMessageId={socialMessageId}
+              onAddMediaAsAttachment={onAddMediaAsAttachment}
+            />
           ))
         )}
         <div ref={bottomRef} />

@@ -550,25 +550,37 @@ export function WhatsAppConversationsPage() {
     )
   }, [selectedId])
 
+  const enrichMessageWithConversation = useCallback((message: SocialMessage, conversationId: string | null): SocialMessage => {
+    const conversation = conversations.find(item => item.citizenConversationId === conversationId)
+    if (!conversation) return message
+    return {
+      ...message,
+      citizenName: conversation.citizenName ?? message.citizenName ?? null,
+      citizenPhone: conversation.citizenPhone ?? message.citizenPhone ?? null,
+    }
+  }, [conversations])
+
   const handleOpenCreateRequest = useCallback(async (socialMessageId: string) => {
     try {
       setRequestModalEditJobId(null)
-      setRequestModalMessage(await api.getSocialMessageById(socialMessageId))
+      const message = await api.getSocialMessageById(socialMessageId)
+      setRequestModalMessage(enrichMessageWithConversation(message, selectedId))
     } catch {
       setRequestModalEditJobId(null)
       setRequestModalMessage(null)
     }
-  }, [])
+  }, [enrichMessageWithConversation, selectedId])
 
   const handleOpenEditRequest = useCallback(async (socialMessageId: string, jobId: string) => {
     try {
       setRequestModalEditJobId(jobId)
-      setRequestModalMessage(await api.getSocialMessageById(socialMessageId))
+      const message = await api.getSocialMessageById(socialMessageId)
+      setRequestModalMessage(enrichMessageWithConversation(message, selectedId))
     } catch {
       setRequestModalEditJobId(null)
       setRequestModalMessage(null)
     }
-  }, [])
+  }, [enrichMessageWithConversation, selectedId])
 
   const handleRequestCreated = useCallback(() => {
     setRequestModalMessage(null)

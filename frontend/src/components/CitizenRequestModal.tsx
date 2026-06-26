@@ -67,16 +67,58 @@ function normalizeCitizenHandle(value: string): string {
   return value.trim().replace(/^@+/, '')
 }
 
+function stripWhatsAppJid(value: string): string {
+  const trimmed = value.trim()
+  const atIndex = trimmed.indexOf('@')
+  return atIndex >= 0 ? trimmed.slice(0, atIndex) : trimmed
+}
+
 function looksLikePhone(value: string): boolean {
-  const digits = value.replace(/\D/g, '')
-  return digits.length >= 10 && digits.length <= 12
+  const trimmed = stripWhatsAppJid(value)
+  if (!trimmed) return false
+  const digits = trimmed.replace(/\D/g, '')
+  if (digits.length < 10 || digits.length > 15) return false
+  if (/^[\d+\s().-]+$/.test(trimmed)) return true
+  const compact = trimmed.replace(/\s/g, '')
+  return compact.length > 0 && digits.length / compact.length >= 0.85
 }
 
 function extractPhoneDigits(value: string): string {
-  const digits = value.replace(/\D/g, '')
+  const digits = stripWhatsAppJid(value).replace(/\D/g, '')
   if (digits.length === 10) return digits
   if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
   return digits.length > 10 ? digits.slice(-10) : digits
+}
+
+function resolveInitialCitizenName(message: SocialMessage): string {
+  for (const candidate of [message.citizenName, message.citizenHandle]) {
+    if (!candidate?.trim()) continue
+    const normalized = normalizeCitizenHandle(candidate)
+    if (normalized && !looksLikePhone(normalized)) return normalized
+  }
+  return ''
+}
+
+function resolveInitialCitizenPhone(message: SocialMessage): string {
+  for (const candidate of [message.citizenPhone, message.citizenHandle, message.citizenName]) {
+    if (!candidate?.trim()) continue
+    if (looksLikePhone(candidate)) return extractPhoneDigits(candidate)
+  }
+  return ''
+}
+
+function resolveInitialTitle(message: SocialMessage): string {
+  const category = message.category?.trim()
+  if (category) return category
+  const fromHandle = normalizeCitizenHandle(message.citizenHandle)
+  if (fromHandle && !looksLikePhone(fromHandle)) return fromHandle
+  return ''
+}
+
+function sanitizeCitizenName(value: string | null | undefined): string {
+  if (!value?.trim()) return ''
+  const normalized = normalizeCitizenHandle(value)
+  return normalized && !looksLikePhone(normalized) ? normalized : ''
 }
 
 /**
@@ -90,13 +132,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
   const isEditMode = Boolean(editJobId)
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
-  const [citizenHandle, setCitizenHandle] = useState(
-    looksLikePhone(message.citizenHandle) ? '' : normalizeCitizenHandle(message.citizenHandle),
-  )
-  const [citizenPhone, setCitizenPhone] = useState(
-    looksLikePhone(message.citizenHandle) ? extractPhoneDigits(message.citizenHandle) : '',
-  )
-  const [title, setTitle] = useState(message.category?.trim() || normalizeCitizenHandle(message.citizenHandle))
+  const [citizenHandle, setCitizenHandle] = useState(() => resolveInitialCitizenName(message))
+  const [citizenPhone, setCitizenPhone] = useState(() => resolveInitialCitizenPhone(message))
+  const [title, setTitle] = useState(() => resolveInitialTitle(message))
   const [description, setDescription] = useState(message.content ? `<p>${escapeHtml(message.content)}</p>` : '')
   const [targetDepartmentId, setTargetDepartmentId] = useState('')
   const [priority, setPriority] = useState('Normal')
@@ -131,8 +169,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         setDescription(job.description ?? (message.content ? `<p>${escapeHtml(message.content)}</p>` : ''))
         setTargetDepartmentId(targetIds[0] ?? '')
         setPriority(job.priority)
-        setCitizenHandle(job.citizenName ?? (looksLikePhone(message.citizenHandle) ? '' : normalizeCitizenHandle(message.citizenHandle)))
-        setCitizenPhone(job.citizenPhone ?? (looksLikePhone(message.citizenHandle) ? extractPhoneDigits(message.citizenHandle) : ''))
+        setCitizenHandle(sanitizeCitizenName(job.citizenName) || resolveInitialCitizenName(message))
+        setCitizenPhone(job.citizenPhone ? extractPhoneDigits(job.citizenPhone) : resolveInitialCitizenPhone(message))
         setStartDateUtc(job.startDateUtc ?? '')
         setDueDateUtc(job.dueDateUtc ?? '')
         setNeighborhood(job.neighborhood ?? '')
@@ -461,7 +499,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     />
                   </label>
                 </div>
-                <div className="grid gap-2 md:grid-cols-3 md:grid-rows-2 md:items-start">
+                <div className="grid gap-2 md:grid-cols-3 md:grid-rows-2 md:items-stretch">
                   <div className="job-field min-h-0">
                     <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
                     <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
@@ -470,10 +508,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
                     <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
                   </div>
-                  <label className="job-field flex flex-col gap-1 md:col-start-3 md:row-start-1">
+                  <label className="job-field flex min-h-0 flex-col gap-1 md:col-start-3 md:row-span-2 md:row-start-1">
                     <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
-                      className="field-textarea field-textarea--compact h-[2.6rem] min-h-[2.6rem] max-h-[2.6rem] resize-none"
+                      className="field-textarea field-textarea--compact min-h-0 flex-1 resize-none"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}

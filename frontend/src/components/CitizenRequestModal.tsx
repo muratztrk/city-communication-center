@@ -461,7 +461,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     />
                   </label>
                 </div>
-                <div className="grid gap-2 md:grid-cols-3 md:grid-rows-2 md:items-stretch">
+                <div className="grid gap-2 md:grid-cols-3 md:grid-rows-2 md:items-start">
                   <div className="job-field min-h-0">
                     <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
                     <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
@@ -470,10 +470,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
                     <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
                   </div>
-                  <label className="job-field flex min-h-0 flex-col gap-1 md:col-start-3 md:row-span-2 md:row-start-1">
+                  <label className="job-field flex flex-col gap-1 md:col-start-3 md:row-start-1">
                     <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
-                      className="field-textarea field-textarea--compact min-h-0 flex-1 resize-none"
+                      className="field-textarea field-textarea--compact h-[2.6rem] min-h-[2.6rem] max-h-[2.6rem] resize-none"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}

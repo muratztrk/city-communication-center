@@ -206,10 +206,15 @@ function TemplatePicker({
   const [open, setOpen] = useState(false)
   const active = useMemo(() => {
     const filtered = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
-    const pinnedName = 'KVKK Hoşgeldiniz'
+    const pinnedOrder = ['KVKK Hoşgeldiniz', 'Eksik Bilgi']
     return [...filtered].sort((left, right) => {
-      if (left.name === pinnedName) return -1
-      if (right.name === pinnedName) return 1
+      const leftIndex = pinnedOrder.indexOf(left.name)
+      const rightIndex = pinnedOrder.indexOf(right.name)
+      if (leftIndex !== -1 || rightIndex !== -1) {
+        if (leftIndex === -1) return 1
+        if (rightIndex === -1) return -1
+        return leftIndex - rightIndex
+      }
       return left.name.localeCompare(right.name, 'tr')
     })
   }, [templates])

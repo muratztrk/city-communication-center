@@ -10,6 +10,7 @@ import { queryKeys } from '../api/queryKeys'
 import { Button } from '../components/ui/button'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { Department, User } from '../types/platform'
 import { getDepartmentTypeLabel } from '../utils/localization'
@@ -358,12 +359,8 @@ export function DepartmentsPage() {
                   </tr>
                 )
               })}
-              {departments.length === 0 ? (
-                <tr>
-                  <td colSpan={5}>
-                    <div className="empty-state">{t('departments.empty')}</div>
-                  </td>
-                </tr>
+              {columnFilteredDepts.length === 0 ? (
+                <TableEmptyStateRows columnCount={5} message={t('departments.empty')} />
               ) : null}
             </tbody>
           </table>

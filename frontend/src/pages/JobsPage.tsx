@@ -30,6 +30,7 @@ import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { isCitizenRequestJob, buildWhatsAppConversationUrl } from '../utils/citizenRequests'
 import { TablePagination } from '../components/ui/table-pagination'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 
 interface ScopeChipFiltersProps {
@@ -677,6 +678,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
   const showTaskOwnerColumn = (isMyRequestsView || isDepartmentOutgoingView)
     && ['in-progress', 'completed', 'rejected'].includes(activeJobView)
+  const jobsTableColumnCount = useMemo(() => {
+    let count = 1
+    if (isMyRequestsView || isDepartmentOutgoingView) count += 2
+    if (isDepartmentOutgoingView) count += 1
+    count += 1
+    if (showTaskOwnerColumn) count += 1
+    count += 1
+    if (!(isMyRequestsView || isDepartmentOutgoingView)) count += 3
+    if (!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected')) count += 1
+    if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved') count += 1
+    if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed') count += 1
+    if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') count += 1
+    if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all') count += 1
+    count += 1
+    return count
+  }, [activeJobView, isDepartmentOutgoingView, isMyRequestsView, showTaskOwnerColumn])
   // Yönetici/sorumlu: Bekleyen + Onaylanmış yerine tek "Yapılmakta Olan Taleplerim".
   const myRequestViews = isManagerLike
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
@@ -1519,17 +1536,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </thead>
               <tbody>
                 {pagedJobs.length === 0 && (
-                  <tr>
-                    <td colSpan={99}>
-                      <div className="empty-state text-center">
-                        {isMyRequestsView
-                          ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
-                          : isDepartmentOutgoingView
-                            ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
-                            : t('jobs.empty')}
-                      </div>
-                    </td>
-                  </tr>
+                  <TableEmptyStateRows
+                    columnCount={jobsTableColumnCount}
+                    message={
+                      isMyRequestsView
+                        ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
+                        : isDepartmentOutgoingView
+                          ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
+                          : t('jobs.empty')
+                    }
+                  />
                 )}
                 {pagedJobs.map((job, index) => {
                   const isOutgoingTargetApproved = isDepartmentOutgoingView &&

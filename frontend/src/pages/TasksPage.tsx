@@ -25,6 +25,7 @@ import { useAuth } from '../context/AuthContext'
 import type { Attachment, Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isCitizenRequestJob, buildWhatsAppConversationUrl } from '../utils/citizenRequests'
 
@@ -430,6 +431,16 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const showStatusColumn =
     ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
     || isStaffTasksView
+  const tasksTableColumnCount = useMemo(() => {
+    let count = 7
+    if (isDepartmentTasksView || isStaffTasksView) count += 1
+    if (isStaffTasksView || isMyTasksView || isDepartmentTasksView) count += 1
+    if (!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected')) count += 1
+    if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed') count += 1
+    if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') count += 1
+    if (showStatusColumn) count += 1
+    return count
+  }, [currentMyTaskView, isDepartmentTasksView, isMyTasksView, isStaffTasksView, showStatusColumn])
   const taskTypeParam = searchParams.get('taskType') ?? 'all'
   const currentTaskTypeFilter: 'all' | 'assigned' | 'routine' =
     taskTypeParam === 'assigned' || taskTypeParam === 'routine' ? taskTypeParam : 'all'
@@ -1913,7 +1924,7 @@ const pageKicker = isMyTasksView
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}${pagedTasks.length === 0 ? ' data-table--empty' : ''}`}>
+            <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
               {isMyTasksAllView && (
                 <colgroup>
                   <col className="my-tasks-all-row-number-col" />
@@ -1948,19 +1959,18 @@ const pageKicker = isMyTasksView
               </thead>
               <tbody>
                 {pagedTasks.length === 0 && (
-                  <tr>
-                    <td colSpan={99}>
-                      <div className="empty-state text-center">
-                        {isMyTasksView
-                          ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
-                          : isDepartmentTasksView
-                            ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
-                            : isStaffTasksView
-                              ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
-                              : t('tasks.empty', 'No tasks')}
-                      </div>
-                    </td>
-                  </tr>
+                  <TableEmptyStateRows
+                    columnCount={tasksTableColumnCount}
+                    message={
+                      isMyTasksView
+                        ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
+                        : isDepartmentTasksView
+                          ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
+                          : isStaffTasksView
+                            ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
+                            : t('tasks.empty', 'No tasks')
+                    }
+                  />
                 )}
                 {pagedTasks.map((task, index) => (
                   // Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (dikkat).

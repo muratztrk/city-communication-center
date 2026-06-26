@@ -9,6 +9,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TablePagination } from '../components/ui/table-pagination'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import { getLocale } from '../utils/localization'
@@ -263,7 +264,7 @@ export function EDevletActivityPlansListPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table data-table--zebra${paginatedPlans.length === 0 ? ' data-table--empty' : ''}`}>
+            <table className="data-table jobs-table data-table--zebra">
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -318,15 +319,14 @@ export function EDevletActivityPlansListPage() {
                   )
                 })}
                 {sortedPlans.length === 0 ? (
-                  <tr>
-                    <td colSpan={8}>
-                      <div className="empty-state">
-                        {scope === 'daily'
-                          ? t('edevletActivityPlans.emptyDaily', 'Bugün oluşturulmuş faaliyet planı bulunmuyor.')
-                          : t('edevletActivityPlans.emptyPast', 'Geçmiş faaliyet planı bulunmuyor.')}
-                      </div>
-                    </td>
-                  </tr>
+                  <TableEmptyStateRows
+                    columnCount={8}
+                    message={
+                      scope === 'daily'
+                        ? t('edevletActivityPlans.emptyDaily', 'Bugün oluşturulmuş faaliyet planı bulunmuyor.')
+                        : t('edevletActivityPlans.emptyPast', 'Geçmiş faaliyet planı bulunmuyor.')
+                    }
+                  />
                 ) : null}
               </tbody>
             </table>

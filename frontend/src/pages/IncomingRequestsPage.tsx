@@ -39,6 +39,7 @@ import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { TablePagination } from '../components/ui/table-pagination'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
@@ -335,6 +336,16 @@ export function IncomingRequestsPage() {
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter()
   const showTaskOwnerColumn = ['approved', 'completed', 'cancelled'].includes(currentStatusFilter)
+  const incomingTableColumnCount = useMemo(() => {
+    let count = 6
+    if (showTaskOwnerColumn) count += 1
+    if (currentStatusFilter !== 'cancelled') count += 1
+    if (currentStatusFilter === 'approved') count += 1
+    if (currentStatusFilter === 'completed') count += 1
+    if (currentStatusFilter === 'cancelled') count += 1
+    if (currentStatusFilter === 'all') count += 1
+    return count
+  }, [currentStatusFilter, showTaskOwnerColumn])
 
   useEffect(() => {
     const handler = () => setActiveDeptIdState(getActiveDepartmentId())
@@ -746,11 +757,10 @@ export function IncomingRequestsPage() {
               </thead>
               <tbody>
                 {pagedRows.length === 0 && (
-                  <tr>
-                    <td colSpan={99}>
-                      <div className="empty-state text-center">{t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}</div>
-                    </td>
-                  </tr>
+                  <TableEmptyStateRows
+                    columnCount={incomingTableColumnCount}
+                    message={t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}
+                  />
                 )}
                 {pagedRows.map((row, index) => (
                   // Yalnızca Üst Düzey Yönetici'den gelen aktif birim dışı talepler sarı.

@@ -15,6 +15,7 @@ import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User, UserManagementContext } from '../types/platform'
@@ -766,12 +767,11 @@ export function UsersPage() {
                   </tr>
                 )
               ))}
-              {users.length === 0 ? (
-                <tr>
-                  <td colSpan={canManageUsers ? 10 : 9}>
-                    <div className="empty-state">{t('users.empty')}</div>
-                  </td>
-                </tr>
+              {columnFilteredUsers.length === 0 ? (
+                <TableEmptyStateRows
+                  columnCount={canManageUsers ? 10 : 9}
+                  message={t('users.empty')}
+                />
               ) : null}
             </tbody>
           </table>

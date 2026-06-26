@@ -21,6 +21,7 @@ import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLab
 import { StatusPill } from '../components/ui/status-pill'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { TablePagination } from '../components/ui/table-pagination'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
 
 function hasLocation(message: SocialMessage) {
@@ -466,7 +467,7 @@ export function SocialMessagesPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className={`data-table jobs-table data-table--zebra social-messages-table${pagedMessages.length === 0 ? ' data-table--empty' : ''}`}>
+          <table className="data-table jobs-table data-table--zebra social-messages-table">
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -603,11 +604,7 @@ export function SocialMessagesPage() {
                 )
               })}
               {columnFilteredMessages.length === 0 ? (
-                <tr>
-                  <td colSpan={9}>
-                    <div className="empty-state text-center">{t('social.empty')}</div>
-                  </td>
-                </tr>
+                <TableEmptyStateRows columnCount={10} message={t('social.empty')} />
               ) : null}
             </tbody>
           </table>

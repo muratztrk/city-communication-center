@@ -387,13 +387,6 @@
       padding: 0 2px;
     }
 
-    /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon
-       modelini şişirip başlıkların üst üste binmesine yol açıyordu; boşken Taleplerim
-       grid'i gibi otomatik yerleşime dön (card 577). */
-    .app-content-shell .my-tasks-all-table.data-table--empty {
-      table-layout: auto;
-    }
-
     .app-content-shell .my-tasks-all-table .cell-title {
       max-width: 12rem;
     }
@@ -1209,6 +1202,20 @@
 
   .data-table--zebra tbody tr:nth-child(even):hover td {
     background: rgba(241, 245, 249, 0.9);
+  }
+
+  /* Boş filtre sonucunda tek hücrelik colSpan satırı kolon genişliklerini bozmasın. */
+  .data-table tbody tr.data-table-width-hold {
+    height: 0;
+  }
+
+  .data-table tbody tr.data-table-width-hold td {
+    height: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    line-height: 0;
+    visibility: hidden;
   }
 
   .users-table {

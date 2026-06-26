@@ -373,7 +373,7 @@ function ConversationDetail({
       {detail && primaryTicket && (
         <div className="shrink-0 px-4 py-3.5 border-t border-[color:var(--color-border)] bg-slate-50 space-y-2.5">
           <div className="flex items-center justify-between gap-3 min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-muted-foreground)] shrink-0">
+            <p className="text-sm font-bold text-[color:var(--color-muted-foreground)] shrink-0 underline underline-offset-4 decoration-[color:var(--color-muted-foreground)]">
               {t('whatsapp.tickets')}
             </p>
             {openTicket ? (
@@ -385,27 +385,25 @@ function ConversationDetail({
               </div>
             ) : null}
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                type="button"
-                variant="success"
-                onClick={() => primaryTicket.jobId
-                  ? onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId)
-                  : onOpenCreateRequest(primaryTicket.socialMessageId)}
-              >
-                {t('nav.createRequest', 'Talep Oluştur')}
-              </Button>
-              <Button
-                size="sm"
-                type="button"
-                variant="secondary"
-                onClick={() => onOpenViewRequests(detail.citizenPhone)}
-              >
-                {t('whatsapp.viewRequestsByNumber', 'Numaranın Oluşturduğu Talepler')}
-              </Button>
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="sm"
+              type="button"
+              variant="success"
+              onClick={() => primaryTicket.jobId
+                ? onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId)
+                : onOpenCreateRequest(primaryTicket.socialMessageId)}
+            >
+              {t('nav.createRequest', 'Talep Oluştur')}
+            </Button>
+            <Button
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={() => onOpenViewRequests(detail.citizenPhone)}
+            >
+              {t('whatsapp.viewRequestsByNumber', 'Numaranın Oluşturduğu Talepler')}
+            </Button>
             <TemplatePicker
               templates={templates}
               onSelect={content => setReplyText(content)}
@@ -419,7 +417,7 @@ function ConversationDetail({
         <div className="shrink-0 border-t border-[color:var(--color-border)] bg-slate-50">
           <div className="flex items-end gap-2 px-3 pt-2.5 pb-2">
             <textarea
-              rows={3}
+              rows={2}
               value={replyText}
               onChange={e => setReplyText(e.target.value)}
               onKeyDown={e => {
@@ -430,7 +428,7 @@ function ConversationDetail({
               }}
               placeholder={windowOpen ? t('whatsapp.replyPlaceholder') : 'Şablon seçin…'}
               disabled={!windowOpen && templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp')).length === 0}
-              className="field-input flex-1 resize-none min-h-[5.5rem] max-h-36 py-2 text-sm disabled:opacity-50"
+              className="field-input flex-1 resize-none min-h-[2.75rem] max-h-28 py-1.5 text-base disabled:opacity-50"
             />
             <Button
               size="sm"
@@ -567,7 +565,7 @@ export function WhatsAppConversationsPage() {
   const handleOpenViewRequests = useCallback((citizenPhone: string) => {
     const digits = toLocalPhoneFilterDigits(citizenPhone)
     if (!digits) return
-    navigate(`/social?phone=${encodeURIComponent(digits)}&channel=all`)
+    navigate(`/social?phone=${encodeURIComponent(digits)}`)
   }, [navigate])
 
   return (

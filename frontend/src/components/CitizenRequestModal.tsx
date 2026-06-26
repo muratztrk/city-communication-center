@@ -66,6 +66,18 @@ function normalizeCitizenHandle(value: string): string {
   return value.trim().replace(/^@+/, '')
 }
 
+function looksLikePhone(value: string): boolean {
+  const digits = value.replace(/\D/g, '')
+  return digits.length >= 10 && digits.length <= 12
+}
+
+function extractPhoneDigits(value: string): string {
+  const digits = value.replace(/\D/g, '')
+  if (digits.length === 10) return digits
+  if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
+  return digits.length > 10 ? digits.slice(-10) : digits
+}
+
 /**
  * Vatandaş talebini ilgili WhatsApp konuşması yan tarafta görünür şekilde bir pop-up içinde oluşturur.
  */
@@ -77,12 +89,16 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
   const isEditMode = Boolean(editJobId)
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
-  const [citizenHandle, setCitizenHandle] = useState(normalizeCitizenHandle(message.citizenHandle))
+  const [citizenHandle, setCitizenHandle] = useState(
+    looksLikePhone(message.citizenHandle) ? '' : normalizeCitizenHandle(message.citizenHandle),
+  )
+  const [citizenPhone, setCitizenPhone] = useState(
+    looksLikePhone(message.citizenHandle) ? extractPhoneDigits(message.citizenHandle) : '',
+  )
   const [title, setTitle] = useState(message.category?.trim() || normalizeCitizenHandle(message.citizenHandle))
   const [description, setDescription] = useState(message.content ? `<p>${escapeHtml(message.content)}</p>` : '')
   const [targetDepartmentId, setTargetDepartmentId] = useState('')
   const [priority, setPriority] = useState('Normal')
-  const [isProject, setIsProject] = useState(false)
   const [startDateUtc, setStartDateUtc] = useState('')
   const [dueDateUtc, setDueDateUtc] = useState('')
   const [neighborhood, setNeighborhood] = useState('')
@@ -114,7 +130,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         setDescription(job.description ?? (message.content ? `<p>${escapeHtml(message.content)}</p>` : ''))
         setTargetDepartmentId(targetIds[0] ?? '')
         setPriority(job.priority)
-        setIsProject(job.isProject)
+        setCitizenHandle(job.citizenName ?? (looksLikePhone(message.citizenHandle) ? '' : normalizeCitizenHandle(message.citizenHandle)))
+        setCitizenPhone(job.citizenPhone ?? (looksLikePhone(message.citizenHandle) ? extractPhoneDigits(message.citizenHandle) : ''))
         setStartDateUtc(job.startDateUtc ?? '')
         setDueDateUtc(job.dueDateUtc ?? '')
         setNeighborhood(job.neighborhood ?? '')
@@ -133,7 +150,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
     return () => {
       cancelled = true
     }
-  }, [editJobId, message.content, t])
+  }, [editJobId, message.citizenHandle, message.content, t])
 
   const targetDepartmentOptions = useMemo(
     () => departments.filter(department =>
@@ -182,6 +199,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
       setError(t('settings.citizen.citizenHandleRequired', 'Vatandaş / Gönderen gereklidir.'))
       return
     }
+    const trimmedPhone = citizenPhone.replace(/\D/g, '')
+    if (trimmedPhone.length !== 10) {
+      setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
+      return
+    }
     if (!targetDepartmentId) {
       setError(t('requests.create.targetDepartmentRequired', 'Talebin gideceği birim seçilmelidir.'))
       return
@@ -222,7 +244,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
           priority,
           startDateUtc: toApiDateTime(startDateUtc),
           dueDateUtc: toApiDateTime(dueDateUtc),
-          isProject,
+          isProject: false,
+          citizenName: trimmedHandle,
+          citizenPhone: trimmedPhone,
           neighborhood: neighborhood || null,
           street: street || null,
           openAddress: openAddress || null,
@@ -252,12 +276,14 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
         priority,
         requestType: 'ExternalUnit',
         targetDepartmentIds: [targetDepartmentId],
-        isProject,
+        isProject: false,
         startDateUtc: toApiDateTime(startDateUtc),
         dueDateUtc: toApiDateTime(dueDateUtc),
         neighborhood: neighborhood || null,
         street: street || null,
         openAddress: openAddress || null,
+        citizenName: trimmedHandle,
+        citizenPhone: trimmedPhone,
       })
       await api.updateSocialMessage(message.socialMessageId, {
         channel: message.channel,
@@ -287,7 +313,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
       role="presentation"
     >
       <div
-        className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="detail-modal-shell flex max-h-[min(85dvh,52rem)] w-[min(96vw,72rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <div
@@ -312,7 +338,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)]">
           <div className="min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r">
             <ConversationPanel
               socialMessageId={message.socialMessageId}
@@ -328,22 +354,41 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
               <div className="flex flex-1 items-center justify-center py-12 text-sm text-slate-500">{t('common.loading')}</div>
             ) : (
             <div className="grid gap-2.5">
-              <label className="job-field">
-                <span className="job-field-label">
-                  {t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')}{' '}
-                  <span className="text-[0.68rem] font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
-                  <span className="text-red-500">*</span>
-                </span>
-                <input
-                  className="field-input"
-                  value={citizenHandle}
-                  maxLength={50}
-                  required
-                  onChange={event => setCitizenHandle(event.target.value)}
-                />
-              </label>
+              <div className="grid gap-2.5 md:grid-cols-2">
+                <label className="job-field">
+                  <span className="job-field-label">
+                    {t('settings.citizen.citizenName', 'Vatandaş İsmi / Gönderen')}{' '}
+                    <span className="text-[0.68rem] font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
+                    <span className="text-red-500">*</span>
+                  </span>
+                  <input
+                    className="field-input"
+                    value={citizenHandle}
+                    maxLength={50}
+                    required
+                    placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
+                    onChange={event => setCitizenHandle(event.target.value)}
+                  />
+                </label>
+                <label className="job-field">
+                  <span className="job-field-label">
+                    {t('settings.citizen.citizenPhone', 'Vatandaş Telefon Numarası (Başında 0 olmadan ekleyin)')}{' '}
+                    <span className="text-red-500">*</span>
+                  </span>
+                  <input
+                    className="field-input"
+                    value={citizenPhone}
+                    maxLength={10}
+                    required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="5XXXXXXXXX"
+                    onChange={event => setCitizenPhone(event.target.value.replace(/\D/g, '').slice(0, 10))}
+                  />
+                </label>
+              </div>
 
-              <div className="grid gap-2.5 sm:grid-cols-2">
+              <div className="grid gap-2.5 md:grid-cols-3">
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-title">
                     {t('tasks.newRequest.title', 'Talep Başlığı')}{' '}
@@ -376,9 +421,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     ))}
                   </select>
                 </div>
-              </div>
 
-              <div className="grid gap-3 md:grid-cols-2">
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-priority">{t('jobs.form.priority', 'Öncelik')}</label>
                   <select id="citizen-req-priority" className="field-select" value={priority} onChange={event => setPriority(event.target.value)}>
@@ -387,13 +430,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                     <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
                   </select>
                 </div>
-                <div className="job-field">
-                  <label className="job-field-label" htmlFor="citizen-req-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
-                  <select id="citizen-req-project" className="field-select" value={isProject ? 'yes' : 'no'} onChange={event => setIsProject(event.target.value === 'yes')}>
-                    <option value="no">{t('common.no', 'Hayır')}</option>
-                    <option value="yes">{t('common.yes', 'Evet')}</option>
-                  </select>
-                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
                   <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
@@ -406,7 +445,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
 
               <div className="job-field">
                 <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
-                <div className="grid gap-2 md:grid-cols-2">
+                <div className="grid gap-2 md:grid-cols-3">
                   <input
                     className="field-input"
                     placeholder={t('address.neighborhoodLabel', 'Mahalle')}

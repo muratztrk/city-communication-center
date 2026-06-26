@@ -1,4 +1,4 @@
-import { Building2, MapPin, MessageSquareMore, Paperclip, Send, Workflow } from 'lucide-react'
+import { Building2, MessageSquareMore, Paperclip, Send, Workflow } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -158,6 +158,33 @@ function hasRichTextContent(value: string) {
     .length > 0
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+function toRichTextContent(value: string): string {
+  if (!value.trim()) return ''
+  return value.includes('<') ? value : `<p>${escapeHtml(value)}</p>`
+}
+
+function navigateAfterCitizenRequest(
+  navigate: ReturnType<typeof useNavigate>,
+  returnTo: string | null,
+) {
+  if (returnTo === 'whatsapp') {
+    navigate('/whatsapp')
+    return
+  }
+  if (returnTo === 'social') {
+    navigate('/social')
+    return
+  }
+  navigate('/requests/new?kind=citizen')
+}
+
 
 export function CreateRequestPage() {
   const { t } = useTranslation()
@@ -170,6 +197,8 @@ export function CreateRequestPage() {
   const selectedKind = kindParam
   // Onay öncesi bir talebi "verileri dolu" düzenleme modu (card 452).
   const editJobId = searchParams.get('editJobId')
+  const socialMessageIdParam = searchParams.get('socialMessageId')
+  const returnToParam = searchParams.get('returnTo')
   const [editPrefilled, setEditPrefilled] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -376,6 +405,26 @@ export function CreateRequestPage() {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
     return () => { cancelled = true }
   }, [editJobId, editPrefilled, selectedKind, t])
+
+  useEffect(() => {
+    if (!socialMessageIdParam || editPrefilled || selectedKind !== 'citizen' || editJobId) return
+    let cancelled = false
+    void api.getSocialMessageById(socialMessageIdParam)
+      .then(message => {
+        if (cancelled || !message) return
+        setEditSocialMessageId(message.socialMessageId)
+        setCitizenForm({
+          ...EMPTY_CITIZEN_FORM,
+          channel: message.channel,
+          citizenHandle: message.citizenHandle,
+          content: toRichTextContent(message.content ?? ''),
+          title: message.category?.trim() || message.citizenHandle,
+        })
+        setEditPrefilled(true)
+      })
+      .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
+    return () => { cancelled = true }
+  }, [editJobId, editPrefilled, selectedKind, socialMessageIdParam, t])
 
   useEffect(() => {
     if (editJobId) return // düzenleme modunda sahip birim talepten gelir; varsayılanla ezme.
@@ -706,68 +755,71 @@ export function CreateRequestPage() {
       return
     }
     if (!hasRichTextContent(citizenForm.content)) {
-      setError(t('settings.citizen.contentRequired', 'Talep içeriği gereklidir.'))
+      setError(t('settings.citizen.contentRequired', 'Açıklama gereklidir.'))
       return
     }
 
     setSaving(true)
     setError(null)
+    const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
-      if (editJobId && editSocialMessageId) {
+      if (editJobId && linkedSocialMessageId) {
         await api.updateJob(editJobId, {
-          title: citizenForm.title.trim() || citizenForm.category.trim() || citizenForm.citizenHandle.trim(),
+          title: citizenForm.title.trim() || citizenForm.citizenHandle.trim(),
           description: citizenForm.content.trim(),
           priority: citizenForm.priority,
           startDateUtc: toApiDateTime(citizenForm.startDateUtc),
           dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
-          isProject: citizenForm.isProject,
+          isProject: false,
           neighborhood: citizenForm.neighborhood || null,
           street: citizenForm.street || null,
           openAddress: citizenForm.openAddress || null,
           targetDepartmentIds: [citizenForm.targetDepartmentId],
         })
-        await api.updateSocialMessage(editSocialMessageId, {
+        await api.updateSocialMessage(linkedSocialMessageId, {
           channel: citizenForm.channel,
           citizenHandle: citizenForm.citizenHandle.trim(),
           content: citizenForm.content.trim(),
-          category: citizenForm.category.trim() || undefined,
-          latitude: citizenForm.latitude ? parseFloat(citizenForm.latitude) : undefined,
-          longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
         })
-        invalidateSocialMessages(queryClient, editSocialMessageId)
+        invalidateSocialMessages(queryClient, linkedSocialMessageId)
         invalidateJobs(queryClient, editJobId)
         setCitizenForm(EMPTY_CITIZEN_FORM)
         setEditSocialMessageId(null)
-        navigate('/social')
+        navigateAfterCitizenRequest(navigate, returnToParam)
         return
       }
 
-      const socialMessageId = await api.createSocialMessage({
-        channel: citizenForm.channel,
-        citizenHandle: citizenForm.citizenHandle.trim(),
-        content: citizenForm.content.trim(),
-        category: citizenForm.category.trim() || undefined,
-        latitude: citizenForm.latitude ? parseFloat(citizenForm.latitude) : undefined,
-        longitude: citizenForm.longitude ? parseFloat(citizenForm.longitude) : undefined,
-      })
-      await api.convertSocialMessageToJob(socialMessageId, {
-        title: citizenForm.title.trim() || citizenForm.category.trim() || citizenForm.citizenHandle.trim(),
+      const convertPayload = {
+        title: citizenForm.title.trim() || citizenForm.citizenHandle.trim(),
         description: citizenForm.content.trim(),
         ownerDepartmentId: myDepartmentId,
         priority: citizenForm.priority,
-        requestType: 'ExternalUnit',
+        requestType: 'ExternalUnit' as const,
         targetDepartmentIds: [citizenForm.targetDepartmentId],
-        isProject: citizenForm.isProject,
+        isProject: false,
         startDateUtc: toApiDateTime(citizenForm.startDateUtc),
         dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
         neighborhood: citizenForm.neighborhood || null,
         street: citizenForm.street || null,
         openAddress: citizenForm.openAddress || null,
-      })
-      invalidateSocialMessages(queryClient, socialMessageId)
+      }
+
+      if (linkedSocialMessageId) {
+        await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
+        invalidateSocialMessages(queryClient, linkedSocialMessageId)
+      } else {
+        const socialMessageId = await api.createSocialMessage({
+          channel: citizenForm.channel,
+          citizenHandle: citizenForm.citizenHandle.trim(),
+          content: citizenForm.content.trim(),
+        })
+        await api.convertSocialMessageToJob(socialMessageId, convertPayload)
+        invalidateSocialMessages(queryClient, socialMessageId)
+      }
       invalidateJobs(queryClient)
       setCitizenForm(EMPTY_CITIZEN_FORM)
-      navigate('/requests/new')
+      setEditSocialMessageId(null)
+      navigateAfterCitizenRequest(navigate, returnToParam)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -1032,50 +1084,43 @@ export function CreateRequestPage() {
                 </select>
               </div>
               <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
-                <select id="citizen-request-is-project" className="field-select" value={citizenForm.isProject ? 'yes' : 'no'} onChange={event => setCitizenForm(current => ({ ...current, isProject: event.target.value === 'yes' }))}>
-                  <option value="no">{t('common.no', 'Hayır')}</option>
-                  <option value="yes">{t('common.yes', 'Evet')}</option>
-                </select>
-              </div>
-              <div className="job-field">
                 <label className="job-field-label" htmlFor="citizen-request-start-date">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
                 <DateTimePicker id="citizen-request-start-date" value={citizenForm.startDateUtc} onChange={value => setCitizenForm(current => ({ ...current, startDateUtc: value }))} />
               </div>
-              <div className="job-field">
+              <div className="job-field md:col-span-2">
                 <label className="job-field-label" htmlFor="citizen-request-due-date">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
                 <DateTimePicker id="citizen-request-due-date" value={citizenForm.dueDateUtc} onChange={value => setCitizenForm(current => ({ ...current, dueDateUtc: value }))} />
               </div>
             </div>
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
+          </div>
+          <div className="grid content-start gap-3">
+            {renderRequestTypeField()}
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('settings.citizen.content', 'Talep İçeriği')} <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={citizenForm.content}
                 onChange={content => setCitizenForm(current => ({ ...current, content }))}
                 required
-                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin içeriğini girin...')}
+                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin açıklamasını girin...')}
                 minHeight="min-h-48"
               />
             </div>
-          </div>
-          <div className="grid content-start gap-3">
-            {renderRequestTypeField()}
             <div className="job-field">
-              <span className="job-field-label">{t('settings.citizen.channel', 'Kanal')}</span>
-              <div className="grid grid-cols-3 gap-2">
+              <span className="job-field-label">{t('settings.citizen.channel', 'Talep Kanalı')}</span>
+              <div className="grid grid-cols-9 gap-1">
                 {CITIZEN_CHANNELS.map(channel => (
                   <button
                     key={channel}
                     type="button"
                     onClick={() => setCitizenForm(current => ({ ...current, channel }))}
-                    className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
+                    className={`flex flex-col items-center gap-1 rounded-lg border px-1 py-2 text-[0.68rem] font-semibold transition-colors ${
                       citizenForm.channel === channel
                         ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/8 text-[color:var(--color-primary)]'
                         : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100'
                     }`}
                   >
-                    <ChannelIcon channel={channel} className="size-5 shrink-0" />
+                    <ChannelIcon channel={channel} className="size-4 shrink-0" />
                     <span className="truncate w-full text-center leading-tight">{t(`settings.citizen.channels.${channel}`, channel)}</span>
                   </button>
                 ))}
@@ -1086,66 +1131,11 @@ export function CreateRequestPage() {
               <input
                 className="field-input"
                 required
-                placeholder={t('settings.citizen.citizenHandlePlaceholder', 'ör. @kullaniciad veya tam ad')}
+                placeholder={t('settings.citizen.citizenHandlePlaceholder', 'Vatandaş ismi ya da Telefon Numarası')}
                 value={citizenForm.citizenHandle}
                 onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
               />
             </label>
-            <label className="job-field">
-              <span className="job-field-label">{t('settings.citizen.category', 'Kategori')}</span>
-              <input
-                className="field-input"
-                placeholder={t('settings.citizen.categoryPlaceholder', 'ör. Altyapı, Çevre')}
-                value={citizenForm.category}
-                onChange={event => setCitizenForm(current => ({ ...current, category: event.target.value }))}
-              />
-            </label>
-            <div className="job-field">
-              <span className="job-field-label">{t('location.label', 'Konum (İsteğe Bağlı)')}</span>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  step="any"
-                  className="field-input flex-1"
-                  placeholder={t('location.latPlaceholder', 'Enlem (ör. 41.0082)')}
-                  value={citizenForm.latitude}
-                  onChange={e => setCitizenForm(c => ({ ...c, latitude: e.target.value }))}
-                />
-                <input
-                  type="number"
-                  step="any"
-                  className="field-input flex-1"
-                  placeholder={t('location.lngPlaceholder', 'Boylam (ör. 28.9784)')}
-                  value={citizenForm.longitude}
-                  onChange={e => setCitizenForm(c => ({ ...c, longitude: e.target.value }))}
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    if (!navigator.geolocation) return
-                    navigator.geolocation.getCurrentPosition(pos => {
-                      setCitizenForm(c => ({
-                        ...c,
-                        latitude: pos.coords.latitude.toFixed(6),
-                        longitude: pos.coords.longitude.toFixed(6),
-                      }))
-                    })
-                  }}
-                  title={t('location.useCurrentTitle', 'Mevcut konumu kullan')}
-                >
-                  <MapPin className="size-4" />
-                </Button>
-              </div>
-              {citizenForm.latitude && citizenForm.longitude && (
-                <iframe
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${(parseFloat(citizenForm.longitude) - 0.005).toFixed(6)},${(parseFloat(citizenForm.latitude) - 0.005).toFixed(6)},${(parseFloat(citizenForm.longitude) + 0.005).toFixed(6)},${(parseFloat(citizenForm.latitude) + 0.005).toFixed(6)}&layer=mapnik&marker=${citizenForm.latitude},${citizenForm.longitude}`}
-                  className="mt-2 h-52 w-full rounded-xl border border-slate-200"
-                  title={t('location.mapPreview', 'Konum Önizleme')}
-                />
-              )}
-            </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
               {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}

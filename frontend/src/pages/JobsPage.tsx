@@ -28,6 +28,7 @@ import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
+import { isCitizenRequestJob } from '../utils/citizenRequests'
 import { TablePagination } from '../components/ui/table-pagination'
 import { printHtmlDocument } from '../utils/printDocument'
 
@@ -341,7 +342,7 @@ function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
-    ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)],
+    ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)] as [string, string]]),
     ...(detail.requestType === 'ExternalUnit'
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApprovalDate)] as [string, string]]
       : []),
@@ -664,8 +665,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && (isManagerLike || isReporter)
     && detail != null
     && detail.status !== 'Completed' && detail.status !== 'Cancelled'
-  // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468).
-  const showManagerNoteColumn = isRequestDetailContext
+  // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); vatandaş talebinde gizlenir (#895).
+  const isCitizenRequestDetail = detail != null && isCitizenRequestJob(detail)
+  const showManagerNoteColumn = isRequestDetailContext && !isCitizenRequestDetail
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const rawMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
@@ -1851,7 +1853,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ),
                         },
                         { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
-                        ...(isMyRequestsView ? [{
+                        ...(isMyRequestsView && !isCitizenRequestDetail ? [{
                           // Talebi yapan birimin yöneticisinin onay tarihi (Owner JobDepartment) — card 6a397bf6.
                           label: 'Talebin Birim Yöneticisinin Onay Tarihi',
                           value: formatDueDateTime(
@@ -2182,13 +2184,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
                   : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
-                <div className="mb-5 grid gap-4 lg:grid-cols-3">
+                <div className={`mb-5 grid gap-4 ${isCitizenRequestDetail ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                       {t('address.detailSectionTitle', 'Adres Bilgileri')}
                     </h3>
                     {renderJobAddressInfo(detail)}
                   </section>
+                  {!isCitizenRequestDetail ? (
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                       {t('jobs.managerNote.title', 'Yönetici Notu')}
@@ -2199,6 +2202,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
                     )}
                   </section>
+                  ) : null}
                   <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                       {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}

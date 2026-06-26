@@ -26,6 +26,7 @@ import type { Attachment, Department, JobDetail, Task, TaskDetail, TaskListScope
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { printHtmlDocument } from '../utils/printDocument'
+import { isCitizenRequestJob } from '../utils/citizenRequests'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -177,7 +178,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
-    ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApproval?.decidedAtUtc)],
+    ...(isCitizenRequestJob(parentJob) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApproval?.decidedAtUtc)]]),
     ...(parentJob.requestType === 'ExternalUnit'
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApproval?.decidedAtUtc)]]
       : []),
@@ -1699,6 +1700,7 @@ const pageKicker = isMyTasksView
                     const fulfillingJobDepartment = parentJobDetail.departments.find(
                       dept => dept.departmentId === taskDetail.assignedDepartmentId,
                     )
+                    const isCitizenParentJob = isCitizenRequestJob(parentJobDetail)
                     const leftFields = [
                       {
                         label: 'Talep No',
@@ -1724,11 +1726,11 @@ const pageKicker = isMyTasksView
                     ]
                     const rightFields = [
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
-                      {
+                      ...(!isCitizenParentJob ? [{
                         // Hem birim-içi hem birim-dışı talepte aynı etiket kullanılır (card #706).
                         label: 'Talebin Birim Yöneticisinin Onay Tarihi',
                         value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
-                      },
+                      }] : []),
                       // Cross-department talepte, talebi oluşturan birimin onay tarihinin altına
                       // talebi gerçekleştiren birimin yöneticisinin onay tarihini ekle (card #703).
                       ...(isCrossDepartmentRequest
@@ -1750,7 +1752,7 @@ const pageKicker = isMyTasksView
                         <div className="text-sm font-semibold text-emerald-600">
                           {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
-                        <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${isCompletedTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]' : 'lg:grid-cols-[48.5%_21.2%_15.15%_15.15%]'}`}>
+                        <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${isCompletedTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]' : isCitizenParentJob ? 'lg:grid-cols-[48.5%_21.2%_30.3%]' : 'lg:grid-cols-[48.5%_21.2%_15.15%_15.15%]'}`}>
                           <div className="min-w-0 divide-y divide-slate-100">
                             {leftFields.map(({ label, value }) => (
                               // Sol kolon orta kolondan kısa olunca son satır "Öncelik"in altına
@@ -1776,7 +1778,7 @@ const pageKicker = isMyTasksView
                           </div>
                           {!isCompletedTask ? (
                             <>
-                              {/* 3. sütun: Yönetici Notu — ilgili talebin notu, salt-okunur (card 519) */}
+                              {!isCitizenParentJob ? (
                               <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
                                 <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                                   {t('jobs.managerNote.title', 'Yönetici Notu')}
@@ -1787,6 +1789,7 @@ const pageKicker = isMyTasksView
                                   <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
                                 )}
                               </div>
+                              ) : null}
                               {/* 4. sütun: Ekler / Fotoğraflar — talep oluşturulurken eklenen dosyalar, salt-okunur (card 519/527) */}
                               <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
                                 <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -1804,7 +1807,7 @@ const pageKicker = isMyTasksView
                         </div>
                         {/* Tamamlanmış görevlerde talep özeti altında Adres / Yönetici Notu / Ekler satırı (JobsPage ile aynı). */}
                         {isCompletedTask ? (
-                          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                          <div className={`mt-4 grid gap-4 ${isCitizenParentJob ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
                             <section className="rounded-xl border border-slate-200 bg-white p-4">
                               <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
@@ -1822,6 +1825,7 @@ const pageKicker = isMyTasksView
                                 </dl>
                               )}
                             </section>
+                            {!isCitizenParentJob ? (
                             <section className="rounded-xl border border-slate-200 bg-white p-4">
                               <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                                 {t('jobs.managerNote.title', 'Yönetici Notu')}
@@ -1832,6 +1836,7 @@ const pageKicker = isMyTasksView
                                 <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
                               )}
                             </section>
+                            ) : null}
                             <section className="rounded-xl border border-slate-200 bg-white p-4">
                               <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                                 {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}

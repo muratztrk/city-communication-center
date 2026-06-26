@@ -14,6 +14,7 @@ import { RichTextEditor } from './ui/RichTextEditor'
 import { ConversationPanel } from './ConversationPanel'
 import type { Department, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
+import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -158,6 +159,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
       && !isPresidencyLevelDepartment(department)),
     [departments, ownerDepartmentId],
   )
+
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
 
   const addPendingFile = (file: File) => {
     const validationError = validateFile(file)
@@ -434,16 +437,30 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
               </div>
 
               <div className="job-field">
-                <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
-                <label className="job-field grid gap-1">
-                  <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-                  <input
-                    className="field-input"
-                    placeholder={t('address.neighborhoodPlaceholder', 'Mahalle')}
-                    value={neighborhood}
-                    onChange={event => setNeighborhood(event.target.value)}
-                  />
-                </label>
+                <div className="grid gap-2 md:grid-cols-2">
+                  <label className="job-field grid gap-1">
+                    <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                    <select
+                      className="field-select"
+                      value={neighborhood}
+                      onChange={event => setNeighborhood(event.target.value)}
+                    >
+                      <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
+                      {neighborhoods.map(item => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="job-field grid gap-1">
+                    <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                    <input
+                      className="field-input"
+                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                      value={street}
+                      onChange={event => setStreet(event.target.value)}
+                    />
+                  </label>
+                </div>
                 <div className="grid gap-2 md:grid-cols-3 md:grid-rows-2 md:items-stretch">
                   <div className="job-field min-h-0">
                     <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
@@ -460,15 +477,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}
-                    />
-                  </label>
-                  <label className="job-field grid min-h-0 gap-1 md:col-span-2">
-                    <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
-                    <input
-                      className="field-input"
-                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                      value={street}
-                      onChange={event => setStreet(event.target.value)}
                     />
                   </label>
                 </div>

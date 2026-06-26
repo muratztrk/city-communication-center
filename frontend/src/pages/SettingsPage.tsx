@@ -2428,7 +2428,10 @@ export function SettingsPage() {
                         </div>
                       </label>
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
-                        <span>Cumartesi ve Pazar</span>
+                        <span>
+                          Cumartesi ve Pazar{' '}
+                          <span className="text-xs font-normal text-slate-500">(hafta sonu tatili)</span>
+                        </span>
                         <div className="field-input flex min-h-[2.5rem] items-center gap-2 px-3">
                           <input
                             className="field-checkbox"
@@ -2496,7 +2499,7 @@ export function SettingsPage() {
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>Şablon Adı</span>
                   <input
-                    className="field-input"
+                    className="field-input text-base"
                     required
                     placeholder="Şablon adını girin"
                     value={templateForm.name}

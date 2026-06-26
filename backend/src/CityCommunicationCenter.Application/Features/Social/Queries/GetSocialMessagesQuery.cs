@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CityCommunicationCenter.Application.Features.Users;
+using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -68,12 +69,35 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                 entity.Content,
                 entity.Category,
                 entity.Status.ToString(),
-                entity.AssignedDepartmentId,
-                _dbContext.Departments
-                    .AsNoTracking()
-                    .Where(department => department.DepartmentId == entity.AssignedDepartmentId)
-                    .Select(department => (string?)department.Name)
-                    .FirstOrDefault(),
+                entity.JobId == null
+                    ? entity.AssignedDepartmentId
+                    : _dbContext.JobDepartments
+                        .AsNoTracking()
+                        .Where(jobDepartment => jobDepartment.JobId == entity.JobId
+                            && jobDepartment.Role == JobDepartmentRole.Target)
+                        .Select(jobDepartment => (Guid?)jobDepartment.DepartmentId)
+                        .FirstOrDefault() ?? entity.AssignedDepartmentId,
+                entity.JobId == null
+                    ? _dbContext.Departments
+                        .AsNoTracking()
+                        .Where(department => department.DepartmentId == entity.AssignedDepartmentId)
+                        .Select(department => (string?)department.Name)
+                        .FirstOrDefault()
+                    : _dbContext.JobDepartments
+                        .AsNoTracking()
+                        .Where(jobDepartment => jobDepartment.JobId == entity.JobId
+                            && jobDepartment.Role == JobDepartmentRole.Target)
+                        .Select(jobDepartment => _dbContext.Departments
+                            .AsNoTracking()
+                            .Where(department => department.DepartmentId == jobDepartment.DepartmentId)
+                            .Select(department => (string?)department.Name)
+                            .FirstOrDefault())
+                        .FirstOrDefault()
+                    ?? _dbContext.Departments
+                        .AsNoTracking()
+                        .Where(department => department.DepartmentId == entity.AssignedDepartmentId)
+                        .Select(department => (string?)department.Name)
+                        .FirstOrDefault(),
                 entity.JobId,
                 entity.CitizenRequestNumber,
                 entity.CitizenRequestNumberYear,

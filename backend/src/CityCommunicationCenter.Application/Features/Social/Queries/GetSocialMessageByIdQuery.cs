@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -27,10 +28,19 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             return null;
         }
 
-        var assignedDepartmentName = message.AssignedDepartmentId.HasValue
+        var destinationDepartmentId = message.JobId.HasValue
+            ? await _dbContext.JobDepartments
+                .AsNoTracking()
+                .Where(jobDepartment => jobDepartment.JobId == message.JobId.Value
+                    && jobDepartment.Role == JobDepartmentRole.Target)
+                .Select(jobDepartment => (Guid?)jobDepartment.DepartmentId)
+                .FirstOrDefaultAsync(cancellationToken) ?? message.AssignedDepartmentId
+            : message.AssignedDepartmentId;
+
+        var assignedDepartmentName = destinationDepartmentId.HasValue
             ? await _dbContext.Departments
                 .AsNoTracking()
-                .Where(department => department.DepartmentId == message.AssignedDepartmentId.Value && department.TenantId == tenantId)
+                .Where(department => department.DepartmentId == destinationDepartmentId.Value && department.TenantId == tenantId)
                 .Select(department => department.Name)
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
@@ -44,7 +54,7 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             message.Content,
             message.Category,
             message.Status.ToString(),
-            message.AssignedDepartmentId,
+            destinationDepartmentId,
             assignedDepartmentName,
             message.JobId,
             message.CitizenRequestNumber,

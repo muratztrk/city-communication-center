@@ -91,6 +91,7 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
 
         message.JobId = jobSummary.JobId;
         message.Status = SocialMessageStatus.ConvertedToTask;
+        message.AssignedDepartmentId = ResolveDestinationDepartmentId(request.TargetDepartmentIds, request.OwnerDepartmentId);
         message.UpdatedByUserId = request.ActorUserId;
         message.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -126,4 +127,19 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
 
     private static string NormalizePhoneDigits(string value)
         => new(value.Where(char.IsDigit).ToArray());
+
+    private static Guid? ResolveDestinationDepartmentId(IReadOnlyList<Guid>? targetDepartmentIds, Guid ownerDepartmentId)
+    {
+        var destinationDepartmentId = targetDepartmentIds?
+            .FirstOrDefault(departmentId => departmentId != Guid.Empty && departmentId != ownerDepartmentId);
+        if (destinationDepartmentId is Guid resolved && resolved != Guid.Empty)
+        {
+            return resolved;
+        }
+
+        destinationDepartmentId = targetDepartmentIds?.FirstOrDefault(departmentId => departmentId != Guid.Empty);
+        return destinationDepartmentId is Guid fallback && fallback != Guid.Empty
+            ? fallback
+            : null;
+    }
 }

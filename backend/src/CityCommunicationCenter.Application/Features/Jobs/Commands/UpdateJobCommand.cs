@@ -135,6 +135,19 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 });
             }
             job.IsCoordinated = false;
+
+            var linkedMessages = await _dbContext.SocialMessages
+                .Where(message => message.JobId == job.JobId && message.TenantId == tenantId)
+                .ToListAsync(cancellationToken);
+            var destinationDepartmentId = newTargetIds.FirstOrDefault();
+            foreach (var linkedMessage in linkedMessages)
+            {
+                linkedMessage.AssignedDepartmentId = destinationDepartmentId == Guid.Empty
+                    ? null
+                    : destinationDepartmentId;
+                linkedMessage.UpdatedAtUtc = utcNow;
+                linkedMessage.UpdatedByUserId = actor.UserId;
+            }
         }
 
         _dbContext.AuditLogs.Add(new AuditLog

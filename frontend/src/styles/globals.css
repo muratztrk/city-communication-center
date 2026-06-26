@@ -1043,7 +1043,7 @@
     cursor: inherit;
   }
 
-  /* ⋮ button */
+  /* ⋮ button — active filter: bold red + larger icon (all gridviews) */
   .col-filter-btn {
     flex-shrink: 0;
     display: inline-flex;
@@ -1059,18 +1059,30 @@
     line-height: 1;
   }
 
+  .col-filter-btn svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: width 0.13s, height 0.13s, stroke-width 0.13s;
+  }
+
   .col-filter-btn:hover {
     color: var(--color-primary);
     background: rgba(0, 0, 0, 0.06);
   }
 
-  /* Yellow when a filter is active */
   .col-filter-btn--active {
-    color: #eab308;
+    color: #ef4444;
+    font-weight: 800;
+  }
+
+  .col-filter-btn--active svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 3;
   }
 
   .col-filter-btn--active:hover {
-    color: #ca8a04;
+    color: #dc2626;
   }
 
   /* Column filter popover (rendered in a portal on <body>) */

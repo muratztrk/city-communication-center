@@ -47,60 +47,85 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                     .ThenBy(t => t.Name)
                     .ToListAsync(CancellationToken.None);
 
-                var template = templates.FirstOrDefault(t =>
-                    WhatsAppTemplateAutoReply.IsEligible(t, inboundContent, receivedAtUtc, IstanbulTimeZone));
+                var selectedTemplates = WhatsAppTemplateAutoReply.SelectTemplatesForInbound(
+                    templates,
+                    inboundContent,
+                    receivedAtUtc,
+                    IstanbulTimeZone);
 
-                if (template is null)
+                if (selectedTemplates.Count == 0)
+                {
+                    _logger.LogDebug(
+                        "No eligible WhatsApp auto-reply template for SocialMessage {SocialMessageId}",
+                        socialMessageId);
                     return;
-
-                var alreadySent = await dbContext.ConversationEntries
-                    .AsNoTracking()
-                    .AnyAsync(
-                        e => e.SocialMessageId == socialMessageId
-                             && e.Direction == ConversationEntryDirection.Outbound
-                             && e.Content == template.Content,
-                        CancellationToken.None);
-
-                if (alreadySent)
-                    return;
-
-                if (template.ReplyDelaySecs > 0)
-                    await Task.Delay(TimeSpan.FromSeconds(template.ReplyDelaySecs), CancellationToken.None);
+                }
 
                 var client = clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
                 if (client is null)
+                {
+                    _logger.LogWarning(
+                        "WhatsApp client unavailable for tenant {TenantId} auto-reply on SocialMessage {SocialMessageId}",
+                        tenantId,
+                        socialMessageId);
                     return;
-
-                var sendResult = await client.SendMessageAsync(new SendMessageRequest
-                {
-                    RecipientId = citizenHandle,
-                    Message = template.Content,
-                }, CancellationToken.None);
-
-                var entry = new SocialConversationEntry
-                {
-                    EntryId = Guid.NewGuid(),
-                    SocialMessageId = socialMessageId,
-                    Direction = ConversationEntryDirection.Outbound,
-                    Content = template.Content,
-                    SentAt = DateTimeOffset.UtcNow,
-                    ExternalEntryId = sendResult.Success ? sendResult.MessageId : null,
-                };
-
-                dbContext.ConversationEntries.Add(entry);
-
-                var message = await dbContext.SocialMessages
-                    .FirstOrDefaultAsync(m => m.SocialMessageId == socialMessageId, CancellationToken.None);
-
-                if (message is not null)
-                {
-                    message.ResponseContent = template.Content;
-                    message.RespondedAtUtc = DateTimeOffset.UtcNow;
-                    if (message.Status is SocialMessageStatus.New or SocialMessageStatus.Routed)
-                        message.Status = SocialMessageStatus.Responded;
                 }
 
-                await dbContext.SaveChangesAsync(CancellationToken.None);
+                foreach (var template in selectedTemplates)
+                {
+                    var alreadySent = await dbContext.ConversationEntries
+                        .AsNoTracking()
+                        .AnyAsync(
+                            e => e.SocialMessageId == socialMessageId
+                                 && e.Direction == ConversationEntryDirection.Outbound
+                                 && e.Content == template.Content,
+                            CancellationToken.None);
+
+                    if (alreadySent)
+                        continue;
+
+                    if (template.ReplyDelaySecs > 0)
+                        await Task.Delay(TimeSpan.FromSeconds(template.ReplyDelaySecs), CancellationToken.None);
+
+                    var sendResult = await client.SendMessageAsync(new SendMessageRequest
+                    {
+                        RecipientId = citizenHandle,
+                        Message = template.Content,
+                    }, CancellationToken.None);
+
+                    if (!sendResult.Success)
+                    {
+                        _logger.LogWarning(
+                            "WhatsApp auto-reply send failed for template {TemplateName} on SocialMessage {SocialMessageId}: {Error}",
+                            template.Name,
+                            socialMessageId,
+                            sendResult.Error);
+                        continue;
+                    }
+
+                    dbContext.ConversationEntries.Add(new SocialConversationEntry
+                    {
+                        EntryId = Guid.NewGuid(),
+                        SocialMessageId = socialMessageId,
+                        Direction = ConversationEntryDirection.Outbound,
+                        Content = template.Content,
+                        SentAt = DateTimeOffset.UtcNow,
+                        ExternalEntryId = sendResult.MessageId,
+                    });
+
+                    var message = await dbContext.SocialMessages
+                        .FirstOrDefaultAsync(m => m.SocialMessageId == socialMessageId, CancellationToken.None);
+
+                    if (message is not null)
+                    {
+                        message.ResponseContent = template.Content;
+                        message.RespondedAtUtc = DateTimeOffset.UtcNow;
+                        if (message.Status is SocialMessageStatus.New or SocialMessageStatus.Routed)
+                            message.Status = SocialMessageStatus.Responded;
+                    }
+
+                    await dbContext.SaveChangesAsync(CancellationToken.None);
+                }
             }
             catch (Exception ex)
             {

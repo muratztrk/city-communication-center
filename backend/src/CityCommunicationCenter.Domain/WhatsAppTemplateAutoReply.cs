@@ -59,6 +59,30 @@ public static class WhatsAppTemplateAutoReply
         return false;
     }
 
+    /// <summary>
+    /// Anahtar kelime eşleşen şablonları önceler; eşleşme yoksa en fazla bir genel şablon döner.
+    /// Birden fazla anahtar kelime şablonu aynı mesajla eşleşirse hepsi döner.
+    /// </summary>
+    public static IReadOnlyList<WhatsAppMessageTemplate> SelectTemplatesForInbound(
+        IEnumerable<WhatsAppMessageTemplate> templates,
+        string inboundContent,
+        DateTimeOffset utcNow,
+        TimeZoneInfo timeZone)
+    {
+        var eligible = templates
+            .Where(template => IsEligible(template, inboundContent, utcNow, timeZone))
+            .ToList();
+
+        var keywordMatches = eligible.Where(template => template.HasKeyword).ToList();
+        if (keywordMatches.Count > 0)
+            return keywordMatches;
+
+        return eligible
+            .Where(template => !template.HasKeyword)
+            .Take(1)
+            .ToList();
+    }
+
     private static IReadOnlyList<string> ParseKeywords(string json)
     {
         try

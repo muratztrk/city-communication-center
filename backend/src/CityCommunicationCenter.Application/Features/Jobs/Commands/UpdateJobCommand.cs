@@ -59,7 +59,18 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             ]);
         }
 
-        if (actor.RoleCode is not Domain.Enums.RoleCode.SystemAdmin && job.CreatedByUserId != actor.UserId)
+        var hasTasks = await _dbContext.Tasks
+            .AnyAsync(t => t.JobId == job.JobId && t.TenantId == tenantId, cancellationToken);
+
+        var canOperatorEditCitizenRequest = actor.RoleCode == RoleCode.Operator
+            && job.RequestType == JobRequestType.ExternalUnit
+            && job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest
+            && (job.Status == JobStatus.PendingExternalApproval
+                || (job.Status == JobStatus.Active && !hasTasks));
+
+        if (actor.RoleCode is not Domain.Enums.RoleCode.SystemAdmin
+            && job.CreatedByUserId != actor.UserId
+            && !canOperatorEditCitizenRequest)
         {
             await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
                 _dbContext, actor, job.OwnerDepartmentId, "Bu isi duzenleme yetkiniz yok.", cancellationToken);
@@ -88,11 +99,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         // Active/Yapılmakta taleplerde hedef değişikliğine izin verilmez (card #724) — sadece temel
         // alanlar güncellenir; hedef değişikliği onay-öncesi durumlarla sınırlı kalır.
         // Vatandaş Talep Operatörü, sosyal kaynaklı birim dışı talebi hedef birim onaylamadan düzenleyebilir.
-        var canOperatorEditTargetsBeforeTargetApproval = actor.RoleCode == RoleCode.Operator
-            && job.RequestType == JobRequestType.ExternalUnit
-            && job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest
-            && job.Status == JobStatus.Active
-            && !await _dbContext.Tasks.AnyAsync(t => t.JobId == job.JobId && t.TenantId == tenantId, cancellationToken);
+        var canOperatorEditTargetsBeforeTargetApproval = canOperatorEditCitizenRequest;
 
         if (request.TargetDepartmentIds is not null && job.RequestType == JobRequestType.ExternalUnit
             && (job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested

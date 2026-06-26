@@ -1913,7 +1913,7 @@ const pageKicker = isMyTasksView
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table data-table--zebra${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}${pagedTasks.length === 0 ? ' data-table--empty' : ''}`}>
+            <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}${pagedTasks.length === 0 ? ' data-table--empty' : ''}`}>
               {isMyTasksAllView && (
                 <colgroup>
                   <col className="my-tasks-all-row-number-col" />
@@ -1927,10 +1927,7 @@ const pageKicker = isMyTasksView
                   <FilterableTh filterKey="taskNumber" filterValue={taskFilters['taskNumber'] ?? ''} onFilter={setTaskFilter} sortKey="taskNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskNo', 'Görev No')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
-                    <span className="inline-flex flex-col leading-tight">
-                      <span>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</span>
-                      <span>{t('tasks.columns.creator', 'Oluşturan')}</span>
-                    </span>
+                    {t('tasks.columns.ownerDepartmentCreator', 'Talep Yeri / Oluşturan')}
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
                   {(isDepartmentTasksView || isStaffTasksView) && (

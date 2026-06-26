@@ -365,18 +365,12 @@
       width: 13rem;
     }
 
-    /* Sabit yerleşimde (table-layout:fixed) uzun başlıklar nowrap kalınca kolon dışına taşıp
-       komşu başlıkların ("Sıra" ↔ "Bağlı Olduğu Talep No") üzerine biniyordu; başlıklar
-       kolon içinde sarılsın (card 670). */
+    /* Görevlerim başlık satırı yüksekliği Taleplerim / Vatandaş Talepleri ile aynı olsun. */
+    .app-content-shell .my-tasks-table thead th,
     .app-content-shell .my-tasks-all-table thead th {
-      white-space: normal;
-      overflow-wrap: break-word;
-      line-height: 1.18;
-    }
-
-    /* Kısa "Sıra" başlığı (ilk kolon) sarılıp "Sı/ra" olarak alt satıra geçmesin (card 677). */
-    .app-content-shell .my-tasks-all-table thead th:first-child {
       white-space: nowrap;
+      overflow-wrap: normal;
+      line-height: 1.2;
     }
 
     /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon

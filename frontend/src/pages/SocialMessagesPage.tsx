@@ -99,7 +99,7 @@ function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary): string {
 type SocialRequestStatusFilter = 'all' | 'pending-approval' | 'overdue' | 'in-progress' | 'completed' | 'cancelled'
 
 const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: string; fallback: string }[] = [
-  { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talepler' },
+  { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talep Durumları' },
   { value: 'pending-approval', labelKey: 'social.requestStatus.pendingApproval', fallback: 'Onay Bekleyen' },
   { value: 'overdue', labelKey: 'social.requestStatus.overdue', fallback: 'Son Tarihi Geçmiş' },
   { value: 'in-progress', labelKey: 'social.requestStatus.inProgress', fallback: 'Yapılmakta' },

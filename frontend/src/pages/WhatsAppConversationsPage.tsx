@@ -387,11 +387,7 @@ function ConversationDetail({
               }}
               placeholder={windowOpen ? t('whatsapp.replyPlaceholder') : 'Şablon seçin…'}
               disabled={!windowOpen && templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp')).length === 0}
-              className="field-input min-w-0 flex-1 resize-none min-h-[2.75rem] max-h-28 max-w-[calc(100%-7.5rem)] py-1.5 text-base disabled:opacity-50"
-            />
-            <WhatsAppTemplatePicker
-              templates={templates}
-              onSelect={content => setReplyText(content)}
+              className="field-input flex-1 resize-none min-h-[2.75rem] max-h-28 py-1.5 text-base disabled:opacity-50"
             />
             <Button
               size="sm"

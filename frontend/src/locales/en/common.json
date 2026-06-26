@@ -726,7 +726,7 @@
     "deleteConfirm": "Are you sure you want to delete this message?",
     "requestStatusFilterLabel": "Request status filter",
     "requestStatus": {
-      "all": "All Requests",
+      "all": "All Request Statuses",
       "pendingApproval": "Pending Approval",
       "overdue": "Overdue",
       "inProgress": "In Progress",

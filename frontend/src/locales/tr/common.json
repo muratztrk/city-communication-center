@@ -731,7 +731,7 @@
     "deleteConfirm": "Bu mesajı silmek istediğinizden emin misiniz?",
     "requestStatusFilterLabel": "Talep durumu filtresi",
     "requestStatus": {
-      "all": "Tüm Talepler",
+      "all": "Tüm Talep Durumları",
       "pendingApproval": "Onay Bekleyen",
       "overdue": "Son Tarihi Geçmiş",
       "inProgress": "Yapılmakta",

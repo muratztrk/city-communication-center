@@ -220,7 +220,8 @@ public sealed record WhatsAppMessageTemplateDto(
     string? TimedReplyEndDate,
     string? TimedReplyStartTime,
     string? TimedReplyEndTime,
-    IReadOnlyList<string> ActiveDays);
+    IReadOnlyList<string> ActiveDays,
+    bool TimedReplyWeekendAllHours);
 
 public sealed record WhatsAppMessageTemplateRequest(
     string Name,
@@ -238,7 +239,8 @@ public sealed record WhatsAppMessageTemplateRequest(
     string? TimedReplyEndDate,
     string? TimedReplyStartTime,
     string? TimedReplyEndTime,
-    IReadOnlyList<string> ActiveDays);
+    IReadOnlyList<string> ActiveDays,
+    bool TimedReplyWeekendAllHours);
 
 public sealed record SocialSettingsSaveResponse(
     string Message,

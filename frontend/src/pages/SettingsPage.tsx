@@ -219,6 +219,7 @@ const TEMPLATE_WEEKDAY_OPTIONS = [
   { id: 'sunday', label: 'Pazar', group: 'weekend' as const },
 ]
 const ALL_TEMPLATE_WEEKDAYS = TEMPLATE_WEEKDAY_OPTIONS.map(day => day.id)
+const TEMPLATE_WEEKEND_DAY_IDS = TEMPLATE_WEEKDAY_OPTIONS.filter(day => day.group === 'weekend').map(day => day.id)
 
 function toTemplateDatePickerValue(value: string | null | undefined): string {
   if (!value?.trim()) return ''
@@ -236,6 +237,7 @@ const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
   hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [],
   timedReplyEnabled: false, timedReplyStartDate: '', timedReplyEndDate: '',
   timedReplyStartTime: '17:30', timedReplyEndTime: '08:30',
+  timedReplyWeekendAllHours: false,
   activeDays: [...ALL_TEMPLATE_WEEKDAYS],
 }
 
@@ -977,6 +979,7 @@ export function SettingsPage() {
       timedReplyEndDate: rest.timedReplyEndDate || '',
       timedReplyStartTime: rest.timedReplyStartTime || '17:30',
       timedReplyEndTime: rest.timedReplyEndTime || '08:30',
+      timedReplyWeekendAllHours: rest.timedReplyWeekendAllHours ?? false,
       activeDays: rest.activeDays?.length ? rest.activeDays : [...ALL_TEMPLATE_WEEKDAYS],
     })
     setKeywordInput('')
@@ -1002,12 +1005,31 @@ export function SettingsPage() {
   }
 
   const toggleTemplateDay = (dayId: string) => {
-    setTemplateForm(current => ({
-      ...current,
-      activeDays: current.activeDays.includes(dayId)
+    setTemplateForm(current => {
+      const isSelected = current.activeDays.includes(dayId)
+      const nextActiveDays = isSelected
         ? current.activeDays.filter(day => day !== dayId)
-        : [...current.activeDays, dayId],
-    }))
+        : [...current.activeDays, dayId]
+      const weekendTurnedOff = isSelected && TEMPLATE_WEEKEND_DAY_IDS.includes(dayId)
+      return {
+        ...current,
+        activeDays: nextActiveDays,
+        timedReplyWeekendAllHours: weekendTurnedOff ? false : current.timedReplyWeekendAllHours,
+      }
+    })
+  }
+
+  const toggleWeekendAllHours = () => {
+    setTemplateForm(current => {
+      const next = !current.timedReplyWeekendAllHours
+      return {
+        ...current,
+        timedReplyWeekendAllHours: next,
+        activeDays: next
+          ? Array.from(new Set([...current.activeDays, ...TEMPLATE_WEEKEND_DAY_IDS]))
+          : current.activeDays,
+      }
+    })
   }
 
   const persistTemplate = async (successMessage = 'Şablon kaydedildi.') => {
@@ -2451,6 +2473,15 @@ export function SettingsPage() {
                             {day.label}
                           </label>
                         ))}
+                        <label className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 sm:col-span-2 lg:col-span-1">
+                          <input
+                            className="field-checkbox"
+                            type="checkbox"
+                            checked={templateForm.timedReplyWeekendAllHours}
+                            onChange={toggleWeekendAllHours}
+                          />
+                          Hafta Sonu Tüm Saatler
+                        </label>
                       </div>
                     </div>
 

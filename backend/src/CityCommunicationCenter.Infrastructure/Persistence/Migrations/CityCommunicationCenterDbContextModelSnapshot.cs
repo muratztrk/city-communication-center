@@ -1719,6 +1719,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("timedreplystarttime");
 
+                    b.Property<bool>("TimedReplyWeekendAllHours")
+                        .HasColumnType("boolean")
+                        .HasColumnName("timedreplyweekendallhours");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenantid");

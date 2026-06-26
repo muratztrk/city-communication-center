@@ -46,7 +46,8 @@ public sealed class GetWhatsAppTemplatesQueryHandler
                 t.TimedReplyEndDate,
                 t.TimedReplyStartTime,
                 t.TimedReplyEndTime,
-                ParseKeywords(t.ActiveDaysJson)))
+                ParseKeywords(t.ActiveDaysJson),
+                t.TimedReplyWeekendAllHours))
             .ToList();
     }
 

@@ -43,6 +43,9 @@ public sealed class WhatsAppMessageTemplate : AuditableTenantEntity, IHasDatabas
     /// <summary>JSON-serialized string[] of weekday ids (monday..sunday).</summary>
     public string ActiveDaysJson { get; set; } = "[\"monday\",\"tuesday\",\"wednesday\",\"thursday\",\"friday\",\"saturday\",\"sunday\"]";
 
+    /// <summary>When enabled, Saturday and Sunday are active for all hours regardless of start/end time.</summary>
+    public bool TimedReplyWeekendAllHours { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>

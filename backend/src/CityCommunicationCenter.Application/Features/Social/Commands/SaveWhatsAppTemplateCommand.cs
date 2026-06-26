@@ -49,6 +49,7 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
             existing.TimedReplyStartTime = NormalizeTime(request.Data.TimedReplyStartTime);
             existing.TimedReplyEndTime = NormalizeTime(request.Data.TimedReplyEndTime);
             existing.ActiveDaysJson = activeDaysJson;
+            existing.TimedReplyWeekendAllHours = request.Data.TimedReplyWeekendAllHours;
             existing.UpdatedByUserId = request.ActorUserId;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -76,6 +77,7 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
                 TimedReplyStartTime = NormalizeTime(request.Data.TimedReplyStartTime),
                 TimedReplyEndTime = NormalizeTime(request.Data.TimedReplyEndTime),
                 ActiveDaysJson = activeDaysJson,
+                TimedReplyWeekendAllHours = request.Data.TimedReplyWeekendAllHours,
                 CreatedByUserId = request.ActorUserId,
             };
             _dbContext.WhatsAppTemplates.Add(template);

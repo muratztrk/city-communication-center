@@ -423,6 +423,7 @@ export interface WhatsAppMessageTemplate {
   timedReplyEndDate: string;
   timedReplyStartTime: string;
   timedReplyEndTime: string;
+  timedReplyWeekendAllHours: boolean;
   activeDays: string[];
 }
 

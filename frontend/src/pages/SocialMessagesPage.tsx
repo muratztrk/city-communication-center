@@ -69,6 +69,17 @@ function getSocialMessageCitizenPhone(message: SocialMessage): string {
   return '—'
 }
 
+function getSocialMessageWhatsAppPhone(message: SocialMessage): string | null {
+  const raw = message.citizenPhone?.trim()
+    || (looksLikePhone(message.citizenHandle) ? message.citizenHandle.trim() : null)
+  if (!raw) return null
+
+  const digits = raw.replace(/\D/g, '')
+  if (digits.length === 10) return `90${digits}`
+  if (digits.length >= 10) return digits
+  return null
+}
+
 function getSocialMessageLastDate(message: SocialMessage) {
   return message.updatedAtUtc ?? message.receivedAtUtc
 }
@@ -245,6 +256,7 @@ export function SocialMessagesPage() {
       ...message,
       citizenName: getSocialMessageCitizenName(message),
       citizenPhone: getSocialMessageCitizenPhone(message),
+      whatsAppPhone: getSocialMessageWhatsAppPhone(message),
       priority: linkedJob?.priority ?? '',
       statusSortText: linkedJob ? getLinkedJobDisplayStatus(t, linkedJob) : '',
     }
@@ -444,13 +456,13 @@ export function SocialMessagesPage() {
                             {t('jobs.actions.details', 'Detaylar')}
                           </DisabledActionButton>
                         )}
-                        {message.channel === 'WhatsApp' ? (
+                        {message.channel === 'WhatsApp' && message.whatsAppPhone ? (
                           <Button
                             size="sm"
                             type="button"
                             className="bg-[#007985] text-white hover:bg-[#006570]"
                             onClick={() => navigate(
-                              `/whatsapp?phone=${encodeURIComponent(message.citizenHandle)}&at=${encodeURIComponent(message.receivedAtUtc)}&messageId=${encodeURIComponent(message.socialMessageId)}`,
+                              `/whatsapp?phone=${encodeURIComponent(message.whatsAppPhone!)}&at=${encodeURIComponent(message.receivedAtUtc)}&messageId=${encodeURIComponent(message.socialMessageId)}`,
                             )}
                           >
                             {t('social.goToConversation', 'Yazışmaya Git')}

@@ -87,6 +87,13 @@ export function FilterableTh({
     setOpen(false)
   }
 
+  const normalizeFilterInput = (raw: string) => {
+    if (filterKey.endsWith('Utc')) return raw.replace(/[^0-9.: ]/g, '')
+    if (filterKey === 'citizenPhone') return raw.replace(/\D/g, '')
+    if (filterKey === 'channel') return raw.replace(/[0-9]/g, '')
+    return raw
+  }
+
   return (
     <th
       className={[
@@ -138,9 +145,7 @@ export function FilterableTh({
             placeholder="İçerik..."
             value={inputValue}
             onChange={e => {
-              // Tarih sütunlarında (…Utc) yalnızca rakam ve . : boşluk karakterlerine izin ver.
-              const raw = e.target.value
-              setInputValue(filterKey.endsWith('Utc') ? raw.replace(/[^0-9.: ]/g, '') : raw)
+              setInputValue(normalizeFilterInput(e.target.value))
             }}
             onKeyDown={e => {
               if (e.key === 'Enter') applyFilter()

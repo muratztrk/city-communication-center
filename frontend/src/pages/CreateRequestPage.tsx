@@ -558,16 +558,18 @@ export function CreateRequestPage() {
           </div>
         </div>
         <div className="grid gap-2">
-          <label className="grid gap-1 min-h-0">
-            <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
-            <textarea
-              className="field-textarea min-h-[5.5rem] resize-none"
-              placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
-              value={form.openAddress}
-              onChange={e => setField('openAddress', e.target.value)}
-            />
-          </label>
-          {afterOpenAddress}
+          <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+            <label className="grid gap-1 min-h-0">
+              <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+              <textarea
+                className="field-textarea min-h-[5.5rem] resize-none"
+                placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+                value={form.openAddress}
+                onChange={e => setField('openAddress', e.target.value)}
+              />
+            </label>
+            {afterOpenAddress}
+          </div>
           {renderPhotoUpload('min-h-0')}
         </div>
       </div>

@@ -728,7 +728,16 @@
     "empty": "Henüz mesaj bulunmuyor",
     "goToConversation": "Yazışmaya Git",
     "delete": "Sil",
-    "deleteConfirm": "Bu mesajı silmek istediğinizden emin misiniz?"
+    "deleteConfirm": "Bu mesajı silmek istediğinizden emin misiniz?",
+    "requestStatusFilterLabel": "Talep durumu filtresi",
+    "requestStatus": {
+      "all": "Tüm Talepler",
+      "pendingApproval": "Onay Bekleyen",
+      "overdue": "Son Tarihi Geçmiş",
+      "inProgress": "Yapılmakta",
+      "completed": "Tamamlanmış",
+      "cancelled": "İptal"
+    }
   },
   "whatsapp": {
     "title": "WhatsApp Konuşmaları",

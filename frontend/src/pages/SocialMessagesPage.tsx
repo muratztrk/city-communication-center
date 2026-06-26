@@ -96,6 +96,35 @@ function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary): string {
   return t('jobs.statusLabel.pending', 'Bekleyen')
 }
 
+type SocialRequestStatusFilter = 'all' | 'pending-approval' | 'overdue' | 'in-progress' | 'completed' | 'cancelled'
+
+const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: string; fallback: string }[] = [
+  { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talepler' },
+  { value: 'pending-approval', labelKey: 'social.requestStatus.pendingApproval', fallback: 'Onay Bekleyen' },
+  { value: 'overdue', labelKey: 'social.requestStatus.overdue', fallback: 'Son Tarihi Geçmiş' },
+  { value: 'in-progress', labelKey: 'social.requestStatus.inProgress', fallback: 'Yapılmakta' },
+  { value: 'completed', labelKey: 'social.requestStatus.completed', fallback: 'Tamamlanmış' },
+  { value: 'cancelled', labelKey: 'social.requestStatus.cancelled', fallback: 'İptal' },
+]
+
+function getSocialMessageStatusKey(job: JobSummary | undefined): Exclude<SocialRequestStatusFilter, 'all'> {
+  if (!job) return 'pending-approval'
+
+  if (job.status === 'Completed') return 'completed'
+  if (job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested') return 'cancelled'
+
+  const isOverdue = job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()
+  if (isOverdue) return 'overdue'
+  if (job.status === 'Active') return 'in-progress'
+
+  return 'pending-approval'
+}
+
+function matchesSocialRequestStatusFilter(job: JobSummary | undefined, filter: SocialRequestStatusFilter): boolean {
+  if (filter === 'all') return true
+  return getSocialMessageStatusKey(job) === filter
+}
+
 function canCancelLinkedJob(status: JobSummary['status'] | undefined) {
   return status === 'PendingOwnerApproval'
     || status === 'PendingExternalApproval'
@@ -165,6 +194,7 @@ export function SocialMessagesPage() {
   const [searchText, setSearchText] = useState('')
   const [messagesPage, setMessagesPage] = useState(1)
   const [messagesPageSize, setMessagesPageSize] = useState(10)
+  const [requestStatusFilter, setRequestStatusFilter] = useState<SocialRequestStatusFilter>('all')
 
   useEffect(() => {
     let isActive = true
@@ -296,8 +326,15 @@ export function SocialMessagesPage() {
       ].filter(Boolean).join(' ').toLocaleLowerCase('tr').includes(query))
     }
 
+    if (requestStatusFilter !== 'all') {
+      result = result.filter(message => {
+        const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
+        return matchesSocialRequestStatusFilter(linkedJob, requestStatusFilter)
+      })
+    }
+
     return sortSocial(result)
-  }, [channelFilter, channelParam, displayMessages, filterFrom, filterTo, locale, searchText, sortSocial])
+  }, [channelFilter, channelParam, displayMessages, filterFrom, filterTo, jobsById, locale, requestStatusFilter, searchText, sortSocial])
 
   useEffect(() => {
     const phoneParam = searchParams.get('phone')?.trim()
@@ -318,7 +355,7 @@ export function SocialMessagesPage() {
 
   useEffect(() => {
     setMessagesPage(1)
-  }, [channelFilter, filterFrom, filterTo, searchText, socialFilters])
+  }, [channelFilter, filterFrom, filterTo, requestStatusFilter, searchText, socialFilters])
 
   const pagedMessages = useMemo(
     () => columnFilteredMessages.slice((messagesPage - 1) * messagesPageSize, messagesPage * messagesPageSize),
@@ -382,6 +419,19 @@ export function SocialMessagesPage() {
             {filter.label}
           </button>
         ))}
+        <span className="scope-chip-divider" aria-hidden="true">|</span>
+        <select
+          className="scope-chip-year-select"
+          value={requestStatusFilter}
+          onChange={event => setRequestStatusFilter(event.target.value as SocialRequestStatusFilter)}
+          aria-label={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
+        >
+          {REQUEST_STATUS_FILTERS.map(filter => (
+            <option key={filter.value} value={filter.value}>
+              {t(filter.labelKey, filter.fallback)}
+            </option>
+          ))}
+        </select>
       </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}

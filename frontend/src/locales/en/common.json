@@ -723,7 +723,16 @@
     "empty": "No messages found yet",
     "goToConversation": "Go to Conversation",
     "delete": "Delete",
-    "deleteConfirm": "Are you sure you want to delete this message?"
+    "deleteConfirm": "Are you sure you want to delete this message?",
+    "requestStatusFilterLabel": "Request status filter",
+    "requestStatus": {
+      "all": "All Requests",
+      "pendingApproval": "Pending Approval",
+      "overdue": "Overdue",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
   },
   "whatsapp": {
     "title": "WhatsApp Conversations",

@@ -365,26 +365,15 @@
       width: 13rem;
     }
 
-    /* Görevlerim başlık satırı yüksekliği Taleplerim / Vatandaş Talepleri ile aynı olsun. */
-    .app-content-shell .my-tasks-table thead th,
-    .app-content-shell .my-tasks-all-table thead th {
+    /* Tüm Görevlerim: uzun başlıklar kolon içinde sarılsın (card 670); yükseklik Taleplerim ile aynı kalır. */
+    .app-content-shell .my-tasks-all-table thead th:not(:first-child) {
+      white-space: normal;
+      overflow-wrap: break-word;
+      line-height: 1.18;
+    }
+
+    .app-content-shell .my-tasks-all-table thead th:first-child {
       white-space: nowrap;
-      overflow-wrap: normal;
-      line-height: 1.1;
-      padding-top: 0.48rem;
-      padding-bottom: 0.48rem;
-      vertical-align: middle;
-    }
-
-    .app-content-shell .my-tasks-table .filterable-th-content,
-    .app-content-shell .my-tasks-all-table .filterable-th-content {
-      min-height: 0;
-      align-items: center;
-    }
-
-    .app-content-shell .my-tasks-table .col-filter-btn,
-    .app-content-shell .my-tasks-all-table .col-filter-btn {
-      padding: 0 2px;
     }
 
     /* Arama sonucu boşken tek hücrelik colSpan satırı, table-layout:fixed altında kolon
@@ -961,36 +950,27 @@
     border-right: 0;
   }
 
-  /* "Taleplerim" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
-  .my-requests-table thead th {
+  /* Taleplerim / Görevlerim / Vatandaş Talepleri: thead satırı banner ile aynı yeşil geçişi kullanır. */
+  .my-requests-table thead th,
+  .my-tasks-table thead th,
+  .social-messages-table thead th {
     background: transparent;
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }
 
-  .my-requests-table thead {
+  .my-requests-table thead,
+  .my-tasks-table thead,
+  .social-messages-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
-  }
-
-  .my-tasks-table thead th {
-    position: static;
-    top: auto;
-    background: transparent;
-    border-right-color: rgba(255, 255, 255, 0.22);
-    color: white;
-  }
-
-  .my-tasks-table thead {
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
-  }
-
-  .my-tasks-table thead th.sortable-th:hover,
-  .my-tasks-table thead th.sort-active {
-    color: rgba(255, 255, 255, 0.8);
   }
 
   .my-requests-table thead th.sortable-th:hover,
-  .my-requests-table thead th.sort-active {
+  .my-requests-table thead th.sort-active,
+  .my-tasks-table thead th.sortable-th:hover,
+  .my-tasks-table thead th.sort-active,
+  .social-messages-table thead th.sortable-th:hover,
+  .social-messages-table thead th.sort-active {
     color: rgba(255, 255, 255, 0.8);
   }
 
@@ -2807,6 +2787,36 @@
 
 
 @media (min-width: 768px) {
+  /* page-stack (display:grid) beats @layer .desktop-page-shell (display:flex); birleşik seçici ile
+     liste sayfalarında grid + paging alanı viewport'u doldurur (Vatandaş Talepleri dahil). */
+  .page-stack.desktop-page-shell {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .section-card.desktop-page-fill {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .section-card.desktop-page-fill > .table-wrap.desktop-panel-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-bottom: 0;
+  }
+
+  .section-card.desktop-page-fill > .table-pagination-bar {
+    flex-shrink: 0;
+  }
+
   @layer components {
     .desktop-page-shell {
       display: flex;

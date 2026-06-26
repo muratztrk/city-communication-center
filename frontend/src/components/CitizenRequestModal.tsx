@@ -107,13 +107,6 @@ function resolveInitialCitizenPhone(message: SocialMessage): string {
   return ''
 }
 
-function resolveInitialTitle(message: SocialMessage): string {
-  const category = message.category?.trim()
-  if (category) return category
-  const fromHandle = normalizeCitizenHandle(message.citizenHandle)
-  if (fromHandle && !looksLikePhone(fromHandle)) return fromHandle
-  return ''
-}
 
 function sanitizeCitizenName(value: string | null | undefined): string {
   if (!value?.trim()) return ''
@@ -134,8 +127,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
 
   const [citizenHandle, setCitizenHandle] = useState(() => resolveInitialCitizenName(message))
   const [citizenPhone, setCitizenPhone] = useState(() => resolveInitialCitizenPhone(message))
-  const [title, setTitle] = useState(() => resolveInitialTitle(message))
-  const [description, setDescription] = useState(message.content ? `<p>${escapeHtml(message.content)}</p>` : '')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [targetDepartmentId, setTargetDepartmentId] = useState('')
   const [priority, setPriority] = useState('Normal')
   const [startDateUtc, setStartDateUtc] = useState('')

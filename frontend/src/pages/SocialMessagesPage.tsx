@@ -384,11 +384,7 @@ export function SocialMessagesPage() {
   }
 
   if (loading) {
-    return (
-      <div className="page-stack desktop-page-shell">
-        <div className="loading">{t('common.loading')}</div>
-      </div>
-    )
+    return <div className="loading">{t('common.loading')}</div>
   }
 
   return (

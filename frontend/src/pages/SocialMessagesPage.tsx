@@ -6,6 +6,7 @@ import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -15,7 +16,8 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { Department, JobSummary, SocialMessage } from '../types/platform'
-import { getLocale, getSocialChannelLabel } from '../utils/localization'
+import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone } from '../utils/localization'
+import { StatusPill } from '../components/ui/status-pill'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { TablePagination } from '../components/ui/table-pagination'
 import { JobsPage } from './JobsPage'
@@ -65,6 +67,18 @@ function getSocialMessageCitizenPhone(message: SocialMessage): string {
 
 function getSocialMessageLastDate(message: SocialMessage) {
   return message.updatedAtUtc ?? message.receivedAtUtc
+}
+
+function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary): string {
+  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
+  if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
+  if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
+    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+  }
+  if (job.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  return t('jobs.statusLabel.pending', 'Bekleyen')
 }
 
 function canCancelLinkedJob(status: JobSummary['status'] | undefined) {
@@ -221,11 +235,16 @@ export function SocialMessagesPage() {
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
   const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
 
-  const displayMessages = useMemo(() => messages.map(message => ({
-    ...message,
-    citizenName: getSocialMessageCitizenName(message),
-    citizenPhone: getSocialMessageCitizenPhone(message),
-  })), [messages])
+  const displayMessages = useMemo(() => messages.map(message => {
+    const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
+    return {
+      ...message,
+      citizenName: getSocialMessageCitizenName(message),
+      citizenPhone: getSocialMessageCitizenPhone(message),
+      priority: linkedJob?.priority ?? '',
+      statusSortText: linkedJob ? getLinkedJobDisplayStatus(t, linkedJob) : '',
+    }
+  }), [messages, jobsById, t])
 
   const filteredMessages = useMemo(() => {
     const showAllChannels = channelParam === ALL_CHANNELS_FILTER
@@ -256,6 +275,8 @@ export function SocialMessagesPage() {
         message.content,
         message.category,
         message.assignedDepartmentName,
+        message.priority,
+        message.statusSortText,
       ].filter(Boolean).join(' ').toLocaleLowerCase('tr').includes(query))
     }
 
@@ -350,6 +371,7 @@ export function SocialMessagesPage() {
                 <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş İsmi')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
                 <FilterableTh filterKey="updatedAtUtc" filterValue={socialFilters['updatedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="updatedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.lastDate', 'Son Tarih')}</FilterableTh>
+                <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
@@ -364,6 +386,11 @@ export function SocialMessagesPage() {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(messagesPage - 1) * messagesPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value">{formatCitizenRequestNumber(message)}</div>
+                      {linkedJob ? (
+                        <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(linkedJob.priority)}`}>
+                          (Öncelik:{getPriorityLabel(t, linkedJob.priority)})
+                        </div>
+                      ) : null}
                     </td>
                     <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
                     <td>
@@ -372,10 +399,19 @@ export function SocialMessagesPage() {
                         <span className="font-medium">{getSocialChannelLabel(t, message.channel)}</span>
                       </span>
                     </td>
-                    <td className="font-mono text-xs">{message.citizenPhone}</td>
+                    <td className="font-semibold">{message.citizenPhone}</td>
                     <td className="font-semibold">{message.citizenName}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
                     <td><DateCell value={getSocialMessageLastDate(message)} locale={locale} /></td>
+                    <td>
+                      {linkedJob ? (
+                        <StatusPill className={getStatusPillClass(getJobStatusTone(linkedJob))}>
+                          {getLinkedJobDisplayStatus(t, linkedJob)}
+                        </StatusPill>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
                         {message.jobId ? (
@@ -439,7 +475,7 @@ export function SocialMessagesPage() {
                   </tr>
                   {hasLocation(message) ? (
                     <tr className="bg-slate-50/70">
-                      <td colSpan={8}>
+                      <td colSpan={9}>
                         <section className="grid gap-2">
                           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600">
                             <MapPin className="size-4 text-[color:var(--color-primary)]" />
@@ -462,7 +498,7 @@ export function SocialMessagesPage() {
               })}
               {columnFilteredMessages.length === 0 ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={9}>
                     <div className="empty-state text-center">{t('social.empty')}</div>
                   </td>
                 </tr>

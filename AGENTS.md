@@ -196,6 +196,25 @@ dotnet ef migrations add <name> --context PostgreSqlCityCommunicationCenterDbCon
 dotnet ef migrations add <name> --context SqlServerCityCommunicationCenterDbContext --output-dir Migrations/SqlServer --project backend/src/CityCommunicationCenter.Infrastructure --startup-project backend/src/CityCommunicationCenter.Api
 ```
 
+### Production Migration Checklist
+
+Every new migration file must include EF discovery attributes (see `20260625123000_AddUserAdditionalRoles.cs`):
+
+```csharp
+[DbContext(typeof(CityCommunicationCenterDbContext))]
+[Migration("YYYYMMDDHHMMSS_MigrationName")]
+public partial class MigrationName : Migration
+```
+
+After prod deploy (`docker compose ... up -d --build api`), verify the migration landed:
+
+```bash
+docker compose exec -T postgres psql -U ccc -d city_communication_center \
+  -c 'SELECT "MigrationId" FROM "__EFMigrationsHistory" ORDER BY "MigrationId" DESC LIMIT 5;'
+```
+
+If API logs show `column ... does not exist`, the schema is ahead of the migration history — apply the migration SQL manually and insert the matching `__EFMigrationsHistory` row before restarting the API.
+
 ## Auth Standards
 
 ### Canonical Token Flow

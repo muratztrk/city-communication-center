@@ -2428,14 +2428,15 @@ export function SettingsPage() {
                         </div>
                       </label>
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
-                        <span>Cumartesi ve Pazar Tüm Saatler</span>
-                        <div className="field-input flex min-h-[2.5rem] items-center px-3">
+                        <span>Cumartesi ve Pazar</span>
+                        <div className="field-input flex min-h-[2.5rem] items-center gap-2 px-3">
                           <input
                             className="field-checkbox"
                             type="checkbox"
                             checked={templateForm.timedReplyWeekendAllHours}
                             onChange={toggleWeekendAllHours}
                           />
+                          <span className="font-semibold text-black">Tüm Saatler</span>
                         </div>
                       </label>
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">

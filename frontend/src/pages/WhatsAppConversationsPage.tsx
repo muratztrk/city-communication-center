@@ -218,15 +218,17 @@ function TemplatePicker({
 
   return (
     <div className="relative">
-      <button
+      <Button
         type="button"
+        size="sm"
+        variant="secondary"
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-[color:var(--color-border)] bg-[color:var(--color-surface)] hover:bg-[color:var(--color-surface-raised)] transition-colors"
+        className="gap-1"
       >
         <FileText className="size-3.5" />
         Şablon
         <ChevronDown className={`size-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
+      </Button>
       {open && (
         <div className="absolute bottom-full mb-1 left-0 z-50 w-64 max-h-64 overflow-y-auto rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg">
           {active.map(tpl => (

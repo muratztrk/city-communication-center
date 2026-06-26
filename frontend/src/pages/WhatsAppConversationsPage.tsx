@@ -363,6 +363,10 @@ function ConversationDetail({
             >
               {t('whatsapp.viewRequestsByNumber', 'Numaranın Oluşturduğu Talepler')}
             </Button>
+            <WhatsAppTemplatePicker
+              templates={templates}
+              onSelect={content => setReplyText(content)}
+            />
           </div>
         </div>
       )}

@@ -238,7 +238,7 @@ export function CreateRequestPage() {
   }, [activeDepartmentId, user?.departmentId, user?.userId, users, departments])
 
   const ownerDepartmentOptions = useMemo(() => {
-    if (user?.role === 'Staff' && myDepartmentId) {
+    if ((user?.role === 'Staff' || user?.role === 'Operator') && myDepartmentId) {
       return departments.filter(department => department.departmentId === myDepartmentId)
     }
     if (user?.role === 'Manager') {
@@ -437,7 +437,7 @@ export function CreateRequestPage() {
   useEffect(() => {
     if (editJobId) return
     if (selectedKind !== 'internal') return
-    const defaultDeptId = ownerDepartmentOptions[0]?.departmentId || myDepartmentId
+    const defaultDeptId = myDepartmentId || ownerDepartmentOptions[0]?.departmentId
     if (defaultDeptId && !internalForm.ownerDepartmentId) {
       setInternalForm(current => ({ ...current, ownerDepartmentId: defaultDeptId }))
     }
@@ -574,7 +574,9 @@ export function CreateRequestPage() {
 
   const handleCreateInternal = async (event: React.FormEvent) => {
     event.preventDefault()
-    const effectiveOwnerDeptId = internalForm.ownerDepartmentId || myDepartmentId
+    const effectiveOwnerDeptId = (user?.role === 'Staff' || user?.role === 'Operator')
+      ? myDepartmentId
+      : (internalForm.ownerDepartmentId || myDepartmentId)
     if (!effectiveOwnerDeptId) {
       setError(t('tasks.newRequest.noDepartment', 'Departman bilgisi bulunamadı.'))
       return

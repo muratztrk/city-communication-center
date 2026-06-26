@@ -96,7 +96,7 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   openAddress: '',
 }
 
-const CITIZEN_CHANNELS = ['WhatsApp', 'Phone', 'Instagram', 'Facebook', 'X', 'Email', 'WebForm', 'EDevlet', 'Other'] as const
+const CITIZEN_CHANNELS = ['WhatsApp', 'Phone', 'Instagram', 'Facebook', 'X', 'Email', 'WebForm', 'EDevlet'] as const
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
 function getRequestedOwnerUserIds(

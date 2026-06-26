@@ -892,7 +892,10 @@
   }
 
   .table-container thead th {
-    background: transparent;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     padding: 0.85rem 1rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: left;
@@ -930,9 +933,10 @@
   .data-table thead th {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
     white-space: nowrap;
-    background: transparent;
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.22);
     padding: 0.75rem 0.9rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: center;
@@ -949,7 +953,7 @@
 
   /* "Taleplerim" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
   .my-requests-table thead th {
-    background: transparent;
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }
@@ -2497,7 +2501,7 @@
     padding: 0.68rem 0.8rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: transparent;
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     color: white;
     font-size: clamp(0.64rem, 0.72vw, 0.8rem);
     font-weight: 900;

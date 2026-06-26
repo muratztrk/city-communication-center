@@ -6,7 +6,6 @@ import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { DateTimePicker } from '../components/ui/date-time-picker'
-import { StatusPill } from '../components/ui/status-pill'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
   CitizenConversationSummary,
@@ -241,7 +240,6 @@ function ConversationDetail({
   templates,
   anchorAtUtc,
   anchorSocialMessageId,
-  onClose,
   onReadMarked,
   onOpenCreateRequest,
   onOpenEditRequest,
@@ -251,7 +249,6 @@ function ConversationDetail({
   templates: WhatsAppMessageTemplate[]
   anchorAtUtc?: string | null
   anchorSocialMessageId?: string | null
-  onClose?: () => void
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId: string) => void
   onOpenEditRequest: (socialMessageId: string, jobId: string) => void
@@ -339,39 +336,6 @@ function ConversationDetail({
 
   return (
     <div className="flex flex-col h-full bg-slate-50">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[color:var(--color-border)] !bg-slate-50 shrink-0">
-        {detail ? (
-          <div className="min-w-0">
-            <p className="font-bold text-sm text-[color:var(--color-foreground)] truncate">
-              {detail.citizenName ?? formatPhone(detail.citizenPhone)}
-            </p>
-            {detail.citizenName && (
-              <p className="text-xs text-[color:var(--color-muted-foreground)]">{formatPhone(detail.citizenPhone)}</p>
-            )}
-          </div>
-        ) : (
-          <div className="h-8 w-32 bg-[color:var(--color-border)] animate-pulse rounded" />
-        )}
-        <div className="flex items-center gap-2 shrink-0">
-          {detail && detail.tickets.length > 0 && (
-            <StatusPill tone={detail.tickets.some(tk => tk.status !== 'Closed') ? 'info' : 'success'}>
-              {detail.tickets.filter(tk => tk.status !== 'Closed').length} {t('whatsapp.openTickets')}
-            </StatusPill>
-          )}
-          {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
-              aria-label={t('common.close', 'Kapat')}
-            >
-              <X className="size-4" />
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Timeline */}
       <div
         className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0"
@@ -403,9 +367,21 @@ function ConversationDetail({
       {/* Linked ticket actions */}
       {detail && primaryTicket && (
         <div className="shrink-0 px-4 py-2 border-t border-[color:var(--color-border)] bg-slate-50 space-y-1.5">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-muted-foreground)]">
-            {t('whatsapp.tickets')}
-          </p>
+          <div className="flex items-center justify-between gap-3 min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-muted-foreground)] shrink-0">
+              {t('whatsapp.tickets')}
+            </p>
+            {openTicket ? (
+              <div className={`ml-auto flex items-center justify-end gap-1.5 text-[11px] font-semibold text-right ${
+                windowOpen ? 'text-emerald-700' : 'text-amber-700'
+              }`}>
+                {windowOpen
+                  ? <><Clock className="size-3.5 shrink-0" /> 24 saatlik pencere açık — serbest metin veya şablon gönderebilirsiniz</>
+                  : <><AlertCircle className="size-3.5 shrink-0" /> 24 saatlik pencere kapalı — yalnızca şablon gönderilebilir</>
+                }
+              </div>
+            ) : null}
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
@@ -432,20 +408,6 @@ function ConversationDetail({
               </DisabledActionButton>
             )}
           </div>
-        </div>
-      )}
-
-      {/* 24h window indicator */}
-      {detail && openTicket && (
-        <div className={`shrink-0 flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold ${
-          windowOpen
-            ? 'bg-emerald-50 text-emerald-700'
-            : 'bg-amber-50 text-amber-700'
-        }`}>
-          {windowOpen
-            ? <><Clock className="size-3.5" /> 24 saatlik pencere açık — serbest metin veya şablon gönderebilirsiniz</>
-            : <><AlertCircle className="size-3.5" /> 24 saatlik pencere kapalı — yalnızca şablon gönderilebilir</>
-          }
         </div>
       )}
 

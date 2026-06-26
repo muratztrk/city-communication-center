@@ -2388,30 +2388,6 @@ export function SettingsPage() {
                   <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 page-stack">
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
-                        <span>Başlama Tarihi</span>
-                        <DateTimePicker
-                          value={toTemplateDatePickerValue(templateForm.timedReplyStartDate)}
-                          onChange={value => setTemplateForm(current => ({
-                            ...current,
-                            timedReplyStartDate: fromTemplateDatePickerValue(value),
-                          }))}
-                          placeholder="Başlama tarihi"
-                          forceDown
-                        />
-                      </label>
-                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
-                        <span>Bitiş Tarihi</span>
-                        <DateTimePicker
-                          value={toTemplateDatePickerValue(templateForm.timedReplyEndDate)}
-                          onChange={value => setTemplateForm(current => ({
-                            ...current,
-                            timedReplyEndDate: fromTemplateDatePickerValue(value),
-                          }))}
-                          placeholder="Bitiş tarihi"
-                          forceDown
-                        />
-                      </label>
-                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                         <span>Başlama Saati</span>
                         <div className="relative">
                           <Clock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -2434,6 +2410,30 @@ export function SettingsPage() {
                             onChange={event => setTemplateForm(current => ({ ...current, timedReplyEndTime: event.target.value }))}
                           />
                         </div>
+                      </label>
+                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                        <span>Başlama Tarihi</span>
+                        <DateTimePicker
+                          value={toTemplateDatePickerValue(templateForm.timedReplyStartDate)}
+                          onChange={value => setTemplateForm(current => ({
+                            ...current,
+                            timedReplyStartDate: fromTemplateDatePickerValue(value),
+                          }))}
+                          placeholder="Başlama tarihi"
+                          forceUp
+                        />
+                      </label>
+                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                        <span>Bitiş Tarihi</span>
+                        <DateTimePicker
+                          value={toTemplateDatePickerValue(templateForm.timedReplyEndDate)}
+                          onChange={value => setTemplateForm(current => ({
+                            ...current,
+                            timedReplyEndDate: fromTemplateDatePickerValue(value),
+                          }))}
+                          placeholder="Bitiş tarihi"
+                          forceUp
+                        />
                       </label>
                     </div>
 
@@ -2479,7 +2479,7 @@ export function SettingsPage() {
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>Gönderilecek Mesaj</span>
                   <textarea
-                    className="field-textarea"
+                    className="field-textarea text-base"
                     required
                     rows={5}
                     placeholder="Gönderilecek mesaj içeriğini buraya yazın..."

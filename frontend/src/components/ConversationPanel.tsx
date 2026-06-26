@@ -164,16 +164,18 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             onChange={e => setReplyText(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}
             placeholder={t('social.replyPlaceholder', 'Yanıt yaz…')}
-            className="field-input min-w-0 flex-1 resize-none min-h-[4.5rem] max-h-28 max-w-[calc(100%-7.5rem)] py-2 text-sm"
+            className="field-input min-w-0 flex-1 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"
             style={{ height: 'auto' }}
           />
-          <WhatsAppTemplatePicker
-            templates={templates}
-            onSelect={content => setReplyText(content)}
-          />
-          <Button size="sm" onClick={() => void handleSend()} disabled={!replyText.trim() || sending} className="shrink-0 self-end">
-            {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-          </Button>
+          <div className="flex shrink-0 flex-col items-stretch gap-1.5 self-end">
+            <WhatsAppTemplatePicker
+              templates={templates}
+              onSelect={content => setReplyText(content)}
+            />
+            <Button size="sm" onClick={() => void handleSend()} disabled={!replyText.trim() || sending} className="self-stretch">
+              {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+            </Button>
+          </div>
         </div>
       )}
     </div>

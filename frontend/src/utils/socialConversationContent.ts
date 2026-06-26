@@ -34,7 +34,22 @@ export function extensionFromMimeType(mime: string): string {
   return '.bin'
 }
 
-export function socialMediaFilename(entryId: string, mime: string): string {
+export function normalizeWhatsappPhoneForFilename(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1)
+  return digits
+}
+
+export function whatsappMediaFilename(citizenPhone: string, mime: string): string {
+  const localPhone = normalizeWhatsappPhoneForFilename(citizenPhone)
+  return `whatsapp-${localPhone}${extensionFromMimeType(mime)}`
+}
+
+export function socialMediaFilename(entryId: string, mime: string, citizenPhone?: string | null): string {
+  if (citizenPhone?.trim()) {
+    return whatsappMediaFilename(citizenPhone, mime)
+  }
   return `whatsapp-${entryId.slice(0, 8)}${extensionFromMimeType(mime)}`
 }
 

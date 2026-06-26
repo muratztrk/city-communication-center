@@ -15,6 +15,7 @@ import { formatBracketContent, isPlaceholderBracketContent } from '../utils/soci
 interface ConversationPanelProps {
   socialMessageId: string
   citizenHandle: string
+  citizenPhone?: string | null
   onClose: () => void
   canReply?: boolean
   onReplySent?: () => void
@@ -24,10 +25,12 @@ interface ConversationPanelProps {
 function EntryBubble({
   entry,
   socialMessageId,
+  citizenPhone,
   onAddMediaAsAttachment,
 }: {
   entry: SocialConversationEntry
   socialMessageId: string
+  citizenPhone?: string | null
   onAddMediaAsAttachment?: (file: File) => void
 }) {
   const { i18n } = useTranslation()
@@ -51,6 +54,7 @@ function EntryBubble({
               entryId={entry.entryId}
               mediaMimeType={entry.mediaMimeType}
               direction={entry.direction}
+              citizenPhone={citizenPhone}
               onAddAsAttachment={onAddMediaAsAttachment}
             />
           </div>
@@ -70,7 +74,7 @@ function EntryBubble({
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, onClose, canReply = true, onReplySent, onAddMediaAsAttachment }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, onReplySent, onAddMediaAsAttachment }: ConversationPanelProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [replyText, setReplyText] = useState('')
@@ -143,6 +147,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, onClose, can
               key={entry.entryId || i}
               entry={entry}
               socialMessageId={socialMessageId}
+              citizenPhone={citizenPhone}
               onAddMediaAsAttachment={onAddMediaAsAttachment}
             />
           ))

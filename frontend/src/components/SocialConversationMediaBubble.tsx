@@ -10,6 +10,7 @@ interface SocialConversationMediaBubbleProps {
   entryId: string
   mediaMimeType?: string | null
   direction?: 'Inbound' | 'Outbound'
+  citizenPhone?: string | null
   onAddAsAttachment?: (file: File) => void
 }
 
@@ -18,10 +19,12 @@ export function SocialConversationMediaBubble({
   entryId,
   mediaMimeType,
   direction = 'Inbound',
+  citizenPhone,
   onAddAsAttachment,
 }: SocialConversationMediaBubbleProps) {
   const { t } = useTranslation()
   const mime = mediaMimeType ?? 'application/octet-stream'
+  const filename = socialMediaFilename(entryId, mime, citizenPhone)
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -60,7 +63,7 @@ export function SocialConversationMediaBubble({
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
-    anchor.download = socialMediaFilename(entryId, mime)
+    anchor.download = filename
     anchor.click()
     URL.revokeObjectURL(url)
   }
@@ -68,7 +71,7 @@ export function SocialConversationMediaBubble({
   const handleAddAsAttachment = async () => {
     if (!onAddAsAttachment) return
     const blob = await downloadBlob()
-    const file = new File([blob], socialMediaFilename(entryId, mime), { type: blob.type || mime })
+    const file = new File([blob], filename, { type: blob.type || mime })
     onAddAsAttachment(file)
   }
 

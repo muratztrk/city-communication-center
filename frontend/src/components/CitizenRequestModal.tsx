@@ -377,6 +377,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, on
             <ConversationPanel
               socialMessageId={message.socialMessageId}
               citizenHandle={message.citizenHandle}
+              citizenPhone={citizenPhone}
               onClose={onClose}
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
               onAddMediaAsAttachment={addPendingFile}

@@ -1641,6 +1641,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("templateid");
 
+                    b.Property<string>("ActiveDaysJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("activedaysjson");
+
                     b.Property<bool>("AutoReply")
                         .HasColumnType("boolean")
                         .HasColumnName("autoreply");
@@ -1693,6 +1698,18 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<int>("ReplyDelaySecs")
                         .HasColumnType("integer")
                         .HasColumnName("replydelaysecs");
+
+                    b.Property<bool>("TimedReplyEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("timedreplyenabled");
+
+                    b.Property<string>("TimedReplyEndTime")
+                        .HasColumnType("text")
+                        .HasColumnName("timedreplyendtime");
+
+                    b.Property<string>("TimedReplyStartTime")
+                        .HasColumnType("text")
+                        .HasColumnName("timedreplystarttime");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")

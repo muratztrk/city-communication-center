@@ -338,9 +338,9 @@ function ConversationDetail({
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-slate-50">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[color:var(--color-border)] bg-slate-50 shrink-0">
+      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[color:var(--color-border)] !bg-slate-50 shrink-0">
         {detail ? (
           <div className="min-w-0">
             <p className="font-bold text-sm text-[color:var(--color-foreground)] truncate">

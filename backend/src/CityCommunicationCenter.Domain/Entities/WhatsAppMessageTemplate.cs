@@ -26,6 +26,17 @@ public sealed class WhatsAppMessageTemplate : AuditableTenantEntity, IHasDatabas
     /// <summary>JSON-serialized string[] of trigger keywords.</summary>
     public string KeywordsJson { get; set; } = "[]";
 
+    public bool TimedReplyEnabled { get; set; }
+
+    /// <summary>Local time in HH:mm format.</summary>
+    public string? TimedReplyStartTime { get; set; }
+
+    /// <summary>Local time in HH:mm format.</summary>
+    public string? TimedReplyEndTime { get; set; }
+
+    /// <summary>JSON-serialized string[] of weekday ids (monday..sunday).</summary>
+    public string ActiveDaysJson { get; set; } = "[\"monday\",\"tuesday\",\"wednesday\",\"thursday\",\"friday\",\"saturday\",\"sunday\"]";
+
     public Tenant Tenant { get; set; } = null!;
 
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>

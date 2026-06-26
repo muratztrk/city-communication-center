@@ -418,6 +418,10 @@ export interface WhatsAppMessageTemplate {
   hasKeyword: boolean;
   queryType: string;
   keywords: string[];
+  timedReplyEnabled: boolean;
+  timedReplyStartTime: string;
+  timedReplyEndTime: string;
+  activeDays: string[];
 }
 
 export interface AuditLog {

@@ -23,6 +23,7 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var keywordsJson = JsonSerializer.Serialize(request.Data.Keywords ?? []);
+        var activeDaysJson = JsonSerializer.Serialize(request.Data.ActiveDays ?? []);
 
         if (request.TemplateId.HasValue)
         {
@@ -42,6 +43,10 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
             existing.HasKeyword = request.Data.HasKeyword;
             existing.QueryType = request.Data.QueryType;
             existing.KeywordsJson = keywordsJson;
+            existing.TimedReplyEnabled = request.Data.TimedReplyEnabled;
+            existing.TimedReplyStartTime = NormalizeTime(request.Data.TimedReplyStartTime);
+            existing.TimedReplyEndTime = NormalizeTime(request.Data.TimedReplyEndTime);
+            existing.ActiveDaysJson = activeDaysJson;
             existing.UpdatedByUserId = request.ActorUserId;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -63,11 +68,23 @@ public sealed class SaveWhatsAppTemplateCommandHandler : ICommandHandler<SaveWha
                 HasKeyword = request.Data.HasKeyword,
                 QueryType = request.Data.QueryType,
                 KeywordsJson = keywordsJson,
+                TimedReplyEnabled = request.Data.TimedReplyEnabled,
+                TimedReplyStartTime = NormalizeTime(request.Data.TimedReplyStartTime),
+                TimedReplyEndTime = NormalizeTime(request.Data.TimedReplyEndTime),
+                ActiveDaysJson = activeDaysJson,
                 CreatedByUserId = request.ActorUserId,
             };
             _dbContext.WhatsAppTemplates.Add(template);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return template.TemplateId;
         }
+    }
+
+    private static string? NormalizeTime(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        return value.Trim();
     }
 }

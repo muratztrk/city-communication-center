@@ -40,7 +40,11 @@ public sealed class GetWhatsAppTemplatesQueryHandler
                 t.ReplyDelaySecs,
                 t.HasKeyword,
                 t.QueryType,
-                ParseKeywords(t.KeywordsJson)))
+                ParseKeywords(t.KeywordsJson),
+                t.TimedReplyEnabled,
+                t.TimedReplyStartTime,
+                t.TimedReplyEndTime,
+                ParseKeywords(t.ActiveDaysJson)))
             .ToList();
     }
 

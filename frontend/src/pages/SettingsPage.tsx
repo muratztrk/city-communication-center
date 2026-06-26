@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { Paintbrush, Settings2, ShieldCheck, UsersRound } from 'lucide-react'
+import { Paintbrush, Settings2, ShieldCheck, UsersRound, CalendarClock, Clock, Save } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -208,11 +208,25 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
 
 const TEMPLATE_CHANNEL_OPTIONS = ['Genel', 'WhatsApp', 'Facebook', 'Instagram', 'X', 'Phone', 'Other']
 const TEMPLATE_REPLY_DELAY_OPTIONS = [10, 30, 60, 120, 300]
+const TEMPLATE_WEEKDAY_OPTIONS = [
+  { id: 'monday', label: 'Pazartesi', group: 'weekday' as const },
+  { id: 'tuesday', label: 'Salı', group: 'weekday' as const },
+  { id: 'wednesday', label: 'Çarşamba', group: 'weekday' as const },
+  { id: 'thursday', label: 'Perşembe', group: 'weekday' as const },
+  { id: 'friday', label: 'Cuma', group: 'weekday' as const },
+  { id: 'saturday', label: 'Cumartesi', group: 'weekend' as const },
+  { id: 'sunday', label: 'Pazar', group: 'weekend' as const },
+]
+const ALL_TEMPLATE_WEEKDAYS = TEMPLATE_WEEKDAY_OPTIONS.map(day => day.id)
+const TEMPLATE_WEEKDAY_IDS = TEMPLATE_WEEKDAY_OPTIONS.filter(day => day.group === 'weekday').map(day => day.id)
+const TEMPLATE_WEEKEND_IDS = TEMPLATE_WEEKDAY_OPTIONS.filter(day => day.group === 'weekend').map(day => day.id)
 
 const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
   name: '', content: '', isActive: true, channel: 'Genel',
   isGeneral: false, autoReply: false, replyDelaySecs: 30,
   hasKeyword: false, queryType: '(LIKE) İçerikte Geçsin', keywords: [],
+  timedReplyEnabled: false, timedReplyStartTime: '17:30', timedReplyEndTime: '08:30',
+  activeDays: [...ALL_TEMPLATE_WEEKDAYS],
 }
 
 function readTab(tab: string | null): SettingsTab {
@@ -946,7 +960,13 @@ export function SettingsPage() {
     setSelectedTemplateId(tpl.templateId)
     const { templateId: _id, ...rest } = tpl
     void _id
-    setTemplateForm(rest)
+    setTemplateForm({
+      ...EMPTY_TEMPLATE_FORM,
+      ...rest,
+      timedReplyStartTime: rest.timedReplyStartTime || '17:30',
+      timedReplyEndTime: rest.timedReplyEndTime || '08:30',
+      activeDays: rest.activeDays?.length ? rest.activeDays : [...ALL_TEMPLATE_WEEKDAYS],
+    })
     setKeywordInput('')
     setIsNewTemplate(false)
   }
@@ -969,27 +989,66 @@ export function SettingsPage() {
     setTemplateForm(cur => ({ ...cur, keywords: cur.keywords.filter(k => k !== kw) }))
   }
 
+  const toggleTemplateDay = (dayId: string) => {
+    setTemplateForm(current => ({
+      ...current,
+      activeDays: current.activeDays.includes(dayId)
+        ? current.activeDays.filter(day => day !== dayId)
+        : [...current.activeDays, dayId],
+    }))
+  }
+
+  const setTemplateDayGroup = (dayIds: string[], enabled: boolean) => {
+    setTemplateForm(current => ({
+      ...current,
+      activeDays: enabled
+        ? Array.from(new Set([...current.activeDays, ...dayIds]))
+        : current.activeDays.filter(day => !dayIds.includes(day)),
+    }))
+  }
+
+  const persistTemplate = async (successMessage = 'Şablon kaydedildi.') => {
+    if (!templateForm.name.trim() || !templateForm.content.trim()) return false
+    const data = {
+      ...templateForm,
+      name: templateForm.name.trim(),
+      content: templateForm.content.trim(),
+      activeDays: templateForm.activeDays.length > 0 ? templateForm.activeDays : [...ALL_TEMPLATE_WEEKDAYS],
+    }
+    if (isNewTemplate) {
+      await api.createWhatsAppTemplate(data)
+    } else if (selectedTemplateId) {
+      await api.updateWhatsAppTemplate(selectedTemplateId, data)
+    } else {
+      return false
+    }
+    invalidateSettings(queryClient)
+    const updated = await api.getWhatsAppTemplates()
+    setTemplates(updated)
+    setMessage({ type: 'success', text: successMessage })
+    if (isNewTemplate) {
+      setIsNewTemplate(false)
+      setSelectedTemplateId(updated.find(t => t.name === data.name)?.templateId ?? null)
+    }
+    return true
+  }
+
   const saveTemplate = async (event: FormEvent) => {
     event.preventDefault()
     setMessage(null)
-    if (!templateForm.name.trim() || !templateForm.content.trim()) return
     try {
-      const data = { ...templateForm, name: templateForm.name.trim(), content: templateForm.content.trim() }
-      if (isNewTemplate) {
-        await api.createWhatsAppTemplate(data)
-      } else if (selectedTemplateId) {
-        await api.updateWhatsAppTemplate(selectedTemplateId, data)
-      }
-      invalidateSettings(queryClient)
-      const updated = await api.getWhatsAppTemplates()
-      setTemplates(updated)
-      setMessage({ type: 'success', text: 'Şablon kaydedildi.' })
-      if (isNewTemplate) {
-        setIsNewTemplate(false)
-        setSelectedTemplateId(updated.find(t => t.name === data.name)?.templateId ?? null)
-      }
+      await persistTemplate()
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : 'Şablon kaydedilemedi.' })
+    }
+  }
+
+  const saveTemplateSchedule = async () => {
+    setMessage(null)
+    try {
+      await persistTemplate('Zamanlı yanıt saati kaydedildi.')
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : 'Zamanlı yanıt saati kaydedilemedi.' })
     }
   }
 
@@ -2289,17 +2348,30 @@ export function SettingsPage() {
                   ) : null}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-slate-700">Aktif</span>
-                    <button
-                      type="button"
-                      onClick={() => setTemplateForm(cur => ({ ...cur, isActive: !cur.isActive }))}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.isActive ? 'bg-emerald-500' : 'bg-slate-200'}`}
-                      role="switch" aria-checked={templateForm.isActive}
-                    >
-                      <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.isActive ? 'translate-x-5' : 'translate-x-0'}`} />
-                    </button>
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,0.8fr)]">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-slate-700">Aktif</span>
+                      <button
+                        type="button"
+                        onClick={() => setTemplateForm(cur => ({ ...cur, isActive: !cur.isActive }))}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.isActive ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                        role="switch" aria-checked={templateForm.isActive}
+                      >
+                        <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.isActive ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-slate-700">Zamanlı Yanıt</span>
+                      <button
+                        type="button"
+                        onClick={() => setTemplateForm(cur => ({ ...cur, timedReplyEnabled: !cur.timedReplyEnabled }))}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.timedReplyEnabled ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                        role="switch" aria-checked={templateForm.timedReplyEnabled}
+                      >
+                        <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.timedReplyEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </button>
+                    </div>
                   </div>
                   <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                     <span>Şablon Türü</span>
@@ -2308,6 +2380,86 @@ export function SettingsPage() {
                     </select>
                   </label>
                 </div>
+
+                {templateForm.timedReplyEnabled ? (
+                  <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 page-stack">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                        <span>Başlama Saati</span>
+                        <div className="relative">
+                          <CalendarClock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                          <input
+                            className="field-input pl-10"
+                            type="time"
+                            value={templateForm.timedReplyStartTime}
+                            onChange={event => setTemplateForm(current => ({ ...current, timedReplyStartTime: event.target.value }))}
+                          />
+                        </div>
+                      </label>
+                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                        <span>Bitiş Saati</span>
+                        <div className="relative">
+                          <Clock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                          <input
+                            className="field-input pl-10"
+                            type="time"
+                            value={templateForm.timedReplyEndTime}
+                            onChange={event => setTemplateForm(current => ({ ...current, timedReplyEndTime: event.target.value }))}
+                          />
+                        </div>
+                      </label>
+                    </div>
+
+                    <div className="page-stack">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="text-sm font-semibold text-slate-700">Aktif Günler</span>
+                        <button
+                          type="button"
+                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                          onClick={() => setTemplateDayGroup(TEMPLATE_WEEKDAY_IDS, true)}
+                        >
+                          Hafta içi
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                          onClick={() => setTemplateDayGroup(TEMPLATE_WEEKEND_IDS, true)}
+                        >
+                          Hafta sonu
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                          onClick={() => setTemplateForm(current => ({ ...current, activeDays: [...ALL_TEMPLATE_WEEKDAYS] }))}
+                        >
+                          Tüm günler
+                        </button>
+                      </div>
+                      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        {TEMPLATE_WEEKDAY_OPTIONS.map(day => (
+                          <label key={day.id} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
+                            <input
+                              className="field-checkbox"
+                              type="checkbox"
+                              checked={templateForm.activeDays.includes(day.id)}
+                              onChange={() => toggleTemplateDay(day.id)}
+                            />
+                            {day.label}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => { void saveTemplateSchedule() }}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-100"
+                    >
+                      <Save className="size-4" />
+                      Saati Ayarla
+                    </button>
+                  </section>
+                ) : null}
 
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>Şablon Adı</span>

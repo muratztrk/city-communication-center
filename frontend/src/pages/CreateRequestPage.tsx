@@ -1116,7 +1116,7 @@ export function CreateRequestPage() {
                 />
               </label>
               <label className="job-field">
-                <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Vatandaş Telefon Numarası')} <span className="text-xs font-normal text-slate-400">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
+                <span className="job-field-label normal-case">{t('settings.citizen.citizenPhone', 'Vatandaş Telefon Numarası')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
                 <input
                   className="field-input"
                   required

@@ -214,7 +214,11 @@ public sealed record WhatsAppMessageTemplateDto(
     int ReplyDelaySecs,
     bool HasKeyword,
     string QueryType,
-    IReadOnlyList<string> Keywords);
+    IReadOnlyList<string> Keywords,
+    bool TimedReplyEnabled,
+    string? TimedReplyStartTime,
+    string? TimedReplyEndTime,
+    IReadOnlyList<string> ActiveDays);
 
 public sealed record WhatsAppMessageTemplateRequest(
     string Name,
@@ -226,7 +230,11 @@ public sealed record WhatsAppMessageTemplateRequest(
     int ReplyDelaySecs,
     bool HasKeyword,
     string QueryType,
-    IReadOnlyList<string> Keywords);
+    IReadOnlyList<string> Keywords,
+    bool TimedReplyEnabled,
+    string? TimedReplyStartTime,
+    string? TimedReplyEndTime,
+    IReadOnlyList<string> ActiveDays);
 
 public sealed record SocialSettingsSaveResponse(
     string Message,

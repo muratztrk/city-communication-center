@@ -592,7 +592,7 @@ export function WhatsAppConversationsPage() {
                 <input
                   type="text"
                   className="scope-chip-search-input"
-                  placeholder={t('whatsapp.searchPlaceholder', 'Telefon numarasıyla ara…')}
+                  placeholder={t('whatsapp.searchPlaceholder', 'Telefon no bul…')}
                   value={search}
                   onChange={event => setSearch(event.target.value)}
                 />

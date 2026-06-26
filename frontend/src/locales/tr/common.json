@@ -733,7 +733,7 @@
   "whatsapp": {
     "title": "WhatsApp Konuşmaları",
     "subtitle": "Vatandaşlardan gelen WhatsApp mesajlarını yönetin.",
-    "searchPlaceholder": "Telefon numarasıyla ara…",
+    "searchPlaceholder": "Telefon no bul…",
     "conversationsButton": "Yazışmalar",
     "navLabel": "WhatsApp Yazışmaları",
     "empty": "Henüz konuşma bulunmuyor",

@@ -728,7 +728,7 @@
   "whatsapp": {
     "title": "WhatsApp Conversations",
     "subtitle": "Manage incoming WhatsApp messages from citizens.",
-    "searchPlaceholder": "Search by phone number…",
+    "searchPlaceholder": "Find phone no…",
     "conversationsButton": "Conversations",
     "navLabel": "WhatsApp Conversations",
     "empty": "No conversations yet",

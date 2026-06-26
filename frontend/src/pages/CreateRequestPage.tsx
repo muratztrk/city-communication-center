@@ -758,6 +758,10 @@ export function CreateRequestPage() {
       setError(t('settings.citizen.contentRequired', 'Açıklama gereklidir.'))
       return
     }
+    if (!citizenForm.citizenHandle.trim()) {
+      setError(t('settings.citizen.citizenHandleRequired', 'Vatandaş / Gönderen gereklidir.'))
+      return
+    }
 
     setSaving(true)
     setError(null)
@@ -1059,22 +1063,22 @@ export function CreateRequestPage() {
               <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input id="citizen-request-title" className="field-input" type="text" maxLength={50} value={citizenForm.title} onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))} required />
             </div>
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="citizen-request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
-              <select
-                id="citizen-request-target-dept"
-                className="field-select"
-                value={citizenForm.targetDepartmentId}
-                onChange={event => setCitizenForm(current => ({ ...current, targetDepartmentId: event.target.value }))}
-                required
-              >
-                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
-                {citizenTargetDepartmentOptions.map(department => (
-                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                ))}
-              </select>
-            </div>
             <div className="grid gap-3 md:grid-cols-2">
+              <div className="job-field">
+                <label className="job-field-label" htmlFor="citizen-request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
+                <select
+                  id="citizen-request-target-dept"
+                  className="field-select"
+                  value={citizenForm.targetDepartmentId}
+                  onChange={event => setCitizenForm(current => ({ ...current, targetDepartmentId: event.target.value }))}
+                  required
+                >
+                  <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
+                  {citizenTargetDepartmentOptions.map(department => (
+                    <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                  ))}
+                </select>
+              </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="citizen-request-priority">{t('jobs.form.priority', 'Öncelik')}</label>
                 <select id="citizen-request-priority" className="field-select" value={citizenForm.priority} onChange={event => setCitizenForm(current => ({ ...current, priority: event.target.value }))}>
@@ -1083,11 +1087,13 @@ export function CreateRequestPage() {
                   <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
                 </select>
               </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="citizen-request-start-date">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
                 <DateTimePicker id="citizen-request-start-date" value={citizenForm.startDateUtc} onChange={value => setCitizenForm(current => ({ ...current, startDateUtc: value }))} />
               </div>
-              <div className="job-field md:col-span-2">
+              <div className="job-field">
                 <label className="job-field-label" htmlFor="citizen-request-due-date">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
                 <DateTimePicker id="citizen-request-due-date" value={citizenForm.dueDateUtc} onChange={value => setCitizenForm(current => ({ ...current, dueDateUtc: value }))} />
               </div>
@@ -1095,7 +1101,6 @@ export function CreateRequestPage() {
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
           </div>
           <div className="grid content-start gap-3">
-            {renderRequestTypeField()}
             <div className="job-field min-h-0">
               <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-red-500">*</span></span>
               <RichTextEditor
@@ -1106,6 +1111,7 @@ export function CreateRequestPage() {
                 minHeight="min-h-48"
               />
             </div>
+            {renderRequestTypeField()}
             <div className="job-field">
               <span className="job-field-label">{t('settings.citizen.channel', 'Talep Kanalı')}</span>
               <div className="grid grid-cols-9 gap-1">
@@ -1127,10 +1133,11 @@ export function CreateRequestPage() {
               </div>
             </div>
             <label className="job-field">
-              <span className="job-field-label">{t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')}</span>
+              <span className="job-field-label">{t('settings.citizen.citizenHandle', 'Vatandaş / Gönderen')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
               <input
                 className="field-input"
                 required
+                maxLength={50}
                 placeholder={t('settings.citizen.citizenHandlePlaceholder', 'Vatandaş ismi ya da Telefon Numarası')}
                 value={citizenForm.citizenHandle}
                 onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}

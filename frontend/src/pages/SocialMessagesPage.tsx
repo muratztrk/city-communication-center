@@ -435,6 +435,7 @@ export function SocialMessagesPage() {
           mode="myRequests"
           fixedScope="mine"
           detailOnly
+          detailContextOverride="social"
           notificationJobId={detailJobId}
           onNotificationDetailClose={() => setDetailJobId(null)}
         />

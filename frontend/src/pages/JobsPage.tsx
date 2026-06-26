@@ -607,14 +607,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
   const detailContext = detailContextOverride ?? searchParams.get('context')
   const incomingReturnStatus = searchParams.get('returnStatus')
-  const detailHeaderTitle = isMyRequestsView
-    ? t('nav.myRequests', 'Taleplerim')
-    : isDepartmentOutgoingView
-      ? t('nav.outgoingRequests', 'Birimden Giden Talepler')
-      : detailContext === 'incoming'
-        ? t('nav.incomingRequests', 'Birime Gelen Talepler')
-        : detailContext === 'social'
-          ? t('nav.social', 'Vatandaş Talepleri')
+  const detailHeaderTitle = detailContext === 'social'
+    ? t('jobs.detail.citizenRequest', 'Vatandaş Talebi')
+    : isMyRequestsView
+      ? t('nav.myRequests', 'Taleplerim')
+      : isDepartmentOutgoingView
+        ? t('nav.outgoingRequests', 'Birimden Giden Talepler')
+        : detailContext === 'incoming'
+          ? t('nav.incomingRequests', 'Birime Gelen Talepler')
           : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail

@@ -689,6 +689,7 @@ export function WhatsAppConversationsPage() {
           mode="myRequests"
           fixedScope="mine"
           detailOnly
+          detailContextOverride="social"
           notificationJobId={detailJobId}
           onNotificationDetailClose={() => setDetailJobId(null)}
         />

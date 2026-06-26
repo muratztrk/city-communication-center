@@ -1075,6 +1075,7 @@
       "channelPlaceholder": "Kanal seçin",
       "citizenHandle": "Vatandaş / Gönderen",
       "citizenHandlePlaceholder": "Vatandaş ismi ya da Telefon Numarası",
+      "citizenHandleRequired": "Vatandaş / Gönderen gereklidir.",
       "content": "Açıklama",
       "contentPlaceholder": "Vatandaş talebinin açıklamasını girin...",
       "contentRequired": "Açıklama gereklidir.",
@@ -1360,6 +1361,7 @@
     },
     "detail": {
       "title": "İş Detayı",
+      "citizenRequest": "Vatandaş Talebi",
       "cancelNote": "İptal Notu",
       "completionNote": "Tamamlama Notu",
       "departments": "Müdürlükler",

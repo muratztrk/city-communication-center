@@ -1047,6 +1047,7 @@
       "channelPlaceholder": "Select channel",
       "citizenHandle": "Citizen / Sender",
       "citizenHandlePlaceholder": "e.g. @username or full name",
+      "citizenHandleRequired": "Citizen / Sender is required.",
       "content": "Request Content",
       "contentPlaceholder": "Enter the content of the citizen request...",
       "category": "Category (optional)",
@@ -1325,6 +1326,7 @@
     },
     "detail": {
       "title": "Job Detail",
+      "citizenRequest": "Citizen Request",
       "cancelNote": "Cancellation Note",
       "completionNote": "Completion Note",
       "departments": "Departments",

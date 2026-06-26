@@ -2402,7 +2402,7 @@ export function SettingsPage() {
 
                 {templateForm.timedReplyEnabled ? (
                   <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 page-stack">
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                         <span>Başlama Saati</span>
                         <div className="relative">
@@ -2415,18 +2415,32 @@ export function SettingsPage() {
                           />
                         </div>
                       </label>
-                      <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
-                        <span>Bitiş Saati</span>
-                        <div className="relative">
-                          <Clock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                      <div className="flex flex-wrap items-end gap-3 sm:col-span-1 xl:col-span-2">
+                        <label className="grid min-w-[9rem] flex-1 gap-1.5 text-sm font-semibold text-slate-700">
+                          <span>Bitiş Saati</span>
+                          <div className="relative">
+                            <Clock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                            <input
+                              className="field-input pl-10"
+                              type="time"
+                              value={templateForm.timedReplyEndTime}
+                              onChange={event => setTemplateForm(current => ({ ...current, timedReplyEndTime: event.target.value }))}
+                            />
+                          </div>
+                        </label>
+                        <label className="inline-flex shrink-0 items-center gap-2 pb-2 text-sm font-semibold text-slate-700">
                           <input
-                            className="field-input pl-10"
-                            type="time"
-                            value={templateForm.timedReplyEndTime}
-                            onChange={event => setTemplateForm(current => ({ ...current, timedReplyEndTime: event.target.value }))}
+                            className="field-checkbox"
+                            type="checkbox"
+                            checked={templateForm.timedReplyWeekendAllHours}
+                            onChange={toggleWeekendAllHours}
                           />
-                        </div>
-                      </label>
+                          Cumartesi ve Pazar Tüm Saatler
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                         <span>Başlama Tarihi</span>
                         <DateTimePicker
@@ -2467,15 +2481,6 @@ export function SettingsPage() {
                             {day.label}
                           </label>
                         ))}
-                        <label className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 sm:col-span-2 lg:col-span-1">
-                          <input
-                            className="field-checkbox"
-                            type="checkbox"
-                            checked={templateForm.timedReplyWeekendAllHours}
-                            onChange={toggleWeekendAllHours}
-                          />
-                          Hafta Sonu Tüm Saatler
-                        </label>
                       </div>
                     </div>
 

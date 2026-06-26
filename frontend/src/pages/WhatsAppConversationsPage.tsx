@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { AlertCircle, CalendarClock, ChevronDown, Clock, FileText, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -204,7 +204,15 @@ function TemplatePicker({
   onSelect: (content: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const active = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
+  const active = useMemo(() => {
+    const filtered = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
+    const pinnedName = 'KVKK Hoşgeldiniz'
+    return [...filtered].sort((left, right) => {
+      if (left.name === pinnedName) return -1
+      if (right.name === pinnedName) return 1
+      return left.name.localeCompare(right.name, 'tr')
+    })
+  }, [templates])
 
   if (active.length === 0) return null
 

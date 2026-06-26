@@ -344,14 +344,20 @@ function ConversationDetail({
               size="sm"
               type="button"
               variant="success"
-              onClick={() => primaryTicket.jobId
-                ? onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId)
-                : onOpenCreateRequest(primaryTicket.socialMessageId)}
+              onClick={() => onOpenCreateRequest(primaryTicket.socialMessageId)}
             >
-              {primaryTicket.jobId
-                ? t('jobs.actions.editRequest', 'Talebi Düzenle')
-                : t('nav.createRequest', 'Talep Oluştur')}
+              {t('nav.createRequest', 'Talep Oluştur')}
             </Button>
+            {primaryTicket.jobId ? (
+              <Button
+                size="sm"
+                type="button"
+                className="bg-[#007985] text-white hover:bg-[#006570]"
+                onClick={() => onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId!)}
+              >
+                {t('jobs.actions.editRequest', 'Talebi Düzenle')}
+              </Button>
+            ) : null}
             <Button
               size="sm"
               type="button"

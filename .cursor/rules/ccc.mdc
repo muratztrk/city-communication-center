@@ -1,0 +1,19 @@
+---
+description: City Communication Center — shared project rules and regression guardrails
+alwaysApply: true
+---
+
+Follow the tool-agnostic project rules in these files (read them; do not duplicate):
+
+- `AGENTS.md` — build commands, CQRS/feature patterns, auth & tenant standards, and the
+  mandatory Trello card workflow + build/lint gate.
+- `docs/feature-invariants.md` — read the relevant section BEFORE changing code (the
+  "don't break X" rules); add new invariants here after a change introduces one.
+- `CLAUDE.md` — project overview/architecture (kept in sync with AGENTS.md).
+
+Reminders:
+- Backend validation/error messages in Turkish; frontend via i18n.
+- Run `dotnet build backend/CityCommunicationCenter.sln` + `cd frontend && npm run build && npm run lint` before "done".
+- ⚠️ Pushing `main` auto-deploys PRODUCTION; push both `main` and `master`.
+
+Trello tooling: `scripts/trello/` (poll / move / process + Cursor `run-agent.py`).

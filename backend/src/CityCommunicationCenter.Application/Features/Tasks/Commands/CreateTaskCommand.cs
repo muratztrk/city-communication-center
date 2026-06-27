@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -204,6 +205,14 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
                 CreatedByUserId = context.UserId
             });
         }
+
+        await CitizenJobTargetApproval.TryRecordTargetApprovalAsync(
+            _dbContext,
+            job,
+            assignedDepartmentId,
+            actor.UserId,
+            utcNow,
+            cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);

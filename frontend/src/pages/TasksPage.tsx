@@ -190,7 +190,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ...(isCitizenRequestJob(parentJob) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApproval?.decidedAtUtc)]]),
-    ...(parentJob.requestType === 'ExternalUnit'
+    ...(parentJob && shouldShowCitizenTargetApprovalDate(parentJob)
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApproval?.decidedAtUtc)]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],

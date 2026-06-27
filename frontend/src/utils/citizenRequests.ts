@@ -39,13 +39,19 @@ export function formatCitizenPhoneDisplay(value: string | null | undefined): str
 export function shouldShowCitizenTargetApprovalDate(job: {
   requestType?: string | null
   sourceType?: string | null
+  taskCount?: number
+  tasks?: { taskId?: string }[]
   departments?: { role: string; approvalStatus?: string | null; decidedAtUtc?: string | null }[]
 }): boolean {
   if (!isCitizenRequestJob(job)) {
     return job.requestType === 'ExternalUnit'
   }
   const target = job.departments?.find(department => department.role === 'Target')
-  return target?.approvalStatus === 'Approved' && Boolean(target.decidedAtUtc)
+  if (target?.approvalStatus !== 'Approved' || !target.decidedAtUtc) {
+    return false
+  }
+  const taskCount = job.taskCount ?? job.tasks?.length ?? 0
+  return taskCount > 0
 }
 
 export function resolveCitizenWhatsAppPhone(

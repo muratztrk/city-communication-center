@@ -242,10 +242,12 @@ function toExternalRow(
     : undefined
   const targetPending = activeTarget?.approvalStatus === 'Pending'
   const targetApproved = activeTarget?.approvalStatus === 'Approved' || activeTarget?.approvalStatus === 'NotRequired'
-  const assignTargetDepartmentId = targetApproved && activeTarget && job.status === 'Active' && job.taskCount === 0
+  const isCitizen = isCitizenRequestJob(job)
+  const assignTargetDepartmentId = activeTarget && job.status === 'Active' && job.taskCount === 0
+    && (targetApproved || (isCitizen && targetPending))
     ? activeTarget.departmentId
     : null
-  const pendingTargetApprovalDepartmentId = targetPending && activeTarget
+  const pendingTargetApprovalDepartmentId = targetPending && activeTarget && !isCitizen
     ? activeTarget.departmentId
     : null
   const displayStatus = targetPending ? 'PendingExternalApproval' : job.status

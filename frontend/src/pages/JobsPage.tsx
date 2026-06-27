@@ -354,7 +354,7 @@ function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
     ['Durum', buildPrintJobStatusLabel(detail, t)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
     ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)] as [string, string]]),
-    ...(detail.requestType === 'ExternalUnit'
+    ...(shouldShowCitizenTargetApprovalDate(detail)
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApprovalDate)] as [string, string]]
       : []),
     ...(detail.status === 'Completed'

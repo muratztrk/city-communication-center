@@ -241,9 +241,12 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         {
             var targetApprovalStatus = isCoordinatedExternal
                 ? JobApprovalStatus.Pending
+                : isCitizenRequest
+                    ? JobApprovalStatus.Pending
                 : requiresOwnerApproval
                     ? JobApprovalStatus.NotRequired
                     : JobApprovalStatus.Approved;
+            var autoApproveTarget = targetApprovalStatus == JobApprovalStatus.Approved;
 
             _dbContext.JobDepartments.Add(new JobDepartment
             {
@@ -255,8 +258,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 ApprovalStatus = targetApprovalStatus,
                 RequestedByUserId = actor.UserId,
                 RequestedAtUtc = utcNow,
-                ApprovedByUserId = isCoordinatedExternal || requiresOwnerApproval ? null : actor.UserId,
-                DecidedAtUtc = isCoordinatedExternal || requiresOwnerApproval ? null : utcNow,
+                ApprovedByUserId = autoApproveTarget ? actor.UserId : null,
+                DecidedAtUtc = autoApproveTarget ? utcNow : null,
                 CreatedByUserId = context.UserId
             });
         }

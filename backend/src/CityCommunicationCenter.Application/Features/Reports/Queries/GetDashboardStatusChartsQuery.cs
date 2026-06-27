@@ -88,7 +88,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
             && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
 
-        var staffTasksChart = await BuildStaffTasksChartAsync(FilterTasks(tasks, request.StaffTaskType), tenantId, cancellationToken);
+        var staffUserIds = await UserDepartmentAccess.GetStaffUserIdsForDepartmentsAsync(
+            _dbContext,
+            tenantId,
+            departmentIds,
+            cancellationToken);
+        var staffTasks = FilterTasks(tasks, request.StaffTaskType)
+            .Where(task => task.AssignedUserId.HasValue && staffUserIds.Contains(task.AssignedUserId.Value));
+        var staffTasksChart = await BuildStaffTasksChartAsync(staffTasks, tenantId, cancellationToken);
         var charts = new[]
         {
             staffTasksChart,

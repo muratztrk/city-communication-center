@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageCircle, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
@@ -166,7 +166,7 @@ export function AppShell() {
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri, "WhatsApp Konuşmaları" alt öğesiyle açılır bir grup olarak gösterilir (card 621).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
-      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), icon: MessageCircle },
+      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.svg' },
     ] },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, requiredRole: 'Manager' },

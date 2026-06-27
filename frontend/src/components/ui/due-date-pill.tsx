@@ -15,9 +15,10 @@ function getDueTone(
   return 'normal'
 }
 
-function formatDueDate(value: string | null | undefined, locale: string): string {
-  // Son tarih girilmemiş talepler henüz onay beklediği için "Onay Bekleyen" gösterilir.
-  if (!value) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
+function formatDueDate(value: string | null | undefined, locale: string, emptyLabel?: string): string {
+  if (!value) {
+    return emptyLabel ?? (locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval')
+  }
   return new Date(value).toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',
@@ -31,16 +32,17 @@ type DueDatePillProps = {
   value: string | null | undefined
   locale: string
   completedAtUtc?: string | null
+  emptyLabel?: string
 }
 
 // Son Tarih hücresi: bitiş tarihi bugünse sarı, geçmişse kırmızı buton tasarımı.
 // Tüm gridview'larda aynı tasarımı kullanmak için ortak bileşen.
-export function DueDatePill({ value, locale, completedAtUtc }: DueDatePillProps) {
+export function DueDatePill({ value, locale, completedAtUtc, emptyLabel }: DueDatePillProps) {
   const tone = getDueTone(value, completedAtUtc)
   return (
     <span className={`due-date-pill${tone === 'warning' ? ' warning' : tone === 'danger' ? ' danger' : ''}`}>
       <CalendarClock className="size-3.5" />
-      {formatDueDate(value, locale)}
+      {formatDueDate(value, locale, emptyLabel)}
     </span>
   )
 }

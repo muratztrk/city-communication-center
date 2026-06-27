@@ -41,8 +41,9 @@ import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
-import type { JobSummary, Task, User } from '../types/platform'
+import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
+import { formatCitizenRequestNumber, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobsPage } from './JobsPage'
 
@@ -226,7 +227,12 @@ function toInternalRow(task: Task): IncomingRequestRow {
   }
 }
 
-function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRequestRow {
+function toExternalRow(
+  job: JobSummary,
+  activeDeptId: string | null,
+  socialByJobId: Map<string, SocialMessage>,
+  locale: string,
+): IncomingRequestRow {
   const ownerDept = job.departments?.find(d => d.role === 'Owner')
   const activeTarget = activeDeptId
     ? job.departments?.find(d => d.role === 'Target' && d.departmentId === activeDeptId)
@@ -240,10 +246,13 @@ function toExternalRow(job: JobSummary, activeDeptId: string | null): IncomingRe
     ? activeTarget.departmentId
     : null
   const displayStatus = targetPending ? 'PendingExternalApproval' : job.status
+  const displayNumber = isCitizenRequestJob(job)
+    ? formatCitizenRequestNumber(socialByJobId.get(job.jobId) ?? { createdAtUtc: job.createdAtUtc }, locale)
+    : formatJobDisplayNumber(job)
   return {
     id: job.jobId,
     jobId: job.jobId,
-    displayNumber: formatJobDisplayNumber(job),
+    displayNumber,
     kind: 'external',
     statusDomain: 'job',
     title: job.title,
@@ -316,6 +325,7 @@ export function IncomingRequestsPage() {
   const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
+  const [socialMessages, setSocialMessages] = useState<SocialMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
@@ -360,11 +370,13 @@ export function IncomingRequestsPage() {
       api.getTasks('all'),
       api.getJobs('my-department'),
       api.getUsers(),
+      api.getSocialMessages(),
     ])
-      .then(([taskList, jobList, userList]) => {
+      .then(([taskList, jobList, userList, socialList]) => {
         if (cancelled) return
         setTasks(taskList)
         setJobs(jobList)
+        setSocialMessages(socialList)
         const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
         // Personel listesi + atamayı yapan yöneticinin kendisi (görevi kendine atayabilsin).
         setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === currentDeptId || u.departments?.some(d => d.departmentId === currentDeptId)) && (u.roleCode === 'Staff' || u.userId === user?.userId)))
@@ -378,12 +390,14 @@ export function IncomingRequestsPage() {
 
   const reload = useCallback(async () => {
     try {
-      const [taskList, jobList] = await Promise.all([
+      const [taskList, jobList, socialList] = await Promise.all([
         api.getTasks('all'),
         api.getJobs('my-department'),
+        api.getSocialMessages(),
       ])
       setTasks(taskList)
       setJobs(jobList)
+      setSocialMessages(socialList)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -521,6 +535,14 @@ export function IncomingRequestsPage() {
     }
   }
 
+  const socialByJobId = useMemo(() => {
+    const map = new Map<string, SocialMessage>()
+    for (const message of socialMessages) {
+      if (message.jobId) map.set(message.jobId, message)
+    }
+    return map
+  }, [socialMessages])
+
   const rows = useMemo(() => {
     const internalTasks = tasks.filter(task => task.jobRequestType === 'InternalUnit')
     const internalRows = internalTasks.map(toInternalRow)
@@ -530,15 +552,15 @@ export function IncomingRequestsPage() {
       .filter(job => job.requestType === 'InternalUnit' && !jobIdsWithTasks.has(job.jobId))
       .map(toPendingInternalJobRow)
     const externalRows = jobs
-      .filter(job => job.requestType === 'ExternalUnit' && isIncomingExternalForActiveDept(job, activeDeptId))
-      .map(job => toExternalRow(job, activeDeptId))
+      .filter(job => (job.requestType === 'ExternalUnit' || job.requestType === 'Citizen') && isIncomingExternalForActiveDept(job, activeDeptId))
+      .map(job => toExternalRow(job, activeDeptId, socialByJobId, locale))
 
     return [...internalRows, ...pendingInternalJobRows, ...externalRows].sort((a, b) => {
       const aTime = a.createdAtUtc ? new Date(a.createdAtUtc).getTime() : 0
       const bTime = b.createdAtUtc ? new Date(b.createdAtUtc).getTime() : 0
       return bTime - aTime
     })
-  }, [jobs, tasks, activeDeptId])
+  }, [jobs, tasks, activeDeptId, socialByJobId, locale])
 
   // Bir satırın bir sütunundaki görünen metni döndürür; hem kolon filtreleri hem banner araması kullanır.
   const getColumnValue = useCallback((key: string, r: IncomingRequestRow): string => {

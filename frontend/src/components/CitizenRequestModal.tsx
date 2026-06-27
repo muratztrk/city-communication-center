@@ -402,7 +402,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               {t('social.title', 'Vatandaş Talepleri')}
             </div>
             <h2 className="text-base font-extrabold text-white">
-              {t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
+              {message.channel === 'WhatsApp'
+                ? t('social.whatsappCitizenRequestTitle', 'WhatsApp Konuşması - Vatandaş Talebi Oluştur')
+                : t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
             </h2>
           </div>
           <button

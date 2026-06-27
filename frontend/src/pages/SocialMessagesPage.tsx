@@ -23,6 +23,7 @@ import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
+import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
@@ -30,14 +31,6 @@ function hasLocation(message: SocialMessage) {
 
 function getLocationMapUrl(latitude: number, longitude: number) {
   return `https://www.openstreetmap.org/export/embed.html?bbox=${(longitude - 0.005).toFixed(6)},${(latitude - 0.005).toFixed(6)},${(longitude + 0.005).toFixed(6)},${(latitude + 0.005).toFixed(6)}&layer=mapnik&marker=${latitude},${longitude}`
-}
-
-function formatCitizenRequestNumber(message: SocialMessage, locale: string) {
-  const year = message.citizenRequestNumberYear ?? new Date(message.receivedAtUtc).getFullYear()
-  if (message.citizenRequestNumber != null) {
-    return `VT-${year}-${message.citizenRequestNumber}`
-  }
-  return locale.startsWith('tr') ? `VT-${year}-Onay Bekleyen` : `VT-${year}-Pending Approval`
 }
 
 function formatDateTime(value: string | null | undefined, locale: string): string {
@@ -106,14 +99,17 @@ function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary, dueDateUtc: st
     return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
   }
   if (job.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
-  return t('jobs.statusLabel.pending', 'Bekleyen')
+  if (job.status === 'PendingExternalApproval' || job.status === 'PendingOwnerApproval') {
+    return t('social.requestStatus.processingReceived', 'İşleme Alındı')
+  }
+  return t('social.requestStatus.processingReceived', 'İşleme Alındı')
 }
 
-type SocialRequestStatusFilter = 'all' | 'pending-approval' | 'overdue' | 'in-progress' | 'completed' | 'cancelled'
+type SocialRequestStatusFilter = 'all' | 'processing-received' | 'overdue' | 'in-progress' | 'completed' | 'cancelled'
 
 const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talep Durumları' },
-  { value: 'pending-approval', labelKey: 'social.requestStatus.pendingApproval', fallback: 'Onay Bekleyen' },
+  { value: 'processing-received', labelKey: 'social.requestStatus.processingReceived', fallback: 'İşleme Alındı' },
   { value: 'overdue', labelKey: 'social.requestStatus.overdue', fallback: 'Son Tarihi Geçmiş' },
   { value: 'in-progress', labelKey: 'social.requestStatus.inProgress', fallback: 'Yapılmakta' },
   { value: 'completed', labelKey: 'social.requestStatus.completed', fallback: 'Tamamlanmış' },
@@ -121,7 +117,7 @@ const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: stri
 ]
 
 function getSocialMessageStatusKey(job: JobSummary | undefined, dueDateUtc: string | null): Exclude<SocialRequestStatusFilter, 'all'> {
-  if (!job) return 'pending-approval'
+  if (!job) return 'processing-received'
 
   if (job.status === 'Completed') return 'completed'
   if (job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested') return 'cancelled'
@@ -130,7 +126,7 @@ function getSocialMessageStatusKey(job: JobSummary | undefined, dueDateUtc: stri
   if (isOverdue) return 'overdue'
   if (job.status === 'Active') return 'in-progress'
 
-  return 'pending-approval'
+  return 'processing-received'
 }
 
 function matchesSocialRequestStatusFilter(job: JobSummary | undefined, dueDateUtc: string | null, filter: SocialRequestStatusFilter): boolean {
@@ -373,7 +369,7 @@ export function SocialMessagesPage() {
       if (key === 'jobNumber') return row.jobNumber ?? formatCitizenRequestNumber(row, locale)
       if (key === 'receivedAtUtc') return formatDateTime(row.receivedAtUtc, locale)
       if (key === 'dueDateUtc') {
-        if (!row.dueDateUtc) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
+        if (!row.dueDateUtc) return locale.startsWith('tr') ? 'İşleme Alındı' : 'Processing Received'
         return formatDateTime(row.dueDateUtc, locale)
       }
       if (key === 'channel') return getSocialChannelLabel(t, row.channel)
@@ -509,11 +505,11 @@ export function SocialMessagesPage() {
                     <td className="font-semibold">{message.citizenPhone}</td>
                     <td className="font-semibold">{message.citizenName}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
-                    <td><DueDatePill value={message.dueDateUtc} locale={locale} completedAtUtc={linkedJob?.completedAtUtc} /></td>
+                    <td><DueDatePill value={getSocialMessageDueDate(message, linkedJob)} locale={locale} completedAtUtc={linkedJob?.completedAtUtc} emptyLabel={locale.startsWith('tr') ? 'İşleme Alındı' : 'Processing Received'} /></td>
                     <td>
                       {linkedJob ? (
                         <StatusPill className={getStatusPillClass(getJobStatusTone(linkedJob))}>
-                          {getLinkedJobDisplayStatus(t, linkedJob, message.dueDateUtc ?? null)}
+                          {getLinkedJobDisplayStatus(t, linkedJob, getSocialMessageDueDate(message, linkedJob))}
                         </StatusPill>
                       ) : (
                         '—'

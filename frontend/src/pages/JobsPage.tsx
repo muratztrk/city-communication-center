@@ -25,10 +25,18 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, User } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
+import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
-import { isCitizenRequestJob, buildWhatsAppConversationUrl } from '../utils/citizenRequests'
+import {
+  isCitizenRequestJob,
+  buildWhatsAppConversationUrl,
+  formatCitizenRequestNumber,
+  formatCitizenPhoneDisplay,
+  shouldShowCitizenTargetApprovalDate,
+} from '../utils/citizenRequests'
+import { ChannelIcon } from '../components/ui/channel-icon'
+import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
@@ -567,6 +575,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const [detail, setDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
+  const [conversationModal, setConversationModal] = useState<{
+    socialMessageId: string
+    citizenHandle: string
+    citizenPhone: string | null
+  } | null>(null)
 
   const auditLogQuery = useQuery({
     queryKey: queryKeys.jobs.auditLog(detail?.jobId),
@@ -626,7 +640,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   )
   const canApproveTargetDetail = isIncomingRequestDetail
     && isManagerLike
-    && detail?.requestType === 'ExternalUnit'
+    && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'PendingExternalApproval'
     && activeIncomingTarget?.approvalStatus === 'Pending'
     && Boolean(activeDeptId)
@@ -634,7 +648,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // personel atama penceresini açar. Detay popup'ı da aynı eylemi sunmalıdır.
   const canAssignIncomingDetail = isIncomingRequestDetail
     && isManagerLike
-    && detail?.requestType === 'ExternalUnit'
+    && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
   // Son tarihi geçmiş kayıtlarda listede gösterilen pasif Onayla düğmesi,
@@ -1003,6 +1017,48 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     if (!detail) return
     try { setDetail(await api.getJobById(detail.jobId)) } catch { /* ignore */ }
     await reload()
+  }
+
+  useEffect(() => {
+    if (!detail || !isCitizenRequestJob(detail)) {
+      setCitizenSourceMessage(null)
+      return
+    }
+    let cancelled = false
+    async function loadCitizenSourceMessage() {
+      if (detail!.sourceType === 'SocialMessage' && detail!.sourceRefId) {
+        try {
+          const message = await api.getSocialMessageById(detail!.sourceRefId)
+          if (!cancelled) setCitizenSourceMessage(message)
+          return
+        } catch {
+          /* fall through */
+        }
+      }
+      try {
+        const messages = await api.getSocialMessages()
+        if (!cancelled) {
+          setCitizenSourceMessage(messages.find(message => message.jobId === detail!.jobId) ?? null)
+        }
+      } catch {
+        if (!cancelled) setCitizenSourceMessage(null)
+      }
+    }
+    void loadCitizenSourceMessage()
+    return () => { cancelled = true }
+  }, [detail?.jobId, detail?.sourceRefId, detail?.sourceType])
+
+  const openCitizenConversationModal = () => {
+    if (!detail) return
+    const socialMessageId = detail.sourceType === 'SocialMessage' && detail.sourceRefId
+      ? detail.sourceRefId
+      : citizenSourceMessage?.socialMessageId
+    if (!socialMessageId) return
+    setConversationModal({
+      socialMessageId,
+      citizenHandle: citizenSourceMessage?.citizenHandle ?? detail.citizenName ?? detail.citizenPhone ?? '',
+      citizenPhone: detail.citizenPhone ?? citizenSourceMessage?.citizenPhone ?? null,
+    })
   }
 
   const openDetailDueDateEdit = () => {
@@ -1725,7 +1781,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button
                     type="button"
                     className="bg-[#007985] text-white hover:bg-[#006570]"
-                    onClick={() => navigate(buildWhatsAppConversationUrl(detail)!)}
+                    onClick={openCitizenConversationModal}
                   >
                     {t('social.goToConversation', 'Yazışmaya Git')}
                   </Button>
@@ -1807,7 +1863,35 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </div>
                 <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
                   <div className="min-w-0 divide-y divide-slate-100">
-                    {[
+                    {(isCitizenRequestDetail ? [
+                      {
+                        label: 'Vatandaş Talep No',
+                        value: (
+                          <span className="inline-flex flex-wrap items-center gap-2">
+                            <span>{formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)}</span>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-800">
+                              ({t('jobs.detail.citizenRequest', 'Vatandaş Talebi')} -
+                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                              {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')})
+                            </span>
+                          </span>
+                        ),
+                      },
+                      {
+                        label: 'Vatandaş Adı / Telefon No',
+                        value: [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—',
+                      },
+                      { label: 'Talep Başlığı', value: detail.title },
+                      {
+                        label: 'Talep Yeri / Oluşturan',
+                        value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                      },
+                      {
+                        label: 'Talebin Gittiği Birim',
+                        value: formatJobDestinationsWithAssignees(detail),
+                      },
+                      { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
+                    ] : [
                       {
                         label: 'Talep No',
                         value: detail.jobNumber != null && detail.jobNumberYear != null
@@ -1824,10 +1908,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: formatJobDestinationsWithAssignees(detail),
                       },
                       { label: 'Proje mi', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
-                      // Öncelik, "Proje mi"nin alt satırına alındı (card 6a397fac).
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
-                    ].map(({ label, value }) => (
-                      // Sol kolonun son satırının (Öncelik) altına ayırıcı çizgi.
+                    ]).map(({ label, value }) => (
                       <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                         <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
@@ -1886,7 +1968,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             locale,
                           ),
                         }] : []),
-                        ...(detail.requestType === 'ExternalUnit' ? [{
+                        ...(shouldShowCitizenTargetApprovalDate(detail) ? [{
                           // Talebi alan (hedef) birimin onay tarihi (Target JobDepartment).
                           label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
                           value: formatDueDateTime(
@@ -2646,6 +2728,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           </section>
         </div>,
         document.body
+      )}
+      {conversationModal && (
+        <WhatsAppConversationModal
+          socialMessageId={conversationModal.socialMessageId}
+          citizenHandle={conversationModal.citizenHandle}
+          citizenPhone={conversationModal.citizenPhone}
+          onClose={() => setConversationModal(null)}
+        />
       )}
     </div>
   )

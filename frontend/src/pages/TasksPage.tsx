@@ -22,12 +22,13 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import type { Attachment, Department, JobDetail, Task, TaskDetail, TaskListScope, User } from '../types/platform'
+import type { Attachment, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isCitizenRequestJob, buildWhatsAppConversationUrl } from '../utils/citizenRequests'
+import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -343,6 +344,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
   const [parentJobDetail, setParentJobDetail] = useState<JobDetail | null>(null)
+  const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
+  const [conversationModal, setConversationModal] = useState<{
+    socialMessageId: string
+    citizenHandle: string
+    citizenPhone: string | null
+  } | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
   const [attachmentUploading, setAttachmentUploading] = useState(false)
@@ -1062,6 +1069,48 @@ const pageKicker = isMyTasksView
     }
   }, [autoOpenTaskId, selectedTask?.taskId, tasks, loading]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!parentJobDetail || !isCitizenRequestJob(parentJobDetail)) {
+      setCitizenSourceMessage(null)
+      return
+    }
+    let cancelled = false
+    async function loadCitizenSourceMessage() {
+      if (parentJobDetail!.sourceType === 'SocialMessage' && parentJobDetail!.sourceRefId) {
+        try {
+          const message = await api.getSocialMessageById(parentJobDetail!.sourceRefId)
+          if (!cancelled) setCitizenSourceMessage(message)
+          return
+        } catch {
+          /* fall through */
+        }
+      }
+      try {
+        const messages = await api.getSocialMessages()
+        if (!cancelled) {
+          setCitizenSourceMessage(messages.find(message => message.jobId === parentJobDetail!.jobId) ?? null)
+        }
+      } catch {
+        if (!cancelled) setCitizenSourceMessage(null)
+      }
+    }
+    void loadCitizenSourceMessage()
+    return () => { cancelled = true }
+  }, [parentJobDetail?.jobId, parentJobDetail?.sourceRefId, parentJobDetail?.sourceType])
+
+  const openCitizenConversationModal = () => {
+    if (!parentJobDetail) return
+    const socialMessageId = parentJobDetail.sourceType === 'SocialMessage' && parentJobDetail.sourceRefId
+      ? parentJobDetail.sourceRefId
+      : citizenSourceMessage?.socialMessageId
+    if (!socialMessageId) return
+    setConversationModal({
+      socialMessageId,
+      citizenHandle: citizenSourceMessage?.citizenHandle ?? parentJobDetail.citizenName ?? parentJobDetail.citizenPhone ?? '',
+      citizenPhone: parentJobDetail.citizenPhone ?? citizenSourceMessage?.citizenPhone ?? null,
+    })
+  }
+
   const closeTaskDetail = () => {
     if (pendingCompletionAttachmentIds.length > 0) {
       const attachmentIds = pendingCompletionAttachmentIds
@@ -1247,7 +1296,7 @@ const pageKicker = isMyTasksView
                   <Button
                     type="button"
                     className="bg-[#007985] text-white hover:bg-[#006570]"
-                    onClick={() => navigate(buildWhatsAppConversationUrl(parentJobDetail)!)}
+                    onClick={openCitizenConversationModal}
                   >
                     {t('social.goToConversation', 'Yazışmaya Git')}
                   </Button>
@@ -2225,6 +2274,14 @@ const pageKicker = isMyTasksView
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       {toast && (
         <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+      )}
+      {conversationModal && (
+        <WhatsAppConversationModal
+          socialMessageId={conversationModal.socialMessageId}
+          citizenHandle={conversationModal.citizenHandle}
+          citizenPhone={conversationModal.citizenPhone}
+          onClose={() => setConversationModal(null)}
+        />
       )}
     </div>
   )

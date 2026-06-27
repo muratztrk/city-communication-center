@@ -13,13 +13,16 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly IWhatsAppTemplateAutoReplyService _autoReplyService;
+    private readonly INotificationPushService _notificationPushService;
 
     public ReceiveWhatsAppWebhookCommandHandler(
         IApplicationDbContext dbContext,
-        IWhatsAppTemplateAutoReplyService autoReplyService)
+        IWhatsAppTemplateAutoReplyService autoReplyService,
+        INotificationPushService notificationPushService)
     {
         _dbContext = dbContext;
         _autoReplyService = autoReplyService;
+        _notificationPushService = notificationPushService;
     }
 
     public async ValueTask<int> Handle(
@@ -65,6 +68,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         int? nextCitizenRequestNumber = null;
         var citizenRequestNumberYear = DateTimeOffset.UtcNow.Year;
         var pendingAutoReplies = new List<PendingWhatsAppAutoReply>();
+        var pendingConversationPushes = new List<WhatsAppMessagePayload>();
 
         // Load existing CitizenConversations for all phones in this batch
         var allPhones = byCitizen.Select(g => g.Key).ToArray();
@@ -175,9 +179,26 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
                 savedCount++;
             }
+
+            var latestMessage = orderedMsgs[^1];
+            pendingConversationPushes.Add(new WhatsAppMessagePayload(
+                conversation.CitizenConversationId,
+                conversation.CitizenPhone,
+                conversation.CitizenName,
+                latestMessage.Content,
+                conversation.UnreadCount,
+                conversation.LastMessageAt));
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        foreach (var push in pendingConversationPushes)
+        {
+            await _notificationPushService.SendWhatsAppMessageToTenantAsync(
+                request.TenantId,
+                push,
+                cancellationToken);
+        }
 
         foreach (var pending in pendingAutoReplies)
         {

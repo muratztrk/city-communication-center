@@ -1,6 +1,7 @@
 import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
+import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 
 declare const __APP_VERSION__: string
@@ -208,6 +209,11 @@ export function AppShell() {
     return items
   }, [])
   void accessVersion
+
+  const canSeeWhatsAppNotifications = useMemo(
+    () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'social'),
+    [user, accessVersion],
+  )
 
   const handleLogout = () => {
     logout()
@@ -646,6 +652,7 @@ export function AppShell() {
       </div>
       </div> {/* end main area row */}
       <ScrollFab />
+      {canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
       {notificationDetailTarget?.kind === 'task' && (
         <TasksPage

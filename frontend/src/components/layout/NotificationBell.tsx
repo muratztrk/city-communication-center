@@ -336,7 +336,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
     [queryClient, setToasts],
   )
 
-  useSignalR(handleNotification)
+  useSignalR({ onNotification: handleNotification })
 
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {

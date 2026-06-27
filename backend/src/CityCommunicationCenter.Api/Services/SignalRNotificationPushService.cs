@@ -35,4 +35,19 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             .Group($"tenant-{tenantId}")
             .SendAsync("ReceiveNotification", payload, cancellationToken);
     }
+
+    public async Task SendWhatsAppMessageToTenantAsync(
+        Guid tenantId,
+        WhatsAppMessagePayload payload,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug(
+            "Sending WhatsApp message update to tenant {TenantId} for conversation {ConversationId}",
+            tenantId,
+            payload.CitizenConversationId);
+
+        await _hubContext.Clients
+            .Group($"tenant-{tenantId}")
+            .SendAsync("ReceiveWhatsAppMessage", payload, cancellationToken);
+    }
 }

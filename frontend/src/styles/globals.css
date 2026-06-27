@@ -2918,4 +2918,19 @@
       display: none;
     }
   }
+
+  @keyframes whatsapp-fab-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 10px 15px -3px rgb(37 211 102 / 0.35), 0 4px 6px -4px rgb(37 211 102 / 0.35);
+    }
+    50% {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 10px rgb(37 211 102 / 0.18), 0 20px 25px -5px rgb(37 211 102 / 0.35);
+    }
+  }
+
+  .whatsapp-fab-pulse {
+    animation: whatsapp-fab-pulse 0.9s ease-in-out 2;
+  }
 }

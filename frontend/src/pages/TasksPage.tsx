@@ -27,6 +27,7 @@ import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass,
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
+import { richTextToPlainText } from '../utils/richText'
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { userWorksInAnyDepartment } from '../utils/userDepartments'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -1426,7 +1427,7 @@ const pageKicker = isMyTasksView
                                             <button
                                               type="button"
                                               className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: taskDetail.notes!, hideCancel: true, variant: 'success', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
                                               ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
                                             </button>
@@ -2140,7 +2141,7 @@ const pageKicker = isMyTasksView
                 autoFocus
               />
             </label>
-            <div className="inline-actions">
+            <div className="inline-actions justify-end">
               <Button type="button" variant="secondary" onClick={closeCompleteModal}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
@@ -2183,7 +2184,7 @@ const pageKicker = isMyTasksView
                     autoFocus
                   />
                 </label>
-                <div className="inline-actions">
+                <div className="inline-actions justify-end">
                   <Button type="button" variant="secondary" onClick={closeReturnModal}>
                     {t('common.dismiss', 'Vazgeç')}
                   </Button>
@@ -2218,7 +2219,7 @@ const pageKicker = isMyTasksView
                     ))}
                   </select>
                 </label>
-                <div className="inline-actions">
+                <div className="inline-actions justify-end">
                   <Button type="button" variant="secondary" onClick={closeReturnModal}>
                     {t('common.exit', 'Çıkış')}
                   </Button>

@@ -41,6 +41,7 @@ import { WhatsAppConversationModal } from '../components/WhatsAppConversationMod
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
+import { richTextToPlainText } from '../utils/richText'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -271,7 +272,7 @@ function buildPrintJobStatusLabel(detail: JobDetail, t: TFunction): string {
     status += ` — İptal Notu: ${detail.cancelReason}`
   }
   if (detail.status === 'Completed' && detail.completionNote) {
-    status += ` — Tamamlama Notu: ${detail.completionNote}`
+    status += ` — Tamamlama Notu: ${richTextToPlainText(detail.completionNote)}`
   }
   return status
 }
@@ -299,7 +300,7 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
       statusText += ` — İptal Notu: ${task.revisionReason}`
     }
     if (task.currentStatus === 'Completed' && task.notes) {
-      statusText += ` — Tamamlama Notu: ${task.notes}`
+      statusText += ` — Tamamlama Notu: ${richTextToPlainText(task.notes)}`
     }
 
     const rows: Array<[string, string]> = [
@@ -1952,7 +1953,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 <button
                                   type="button"
                                   className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: detail.completionNote!, hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                  onClick={() => setConfirmDialog({ title: t('jobs.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                 >
                                   ({t('jobs.detail.completionNote', 'Tamamlama Notu')})
                                 </button>
@@ -2454,7 +2455,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           <button
                             type="button"
                             className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                            onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: task.notes!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                            onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: richTextToPlainText(task.notes), hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                           >
                             ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
                           </button>

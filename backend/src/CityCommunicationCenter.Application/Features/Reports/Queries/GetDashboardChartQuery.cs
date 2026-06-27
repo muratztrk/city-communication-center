@@ -142,12 +142,6 @@ public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardCh
             .ToList();
 
         var userIds = byUser.Select(g => g.Key).ToArray();
-        var staffUserIds = await UserDepartmentAccess.GetStaffUserIdsForDepartmentsAsync(
-            _dbContext,
-            tenantId,
-            departmentIds,
-            cancellationToken);
-        userIds = userIds.Where(staffUserIds.Contains).ToArray();
         var userNames = await _dbContext.Users
             .AsNoTracking()
             .Where(u => userIds.Contains(u.UserId))

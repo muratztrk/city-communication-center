@@ -29,7 +29,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
-import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
+import { userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 
@@ -319,6 +319,10 @@ function matchesRequestFlow(requestType: Task['jobRequestType'], filter: Request
   return true
 }
 
+function userBelongsToAnyDepartment(item: User, departmentIds: Set<string>) {
+  return userWorksInAnyDepartment(item, departmentIds)
+}
+
 function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
   if (view === 'all') return tasks
 
@@ -430,8 +434,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   }, [activeDeptId, departments, isManagerLike, user?.userId])
   const staffUsers = useMemo(() => {
     return activeUsers.filter(item =>
-      isDepartmentStaffUser(item, managedDepartmentIds) &&
-      item.userId !== user?.userId)
+      userBelongsToAnyDepartment(item, managedDepartmentIds) &&
+      item.userId !== user?.userId &&
+      item.roleCode !== 'Manager' &&
+      item.roleCode !== 'SystemAdmin')
   }, [activeUsers, managedDepartmentIds, user?.userId])
   const staffUserParam = searchParams.get('userId') ?? 'all'
   const currentStaffUserId = staffUserParam === 'all' ? 'all' : staffUserParam
@@ -457,7 +463,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       ? tasks.find(item => item.taskId === returnModal.taskId)?.assignedUserId ?? null
       : null
     return activeUsers
-      .filter(item => userWorksInAnyDepartment(item, new Set([returnDeptId])))
+      .filter(item => userBelongsToAnyDepartment(item, new Set([returnDeptId])))
       .filter(item => item.userId !== currentAssigneeId)
   }, [activeUsers, returnDeptId, returnModal, tasks])
   const currentStaffUserLabel = currentStaffUserId === 'all'

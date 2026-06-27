@@ -592,3 +592,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 89 (manuel tur — #1009: Talep Detayları kanal text'i siyah)
 - [x] `#1009` — JobsPage "Talep Detayları" özet kartında "Vatandaş Talep No" yanındaki `(Vatandaş Talebi [ikon] WhatsApp)` bloğunun tamamı `text-orange-500` idi; kart yalnızca KANAL etiketinin (ör. WhatsApp) siyah olmasını istedi. `getSocialChannelLabel(...)` `<span className="text-slate-900">` ile sarıldı; "(Vatandaş Talebi" + parantezler turuncu kaldı, ikon kendi rengini korudu. Blok yalnızca JobsPage:1876'da (Taleplerim/Birimden Giden/Birime Gelen'de ortak); TasksPage'de bu blok yok. FE build + lint PASS (mevcut 4 hook-deps uyarısı). main+master, Done.
+
+## Round 90 (manuel tur — #1011: Görevi Tamamla başlığı altı ayraç)
+- [x] `#1011` — TasksPage "Görevi Tamamla" pop-up'ının `<h2>` başlığına ayraç eklendi (`mb-3 border-b border-slate-200 pb-2`), aynı modaldaki "Görevi Birim İçi Yönlendir" başlık konvansiyonuyla aynı. Başlık boyutu (text-xl font-extrabold) korundu. FE build + lint PASS. main+master, Done.

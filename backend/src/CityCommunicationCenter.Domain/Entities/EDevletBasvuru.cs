@@ -62,7 +62,9 @@ public sealed class EDevletBasvuru : AuditableTenantEntity, IHasDatabaseIndexDef
 
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
     [
-        DatabaseIndexDefinition.Unique(nameof(TenantId), nameof(TakipNo)),
+        DatabaseIndexDefinition.Unique(
+            [nameof(TenantId), nameof(TakipNo)],
+            databaseName: "ix_edevletbasvurular_tenantid_takipno_unique"),
         DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(CitizenTcKimlikNo), nameof(Status)),
         DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(Status), nameof(CreatedAtUtc)),
     ];

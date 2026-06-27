@@ -44,13 +44,20 @@ export function WhatsAppNotificationFab() {
   const [isOpen, setIsOpen] = useState(false)
   const [isPulsing, setIsPulsing] = useState(false)
 
-  const loadConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async () => {
     try {
-      setConversations(await api.getCitizenConversations())
+      return await api.getCitizenConversations()
     } catch {
-      // Keep the last known unread state if refresh fails.
+      return null
     }
   }, [])
+
+  const refreshConversations = useCallback(async () => {
+    const data = await fetchConversations()
+    if (data) {
+      setConversations(data)
+    }
+  }, [fetchConversations])
 
   const triggerPulse = useCallback(() => {
     setIsPulsing(true)
@@ -64,45 +71,53 @@ export function WhatsAppNotificationFab() {
   }, [])
 
   const handleWhatsAppMessage = useCallback((_payload: WhatsAppMessagePayload) => {
-    void loadConversations()
+    void refreshConversations()
     triggerPulse()
-  }, [loadConversations, triggerPulse])
+  }, [refreshConversations, triggerPulse])
 
   useSignalR({
     onWhatsAppMessage: handleWhatsAppMessage,
-    onReconnected: loadConversations,
+    onReconnected: refreshConversations,
   })
 
   useEffect(() => {
-    void loadConversations()
-  }, [loadConversations])
+    let cancelled = false
+    void fetchConversations().then(data => {
+      if (!cancelled && data) {
+        setConversations(data)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [fetchConversations, location.pathname])
 
   useEffect(() => {
     const onWindowEvent = () => {
-      void loadConversations()
+      void refreshConversations()
     }
     window.addEventListener('ccc:whatsapp-message', onWindowEvent)
     return () => window.removeEventListener('ccc:whatsapp-message', onWindowEvent)
-  }, [loadConversations])
+  }, [refreshConversations])
 
   useEffect(() => {
     if (document.visibilityState !== 'visible') return
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') {
-        void loadConversations()
+        void refreshConversations()
       }
     }, POLL_INTERVAL_MS)
     return () => window.clearInterval(timer)
-  }, [loadConversations])
+  }, [refreshConversations])
 
   useEffect(() => {
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        void loadConversations()
+        void refreshConversations()
       }
     }
     const onFocus = () => {
-      void loadConversations()
+      void refreshConversations()
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
     window.addEventListener('focus', onFocus)
@@ -110,11 +125,7 @@ export function WhatsAppNotificationFab() {
       document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('focus', onFocus)
     }
-  }, [loadConversations])
-
-  useEffect(() => {
-    void loadConversations()
-  }, [location.pathname, loadConversations])
+  }, [refreshConversations])
 
   useEffect(() => () => {
     if (pulseTimerRef.current) {
@@ -136,15 +147,23 @@ export function WhatsAppNotificationFab() {
 
   useEffect(() => {
     if (!isOpen) return
-    void loadConversations()
+    let cancelled = false
+    void fetchConversations().then(data => {
+      if (!cancelled && data) {
+        setConversations(data)
+      }
+    })
     function handleClickOutside(event: MouseEvent) {
       if (!panelRef.current) return
       if (panelRef.current.contains(event.target as Node)) return
       setIsOpen(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, loadConversations])
+    return () => {
+      cancelled = true
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen, fetchConversations])
 
   const openConversation = (conversation: CitizenConversationSummary) => {
     setIsOpen(false)

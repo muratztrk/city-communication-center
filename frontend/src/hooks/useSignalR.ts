@@ -142,7 +142,10 @@ async function ensureConnection(active: boolean) {
 export function useSignalR(handlers?: SignalRHandlers) {
   const { session } = useAuth()
   const handlersRef = useRef(handlers)
-  handlersRef.current = handlers
+
+  useEffect(() => {
+    handlersRef.current = handlers
+  })
 
   useEffect(() => {
     void ensureConnection(Boolean(session))

@@ -72,7 +72,7 @@ cd tests/e2e && npm install && npx playwright install && npm test
 
 **Entities:** `Tenant`, `TenantSetting`, `Department`, `ApplicationUser`, `SocialMessage`, `Job`, `JobDepartment`, `WorkTask`, `WorkflowApproval`, `AssignmentHistory`, `Notification`, `AuditLog`, `RoutingRule`, `PushSubscription`, `Attachment`
 
-**`TaskStatus`**: `Waiting` → `Assigned` → `InProgress` → `PendingCloseApproval` → `Completed` / `Cancelled` / `Rejected` / `RevisionRequested`
+**`TaskStatus`**: `Waiting` → `Assigned` → `InProgress` → `PendingCloseApproval` → `Completed` / `Cancelled` / `Rejected` / `RevisionRequested`. Terminal `Completed`/`Cancelled` tasks can be moved back to `InProgress` (or switched between Completed/Cancelled) via `ChangeTaskStatusCommand`.
 
 **`RoleCode`**: `SystemAdmin`, `Operator`, `Manager`, `Staff`, `Reporter`
 
@@ -82,7 +82,8 @@ cd tests/e2e && npm install && npx playwright install && npm test
 - **Assign / approve close**: SystemAdmin or Manager of the assigned department
 - **Assignee actions** (progress, complete): the assigned user or SystemAdmin
 - **Claim from pool**: user must belong to `AssignedDepartmentId`; task must be `Waiting` with no `AssignedUserId`
-- **Job completion**: auto-recomputed after every task status change — averaged `CompletionPercentage`; Job flips to `Completed` when all tasks reach `Completed`
+- **Change status (reopen)**: assignee or SystemAdmin may move a `Completed`/`Cancelled` task to `InProgress`/`Completed`/`Cancelled` via `ChangeTaskStatusCommand` (`POST /tasks/{id}/change-status`)
+- **Job completion**: auto-recomputed after every task status change — averaged `CompletionPercentage`; Job flips to `Completed` when all tasks reach `Completed`. ⚠️ `RecomputeJobCompletionAsync` only *promotes* to a terminal status — reopening a task to `InProgress` manually demotes the Job back to `Active`
 
 ### Multi-tenancy
 - `ITenantContextAccessor` / `HttpTenantContextAccessor` resolves the active tenant per request

@@ -275,6 +275,7 @@ If API logs show `column ... does not exist`, the schema is ahead of the migrati
 - Department-pool tasks are represented by `AssignedDepartmentId` set with `AssignedUserId = null`.
 - Task list filtering should extend `GET /api/v1/tasks` via scope-style query parameters instead of adding redundant list endpoints.
 - Staff may claim a task from their own department pool only when the task is already in `Assigned` status; manager/system-admin assign and reassign flows remain canonical for explicit routing.
+- A `Completed`/`Cancelled` task can be reopened or switched via `POST /tasks/{id}/change-status` (`ChangeTaskStatusCommand`); auth is assignee-or-SystemAdmin. Reopening to a non-terminal status must demote the parent Job from terminal back to `Active` — `RecomputeJobCompletionAsync` only promotes, never demotes.
 
 ## Social Integration Standards
 

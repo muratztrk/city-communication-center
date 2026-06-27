@@ -652,6 +652,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.taskSubmitFailed'))
   },
 
+  async changeTaskStatus(taskId: string, newStatus: string, reason: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/change-status`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ newStatus, reason }),
+    })
+    await ensureOk(response, i18n.t('errors.taskStatusChangeFailed'))
+  },
+
   async requestTaskRevision(taskId: string, reason: string, proposedDueDateUtc?: string | null, targetManagerUserId?: string | null): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/request-revision`, {
       method: 'POST',

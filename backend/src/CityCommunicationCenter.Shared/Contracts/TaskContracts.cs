@@ -32,6 +32,8 @@ public sealed record RequestTaskRevisionRequest(string Reason, DateTimeOffset? P
 
 public sealed record CancelTaskRequest(string Reason);
 
+public sealed record ChangeTaskStatusRequest(string NewStatus, string Reason);
+
 public sealed record ApprovalActionRequest(string? Comment);
 
 public sealed record UpdateTaskProgressRequest(int? CompletionPercentage, decimal? ActualHours, string? Notes);

@@ -109,6 +109,7 @@
     "taskAssignFailed": "Failed to assign task.",
     "taskClaimFailed": "Failed to claim the task from the department pool.",
     "taskCompleteFailed": "Failed to complete task.",
+    "taskStatusChangeFailed": "Failed to change task status.",
     "taskCloseFailed": "Failed to close task.",
     "socialMessagesLoadFailed": "Failed to load social messages.",
     "socialRouteFailed": "Failed to route social message.",
@@ -646,7 +647,20 @@
       "reporterTaskCancelReturnDenied": "You are not authorized to cancel a task requested by a Senior Executive. Contact your manager to return the task.",
       "returnTask": "Return Task",
       "extraTimeApprovedShort": "approved",
-      "extraTimeRejectedShort": "rejected"
+      "extraTimeRejectedShort": "rejected",
+      "changeStatus": "Change Status",
+      "changeStatusTitle": "Task Status Change",
+      "changeStatusHelp": "State a reason for changing the task status.",
+      "changeStatusReason": "Reason",
+      "changeStatusReasonPlaceholder": "Explain the reason for the status change...",
+      "changeStatusSelect": "Select Status",
+      "changeStatusPlaceholder": "Select a task status",
+      "statusChangeSuccess": "Task status updated."
+    },
+    "statusChange": {
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
     "return": "Return",
     "returnTitle": "Return Task",

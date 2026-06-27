@@ -35,8 +35,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **Tamamlama notu PLAIN TEXT** saklanır (`CompleteTaskCommand`: `Notes = ResultNote`,
   düz `<textarea>`). RichText/HTML değil — `<p>` etiketi beklenmez.
-- **Completed/Cancelled görev yeniden tamamlanamaz** (BE guard). Durumu geri almak yeni
-  bir komut gerektirir (mevcutta reopen/durum-değiştir komutu YOK).
+- **Completed/Cancelled görev yeniden tamamlanamaz** (`CompleteTaskCommand` guard). Durumu
+  geri almak için `ChangeTaskStatusCommand` var (card #1005): Completed/Cancelled görevi
+  Yapılmakta(InProgress)/Tamamlanmış/İptal'e çeker; yetki = atanan veya SystemAdmin.
+  Görevlerim'de Tamamlanmış + İptal görünümlerinde "Durum Değiştir" butonu (teal) tetikler.
 - **"Görev Detayları" özet kartı, TasksPage (Görevlerim) ile JobsPage (Birime Gelen) arasında
   BİREBİR AYNI tutulur** (card 649/705). Birine alan eklersen diğerine de ekle.
 - **AMA TasksPage "İlgili Talep Detayları" (üst-talep özeti) ile JobsPage "Talep Detayları"
@@ -60,6 +62,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   default `null` ile kalır.
 - **Düzenle (UpdateJob):** terminal (Completed/Cancelled/Rejected) hariç düzenlenebilir;
   hedef-departman değişikliği yalnızca onay-öncesi durumda.
+- **`RecomputeJobCompletionAsync` talebi yalnızca terminal'e YÜKSELTİR, geri DÜŞÜRMEZ.** Bir
+  görevi terminal'den (Completed/Cancelled) non-terminal'e (InProgress) geri alırsan talep
+  `Completed`/`Cancelled` takılı kalır → komutta manuel `JobStatus.Active` + `CompletedAtUtc=null`
+  yap (bkz. `ChangeTaskStatusCommand`, card #1005).
 
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 

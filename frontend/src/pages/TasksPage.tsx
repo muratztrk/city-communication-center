@@ -76,6 +76,13 @@ type MyTaskView = 'pending' | 'completed' | 'rejected' | 'overdue' | 'all'
 type RequestFlowFilter = 'internal' | 'external' | 'all'
 type TasksPageMode = 'default' | 'departmentTasks' | 'staffTasks'
 
+// Tamamlanmış/İptal görevin çekilebileceği durumlar (mevcut durum filtrelenir) (card #1005).
+const STATUS_CHANGE_OPTIONS: { value: string; labelKey: string; fallback: string }[] = [
+  { value: 'InProgress', labelKey: 'tasks.statusChange.inProgress', fallback: 'Yapılmakta' },
+  { value: 'Completed', labelKey: 'tasks.statusChange.completed', fallback: 'Tamamlanmış' },
+  { value: 'Cancelled', labelKey: 'tasks.statusChange.cancelled', fallback: 'İptal' },
+]
+
 const MY_TASK_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.myViews.pending' },
   { value: 'overdue', labelKey: 'tasks.myViews.overdue' },
@@ -366,6 +373,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [completeSaving, setCompleteSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
+  // Tamamlanmış/İptal görevin durumunu değiştirme pop-up'ı (card #1005).
+  const [statusChangeModal, setStatusChangeModal] = useState<{ taskId: string; currentStatus: string } | null>(null)
+  const [statusChangeReason, setStatusChangeReason] = useState('')
+  const [statusChangeTarget, setStatusChangeTarget] = useState('')
+  const [statusChangeSaving, setStatusChangeSaving] = useState(false)
   const [dueDateEdit, setDueDateEdit] = useState<{ taskId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [extraTimeEdit, setExtraTimeEdit] = useState<{ taskId: string; value: string; saving: boolean; mode: 'picking' | 'confirm' } | null>(null)
   const [extraTimeReview, setExtraTimeReview] = useState<{ taskId: string; proposedDueDateUtc: string | null; saving: boolean } | null>(null)
@@ -756,6 +768,34 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setCompleteSaving(false)
+    }
+  }
+
+  const openStatusChangeModal = (taskId: string, currentStatus: string) => {
+    setStatusChangeModal({ taskId, currentStatus })
+    setStatusChangeReason('')
+    setStatusChangeTarget('')
+  }
+
+  const closeStatusChangeModal = () => {
+    setStatusChangeModal(null)
+    setStatusChangeReason('')
+    setStatusChangeTarget('')
+  }
+
+  const handleStatusChangeConfirm = async () => {
+    if (!statusChangeModal || !statusChangeReason.trim() || !statusChangeTarget) return
+    setStatusChangeSaving(true)
+    try {
+      await api.changeTaskStatus(statusChangeModal.taskId, statusChangeTarget, statusChangeReason.trim())
+      invalidateTasks(queryClient, statusChangeModal.taskId)
+      closeStatusChangeModal()
+      await reload()
+      showToast(t('tasks.actions.statusChangeSuccess', 'Görev durumu güncellendi.'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setStatusChangeSaving(false)
     }
   }
 
@@ -2051,6 +2091,13 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </DisabledActionButton>
                           ))}
+                        {isMyTasksView
+                          && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+                          && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled') && (
+                          <Button size="sm" className="bg-teal-700 text-white hover:bg-teal-800" onClick={() => openStatusChangeModal(task.taskId, task.currentStatus)}>
+                            {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                          </Button>
+                        )}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
@@ -2238,6 +2285,57 @@ const pageKicker = isMyTasksView
           </div>
         </div>
       )}
+
+      {statusChangeModal && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
+          onClick={closeStatusChangeModal}
+        >
+          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={closeStatusChangeModal}
+              aria-label={t('common.close', 'Kapat')}
+              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="size-4" />
+            </button>
+            <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
+              {t('tasks.actions.changeStatusTitle', 'Görev Durum Değişikliği')}
+            </h2>
+            <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}</p>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-red-500">*</span></span>
+              <textarea
+                className="field-textarea"
+                rows={3}
+                value={statusChangeReason}
+                onChange={e => setStatusChangeReason(e.target.value)}
+                placeholder={t('tasks.actions.changeStatusReasonPlaceholder', 'Durum değişikliği nedenini açıklayınız...')}
+                autoFocus
+              />
+            </label>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'Talep Durumu Seç')}</span>
+              <select className="field-select" value={statusChangeTarget} onChange={e => setStatusChangeTarget(e.target.value)}>
+                <option value="" disabled hidden>{t('tasks.actions.changeStatusPlaceholder', 'Görev durumu seçiniz')}</option>
+                {STATUS_CHANGE_OPTIONS.filter(o => o.value !== statusChangeModal.currentStatus).map(o => (
+                  <option key={o.value} value={o.value}>{t(o.labelKey, o.fallback)}</option>
+                ))}
+              </select>
+            </label>
+            <div className="inline-actions justify-end">
+              <Button type="button" variant="secondary" onClick={closeStatusChangeModal}>
+                {t('common.dismiss', 'Vazgeç')}
+              </Button>
+              <Button type="button" variant="success" disabled={statusChangeSaving || !statusChangeReason.trim() || !statusChangeTarget} onClick={() => void handleStatusChangeConfirm()}>
+                {statusChangeSaving ? t('common.loading') : t('tasks.actions.changeStatus', 'Durum Değiştir')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       {toast && (
         <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />

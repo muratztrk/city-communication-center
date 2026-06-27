@@ -100,6 +100,13 @@ public sealed class TasksController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{taskId:guid}/change-status")]
+    public async Task<IActionResult> ChangeStatus(Guid taskId, [FromBody] ChangeTaskStatusRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new ChangeTaskStatusCommand(taskId, CurrentContext.UserId, request.NewStatus, request.Reason), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPost("{taskId:guid}/request-revision")]
     public async Task<IActionResult> RequestRevision(Guid taskId, [FromBody] RequestTaskRevisionRequest request, CancellationToken cancellationToken)
     {

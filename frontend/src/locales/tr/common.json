@@ -109,6 +109,7 @@
     "taskAssignFailed": "İş atanamadı.",
     "taskClaimFailed": "İş müdürlük havuzundan üstlenilemedi.",
     "taskCompleteFailed": "İş tamamlanamadı.",
+    "taskStatusChangeFailed": "Görev durumu değiştirilemedi.",
     "taskCloseFailed": "İş kapatılamadı.",
     "socialMessagesLoadFailed": "Sosyal mesajlar alınamadı.",
     "socialRouteFailed": "Sosyal mesaj yönlendirilemedi.",
@@ -651,7 +652,20 @@
       "reporterTaskCancelReturnDenied": "Üst Düzey Yönetici'den gelen talebin görevini iptal etme yetkiniz bulunmamaktadır. Görev iadesi için yöneticinizle iletişime geçiniz.",
       "returnTask": "Görevi İade Et",
       "extraTimeApprovedShort": "onay",
-      "extraTimeRejectedShort": "red"
+      "extraTimeRejectedShort": "red",
+      "changeStatus": "Durum Değiştir",
+      "changeStatusTitle": "Görev Durum Değişikliği",
+      "changeStatusHelp": "Görev durumunu değiştirmek için neden belirtiniz.",
+      "changeStatusReason": "Neden",
+      "changeStatusReasonPlaceholder": "Durum değişikliği nedenini açıklayınız...",
+      "changeStatusSelect": "Talep Durumu Seç",
+      "changeStatusPlaceholder": "Görev durumu seçiniz",
+      "statusChangeSuccess": "Görev durumu güncellendi."
+    },
+    "statusChange": {
+      "inProgress": "Yapılmakta",
+      "completed": "Tamamlanmış",
+      "cancelled": "İptal"
     },
     "return": "İade Et",
     "returnTitle": "Görevi İade Et",

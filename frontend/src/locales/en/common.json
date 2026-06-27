@@ -615,8 +615,7 @@
       "dueDate": "Due",
       "actions": "Actions",
       "parentRequestNo": "Parent Request No",
-      "routineNoParentRequest": "A routine task has no request no",
-      "completionNote": "Task Completion Note"
+      "routineNoParentRequest": "A routine task has no request no"
     },
     "new": "+ New Task",
     "newCancel": "Cancel",

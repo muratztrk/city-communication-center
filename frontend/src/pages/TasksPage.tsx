@@ -444,7 +444,6 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     let count = 7
     if (isDepartmentTasksView || isStaffTasksView) count += 1
     if (isStaffTasksView || isMyTasksView || isDepartmentTasksView) count += 1
-    if (isMyTasksView) count += 1
     if (!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected')) count += 1
     if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed') count += 1
     if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') count += 1
@@ -1921,11 +1920,6 @@ const pageKicker = isMyTasksView
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
-                  {isMyTasksView && (
-                    <FilterableTh filterKey="notes" filterValue={taskFilters['notes'] ?? ''} onFilter={setTaskFilter} sortKey="notes" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
-                      {t('tasks.columns.completionNote', 'Görev Tamamlama Notu')}
-                    </FilterableTh>
-                  )}
                   {(isDepartmentTasksView || isStaffTasksView) && (
                     <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
                   )}
@@ -1985,11 +1979,6 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td><span className="cell-title">{task.title}</span></td>
-                    {isMyTasksView && (
-                      <td className="max-w-[14rem] text-sm text-slate-700">
-                        <span className="line-clamp-2 whitespace-pre-wrap">{task.notes?.trim() || '—'}</span>
-                      </td>
-                    )}
                     {(isDepartmentTasksView || isStaffTasksView) && (
                       <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
                     )}

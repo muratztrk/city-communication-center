@@ -81,7 +81,6 @@ public sealed record TaskSummaryResponse(
     // Görevi atayan yöneticinin adı — talep detayı "Görev Detayları"nda "Atanmış (Yönetici)" için (card #709).
     string? AssigningManagerDisplayName = null,
     // Talep detayı görev kartında açıklama + ekler (card #853).
-    string? Notes = null,
     string? Description = null,
     IReadOnlyCollection<AttachmentResponse>? Attachments = null);
 

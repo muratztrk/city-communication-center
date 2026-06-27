@@ -1873,7 +1873,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-500">
                               ({t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
                               <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
-                              {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')})
+                              <span className="text-slate-900">{getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}</span>)
                             </span>
                           </span>
                         ),

@@ -331,7 +331,7 @@ private static TEnum ParseEnum<TEnum>(string value) where TEnum : struct, Enum
 **Geçerli enum değerleri**:
 - **TaskType**: `CitizenRequest`, `InternalRequest`, `ApprovalTask`
 - **SourceType**: `Manual`, `SocialMessage`, `Integration`
-- **TaskStatus**: `Draft`, `PendingApproval`, `Assigned`, `InProgress`, `Completed`, `Closed`, `Rejected`
+- **TaskStatus**: `Waiting`, `Assigned`, `InProgress`, `PendingCloseApproval`, `Completed`, `Cancelled`, `Rejected`, `RevisionRequested`
 
 ### FluentValidation Pipeline (Working)
 - `ValidationBehavior.cs`: Otomatik validasyon pipeline'da çalışıyor

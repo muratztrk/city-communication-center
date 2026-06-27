@@ -74,7 +74,7 @@ cd tests/e2e && npm install && npx playwright install && npm test
 
 **`TaskStatus`**: `Waiting` → `Assigned` → `InProgress` → `PendingCloseApproval` → `Completed` / `Cancelled` / `Rejected` / `RevisionRequested`. Terminal `Completed`/`Cancelled` tasks can be moved back to `InProgress` (or switched between Completed/Cancelled) via `ChangeTaskStatusCommand`.
 
-**`RoleCode`**: `SystemAdmin`, `Operator`, `Manager`, `Staff`, `Reporter`
+**`RoleCode`**: `SystemAdmin`, `Operator`, `Manager`, `Staff`, `Reporter`, `EDevletActivityPlan`
 
 **`SocialChannel`**: `Facebook`, `Instagram`, `X`, `Email`, `WebForm`, `WhatsApp`, `Phone`, `Other`
 

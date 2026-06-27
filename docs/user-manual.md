@@ -333,6 +333,10 @@ Atama sırasında:
 
 Yetki ve talep durumuna göre **İptal Et** butonu aktif olabilir. İşlem sırasında açıklama girilmesi istenir.
 
+### 7.4 WhatsApp Konuşmasını Görüntüleme
+
+Vatandaş talebi WhatsApp’tan geldiyse, talep ve görev detayından vatandaş ile yapılan **WhatsApp konuşması görüntülenebilir**. Bu görünüm birim yöneticisi ve görevin atandığı personel için **salt-okunurdur**; vatandaşa yanıtı yalnızca vatandaş talep operatörü yazabilir.
+
 ---
 
 ## 8. Birimden Giden Talepler
@@ -410,7 +414,19 @@ Yetkiye ve görevin durumuna göre:
 
 Yönlendirme alanında personel seçimi yapılır ve **Yönlendir** butonu kullanılır.
 
-### 9.4 Görev Yazdırma
+### 9.4 Görev Durumunu Değiştirme
+
+**Tamamlanmış Görevlerim** ve **İptal Görevlerim** görünümlerinde, ilgili satırın **İşlemler** sütununda **Detaylar** butonunun solunda **Durum Değiştir** butonu yer alır.
+
+Butona basıldığında **Görev Durum Değişikliği** pop-up’ı açılır:
+
+- Durum değişikliği için bir **neden** girilir.
+- **Talep Durumu Seç** listesinden yeni durum seçilir: **Yapılmakta**, **Tamamlanmış** veya **İptal** (görevin mevcut durumu listede çıkmaz).
+- **Durum Değiştir** ile onaylanır.
+
+Görev **Yapılmakta** durumuna alındığında, bağlı talep tamamlanmış/iptal durumundaysa yeniden aktif (işleme alınmış) duruma döner. Bu işlemi görevin atandığı kullanıcı veya sistem yöneticisi yapabilir.
+
+### 9.5 Görev Yazdırma
 
 Detay pop-up içindeki **Yazdır** butonu görev çıktısı alır.
 

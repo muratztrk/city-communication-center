@@ -28,8 +28,9 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
-import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
+import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { userWorksInAnyDepartment } from '../utils/userDepartments'
+import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 
 interface TaskScopeFiltersProps {
@@ -267,13 +268,28 @@ function getExtraTimeProposedDueDate(comment: string | null | undefined): string
   return match?.[0] ?? null
 }
 
-function formatTaskJobDisplayNumber(task: Task): string {
+function formatTaskJobDisplayNumber(
+  task: Task,
+  socialByJobId?: Map<string, SocialMessage>,
+  locale = 'tr',
+): string {
   if (task.jobSourceType === 'Routine') return '—'
+  if (isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })) {
+    const social = socialByJobId?.get(task.jobId)
+    return formatCitizenRequestNumber(
+      social ?? { createdAtUtc: task.jobCreatedAtUtc ?? task.createdAtUtc ?? undefined },
+      locale,
+    )
+  }
   if (task.jobNumber != null && task.jobNumberYear != null) {
     return `T-${task.jobNumberYear}-${task.jobNumber}`
   }
   const year = task.jobNumberYear ?? new Date().getFullYear()
   return `T-${year}-Onay Bekleyen`
+}
+
+function getCitizenTaskChannel(task: Task, socialByJobId: Map<string, SocialMessage>): string {
+  return socialByJobId.get(task.jobId)?.channel ?? 'WhatsApp'
 }
 
 function getMyTaskView(value: string | null): MyTaskView {
@@ -299,7 +315,7 @@ function getScopeChipColorClass(value: string): string {
 
 function matchesRequestFlow(requestType: Task['jobRequestType'], filter: RequestFlowFilter): boolean {
   if (filter === 'internal') return requestType === 'InternalUnit'
-  if (filter === 'external') return requestType === 'ExternalUnit'
+  if (filter === 'external') return requestType === 'ExternalUnit' || requestType === 'Citizen'
   return true
 }
 
@@ -344,6 +360,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const navigate = useNavigate()
   const [activeDeptId, setActiveDeptId] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
+  const [socialMessages, setSocialMessages] = useState<SocialMessage[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -432,6 +449,13 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     return selected ? [selected, ...staffUsers] : staffUsers
   }, [activeUsers, currentStaffUserId, staffUsers])
   const staffUserIds = useMemo(() => new Set(staffUsers.map(item => item.userId)), [staffUsers])
+  const socialByJobId = useMemo(() => {
+    const map = new Map<string, SocialMessage>()
+    for (const message of socialMessages) {
+      if (message.jobId) map.set(message.jobId, message)
+    }
+    return map
+  }, [socialMessages])
   const returnDeptUsers = useMemo(() => {
     if (!returnDeptId) return []
     // Görevi Yönlendir: hedef listede mevcut görev sahibi personel gösterilmez.
@@ -614,7 +638,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         if (key === 'priority') return getPriorityLabel(t, row.priority)
         if (key === 'jobNumber') return row.jobSourceType === 'Routine'
           ? t('tasks.columns.routineNoParentRequest', 'Rutin görev Talep No olmaz')
-          : formatTaskJobDisplayNumber(row)
+          : formatTaskJobDisplayNumber(row, socialByJobId, locale)
         if (key === 'taskNumber') return formatTaskDisplayNumber(row)
         if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
         if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
@@ -624,7 +648,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
         return String((row as unknown as Record<string, unknown>)[key] ?? '')
       })),
-    [visibleTasks, taskMatchesFilters, t, locale],
+    [visibleTasks, taskMatchesFilters, t, locale, socialByJobId],
   )
 
   // Kullanıcı kolon sıralaması seçmediyse, Tamamlanmış/İptal görünümlerinde en yeni tarihli en üstte
@@ -707,12 +731,14 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       api.getTasks(currentScope),
       api.getDepartments(),
       api.getUsers().catch(() => [] as User[]),
+      api.getSocialMessages().catch(() => [] as SocialMessage[]),
     ])
-      .then(([taskList, departmentList, userList]) => {
+      .then(([taskList, departmentList, userList, socialList]) => {
         if (cancelled) return
         setTasks(taskList)
         setDepartments(departmentList)
         setUsers(userList)
+        setSocialMessages(socialList)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -1996,7 +2022,14 @@ const pageKicker = isMyTasksView
                     <td className="table-number-cell text-xs text-slate-500">
                       {task.jobSourceType === 'Routine'
                         ? <div className="table-number-cell__value font-sans text-slate-400">{t('tasks.columns.routineNoParentRequest', 'Rutin görev Talep No olmaz')}</div>
-                        : <div className="table-number-cell__value font-mono">{formatTaskJobDisplayNumber(task)}</div>}
+                        : isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })
+                          ? (
+                            <div className="table-number-cell__value font-mono inline-flex items-center gap-1.5">
+                              <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-4 shrink-0" />
+                              <span>{formatTaskJobDisplayNumber(task, socialByJobId, locale)}</span>
+                            </div>
+                          )
+                          : <div className="table-number-cell__value font-mono">{formatTaskJobDisplayNumber(task, socialByJobId, locale)}</div>}
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>

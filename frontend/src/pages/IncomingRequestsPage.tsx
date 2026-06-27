@@ -492,6 +492,7 @@ export function IncomingRequestsPage() {
                 priority: jobDetail.priority,
                 startDateUtc: jobDetail.startDateUtc,
                 dueDateUtc: null,
+                assignedDepartmentId: getActiveDepartmentId() ?? undefined,
                 assignedUserId: userId,
               })
             )

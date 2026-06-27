@@ -1,6 +1,7 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Application.Features.Users;
+using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -93,8 +94,14 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             }
             else if (actor.RoleCode == RoleCode.Manager)
             {
-                var managerDept = assignedDepartmentId ?? context.ActiveDepartmentId ?? job.OwnerDepartmentId;
-                var isManagerDept = await TaskWorkflowAuthorization.IsManagerOfAsync(_dbContext, actor, managerDept, cancellationToken);
+                var managerDept = assignedDepartmentId ?? context.ActiveDepartmentId;
+                if (!managerDept.HasValue)
+                {
+                    managerDept = await ResolveManagerAssignmentDepartmentAsync(_dbContext, job, actor, cancellationToken);
+                }
+
+                managerDept ??= job.OwnerDepartmentId;
+                var isManagerDept = await TaskWorkflowAuthorization.IsManagerOfAsync(_dbContext, actor, managerDept.Value, cancellationToken);
                 if (!isManagerDept)
                 {
                     throw new ForbiddenAccessException("Bu departman icin gorev olusturma yetkiniz yok.");
@@ -230,6 +237,43 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         }
 
         return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);
+    }
+
+    private static async Task<Guid?> ResolveManagerAssignmentDepartmentAsync(
+        IApplicationDbContext dbContext,
+        Job job,
+        ApplicationUser actor,
+        CancellationToken cancellationToken)
+    {
+        var targetDeptIds = await dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(entity => entity.JobId == job.JobId && entity.Role == JobDepartmentRole.Target)
+            .Select(entity => entity.DepartmentId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var deptId in targetDeptIds)
+        {
+            if (await TaskWorkflowAuthorization.IsManagerOfAsync(dbContext, actor, deptId, cancellationToken))
+            {
+                return deptId;
+            }
+        }
+
+        var ownerDeptIds = await dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(entity => entity.JobId == job.JobId && entity.Role == JobDepartmentRole.Owner)
+            .Select(entity => entity.DepartmentId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var deptId in ownerDeptIds)
+        {
+            if (await TaskWorkflowAuthorization.IsManagerOfAsync(dbContext, actor, deptId, cancellationToken))
+            {
+                return deptId;
+            }
+        }
+
+        return null;
     }
 
     private static ValidationException Validation(string property, string message) =>

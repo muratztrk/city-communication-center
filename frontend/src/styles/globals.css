@@ -365,20 +365,20 @@
       width: 13rem;
     }
 
-    /* Görevlerim başlık satırı yüksekliği Taleplerim / Vatandaş Talepleri ile aynı olsun. */
+    /* Görevlerim başlık satırı yüksekliği paging bar ile aynı olsun. */
     .app-content-shell .my-tasks-table thead th,
     .app-content-shell .my-tasks-all-table thead th {
       white-space: nowrap;
       overflow-wrap: normal;
-      line-height: 1.1;
-      padding-top: 0.48rem;
-      padding-bottom: 0.48rem;
+      line-height: 1.2;
+      padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
+      min-height: var(--table-chrome-row-min-height);
       vertical-align: middle;
     }
 
     .app-content-shell .my-tasks-table .filterable-th-content,
     .app-content-shell .my-tasks-all-table .filterable-th-content {
-      min-height: 0;
+      min-height: var(--table-chrome-row-inner-height);
       align-items: center;
     }
 
@@ -419,9 +419,12 @@
 
     .app-content-shell .data-table thead th,
     .app-content-shell .table-container thead th {
-      padding: 0.52rem 0.62rem;
-      font-size: 0.74rem;
+      padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
+      min-height: var(--table-chrome-row-min-height);
+      font-size: 0.78rem;
       letter-spacing: 0.06em;
+      line-height: 1.2;
+      vertical-align: middle;
     }
 
     .app-content-shell .data-table tbody td,
@@ -897,7 +900,9 @@
     top: 0;
     z-index: 2;
     background: transparent;
-    padding: 0.85rem 1rem;
+    box-sizing: border-box;
+    padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
+    min-height: var(--table-chrome-row-min-height);
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: left;
     font-size: 0.72rem;
@@ -905,6 +910,7 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: white;
+    vertical-align: middle;
   }
 
   .table-container thead th:last-child {
@@ -940,7 +946,9 @@
     z-index: 2;
     white-space: nowrap;
     background: transparent;
-    padding: 0.75rem 0.9rem;
+    box-sizing: border-box;
+    padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
+    min-height: var(--table-chrome-row-min-height);
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: center;
     font-size: 0.84rem;
@@ -948,6 +956,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: white;
+    vertical-align: middle;
   }
 
   .data-table thead th:last-child {
@@ -1024,6 +1033,7 @@
     justify-content: center;
     gap: 0.25rem;
     width: 100%;
+    min-height: var(--table-chrome-row-inner-height);
   }
 
   .filterable-th-label {
@@ -1337,17 +1347,9 @@
     gap: 0.35rem;
   }
 
-  /* Vatandaş Talepleri: yeşil thead satır yüksekliği paging bar ile aynı (0.6rem / 1rem). */
-  .app-content-shell .social-messages-table thead th {
-    padding: 0.6rem 1rem;
-    font-size: 0.78rem;
-    line-height: 1.2;
-    vertical-align: middle;
-  }
-
+  /* Vatandaş Talepleri: thead satır yüksekliği paging bar ile aynı (global --table-chrome-* değişkenleri). */
   .app-content-shell .social-messages-table .filterable-th-content {
     align-items: center;
-    min-height: 0;
   }
 
   .citizen-request-form .job-field-label {
@@ -2017,12 +2019,21 @@
 
   /* ── Table Pagination ─────────────────────────────────────────── */
 
+  :root {
+    --table-chrome-row-py: 0.6rem;
+    --table-chrome-row-px: 1rem;
+    --table-chrome-row-inner-height: 1.75rem;
+    --table-chrome-row-min-height: calc(var(--table-chrome-row-py) * 2 + var(--table-chrome-row-inner-height));
+  }
+
   .table-pagination-bar {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem 0.75rem;
-    padding: 0.6rem 1rem;
+    box-sizing: border-box;
+    min-height: var(--table-chrome-row-min-height);
+    padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
     border-top: 1px solid rgba(255, 255, 255, 0.22);
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);

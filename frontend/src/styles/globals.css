@@ -2933,4 +2933,27 @@
   .whatsapp-fab-pulse {
     animation: whatsapp-fab-pulse 0.9s ease-in-out 2;
   }
+
+  .whatsapp-fab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 9999px;
+    border: 2px solid #fff;
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
+  }
+
+  .whatsapp-fab-badge--wide {
+    width: auto;
+    min-width: 1.125rem;
+    padding: 0 0.25rem;
+  }
 }

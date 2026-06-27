@@ -22,15 +22,8 @@ export interface WhatsAppMessagePayload {
 export interface SignalRHandlers {
   onNotification?: (payload: NotificationPayload) => void
   onWhatsAppMessage?: (payload: WhatsAppMessagePayload) => void
+  onReconnected?: () => void
 }
-
-type Subscriber = SignalRHandlers
-
-let connection: signalR.HubConnection | null = null
-let connectingPromise: Promise<void> | null = null
-let activeSessionKey: string | null = null
-const subscribers = new Map<number, Subscriber>()
-let nextSubscriberId = 0
 
 function mapNotificationPayload(raw: Record<string, unknown>): NotificationPayload {
   return {
@@ -52,22 +45,60 @@ function mapWhatsAppPayload(raw: Record<string, unknown>): WhatsAppMessagePayloa
   }
 }
 
+const notificationHandlers = new Set<(payload: NotificationPayload) => void>()
+const whatsAppMessageHandlers = new Set<(payload: WhatsAppMessagePayload) => void>()
+const reconnectHandlers = new Set<() => void>()
+
+let connection: signalR.HubConnection | null = null
+let connectingPromise: Promise<void> | null = null
+let sessionActive = false
+
+function dispatchNotification(payload: NotificationPayload) {
+  notificationHandlers.forEach(handler => handler(payload))
+}
+
+function dispatchWhatsAppMessage(payload: WhatsAppMessagePayload) {
+  whatsAppMessageHandlers.forEach(handler => handler(payload))
+  window.dispatchEvent(new CustomEvent('ccc:whatsapp-message', { detail: payload }))
+}
+
+function dispatchReconnect() {
+  reconnectHandlers.forEach(handler => handler())
+}
+
 async function disconnectSignalR() {
   if (connection) {
     await connection.stop()
     connection = null
   }
-  activeSessionKey = null
 }
 
-async function ensureConnection(sessionPresent: boolean) {
-  if (!sessionPresent) {
+function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
+  nextConnection.off('ReceiveNotification')
+  nextConnection.off('ReceiveWhatsAppMessage')
+  nextConnection.off('reconnected')
+
+  nextConnection.on('ReceiveNotification', (payload: Record<string, unknown>) => {
+    dispatchNotification(mapNotificationPayload(payload))
+  })
+
+  nextConnection.on('ReceiveWhatsAppMessage', (payload: Record<string, unknown>) => {
+    dispatchWhatsAppMessage(mapWhatsAppPayload(payload))
+  })
+
+  nextConnection.onreconnected(() => {
+    dispatchReconnect()
+  })
+}
+
+async function ensureConnection(active: boolean) {
+  sessionActive = active
+  if (!active) {
     await disconnectSignalR()
     return
   }
 
-  const sessionKey = 'active'
-  if (connection?.state === signalR.HubConnectionState.Connected && activeSessionKey === sessionKey) {
+  if (connection?.state === signalR.HubConnectionState.Connected) {
     return
   }
 
@@ -77,8 +108,13 @@ async function ensureConnection(sessionPresent: boolean) {
   }
 
   connectingPromise = (async () => {
-    await disconnectSignalR()
-    activeSessionKey = sessionKey
+    if (connection?.state === signalR.HubConnectionState.Connected) {
+      return
+    }
+
+    if (connection) {
+      await disconnectSignalR()
+    }
 
     const nextConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${API_ORIGIN}/hubs/notifications`, {
@@ -88,15 +124,7 @@ async function ensureConnection(sessionPresent: boolean) {
       .configureLogging(signalR.LogLevel.Warning)
       .build()
 
-    nextConnection.on('ReceiveNotification', (payload: Record<string, unknown>) => {
-      const mapped = mapNotificationPayload(payload)
-      subscribers.forEach(subscriber => subscriber.onNotification?.(mapped))
-    })
-
-    nextConnection.on('ReceiveWhatsAppMessage', (payload: Record<string, unknown>) => {
-      const mapped = mapWhatsAppPayload(payload)
-      subscribers.forEach(subscriber => subscriber.onWhatsAppMessage?.(mapped))
-    })
+    attachConnectionHandlers(nextConnection)
 
     await nextConnection.start()
     connection = nextConnection
@@ -121,13 +149,26 @@ export function useSignalR(handlers?: SignalRHandlers) {
   }, [session])
 
   useEffect(() => {
-    const id = ++nextSubscriberId
-    subscribers.set(id, {
-      onNotification: payload => handlersRef.current?.onNotification?.(payload),
-      onWhatsAppMessage: payload => handlersRef.current?.onWhatsAppMessage?.(payload),
-    })
+    const onNotification = (payload: NotificationPayload) => {
+      handlersRef.current?.onNotification?.(payload)
+    }
+    const onWhatsAppMessage = (payload: WhatsAppMessagePayload) => {
+      handlersRef.current?.onWhatsAppMessage?.(payload)
+    }
+    const onReconnected = () => {
+      handlersRef.current?.onReconnected?.()
+    }
+
+    notificationHandlers.add(onNotification)
+    whatsAppMessageHandlers.add(onWhatsAppMessage)
+    reconnectHandlers.add(onReconnected)
+
+    void ensureConnection(sessionActive)
+
     return () => {
-      subscribers.delete(id)
+      notificationHandlers.delete(onNotification)
+      whatsAppMessageHandlers.delete(onWhatsAppMessage)
+      reconnectHandlers.delete(onReconnected)
     }
   }, [])
 }

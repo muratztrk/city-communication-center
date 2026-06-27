@@ -9,6 +9,8 @@ import type { CitizenConversationSummary } from '../../types/platform'
 import { formatConversationDisplayContent } from '../../utils/socialConversationContent'
 import { getLocale } from '../../utils/localization'
 
+const POLL_INTERVAL_MS = 12_000
+
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, '')
   if (digits.length === 12 && digits.startsWith('90')) {
@@ -26,30 +28,9 @@ function formatRelativeTime(dateStr: string, locale: string): string {
   return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
 }
 
-function upsertConversation(
-  current: CitizenConversationSummary[],
-  payload: WhatsAppMessagePayload,
-): CitizenConversationSummary[] {
-  const existingIndex = current.findIndex(item => item.citizenConversationId === payload.citizenConversationId)
-  const nextItem: CitizenConversationSummary = {
-    citizenConversationId: payload.citizenConversationId,
-    citizenPhone: payload.citizenPhone,
-    citizenName: payload.citizenName,
-    lastMessageAt: payload.lastMessageAt,
-    unreadCount: payload.unreadCount,
-    isBlocked: existingIndex >= 0 ? current[existingIndex].isBlocked : false,
-    lastMessagePreview: payload.messagePreview,
-    openTicketCount: existingIndex >= 0 ? current[existingIndex].openTicketCount : 0,
-  }
-
-  if (existingIndex >= 0) {
-    return [
-      nextItem,
-      ...current.filter((_, index) => index !== existingIndex),
-    ]
-  }
-
-  return [nextItem, ...current]
+function formatBadgeCount(count: number) {
+  if (count > 99) return '99+'
+  return String(count)
 }
 
 export function WhatsAppNotificationFab() {
@@ -58,6 +39,7 @@ export function WhatsAppNotificationFab() {
   const navigate = useNavigate()
   const location = useLocation()
   const panelRef = useRef<HTMLDivElement>(null)
+  const pulseTimerRef = useRef<number | null>(null)
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [isPulsing, setIsPulsing] = useState(false)
@@ -70,15 +52,48 @@ export function WhatsAppNotificationFab() {
     }
   }, [])
 
+  const triggerPulse = useCallback(() => {
+    setIsPulsing(true)
+    if (pulseTimerRef.current) {
+      window.clearTimeout(pulseTimerRef.current)
+    }
+    pulseTimerRef.current = window.setTimeout(() => {
+      setIsPulsing(false)
+      pulseTimerRef.current = null
+    }, 1800)
+  }, [])
+
+  const handleWhatsAppMessage = useCallback((_payload: WhatsAppMessagePayload) => {
+    void loadConversations()
+    triggerPulse()
+  }, [loadConversations, triggerPulse])
+
+  useSignalR({
+    onWhatsAppMessage: handleWhatsAppMessage,
+    onReconnected: loadConversations,
+  })
+
   useEffect(() => {
     void loadConversations()
   }, [loadConversations])
 
   useEffect(() => {
-    if (location.pathname === '/whatsapp') {
+    const onWindowEvent = () => {
       void loadConversations()
     }
-  }, [location.pathname, location.search, loadConversations])
+    window.addEventListener('ccc:whatsapp-message', onWindowEvent)
+    return () => window.removeEventListener('ccc:whatsapp-message', onWindowEvent)
+  }, [loadConversations])
+
+  useEffect(() => {
+    if (document.visibilityState !== 'visible') return
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void loadConversations()
+      }
+    }, POLL_INTERVAL_MS)
+    return () => window.clearInterval(timer)
+  }, [loadConversations])
 
   useEffect(() => {
     const onVisibilityChange = () => {
@@ -86,17 +101,26 @@ export function WhatsAppNotificationFab() {
         void loadConversations()
       }
     }
+    const onFocus = () => {
+      void loadConversations()
+    }
     document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [loadConversations])
 
-  const handleWhatsAppMessage = useCallback((payload: WhatsAppMessagePayload) => {
-    setConversations(current => upsertConversation(current, payload))
-    setIsPulsing(true)
-    window.setTimeout(() => setIsPulsing(false), 1800)
-  }, [])
+  useEffect(() => {
+    void loadConversations()
+  }, [location.pathname, loadConversations])
 
-  useSignalR({ onWhatsAppMessage: handleWhatsAppMessage })
+  useEffect(() => () => {
+    if (pulseTimerRef.current) {
+      window.clearTimeout(pulseTimerRef.current)
+    }
+  }, [])
 
   const unreadConversations = useMemo(
     () => conversations
@@ -126,6 +150,8 @@ export function WhatsAppNotificationFab() {
     setIsOpen(false)
     navigate(`/whatsapp?phone=${encodeURIComponent(conversation.citizenPhone)}`)
   }
+
+  const badgeLabel = formatBadgeCount(unreadTotal)
 
   return (
     <div ref={panelRef} className="fixed bottom-6 right-5 z-[75]">
@@ -187,8 +213,8 @@ export function WhatsAppNotificationFab() {
                     </p>
                   ) : null}
                 </div>
-                <span className="mt-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-[#25D366] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  {conversation.unreadCount}
+                <span className={`whatsapp-fab-badge mt-1 ${conversation.unreadCount > 9 ? 'whatsapp-fab-badge--wide' : ''}`}>
+                  {formatBadgeCount(conversation.unreadCount)}
                 </span>
               </button>
             ))}
@@ -219,8 +245,8 @@ export function WhatsAppNotificationFab() {
         <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:scale-125" aria-hidden="true" />
         <img src="/icons/whatsapp.svg" alt="" className="relative size-7 brightness-0 invert" aria-hidden="true" />
         {unreadTotal > 0 ? (
-          <span className="absolute -right-1 -top-1 flex min-w-[1.35rem] items-center justify-center rounded-full border-2 border-white bg-red-500 px-1 text-[11px] font-bold leading-none text-white">
-            {unreadTotal > 99 ? '99+' : unreadTotal}
+          <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
+            {badgeLabel}
           </span>
         ) : null}
       </button>

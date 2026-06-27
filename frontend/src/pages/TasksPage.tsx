@@ -177,6 +177,9 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     ['Görev Sahibi', taskDetail.ownerDisplayName ?? '—'],
     ['Görev Tipi', gorevTipi],
     ['Öncelik', getPriorityLabel(t, taskDetail.priority)],
+    ...(taskDetail.currentStatus === 'Completed' && taskDetail.notes
+      ? [['Görev Tamamlama Notu', richTextToPlainText(taskDetail.notes)]]
+      : []),
     ['Durum', getTaskDisplayStatus(t, taskDetail)],
     ['Görev Tarihi', fd(taskDetail.createdAtUtc)],
     ['Son Tarih', fd(taskDetail.dueDateUtc)],
@@ -1445,9 +1448,15 @@ const pageKicker = isMyTasksView
                                   },
                                   // Öncelik, Görev Tipi'nin hemen altına (sol kolona) alındı (card #705).
                                   { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                                  ...(taskDetail.currentStatus === 'Completed' && taskDetail.notes
+                                    ? [{
+                                        label: t('tasks.detail.taskCompletionNote', 'Görev Tamamlama Notu'),
+                                        value: richTextToPlainText(taskDetail.notes),
+                                      }]
+                                    : []),
                                   // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
-                                ].map(({ label, value }) => (
-                                  <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
+                                ].map(({ label, value }, index, rows) => (
+                                  <div key={label} className={`flex items-start gap-2 px-3 py-2${index === rows.length - 1 ? ' border-b border-slate-100' : ''}`}>
                                     <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                                     <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                                   </div>
@@ -1481,15 +1490,6 @@ const pageKicker = isMyTasksView
                                               onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
                                               ({t('tasks.detail.cancelNote', 'İptal Notu')})
-                                            </button>
-                                          ) : null}
-                                          {taskDetail.currentStatus === 'Completed' && taskDetail.notes ? (
-                                            <button
-                                              type="button"
-                                              className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                            >
-                                              ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
                                             </button>
                                           ) : null}
                                         </span>
@@ -2203,7 +2203,7 @@ const pageKicker = isMyTasksView
               <X className="size-4" />
             </button>
             <h2 className="border-b border-slate-200 pb-2 text-xl font-extrabold text-slate-950">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h2>
-            <p className="helper-copy flex min-h-[3rem] items-center justify-center px-2 text-center" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}</p>
+            <p className="helper-copy px-2 text-left" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}</p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-red-500">*</span></span>
               <textarea

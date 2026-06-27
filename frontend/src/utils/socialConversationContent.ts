@@ -1,3 +1,5 @@
+import { richTextToPlainText } from './richText'
+
 const BRACKET_LABELS: Record<string, string> = {
   unsupported: 'Desteklenmeyen mesaj türü',
   unknown: 'Bilinmeyen mesaj',
@@ -58,5 +60,13 @@ export function socialMediaFilename(entryId: string, mime: string, citizenPhone?
 
 export function isPlaceholderBracketContent(content: string): boolean {
   const trimmed = content.trim()
-  return /^\[[^\]]+\]$/.test(trimmed) || /^<[^>]+>$/.test(trimmed)
+  return /^\[[^\]]+\]$/.test(trimmed) || /^<[^>/]+>$/.test(trimmed)
+}
+
+/** WhatsApp konuşma balonu / önizleme metni — HTML etiketlerini göstermez. */
+export function formatConversationDisplayContent(content: string): string {
+  const trimmed = content.trim()
+  if (!trimmed) return ''
+  if (isPlaceholderBracketContent(trimmed)) return formatBracketContent(trimmed)
+  return richTextToPlainText(trimmed)
 }

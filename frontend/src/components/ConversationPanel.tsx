@@ -11,7 +11,7 @@ import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
 import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { getLocale } from '../utils/localization'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
-import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
+import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -68,10 +68,10 @@ function EntryBubble({
           </div>
         )}
         {entry.content && !isPlaceholderBracketContent(entry.content) && (
-          <p className="whitespace-pre-wrap break-words leading-snug">{entry.content}</p>
+          <p className="whitespace-pre-wrap break-words leading-snug">{formatConversationDisplayContent(entry.content)}</p>
         )}
         {isPlaceholderBracketContent(entry.content) && !hasMedia && (
-          <p className="italic opacity-70 text-xs">{formatBracketContent(entry.content)}</p>
+          <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
         )}
         <p className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
           <CalendarClock className="size-3 shrink-0" />

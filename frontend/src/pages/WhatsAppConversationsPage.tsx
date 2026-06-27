@@ -18,7 +18,7 @@ import { getLocale } from '../utils/localization'
 import { SocialConversationMediaBubble } from '../components/SocialConversationMediaBubble'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
-import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
+import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -114,10 +114,10 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
           </div>
         )}
         {entry.content && !isPlaceholderBracketContent(entry.content) && (
-          <p className="whitespace-pre-wrap break-words leading-snug">{entry.content}</p>
+          <p className="whitespace-pre-wrap break-words leading-snug">{formatConversationDisplayContent(entry.content)}</p>
         )}
         {isPlaceholderBracketContent(entry.content) && !hasMedia && (
-          <p className="italic opacity-70 text-xs">{formatBracketContent(entry.content)}</p>
+          <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
         )}
         <p className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
           <CalendarClock className="size-3 shrink-0" />
@@ -180,7 +180,7 @@ function ConversationListItem({
       </div>
       {conv.lastMessagePreview && (
         <p className="mt-1 ml-11 text-xs text-[color:var(--color-muted-foreground)] truncate">
-          {conv.lastMessagePreview}
+          {formatConversationDisplayContent(conv.lastMessagePreview)}
         </p>
       )}
       {conv.isBlocked && (

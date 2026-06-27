@@ -595,3 +595,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 90 (manuel tur — #1011: Görevi Tamamla başlığı altı ayraç)
 - [x] `#1011` — TasksPage "Görevi Tamamla" pop-up'ının `<h2>` başlığına ayraç eklendi (`mb-3 border-b border-slate-200 pb-2`), aynı modaldaki "Görevi Birim İçi Yönlendir" başlık konvansiyonuyla aynı. Başlık boyutu (text-xl font-extrabold) korundu. FE build + lint PASS. main+master, Done.
+
+## Round 91 (manuel tur — #1008: Görevi Birim İçi Yönlendir helper text yukarı)
+- [x] `#1008` — "Görevi Birim İçi Yönlendir" pop-up'ında "Görev sadece aynı birim içinde yönlendirilebilir." helper text'i biraz yukarı alındı. Başlık ile helper arası boşluk = page-stack grid gap (1rem) + başlık `mb-3` (0.75rem) ≈ 1.75rem idi; başlık `mb-3`→`mb-1` yapılarak helper ~0.5rem yukarı çekildi (helper-copy'nin kendi margin'i yok). Yalnızca bu modal başlığı; #1011'de complete modalına eklenen ayraç ayrı `<h2>`. FE build + lint PASS. main+master, Done.

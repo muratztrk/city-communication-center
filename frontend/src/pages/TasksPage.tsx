@@ -2197,7 +2197,7 @@ const pageKicker = isMyTasksView
             {/* ── Görev Yönlendir (Manager) ── */}
             {returnModal.step === 'return' && (
               <>
-                <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
+                <h2 className="mb-1 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
                   {t('tasks.actions.redirectReporterTaskWithinUnit', 'Görevi Birim İçi Yönlendir')}
                 </h2>
                 <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde yönlendirilebilir.')}</p>

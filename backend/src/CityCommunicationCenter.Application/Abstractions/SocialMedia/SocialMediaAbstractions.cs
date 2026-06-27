@@ -76,6 +76,13 @@ public sealed class EDevletSettings
     public string? AuthorizationEndpoint { get; set; }
     public string? TokenEndpoint { get; set; }
     public string? Scope { get; set; }
+
+    /// <summary>Türksat Belediye Standart V3 SOAP entegrasyon ayarları.</summary>
+    public string? BelediyeKodu { get; set; }
+    public string? SoapKullaniciAdi { get; set; }
+    public string? SoapSifre { get; set; }
+    public string? IlceAdi { get; set; }
+    public string? BilgilendirmeMetni { get; set; }
 }
 
 public sealed class EmailSettings

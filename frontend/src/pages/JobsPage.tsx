@@ -135,7 +135,7 @@ function canOperatorEditPendingExternalJob(
 ): boolean {
   if (role !== 'Operator') return false
   if (job.requestType !== 'ExternalUnit') return false
-  if (job.sourceType !== 'SocialMessage' && job.sourceType !== 'CitizenRequest') return false
+  if (job.sourceType !== 'SocialMessage' && job.sourceType !== 'CitizenRequest' && job.sourceType !== 'EDevlet') return false
   const taskCount = job.taskCount ?? job.tasks?.length ?? 0
   return job.status === 'PendingExternalApproval'
     || (job.status === 'Active' && taskCount === 0)

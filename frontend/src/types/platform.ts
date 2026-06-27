@@ -728,6 +728,21 @@ export interface SlaWeekendSettingsUpdate {
   exemptDepartmentIds: string[]
 }
 
+export interface EDevletBasvuruSummary {
+  basvuruId: string
+  takipNo: string
+  citizenFirstName: string
+  citizenLastName: string
+  basvuruTipi: string
+  description: string
+  mahalleAdi: string | null
+  sokakCaddeAdi: string | null
+  status: string
+  createdAtUtc: string
+  jobId: string | null
+  jobDisplayNumber: string | null
+}
+
 export interface AppNotification {
   notificationId: string
   taskId: string | null

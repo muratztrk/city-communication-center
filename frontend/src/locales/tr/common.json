@@ -1063,7 +1063,12 @@
           "redirectUri": "Redirect URI",
           "authorizationEndpoint": "Yetkilendirme Endpoint",
           "tokenEndpoint": "Token Endpoint",
-          "scope": "Scope"
+          "scope": "Scope",
+          "belediyeKodu": "Belediye Kodu (Türksat)",
+          "soapKullaniciAdi": "SOAP Kullanıcı Adı",
+          "soapSifre": "SOAP Şifre",
+          "ilceAdi": "İlçe Adı",
+          "bilgilendirmeMetni": "Bilgilendirme Metni (ayarOku)"
         },
         "email": {
           "imapHost": "IMAP Sunucu",

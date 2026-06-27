@@ -52,7 +52,7 @@ public sealed class UpdateSocialMessageCommandHandler : ICommandHandler<UpdateSo
 
             var canOperatorEdit = actor.RoleCode == RoleCode.Operator
                 && job.RequestType == JobRequestType.ExternalUnit
-                && job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest
+                && job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet
                 && (job.Status == JobStatus.PendingExternalApproval
                     || (job.Status == JobStatus.Active && !hasTasks));
 

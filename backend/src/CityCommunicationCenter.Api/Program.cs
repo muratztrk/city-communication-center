@@ -2,6 +2,7 @@ using System.Threading.RateLimiting;
 using System.Globalization;
 using System.Net;
 using CityCommunicationCenter.Application;
+using CityCommunicationCenter.Api.BelediyeSoap;
 using CityCommunicationCenter.Api.Hubs;
 using CityCommunicationCenter.Api.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -288,6 +289,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads"
 });
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<BelediyeSoapMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();

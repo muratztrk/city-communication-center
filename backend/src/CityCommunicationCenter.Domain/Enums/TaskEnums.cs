@@ -6,6 +6,7 @@ public enum JobSourceType
     SocialMessage,
     CitizenRequest,
     Integration,
+    EDevlet,
     Routine
 }
 

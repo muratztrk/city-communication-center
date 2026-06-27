@@ -4,6 +4,7 @@ export function isCitizenRequestJob(job: { requestType?: string | null; sourceTy
   return job.requestType === 'Citizen'
     || job.sourceType === 'SocialMessage'
     || job.sourceType === 'CitizenRequest'
+    || job.sourceType === 'EDevlet'
 }
 
 type CitizenRequestStatusSource = {

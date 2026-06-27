@@ -49,4 +49,16 @@ internal static class SequenceNumberHelper
             .MaxAsync(plan => (int?)plan.PlanNumber, cancellationToken) ?? 0;
         return max + 1;
     }
+
+    public static async Task<int> NextEDevletBasvuruNumberAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        int year,
+        CancellationToken cancellationToken)
+    {
+        var max = await dbContext.EDevletBasvurular
+            .Where(entity => entity.TenantId == tenantId && entity.BasvuruNumberYear == year)
+            .MaxAsync(entity => (int?)entity.BasvuruNumber, cancellationToken) ?? 0;
+        return max + 1;
+    }
 }

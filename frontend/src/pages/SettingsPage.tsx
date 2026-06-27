@@ -125,6 +125,11 @@ const CHANNELS: ChannelConfig[] = [
       { key: 'authorizationEndpoint', labelKey: 'settings.socialConfig.fields.edevlet.authorizationEndpoint' },
       { key: 'tokenEndpoint', labelKey: 'settings.socialConfig.fields.edevlet.tokenEndpoint' },
       { key: 'scope', labelKey: 'settings.socialConfig.fields.edevlet.scope' },
+      { key: 'belediyeKodu', labelKey: 'settings.socialConfig.fields.edevlet.belediyeKodu' },
+      { key: 'soapKullaniciAdi', labelKey: 'settings.socialConfig.fields.edevlet.soapKullaniciAdi' },
+      { key: 'soapSifre', labelKey: 'settings.socialConfig.fields.edevlet.soapSifre', secret: true },
+      { key: 'ilceAdi', labelKey: 'settings.socialConfig.fields.edevlet.ilceAdi' },
+      { key: 'bilgilendirmeMetni', labelKey: 'settings.socialConfig.fields.edevlet.bilgilendirmeMetni' },
     ],
   },
   {
@@ -203,7 +208,7 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
   facebook: { appId: '', appSecret: '', pageAccessToken: '', pageId: '', webhookVerifyToken: '' },
   instagram: { accountId: '', accessToken: '', linkedPageId: '' },
   whatsapp: { businessAccountId: '', phoneNumberId: '', accessToken: '', appSecret: '', webhookVerifyToken: '' },
-  edevlet: { clientId: '', clientSecret: '', redirectUri: '', authorizationEndpoint: '', tokenEndpoint: '', scope: '' },
+  edevlet: { clientId: '', clientSecret: '', redirectUri: '', authorizationEndpoint: '', tokenEndpoint: '', scope: '', belediyeKodu: '', soapKullaniciAdi: '', soapSifre: '', ilceAdi: '', bilgilendirmeMetni: '' },
   email: { imapHost: '', imapPort: '', imapUser: '', imapPassword: '', folder: '', smtpHost: '', smtpPort: '', smtpUser: '', smtpPassword: '' },
 }
 

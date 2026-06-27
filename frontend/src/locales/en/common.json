@@ -1046,7 +1046,12 @@
           "redirectUri": "Redirect URI",
           "authorizationEndpoint": "Authorization Endpoint",
           "tokenEndpoint": "Token Endpoint",
-          "scope": "Scope"
+          "scope": "Scope",
+          "belediyeKodu": "Municipality Code (Türksat)",
+          "soapKullaniciAdi": "SOAP Username",
+          "soapSifre": "SOAP Password",
+          "ilceAdi": "District Name",
+          "bilgilendirmeMetni": "Information Text (ayarOku)"
         }
       }
     },

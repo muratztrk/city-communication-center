@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Abstractions.BelediyeSoap;
+using CityCommunicationCenter.Infrastructure.BelediyeSoap;
 using CityCommunicationCenter.Infrastructure.Persistence.Interceptors;
 using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.SocialMedia;
@@ -59,6 +61,8 @@ public static class DependencyInjection
         services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
         services.AddScoped<IAuthenticationModeProvider, UserAuthenticationService>();
         services.AddScoped<IUserManagementConfigurationProvider, UserAuthenticationService>();
+
+        services.AddScoped<IBelediyeSoapOperations, BelediyeSoapOperations>();
 
         return services;
     }

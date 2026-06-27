@@ -34,8 +34,12 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? RolePageAccessJson { get; set; }
 
+    /// <summary>Türksat Belediye Standart V3 belediye kodu (tenant çözümleme).</summary>
+    public string? BelediyeKodu { get; set; }
+
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>
     [
         DatabaseIndexDefinition.Unique(nameof(TenantId), databaseName: "ix_tenantsettings_tenantid_unique"),
+        DatabaseIndexDefinition.Unique(nameof(BelediyeKodu), databaseName: "ix_tenantsettings_belediyekodu_unique"),
     ];
 }

@@ -142,7 +142,12 @@ public sealed record EDevletSettingsRequest(
     string? RedirectUri,
     string? AuthorizationEndpoint,
     string? TokenEndpoint,
-    string? Scope);
+    string? Scope,
+    string? BelediyeKodu,
+    string? SoapKullaniciAdi,
+    string? SoapSifre,
+    string? IlceAdi,
+    string? BilgilendirmeMetni);
 
 public sealed record EmailSettingsRequest(
     string? ImapHost,

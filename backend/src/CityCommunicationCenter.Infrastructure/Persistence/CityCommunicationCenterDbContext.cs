@@ -48,6 +48,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<UserDepartmentAssignment> UserDepartmentAssignments => Set<UserDepartmentAssignment>();
     public DbSet<EDevletActivityType> EDevletActivityTypes => Set<EDevletActivityType>();
     public DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans => Set<EDevletDailyActivityPlan>();
+    public DbSet<EDevletBasvuru> EDevletBasvurular => Set<EDevletBasvuru>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -110,6 +111,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureUserDepartmentAssignment(modelBuilder.Entity<UserDepartmentAssignment>());
         ConfigureEDevletActivityType(modelBuilder.Entity<EDevletActivityType>());
         ConfigureEDevletDailyActivityPlan(modelBuilder.Entity<EDevletDailyActivityPlan>());
+        ConfigureEDevletBasvuru(modelBuilder.Entity<EDevletBasvuru>());
+        ConfigureEDevletBasvuruAttachment(modelBuilder.Entity<EDevletBasvuruAttachment>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -134,6 +137,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<UserDepartmentAssignment>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletActivityType>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletDailyActivityPlan>());
+        ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuru>());
+        ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuruAttachment>());
 
         ApplyInstallSeedData(modelBuilder);
     }
@@ -375,6 +380,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.AppearanceJson).HasColumnType("text");
         builder.Property(entity => entity.WorkingHoursJson).HasColumnType("text");
         builder.Property(entity => entity.RolePageAccessJson).HasColumnType("text");
+        builder.Property(entity => entity.BelediyeKodu).HasMaxLength(32);
         ApplyLowerCaseColumnNames(builder);
     }
 
@@ -639,6 +645,35 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
             .WithMany()
             .HasForeignKey(entity => entity.ActivityTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureEDevletBasvuru(EntityTypeBuilder<EDevletBasvuru> builder)
+    {
+        builder.ToTable("edevletbasvurular");
+        builder.HasKey(entity => entity.BasvuruId);
+        builder.Property(entity => entity.TakipNo).HasMaxLength(64);
+        builder.Property(entity => entity.CitizenTcKimlikNo).HasMaxLength(11);
+        builder.Property(entity => entity.CitizenFirstName).HasMaxLength(100);
+        builder.Property(entity => entity.CitizenLastName).HasMaxLength(100);
+        builder.Property(entity => entity.BasvuruTipi).HasMaxLength(64);
+        builder.Property(entity => entity.Description).HasMaxLength(4000);
+        builder.Property(entity => entity.Status).HasConversion<string>().HasMaxLength(32);
+        builder.HasOne(entity => entity.Job)
+            .WithMany()
+            .HasForeignKey(entity => entity.JobId)
+            .OnDelete(DeleteBehavior.SetNull);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureEDevletBasvuruAttachment(EntityTypeBuilder<EDevletBasvuruAttachment> builder)
+    {
+        builder.ToTable("edevletbasvuruattachments");
+        builder.HasKey(entity => entity.AttachmentId);
+        builder.HasOne(entity => entity.Basvuru)
+            .WithMany(basvuru => basvuru.Attachments)
+            .HasForeignKey(entity => entity.BasvuruId)
+            .OnDelete(DeleteBehavior.Cascade);
         ApplyLowerCaseColumnNames(builder);
     }
 

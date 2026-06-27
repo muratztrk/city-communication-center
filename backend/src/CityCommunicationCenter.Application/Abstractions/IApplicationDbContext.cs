@@ -25,6 +25,7 @@ public interface IApplicationDbContext
     DbSet<UserDepartmentAssignment> UserDepartmentAssignments { get; }
     DbSet<EDevletActivityType> EDevletActivityTypes { get; }
     DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans { get; }
+    DbSet<EDevletBasvuru> EDevletBasvurular { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

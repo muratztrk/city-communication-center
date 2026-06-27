@@ -139,13 +139,13 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         var sourceType = Enum.TryParse<JobSourceType>(request.SourceType, true, out var st) ? st : JobSourceType.Manual;
         var requestType = Enum.TryParse<JobRequestType>(request.RequestType, true, out var rt)
             ? rt
-            : sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest
+            : sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet
                 ? JobRequestType.Citizen
                 : targets.Length > 0
                     ? JobRequestType.ExternalUnit
                     : JobRequestType.InternalUnit;
         var isCitizenRequest = requestType == JobRequestType.Citizen
-            || sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest;
+            || sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet;
         var requiresOwnerApproval = actor.RoleCode == RoleCode.Staff
             || (actor.RoleCode == RoleCode.Operator && !isCitizenRequest);
 

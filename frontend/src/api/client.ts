@@ -22,6 +22,7 @@ import type {
   TaskListScope,
   JobSummary,
   JobDetail,
+  EDevletBasvuruSummary,
   JobListScope,
   UpdateJobRequest,
   TenantAppearance,
@@ -1339,5 +1340,37 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.edevletDailyPlanDuplicateFailed', 'Faaliyet planı oluşturulamadı.'))
+  },
+
+  async getEDevletBasvurular(status?: string): Promise<EDevletBasvuruSummary[]> {
+    const query = status ? `?status=${encodeURIComponent(status)}` : ''
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/basvurular${query}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.edevletBasvurularLoadFailed', 'e-Devlet başvuruları yüklenemedi.'))
+    return response.json()
+  },
+
+  async convertEDevletBasvuruToJob(basvuruId: string, payload: {
+    title: string
+    description: string
+    ownerDepartmentId: string
+    priority: string
+    targetDepartmentIds?: string[]
+    dueDateUtc?: string | null
+    neighborhood?: string | null
+    street?: string | null
+    openAddress?: string | null
+    citizenName?: string | null
+    citizenPhone?: string | null
+  }): Promise<JobSummary> {
+    const response = await fetchWithCredentials(`${API_BASE}/edevlet/basvurular/${basvuruId}/convert-to-job`, {
+      method: 'POST',
+      headers: {
+        ...(await getAuthHeaders()),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.edevletBasvuruConvertFailed', 'e-Devlet başvurusu talebe dönüştürülemedi.'))
+    return response.json()
   },
 }

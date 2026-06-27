@@ -19,6 +19,7 @@ const JobsPage = lazy(() => import('../pages/JobsPage').then(module => ({ defaul
 const WallboardPage = lazy(() => import('../pages/WallboardPage').then(module => ({ default: module.WallboardPage })))
 const EDevletActivityPlanPage = lazy(() => import('../pages/EDevletActivityPlanPage').then(module => ({ default: module.EDevletActivityPlanPage })))
 const EDevletActivityPlansListPage = lazy(() => import('../pages/EDevletActivityPlansListPage').then(module => ({ default: module.EDevletActivityPlansListPage })))
+const EDevletBasvurularPage = lazy(() => import('../pages/EDevletBasvurularPage').then(module => ({ default: module.EDevletBasvurularPage })))
 const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(module => ({ default: module.RoutineTaskPage })))
 const WhatsAppConversationsPage = lazy(() => import('../pages/WhatsAppConversationsPage').then(module => ({ default: module.WhatsAppConversationsPage })))
 
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage /></PageAccessGate>} />
           <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlanPage /></PageAccessGate>} />
           <Route path="/edevlet/activity-plans" element={<PageAccessGate pageKey="edevletActivityPlansList" user={user}><EDevletActivityPlansListPage /></PageAccessGate>} />
+          <Route path="/edevlet/basvurular" element={<PageAccessGate pageKey="social" user={user}><EDevletBasvurularPage /></PageAccessGate>} />
           <Route path="/requests/new" element={<PageAccessGate pageKey="createRequest" user={user}><CreateRequestPage /></PageAccessGate>} />
           <Route path="/routine-tasks/new" element={<PageAccessGate pageKey="createRoutineTask" user={user}><RoutineTaskPage /></PageAccessGate>} />
           <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" user={user}><TasksPage fixedScope="mine" /></PageAccessGate>} />

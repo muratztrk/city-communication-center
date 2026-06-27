@@ -64,7 +64,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
 
         var canOperatorEditCitizenRequest = actor.RoleCode == RoleCode.Operator
             && job.RequestType == JobRequestType.ExternalUnit
-            && job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest
+            && job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet
             && (job.Status == JobStatus.PendingExternalApproval
                 || (job.Status == JobStatus.Active && !hasTasks));
 

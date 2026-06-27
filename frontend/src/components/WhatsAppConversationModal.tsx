@@ -30,6 +30,7 @@ export function WhatsAppConversationModal({
           citizenPhone={citizenPhone}
           headerMode="phone"
           onClose={onClose}
+          canReply={false}
         />
       </section>
     </div>,

@@ -233,9 +233,12 @@ function ConversationDetail({
 
   const loadDetail = useCallback(async () => {
     setLoading(true)
+    setDetail(null)
     try {
       const data = await api.getCitizenConversationDetail(conversationId)
       setDetail(data)
+    } catch {
+      setDetail(null)
     } finally {
       setLoading(false)
     }

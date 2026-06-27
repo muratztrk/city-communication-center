@@ -3,17 +3,57 @@ description: City Communication Center — shared project rules and regression g
 alwaysApply: true
 ---
 
-Follow the tool-agnostic project rules in these files (read them; do not duplicate):
+## Zorunlu çalışma akışı (her istekte)
 
-- `AGENTS.md` — build commands, CQRS/feature patterns, auth & tenant standards, and the
-  mandatory Trello card workflow + build/lint gate.
-- `docs/feature-invariants.md` — read the relevant section BEFORE changing code (the
-  "don't break X" rules); add new invariants here after a change introduces one.
-- `CLAUDE.md` — project overview/architecture (kept in sync with AGENTS.md).
+1. **Önce oku** — kod yazmadan / değiştirmeden önce ilgili kaynakları aç ve uygula.
+2. **Invariant kontrolü** — dokunacağın alanın `docs/feature-invariants.md` bölümünü oku.
+3. **Kod kaynağı** — doküman ile kod çelişirse **kod geçerlidir**; dokümanı güncelle.
+4. **Bittikten sonra** — yeni bir "bozulmamalı" kuralı öğrendiysen `feature-invariants.md`'ye ekle.
+5. **Doğrulama** — iş bitmeden önce build/lint yeşil olmalı (aşağıdaki komutlar).
 
-Reminders:
-- Backend validation/error messages in Turkish; frontend via i18n.
-- Run `dotnet build backend/CityCommunicationCenter.sln` + `cd frontend && npm run build && npm run lint` before "done".
-- ⚠️ Pushing `main` auto-deploys PRODUCTION; push both `main` and `master`.
+## Birincil kural setleri (her zaman geçerli)
 
-Trello tooling: `scripts/trello/` (poll / move / process + Cursor `run-agent.py`).
+- `AGENTS.md` — build komutları, CQRS/feature kalıpları, auth & tenant standartları, Trello kart akışı.
+- `CLAUDE.md` — proje özeti / mimari (AGENTS.md ile senkron).
+- `docs/feature-invariants.md` — "ne bozulmamalı" yaşayan kurallar (**koda başlamadan önce**).
+- `docs/README.md` — hangi dokümana ne zaman bakılacağının indeksi.
+
+## Yaşayan / regresyon kaynakları
+
+- `tasks/lessons.md` — geçmiş hatalar, kök nedenler.
+- `tasks/todo.md` — kart bazlı uygulama logu.
+- `plan.md` — aktif plan varsa kontrol et.
+
+## Alan bazlı referans dokümanlar (ilgiliyse oku)
+
+| Alan | Dosya |
+|---|---|
+| Mimari / teknik tasarım | `docs/technical-design.md` |
+| İş akışı | `docs/workflow-design.md`, `docs/current-task-flow.md` |
+| Veritabanı | `docs/database-design.md` |
+| Yetki | `docs/authorization-matrix.md` |
+| API entegrasyon | `docs/api-integration-guide.md` |
+| WhatsApp / sosyal | `docs/whatsapp-social-integration-guide.md` |
+| Auth / tenant | `docs/adaptive-auth-20260322.md` |
+| Deploy / prod | `docs/deployment-guide.md` |
+| Operasyon | `docs/operations-admin-guide.md` |
+| Sorun giderme | `docs/troubleshooting-guide.md` |
+| Kullanıcı kılavuzu (UI metinleri) | `docs/user-manual.md` |
+| Mobil raporlama | `docs/mobile-reporting-app/` |
+| E2E senaryolar | `tests/e2e/SCENARIOS.md`, `tests/e2e/FEATURES.md` |
+
+## Diğer agent / araç talimatları (ilgiliyse)
+
+- `.github/copilot-instructions.md`
+- `.github/instructions/frontend-e2e-sync.instructions.md`
+- `.github/agents/*.agent.md`
+- Trello: `scripts/trello/` + `.github/agents/trello-doing.agent.md`
+
+## Sabit hatırlatmalar
+
+- Backend validasyon/hata mesajları **Türkçe**; frontend **i18n**.
+- Türkçe arama/filtre: `toLocaleLowerCase('tr')`, `toLowerCase()` değil.
+- Modallar / dropdown / DateTimePicker: portal + stacking-context kuralları (`feature-invariants.md` §0).
+- Build kapısı: `dotnet build backend/CityCommunicationCenter.sln` + `cd frontend && npm run build && npm run lint`.
+- ⚠️ `main` push = **PRODUCTION auto-deploy** (yenitim.tire.bel.tr); hem `main` hem `master`'a push.
+- `frontend_old/` arşiv — kullanma.

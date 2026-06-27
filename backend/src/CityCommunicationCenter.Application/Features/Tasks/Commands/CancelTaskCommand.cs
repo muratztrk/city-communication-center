@@ -107,9 +107,9 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             if (newJobStatus == JobStatus.Completed)
-                await _whatsAppNotifier.NotifyJobCompletedAsync(tenantId, task.JobId, cancellationToken);
+                await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(tenantId, task.JobId, "Tamamlanmış", request.ActorUserId, cancellationToken);
             else if (newJobStatus == JobStatus.Cancelled)
-                await _whatsAppNotifier.NotifyJobCancelledAsync(tenantId, task.JobId, null, cancellationToken);
+                await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(tenantId, task.JobId, "İptal Edildi", request.ActorUserId, cancellationToken);
         }
 
         return true;

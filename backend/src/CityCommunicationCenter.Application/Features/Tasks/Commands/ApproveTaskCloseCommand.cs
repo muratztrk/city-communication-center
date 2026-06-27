@@ -77,9 +77,9 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         if (newJobStatus == Domain.Enums.JobStatus.Completed)
-            await _whatsAppNotifier.NotifyJobCompletedAsync(tenantId, task.JobId, cancellationToken);
+            await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(tenantId, task.JobId, "Tamamlanmış", request.ActorUserId, cancellationToken);
         else if (newJobStatus == Domain.Enums.JobStatus.Cancelled)
-            await _whatsAppNotifier.NotifyJobCancelledAsync(tenantId, task.JobId, null, cancellationToken);
+            await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(tenantId, task.JobId, "İptal Edildi", request.ActorUserId, cancellationToken);
 
         return true;
     }

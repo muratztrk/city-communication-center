@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
+using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
 using Microsoft.Extensions.Logging;
@@ -26,15 +27,20 @@ public sealed class WhatsAppJobNotifier : IWhatsAppJobNotifier
     }
 
     public Task NotifyJobActivatedAsync(Guid tenantId, Guid jobId, CancellationToken ct = default)
-        => NotifyAsync(tenantId, jobId, "Active", null, ct);
+        => NotifyCitizenRequestStatusChangedAsync(tenantId, jobId, "Yapılmakta", null, ct);
 
     public Task NotifyJobCompletedAsync(Guid tenantId, Guid jobId, CancellationToken ct = default)
-        => NotifyAsync(tenantId, jobId, "Completed", null, ct);
+        => NotifyCitizenRequestStatusChangedAsync(tenantId, jobId, "Tamamlanmış", null, ct);
 
     public Task NotifyJobCancelledAsync(Guid tenantId, Guid jobId, string? reason, CancellationToken ct = default)
-        => NotifyAsync(tenantId, jobId, "Cancelled", reason, ct);
+        => NotifyCitizenRequestStatusChangedAsync(tenantId, jobId, "İptal Edildi", null, ct);
 
-    private async Task NotifyAsync(Guid tenantId, Guid jobId, string eventType, string? reason, CancellationToken ct)
+    public async Task NotifyCitizenRequestStatusChangedAsync(
+        Guid tenantId,
+        Guid jobId,
+        string statusLabel,
+        Guid? actorUserId,
+        CancellationToken ct = default)
     {
         try
         {
@@ -44,21 +50,25 @@ public sealed class WhatsAppJobNotifier : IWhatsAppJobNotifier
             var job = await _dbContext.Jobs
                 .AsNoTracking()
                 .FirstOrDefaultAsync(j => j.JobId == jobId && j.TenantId == tenantId, ct);
-            if (job is null || string.IsNullOrWhiteSpace(job.CitizenPhone)) return;
+            if (job is null || !IsCitizenJob(job)) return;
+            if (string.IsNullOrWhiteSpace(job.CitizenPhone)) return;
 
-            var conversation = await _dbContext.CitizenConversations
-                .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.CitizenPhone == job.CitizenPhone, ct);
-            if (conversation is null) return;
+            var socialMessage = await ResolveSocialMessageAsync(tenantId, job, ct);
+            if (socialMessage is null) return;
 
-            var latestMessageId = await _dbContext.SocialMessages
-                .Where(m => m.TenantId == tenantId && m.CitizenConversationId == conversation.CitizenConversationId)
-                .OrderByDescending(m => m.CreatedAtUtc)
-                .Select(m => (Guid?)m.SocialMessageId)
-                .FirstOrDefaultAsync(ct);
-            if (latestMessageId is null) return;
+            var tenantName = await _dbContext.Tenants
+                .AsNoTracking()
+                .Where(t => t.TenantId == tenantId)
+                .Select(t => t.MunicipalityName)
+                .FirstOrDefaultAsync(ct) ?? "Belediye";
 
-            var text = BuildMessageText(job, eventType, reason);
-            if (text is null) return;
+            var actorLabel = await ResolveActorLabelAsync(tenantId, actorUserId, tenantName, ct);
+            var requestNumber = ConversationEntrySenderLabelHelper.FormatCitizenRequestNumber(
+                socialMessage.CitizenRequestNumber,
+                socialMessage.CitizenRequestNumberYear,
+                socialMessage.ReceivedAtUtc);
+
+            var text = $"{requestNumber} No'lu Talebinizin durumu \"{statusLabel}\" olarak güncellendi.";
 
             var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
             if (client is null) return;
@@ -66,42 +76,67 @@ public sealed class WhatsAppJobNotifier : IWhatsAppJobNotifier
             var sendResult = await client.SendMessageAsync(new SendMessageRequest
             {
                 RecipientId = job.CitizenPhone,
-                Message = text
+                Message = text,
             }, ct);
 
             _dbContext.ConversationEntries.Add(new SocialConversationEntry
             {
                 EntryId = Guid.NewGuid(),
-                SocialMessageId = latestMessageId.Value,
+                SocialMessageId = socialMessage.SocialMessageId,
                 Direction = ConversationEntryDirection.Outbound,
                 Content = text,
                 SentAt = DateTimeOffset.UtcNow,
-                ExternalEntryId = sendResult.Success ? sendResult.MessageId : null
+                ExternalEntryId = sendResult.Success ? sendResult.MessageId : null,
+                SenderLabel = actorLabel,
             });
 
             await _dbContext.SaveChangesAsync(ct);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "WhatsApp job notification failed for Job {JobId} ({EventType})", jobId, eventType);
+            _logger.LogError(ex, "WhatsApp citizen status notification failed for Job {JobId} ({StatusLabel})", jobId, statusLabel);
         }
     }
 
-    private static string? BuildMessageText(Job job, string eventType, string? reason)
-    {
-        var name = string.IsNullOrWhiteSpace(job.CitizenName) ? "Sayın vatandaş" : $"Sayın {job.CitizenName}";
-        var refPart = job.JobNumber.HasValue
-            ? $" (İş No: {job.JobNumberYear}/{job.JobNumber.Value:D4})"
-            : string.Empty;
+    private static bool IsCitizenJob(Job job)
+        => job.RequestType == JobRequestType.Citizen
+           || job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest;
 
-        return eventType switch
+    private async Task<SocialMessage?> ResolveSocialMessageAsync(Guid tenantId, Job job, CancellationToken ct)
+    {
+        if (job.SourceRefId.HasValue)
         {
-            "Active" => $"{name}, başvurunuz{refPart} alındı ve işleme konuldu.",
-            "Completed" => $"{name}, başvurunuz{refPart} tamamlandı. İlginiz için teşekkür ederiz.",
-            "Cancelled" when !string.IsNullOrWhiteSpace(reason) =>
-                $"{name}, başvurunuz{refPart} iptal edildi: {reason}",
-            "Cancelled" => $"{name}, başvurunuz{refPart} iptal edildi.",
-            _ => null
-        };
+            var bySource = await _dbContext.SocialMessages
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.TenantId == tenantId && m.SocialMessageId == job.SourceRefId.Value, ct);
+            if (bySource is not null) return bySource;
+        }
+
+        return await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => m.TenantId == tenantId && m.JobId == job.JobId)
+            .OrderByDescending(m => m.ReceivedAtUtc)
+            .FirstOrDefaultAsync(ct);
+    }
+
+    private async Task<string> ResolveActorLabelAsync(
+        Guid tenantId,
+        Guid? actorUserId,
+        string tenantName,
+        CancellationToken ct)
+    {
+        if (!actorUserId.HasValue)
+            return tenantName;
+
+        var actor = await _dbContext.Users
+            .AsNoTracking()
+            .Where(u => u.UserId == actorUserId.Value && u.TenantId == tenantId)
+            .Select(u => new { u.DisplayName, DepartmentName = u.Department != null ? u.Department.Name : null })
+            .FirstOrDefaultAsync(ct);
+
+        if (actor is null)
+            return tenantName;
+
+        return ConversationEntrySenderLabelHelper.FormatStaffLabel(actor.DepartmentName, actor.DisplayName);
     }
 }

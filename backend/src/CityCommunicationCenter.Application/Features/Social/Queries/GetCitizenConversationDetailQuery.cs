@@ -31,35 +31,59 @@ public sealed class GetCitizenConversationDetailQueryHandler
 
         if (conversation is null) return null;
 
-        // All SocialMessage IDs for this conversation
+        var tenantName = await _dbContext.Tenants
+            .AsNoTracking()
+            .Where(t => t.TenantId == tenantId)
+            .Select(t => t.MunicipalityName)
+            .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
+
+        var citizenPhoneLabel = ConversationEntrySenderLabelHelper.FormatCitizenPhone(
+            conversation.CitizenPhone,
+            conversation.CitizenPhone);
+
         var messageIds = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.CitizenConversationId == request.CitizenConversationId)
             .Select(m => m.SocialMessageId)
             .ToListAsync(cancellationToken);
 
-        // Full timeline: all entries across all SocialMessages, ordered chronologically
-        var timeline = await _dbContext.ConversationEntries
+        var rawTimeline = await _dbContext.ConversationEntries
             .AsNoTracking()
             .Where(e => messageIds.Contains(e.SocialMessageId))
             .OrderBy(e => e.SentAt)
-            .Select(e => new CitizenConversationTimelineEntryDto(
+            .Select(e => new
+            {
                 e.EntryId,
-                e.Direction.ToString(),
+                Direction = e.Direction.ToString(),
                 e.Content,
                 e.MediaId,
                 e.MediaMimeType,
                 e.SentAt,
-                e.SocialMessageId))
+                e.SocialMessageId,
+                e.SenderLabel,
+            })
             .ToListAsync(cancellationToken);
 
-        // Last inbound message time — used by frontend for 24h window check
+        var timeline = rawTimeline
+            .Select(e => new CitizenConversationTimelineEntryDto(
+                e.EntryId,
+                e.Direction,
+                e.Content,
+                e.MediaId,
+                e.MediaMimeType,
+                e.SentAt,
+                e.SocialMessageId,
+                e.SenderLabel
+                    ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
+                        ? citizenPhoneLabel
+                        : tenantName)))
+            .ToList();
+
         var lastInboundAt = timeline
             .Where(e => e.Direction == "Inbound")
             .Select(e => (DateTimeOffset?)e.SentAt)
             .LastOrDefault();
 
-        // Linked tickets (SocialMessages), ordered by creation
         var tickets = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.CitizenConversationId == request.CitizenConversationId)

@@ -1245,6 +1245,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("externalentryid");
 
+                    b.Property<string>("SenderLabel")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("senderlabel");
+
                     b.Property<string>("MediaId")
                         .HasColumnType("text")
                         .HasColumnName("mediaid");

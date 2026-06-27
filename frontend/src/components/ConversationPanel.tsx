@@ -10,6 +10,7 @@ import { Button } from './ui/button'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
 import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { getLocale } from '../utils/localization'
+import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
 interface ConversationPanelProps {
@@ -38,9 +39,14 @@ function EntryBubble({
   const { i18n } = useTranslation()
   const isInbound = entry.direction === 'Inbound'
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
+  const senderLabel = entry.senderLabel?.trim()
 
   return (
-    <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'}`}>
+    <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
+      {senderLabel ? (
+        <ConversationSenderHeader label={senderLabel} align={isInbound ? 'start' : 'end'} />
+      ) : null}
+      <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
       <div
         className={`max-w-[75%] rounded-2xl px-3.5 py-2.5 text-sm shadow-sm ${
           isInbound
@@ -71,6 +77,7 @@ function EntryBubble({
           <CalendarClock className="size-3 shrink-0" />
           {new Date(entry.sentAt).toLocaleString(getLocale(i18n.language), { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
         </p>
+      </div>
       </div>
     </div>
   )

@@ -153,7 +153,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     MediaId = msg.MediaId,
                     MediaMimeType = msg.MediaMimeType,
                     ExternalEntryId = msg.ExternalMessageId,
-                    SentAt = msg.ReceivedAtUtc
+                    SentAt = msg.ReceivedAtUtc,
+                    SenderLabel = ConversationEntrySenderLabelHelper.FormatCitizenPhone(
+                        citizenHandle,
+                        conversation.CitizenPhone),
                 });
 
                 pendingAutoReplies.Add(new PendingWhatsAppAutoReply(

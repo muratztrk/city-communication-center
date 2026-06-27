@@ -20,43 +20,67 @@ public sealed class GetSocialConversationQueryHandler
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
 
-        var messageExists = await _dbContext.SocialMessages
-            .AnyAsync(m => m.SocialMessageId == request.SocialMessageId && m.TenantId == tenantId, cancellationToken);
+        var message = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => m.SocialMessageId == request.SocialMessageId && m.TenantId == tenantId)
+            .Select(m => new
+            {
+                m.Content,
+                m.ReceivedAtUtc,
+                m.CitizenHandle,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (!messageExists) return [];
+        if (message is null) return [];
+
+        var citizenPhoneLabel = ConversationEntrySenderLabelHelper.FormatCitizenPhone(
+            message.CitizenHandle,
+            null);
+
+        var tenantName = await _dbContext.Tenants
+            .AsNoTracking()
+            .Where(t => t.TenantId == tenantId)
+            .Select(t => t.MunicipalityName)
+            .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
 
         var entries = await _dbContext.ConversationEntries
+            .AsNoTracking()
             .Where(e => e.SocialMessageId == request.SocialMessageId)
             .OrderBy(e => e.SentAt)
-            .Select(e => new SocialConversationEntryDto(
+            .Select(e => new
+            {
                 e.EntryId,
-                e.Direction.ToString(),
+                Direction = e.Direction.ToString(),
                 e.Content,
                 e.MediaId,
                 e.MediaMimeType,
-                e.SentAt))
+                e.SentAt,
+                e.SenderLabel,
+            })
             .ToListAsync(cancellationToken);
 
-        // Backward compat: if no entries exist, synthesise one from the parent message content.
-        if (entries.Count == 0)
+        if (entries.Count == 0 && !string.IsNullOrWhiteSpace(message.Content))
         {
-            var message = await _dbContext.SocialMessages
-                .Where(m => m.SocialMessageId == request.SocialMessageId)
-                .Select(m => new { m.Content, m.ReceivedAtUtc })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (message is not null && !string.IsNullOrWhiteSpace(message.Content))
-            {
-                return [new SocialConversationEntryDto(
-                    Guid.Empty,
-                    "Inbound",
-                    message.Content,
-                    null,
-                    null,
-                    message.ReceivedAtUtc)];
-            }
+            return [new SocialConversationEntryDto(
+                Guid.Empty,
+                "Inbound",
+                message.Content,
+                null,
+                null,
+                message.ReceivedAtUtc,
+                citizenPhoneLabel)];
         }
 
-        return entries;
+        return entries.Select(e => new SocialConversationEntryDto(
+            e.EntryId,
+            e.Direction,
+            e.Content,
+            e.MediaId,
+            e.MediaMimeType,
+            e.SentAt,
+            e.SenderLabel
+                ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
+                    ? citizenPhoneLabel
+                    : tenantName))).ToList();
     }
 }

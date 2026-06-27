@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Tasks;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -10,12 +11,18 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public ApproveJobTargetCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
+    public ApproveJobTargetCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ISlaCalculatorService slaCalculator,
+        IWhatsAppJobNotifier whatsAppNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(ApproveJobTargetCommand request, CancellationToken cancellationToken)
@@ -108,6 +115,16 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (shouldActivate
+            && job.Status == JobStatus.Active
+            && (job.RequestType == JobRequestType.Citizen
+                || job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest))
+        {
+            await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(
+                tenantId, job.JobId, "Yapılmakta", actor.UserId, cancellationToken);
+        }
+
         return true;
     }
 }

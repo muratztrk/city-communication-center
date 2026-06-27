@@ -163,7 +163,8 @@ public sealed record SocialConversationEntryDto(
     string Content,
     string? MediaId,
     string? MediaMimeType,
-    DateTimeOffset SentAt);
+    DateTimeOffset SentAt,
+    string? SenderLabel);
 
 public sealed record SocialReplyRequest(string Content);
 
@@ -196,7 +197,8 @@ public sealed record CitizenConversationTimelineEntryDto(
     string? MediaId,
     string? MediaMimeType,
     DateTimeOffset SentAt,
-    Guid SocialMessageId);
+    Guid SocialMessageId,
+    string? SenderLabel);
 
 public sealed record CitizenConversationTicketDto(
     Guid SocialMessageId,

@@ -109,7 +109,8 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        await _whatsAppNotifier.NotifyJobCancelledAsync(tenantId, job.JobId, request.Reason, cancellationToken);
+        await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(
+            tenantId, job.JobId, "İptal Edildi", actor.UserId, cancellationToken);
         return true;
     }
 }

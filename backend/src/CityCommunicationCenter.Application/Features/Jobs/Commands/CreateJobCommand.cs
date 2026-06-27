@@ -321,8 +321,15 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        if (job.Status == JobStatus.Active)
+        if (isCitizenRequest)
+        {
+            await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(
+                tenantId, job.JobId, "İşleme Alındı", context.UserId, cancellationToken);
+        }
+        else if (job.Status == JobStatus.Active)
+        {
             await _whatsAppNotifier.NotifyJobActivatedAsync(tenantId, job.JobId, cancellationToken);
+        }
 
         return await JobSummaryResponseFactory.CreateAsync(_dbContext, job, cancellationToken);
     }

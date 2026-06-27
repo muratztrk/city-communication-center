@@ -20,5 +20,8 @@ public sealed class SocialConversationEntry
     /// <summary>WhatsApp message ID (wamid.xxx) for deduplication.</summary>
     public string? ExternalEntryId { get; set; }
 
+    /// <summary>Display label above the message bubble (phone, staff dept/name, municipality).</summary>
+    public string? SenderLabel { get; set; }
+
     public SocialMessage SocialMessage { get; set; } = null!;
 }

@@ -129,7 +129,21 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        await _whatsAppNotifier.NotifyJobActivatedAsync(tenantId, job.JobId, cancellationToken);
+
+        if (job.RequestType == JobRequestType.Citizen
+            || job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest)
+        {
+            if (job.Status == JobStatus.Active)
+            {
+                await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(
+                    tenantId, job.JobId, "Yapılmakta", actor.UserId, cancellationToken);
+            }
+        }
+        else if (job.Status == JobStatus.Active)
+        {
+            await _whatsAppNotifier.NotifyJobActivatedAsync(tenantId, job.JobId, cancellationToken);
+        }
+
         return true;
     }
 }

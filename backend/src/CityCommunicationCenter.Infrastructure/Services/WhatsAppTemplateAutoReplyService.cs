@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using CityCommunicationCenter.Application.Features.Social;
+
 namespace CityCommunicationCenter.Infrastructure.Services;
 
 public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoReplyService
@@ -103,6 +105,12 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                         continue;
                     }
 
+                    var tenantName = await dbContext.Tenants
+                        .AsNoTracking()
+                        .Where(t => t.TenantId == tenantId)
+                        .Select(t => t.MunicipalityName)
+                        .FirstOrDefaultAsync(CancellationToken.None) ?? "Belediye";
+
                     dbContext.ConversationEntries.Add(new SocialConversationEntry
                     {
                         EntryId = Guid.NewGuid(),
@@ -111,6 +119,7 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                         Content = template.Content,
                         SentAt = DateTimeOffset.UtcNow,
                         ExternalEntryId = sendResult.MessageId,
+                        SenderLabel = tenantName,
                     });
 
                     var message = await dbContext.SocialMessages

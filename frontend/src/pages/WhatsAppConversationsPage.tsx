@@ -17,6 +17,7 @@ import type {
 import { getLocale } from '../utils/localization'
 import { SocialConversationMediaBubble } from '../components/SocialConversationMediaBubble'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
+import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
 import { formatBracketContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -86,9 +87,14 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
   const isInbound = entry.direction === 'Inbound'
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
+  const senderLabel = entry.senderLabel?.trim()
 
   return (
-    <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'}`}>
+    <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
+      {senderLabel ? (
+        <ConversationSenderHeader label={senderLabel} align={isInbound ? 'start' : 'end'} />
+      ) : null}
+      <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
       <div
         className={`max-w-[75%] rounded-2xl px-3.5 py-2.5 text-sm shadow-sm ${
           isInbound
@@ -117,6 +123,7 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
           <CalendarClock className="size-3 shrink-0" />
           {new Date(entry.sentAt).toLocaleString(locale, { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
         </p>
+      </div>
       </div>
     </div>
   )

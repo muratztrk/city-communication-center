@@ -343,6 +343,7 @@ export interface SocialConversationEntry {
   mediaId: string | null;
   mediaMimeType: string | null;
   sentAt: string;
+  senderLabel?: string | null;
 }
 
 export interface SocialMessage {
@@ -385,6 +386,7 @@ export interface CitizenConversationTimelineEntry {
   mediaMimeType: string | null;
   sentAt: string;
   socialMessageId: string;
+  senderLabel?: string | null;
 }
 
 export interface CitizenConversationTicket {

@@ -1,0 +1,20 @@
+interface ConversationSenderHeaderProps {
+  label: string
+  align: 'start' | 'end'
+}
+
+export function ConversationSenderHeader({ label, align }: ConversationSenderHeaderProps) {
+  return (
+    <div className={`mb-1 flex ${align === 'start' ? 'justify-start' : 'justify-end'}`}>
+      <span
+        className={`inline-flex max-w-[85%] items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+          align === 'start'
+            ? 'bg-white/90 text-slate-600 ring-1 ring-slate-200/80'
+            : 'bg-[#007985]/15 text-[#007985] ring-1 ring-[#007985]/20'
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  )
+}

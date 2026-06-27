@@ -465,6 +465,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.ToTable("socialconversationentries");
         builder.HasKey(e => e.EntryId);
         builder.Property(e => e.Direction).HasConversion<string>();
+        builder.Property(e => e.SenderLabel).HasMaxLength(200);
         builder.HasOne(e => e.SocialMessage)
             .WithMany()
             .HasForeignKey(e => e.SocialMessageId)

@@ -10,11 +10,28 @@ export function PwaRefreshPrompt() {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
-  } = useRegisterSW()
+  } = useRegisterSW({
+    onRegisteredSW(_swUrl, registration) {
+      if (registration) {
+        void registration.update()
+      }
+    },
+  })
+
+  useEffect(() => {
+    if (import.meta.env.DEV) return
+    const intervalId = window.setInterval(() => {
+      void navigator.serviceWorker?.getRegistration().then(registration => {
+        void registration?.update()
+      })
+    }, 5 * 60 * 1000)
+    return () => window.clearInterval(intervalId)
+  }, [])
 
   useEffect(() => {
     if (import.meta.env.DEV || !needRefresh) return
     void updateServiceWorker(true)
+    window.location.reload()
   }, [needRefresh, updateServiceWorker])
 
   if (import.meta.env.DEV || !needRefresh || location.pathname === '/login') {

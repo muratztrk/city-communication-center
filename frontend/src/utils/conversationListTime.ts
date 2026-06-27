@@ -19,9 +19,9 @@ export function formatConversationListTime(dateStr: string, locale: string, t: T
   const diffMin = Math.floor((now.getTime() - date.getTime()) / 60000)
   if (sameDay(date, now)) {
     if (diffMin < 1) return locale.startsWith('tr') ? 'şimdi' : 'now'
-    if (diffMin < 60) return locale.startsWith('tr') ? `${diffMin}d önce` : `${diffMin}m ago`
+    if (diffMin < 60) return locale.startsWith('tr') ? `${diffMin} dk önce` : `${diffMin}m ago`
     const diffH = Math.floor(diffMin / 60)
-    if (diffH < 24) return locale.startsWith('tr') ? `${diffH}s önce` : `${diffH}h ago`
+    if (diffH < 24) return locale.startsWith('tr') ? `${diffH} sa önce` : `${diffH}h ago`
     return t('common.today', 'Bugün')
   }
 

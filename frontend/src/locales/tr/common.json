@@ -620,7 +620,8 @@
       "dueDate": "Son Tarih",
       "actions": "İşlemler",
       "parentRequestNo": "Bağlı Olduğu Talep No",
-      "routineNoParentRequest": "Rutin görev Talep No olmaz"
+      "routineNoParentRequest": "Rutin görev Talep No olmaz",
+      "completionNote": "Görev Tamamlama Notu"
     },
     "new": "+ Yeni İş",
     "newCancel": "ptal",

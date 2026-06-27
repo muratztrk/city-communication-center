@@ -53,7 +53,9 @@ internal static class TaskSummaryResponseFactory
             ownerDepartmentName,
             task.CompletedAtUtc,
             task.UpdatedAtUtc,
-            AssignedAtUtc: task.AssignedAtUtc);
+            AssignedAtUtc: task.AssignedAtUtc,
+            Notes: task.Notes,
+            Description: task.Description);
     }
 
     private static Task<string?> GetDepartmentNameAsync(

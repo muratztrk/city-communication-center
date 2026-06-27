@@ -203,7 +203,9 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                         && approval.Decision != ApprovalDecision.Pending)
                     .OrderByDescending(approval => approval.DecisionDateUtc)
                     .Select(approval => (string?)approval.Decision.ToString())
-                    .FirstOrDefault()))
+                    .FirstOrDefault(),
+                task.Notes,
+                task.Description))
             .ToListAsync(cancellationToken);
     }
 

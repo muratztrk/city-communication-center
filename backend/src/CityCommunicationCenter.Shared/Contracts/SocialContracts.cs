@@ -212,7 +212,12 @@ public sealed record CitizenConversationTicketDto(
     string Status,
     DateTimeOffset ReceivedAtUtc,
     Guid? JobId,
-    string? Category);
+    string? Category,
+    int? CitizenRequestNumber,
+    int? CitizenRequestNumberYear,
+    string? Priority,
+    int? JobNumber,
+    int? JobNumberYear);
 
 public sealed record WhatsAppMessageTemplateDto(
     Guid TemplateId,

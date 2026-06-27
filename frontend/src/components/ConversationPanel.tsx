@@ -2,19 +2,14 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2, MessageCircle, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import type { SocialConversationEntry } from '../types/platform'
 import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
-import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
+import { ConversationEntryBubble } from './ConversationEntryBubble'
 import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
-import { formatConversationSenderLabel } from '../utils/formatConversationSenderLabel'
-import { ConversationSenderHeader } from './ConversationSenderHeader'
-import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
-import { WhatsAppDeliveryStatusIndicator } from './WhatsAppDeliveryStatusIndicator'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -41,74 +36,6 @@ function DateDivider({ label }: { label: string }) {
       <span className="rounded-full bg-black/25 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-sm">
         {label}
       </span>
-    </div>
-  )
-}
-
-function EntryBubble({
-  entry,
-  socialMessageId,
-  citizenPhone,
-  onAddMediaAsAttachment,
-}: {
-  entry: SocialConversationEntry
-  socialMessageId: string
-  citizenPhone?: string | null
-  onAddMediaAsAttachment?: (file: File) => void
-}) {
-  const { i18n } = useTranslation()
-  const isInbound = entry.direction === 'Inbound'
-  const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
-  const locale = getLocale(i18n.language)
-  const senderLabel = formatConversationSenderLabel(entry.senderLabel)
-  const sentTime = new Date(entry.sentAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-
-  return (
-    <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
-      <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
-        <div
-          className={`max-w-[72%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-md ${
-            isInbound
-              ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
-              : 'text-white rounded-tr-sm ring-1 ring-white/10'
-          }`}
-          style={isInbound ? undefined : { background: 'color-mix(in srgb, var(--color-primary) 82%, #000)' }}
-        >
-          {!isInbound && senderLabel ? (
-            <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" />
-          ) : null}
-          {hasMedia && (
-            <div className="mb-1.5">
-              <SocialConversationMediaBubble
-                key={`${socialMessageId}-${entry.entryId}`}
-                socialMessageId={socialMessageId}
-                entryId={entry.entryId}
-                mediaMimeType={entry.mediaMimeType}
-                direction={entry.direction}
-                citizenPhone={citizenPhone}
-                onAddAsAttachment={onAddMediaAsAttachment}
-              />
-            </div>
-          )}
-          {entry.content && !isPlaceholderBracketContent(entry.content) && (
-            <p className="whitespace-pre-wrap break-words leading-snug">{formatConversationDisplayContent(entry.content)}</p>
-          )}
-          {isPlaceholderBracketContent(entry.content) && !hasMedia && (
-            <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
-          )}
-          <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
-            {!isInbound && entry.deliveryStatus ? (
-              <WhatsAppDeliveryStatusIndicator
-                status={entry.deliveryStatus}
-                error={entry.deliveryError}
-                variant="dark"
-              />
-            ) : null}
-            {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
-            <span>{sentTime}</span>
-          </p>
-        </div>
-      </div>
     </div>
   )
 }
@@ -202,7 +129,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             return (
               <Fragment key={entry.entryId || i}>
                 {showDivider && <DateDivider label={dayLabel(entry.sentAt)} />}
-                <EntryBubble
+                <ConversationEntryBubble
                   entry={entry}
                   socialMessageId={socialMessageId}
                   citizenPhone={citizenPhone}

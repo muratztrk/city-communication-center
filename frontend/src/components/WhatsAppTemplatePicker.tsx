@@ -7,6 +7,7 @@ import { Button } from './ui/button'
 interface WhatsAppTemplatePickerProps {
   templates: WhatsAppMessageTemplate[]
   onSelect: (content: string) => void
+  tone?: 'default' | 'on-dark'
 }
 
 function computeMenuStyle(button: HTMLDivElement, itemCount: number) {
@@ -21,7 +22,7 @@ function computeMenuStyle(button: HTMLDivElement, itemCount: number) {
   }
 }
 
-export function WhatsAppTemplatePicker({ templates, onSelect }: WhatsAppTemplatePickerProps) {
+export function WhatsAppTemplatePicker({ templates, onSelect, tone = 'default' }: WhatsAppTemplatePickerProps) {
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -95,17 +96,23 @@ export function WhatsAppTemplatePicker({ templates, onSelect }: WhatsAppTemplate
     document.body,
   ) : null
 
+  const isOnDark = tone === 'on-dark'
+
   return (
     <div className="relative shrink-0" ref={buttonRef}>
       <Button
         type="button"
         size="sm"
-        variant="secondary"
+        variant={isOnDark ? 'ghost' : 'secondary'}
         onClick={toggleOpen}
-        className="h-9 gap-1"
+        className={
+          isOnDark
+            ? 'h-9 gap-1.5 rounded-full border border-white/30 bg-transparent px-4 text-white hover:bg-white/10 hover:text-white'
+            : 'h-9 gap-1'
+        }
       >
         <FileText className="size-3.5" />
-        Şablon Mesajlar
+        Şablon mesajlar
         <ChevronDown className={`size-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </Button>
       {menu}

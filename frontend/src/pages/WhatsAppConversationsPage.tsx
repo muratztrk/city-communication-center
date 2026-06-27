@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState, useCallback, Fragment } from 'react'
-import { AlertCircle, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
+import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
+import { AlertCircle, Link2, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
@@ -17,12 +16,10 @@ import type {
 import { getLocale } from '../utils/localization'
 import { formatConversationListTime } from '../utils/conversationListTime'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
-import { formatConversationSenderLabel } from '../utils/formatConversationSenderLabel'
-import { SocialConversationMediaBubble } from '../components/SocialConversationMediaBubble'
+import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
-import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
-import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
-import { WhatsAppDeliveryStatusIndicator } from '../components/WhatsAppDeliveryStatusIndicator'
+import { formatConversationDisplayContent } from '../utils/socialConversationContent'
+import { formatWhatsAppTicketLabel, isUrgentConversationPriority } from '../utils/whatsappConversationTicket'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -88,64 +85,6 @@ function findClosestTimelineEntryIndex(
     }
   }
   return bestIndex
-}
-
-// ─── timeline entry bubble ───────────────────────────────────────────────────
-
-function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
-  const { i18n } = useTranslation()
-  const isInbound = entry.direction === 'Inbound'
-  const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
-  const locale = getLocale(i18n.language)
-  const senderLabel = formatConversationSenderLabel(entry.senderLabel)
-  const sentTime = new Date(entry.sentAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-
-  return (
-    <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
-      <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
-        <div
-          className={`max-w-[72%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-md ${
-            isInbound
-              ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
-              : 'text-white rounded-tr-sm ring-1 ring-white/10'
-          }`}
-          style={isInbound ? undefined : { background: 'color-mix(in srgb, var(--color-primary) 82%, #000)' }}
-        >
-          {!isInbound && senderLabel ? (
-            <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" />
-          ) : null}
-          {hasMedia && (
-            <div className="mb-1.5">
-              <SocialConversationMediaBubble
-                key={`${entry.socialMessageId}-${entry.entryId}`}
-                socialMessageId={entry.socialMessageId}
-                entryId={entry.entryId}
-                mediaMimeType={entry.mediaMimeType}
-                direction={entry.direction}
-              />
-            </div>
-          )}
-          {entry.content && !isPlaceholderBracketContent(entry.content) && (
-            <p className="whitespace-pre-wrap break-words leading-snug">{formatConversationDisplayContent(entry.content)}</p>
-          )}
-          {isPlaceholderBracketContent(entry.content) && !hasMedia && (
-            <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
-          )}
-          <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
-            {!isInbound && entry.deliveryStatus ? (
-              <WhatsAppDeliveryStatusIndicator
-                status={entry.deliveryStatus}
-                error={entry.deliveryError}
-                variant="dark"
-              />
-            ) : null}
-            {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
-            <span>{sentTime}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 // ─── left panel: conversation list item ──────────────────────────────────────
@@ -246,12 +185,17 @@ function ConversationDetail({
   onOpenViewRequests: (citizenPhone: string) => void
 }) {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const locale = getLocale(i18n.language)
   const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
+  const [chatSearch, setChatSearch] = useState('')
+  const [showChatSearch, setShowChatSearch] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   const [highlightEntryIndex, setHighlightEntryIndex] = useState<number | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const entryRefs = useRef<Map<number, HTMLDivElement>>(new Map())
@@ -321,6 +265,17 @@ function ConversationDetail({
     }
   }, [anchorAtUtc, anchorSocialMessageId, detail, loading])
 
+  useEffect(() => {
+    if (!menuOpen) return
+    const onPointerDown = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    return () => document.removeEventListener('mousedown', onPointerDown)
+  }, [menuOpen])
+
   const handleSend = async () => {
     const text = replyText.trim()
     if (!text || sending || !detail) return
@@ -345,53 +300,145 @@ function ConversationDetail({
   const openTicket = detail?.tickets.slice().reverse().find(t => t.status !== 'Closed')
   const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
+  const activeTemplates = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
 
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
   const headerInitials = citizenName ? getInitials(citizenName) : null
+  const ticketLabel = formatWhatsAppTicketLabel(primaryTicket)
+  const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
+  const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
+  const visibleTimeline = useMemo(() => {
+    if (!detail) return []
+    if (!normalizedChatSearch) return detail.timeline
+    return detail.timeline.filter(entry =>
+      formatConversationDisplayContent(entry.content).toLocaleLowerCase('tr').includes(normalizedChatSearch)
+      || (entry.senderLabel ?? '').toLocaleLowerCase('tr').includes(normalizedChatSearch),
+    )
+  }, [detail, normalizedChatSearch])
+
+  const handleLinkTicket = () => {
+    if (primaryTicket?.jobId) {
+      navigate(`/jobs?jobId=${encodeURIComponent(primaryTicket.jobId)}`)
+      return
+    }
+    if (primaryTicket) {
+      onOpenCreateRequest(primaryTicket.socialMessageId)
+    }
+  }
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
-      {/* Header — markaya göre temalanır (yeşil/mavi) */}
-      <div className="flex items-center gap-3 px-4 py-3 shrink-0 text-white" style={{ backgroundColor: 'var(--color-header-from)' }}>
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: 'var(--color-header-from)' }}>
+    <div className="flex h-full flex-col text-white" style={{ backgroundColor: 'var(--color-header-from)' }}>
+      <header className="flex shrink-0 items-start gap-3 border-b border-white/10 px-4 py-3">
+        <div
+          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold"
+          style={{ color: 'var(--color-header-from)' }}
+        >
           {headerInitials ?? <MessageCircle className="size-5" />}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-semibold leading-tight">{headerTitle}</p>
-          {citizenName && phoneForHeader ? (
-            <p className="truncate text-xs text-white/65">{formatPhone(phoneForHeader)}</p>
-          ) : (
-            <p className="text-xs text-white/65">{t('whatsapp.title', 'WhatsApp')}</p>
-          )}
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate text-[15px] font-semibold leading-tight">{headerTitle}</p>
+            {showUrgentBadge ? (
+              <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
+                ACİL
+              </span>
+            ) : null}
+          </div>
+          <p className="truncate text-xs text-white/70">
+            {phoneForHeader ? formatPhone(phoneForHeader) : t('whatsapp.title', 'WhatsApp')}
+            {ticketLabel ? ` · ${ticketLabel}` : ''}
+          </p>
         </div>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-            windowOpen ? 'bg-white/15 text-white' : 'bg-amber-400/20 text-amber-100'
-          }`}
-        >
-          <span className={`size-2 rounded-full ${windowOpen ? 'bg-emerald-300' : 'bg-amber-300'}`} />
-          {windowOpen ? '24s pencere açık' : 'Pencere kapalı'}
-        </span>
-      </div>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {primaryTicket ? (
+            <button
+              type="button"
+              onClick={handleLinkTicket}
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-white/25 px-3 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              <Link2 className="size-3.5" />
+              {primaryTicket.jobId ? t('whatsapp.openLinkedRequest', 'Talebe git') : t('whatsapp.linkToRequest', 'Talebe bağla')}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            aria-label={t('common.search', 'Ara')}
+            onClick={() => setShowChatSearch(current => !current)}
+            className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <Search className="size-4" />
+          </button>
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              aria-label={t('common.more', 'Diğer')}
+              onClick={() => setMenuOpen(current => !current)}
+              className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <MoreVertical className="size-4" />
+            </button>
+            {menuOpen ? (
+              <div className="absolute right-0 top-full z-20 mt-1 min-w-[12rem] overflow-hidden rounded-xl border border-white/10 bg-[#0f3d2d] py-1 shadow-xl">
+                {primaryTicket ? (
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 text-left text-sm text-white/90 hover:bg-white/10"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      onOpenCreateRequest(primaryTicket.socialMessageId)
+                    }}
+                  >
+                    {t('nav.createRequest', 'Talep oluştur')}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="block w-full px-3 py-2 text-left text-sm text-white/90 hover:bg-white/10"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    if (detail) onOpenViewRequests(detail.citizenPhone)
+                  }}
+                >
+                  {t('whatsapp.viewRequestsByNumber', 'Numaranın talepleri')}
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </header>
 
-      {/* Timeline */}
+      {showChatSearch ? (
+        <div className="shrink-0 border-b border-white/10 px-4 py-2">
+          <input
+            type="search"
+            value={chatSearch}
+            onChange={event => setChatSearch(event.target.value)}
+            placeholder={t('whatsapp.searchInConversation', 'Konuşmada ara…')}
+            className="w-full rounded-xl border border-white/15 bg-black/15 px-3 py-2 text-sm text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-white/20"
+          />
+        </div>
+      ) : null}
+
       <div
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 min-h-0"
-        style={{ background: 'linear-gradient(165deg, var(--color-header-from), var(--color-header-to))' }}
+        className="min-h-0 flex-1 overflow-y-auto space-y-2.5 px-4 py-4"
+        style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-header-from) 88%, #000), color-mix(in srgb, var(--color-header-to) 92%, #000))' }}
       >
         {loading ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex h-full items-center justify-center">
             <Loader2 className="size-5 animate-spin text-white/80" />
           </div>
-        ) : !detail || detail.timeline.length === 0 ? (
-          <p className="text-center text-sm text-white/70 mt-8">{t('social.noMessages', 'Henüz mesaj yok')}</p>
+        ) : !detail || visibleTimeline.length === 0 ? (
+          <p className="mt-8 text-center text-sm text-white/70">
+            {normalizedChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
+          </p>
         ) : (
-          detail.timeline.map((entry, index) => {
-            const showDivider = index === 0 || !conversationSameDay(entry.sentAt, detail.timeline[index - 1].sentAt)
+          visibleTimeline.map((entry, index) => {
+            const previousEntry = index > 0 ? visibleTimeline[index - 1] : null
+            const showDivider = index === 0 || (previousEntry && !conversationSameDay(entry.sentAt, previousEntry.sentAt))
             return (
               <Fragment key={entry.entryId || index}>
-                {showDivider && <DateDivider label={dayLabel(entry.sentAt)} />}
+                {showDivider ? <DateDivider label={dayLabel(entry.sentAt)} /> : null}
                 <div
                   ref={element => {
                     if (element) entryRefs.current.set(index, element)
@@ -399,7 +446,7 @@ function ConversationDetail({
                   }}
                   className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-white/90 ring-offset-2 ring-offset-transparent transition-shadow' : undefined}
                 >
-                  <EntryBubble entry={entry} />
+                  <ConversationEntryBubble entry={entry} />
                 </div>
               </Fragment>
             )
@@ -408,50 +455,31 @@ function ConversationDetail({
         <div ref={bottomRef} />
       </div>
 
-      {/* Linked ticket actions */}
-      {detail && primaryTicket && (
-        <div className="shrink-0 px-4 py-3.5 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] space-y-2.5">
-          <div className="flex items-center justify-between gap-3 min-w-0">
-            <p className="text-sm font-bold text-[color:var(--color-muted-foreground)] shrink-0 underline underline-offset-4 decoration-[color:var(--color-muted-foreground)]">
-              {t('whatsapp.tickets')}
-            </p>
-            {openTicket && !windowOpen ? (
-              <div className="ml-auto flex items-center justify-end gap-1.5 text-[11px] font-semibold text-right text-amber-700">
-                <AlertCircle className="size-3.5 shrink-0" /> 24 saatlik pencere kapalı — yalnızca şablon gönderilebilir
-              </div>
-            ) : null}
-          </div>
+      {openTicket ? (
+        <footer className="shrink-0 space-y-3 border-t border-white/10 px-4 py-3">
+          {!windowOpen ? (
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-200">
+              <AlertCircle className="size-3.5 shrink-0" />
+              24 saatlik pencere kapalı — yalnızca şablon gönderilebilir
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              size="sm"
+            <button
               type="button"
-              variant="success"
-              onClick={() => onOpenCreateRequest(primaryTicket.socialMessageId)}
+              onClick={() => onOpenCreateRequest(primaryTicket!.socialMessageId)}
+              className="inline-flex h-9 items-center rounded-full border border-white/30 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
-              {t('nav.createRequest', 'Talep Oluştur')}
-            </Button>
-            <Button
-              size="sm"
-              type="button"
-              variant="secondary"
-              onClick={() => onOpenViewRequests(detail.citizenPhone)}
-            >
-              {t('whatsapp.viewRequestsByNumber', 'Numaranın Oluşturduğu Talepler')}
-            </Button>
+              {t('nav.createRequest', 'Talep oluştur')}
+            </button>
             <WhatsAppTemplatePicker
               templates={templates}
+              tone="on-dark"
               onSelect={content => setReplyText(content)}
             />
           </div>
-        </div>
-      )}
-
-      {/* Reply input */}
-      {openTicket ? (
-        <div className="shrink-0 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
-          <div className="flex items-end gap-2 px-3 pt-3 pb-3">
+          <div className="flex items-end gap-2">
             <textarea
-              rows={3}
+              rows={2}
               value={replyText}
               onChange={e => setReplyText(e.target.value)}
               onKeyDown={e => {
@@ -460,29 +488,25 @@ function ConversationDetail({
                   void handleSend()
                 }
               }}
-              placeholder={windowOpen ? t('whatsapp.replyPlaceholder') : 'Şablon seçin…'}
-              disabled={!windowOpen && templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp')).length === 0}
-              className="field-input flex-1 resize-none min-h-[4.5rem] max-h-28 py-2 text-base disabled:opacity-50"
+              placeholder={windowOpen ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
+              disabled={!windowOpen && activeTemplates.length === 0}
+              className="min-h-[3.25rem] max-h-28 flex-1 resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-white/15 disabled:opacity-50"
             />
-            <Button
-              size="sm"
+            <button
+              type="button"
+              aria-label={t('common.send', 'Gönder')}
               onClick={() => void handleSend()}
               disabled={!replyText.trim() || sending}
-              className="shrink-0 self-end"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-[color:var(--color-header-from)] shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-            </Button>
+            </button>
           </div>
-          {!windowOpen ? (
-            <div className="px-3 pb-2">
-              <span className="text-[11px] text-amber-600 font-medium">Yalnızca şablon gönderilebilir</span>
-            </div>
-          ) : null}
-        </div>
+        </footer>
       ) : (
-        <div className="px-4 py-3 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] shrink-0">
-          <p className="text-xs text-[color:var(--color-muted-foreground)] text-center">{t('whatsapp.noTickets')}</p>
-        </div>
+        <footer className="shrink-0 border-t border-white/10 px-4 py-4 text-center text-xs text-white/65">
+          {t('whatsapp.noTickets')}
+        </footer>
       )}
     </div>
   )

@@ -399,6 +399,11 @@ export interface CitizenConversationTicket {
   receivedAtUtc: string;
   jobId: string | null;
   category: string | null;
+  citizenRequestNumber?: number | null;
+  citizenRequestNumberYear?: number | null;
+  priority?: string | null;
+  jobNumber?: number | null;
+  jobNumberYear?: number | null;
 }
 
 export interface CitizenConversationDetail {

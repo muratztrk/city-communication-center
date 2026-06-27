@@ -97,7 +97,12 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 m.Status.ToString(),
                 m.ReceivedAtUtc,
                 m.JobId,
-                m.Category))
+                m.Category,
+                m.CitizenRequestNumber,
+                m.CitizenRequestNumberYear,
+                m.Job != null ? m.Job.Priority : null,
+                m.Job != null ? m.Job.JobNumber : null,
+                m.Job != null ? m.Job.JobNumberYear : null))
             .ToListAsync(cancellationToken);
 
         return new CitizenConversationDetailDto(

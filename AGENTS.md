@@ -377,6 +377,24 @@ private static TEnum ParseEnum<TEnum>(string value) where TEnum : struct, Enum
 ✅ tests/e2e npm test
 ```
 
+## Kart İş Akışı ve Doğrulama Kapısı (ZORUNLU)
+
+Trello kartlarını yaparken eskiyi bozmamak için her kart şu döngüden geçer:
+
+1. **Önce oku:** Koda dokunmadan, dokunacağın alanın bölümünü
+   [`docs/feature-invariants.md`](docs/feature-invariants.md)'den oku. Doc indeksi:
+   [`docs/README.md`](docs/README.md).
+2. **Uygula:** Kartı, o alandaki invariant'ları bozmadan gerçekleştir. Belirsizse
+   (tek-satır/çelişkili kart, görsel gerektiren) **koda başlamadan netleştir**.
+3. **Doğrulama kapısı (push'tan ÖNCE, atlanamaz):**
+   - Backend dokunulduysa: `dotnet build backend/CityCommunicationCenter.sln` → **yeşil**.
+   - Frontend dokunulduysa: `cd frontend && npm run build && npm run lint` → **yeşil**
+     (mevcut, ilgisiz JobsPage hook uyarısı kabul edilebilir).
+   - Yeşil değilse **push etme**. Demo seed yok → runtime E2E yerine kod + build + (varsa) görsel.
+4. **Sonra güncelle:** Yeni öğrendiğin bir "bozulabilir kural"ı `feature-invariants.md`'ye
+   tek satır ekle; kartı `tasks/todo.md`'ye işle.
+5. **Push:** `main` **ve** `master`'a. ⚠️ `main` = PRODUCTION auto-deploy (gerçek Tire verisi).
+
 ## Git Workflow
 
 - Commit after completing logical units of work

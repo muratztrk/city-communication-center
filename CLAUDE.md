@@ -153,6 +153,7 @@ Only runs when `SeedData:EnableDemoData=true`. Enabled in development config; of
 ---
 
 ## Important notes
+- **Before implementing a Trello card, read [`docs/feature-invariants.md`](docs/feature-invariants.md)** (the "don't break X" rules) and follow the mandatory card workflow + build/lint gate in [`AGENTS.md`](AGENTS.md). Doc index: [`docs/README.md`](docs/README.md).
 - `frontend_old/` is archival — do not use for builds or edits
 - CORS in production requires `Cors:AllowedOrigins` to be set; dev allows all origins
 - `ForwardedHeaders:AllowUntrustedForwardedHeaders=true` is only permitted in Development

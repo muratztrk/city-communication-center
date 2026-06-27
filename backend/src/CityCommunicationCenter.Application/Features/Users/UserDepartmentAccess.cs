@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace CityCommunicationCenter.Application.Features.Users;
 
 internal static class UserDepartmentAccess
@@ -34,6 +36,20 @@ internal static class UserDepartmentAccess
             foreach (var id in managedIds)
             {
                 ids.Add(id);
+            }
+        }
+
+        var responsibleDepartments = await dbContext.Departments
+            .AsNoTracking()
+            .Where(entity => entity.TenantId == tenantId)
+            .Select(entity => new { entity.DepartmentId, entity.ResponsibleUserIdsJson })
+            .ToListAsync(cancellationToken);
+
+        foreach (var department in responsibleDepartments)
+        {
+            if (ParseResponsibleUserIds(department.ResponsibleUserIdsJson).Contains(user.UserId))
+            {
+                ids.Add(department.DepartmentId);
             }
         }
 
@@ -224,6 +240,58 @@ internal static class UserDepartmentAccess
                 CreatedAtUtc = utcNow,
                 CreatedByUserId = actorUserId,
             });
+        }
+    }
+
+    public static async Task<HashSet<Guid>> GetStaffUserIdsForDepartmentsAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        IEnumerable<Guid> departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var departmentIdArray = departmentIds.Distinct().ToArray();
+        if (departmentIdArray.Length == 0)
+        {
+            return [];
+        }
+
+        var primaryStaffIds = await dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.TenantId == tenantId
+                && user.IsActive
+                && user.RoleCode == RoleCode.Staff
+                && departmentIdArray.Contains(user.DepartmentId))
+            .Select(user => user.UserId)
+            .ToListAsync(cancellationToken);
+
+        var additionalStaffIds = await dbContext.UserDepartmentAssignments
+            .AsNoTracking()
+            .Where(assignment => assignment.TenantId == tenantId
+                && departmentIdArray.Contains(assignment.DepartmentId)
+                && dbContext.Users.Any(user => user.UserId == assignment.UserId
+                    && user.TenantId == tenantId
+                    && user.IsActive
+                    && user.RoleCode == RoleCode.Staff))
+            .Select(assignment => assignment.UserId)
+            .ToListAsync(cancellationToken);
+
+        return primaryStaffIds.Concat(additionalStaffIds).ToHashSet();
+    }
+
+    private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return [];
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<Guid[]>(json) ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
         }
     }
 }

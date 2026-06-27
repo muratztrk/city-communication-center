@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, Fragment } from 'react'
-import { AlertCircle, CalendarClock, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
+import { AlertCircle, Loader2, MessageCircle, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -16,6 +16,8 @@ import type {
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
 import { formatConversationListTime } from '../utils/conversationListTime'
+import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
+import { formatConversationSenderLabel } from '../utils/formatConversationSenderLabel'
 import { SocialConversationMediaBubble } from '../components/SocialConversationMediaBubble'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
@@ -49,24 +51,6 @@ function getInitials(value: string): string | null {
   const words = value.trim().split(/\s+/).filter(w => /\p{L}/u.test(w))
   if (words.length === 0) return null
   return words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
-}
-
-function sameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-}
-
-/** Gün ayracı etiketi: Bugün / Dün / tam tarih. */
-function useDayLabel() {
-  const { t, i18n } = useTranslation()
-  return (iso: string): string => {
-    const d = new Date(iso)
-    const today = new Date()
-    const yesterday = new Date()
-    yesterday.setDate(today.getDate() - 1)
-    if (sameDay(d, today)) return t('common.today', 'Bugün')
-    if (sameDay(d, yesterday)) return t('common.yesterday', 'Dün')
-    return d.toLocaleDateString(getLocale(i18n.language), { day: '2-digit', month: 'long', year: 'numeric' })
-  }
 }
 
 function DateDivider({ label }: { label: string }) {
@@ -113,13 +97,11 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
   const isInbound = entry.direction === 'Inbound'
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
-  const senderLabel = entry.senderLabel?.trim()
+  const senderLabel = formatConversationSenderLabel(entry.senderLabel)
+  const sentTime = new Date(entry.sentAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
 
   return (
     <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
-      {senderLabel ? (
-        <ConversationSenderHeader label={senderLabel} align={isInbound ? 'start' : 'end'} />
-      ) : null}
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
           className={`max-w-[72%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-md ${
@@ -129,6 +111,9 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
           }`}
           style={isInbound ? undefined : { background: 'color-mix(in srgb, var(--color-primary) 82%, #000)' }}
         >
+          {!isInbound && senderLabel ? (
+            <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" />
+          ) : null}
           {hasMedia && (
             <div className="mb-1.5">
               <SocialConversationMediaBubble
@@ -146,16 +131,16 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
           {isPlaceholderBracketContent(entry.content) && !hasMedia && (
             <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
           )}
-          <p className={`mt-1 flex items-center justify-end gap-1.5 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
-            {!isInbound ? (
+          <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
+            {!isInbound && entry.deliveryStatus ? (
               <WhatsAppDeliveryStatusIndicator
                 status={entry.deliveryStatus}
                 error={entry.deliveryError}
                 variant="dark"
               />
             ) : null}
-            <CalendarClock className="size-3 shrink-0" />
-            {new Date(entry.sentAt).toLocaleString(locale, { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+            {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
+            <span>{sentTime}</span>
           </p>
         </div>
       </div>
@@ -260,8 +245,9 @@ function ConversationDetail({
   onOpenCreateRequest: (socialMessageId: string) => void
   onOpenViewRequests: (citizenPhone: string) => void
 }) {
-  const { t } = useTranslation()
-  const dayLabel = useDayLabel()
+  const { t, i18n } = useTranslation()
+  const locale = getLocale(i18n.language)
+  const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
@@ -402,7 +388,7 @@ function ConversationDetail({
           <p className="text-center text-sm text-white/70 mt-8">{t('social.noMessages', 'Henüz mesaj yok')}</p>
         ) : (
           detail.timeline.map((entry, index) => {
-            const showDivider = index === 0 || !sameDay(new Date(entry.sentAt), new Date(detail.timeline[index - 1].sentAt))
+            const showDivider = index === 0 || !conversationSameDay(entry.sentAt, detail.timeline[index - 1].sentAt)
             return (
               <Fragment key={entry.entryId || index}>
                 {showDivider && <DateDivider label={dayLabel(entry.sentAt)} />}

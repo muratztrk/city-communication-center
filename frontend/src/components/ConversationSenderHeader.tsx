@@ -1,9 +1,28 @@
 interface ConversationSenderHeaderProps {
   label: string
-  align: 'start' | 'end'
+  align?: 'start' | 'end'
+  variant?: 'pill' | 'inline'
+  tone?: 'inbound' | 'outbound'
 }
 
-export function ConversationSenderHeader({ label, align }: ConversationSenderHeaderProps) {
+export function ConversationSenderHeader({
+  label,
+  align = 'end',
+  variant = 'pill',
+  tone = 'outbound',
+}: ConversationSenderHeaderProps) {
+  if (variant === 'inline') {
+    return (
+      <p
+        className={`mb-1.5 text-[13px] font-bold leading-snug ${
+          tone === 'inbound' ? 'text-slate-700' : 'text-white'
+        }`}
+      >
+        {label}
+      </p>
+    )
+  }
+
   return (
     <div className={`mb-1 flex ${align === 'start' ? 'justify-start' : 'justify-end'}`}>
       <span

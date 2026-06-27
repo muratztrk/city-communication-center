@@ -12,9 +12,10 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { useAuth } from '../context/AuthContext'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { userWorksInDepartment } from '../utils/userDepartments'
 import type { Department, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
+import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -272,7 +273,7 @@ export function CreateRequestPage() {
     }
     const inDepartment = users.filter(item =>
       item.isActive &&
-      (item.departmentId === deptId || item.departments?.some(department => department.departmentId === deptId)))
+      userWorksInDepartment(item, deptId))
     const options = inDepartment.map(item => ({ userId: item.userId, displayName: item.displayName }))
     if (user && !options.some(option => option.userId === user.userId)) {
       options.unshift({ userId: user.userId, displayName: user.displayName })

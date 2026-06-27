@@ -44,6 +44,8 @@ import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
 import { formatCitizenRequestNumber, isCitizenRequestJob } from '../utils/citizenRequests'
+import { userWorksInDepartment } from '../utils/userDepartments'
+import { ChannelIcon } from '../components/ui/channel-icon'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobsPage } from './JobsPage'
 
@@ -87,6 +89,7 @@ type IncomingRequestRow = {
   updatedAtUtc: string | null
   createdByRoleCode: string | null
   cancelReturnStatus?: string
+  sourceChannel?: string | null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -249,10 +252,12 @@ function toExternalRow(
   const displayNumber = isCitizenRequestJob(job)
     ? formatCitizenRequestNumber(socialByJobId.get(job.jobId) ?? { createdAtUtc: job.createdAtUtc }, locale)
     : formatJobDisplayNumber(job)
+  const sourceChannel = isCitizenRequestJob(job) ? (socialByJobId.get(job.jobId)?.channel ?? 'WhatsApp') : null
   return {
     id: job.jobId,
     jobId: job.jobId,
     displayNumber,
+    sourceChannel,
     kind: 'external',
     statusDomain: 'job',
     title: job.title,
@@ -379,7 +384,7 @@ export function IncomingRequestsPage() {
         setSocialMessages(socialList)
         const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
         // Personel listesi + atamayı yapan yöneticinin kendisi (görevi kendine atayabilsin).
-        setDepartmentUsers(userList.filter(u => u.isActive && (u.departmentId === currentDeptId || u.departments?.some(d => d.departmentId === currentDeptId)) && (u.roleCode === 'Staff' || u.userId === user?.userId)))
+        setDepartmentUsers(userList.filter(u => u.isActive && userWorksInDepartment(u, currentDeptId ?? '') && (u.roleCode === 'Staff' || u.userId === user?.userId)))
         setError(null)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
@@ -790,7 +795,10 @@ export function IncomingRequestsPage() {
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
-                      <div className="table-number-cell__value">{row.displayNumber}</div>
+                      <div className="table-number-cell__value inline-flex items-center gap-1.5">
+                        {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
+                        <span>{row.displayNumber}</span>
+                      </div>
                       {/* Sarı (dikkat) satırda öncelik metni kalın; Çok Yüksek=kırmızı, Yüksek=açık kırmızı, diğeri beyaz. Diğer satırlarda öncelik rengi. */}
                       <div className={`table-number-cell__priority font-sans ${row.kind === 'external' && row.status === 'Active' ? `font-extrabold ${attentionPriorityColorClass(row.priority)}` : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>

@@ -13,6 +13,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { Department, User } from '../types/platform'
+import { userWorksInDepartment } from '../utils/userDepartments'
 import { getDepartmentTypeLabel } from '../utils/localization'
 
 export function DepartmentsPage() {
@@ -160,7 +161,7 @@ export function DepartmentsPage() {
   const getManagerCandidates = () => users.filter(item => item.isActive)
   const userBelongsToDepartment = (item: User, departmentId?: string) => {
     if (!departmentId) return true
-    return item.departmentId === departmentId || !!item.departments?.some(department => department.departmentId === departmentId)
+    return userWorksInDepartment(item, departmentId)
   }
   const getDepartmentUsers = (departmentId?: string) => users.filter(item => item.isActive && userBelongsToDepartment(item, departmentId))
   const getUserOptions = (sourceUsers: User[]) => sourceUsers.map(item => ({ value: item.userId, label: item.displayName }))

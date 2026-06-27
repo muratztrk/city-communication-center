@@ -48,8 +48,16 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
         else if (actor.RoleCode != RoleCode.SystemAdmin)
         {
             var visibleDepartmentIds = await GetVisibleDepartmentIdsAsync(actor, tenantId, context.ActiveDepartmentId, cancellationToken);
-            query = query.Where(entity => entity.AssignedDepartmentId.HasValue
-                && visibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value));
+            query = query.Where(entity =>
+                (entity.AssignedDepartmentId.HasValue && visibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value))
+                || (entity.JobId.HasValue && _dbContext.JobDepartments.Any(jobDepartment =>
+                    jobDepartment.JobId == entity.JobId
+                    && visibleDepartmentIds.Contains(jobDepartment.DepartmentId)))
+                || (entity.JobId.HasValue && _dbContext.Tasks.Any(task =>
+                    task.JobId == entity.JobId
+                    && task.AssignedUserId == actor.UserId
+                    && task.AssignedDepartmentId.HasValue
+                    && visibleDepartmentIds.Contains(task.AssignedDepartmentId.Value))));
         }
 
         var rows = await query

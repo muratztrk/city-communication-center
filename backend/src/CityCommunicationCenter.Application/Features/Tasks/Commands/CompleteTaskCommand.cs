@@ -5,6 +5,16 @@ namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record CompleteTaskCommand(Guid TaskId, Guid? ActorUserId, string? ResultNote, decimal? ActualHours) : ICommand<bool>;
 
+public sealed class CompleteTaskCommandValidator : AbstractValidator<CompleteTaskCommand>
+{
+    public CompleteTaskCommandValidator()
+    {
+        RuleFor(x => x.ResultNote)
+            .NotEmpty()
+            .WithMessage("Tamamlama notu gereklidir.");
+    }
+}
+
 public sealed class CompleteTaskCommandHandler : ICommandHandler<CompleteTaskCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;

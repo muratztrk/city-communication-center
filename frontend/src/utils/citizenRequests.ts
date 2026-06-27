@@ -48,20 +48,55 @@ export function shouldShowCitizenTargetApprovalDate(job: {
   return target?.approvalStatus === 'Approved' && Boolean(target.decidedAtUtc)
 }
 
+export function resolveCitizenWhatsAppPhone(
+  job: { citizenPhone?: string | null },
+  social?: {
+    citizenPhone?: string | null
+    citizenHandle?: string | null
+    whatsAppPhone?: string | null
+  } | null,
+): string | null {
+  for (const candidate of [job.citizenPhone, social?.citizenPhone, social?.whatsAppPhone, social?.citizenHandle]) {
+    const digits = (candidate ?? '').replace(/\D/g, '')
+    if (digits.length === 10) return digits
+    if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
+    if (digits.length >= 10) return digits.slice(-10)
+  }
+  return null
+}
+
+export function canShowCitizenWhatsAppConversation(
+  job: {
+    requestType?: string | null
+    sourceType?: string | null
+    sourceRefId?: string | null
+    citizenPhone?: string | null
+  },
+  social?: { socialMessageId?: string | null; citizenPhone?: string | null; citizenHandle?: string | null; whatsAppPhone?: string | null } | null,
+): boolean {
+  if (!isCitizenRequestJob(job)) return false
+  if (job.sourceType === 'SocialMessage' && job.sourceRefId) return true
+  if (social?.socialMessageId) return true
+  return resolveCitizenWhatsAppPhone(job, social) != null
+}
+
 export function buildWhatsAppConversationUrl(job: {
   sourceType?: string | null
   sourceRefId?: string | null
   citizenPhone?: string | null
   createdAtUtc?: string | null
-}): string | null {
+}, social?: {
+  citizenPhone?: string | null
+  citizenHandle?: string | null
+  whatsAppPhone?: string | null
+  socialMessageId?: string | null
+} | null): string | null {
   if (!isCitizenRequestJob(job)) return null
 
-  const digits = (job.citizenPhone ?? '').replace(/\D/g, '')
-  const phone = digits.length === 10
-    ? `90${digits}`
-    : digits.length >= 10
-      ? digits
-      : null
+  const localDigits = resolveCitizenWhatsAppPhone(job, social)
+  const phone = localDigits
+    ? (localDigits.length === 10 ? `90${localDigits}` : localDigits)
+    : null
   if (!phone) return null
 
   const params = new URLSearchParams({ phone })

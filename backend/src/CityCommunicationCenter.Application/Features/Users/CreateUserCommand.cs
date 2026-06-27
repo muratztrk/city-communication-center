@@ -268,7 +268,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        var departments = await UserDepartmentAccess.GetDepartmentSummariesAsync(
+        var departments = await UserDepartmentAccess.GetMembershipDepartmentSummariesAsync(
             _dbContext,
             tenantId,
             user,

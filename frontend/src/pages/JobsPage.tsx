@@ -30,11 +30,12 @@ import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import {
   isCitizenRequestJob,
-  buildWhatsAppConversationUrl,
+  canShowCitizenWhatsAppConversation,
   formatCitizenRequestNumber,
   formatCitizenPhoneDisplay,
   shouldShowCitizenTargetApprovalDate,
 } from '../utils/citizenRequests'
+import { userWorksInDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -1236,7 +1237,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           users: users.filter(u =>
             u.isActive
             && (u.roleCode === 'Staff' || u.userId === user?.userId)
-            && (u.departmentId === departmentId || u.departments?.some(d => d.departmentId === departmentId))),
+            && userWorksInDepartment(u, departmentId)),
           saving: false,
           // Birim içi talepte oluşturan kişi kendini görev sahibi seçtiyse işaretle (card 616).
           selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
@@ -1777,7 +1778,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                {isCitizenRequestDetail && buildWhatsAppConversationUrl(detail) && (
+                {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) && (
                   <Button
                     type="button"
                     className="bg-[#007985] text-white hover:bg-[#006570]"
@@ -1869,8 +1870,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: (
                           <span className="inline-flex flex-wrap items-center gap-2">
                             <span>{formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)}</span>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-800">
-                              ({t('jobs.detail.citizenRequest', 'Vatandaş Talebi')} -
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-500">
+                              ({t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
                               <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
                               {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')})
                             </span>

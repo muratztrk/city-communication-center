@@ -544,7 +544,8 @@
       "externalFormDescription": "Enter the basic details to start an external request record.",
       "reporterFormTitle": "Create Request",
       "reporterFormDescription": "Enter the basic details to start a request record.",
-      "citizenFormTitle": "Create Citizen Request"
+      "citizenFormTitle": "Create Citizen Request",
+      "targetDepartmentsPlaceholder": "Select unit"
     }
   },
   "tasks": {

@@ -604,7 +604,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
               <div className="job-field min-h-0">
                 <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="text-red-500">*</span></span>
-                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-40" />
+                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-28" />
               </div>
 
               {error ? <div className="error">{error}</div> : null}

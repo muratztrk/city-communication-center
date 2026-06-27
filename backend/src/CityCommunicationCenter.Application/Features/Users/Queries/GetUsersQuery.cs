@@ -27,7 +27,7 @@ public sealed class GetUsersQueryHandler : IQueryHandler<GetUsersQuery, IReadOnl
         var responses = new List<UserSummaryResponse>(users.Count);
         foreach (var user in users)
         {
-            var departments = await UserDepartmentAccess.GetDepartmentSummariesAsync(
+            var departments = await UserDepartmentAccess.GetMembershipDepartmentSummariesAsync(
                 _dbContext,
                 tenantId,
                 user,

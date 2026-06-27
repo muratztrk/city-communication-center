@@ -26,7 +26,8 @@ internal static class UserDepartmentAccess
         {
             var managedIds = await dbContext.Departments
                 .AsNoTracking()
-                .Where(entity => entity.TenantId == tenantId && entity.ManagerUserId == user.UserId)
+                .Where(entity => entity.TenantId == tenantId
+                    && (entity.ManagerUserId == user.UserId || entity.DeputyManagerUserId == user.UserId))
                 .Select(entity => entity.DepartmentId)
                 .ToListAsync(cancellationToken);
 
@@ -37,6 +38,52 @@ internal static class UserDepartmentAccess
         }
 
         return ids.ToArray();
+    }
+
+    public static async Task<Guid[]> GetMembershipDepartmentIdsAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        ApplicationUser user,
+        CancellationToken cancellationToken)
+    {
+        var ids = new HashSet<Guid> { user.DepartmentId };
+
+        var assignedIds = await dbContext.UserDepartmentAssignments
+            .AsNoTracking()
+            .Where(entity => entity.TenantId == tenantId && entity.UserId == user.UserId)
+            .Select(entity => entity.DepartmentId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var id in assignedIds)
+        {
+            ids.Add(id);
+        }
+
+        return ids.ToArray();
+    }
+
+    public static async Task<IReadOnlyList<DepartmentSummaryResponse>> GetMembershipDepartmentSummariesAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        ApplicationUser user,
+        CancellationToken cancellationToken)
+    {
+        var ids = await GetMembershipDepartmentIdsAsync(dbContext, tenantId, user, cancellationToken);
+
+        var departments = await dbContext.Departments
+            .AsNoTracking()
+            .Where(entity => entity.TenantId == tenantId && ids.Contains(entity.DepartmentId))
+            .Select(entity => new DepartmentSummaryResponse(
+                entity.DepartmentId,
+                entity.Name,
+                entity.DepartmentType,
+                entity.DepartmentId == user.DepartmentId))
+            .ToListAsync(cancellationToken);
+
+        return departments
+            .OrderByDescending(entity => entity.IsPrimary)
+            .ThenBy(entity => entity.Name)
+            .ToList();
     }
 
     public static async Task<Guid[]> GetScopedDepartmentIdsAsync(

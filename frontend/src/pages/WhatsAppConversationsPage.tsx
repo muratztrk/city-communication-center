@@ -15,6 +15,7 @@ import type {
   WhatsAppMessageTemplate,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
+import { formatConversationListTime } from '../utils/conversationListTime'
 import { SocialConversationMediaBubble } from '../components/SocialConversationMediaBubble'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
@@ -68,17 +69,6 @@ function findClosestTimelineEntryIndex(
     }
   }
   return bestIndex
-}
-
-function formatRelativeTime(dateStr: string, locale: string): string {
-  const d = new Date(dateStr)
-  const diffMs = Date.now() - d.getTime()
-  const diffMin = Math.floor(diffMs / 60000)
-  if (diffMin < 1) return locale.startsWith('tr') ? 'şimdi' : 'now'
-  if (diffMin < 60) return locale.startsWith('tr') ? `${diffMin}d önce` : `${diffMin}m ago`
-  const diffH = Math.floor(diffMin / 60)
-  if (diffH < 24) return locale.startsWith('tr') ? `${diffH}s önce` : `${diffH}h ago`
-  return d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
 }
 
 // ─── timeline entry bubble ───────────────────────────────────────────────────
@@ -177,7 +167,7 @@ function ConversationListItem({
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <span className="text-[11px] text-[color:var(--color-muted-foreground)]">
-            {formatRelativeTime(conv.lastMessageAt, locale)}
+            {formatConversationListTime(conv.lastMessageAt, locale, t)}
           </span>
           {conv.unreadCount > 0 && (
             <span className="inline-flex items-center justify-center min-w-[1.2rem] h-5 px-1 rounded-full bg-[color:var(--color-primary)] text-white text-[10px] font-bold">

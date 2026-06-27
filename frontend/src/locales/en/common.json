@@ -31,7 +31,9 @@
     "exit": "Exit",
     "dismiss": "Dismiss",
     "hide": "Hide",
-    "show": "Show"
+    "show": "Show",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "userMenu": {
     "label": "User menu"

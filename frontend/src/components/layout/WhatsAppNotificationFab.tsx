@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { X } from 'lucide-react'
+import { MessageCircle, X } from 'lucide-react'
 import { api } from '../../api/client'
 import type { WhatsAppMessagePayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import type { CitizenConversationSummary } from '../../types/platform'
 import { formatConversationDisplayContent } from '../../utils/socialConversationContent'
+import { formatConversationListTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 
 const POLL_INTERVAL_MS = 12_000
@@ -17,15 +18,6 @@ function formatPhone(phone: string): string {
     return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
   }
   return `+${digits}`
-}
-
-function formatRelativeTime(dateStr: string, locale: string): string {
-  const diffMin = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000)
-  if (diffMin < 1) return locale.startsWith('tr') ? 'şimdi' : 'now'
-  if (diffMin < 60) return locale.startsWith('tr') ? `${diffMin}d önce` : `${diffMin}m ago`
-  const diffH = Math.floor(diffMin / 60)
-  if (diffH < 24) return locale.startsWith('tr') ? `${diffH}s önce` : `${diffH}h ago`
-  return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
 }
 
 function formatBadgeCount(count: number) {
@@ -210,7 +202,7 @@ export function WhatsAppNotificationFab() {
                 className="flex w-full items-start gap-3 border-b border-[var(--color-border)]/70 px-4 py-3 text-left transition-colors hover:bg-slate-50"
               >
                 <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/15">
-                  <img src="/icons/whatsapp.svg" alt="" className="size-5" aria-hidden="true" />
+                  <MessageCircle className="size-5 text-[#25D366]" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
@@ -218,7 +210,7 @@ export function WhatsAppNotificationFab() {
                       {conversation.citizenName ?? formatPhone(conversation.citizenPhone)}
                     </p>
                     <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
-                      {formatRelativeTime(conversation.lastMessageAt, locale)}
+                      {formatConversationListTime(conversation.lastMessageAt, locale, t)}
                     </span>
                   </div>
                   {conversation.citizenName ? (

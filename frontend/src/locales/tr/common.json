@@ -31,7 +31,9 @@
     "exit": "Çıkış",
     "dismiss": "Vazgeç",
     "hide": "Gizle",
-    "show": "Göster"
+    "show": "Göster",
+    "today": "Bugün",
+    "yesterday": "Dün"
   },
   "filters": {
     "requestFlow": {

@@ -9,14 +9,12 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
-    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public ApproveJobOwnerCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator, IWhatsAppJobNotifier whatsAppNotifier)
+    public ApproveJobOwnerCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
-        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(ApproveJobOwnerCommand request, CancellationToken cancellationToken)
@@ -129,20 +127,6 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-
-        if (job.RequestType == JobRequestType.Citizen
-            || job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest)
-        {
-            if (job.Status == JobStatus.Active)
-            {
-                await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(
-                    tenantId, job.JobId, "Yapılmakta", actor.UserId, cancellationToken);
-            }
-        }
-        else if (job.Status == JobStatus.Active)
-        {
-            await _whatsAppNotifier.NotifyJobActivatedAsync(tenantId, job.JobId, cancellationToken);
-        }
 
         return true;
     }

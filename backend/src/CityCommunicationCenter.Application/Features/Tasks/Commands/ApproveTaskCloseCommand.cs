@@ -9,13 +9,11 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
-    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public ApproveTaskCloseCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, IWhatsAppJobNotifier whatsAppNotifier)
+    public ApproveTaskCloseCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
-        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(ApproveTaskCloseCommand request, CancellationToken cancellationToken)
@@ -73,13 +71,8 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        var newJobStatus = await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
+        await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
-
-        if (newJobStatus == Domain.Enums.JobStatus.Completed)
-            await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(tenantId, task.JobId, "Tamamlanmış", request.ActorUserId, cancellationToken);
-        else if (newJobStatus == Domain.Enums.JobStatus.Cancelled)
-            await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(tenantId, task.JobId, "İptal Edildi", request.ActorUserId, cancellationToken);
 
         return true;
     }

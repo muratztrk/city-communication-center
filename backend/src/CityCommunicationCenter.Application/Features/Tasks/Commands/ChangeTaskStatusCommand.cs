@@ -22,13 +22,11 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
 
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
-    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public ChangeTaskStatusCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, IWhatsAppJobNotifier whatsAppNotifier)
+    public ChangeTaskStatusCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
-        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(ChangeTaskStatusCommand request, CancellationToken cancellationToken)
@@ -89,7 +87,6 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
 
         var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
             e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
-        var previousJobStatus = parentJob?.Status;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -107,19 +104,6 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-
-        if (parentJob is not null && parentJob.Status != previousJobStatus)
-        {
-            var label = parentJob.Status switch
-            {
-                JobStatus.Completed => "Tamamlanmış",
-                JobStatus.Cancelled => "İptal Edildi",
-                JobStatus.Active => "Yapılmakta",
-                _ => null
-            };
-            if (label is not null)
-                await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(tenantId, task.JobId, label, request.ActorUserId, cancellationToken);
-        }
 
         return true;
     }

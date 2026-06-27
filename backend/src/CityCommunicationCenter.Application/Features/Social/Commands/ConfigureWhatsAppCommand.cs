@@ -26,7 +26,6 @@ public sealed class ConfigureWhatsAppCommandHandler : ICommandHandler<ConfigureW
             AccessToken = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.AccessToken, existing?.AccessToken),
             AppSecret = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.AppSecret, existing?.AppSecret),
             WebhookVerifyToken = SocialSettingsValueMerge.UseIncomingOrExisting(request.Request.WebhookVerifyToken, existing?.WebhookVerifyToken),
-            AutoNotify = request.Request.AutoNotify
         };
 
         await _settingsProvider.SaveSettingsAsync(tenantId, settings, cancellationToken);

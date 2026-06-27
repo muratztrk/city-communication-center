@@ -103,7 +103,6 @@ public sealed record SocialSettingsStatusResponse(
     SocialChannelStatusResponse WhatsApp,
     SocialChannelStatusResponse EDevlet,
     SocialChannelStatusResponse Email,
-    bool WhatsAppAutoNotify = false,
     WhatsAppPublicSettingsResponse? WhatsAppPublic = null);
 
 public sealed record WhatsAppPublicSettingsResponse(
@@ -135,8 +134,7 @@ public sealed record WhatsAppSettingsRequest(
     string? PhoneNumberId,
     string? AccessToken,
     string? AppSecret,
-    string? WebhookVerifyToken,
-    bool AutoNotify = false);
+    string? WebhookVerifyToken);
 
 public sealed record EDevletSettingsRequest(
     string? ClientId,

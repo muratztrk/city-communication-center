@@ -604,7 +604,6 @@ export interface SocialSettingsStatus {
   whatsApp: SocialChannelStatus;
   eDevlet: SocialChannelStatus;
   email: SocialChannelStatus;
-  whatsAppAutoNotify: boolean;
   whatsAppPublic?: {
     businessAccountId?: string | null;
     phoneNumberId?: string | null;

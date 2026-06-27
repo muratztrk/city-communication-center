@@ -58,7 +58,7 @@ interface ChannelConfig {
   id: ChannelType
   titleKey: string
   descriptionKey: string
-  statusKey: keyof Omit<SocialSettingsStatus, 'whatsAppAutoNotify' | 'whatsAppPublic'>
+  statusKey: keyof Omit<SocialSettingsStatus, 'whatsAppPublic'>
   fields: { key: string; labelKey: string; secret?: boolean }[]
 }
 
@@ -283,7 +283,6 @@ export function SettingsPage() {
   })
   const [loadedAppearance, setLoadedAppearance] = useState<TenantAppearanceInput>(appearanceForm)
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
-  const [whatsAppAutoNotify, setWhatsAppAutoNotify] = useState(false)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
   const [showRuleForm, setShowRuleForm] = useState(false)
   const [editingRuleId, setEditingRuleId] = useState<string | null>(null)
@@ -395,7 +394,6 @@ export function SettingsPage() {
         setAppearanceForm(nextAppearance)
         setLoadedAppearance(nextAppearance)
         setSocialStatus(socialResponse)
-        setWhatsAppAutoNotify(socialResponse.whatsAppAutoNotify ?? false)
         if (socialResponse.whatsAppPublic) {
           setSocialForms(current => ({
             ...current,
@@ -537,7 +535,6 @@ export function SettingsPage() {
   const refreshSocial = async () => {
     const status = await api.getSocialSettingsStatus()
     setSocialStatus(status)
-    setWhatsAppAutoNotify(status.whatsAppAutoNotify ?? false)
     if (status.whatsAppPublic) {
       setSocialForms(current => ({
         ...current,
@@ -933,10 +930,7 @@ export function SettingsPage() {
     setMessage(null)
 
     try {
-      const payload = channel === 'whatsapp'
-        ? { ...socialForms[channel], autoNotify: whatsAppAutoNotify }
-        : socialForms[channel]
-      await api.saveSocialSettings(channel, payload)
+      await api.saveSocialSettings(channel, socialForms[channel])
       invalidateSettings(queryClient)
       await refreshSocial()
       setActiveChannel(null)
@@ -2127,18 +2121,6 @@ export function SettingsPage() {
                           <span>{t('settings.socialConfig.whatsappWebhookUrl')}</span>
                           <input className="field-input font-mono text-xs" type="text" readOnly value={whatsAppWebhookUrl} />
                           <span className="helper-copy">{t('settings.socialConfig.whatsappWebhookHelp')}</span>
-                        </label>
-                      ) : null}
-                      {channel.id === 'whatsapp' ? (
-                        <label className="flex items-center gap-3 cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-slate-300 accent-[var(--color-primary)]"
-                            checked={whatsAppAutoNotify}
-                            onChange={e => setWhatsAppAutoNotify(e.target.checked)}
-                          />
-                          <span className="text-sm font-semibold text-slate-700">{t('settings.socialConfig.whatsappAutoNotify')}</span>
-                          <span className="helper-copy">{t('settings.socialConfig.whatsappAutoNotifyHelp')}</span>
                         </label>
                       ) : null}
                       <div className="inline-actions">

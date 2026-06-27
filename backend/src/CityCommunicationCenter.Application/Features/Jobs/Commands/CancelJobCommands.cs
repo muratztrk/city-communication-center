@@ -14,13 +14,11 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
-    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public CancelJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, IWhatsAppJobNotifier whatsAppNotifier)
+    public CancelJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
-        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<bool> Handle(CancelJobCommand request, CancellationToken cancellationToken)
@@ -109,8 +107,6 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(
-            tenantId, job.JobId, "İptal Edildi", actor.UserId, cancellationToken);
         return true;
     }
 }

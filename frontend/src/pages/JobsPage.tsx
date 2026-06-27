@@ -33,6 +33,7 @@ import {
   canShowCitizenWhatsAppConversation,
   formatCitizenRequestNumber,
   formatCitizenPhoneDisplay,
+  getCitizenRequestStatusLabel,
   shouldShowCitizenTargetApprovalDate,
 } from '../utils/citizenRequests'
 import { userWorksInDepartment } from '../utils/userDepartments'
@@ -164,7 +165,13 @@ function getJobStatusLabel(t: TFunction, status: string): string {
   return t(`enum.jobStatus.${status}`, { defaultValue: status })
 }
 
-function getJobDisplayStatus(t: TFunction, job: Pick<JobSummary, 'status' | 'dueDateUtc'>): string {
+function getJobDisplayStatus(
+  t: TFunction,
+  job: Pick<JobSummary, 'status' | 'dueDateUtc' | 'taskCount' | 'requestType' | 'sourceType'>,
+): string {
+  if (isCitizenRequestJob(job)) {
+    return getCitizenRequestStatusLabel(t, job)
+  }
   if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
@@ -258,13 +265,15 @@ function stripHtmlTags(value: string | null | undefined) {
 }
 
 function buildPrintJobStatusLabel(detail: JobDetail, t: TFunction): string {
-  let status = detail.status === 'Active' && detail.tasks.length === 0
-    ? 'Yönetici Onayı Bekliyor'
-    : detail.status === 'Active'
-      ? 'Yapılmakta'
-      : detail.status === 'Completed'
-        ? 'Tamamlanmış'
-        : getJobStatusLabel(t, detail.status)
+  let status = isCitizenRequestJob(detail)
+    ? getCitizenRequestStatusLabel(t, detail)
+    : detail.status === 'Active' && detail.tasks.length === 0
+      ? 'Yönetici Onayı Bekliyor'
+      : detail.status === 'Active'
+        ? 'Yapılmakta'
+        : detail.status === 'Completed'
+          ? 'Tamamlanmış'
+          : getJobStatusLabel(t, detail.status)
   if (detail.statusActorDisplayName) {
     status += ` (${detail.statusActorDisplayName})`
   }
@@ -1927,17 +1936,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           value: (
                             <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
                               <span className={detailStatusClass}>
-                                {/* Birime Gelen detayında, talep sahibi birim onaylayıp Active olsa da
-                                    hedef birimin yöneticisi henüz personel atamadıysa (görev yok) durum
-                                    "Yapılmakta" değil "Yönetici Onayı Bekliyor" gösterilir; yönetici
-                                    onaylayıp görev atayınca (taskCount>0) "Yapılmakta"ya geçer (card #704). */}
-                                {isIncomingRequestDetail && detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
-                                  ? 'Yönetici Onayı Bekliyor'
-                                  : detail.status === 'Active'
-                                    ? 'Yapılmakta'
-                                    : detail.status === 'Completed'
-                                      ? 'Tamamlanmış'
-                                      : getJobStatusLabel(t, detail.status)}
+                                {isCitizenRequestDetail
+                                  ? getCitizenRequestStatusLabel(t, detail)
+                                  : isIncomingRequestDetail && detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
+                                    ? 'Yönetici Onayı Bekliyor'
+                                    : detail.status === 'Active'
+                                      ? 'Yapılmakta'
+                                      : detail.status === 'Completed'
+                                        ? 'Tamamlanmış'
+                                        : getJobStatusLabel(t, detail.status)}
                                 {detail.statusActorDisplayName ? ` (${detail.statusActorDisplayName})` : ''}
                               </span>
                               {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (

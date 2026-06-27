@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
@@ -33,12 +34,18 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly IWhatsAppJobNotifier _whatsAppNotifier;
 
-    public CreateTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
+    public CreateTaskCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ISlaCalculatorService slaCalculator,
+        IWhatsAppJobNotifier whatsAppNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _whatsAppNotifier = whatsAppNotifier;
     }
 
     public async ValueTask<TaskSummaryResponse> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
@@ -206,7 +213,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             });
         }
 
-        await CitizenJobTargetApproval.TryRecordTargetApprovalAsync(
+        var targetApproved = await CitizenJobTargetApproval.TryRecordTargetApprovalAsync(
             _dbContext,
             job,
             assignedDepartmentId,
@@ -215,6 +222,13 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (targetApproved)
+        {
+            await _whatsAppNotifier.NotifyCitizenRequestStatusChangedAsync(
+                tenantId, job.JobId, "Yapılmakta", actor.UserId, cancellationToken);
+        }
+
         return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);
     }
 

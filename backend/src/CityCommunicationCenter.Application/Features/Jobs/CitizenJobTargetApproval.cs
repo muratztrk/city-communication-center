@@ -2,7 +2,7 @@ namespace CityCommunicationCenter.Application.Features.Jobs;
 
 internal static class CitizenJobTargetApproval
 {
-    internal static async Task TryRecordTargetApprovalAsync(
+    internal static async Task<bool> TryRecordTargetApprovalAsync(
         IApplicationDbContext dbContext,
         Job job,
         Guid? assignedDepartmentId,
@@ -12,14 +12,14 @@ internal static class CitizenJobTargetApproval
     {
         if (assignedDepartmentId is null)
         {
-            return;
+            return false;
         }
 
         var isCitizenRequest = job.RequestType == JobRequestType.Citizen
             || job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest;
         if (!isCitizenRequest)
         {
-            return;
+            return false;
         }
 
         var targetDepartment = await dbContext.JobDepartments.FirstOrDefaultAsync(
@@ -30,7 +30,7 @@ internal static class CitizenJobTargetApproval
             cancellationToken);
         if (targetDepartment is null)
         {
-            return;
+            return false;
         }
 
         targetDepartment.ApprovalStatus = JobApprovalStatus.Approved;
@@ -38,5 +38,6 @@ internal static class CitizenJobTargetApproval
         targetDepartment.DecidedAtUtc = utcNow;
         targetDepartment.UpdatedAtUtc = utcNow;
         targetDepartment.UpdatedByUserId = actorUserId;
+        return true;
     }
 }

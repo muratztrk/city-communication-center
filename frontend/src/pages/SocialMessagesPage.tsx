@@ -23,7 +23,7 @@ import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
-import { formatCitizenRequestNumber } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel } from '../utils/citizenRequests'
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
@@ -91,18 +91,7 @@ function getSocialMessageDueDate(message: SocialMessage, linkedJob?: JobSummary)
 }
 
 function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary, dueDateUtc: string | null): string {
-  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
-  if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
-  if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
-  if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
-  if (dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()) {
-    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
-  }
-  if (job.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
-  if (job.status === 'PendingExternalApproval' || job.status === 'PendingOwnerApproval') {
-    return t('social.requestStatus.processingReceived', 'İşleme Alındı')
-  }
-  return t('social.requestStatus.processingReceived', 'İşleme Alındı')
+  return getCitizenRequestStatusLabel(t, { ...job, dueDateUtc })
 }
 
 type SocialRequestStatusFilter = 'all' | 'processing-received' | 'overdue' | 'in-progress' | 'completed' | 'cancelled'
@@ -124,7 +113,7 @@ function getSocialMessageStatusKey(job: JobSummary | undefined, dueDateUtc: stri
 
   const isOverdue = dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
   if (isOverdue) return 'overdue'
-  if (job.status === 'Active') return 'in-progress'
+  if (job.status === 'Active') return (job.taskCount ?? 0) > 0 ? 'in-progress' : 'processing-received'
 
   return 'processing-received'
 }

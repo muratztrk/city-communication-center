@@ -1,7 +1,36 @@
+import type { TFunction } from 'i18next'
+
 export function isCitizenRequestJob(job: { requestType?: string | null; sourceType?: string | null }): boolean {
   return job.requestType === 'Citizen'
     || job.sourceType === 'SocialMessage'
     || job.sourceType === 'CitizenRequest'
+}
+
+type CitizenRequestStatusSource = {
+  status: string
+  dueDateUtc?: string | null
+  taskCount?: number
+  tasks?: unknown[]
+}
+
+export function getCitizenRequestStatusLabel(
+  t: TFunction,
+  job: CitizenRequestStatusSource,
+): string {
+  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
+  if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
+  if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
+    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+  }
+
+  const taskCount = job.taskCount ?? job.tasks?.length ?? 0
+  if (job.status === 'Active' && taskCount > 0) {
+    return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  }
+
+  return t('social.requestStatus.processingReceived', 'İşleme Alındı')
 }
 
 export function formatCitizenRequestNumber(

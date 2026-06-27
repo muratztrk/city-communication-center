@@ -43,7 +43,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
-import { formatCitizenRequestNumber, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
@@ -90,6 +90,8 @@ type IncomingRequestRow = {
   createdByRoleCode: string | null
   cancelReturnStatus?: string
   sourceChannel?: string | null
+  isCitizenRequest?: boolean
+  taskCount?: number
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -118,6 +120,14 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
   if (row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()) {
     return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+  }
+  if (row.isCitizenRequest) {
+    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
+    return getCitizenRequestStatusLabel(t, {
+      status: normalizedStatus,
+      taskCount: row.taskCount ?? 0,
+      dueDateUtc: row.dueDateUtc,
+    })
   }
   if (row.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
   return getJobStatusLabel(t, row.status)
@@ -277,6 +287,8 @@ function toExternalRow(
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
     createdByRoleCode: job.createdByRoleCode ?? null,
+    isCitizenRequest: isCitizen,
+    taskCount: job.taskCount,
   }
 }
 

@@ -2203,7 +2203,7 @@ const pageKicker = isMyTasksView
               <X className="size-4" />
             </button>
             <h2 className="border-b border-slate-200 pb-2 text-xl font-extrabold text-slate-950">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h2>
-            <p className="helper-copy px-2 text-left" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}</p>
+            <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}</p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-red-500">*</span></span>
               <textarea

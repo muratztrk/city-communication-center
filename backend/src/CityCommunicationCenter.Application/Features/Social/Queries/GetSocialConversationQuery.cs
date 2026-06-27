@@ -56,6 +56,8 @@ public sealed class GetSocialConversationQueryHandler
                 e.MediaMimeType,
                 e.SentAt,
                 e.SenderLabel,
+                DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
+                e.DeliveryError,
             })
             .ToListAsync(cancellationToken);
 
@@ -68,7 +70,9 @@ public sealed class GetSocialConversationQueryHandler
                 null,
                 null,
                 message.ReceivedAtUtc,
-                citizenPhoneLabel)];
+                citizenPhoneLabel,
+                null,
+                null)];
         }
 
         return entries.Select(e => new SocialConversationEntryDto(
@@ -81,6 +85,8 @@ public sealed class GetSocialConversationQueryHandler
             e.SenderLabel
                 ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
                     ? citizenPhoneLabel
-                    : tenantName))).ToList();
+                    : tenantName),
+            e.DeliveryStatus,
+            e.DeliveryError)).ToList();
     }
 }

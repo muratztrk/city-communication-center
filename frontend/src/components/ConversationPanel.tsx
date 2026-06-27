@@ -12,6 +12,7 @@ import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { getLocale } from '../utils/localization'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
+import { WhatsAppDeliveryStatusIndicator } from './WhatsAppDeliveryStatusIndicator'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -73,7 +74,14 @@ function EntryBubble({
         {isPlaceholderBracketContent(entry.content) && !hasMedia && (
           <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
         )}
-        <p className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
+        <p className={`mt-1 flex items-center justify-end gap-1.5 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
+          {!isInbound ? (
+            <WhatsAppDeliveryStatusIndicator
+              status={entry.deliveryStatus}
+              error={entry.deliveryError}
+              variant="dark"
+            />
+          ) : null}
           <CalendarClock className="size-3 shrink-0" />
           {new Date(entry.sentAt).toLocaleString(getLocale(i18n.language), { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
         </p>

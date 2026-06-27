@@ -466,6 +466,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.HasKey(e => e.EntryId);
         builder.Property(e => e.Direction).HasConversion<string>();
         builder.Property(e => e.SenderLabel).HasMaxLength(200);
+        builder.Property(e => e.DeliveryStatus).HasConversion<string>();
+        builder.Property(e => e.DeliveryError).HasMaxLength(500);
         builder.HasOne(e => e.SocialMessage)
             .WithMany()
             .HasForeignKey(e => e.SocialMessageId)

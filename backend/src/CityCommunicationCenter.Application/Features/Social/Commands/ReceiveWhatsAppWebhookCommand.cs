@@ -26,8 +26,13 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         ReceiveWhatsAppWebhookCommand request,
         CancellationToken cancellationToken)
     {
+        var statusCount = await ProcessStatusUpdatesAsync(request.Payload, cancellationToken);
+
         var incoming = ParseMessages(request.Payload);
-        if (incoming.Count == 0) return 0;
+        if (incoming.Count == 0)
+        {
+            return statusCount;
+        }
 
         // Deduplicate against already-stored external entry IDs
         var externalIds = incoming.Select(m => m.ExternalMessageId).ToArray();
@@ -183,7 +188,56 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 cancellationToken);
         }
 
-        return savedCount;
+        return savedCount + statusCount;
+    }
+
+    private async Task<int> ProcessStatusUpdatesAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        var statuses = ParseStatuses(payload);
+        if (statuses.Count == 0)
+        {
+            return 0;
+        }
+
+        var externalIds = statuses.Select(status => status.ExternalMessageId).Distinct().ToArray();
+        var entries = await _dbContext.ConversationEntries
+            .Where(entry => entry.ExternalEntryId != null && externalIds.Contains(entry.ExternalEntryId))
+            .ToListAsync(cancellationToken);
+
+        if (entries.Count == 0)
+        {
+            return 0;
+        }
+
+        var entriesByExternalId = entries
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.ExternalEntryId))
+            .ToDictionary(entry => entry.ExternalEntryId!, StringComparer.Ordinal);
+
+        var updatedCount = 0;
+        foreach (var status in statuses)
+        {
+            if (!entriesByExternalId.TryGetValue(status.ExternalMessageId, out var entry))
+            {
+                continue;
+            }
+
+            if (!ConversationDeliveryStatusHelper.TryParseWhatsAppStatus(status.Status, out var parsedStatus))
+            {
+                continue;
+            }
+
+            if (ConversationDeliveryStatusHelper.TryApply(entry, parsedStatus, status.StatusAtUtc, status.ErrorMessage))
+            {
+                updatedCount++;
+            }
+        }
+
+        if (updatedCount > 0)
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        return updatedCount;
     }
 
     private static List<WhatsAppIncomingMessage> ParseMessages(JsonElement payload)
@@ -222,6 +276,82 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         }
 
         return result;
+    }
+
+    private static List<WhatsAppStatusUpdate> ParseStatuses(JsonElement payload)
+    {
+        var result = new List<WhatsAppStatusUpdate>();
+        if (!payload.TryGetProperty("entry", out var entries) || entries.ValueKind != JsonValueKind.Array)
+        {
+            return result;
+        }
+
+        foreach (var entry in entries.EnumerateArray())
+        {
+            if (!entry.TryGetProperty("changes", out var changes) || changes.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var change in changes.EnumerateArray())
+            {
+                if (!change.TryGetProperty("value", out var value) ||
+                    !value.TryGetProperty("statuses", out var statuses) ||
+                    statuses.ValueKind != JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (var status in statuses.EnumerateArray())
+                {
+                    var externalMessageId = GetString(status, "id");
+                    var statusValue = GetString(status, "status");
+                    if (string.IsNullOrWhiteSpace(externalMessageId) || string.IsNullOrWhiteSpace(statusValue))
+                    {
+                        continue;
+                    }
+
+                    var statusAtUtc = DateTimeOffset.UtcNow;
+                    if (long.TryParse(GetString(status, "timestamp"), out var ts))
+                    {
+                        statusAtUtc = DateTimeOffset.FromUnixTimeSeconds(ts);
+                    }
+
+                    result.Add(new WhatsAppStatusUpdate(
+                        externalMessageId,
+                        statusValue,
+                        statusAtUtc,
+                        ParseStatusError(status)));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static string? ParseStatusError(JsonElement status)
+    {
+        if (!status.TryGetProperty("errors", out var errors) || errors.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        foreach (var error in errors.EnumerateArray())
+        {
+            var message = GetString(error, "message");
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                return message;
+            }
+
+            var title = GetString(error, "title");
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                return title;
+            }
+        }
+
+        return null;
     }
 
     private static (string Content, string? MediaId, string? MediaMimeType, double? Latitude, double? Longitude) ParseContent(JsonElement message)
@@ -276,6 +406,12 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             System.Globalization.CultureInfo.InvariantCulture, out d)) return d;
         return null;
     }
+
+    private sealed record WhatsAppStatusUpdate(
+        string ExternalMessageId,
+        string Status,
+        DateTimeOffset StatusAtUtc,
+        string? ErrorMessage);
 
     private sealed record WhatsAppIncomingMessage(
         string ExternalMessageId,

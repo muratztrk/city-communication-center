@@ -1250,6 +1250,19 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("senderlabel");
 
+                    b.Property<string>("DeliveryError")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("deliveryerror");
+
+                    b.Property<string>("DeliveryStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("deliverystatus");
+
+                    b.Property<DateTimeOffset?>("DeliveryStatusUpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deliverystatusupdatedatutc");
+
                     b.Property<string>("MediaId")
                         .HasColumnType("text")
                         .HasColumnName("mediaid");

@@ -61,6 +61,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 e.SentAt,
                 e.SocialMessageId,
                 e.SenderLabel,
+                DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
+                e.DeliveryError,
             })
             .ToListAsync(cancellationToken);
 
@@ -76,7 +78,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 e.SenderLabel
                     ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
                         ? citizenPhoneLabel
-                        : tenantName)))
+                        : tenantName),
+                e.DeliveryStatus,
+                e.DeliveryError))
             .ToList();
 
         var lastInboundAt = timeline

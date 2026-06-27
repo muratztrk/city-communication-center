@@ -770,7 +770,13 @@
     "ticketStatus": "Status",
     "replyPlaceholder": "Type a reply…",
     "replySent": "Message sent",
-    "replyFailed": "Failed to send message"
+    "replyFailed": "Failed to send message",
+    "delivery": {
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read",
+      "failed": "Not delivered"
+    }
   },
   "audit": {
     "title": "Audit",

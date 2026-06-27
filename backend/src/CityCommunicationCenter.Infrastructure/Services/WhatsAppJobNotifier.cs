@@ -79,15 +79,21 @@ public sealed class WhatsAppJobNotifier : IWhatsAppJobNotifier
                 Message = text,
             }, ct);
 
+            var utcNow = DateTimeOffset.UtcNow;
             _dbContext.ConversationEntries.Add(new SocialConversationEntry
             {
                 EntryId = Guid.NewGuid(),
                 SocialMessageId = socialMessage.SocialMessageId,
                 Direction = ConversationEntryDirection.Outbound,
                 Content = text,
-                SentAt = DateTimeOffset.UtcNow,
+                SentAt = utcNow,
                 ExternalEntryId = sendResult.Success ? sendResult.MessageId : null,
                 SenderLabel = actorLabel,
+                DeliveryStatus = sendResult.Success
+                    ? ConversationDeliveryStatus.Sent
+                    : ConversationDeliveryStatus.Failed,
+                DeliveryStatusUpdatedAtUtc = utcNow,
+                DeliveryError = sendResult.Success ? null : sendResult.Error,
             });
 
             await _dbContext.SaveChangesAsync(ct);

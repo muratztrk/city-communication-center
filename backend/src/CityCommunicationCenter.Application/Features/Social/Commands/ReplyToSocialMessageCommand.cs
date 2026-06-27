@@ -31,9 +31,33 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         if (message is null) return false;
 
         var senderLabel = await ResolveStaffSenderLabelAsync(tenantId, request.ActorUserId, cancellationToken);
+        var utcNow = DateTimeOffset.UtcNow;
+
+        ConversationDeliveryStatus? deliveryStatus = null;
+        string? externalEntryId = null;
+        string? deliveryError = null;
 
         var client = _clientFactory.GetClient(message.Channel, tenantId);
-        if (client is not null)
+        if (message.Channel == SocialChannel.WhatsApp && client is not null)
+        {
+            var sendResult = await client.SendMessageAsync(new SendMessageRequest
+            {
+                RecipientId = message.CitizenHandle,
+                Message = request.Content
+            }, cancellationToken);
+
+            if (sendResult.Success)
+            {
+                externalEntryId = sendResult.MessageId;
+                deliveryStatus = ConversationDeliveryStatus.Sent;
+            }
+            else
+            {
+                deliveryStatus = ConversationDeliveryStatus.Failed;
+                deliveryError = sendResult.Error;
+            }
+        }
+        else if (client is not null)
         {
             await client.SendMessageAsync(new SendMessageRequest
             {
@@ -48,8 +72,12 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             SocialMessageId = request.SocialMessageId,
             Direction = ConversationEntryDirection.Outbound,
             Content = request.Content,
-            SentAt = DateTimeOffset.UtcNow,
+            SentAt = utcNow,
             SenderLabel = senderLabel,
+            ExternalEntryId = externalEntryId,
+            DeliveryStatus = deliveryStatus,
+            DeliveryStatusUpdatedAtUtc = deliveryStatus.HasValue ? utcNow : null,
+            DeliveryError = deliveryError,
         });
 
         message.ResponseContent = request.Content;

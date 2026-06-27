@@ -19,6 +19,7 @@ import { SocialConversationMediaBubble } from '../components/SocialConversationM
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
 import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
+import { WhatsAppDeliveryStatusIndicator } from '../components/WhatsAppDeliveryStatusIndicator'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -119,7 +120,14 @@ function EntryBubble({ entry }: { entry: CitizenConversationTimelineEntry }) {
         {isPlaceholderBracketContent(entry.content) && !hasMedia && (
           <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
         )}
-        <p className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
+        <p className={`mt-1 flex items-center justify-end gap-1.5 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/60'}`}>
+          {!isInbound ? (
+            <WhatsAppDeliveryStatusIndicator
+              status={entry.deliveryStatus}
+              error={entry.deliveryError}
+              variant="dark"
+            />
+          ) : null}
           <CalendarClock className="size-3 shrink-0" />
           {new Date(entry.sentAt).toLocaleString(locale, { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
         </p>
@@ -244,6 +252,15 @@ function ConversationDetail({
     }
   }, [conversationId])
 
+  const refreshDetail = useCallback(async () => {
+    try {
+      const data = await api.getCitizenConversationDetail(conversationId)
+      setDetail(data)
+    } catch {
+      // Keep the current timeline visible if a background refresh fails.
+    }
+  }, [conversationId])
+
   useEffect(() => {
     void loadDetail()
     // Mark as read when conversation is opened
@@ -251,6 +268,13 @@ function ConversationDetail({
       .then(() => onReadMarked?.())
       .catch(() => {})
   }, [conversationId, loadDetail, onReadMarked])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      void refreshDetail()
+    }, 8000)
+    return () => window.clearInterval(intervalId)
+  }, [refreshDetail])
 
   useEffect(() => {
     anchorAppliedRef.current = false
@@ -294,7 +318,7 @@ function ConversationDetail({
     try {
       await api.replySocialMessage(openTicket.socialMessageId, text)
       setReplyText('')
-      await loadDetail()
+      await refreshDetail()
     } finally {
       setSending(false)
     }

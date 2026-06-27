@@ -111,15 +111,18 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                         .Select(t => t.MunicipalityName)
                         .FirstOrDefaultAsync(CancellationToken.None) ?? "Belediye";
 
+                    var sentAt = DateTimeOffset.UtcNow;
                     dbContext.ConversationEntries.Add(new SocialConversationEntry
                     {
                         EntryId = Guid.NewGuid(),
                         SocialMessageId = socialMessageId,
                         Direction = ConversationEntryDirection.Outbound,
                         Content = template.Content,
-                        SentAt = DateTimeOffset.UtcNow,
+                        SentAt = sentAt,
                         ExternalEntryId = sendResult.MessageId,
                         SenderLabel = tenantName,
+                        DeliveryStatus = ConversationDeliveryStatus.Sent,
+                        DeliveryStatusUpdatedAtUtc = sentAt,
                     });
 
                     var message = await dbContext.SocialMessages

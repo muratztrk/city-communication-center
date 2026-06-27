@@ -775,7 +775,13 @@
     "ticketStatus": "Durum",
     "replyPlaceholder": "Yanıt yaz…",
     "replySent": "Mesaj gönderildi",
-    "replyFailed": "Mesaj gönderilemedi"
+    "replyFailed": "Mesaj gönderilemedi",
+    "delivery": {
+      "sent": "Gönderildi",
+      "delivered": "İletildi",
+      "read": "Okundu",
+      "failed": "İletilemedi"
+    }
   },
   "audit": {
     "title": "Log",

@@ -1003,7 +1003,7 @@
       "whatsapp": "WhatsApp",
       "edevlet": "e-Government",
       "whatsappWebhookUrl": "Meta callback URL",
-      "whatsappWebhookHelp": "Use this URL in WhatsApp > Configuration, enter the same verify token, then subscribe to the messages field. The URL must be publicly reachable over HTTPS.",
+      "whatsappWebhookHelp": "Use this URL in WhatsApp > Configuration, enter the same verify token, then subscribe to the messages and smb_message_echoes fields. Replies sent from the phone are ingested via smb_message_echoes. The URL must be publicly reachable over HTTPS.",
       "whatsappAutoNotify": "Notify citizens via WhatsApp on job status changes",
       "whatsappAutoNotifyHelp": "Sends an automatic WhatsApp message when a job becomes active, completed, or cancelled.",
       "descriptions": {

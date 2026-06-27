@@ -1019,7 +1019,7 @@
       "edevlet": "e-Devlet",
       "email": "E-posta (IMAP/SMTP)",
       "whatsappWebhookUrl": "Meta callback URL",
-      "whatsappWebhookHelp": "Bu URL'yi WhatsApp > Yapılandırma alanında kullanın, aynı doğrulama belirtecini girin ve messages alanına abone olun. URL internetten HTTPS üzerinden erişilebilir olmalıdır.",
+      "whatsappWebhookHelp": "Bu URL'yi WhatsApp > Yapılandırma alanında kullanın, aynı doğrulama belirtecini girin ve messages ile smb_message_echoes alanlarına abone olun. Telefondan gönderilen yanıtlar smb_message_echoes ile sisteme düşer. URL internetten HTTPS üzerinden erişilebilir olmalıdır.",
       "whatsappAutoNotify": "İş durum değişikliklerini WhatsApp ile bildir",
       "whatsappAutoNotifyHelp": "İş aktif, tamamlandı veya iptal edildiğinde vatandaşa otomatik WhatsApp mesajı gönderilir.",
       "descriptions": {

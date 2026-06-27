@@ -26,12 +26,14 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         ReceiveWhatsAppWebhookCommand request,
         CancellationToken cancellationToken)
     {
+        // Echoes must be persisted before status updates when both arrive in one payload.
+        var echoCount = await ProcessMessageEchoesAsync(request.TenantId, request.Payload, cancellationToken);
         var statusCount = await ProcessStatusUpdatesAsync(request.Payload, cancellationToken);
 
         var incoming = ParseMessages(request.Payload);
         if (incoming.Count == 0)
         {
-            return statusCount;
+            return echoCount + statusCount;
         }
 
         // Deduplicate against already-stored external entry IDs
@@ -55,7 +57,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         !existingLegacyIds.Contains(m.ExternalMessageId))
             .ToArray();
 
-        if (newMessages.Length == 0) return 0;
+        if (newMessages.Length == 0) return echoCount + statusCount;
 
         // Group by citizen phone so we can find/create conversation threads
         var byCitizen = newMessages.GroupBy(m => m.CitizenHandle);
@@ -188,7 +190,141 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 cancellationToken);
         }
 
-        return savedCount + statusCount;
+        return savedCount + echoCount + statusCount;
+    }
+
+    private async Task<int> ProcessMessageEchoesAsync(
+        Guid tenantId,
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        var echoes = ParseMessageEchoes(payload);
+        if (echoes.Count == 0)
+        {
+            return 0;
+        }
+
+        var externalIds = echoes.Select(echo => echo.ExternalMessageId).ToArray();
+        var existingExternalIds = await _dbContext.ConversationEntries
+            .Where(entry => entry.ExternalEntryId != null && externalIds.Contains(entry.ExternalEntryId))
+            .Select(entry => entry.ExternalEntryId)
+            .ToHashSetAsync(cancellationToken);
+
+        var newEchoes = echoes
+            .Where(echo => !existingExternalIds.Contains(echo.ExternalMessageId))
+            .ToArray();
+        if (newEchoes.Length == 0)
+        {
+            return 0;
+        }
+
+        var tenantName = await _dbContext.Tenants
+            .AsNoTracking()
+            .Where(tenant => tenant.TenantId == tenantId)
+            .Select(tenant => tenant.MunicipalityName)
+            .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
+        var phoneSenderLabel = ConversationEntrySenderLabelHelper.FormatPhoneOutboundLabel(tenantName);
+
+        var byCitizen = newEchoes.GroupBy(echo => echo.CitizenHandle);
+        var savedCount = 0;
+        var allPhones = byCitizen.Select(group => group.Key).ToArray();
+        var existingConversations = await _dbContext.CitizenConversations
+            .IgnoreQueryFilters()
+            .Where(conversation => conversation.TenantId == tenantId && allPhones.Contains(conversation.CitizenPhone))
+            .ToDictionaryAsync(conversation => conversation.CitizenPhone, cancellationToken);
+
+        foreach (var citizenGroup in byCitizen)
+        {
+            var citizenHandle = citizenGroup.Key;
+            var orderedEchoes = citizenGroup.OrderBy(echo => echo.SentAtUtc).ToArray();
+            var latestAt = orderedEchoes[^1].SentAtUtc;
+
+            if (!existingConversations.TryGetValue(citizenHandle, out var conversation))
+            {
+                conversation = new CitizenConversation
+                {
+                    CitizenConversationId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    CitizenPhone = citizenHandle,
+                    LastMessageAt = latestAt,
+                    UnreadCount = 0,
+                };
+                _dbContext.CitizenConversations.Add(conversation);
+                existingConversations[citizenHandle] = conversation;
+            }
+            else if (latestAt > conversation.LastMessageAt)
+            {
+                conversation.LastMessageAt = latestAt;
+            }
+
+            var thread = await _dbContext.SocialMessages
+                .IgnoreQueryFilters()
+                .Where(message => message.TenantId == tenantId
+                    && message.Channel == SocialChannel.WhatsApp
+                    && message.CitizenHandle == citizenHandle
+                    && message.Status != SocialMessageStatus.Closed)
+                .OrderByDescending(message => message.ReceivedAtUtc)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            foreach (var echo in orderedEchoes)
+            {
+                if (thread is null)
+                {
+                    var citizenRequestNumberYear = echo.SentAtUtc.Year;
+                    thread = new SocialMessage
+                    {
+                        SocialMessageId = Guid.NewGuid(),
+                        TenantId = tenantId,
+                        Channel = SocialChannel.WhatsApp,
+                        ExternalMessageId = echo.ExternalMessageId,
+                        CitizenHandle = citizenHandle,
+                        Content = echo.Content,
+                        ReceivedAtUtc = echo.SentAtUtc,
+                        Status = SocialMessageStatus.Responded,
+                        CitizenConversationId = conversation.CitizenConversationId,
+                        CitizenRequestNumberYear = citizenRequestNumberYear,
+                        CitizenRequestNumber = await SequenceNumberHelper.NextCitizenRequestNumberAsync(
+                            _dbContext, tenantId, citizenRequestNumberYear, cancellationToken),
+                        ResponseContent = echo.Content,
+                        RespondedAtUtc = echo.SentAtUtc,
+                    };
+                    _dbContext.SocialMessages.Add(thread);
+                }
+                else
+                {
+                    thread.ResponseContent = echo.Content;
+                    thread.RespondedAtUtc = echo.SentAtUtc;
+                    if (thread.CitizenConversationId is null)
+                    {
+                        thread.CitizenConversationId = conversation.CitizenConversationId;
+                    }
+                }
+
+                _dbContext.ConversationEntries.Add(new SocialConversationEntry
+                {
+                    EntryId = Guid.NewGuid(),
+                    SocialMessageId = thread.SocialMessageId,
+                    Direction = ConversationEntryDirection.Outbound,
+                    Content = echo.Content,
+                    MediaId = echo.MediaId,
+                    MediaMimeType = echo.MediaMimeType,
+                    ExternalEntryId = echo.ExternalMessageId,
+                    SentAt = echo.SentAtUtc,
+                    SenderLabel = phoneSenderLabel,
+                    DeliveryStatus = ConversationDeliveryStatus.Sent,
+                    DeliveryStatusUpdatedAtUtc = echo.SentAtUtc,
+                });
+
+                savedCount++;
+            }
+        }
+
+        if (savedCount > 0)
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        return savedCount;
     }
 
     private async Task<int> ProcessStatusUpdatesAsync(JsonElement payload, CancellationToken cancellationToken)
@@ -271,6 +407,60 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
                     var (content, mediaId, mediaMimeType, lat, lon) = ParseContent(message);
                     result.Add(new WhatsAppIncomingMessage(externalMessageId, citizenHandle, content, mediaId, mediaMimeType, receivedAtUtc, lat, lon));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static List<WhatsAppEchoMessage> ParseMessageEchoes(JsonElement payload)
+    {
+        var result = new List<WhatsAppEchoMessage>();
+        if (!payload.TryGetProperty("entry", out var entries) || entries.ValueKind != JsonValueKind.Array)
+        {
+            return result;
+        }
+
+        foreach (var entry in entries.EnumerateArray())
+        {
+            if (!entry.TryGetProperty("changes", out var changes) || changes.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var change in changes.EnumerateArray())
+            {
+                if (!change.TryGetProperty("value", out var value) ||
+                    !value.TryGetProperty("message_echoes", out var messageEchoes) ||
+                    messageEchoes.ValueKind != JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (var message in messageEchoes.EnumerateArray())
+                {
+                    var externalMessageId = GetString(message, "id");
+                    var citizenHandle = GetString(message, "to");
+                    if (string.IsNullOrWhiteSpace(externalMessageId) || string.IsNullOrWhiteSpace(citizenHandle))
+                    {
+                        continue;
+                    }
+
+                    var sentAtUtc = DateTimeOffset.UtcNow;
+                    if (long.TryParse(GetString(message, "timestamp"), out var ts))
+                    {
+                        sentAtUtc = DateTimeOffset.FromUnixTimeSeconds(ts);
+                    }
+
+                    var (content, mediaId, mediaMimeType, _, _) = ParseContent(message);
+                    result.Add(new WhatsAppEchoMessage(
+                        externalMessageId,
+                        citizenHandle,
+                        content,
+                        mediaId,
+                        mediaMimeType,
+                        sentAtUtc));
                 }
             }
         }
@@ -406,6 +596,14 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             System.Globalization.CultureInfo.InvariantCulture, out d)) return d;
         return null;
     }
+
+    private sealed record WhatsAppEchoMessage(
+        string ExternalMessageId,
+        string CitizenHandle,
+        string Content,
+        string? MediaId,
+        string? MediaMimeType,
+        DateTimeOffset SentAtUtc);
 
     private sealed record WhatsAppStatusUpdate(
         string ExternalMessageId,

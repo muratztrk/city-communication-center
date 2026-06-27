@@ -34,6 +34,12 @@ public static class ConversationEntrySenderLabelHelper
         return name ?? dept ?? "Belediye";
     }
 
+    public static string FormatPhoneOutboundLabel(string municipalityName)
+    {
+        var name = string.IsNullOrWhiteSpace(municipalityName) ? "Belediye" : municipalityName.Trim();
+        return $"{name} (Telefon)";
+    }
+
     public static string FormatCitizenRequestNumber(int? number, int? year, DateTimeOffset? fallbackDate)
     {
         var resolvedYear = year ?? fallbackDate?.Year ?? DateTimeOffset.UtcNow.Year;

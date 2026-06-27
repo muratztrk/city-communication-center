@@ -191,7 +191,13 @@ export function AppShell() {
           label: item.label,
           icon: item.icon!,
           path: item.path,
-          children: item.children.map(child => ({ path: child.path, label: child.label, icon: child.icon, newTab: child.newTab })),
+          children: item.children.map(child => ({
+            path: child.path,
+            label: child.label,
+            icon: child.icon,
+            iconImageSrc: child.iconImageSrc,
+            newTab: child.newTab,
+          })),
         })
       } else {
         items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, newTab: item.newTab })

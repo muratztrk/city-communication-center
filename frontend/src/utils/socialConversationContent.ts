@@ -12,7 +12,10 @@ const BRACKET_LABELS: Record<string, string> = {
 }
 
 export function formatBracketContent(content: string): string {
-  const match = /^\[(.+)\]$/.exec(content.trim())
+  const trimmed = content.trim()
+  const bracketMatch = /^\[(.+)\]$/.exec(trimmed)
+  const angleMatch = /^<(.+)>$/.exec(trimmed)
+  const match = bracketMatch ?? angleMatch
   if (!match) return content
   const key = match[1].trim().toLowerCase()
   return BRACKET_LABELS[key] ?? match[1]
@@ -54,5 +57,6 @@ export function socialMediaFilename(entryId: string, mime: string, citizenPhone?
 }
 
 export function isPlaceholderBracketContent(content: string): boolean {
-  return /^\[[^\]]+\]$/.test(content.trim())
+  const trimmed = content.trim()
+  return /^\[[^\]]+\]$/.test(trimmed) || /^<[^>]+>$/.test(trimmed)
 }

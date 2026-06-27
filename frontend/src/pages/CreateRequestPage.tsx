@@ -1112,16 +1112,6 @@ export function CreateRequestPage() {
                 </select>
               </div>
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-request-start-date">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
-                <DateTimePicker id="citizen-request-start-date" value={citizenForm.startDateUtc} onChange={value => setCitizenForm(current => ({ ...current, startDateUtc: value }))} />
-              </div>
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="citizen-request-due-date">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
-                <DateTimePicker id="citizen-request-due-date" value={citizenForm.dueDateUtc} onChange={value => setCitizenForm(current => ({ ...current, dueDateUtc: value }))} />
-              </div>
-            </div>
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
           </div>
           <div className="grid content-start gap-3">

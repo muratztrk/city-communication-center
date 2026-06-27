@@ -20,6 +20,8 @@ interface ConversationPanelProps {
   canReply?: boolean
   onReplySent?: () => void
   onAddMediaAsAttachment?: (file: File) => void
+  /** Popup'ta telefon numarası başlığı göster (card 6a3f8858). */
+  headerMode?: 'default' | 'phone'
 }
 
 function EntryBubble({
@@ -74,7 +76,7 @@ function EntryBubble({
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, onReplySent, onAddMediaAsAttachment }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, onReplySent, onAddMediaAsAttachment, headerMode = 'default' }: ConversationPanelProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [replyText, setReplyText] = useState('')
@@ -110,15 +112,21 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     }
   }
 
+  const headerSubtitle = headerMode === 'phone'
+    ? (citizenPhone?.replace(/\D/g, '').replace(/^90(?=\d{10}$)/, '') || citizenHandle)
+    : citizenHandle
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[color:var(--color-border)] bg-[color:var(--color-surface)] shrink-0">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wide text-[color:var(--color-muted-foreground)]">
-            {t('social.conversation', 'Konuşma')}
+            {headerMode === 'phone'
+              ? t('whatsapp.phoneNoHeader', 'Whatsapp Telefon No')
+              : t('social.conversation', 'Konuşma')}
           </p>
-          <p className="font-bold text-sm text-slate-800 truncate">{citizenHandle}</p>
+          <p className="font-bold text-sm text-slate-800 truncate">{headerSubtitle}</p>
         </div>
         <button
           type="button"

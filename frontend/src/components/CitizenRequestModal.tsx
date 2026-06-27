@@ -9,7 +9,6 @@ import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
-import { DateTimePicker } from './ui/date-time-picker'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { ConversationPanel } from './ConversationPanel'
 import type { Department, SocialMessage } from '../types/platform'
@@ -422,6 +421,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               socialMessageId={message.socialMessageId}
               citizenHandle={message.citizenHandle}
               citizenPhone={citizenPhone}
+              headerMode="phone"
               onClose={onClose}
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
               onAddMediaAsAttachment={addPendingFile}
@@ -513,45 +513,33 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-3 md:items-stretch">
-                  <div className="grid gap-2">
-                    <label className="job-field grid gap-1">
-                      <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-                      <select
-                        className="field-select"
-                        value={neighborhood}
-                        onChange={event => setNeighborhood(event.target.value)}
-                      >
-                        <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-                        {neighborhoods.map(item => (
-                          <option key={item} value={item}>{item}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <div className="job-field min-h-0">
-                      <label className="job-field-label" htmlFor="citizen-req-start">{t('jobs.form.startDate', 'Başlangıç Tarihi (Opsiyonel)')}</label>
-                      <DateTimePicker id="citizen-req-start" value={startDateUtc} onChange={setStartDateUtc} />
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <label className="job-field grid gap-1">
-                      <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
-                      <input
-                        className="field-input"
-                        placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                        value={street}
-                        onChange={event => setStreet(event.target.value)}
-                      />
-                    </label>
-                    <div className="job-field min-h-0">
-                      <label className="job-field-label" htmlFor="citizen-req-due">{t('jobs.form.dueDate', 'Son Tarih (Opsiyonel)')}</label>
-                      <DateTimePicker id="citizen-req-due" value={dueDateUtc} onChange={setDueDateUtc} />
-                    </div>
-                  </div>
-                  <label className="job-field flex min-h-0 flex-col gap-1 self-stretch">
+                <div className="grid gap-2 md:grid-cols-2 md:items-stretch">
+                  <label className="job-field grid gap-1">
+                    <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                    <select
+                      className="field-select"
+                      value={neighborhood}
+                      onChange={event => setNeighborhood(event.target.value)}
+                    >
+                      <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
+                      {neighborhoods.map(item => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="job-field grid gap-1">
+                    <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                    <input
+                      className="field-input"
+                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                      value={street}
+                      onChange={event => setStreet(event.target.value)}
+                    />
+                  </label>
+                  <label className="job-field flex min-h-0 flex-col gap-1 md:col-span-2">
                     <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
-                      className="field-textarea field-textarea--compact min-h-[7.5rem] flex-1 resize-none"
+                      className="field-textarea field-textarea--compact min-h-[5.5rem] resize-none"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}

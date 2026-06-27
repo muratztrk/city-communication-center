@@ -204,7 +204,6 @@ function ConversationDetail({
   anchorSocialMessageId,
   onReadMarked,
   onOpenCreateRequest,
-  onOpenEditRequest,
   onOpenViewRequests,
 }: {
   conversationId: string
@@ -213,7 +212,6 @@ function ConversationDetail({
   anchorSocialMessageId?: string | null
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId: string) => void
-  onOpenEditRequest: (socialMessageId: string, jobId: string) => void
   onOpenViewRequests: (citizenPhone: string) => void
 }) {
   const { t } = useTranslation()
@@ -348,16 +346,6 @@ function ConversationDetail({
             >
               {t('nav.createRequest', 'Talep Oluştur')}
             </Button>
-            {primaryTicket.jobId ? (
-              <Button
-                size="sm"
-                type="button"
-                className="bg-[#007985] text-white hover:bg-[#006570]"
-                onClick={() => onOpenEditRequest(primaryTicket.socialMessageId, primaryTicket.jobId!)}
-              >
-                {t('jobs.actions.editRequest', 'Talebi Düzenle')}
-              </Button>
-            ) : null}
             <Button
               size="sm"
               type="button"
@@ -521,19 +509,6 @@ export function WhatsAppConversationsPage() {
     }
   }, [enrichMessageWithConversation, selectedId])
 
-  const handleOpenEditRequest = useCallback(async (socialMessageId: string, jobId: string) => {
-    try {
-      setRequestModalEditJobId(jobId)
-      setRequestModalForceNew(false)
-      const message = await api.getSocialMessageById(socialMessageId)
-      setRequestModalMessage(enrichMessageWithConversation(message, selectedId))
-    } catch {
-      setRequestModalEditJobId(null)
-      setRequestModalForceNew(false)
-      setRequestModalMessage(null)
-    }
-  }, [enrichMessageWithConversation, selectedId])
-
   const handleRequestCreated = useCallback(() => {
     setRequestModalMessage(null)
     setRequestModalEditJobId(null)
@@ -619,7 +594,6 @@ export function WhatsAppConversationsPage() {
               anchorSocialMessageId={requestedMessageId || null}
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
-              onOpenEditRequest={(socialMessageId, jobId) => { void handleOpenEditRequest(socialMessageId, jobId) }}
               onOpenViewRequests={handleOpenViewRequests}
             />
           ) : (

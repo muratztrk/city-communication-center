@@ -80,11 +80,31 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
                 .Where(t => t.TenantId == tenantId && (t.AssignedUserId == userId || t.OwnerUserId == userId || t.CreatedByUserId == userId || managerTaskIds.Contains(t.TaskId)))
-                .Select(t => new { TaskId = t.TaskId.ToString(), t.Title, t.TaskNumber, t.TaskNumberYear })
+                .Select(t => new { TaskId = t.TaskId.ToString(), t.Title, t.TaskNumber, t.TaskNumberYear, JobId = t.JobId.ToString() })
                 .ToListAsync(cancellationToken);
 
             var jobsById = jobRecords.ToDictionary(j => j.JobId);
             var tasksById = taskRecords.ToDictionary(t => t.TaskId);
+
+            // card #1072: görev-durumu bildiriminde üst talebi Üst Düzey Yönetici (Reporter) ya da
+            // Vatandaş Talep Operatörü (Operator) oluşturmuşsa o kullanıcının birim adını başlık etiketi yap.
+            var parentJobIds = taskRecords.Select(t => t.JobId).Distinct().ToList();
+            var statusTagDeptByJobId = parentJobIds.Count == 0
+                ? new Dictionary<string, string>()
+                : await _dbContext.Jobs.AsNoTracking()
+                    .Where(j => j.TenantId == tenantId && parentJobIds.Contains(j.JobId.ToString()))
+                    .Join(
+                        _dbContext.Users.AsNoTracking(),
+                        j => j.CreatedByUserId,
+                        u => (Guid?)u.UserId,
+                        (j, u) => new
+                        {
+                            JobId = j.JobId.ToString(),
+                            u.RoleCode,
+                            DeptName = u.Department != null ? u.Department.Name : null,
+                        })
+                    .Where(x => (x.RoleCode == RoleCode.Reporter || x.RoleCode == RoleCode.Operator) && x.DeptName != null)
+                    .ToDictionaryAsync(x => x.JobId, x => x.DeptName!, cancellationToken);
             var taskIdSet = taskRecords.Select(t => t.TaskId).ToHashSet();
             var entityIds = jobRecords.Select(j => j.JobId).Concat(taskRecords.Select(t => t.TaskId)).Distinct().ToList();
 
@@ -155,6 +175,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         || a.ActorUserId == userId
                         || readAuditIds.Contains(a.AuditLogId);
 
+                    string? titleTag = null;
+                    if (isTask && IsTaskStatusChange(a)
+                        && tasksById.TryGetValue(a.EntityId, out var tagTask))
+                    {
+                        statusTagDeptByJobId.TryGetValue(tagTask.JobId, out titleTag);
+                    }
+
                     feed.Add(new NotificationResponse(
                         a.AuditLogId,
                         taskId,
@@ -168,7 +195,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                             ? $"/my-tasks?taskId={a.EntityId}"
                             : $"/my-requests?jobId={a.EntityId}",
                         a.EventTimeUtc,
-                        IsHistorical: true));
+                        IsHistorical: true,
+                        TitleTag: titleTag));
                 }
             }
         }
@@ -178,6 +206,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             .Take(100)
             .ToList();
     }
+
+    // Görev durumu değişikliği bildirimi mi (Görev Durumu Değişti / Tamamlandı / İptal Edildi) — card #1072.
+    private static bool IsTaskStatusChange(AuditLog audit) =>
+        audit.EntityType == nameof(WorkTask)
+        && (audit.Action is "TaskStatusChanged" or "TaskCompleted" or "TaskCancelled"
+            || audit.StatusAtEvent == WorkflowTaskStatus.Completed.ToString()
+            || audit.StatusAtEvent == WorkflowTaskStatus.Cancelled.ToString());
 
     private static bool IsJobStatusSideEffectOfTaskChange(AuditLog audit) =>
         audit.EntityType == nameof(Job)

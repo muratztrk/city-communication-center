@@ -102,6 +102,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
       <div className="min-w-0 flex-1">
         <p className={`text-sm leading-snug ${!n.isRead ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
           <NotificationStatusText value={n.title} />
+          {n.titleTag ? <span className="font-semibold text-orange-500"> ({n.titleTag})</span> : null}
         </p>
         {n.message && (
           <p className="mt-0.5 text-xs text-slate-500 line-clamp-2"><NotificationStatusText value={n.message} /></p>

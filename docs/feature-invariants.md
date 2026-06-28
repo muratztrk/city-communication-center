@@ -101,9 +101,24 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
+## 5b. Bildirimler (Notifications)
+
+- **Bildirim feed'i `GetNotificationsQuery`'de AuditLog'lardan TÜRETİLİR** (workflow olayları
+  için kalıcı `Notification` satırı yok; gerçek push bildirimleri ayrı). Yeni bildirim
+  davranışı eklemek = audit→`NotificationResponse` projeksiyonunu değiştirmek. Başlık
+  `ActionTitle(audit.Action)`'tan; mesaj `messageParts`'tan gelir.
+- **Aktörün kendi olayları feed'den çıkarılır** (`a.ActorUserId == userId` → skip, card #1063);
+  görev-durum değişikliğinin talebe yansıyan yan-etki audit'i de gizlenir
+  (`IsJobStatusSideEffectOfTaskChange`, #1068). Yeni audit eklerken bu filtreleri kır(ma).
+- **`titleTag`** (NotificationResponse): görev-durumu bildiriminde üst talebi Reporter/Operator
+  oluşturmuşsa başlık yanında turuncu birim adı (card #1072).
+
 ## 6. Tenant / Auth
 
 - **Tenant çözümleme önceliği:** `X-Tenant-Id` header > `CustomDomain` (Host) > `SingleTenant`
   (tek aktif) > `ManualSelection`.
 - **OpenIddict stateless password flow; refresh token YOK; access token 8 saat.**
+- **`RoleCode` → Türkçe etiket (kartlar bu adları kullanır):** `Reporter` = "Üst Düzey Yönetici",
+  `Operator` = "Vatandaş Talep Operatörü", `CitizenRequestManager` = "Vatandaş Talep Yöneticisi",
+  `Manager` = "Müdür". CRM scoped rol — detay [`authorization-matrix.md`](authorization-matrix.md) §1.1.
 - Detay: [`adaptive-auth-20260322.md`](adaptive-auth-20260322.md), [`authorization-matrix.md`](authorization-matrix.md).

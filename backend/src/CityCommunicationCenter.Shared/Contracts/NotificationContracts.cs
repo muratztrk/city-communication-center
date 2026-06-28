@@ -23,7 +23,10 @@ public sealed record NotificationResponse(
     DateTimeOffset? SentAtUtc,
     // AuditLog'dan türetilen geçmiş/akış satırı mı (gerçek tekil bildirim değil). Bunlar tek tek
     // okunamaz; "Hepsini okundu yap" (NotificationReadCursor) ile topluca okunur (card 634).
-    bool IsHistorical = false);
+    bool IsHistorical = false,
+    // Görev-durumu bildiriminde üst talebi Üst Düzey Yönetici (Reporter) ya da Vatandaş Talep
+    // Operatörü (Operator) oluşturmuşsa, başlık yanında turuncu gösterilecek birim adı (card #1072).
+    string? TitleTag = null);
 
 public sealed record TestNotificationResponse(
     Guid NotificationId,

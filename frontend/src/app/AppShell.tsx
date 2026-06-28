@@ -20,7 +20,12 @@ import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import { api } from '../api/client'
-import { getActiveDepartmentId, setActiveDepartmentId } from '../api/http'
+import {
+  clearUsePrimaryDepartmentOnLoad,
+  getActiveDepartmentId,
+  setActiveDepartmentId,
+  shouldUsePrimaryDepartmentOnLoad,
+} from '../api/http'
 import { queryKeys } from '../api/queryKeys'
 import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import type { DepartmentSummary } from '../types/platform'
@@ -89,16 +94,27 @@ export function AppShell() {
 
   useEffect(() => {
     if (!userDepartmentsQuery.data) return
+
     const currentDeptId = getActiveDepartmentId()
+    const primary = userDepartments.find(d => d.isPrimary) ?? userDepartments[0] ?? null
+    const forcePrimary = shouldUsePrimaryDepartmentOnLoad()
+
+    if (forcePrimary && primary) {
+      clearUsePrimaryDepartmentOnLoad()
+      setActiveDepartmentId(primary.departmentId, true)
+      const frame = window.requestAnimationFrame(() => setActiveDeptId(primary.departmentId))
+      return () => window.cancelAnimationFrame(frame)
+    }
+
     if (userDepartments.length > 0 && (!currentDeptId || !userDepartments.some(d => d.departmentId === currentDeptId))) {
-      const primary = userDepartments.find(d => d.isPrimary) ?? userDepartments[0]
+      if (!primary) return
       setActiveDepartmentId(primary.departmentId, true) // silent: don't trigger Outlet remount on initial load
       const frame = window.requestAnimationFrame(() => setActiveDeptId(primary.departmentId))
       return () => window.cancelAnimationFrame(frame)
-    } else {
-      const frame = window.requestAnimationFrame(() => setActiveDeptId(currentDeptId))
-      return () => window.cancelAnimationFrame(frame)
     }
+
+    const frame = window.requestAnimationFrame(() => setActiveDeptId(currentDeptId))
+    return () => window.cancelAnimationFrame(frame)
   }, [userDepartments, userDepartmentsQuery.data])
 
   useEffect(() => {

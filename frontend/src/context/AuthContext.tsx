@@ -6,7 +6,12 @@ import {
   logoutSession,
   restoreSessionFromCookie,
 } from '../api/auth'
-import { setActiveDepartmentId, SESSION_EXPIRED_EVENT } from '../api/http'
+import {
+  clearUsePrimaryDepartmentOnLoad,
+  markUsePrimaryDepartmentOnNextLoad,
+  SESSION_EXPIRED_EVENT,
+  setActiveDepartmentId,
+} from '../api/http'
 import type { AuthSession, AuthUser } from '../types/platform'
 
 // Sekmeler arası gerçek logout sinyali için ayrılmış localStorage anahtarı.
@@ -73,20 +78,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [])
 
-  const signIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
+  const establishSession = async (nextSession: AuthSession) => {
+    markUsePrimaryDepartmentOnNextLoad()
     setActiveDepartmentId(null, true)
-    const nextSession = await loginWithPassword(username, password, tenantId, tenantName)
+    if (nextSession.user.departmentId) {
+      setActiveDepartmentId(nextSession.user.departmentId, true)
+    }
     setSession(nextSession)
   }
 
+  const signIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
+    const nextSession = await loginWithPassword(username, password, tenantId, tenantName)
+    await establishSession(nextSession)
+  }
+
   const completeInteractiveSignIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
-    setActiveDepartmentId(null, true)
     const nextSession = await exchangeInteractiveGrant(username, password, tenantId, tenantName)
-    setSession(nextSession)
+    await establishSession(nextSession)
   }
 
   const logout = async () => {
     setActiveDepartmentId(null, true)
+    clearUsePrimaryDepartmentOnLoad()
     await logoutSession()
     setSession(null)
     // Diğer sekmelere gerçek logout sinyali gönder.

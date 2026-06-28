@@ -2,6 +2,19 @@ import i18n from '../i18n'
 import { clearAuthSession, getStoredSession, getValidAccessToken } from './auth'
 
 const ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_id'
+const USE_PRIMARY_DEPARTMENT_KEY = 'ccc_use_primary_department'
+
+export function markUsePrimaryDepartmentOnNextLoad(): void {
+  window.sessionStorage.setItem(USE_PRIMARY_DEPARTMENT_KEY, '1')
+}
+
+export function shouldUsePrimaryDepartmentOnLoad(): boolean {
+  return window.sessionStorage.getItem(USE_PRIMARY_DEPARTMENT_KEY) === '1'
+}
+
+export function clearUsePrimaryDepartmentOnLoad(): void {
+  window.sessionStorage.removeItem(USE_PRIMARY_DEPARTMENT_KEY)
+}
 
 // Oturum başka bir sekmede sonlandığında (logout) ya da sunucu 401 döndüğünde
 // tüm sekmelerin login ekranına düşmesi için yayınlanan olay.

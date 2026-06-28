@@ -2486,6 +2486,16 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </DisabledActionButton>
                           ))}
+                        {canChangeCompletedTaskStatus(task) && (
+                          <Button
+                            size="sm"
+                            type="button"
+                            className="bg-blue-600 text-white hover:bg-blue-700"
+                            onClick={() => openStatusChangeModal(task.taskId, task.currentStatus)}
+                          >
+                            {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                          </Button>
+                        )}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
                         {isMyTasksView && (canEditRoutineTask(task) ? (
                           <Button

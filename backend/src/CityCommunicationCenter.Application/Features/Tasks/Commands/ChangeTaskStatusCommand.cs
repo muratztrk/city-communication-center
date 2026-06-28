@@ -112,7 +112,12 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
                 TenantId = tenantId,
                 EntityType = nameof(Job),
                 EntityId = parentJob.JobId.ToString(),
-                Action = parentJob.Status == JobStatus.Cancelled ? "JobCancelled" : "JobCompleted",
+                Action = parentJob.Status switch
+                {
+                    JobStatus.Completed => "JobCompleted",
+                    JobStatus.Cancelled => "JobCancelled",
+                    _ => "JobUpdated",
+                },
                 ActorUserId = request.ActorUserId,
                 StatusAtEvent = parentJob.Status.ToString(),
                 Notes = "Görev durumu değişikliği sonucu talep durumu güncellendi.",

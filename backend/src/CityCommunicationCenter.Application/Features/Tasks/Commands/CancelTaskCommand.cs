@@ -94,7 +94,12 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
                     TenantId = tenantId,
                     EntityType = nameof(Job),
                     EntityId = parentJob.JobId.ToString(),
-                    Action = parentJob.Status == JobStatus.Cancelled ? "JobCancelled" : "JobCompleted",
+                    Action = parentJob.Status switch
+                    {
+                        JobStatus.Completed => "JobCompleted",
+                        JobStatus.Cancelled => "JobCancelled",
+                        _ => "JobUpdated",
+                    },
                     ActorUserId = request.ActorUserId,
                     ActorDisplayName = actor.DisplayName,
                     StatusAtEvent = parentJob.Status.ToString(),

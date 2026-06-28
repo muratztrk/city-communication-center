@@ -1,5 +1,7 @@
 namespace CityCommunicationCenter.Application.Features.Notifications;
 
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
+
 public sealed record GetNotificationsQuery() : IQuery<IReadOnlyList<NotificationResponse>>;
 
 public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotificationsQuery, IReadOnlyList<NotificationResponse>>
@@ -154,7 +156,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         userId,
                         "InApp",
                         "Sent",
-                        ActionTitle(a.Action),
+                        ResolveActionTitle(a),
                         string.Join(" — ", messageParts),
                         isHistoricalRead,
                         isTask
@@ -171,6 +173,18 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             .Take(100)
             .ToList();
     }
+
+    private static string ResolveActionTitle(AuditLog audit) =>
+        audit.Action switch
+        {
+            "TaskCompleted" => "Görev Tamamlandı",
+            "TaskCancelled" => "Görev İptal Edildi",
+            _ when audit.EntityType == nameof(WorkTask)
+                && audit.StatusAtEvent == WorkflowTaskStatus.Completed.ToString() => "Görev Tamamlandı",
+            _ when audit.EntityType == nameof(WorkTask)
+                && audit.StatusAtEvent == WorkflowTaskStatus.Cancelled.ToString() => "Görev İptal Edildi",
+            _ => ActionTitle(audit.Action),
+        };
 
     private static string ActionTitle(string action) => action switch
     {
@@ -192,8 +206,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         "TaskAssigned" => "Görev atandı",
         "TaskClaimedFromPool" => "Görev havuzdan alındı",
         "TaskProgressUpdated" => "Görev ilerlemesi güncellendi",
-        "TaskCompleted" => "Görev tamamlandı",
-        "TaskCancelled" => "Görev iptal edildi",
+        "TaskCompleted" => "Görev Tamamlandı",
+        "TaskCancelled" => "Görev İptal Edildi",
         "TaskRevisionRequested" => "Görev iade edildi",
         "TaskExtraTimeRequested" => "Ek süre talebi",
         "TaskRevisionApproved" => "Revizyon onaylandı",
@@ -203,6 +217,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         "TaskCloseApproved" => "Görev kapatma onaylandı",
         "TaskCloseRejected" => "Görev kapatma reddedildi",
         "TaskStatusChanged" => "Görev Durumu Değişti",
+        "JobCompleted" => "Talep Tamamlandı",
         _ => "İşlem gerçekleşti",
     };
 

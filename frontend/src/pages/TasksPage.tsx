@@ -1448,17 +1448,6 @@ const pageKicker = isMyTasksView
               {t(flow.labelKey)}
             </button>
           ))}
-          <span className="scope-chip-divider" aria-hidden="true">|</span>
-          {TASK_TYPE_FILTERS.map(filter => (
-            <button
-              key={filter.value}
-              type="button"
-              className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
-              onClick={() => setTaskTypeFilter(filter.value)}
-            >
-              {t(filter.labelKey)}
-            </button>
-          ))}
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">

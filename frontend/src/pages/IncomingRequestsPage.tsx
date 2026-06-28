@@ -44,6 +44,7 @@ import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
 import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
@@ -128,6 +129,14 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
       taskCount: row.taskCount ?? 0,
       dueDateUtc: row.dueDateUtc,
     })
+  }
+  if (row.kind === 'external') {
+    const externalTargetStatus = getExternalUnitTargetDisplayStatus(t, {
+      requestType: 'ExternalUnit',
+      status: row.status,
+      taskCount: row.taskCount,
+    })
+    if (externalTargetStatus) return externalTargetStatus
   }
   if (row.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
   return getJobStatusLabel(t, row.status)

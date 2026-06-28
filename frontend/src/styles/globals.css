@@ -338,10 +338,7 @@
     /* Görevlerim tabloları: filtre sonucu boş kaldığında kolon genişlikleri sabit kalsın. */
     .app-content-shell .my-tasks-table,
     .app-content-shell .my-tasks-all-table {
-      /* The action cells need one scrollbar-width more than the panel at desktop
-         sizes. Otherwise the final cell overflows its own table and is clipped
-         instead of participating in the horizontal scroll. */
-      min-width: max(68rem, calc(100% + 1rem));
+      min-width: 68rem;
       table-layout: fixed;
       width: 100%;
     }
@@ -369,7 +366,8 @@
 
     .app-content-shell .my-tasks-table .my-tasks-title-col,
     .app-content-shell .my-tasks-all-table .my-tasks-title-col {
-      width: 12rem;
+      width: auto;
+      min-width: 12rem;
     }
 
     .app-content-shell .my-tasks-table .my-tasks-type-col,

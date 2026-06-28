@@ -37,6 +37,7 @@ import {
   getCitizenRequestStatusLabel,
   shouldShowCitizenTargetApprovalDate,
 } from '../utils/citizenRequests'
+import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -180,6 +181,8 @@ function getJobDisplayStatus(
   if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
     return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
   }
+  const externalOwnerStatus = getExternalUnitOwnerDisplayStatus(t, job)
+  if (externalOwnerStatus) return externalOwnerStatus
   if (job.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
   return t('jobs.statusLabel.pending', 'Bekleyen')
 }
@@ -242,16 +245,31 @@ function stripHtmlTags(value: string | null | undefined) {
   return (parsed.body.innerText || parsed.body.textContent || '').replace(/\u00a0/g, ' ').trim()
 }
 
-function buildPrintJobStatusLabel(detail: JobDetail, t: TFunction): string {
-  let status = isCitizenRequestJob(detail)
-    ? getCitizenRequestStatusLabel(t, detail)
-    : detail.status === 'Active' && detail.tasks.length === 0
-      ? 'Yönetici Onayı Bekliyor'
-      : detail.status === 'Active'
-        ? 'Yapılmakta'
+function buildPrintJobStatusLabel(
+  detail: JobDetail,
+  t: TFunction,
+  options?: { incomingTargetView?: boolean },
+): string {
+  let status: string
+  if (isCitizenRequestJob(detail)) {
+    status = getCitizenRequestStatusLabel(t, detail)
+  } else if (options?.incomingTargetView) {
+    status = getExternalUnitTargetDisplayStatus(t, detail)
+      ?? (detail.status === 'Active' && detail.tasks.length === 0
+        ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+        : detail.status === 'Active'
+          ? 'Yapılmakta'
+          : detail.status === 'Completed'
+            ? 'Tamamlanmış'
+            : getJobStatusLabel(t, detail.status))
+  } else {
+    status = getExternalUnitOwnerDisplayStatus(t, detail)
+      ?? (detail.status === 'Active'
+        ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
         : detail.status === 'Completed'
           ? 'Tamamlanmış'
-          : getJobStatusLabel(t, detail.status)
+          : getJobStatusLabel(t, detail.status))
+  }
   if (detail.statusActorDisplayName) {
     status += ` (${detail.statusActorDisplayName})`
   }
@@ -324,7 +342,12 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
   </div>`
 }
 
-function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
+function printJobDetail(
+  detail: JobDetail,
+  locale: string,
+  t: TFunction,
+  options?: { incomingTargetView?: boolean },
+) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
     ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
@@ -338,7 +361,7 @@ function printJobDetail(detail: JobDetail, locale: string, t: TFunction) {
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')],
     ['Öncelik', getPriorityLabel(t, detail.priority)],
-    ['Durum', buildPrintJobStatusLabel(detail, t)],
+    ['Durum', buildPrintJobStatusLabel(detail, t, options)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
     ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
@@ -1829,7 +1852,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.cancelJob', 'Talebi İptal Et')}
                   </Button>
                 )}
-                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t)}>{t('common.print', 'Yazdır')}</Button>
+                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
                 <button
                   type="button"
                   onClick={closeDetail}
@@ -1916,13 +1939,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               <span className={detailStatusClass}>
                                 {isCitizenRequestDetail
                                   ? getCitizenRequestStatusLabel(t, detail)
-                                  : isIncomingRequestDetail && detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
-                                    ? 'Yönetici Onayı Bekliyor'
-                                    : detail.status === 'Active'
-                                      ? 'Yapılmakta'
+                                  : isIncomingRequestDetail
+                                    ? (
+                                      getExternalUnitTargetDisplayStatus(t, detail)
+                                      ?? (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
+                                        ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+                                        : detail.status === 'Active'
+                                          ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+                                          : detail.status === 'Completed'
+                                            ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+                                            : getJobStatusLabel(t, detail.status))
+                                    )
+                                  : getExternalUnitOwnerDisplayStatus(t, detail)
+                                    ?? (detail.status === 'Active'
+                                      ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
                                       : detail.status === 'Completed'
-                                        ? 'Tamamlanmış'
-                                        : getJobStatusLabel(t, detail.status)}
+                                        ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+                                        : getJobStatusLabel(t, detail.status))}
                                 {detail.statusActorDisplayName ? ` (${detail.statusActorDisplayName})` : ''}
                               </span>
                               {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (

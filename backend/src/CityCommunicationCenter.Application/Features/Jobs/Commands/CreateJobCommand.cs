@@ -76,7 +76,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             // Üst Düzey Yönetici (Reporter) ve Vatandaş Talep Operatörü talep oluşturabilir; sahip müdürlük kısıtı uygulanmaz (Reporter).
             if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager && actor.RoleCode != RoleCode.Reporter && actor.RoleCode != RoleCode.Operator)
             {
-                throw new ForbiddenAccessException("Bu rol is olusturamaz.");
+                throw new ForbiddenAccessException("Bu rol talep olusturamaz.");
             }
         }
 

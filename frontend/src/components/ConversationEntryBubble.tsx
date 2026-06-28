@@ -24,6 +24,7 @@ interface ConversationEntryBubbleProps {
   socialMessageId?: string
   citizenPhone?: string | null
   onAddMediaAsAttachment?: (file: File) => void
+  theme?: 'dark' | 'light'
 }
 
 export function ConversationEntryBubble({
@@ -31,6 +32,7 @@ export function ConversationEntryBubble({
   socialMessageId,
   citizenPhone,
   onAddMediaAsAttachment,
+  theme = 'dark',
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { i18n } = useTranslation()
@@ -49,7 +51,13 @@ export function ConversationEntryBubble({
               ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
               : 'rounded-tr-sm text-white ring-1 ring-white/10'
           }`}
-          style={isInbound ? undefined : { background: 'color-mix(in srgb, var(--color-header-from) 55%, #000)' }}
+          style={
+            isInbound
+              ? undefined
+              : theme === 'light'
+                ? { background: 'var(--color-header-from)' }
+                : { background: 'color-mix(in srgb, var(--color-header-from) 55%, #000)' }
+          }
         >
           {!isInbound && senderLabel ? (
             <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" />

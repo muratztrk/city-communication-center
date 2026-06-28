@@ -50,10 +50,16 @@ function getInitials(value: string): string | null {
   return words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
 }
 
-function DateDivider({ label }: { label: string }) {
+function DateDivider({ label, light = false }: { label: string; light?: boolean }) {
   return (
     <div className="flex justify-center py-1.5">
-      <span className="rounded-full bg-black/25 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-sm">
+      <span
+        className={
+          light
+            ? 'rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200/80'
+            : 'rounded-full bg-black/25 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-sm'
+        }
+      >
         {label}
       </span>
     </div>
@@ -328,24 +334,24 @@ function ConversationDetail({
   }
 
   return (
-    <div className="flex h-full flex-col text-white" style={{ backgroundColor: 'var(--color-header-from)' }}>
-      <header className="flex shrink-0 items-start gap-3 border-b border-white/10 px-4 py-3">
+    <div className="flex h-full flex-col bg-white text-[color:var(--color-foreground)]">
+      <header className="flex shrink-0 items-start gap-3 border-b border-slate-200 bg-white px-4 py-3">
         <div
-          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold"
-          style={{ color: 'var(--color-header-from)' }}
+          className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+          style={{ backgroundColor: 'var(--color-header-from)' }}
         >
           {headerInitials ?? <MessageCircle className="size-5" />}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
-            <p className="truncate text-[15px] font-semibold leading-tight">{headerTitle}</p>
+            <p className="truncate text-[15px] font-semibold leading-tight text-slate-900">{headerTitle}</p>
             {showUrgentBadge ? (
               <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
                 ACİL
               </span>
             ) : null}
           </div>
-          <p className="truncate text-xs text-white/70">
+          <p className="truncate text-xs text-slate-500">
             {phoneForHeader ? formatPhone(phoneForHeader) : t('whatsapp.title', 'WhatsApp')}
             {ticketLabel ? ` · ${ticketLabel}` : ''}
           </p>
@@ -355,7 +361,7 @@ function ConversationDetail({
             <button
               type="button"
               onClick={handleLinkTicket}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-white/25 px-3 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
               <Link2 className="size-3.5" />
               {primaryTicket.jobId ? t('whatsapp.openLinkedRequest', 'Talebe git') : t('whatsapp.linkToRequest', 'Talebe bağla')}
@@ -365,7 +371,7 @@ function ConversationDetail({
             type="button"
             aria-label={t('common.search', 'Ara')}
             onClick={() => setShowChatSearch(current => !current)}
-            className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            className="flex size-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
           >
             <Search className="size-4" />
           </button>
@@ -374,16 +380,16 @@ function ConversationDetail({
               type="button"
               aria-label={t('common.more', 'Diğer')}
               onClick={() => setMenuOpen(current => !current)}
-              className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              className="flex size-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
             >
               <MoreVertical className="size-4" />
             </button>
             {menuOpen ? (
-              <div className="absolute right-0 top-full z-20 mt-1 min-w-[12rem] overflow-hidden rounded-xl border border-white/10 bg-[#0f3d2d] py-1 shadow-xl">
+              <div className="absolute right-0 top-full z-20 mt-1 min-w-[12rem] overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
                 {primaryTicket ? (
                   <button
                     type="button"
-                    className="block w-full px-3 py-2 text-left text-sm text-white/90 hover:bg-white/10"
+                    className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                     onClick={() => {
                       setMenuOpen(false)
                       onOpenCreateRequest(primaryTicket.socialMessageId)
@@ -394,7 +400,7 @@ function ConversationDetail({
                 ) : null}
                 <button
                   type="button"
-                  className="block w-full px-3 py-2 text-left text-sm text-white/90 hover:bg-white/10"
+                  className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                   onClick={() => {
                     setMenuOpen(false)
                     if (detail) onOpenViewRequests(detail.citizenPhone)
@@ -409,27 +415,24 @@ function ConversationDetail({
       </header>
 
       {showChatSearch ? (
-        <div className="shrink-0 border-b border-white/10 px-4 py-2">
+        <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-2">
           <input
             type="search"
             value={chatSearch}
             onChange={event => setChatSearch(event.target.value)}
             placeholder={t('whatsapp.searchInConversation', 'Konuşmada ara…')}
-            className="w-full rounded-xl border border-white/15 bg-black/15 px-3 py-2 text-sm text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-white/20"
+            className="field-input w-full py-2 text-sm"
           />
         </div>
       ) : null}
 
-      <div
-        className="min-h-0 flex-1 overflow-y-auto space-y-2.5 px-4 py-4"
-        style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-header-from) 88%, #000), color-mix(in srgb, var(--color-header-to) 92%, #000))' }}
-      >
+      <div className="min-h-0 flex-1 overflow-y-auto space-y-2.5 bg-[#f0f2f5] px-4 py-4">
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <Loader2 className="size-5 animate-spin text-white/80" />
+            <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
           </div>
         ) : !detail || visibleTimeline.length === 0 ? (
-          <p className="mt-8 text-center text-sm text-white/70">
+          <p className="mt-8 text-center text-sm text-slate-500">
             {normalizedChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
           </p>
         ) : (
@@ -438,15 +441,15 @@ function ConversationDetail({
             const showDivider = index === 0 || (previousEntry && !conversationSameDay(entry.sentAt, previousEntry.sentAt))
             return (
               <Fragment key={entry.entryId || index}>
-                {showDivider ? <DateDivider label={dayLabel(entry.sentAt)} /> : null}
+                {showDivider ? <DateDivider light label={dayLabel(entry.sentAt)} /> : null}
                 <div
                   ref={element => {
                     if (element) entryRefs.current.set(index, element)
                     else entryRefs.current.delete(index)
                   }}
-                  className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-white/90 ring-offset-2 ring-offset-transparent transition-shadow' : undefined}
+                  className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-[color:var(--color-primary)] ring-offset-2 ring-offset-[#f0f2f5] transition-shadow' : undefined}
                 >
-                  <ConversationEntryBubble entry={entry} />
+                  <ConversationEntryBubble entry={entry} theme="light" />
                 </div>
               </Fragment>
             )
@@ -456,9 +459,9 @@ function ConversationDetail({
       </div>
 
       {openTicket ? (
-        <footer className="shrink-0 space-y-3 border-t border-white/10 px-4 py-3">
+        <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
           {!windowOpen ? (
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-200">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700">
               <AlertCircle className="size-3.5 shrink-0" />
               24 saatlik pencere kapalı — yalnızca şablon gönderilebilir
             </div>
@@ -467,13 +470,12 @@ function ConversationDetail({
             <button
               type="button"
               onClick={() => onOpenCreateRequest(primaryTicket!.socialMessageId)}
-              className="inline-flex h-9 items-center rounded-full border border-white/30 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+              className="inline-flex h-9 items-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
               {t('nav.createRequest', 'Talep oluştur')}
             </button>
             <WhatsAppTemplatePicker
               templates={templates}
-              tone="on-dark"
               onSelect={content => setReplyText(content)}
             />
           </div>
@@ -490,21 +492,22 @@ function ConversationDetail({
               }}
               placeholder={windowOpen ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
               disabled={!windowOpen && activeTemplates.length === 0}
-              className="min-h-[3.25rem] max-h-28 flex-1 resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-white/15 disabled:opacity-50"
+              className="field-input min-h-[3.25rem] max-h-28 flex-1 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
             />
             <button
               type="button"
               aria-label={t('common.send', 'Gönder')}
               onClick={() => void handleSend()}
               disabled={!replyText.trim() || sending}
-              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-[color:var(--color-header-from)] shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ backgroundColor: 'var(--color-header-from)' }}
             >
               {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
             </button>
           </div>
         </footer>
       ) : (
-        <footer className="shrink-0 border-t border-white/10 px-4 py-4 text-center text-xs text-white/65">
+        <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500">
           {t('whatsapp.noTickets')}
         </footer>
       )}

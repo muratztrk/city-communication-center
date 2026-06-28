@@ -39,6 +39,7 @@ function completionAttachmentExtension(name: string): string {
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
+import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
@@ -469,6 +470,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const autoOpenTaskId = notificationTaskId ?? searchParams.get('taskId')
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  // Vatandaş Talep Yöneticisi "Birimdeki Görevler"de yalnızca vatandaş taleplerinin görevlerini görür (card #1073).
+  const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
   const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
   const managedDepartmentIds = useMemo(() => {
@@ -600,6 +603,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       const departmentTasks = tasks.filter(task =>
         task.assignedDepartmentId != null && managedDepartmentIds.has(task.assignedDepartmentId))
       result = filterMyTasks(departmentTasks, currentMyTaskView).filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
+      if (isCitizenRequestManager) {
+        result = result.filter(task => isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType }))
+      }
     } else if (!isMyTasksView) {
       result = tasks
     } else {
@@ -650,7 +656,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()

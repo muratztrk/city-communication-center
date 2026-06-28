@@ -105,9 +105,13 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       matrix[role].outgoingRequests = false
       matrix[role].departmentTasks = false
     }
-    if (role === 'CitizenRequestManager' || role === 'EDevletActivityPlan') {
+    if (role === 'EDevletActivityPlan') {
       matrix[role].outgoingRequests = false
       matrix[role].departmentTasks = false
+    }
+    if (role === 'CitizenRequestManager') {
+      matrix[role].outgoingRequests = false
+      // departmentTasks (Birimdeki Görevler) rol matrisinden yapılandırılabilir (card #1073) — zorla kapatma.
     }
     if (role === 'Manager' || role === 'SystemAdmin') {
       matrix[role].departmentTasks = true

@@ -81,9 +81,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const establishSession = async (nextSession: AuthSession) => {
     markUsePrimaryDepartmentOnNextLoad()
     setActiveDepartmentId(null, true)
-    if (nextSession.user.departmentId) {
-      setActiveDepartmentId(nextSession.user.departmentId, true)
-    }
     setSession(nextSession)
   }
 

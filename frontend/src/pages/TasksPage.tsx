@@ -2072,7 +2072,12 @@ const pageKicker = isMyTasksView
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                  <FilterableTh filterKey="jobNumber" filterValue={taskFilters['jobNumber'] ?? ''} onFilter={setTaskFilter} sortKey="jobNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.parentRequestNo', 'Bağlı Olduğu Talep No')}</FilterableTh>
+                  <FilterableTh filterKey="jobNumber" filterValue={taskFilters['jobNumber'] ?? ''} onFilter={setTaskFilter} sortKey="jobNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
+                    <span className="inline-flex flex-col leading-tight">
+                      <span>{t('tasks.columns.parentRequestLinked', 'Bağlı Olduğu')}</span>
+                      <span>{t('tasks.columns.parentRequestNoShort', 'Talep No')}</span>
+                    </span>
+                  </FilterableTh>
                   <FilterableTh filterKey="taskNumber" filterValue={taskFilters['taskNumber'] ?? ''} onFilter={setTaskFilter} sortKey="taskNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskNo', 'Görev No')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>

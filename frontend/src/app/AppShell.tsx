@@ -589,10 +589,10 @@ export function AppShell() {
                 <div
                   role="menu"
                   aria-label={t('userMenu.label', 'Kullanıcı menüsü')}
-                  className="absolute right-0 top-full z-50 mt-1.5 min-w-[220px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5"
+                  className="absolute right-0 top-full z-50 mt-1.5 flex min-w-[220px] max-h-[min(70dvh,24rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5"
                 >
                   {userDepartments.length > 1 && (
-                    <>
+                    <div className="min-h-0 flex-1 overflow-y-auto">
                       <div className="px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-slate-400">
                         {t('departmentSwitcher.heading', 'Görev Yaptığım Birimler')}
                       </div>
@@ -622,11 +622,10 @@ export function AppShell() {
                           )
                         })}
                       </div>
-                    </>
+                    </div>
                   )}
                   {isLocalUser && (
-                    <>
-                      {userDepartments.length > 1 && <div className="border-t border-slate-100" />}
+                    <div className={`shrink-0${userDepartments.length > 1 ? ' mt-auto border-t border-slate-100' : ''}`}>
                       <button
                         type="button"
                         role="menuitem"
@@ -640,7 +639,7 @@ export function AppShell() {
                           {t('changePassword.menuItem', 'Parolamı Değiştir')}
                         </div>
                       </button>
-                    </>
+                    </div>
                   )}
                 </div>
               )}

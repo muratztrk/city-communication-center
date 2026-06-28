@@ -623,6 +623,8 @@
       "dueDate": "Son Tarih",
       "actions": "İşlemler",
       "parentRequestNo": "Bağlı Olduğu Talep No",
+      "parentRequestLinked": "Bağlı Olduğu",
+      "parentRequestNoShort": "Talep No",
       "routineNoParentRequest": "Rutin görev Talep No olmaz"
     },
     "new": "+ Yeni İş",

@@ -618,6 +618,8 @@
       "dueDate": "Due",
       "actions": "Actions",
       "parentRequestNo": "Parent Request No",
+      "parentRequestLinked": "Linked To",
+      "parentRequestNoShort": "Request No",
       "routineNoParentRequest": "A routine task has no request no"
     },
     "new": "+ New Task",

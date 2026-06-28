@@ -715,3 +715,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `MGT0UWnK` / #1083 — Vatandaş Talebi düzenleme modalında VT numarası "Vatandaş Adı / Gönderen" alanının üstünde turuncu, altı çizili başlık olarak gösterildi. FE build/lint PASS. main+master, Done.
 - [x] `xBPWOWZ9` / #1081 — Operator ve Vatandaş Talep Yöneticisi `Taleplerim` ekranından VT/vatandaş talepleri çıkarıldı; backend `mine` scope citizen filtreli, frontend cached-data guard eklendi. BE+FE build/lint PASS. main+master, Done.
 - [x] `36258I0y` / #1084 — Sarı dikkat satırlarında `(Öncelik:...)` etiketi/değeri siyaha çekildi; Incoming ve Tasks gridleri + global row-attention guard güncellendi. FE build/lint PASS. main+master, Done.
+- [x] `jXOerULY` / #1085 — Sol menüdeki `WhatsApp Konuşmaları` alt linki için scoped emphasized varyantı eklendi; ikon `size-5`, text `0.85rem`/bold oldu, diğer menüler korunuyor. FE build/lint PASS. main+master, Done.

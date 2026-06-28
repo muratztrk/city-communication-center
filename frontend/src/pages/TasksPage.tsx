@@ -474,18 +474,31 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
   const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
+  const currentUserRecord = useMemo(() => activeUsers.find(item => item.userId === user?.userId) ?? null, [activeUsers, user?.userId])
   const managedDepartmentIds = useMemo(() => {
     // Yönetici seçili aktif birim bağlamında çalışır. Eski/eksik ManagerUserId
     // kayıtları, ek birimde çalışan personelin "Personelimin Görevleri"
     // filtrelerinden kaybolmasına neden olmamalıdır.
     if (isManagerLike && activeDeptId) return new Set([activeDeptId])
 
+    // Vatandaş Talep Yöneticisi müdür değildir; "Birimdeki Görevler" kapsamı yönettiği
+    // birimler değil, çalışabildiği birimlerdir (birincil + ek birim, aktif birimle daraltılabilir).
+    if (!isManagerLike && isCitizenRequestManager) {
+      const ids = new Set<string>()
+      if (user?.departmentId) ids.add(user.departmentId)
+      currentUserRecord?.departments?.forEach(department => ids.add(department.departmentId))
+      if (activeDeptId && ids.has(activeDeptId)) return new Set([activeDeptId])
+      return ids
+    }
+
     const ids = departments
       .filter(department => department.managerUserId === user?.userId)
       .map(department => department.departmentId)
 
     return new Set(ids)
-  }, [activeDeptId, departments, isManagerLike, user?.userId])
+  }, [activeDeptId, currentUserRecord, departments, isCitizenRequestManager, isManagerLike, user?.departmentId, user?.userId])
+  const canManageDepartmentTaskActions = (task: Pick<Task | TaskDetail, 'jobRequestType' | 'jobSourceType'> | null | undefined) =>
+    isManagerLike || (isDepartmentTasksView && isCitizenRequestManager && !!task && isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType }))
   const staffUsers = useMemo(() => {
     return activeUsers.filter(item =>
       isDepartmentStaffUser(item, managedDepartmentIds) &&
@@ -550,7 +563,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         ? t('nav.staffTasks', 'Personelimin Görevleri')
         : t('tasks.detail.title', 'Görev Detayları')
   const canRouteTaskDetail = !!taskDetail
-    && isManagerLike
+    && canManageDepartmentTaskActions(taskDetail)
     && taskDetail.jobSourceType !== 'Routine'
     && isActionableTaskStatus(taskDetail.currentStatus)
   const showAssignmentHistoryBesideDescription = !!taskDetail
@@ -565,7 +578,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       || taskDetail.currentStatus === 'Cancelled'
     )
   const canChangeTaskDueDate = !!taskDetail
-    && isManagerLike
+    && canManageDepartmentTaskActions(taskDetail)
     && (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
     && !['Completed', 'Cancelled', 'Rejected'].includes(taskDetail.currentStatus)
   const latestExtraTimeApproval = taskDetail?.approvals
@@ -581,7 +594,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested', 'PendingCloseApproval'].includes(taskDetail.currentStatus)
     && latestExtraTimeApproval === null
   const canReviewExtraTime = !!taskDetail
-    && isManagerLike
+    && canManageDepartmentTaskActions(taskDetail)
     && (isDepartmentTasksView || isStaffTasksView)
     && pendingExtraTimeApproval != null
 
@@ -1569,7 +1582,7 @@ const pageKicker = isMyTasksView
                 )}
                 {taskDetail
                   && (isDepartmentTasksView || isStaffTasksView)
-                  && isManagerLike
+                  && canManageDepartmentTaskActions(taskDetail)
                   && isActionableTaskStatus(taskDetail.currentStatus) && (
                     <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>
                       {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
@@ -2464,7 +2477,7 @@ const pageKicker = isMyTasksView
                     <td className="actions-cell">
                       <div className="request-actions">
                         {isDepartmentTasksView
-                          && isManagerLike
+                          && canManageDepartmentTaskActions(task)
                           && (currentMyTaskView === 'pending' || currentMyTaskView === 'overdue')
                           && (task.jobSourceType !== 'Routine' && isActionableTaskStatus(task.currentStatus) ? (
                             <Button

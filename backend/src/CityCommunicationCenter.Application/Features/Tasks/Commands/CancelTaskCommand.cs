@@ -1,4 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Jobs;
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -50,8 +52,18 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
                 _dbContext, actor, task.AssignedDepartmentId, cancellationToken);
             var managesOwnerDept = job is not null && await TaskWorkflowAuthorization.IsManagerOfAsync(
                 _dbContext, actor, job.OwnerDepartmentId, cancellationToken);
+            var canManageCitizenTask = job is not null
+                && JobCitizenRequestHelper.IsCitizenRequest(job)
+                && task.AssignedDepartmentId.HasValue
+                && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                    _dbContext,
+                    tenantId,
+                    actor,
+                    job,
+                    task.AssignedDepartmentId.Value,
+                    cancellationToken);
 
-            if (!isAssignee && !managesAssignedDept && !managesOwnerDept)
+            if (!isAssignee && !managesAssignedDept && !managesOwnerDept && !canManageCitizenTask)
                 throw new ForbiddenAccessException("Bu görevi iptal etme yetkiniz yok.");
         }
 

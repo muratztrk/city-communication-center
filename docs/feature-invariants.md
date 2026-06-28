@@ -49,6 +49,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dikkat: JobQueries'te aynı isim FARKLI şey demek (bkz. §2).
 - **Görev Sahibi gösterimi:** `assignedUserDisplayName ?? ownerDisplayName` (yönlendirme
   sonrası güncel atanan). `AssignTask` `OwnerUserId`'i değiştirmez, sadece `AssignedUserId`.
+- **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
+  birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
+  gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).
 
 ## 2. Talepler (Jobs) — `pages/JobsPage.tsx`
 

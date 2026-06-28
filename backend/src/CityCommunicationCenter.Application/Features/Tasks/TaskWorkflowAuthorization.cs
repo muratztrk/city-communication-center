@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.Users;
+using CityCommunicationCenter.Application.Features.Jobs;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -64,7 +65,7 @@ internal static class TaskWorkflowAuthorization
 
         if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
         if (await IsManagerOfAsync(dbContext, actor, job.OwnerDepartmentId, cancellationToken)) return;
-        if (job.RequestType == JobRequestType.Citizen
+        if (JobCitizenRequestHelper.IsCitizenRequest(job)
             && task.AssignedDepartmentId.HasValue
             && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
                 dbContext,
@@ -93,7 +94,7 @@ internal static class TaskWorkflowAuthorization
 
         if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
         if (await IsManagerOfAsync(dbContext, actor, job.OwnerDepartmentId, cancellationToken)) return;
-        if (job.RequestType == JobRequestType.Citizen
+        if (JobCitizenRequestHelper.IsCitizenRequest(job)
             && task.AssignedDepartmentId.HasValue
             && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
                 dbContext,

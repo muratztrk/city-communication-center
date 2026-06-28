@@ -34,6 +34,7 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                 ? [context.ActiveDepartmentId.Value]
                 : []
             : allManagedDepartmentIds;
+        var isCitizenRequestManager = actor is not null && UserRoleAccess.IsCitizenRequestManager(actor);
         var accessibleDepartmentIds = actor is null
             ? []
             : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(_dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
@@ -87,7 +88,13 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     ? tasks.Where(_ => false)
                     : tasks.Where(entity =>
                         entity.AssignedDepartmentId.HasValue &&
-                        accessibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value)),
+                        accessibleDepartmentIds.Contains(entity.AssignedDepartmentId.Value) &&
+                        (!isCitizenRequestManager || _dbContext.Jobs.Any(job =>
+                            job.JobId == entity.JobId &&
+                            (job.RequestType == JobRequestType.Citizen ||
+                             job.SourceType == JobSourceType.SocialMessage ||
+                             job.SourceType == JobSourceType.CitizenRequest ||
+                             job.SourceType == JobSourceType.EDevlet)))),
             _ => tasks
         };
 

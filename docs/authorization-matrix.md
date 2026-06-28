@@ -13,6 +13,21 @@ Bu doküman City Communication Center içindeki rollerin ekran ve işlem yetkile
 | `Operator` | Vatandaş ve sosyal kanal mesajlarını takip eder, talep oluşturabilir. |
 | `Staff` | Kendisine veya birimine atanan görevleri yürütür. |
 | `Reporter` | Rapor ve izleme amaçlı kullanıcıdır. |
+| `EDevletActivityPlan` | Yalnızca e-Devlet günlük faaliyet planı ekranlarına erişen kısıtlı rol. |
+| `CitizenRequestManager` | Vatandaş Talep Yöneticisi. Birim müdürü olmadan, yalnızca vatandaş taleplerini Birime Gelen Talepler ekranında yönetir. Bkz. §1.1. |
+
+### 1.1 Vatandaş Talep Yöneticisi (`CitizenRequestManager`)
+
+Birim müdürü olmayan ama **vatandaş taleplerini** (Vatandaş Talebi / `VT-…`) yönetebilen kapsamlı (scoped) roldür. Birincil rol olarak veya ek rol olarak (`AdditionalRoleCodesJson`) atanabilir; her iki durumda da `UserRoleAccess.IsCitizenRequestManager` ile tanınır.
+
+- **Varsayılan sayfa erişimi:** yalnızca **Dashboard** + **Birime Gelen Talepler** (`/incoming-requests`). Diğer sayfalar varsayılan kapalıdır; tenant rol/sayfa matrisiyle genişletilebilir.
+- **Kapsam — yalnızca vatandaş talepleri:** Tüm CRM yetkileri `JobCitizenRequestHelper.IsCitizenRequest(job)` ile sınırlıdır. Frontend'de `canCitizenRequestManagerActOnRow` yalnızca `isCitizenRequest` olan ve `VT-` ile başlayan satırlarda işleme izin verir; vatandaş-olmayan talep/satırlarda CRM hiçbir işlem yapamaz.
+- **İşlemler (yalnızca vatandaş talebinde):**
+  - Birime gelen vatandaş taleplerini görüntüleme/yönetme.
+  - Hedef birim onayı/reddi — yalnızca çalışabildiği hedef birim kapsamında (`CanManageCitizenRequestInTargetDepartmentAsync`).
+  - Vatandaş talebine görev oluşturma (`CreateTaskCommand`, Staff dalından bağımsız).
+  - Vatandaş talebini iptal etme (`CancelJobCommand`).
+- **Güvenlik:** Tüm kontroller backend'de `IsCitizenRequestManager` + citizen-request + birim erişimi ile doğrulanır; frontend kapsamı yalnızca UX içindir.
 
 ## 2. Sayfa Erişimleri
 

@@ -90,6 +90,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yazabilir; görev/talep bağlamından açılan (`WhatsAppConversationModal`) salt-okunur olmalı.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
+- **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres
+  ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
+  sığar (card #1088).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Job status değişince `IWhatsAppJobNotifier` otomatik vatandaş mesajı atar**

@@ -673,4 +673,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#1067` — Görev tamamlandı/iptal bildirim başlıkları: `Görev Tamamlandı` / `Görev İptal Edildi`; `JobCompleted` eşlemesi; görev sonrası talep audit action düzeltmesi (`JobUpdated` when Active).
 - [x] `#1066` — Tamamlanmış/İptal Görevlerim grid İşlemler sütununda "Durum Değiştir" geri eklendi (detay header ile birlikte). BE+FE build PASS.
 
-## STATUS: Round 103 complete — 2 cards ready for Done.
+## STATUS: Round 103 complete — 2 cards moved to Done.

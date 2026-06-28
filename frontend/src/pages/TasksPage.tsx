@@ -23,12 +23,13 @@ import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus, getSocialChannelLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
-import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
+import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
+import { formatJobDestinationsWithAssignees } from '../utils/jobDetails'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -163,7 +164,14 @@ function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, parentJob: import('../types/platform').JobDetail | null, t: import('i18next').TFunction, locale: string) {
+function printTaskDetail(
+  taskDetail: TaskDetail,
+  taskSummary: Task | null,
+  parentJob: import('../types/platform').JobDetail | null,
+  citizenSourceMessage: SocialMessage | null,
+  t: import('i18next').TFunction,
+  locale: string,
+) {
   const fd = (d: string | null | undefined) => d ? new Date(d).toLocaleString(locale, { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
   const description = stripHtmlTags(resolveTaskDescription(taskDetail, parentJob))
   const gorevTipi = taskDetail.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
@@ -186,19 +194,33 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('')
   const ownerApproval = parentJob?.departments.find(department => department.role === 'Owner')
   const targetApproval = parentJob?.departments.find(department => department.role === 'Target')
-  const parentJobRows = parentJob ? [
+  const isCitizenParentJob = parentJob != null && isCitizenRequestJob(parentJob)
+  const parentJobRows = parentJob ? (isCitizenParentJob ? [
+    ['Vatandaş Talep No', formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: parentJob.createdAtUtc }, locale)],
+    ['Vatandaş Adı / Telefon No', [parentJob.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJob.citizenPhone ?? citizenSourceMessage?.citizenPhone)].filter(Boolean).join(' / ') || '—'],
+    ['Talep Başlığı', parentJob.title],
+    ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(parentJob)],
+    ['Öncelik', getPriorityLabel(t, parentJob.priority)],
+    ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
+    ['Talep Tarihi', fd(parentJob.createdAtUtc)],
+    ...(shouldShowCitizenTargetApprovalDate(parentJob)
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApproval?.decidedAtUtc)]]
+      : []),
+    ['Son Tarih', fd(parentJob.dueDateUtc)],
+  ] : [
     ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
     ['Talep Başlığı', parentJob.title],
     ['Talep Sahibi / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
-    ...(isCitizenRequestJob(parentJob) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApproval?.decidedAtUtc)]]),
-    ...(parentJob && shouldShowCitizenTargetApprovalDate(parentJob)
+    ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApproval?.decidedAtUtc)],
+    ...(shouldShowCitizenTargetApprovalDate(parentJob)
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApproval?.decidedAtUtc)]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
-  ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('') : ''
+  ]).map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(String(value))}</td></tr>`).join('') : ''
   printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDisplayNumber)}</title><style>
     @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
@@ -221,7 +243,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     <div class="desc">${description ? escHtml(description).replace(/\n/g, '<br/>') : '<em>Açıklama yok</em>'}</div>
   </div>
   ${parentJob && taskDetail.jobSourceType !== 'Routine' ? `<div class="section">
-    <div class="section-title">İlgili Talep Detayları</div>
+    <div class="section-title">${isCitizenParentJob ? 'Vatandaş Talep Detayları' : 'İlgili Talep Detayları'}</div>
     <table><tbody>${parentJobRows}</tbody></table>
   </div>` : ''}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -1398,7 +1420,7 @@ const pageKicker = isMyTasksView
                     </Button>
                 )}
                 {taskDetail && (
-                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, t, locale)}>
+                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, citizenSourceMessage, t, locale)}>
                     {t('common.print', 'Yazdır')}
                   </Button>
                 )}
@@ -1755,7 +1777,37 @@ const pageKicker = isMyTasksView
                       dept => dept.departmentId === taskDetail.assignedDepartmentId,
                     )
                     const isCitizenParentJob = isCitizenRequestJob(parentJobDetail)
-                    const leftFields = [
+                    const leftFields = isCitizenParentJob ? [
+                      {
+                        label: 'Vatandaş Talep No',
+                        value: (
+                          <span className="inline-flex flex-wrap items-center gap-2">
+                            <span>{formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: parentJobDetail.createdAtUtc }, locale)}</span>
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-500">
+                              ({t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
+                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                              <span className="text-slate-900">{getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}</span>)
+                            </span>
+                          </span>
+                        ),
+                      },
+                      {
+                        label: 'Vatandaş Adı / Telefon No',
+                        value: [parentJobDetail.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJobDetail.citizenPhone ?? citizenSourceMessage?.citizenPhone)]
+                          .filter(Boolean)
+                          .join(' / ') || '—',
+                      },
+                      { label: 'Talep Başlığı', value: parentJobDetail.title },
+                      {
+                        label: 'Talep Yeri / Oluşturan',
+                        value: [parentJobDetail.ownerDepartmentName, parentJobDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                      },
+                      {
+                        label: 'Talebin Gittiği Birim',
+                        value: formatJobDestinationsWithAssignees(parentJobDetail),
+                      },
+                      { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
+                    ] : [
                       {
                         label: 'Talep No',
                         value: parentJobDetail.jobNumber
@@ -1775,18 +1827,19 @@ const pageKicker = isMyTasksView
                           ? t('common.yes', 'Evet')
                           : t('common.no', 'Hayır'),
                       },
-                      // Öncelik, "Proje mi"nin alt satırına alındı (card 6a397fac).
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
                     ]
                     const rightFields = [
+                      ...(isCitizenParentJob ? [{
+                        label: 'Durum',
+                        value: getCitizenRequestStatusLabel(t, parentJobDetail),
+                      }] : []),
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
                       ...(!isCitizenParentJob ? [{
                         // Hem birim-içi hem birim-dışı talepte aynı etiket kullanılır (card #706).
                         label: 'Talebin Birim Yöneticisinin Onay Tarihi',
                         value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
                       }] : []),
-                      // Cross-department talepte, talebi oluşturan birimin onay tarihinin altına
-                      // talebi gerçekleştiren birimin yöneticisinin onay tarihini ekle (card #703).
                       ...(isCitizenParentJob
                         ? (shouldShowCitizenTargetApprovalDate(parentJobDetail) ? [{
                             label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',

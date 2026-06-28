@@ -26,6 +26,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
+import { formatJobDestinationsWithAssignees } from '../utils/jobDetails'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import {
@@ -197,29 +198,6 @@ function sortJobDepartments(departments: JobDepartmentInfo[]) {
 
 function getTargetJobDepartments(job: JobSummary) {
   return sortJobDepartments(job.departments ?? []).filter(department => department.role === 'Target' || department.role === 'Coordinating')
-}
-
-function formatJobDestinationsWithAssignees(job: JobDetail): string {
-  const destinations = sortJobDepartments(job.departments)
-    .filter(department => department.role === 'Target' || department.role === 'Coordinating')
-  const effectiveDestinations = destinations.length > 0
-    ? destinations
-    : job.departments.filter(department => department.departmentId === job.ownerDepartmentId)
-
-  return effectiveDestinations
-    .map(department => {
-      const assignees = [...new Set(
-        job.tasks
-          .filter(task =>
-            task.assignedDepartmentId === department.departmentId
-            || task.assignedDepartmentName === department.departmentName)
-          .map(task => task.assignedUserDisplayName)
-          .filter((name): name is string => Boolean(name)),
-      )]
-      const departmentName = department.departmentName ?? job.ownerDepartmentName ?? '—'
-      return assignees.length > 0 ? `${departmentName} / ${assignees.join(', ')}` : departmentName
-    })
-    .join(', ') || job.ownerDepartmentName || '—'
 }
 
 function formatDateTime(value: string | null, locale: string) {

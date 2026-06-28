@@ -361,11 +361,11 @@
 
     .app-content-shell .my-tasks-table .my-tasks-parent-request-col,
     .app-content-shell .my-tasks-all-table .my-tasks-parent-request-col {
-      width: 10rem;
+      width: 12.5rem;
     }
 
     .app-content-shell .grid-col-request-no {
-      width: 10rem;
+      width: 12.5rem;
     }
 
     .app-content-shell .grid-col-task-no {
@@ -434,22 +434,95 @@
       max-width: 13rem;
     }
 
-    .app-content-shell .my-requests-table {
+    .app-content-shell .my-requests-table,
+    .app-content-shell .incoming-requests-table {
       table-layout: fixed;
       width: 100%;
+      min-width: 58rem;
     }
 
-    .app-content-shell .my-requests-table .grid-col-request-no {
-      width: 10rem;
+    .app-content-shell .my-requests-table .grid-col-row-no,
+    .app-content-shell .incoming-requests-table .grid-col-row-no {
+      width: 3.25rem;
     }
 
-    .app-content-shell .my-requests-table .grid-col-date {
-      width: 8.5rem;
+    .app-content-shell .my-requests-table .grid-col-request-no,
+    .app-content-shell .incoming-requests-table .grid-col-request-no {
+      width: 13.5rem;
     }
 
-    .app-content-shell .my-requests-table .grid-col-title {
-      width: 11rem;
-      min-width: 10rem;
+    .app-content-shell .my-requests-table .grid-col-date,
+    .app-content-shell .incoming-requests-table .grid-col-date {
+      width: 7.75rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-created-by {
+      width: 8.25rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-location-creator,
+    .app-content-shell .incoming-requests-table .grid-col-location-creator {
+      width: 10.5rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-title,
+    .app-content-shell .incoming-requests-table .grid-col-title {
+      width: 9.5rem;
+      min-width: 8rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-destination {
+      width: 10.75rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-task-owner,
+    .app-content-shell .incoming-requests-table .grid-col-task-owner {
+      width: 8rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-due,
+    .app-content-shell .incoming-requests-table .grid-col-due {
+      width: 8.75rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-status-date,
+    .app-content-shell .incoming-requests-table .grid-col-status-date {
+      width: 9rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-status,
+    .app-content-shell .incoming-requests-table .grid-col-status {
+      width: 9rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-actions,
+    .app-content-shell .incoming-requests-table .grid-col-actions {
+      width: 14.25rem;
+    }
+
+    .app-content-shell .my-requests-table thead th:last-child,
+    .app-content-shell .my-requests-table tbody td.actions-cell,
+    .app-content-shell .incoming-requests-table thead th:last-child,
+    .app-content-shell .incoming-requests-table tbody td.actions-cell {
+      width: 14.25rem;
+      min-width: 14.25rem;
+    }
+
+    .app-content-shell .my-requests-table td.table-number-cell,
+    .app-content-shell .incoming-requests-table td.table-number-cell {
+      width: auto;
+      max-width: none;
+    }
+
+    .app-content-shell .my-requests-table td:has(.date-cell),
+    .app-content-shell .incoming-requests-table td:has(.date-cell) {
+      width: auto;
+      max-width: none;
+    }
+
+    .app-content-shell .my-requests-table .cell-title,
+    .app-content-shell .incoming-requests-table .cell-title {
+      max-width: 100%;
     }
 
     /* Fixed-layout tables size columns from their header row. Give the final header
@@ -1033,14 +1106,16 @@
     border-right: 0;
   }
 
-  /* "Taleplerim" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
-  .my-requests-table thead th {
+  /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
+  .my-requests-table thead th,
+  .incoming-requests-table thead th {
     background: transparent;
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }
 
-  .my-requests-table thead {
+  .my-requests-table thead,
+  .incoming-requests-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
@@ -1062,7 +1137,9 @@
   }
 
   .my-requests-table thead th.sortable-th:hover,
-  .my-requests-table thead th.sort-active {
+  .my-requests-table thead th.sort-active,
+  .incoming-requests-table thead th.sortable-th:hover,
+  .incoming-requests-table thead th.sort-active {
     color: rgba(255, 255, 255, 0.8);
   }
 
@@ -1315,6 +1392,11 @@
 
   .jobs-table {
     min-width: 82rem;
+  }
+
+  .jobs-table.my-requests-table,
+  .jobs-table.incoming-requests-table {
+    min-width: 58rem;
   }
 
   .users-table th:nth-child(1),

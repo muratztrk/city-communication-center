@@ -789,7 +789,21 @@ export function IncomingRequestsPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table jobs-table data-table--zebra">
+            <table className="data-table jobs-table data-table--zebra my-requests-table incoming-requests-table">
+              <colgroup>
+                <col className="grid-col-row-no" />
+                <col className="grid-col-request-no" />
+                <col className="grid-col-date" />
+                <col className="grid-col-location-creator" />
+                <col className="grid-col-title" />
+                {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
+                {currentStatusFilter !== 'cancelled' && <col className="grid-col-due" />}
+                {currentStatusFilter === 'approved' && <col className="grid-col-status-date" />}
+                {currentStatusFilter === 'completed' && <col className="grid-col-status-date" />}
+                {currentStatusFilter === 'cancelled' && <col className="grid-col-status-date" />}
+                {currentStatusFilter === 'all' && <col className="grid-col-status" />}
+                <col className="grid-col-actions" />
+              </colgroup>
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>

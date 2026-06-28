@@ -1567,22 +1567,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table${isMyRequestsView ? ' my-requests-table' : ''}${isMyRequestsView || isDepartmentOutgoingView ? ' data-table--zebra' : ''}`}>
+            <table className={`data-table jobs-table${isMyRequestsView || isDepartmentOutgoingView ? ' my-requests-table' : ''}${isMyRequestsView || isDepartmentOutgoingView ? ' data-table--zebra' : ''}`}>
               {(isMyRequestsView || isDepartmentOutgoingView) && (
                 <colgroup>
-                  <col />
+                  <col className="grid-col-row-no" />
                   <col className="grid-col-request-no" />
                   <col className="grid-col-date" />
-                  {isDepartmentOutgoingView && <col />}
+                  {isDepartmentOutgoingView && <col className="grid-col-created-by" />}
                   <col className="grid-col-title" />
-                  {showTaskOwnerColumn && <col />}
-                  <col />
-                  {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <col />}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <col />}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <col />}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <col />}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <col />}
-                  <col />
+                  {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
+                  <col className="grid-col-destination" />
+                  {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <col className="grid-col-due" />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <col className="grid-col-status-date" />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <col className="grid-col-status-date" />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <col className="grid-col-status-date" />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <col className="grid-col-status" />}
+                  <col className="grid-col-actions" />
                 </colgroup>
               )}
               <thead>

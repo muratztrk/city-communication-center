@@ -31,8 +31,8 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
         if (job is null) return false;
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
-        await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
-            _dbContext, actor, request.DepartmentId, "Hedef departman onay yetkiniz yok.", cancellationToken);
+        await JobWorkflowAuthorization.EnsureManagesDepartmentOrCitizenRequestManagerAsync(
+            _dbContext, actor, job, request.DepartmentId, "Hedef departman onay yetkiniz yok.", cancellationToken);
 
         var jd = await _dbContext.JobDepartments.FirstOrDefaultAsync(
             e => e.JobId == job.JobId && e.DepartmentId == request.DepartmentId
@@ -144,8 +144,8 @@ public sealed class RejectJobTargetCommandHandler : ICommandHandler<RejectJobTar
         if (job is null) return false;
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
-        await JobWorkflowAuthorization.EnsureManagesDepartmentAsync(
-            _dbContext, actor, request.DepartmentId, "Hedef departman red yetkiniz yok.", cancellationToken);
+        await JobWorkflowAuthorization.EnsureManagesDepartmentOrCitizenRequestManagerAsync(
+            _dbContext, actor, job, request.DepartmentId, "Hedef departman red yetkiniz yok.", cancellationToken);
 
         var jd = await _dbContext.JobDepartments.FirstOrDefaultAsync(
             e => e.JobId == job.JobId && e.DepartmentId == request.DepartmentId

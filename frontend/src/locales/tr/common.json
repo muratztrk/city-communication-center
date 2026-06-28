@@ -1181,7 +1181,8 @@
       "Operator": "Vatandaş Talep Operatörü",
       "Staff": "Standart",
       "Reporter": "Üst Düzey Yönetici",
-      "EDevletActivityPlan": "e-Devlet Günlük Faaliyet Planı"
+      "EDevletActivityPlan": "e-Devlet Günlük Faaliyet Planı",
+      "CitizenRequestManager": "Vatandaş Talep Yöneticisi"
     },
     "taskType": {
       "CitizenRequest": "Vatandaş Talebi",

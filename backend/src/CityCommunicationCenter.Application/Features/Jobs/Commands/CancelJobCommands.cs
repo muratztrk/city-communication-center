@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
@@ -41,8 +42,15 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
                 jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target &&
                       _dbContext.Departments.Any(d => d.TenantId == tenantId && d.DepartmentId == jd.DepartmentId && d.ManagerUserId == actor.UserId),
                 cancellationToken);
+        var isCitizenRequestManager = !isCreator && !isOwnerManager && !isTargetManager
+            && await UserRoleAccess.CanManageCitizenRequestAsync(
+                _dbContext,
+                tenantId,
+                actor,
+                job,
+                cancellationToken);
 
-        if (!isCreator && !isOwnerManager && !isTargetManager)
+        if (!isCreator && !isOwnerManager && !isTargetManager && !isCitizenRequestManager)
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "İş iptal yetkiniz yok.")

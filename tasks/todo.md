@@ -620,6 +620,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## STATUS: Round 98 complete — Doing list drained (1 card).
 
+## Round 99 (Doing — Vatandaş Talep Yöneticisi rolü)
+- [x] `CitizenRequestManager` rolü: enum + ek rol ataması + sayfa erişimi (dashboard + Birime Gelen Talepler). IncomingRequestsPage yalnızca vatandaş talepleri; VT- kayıtlarda Onayla/İptal. Backend: görev atama, iptal, hedef onay yetkileri. BE build + 29 test + FE build + lint PASS.
+
+## STATUS: Round 99 complete — Doing list drained (1 card).
+
 ## Round 96 (Doing — #1045: Görev Atama Geçmişi başlık + veri)
 - [x] `#1045` — "Görev Atama Geçmişi" başlığı Açıklama ile aynı stil (`text-xs uppercase tracking-wide text-slate-500`). Atama geçmişi satırlarından birim kaldırıldı; yalnızca kullanıcı adı + tarih. FE build + lint PASS. main+master, Done.
 

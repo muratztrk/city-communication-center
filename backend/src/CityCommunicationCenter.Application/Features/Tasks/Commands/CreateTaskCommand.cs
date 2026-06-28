@@ -79,7 +79,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
 
         if (!isSystemAdmin)
         {
-            if (actor.RoleCode == RoleCode.Staff)
+            if (actor.RoleCode == RoleCode.Staff && !UserRoleAccess.IsCitizenRequestManager(actor))
             {
                 if (assignedUserId.HasValue && assignedUserId.Value != actor.UserId)
                 {
@@ -88,6 +88,30 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
 
                 assignedUserId = actor.UserId;
                 assignedDepartmentId ??= actorDepartmentId;
+            }
+            else if (actor.RoleCode == RoleCode.Staff && UserRoleAccess.IsCitizenRequestManager(actor))
+            {
+                if (job.RequestType != JobRequestType.Citizen)
+                {
+                    throw new ForbiddenAccessException("Vatandas talep yoneticisi yalnizca vatandas taleplerine gorev atayabilir.");
+                }
+
+                var managerDept = assignedDepartmentId ?? context.ActiveDepartmentId ?? actorDepartmentId;
+
+                var canManage = await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                    _dbContext,
+                    tenantId,
+                    actor,
+                    job,
+                    managerDept,
+                    cancellationToken);
+                if (!canManage)
+                {
+                    throw new ForbiddenAccessException("Bu vatandas talebi icin gorev atama yetkiniz yok.");
+                }
+
+                assignedDepartmentId = managerDept;
+                assigningManagerId = actor.UserId;
             }
             else if (actor.RoleCode == RoleCode.Manager)
             {

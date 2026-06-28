@@ -1150,7 +1150,8 @@
       "Operator": "Operator",
       "Staff": "Staff",
       "Reporter": "Reporter",
-      "EDevletActivityPlan": "e-Government Daily Activity Plan"
+      "EDevletActivityPlan": "e-Government Daily Activity Plan",
+      "CitizenRequestManager": "Citizen Request Manager"
     },
     "taskType": {
       "CitizenRequest": "Citizen Request",

@@ -49,6 +49,7 @@ import { userWorksInDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobsPage } from './JobsPage'
+import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
@@ -350,6 +351,8 @@ export function IncomingRequestsPage() {
   const locale = getLocale(i18n.language)
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
+  const canManageIncomingActions = isManagerLike || isCitizenRequestManager
   const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
@@ -612,6 +615,9 @@ export function IncomingRequestsPage() {
     let result = rows
       .filter(row => matchesStatusFilter(row, currentStatusFilter))
       .filter(() => matchesKindFilter(currentKindFilter))
+    if (isCitizenRequestManager) {
+      result = result.filter(row => row.isCitizenRequest)
+    }
     if (filterFrom || filterTo) {
       result = result.filter(row => {
         const d = row.createdAtUtc?.slice(0, 10)
@@ -628,7 +634,7 @@ export function IncomingRequestsPage() {
     }
     return result
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentKindFilter, currentStatusFilter, rows, filterFrom, filterTo, searchText, getColumnValue])
+  }, [currentKindFilter, currentStatusFilter, isCitizenRequestManager, rows, filterFrom, filterTo, searchText, getColumnValue])
 
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 
@@ -695,7 +701,9 @@ export function IncomingRequestsPage() {
   }
 
   const canApproveRow = (row: IncomingRequestRow) =>
-    isManagerLike && (
+    canManageIncomingActions
+    && canCitizenRequestManagerActOnRow(user, row)
+    && (
       (row.statusDomain === 'job' && row.status === 'PendingOwnerApproval')
       || (row.statusDomain === 'job' && Boolean(row.pendingTargetApprovalDepartmentId))
       || (row.statusDomain === 'job' && Boolean(row.assignTargetDepartmentId))
@@ -703,10 +711,12 @@ export function IncomingRequestsPage() {
     )
 
   const shouldShowDisabledApprove = (row: IncomingRequestRow) =>
-    isManagerLike && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue') && !canApproveRow(row)
+    canManageIncomingActions && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue') && !canApproveRow(row)
 
   const canCancelRow = (row: IncomingRequestRow) =>
-    isManagerLike && (
+    canManageIncomingActions
+    && canCitizenRequestManagerActOnRow(user, row)
+    && (
       row.status === 'PendingOwnerApproval' ||
       row.status === 'PendingExternalApproval' ||
       row.status === 'Active' ||
@@ -717,7 +727,7 @@ export function IncomingRequestsPage() {
     )
 
   const shouldShowDisabledCancel = (row: IncomingRequestRow) =>
-    isManagerLike && currentStatusFilter === 'all' && !canCancelRow(row)
+    canManageIncomingActions && currentStatusFilter === 'all' && !canCancelRow(row)
 
   return (
     <div className="page-stack desktop-page-shell">

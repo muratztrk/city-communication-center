@@ -7,5 +7,6 @@ public enum RoleCode
     Manager,
     Staff,
     Reporter,
-    EDevletActivityPlan
+    EDevletActivityPlan,
+    CitizenRequestManager
 }

@@ -1,4 +1,4 @@
-export const ROLE_CODES = ['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter', 'EDevletActivityPlan'] as const
+export const ROLE_CODES = ['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
 
 export type RoleCode = typeof ROLE_CODES[number]
 
@@ -26,6 +26,9 @@ export type RolePageAccessMatrix = Record<RoleCode, Record<PageAccessKey, boolea
 /** Pages configurable under the e-Devlet Günlük Faaliyet Planı role column. */
 export const EDEVLET_ROLE_PAGE_KEYS = ['edevletActivityPlan', 'edevletActivityPlansList'] as const satisfies readonly PageAccessKey[]
 
+/** Pages for the Vatandaş Talep Yöneticisi role column. */
+export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = ['incomingRequests'] as const satisfies readonly PageAccessKey[]
+
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'
 export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 
@@ -34,6 +37,11 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
     if (role === 'EDevletActivityPlan') {
       pages[page.key] = page.key === 'dashboard'
         || EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
+      return pages
+    }
+    if (role === 'CitizenRequestManager') {
+      pages[page.key] = page.key === 'dashboard'
+        || CITIZEN_REQUEST_MANAGER_PAGE_KEYS.includes(page.key as typeof CITIZEN_REQUEST_MANAGER_PAGE_KEYS[number])
       return pages
     }
     if (role === 'Operator' || role === 'Manager' || role === 'Staff' || role === 'Reporter') {
@@ -71,6 +79,9 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true
       matrix[role].edevletActivityPlansList = true
+    }
+    if (role === 'CitizenRequestManager') {
+      matrix[role].incomingRequests = true
     }
     if (role === 'Operator' || role === 'Manager' || role === 'Staff' || role === 'Reporter') {
       matrix[role].edevletActivityPlan = false

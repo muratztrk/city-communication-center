@@ -25,7 +25,7 @@ import { ROLE_CODES } from '../lib/rolePageAccess'
 type CreateMode = 'manual' | 'ldap'
 
 const PRIMARY_ROLE_CODES = [...ROLE_CODES]
-const ADDITIONAL_ROLE_CODES = ['Operator', 'Staff', 'Reporter', 'EDevletActivityPlan'] as const
+const ADDITIONAL_ROLE_CODES = ['Operator', 'Staff', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
 
 const DEFAULT_USER_FORM = {
   username: '',

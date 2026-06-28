@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Features.Users;
+
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 internal static class JobWorkflowAuthorization
@@ -49,6 +51,30 @@ internal static class JobWorkflowAuthorization
     {
         if (IsSystemAdmin(actor)) return;
         if (await ManagesDepartmentAsync(dbContext, actor, departmentId, cancellationToken)) return;
+        throw new ForbiddenAccessException(errorMessage);
+    }
+
+    public static async Task EnsureManagesDepartmentOrCitizenRequestManagerAsync(
+        IApplicationDbContext dbContext,
+        ApplicationUser actor,
+        Job job,
+        Guid departmentId,
+        string errorMessage,
+        CancellationToken cancellationToken)
+    {
+        if (IsSystemAdmin(actor)) return;
+        if (await ManagesDepartmentAsync(dbContext, actor, departmentId, cancellationToken)) return;
+        if (await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                dbContext,
+                actor.TenantId,
+                actor,
+                job,
+                departmentId,
+                cancellationToken))
+        {
+            return;
+        }
+
         throw new ForbiddenAccessException(errorMessage);
     }
 }

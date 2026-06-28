@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
 using FluentValidation;
@@ -54,6 +55,74 @@ public static class UserRoleAccess
 
     public static IReadOnlyList<string> GetAdditionalRoleCodeStrings(ApplicationUser user)
         => ParseAdditionalRoleCodes(user.AdditionalRoleCodesJson).Select(role => role.ToString()).ToArray();
+
+    public static bool IsCitizenRequestManager(ApplicationUser user) =>
+        user.RoleCode == RoleCode.CitizenRequestManager
+        || ParseAdditionalRoleCodes(user.AdditionalRoleCodesJson).Contains(RoleCode.CitizenRequestManager);
+
+    public static async Task<bool> CanManageCitizenRequestInTargetDepartmentAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        ApplicationUser actor,
+        Job job,
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        if (!IsCitizenRequestManager(actor) || job.RequestType != JobRequestType.Citizen)
+        {
+            return false;
+        }
+
+        if (!await UserDepartmentAccess.CanWorkInDepartmentAsync(
+                dbContext,
+                tenantId,
+                actor,
+                departmentId,
+                cancellationToken))
+        {
+            return false;
+        }
+
+        return await dbContext.JobDepartments.AsNoTracking().AnyAsync(
+            jd => jd.JobId == job.JobId
+                && jd.Role == JobDepartmentRole.Target
+                && jd.DepartmentId == departmentId,
+            cancellationToken);
+    }
+
+    public static async Task<bool> CanManageCitizenRequestAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        ApplicationUser actor,
+        Job job,
+        CancellationToken cancellationToken)
+    {
+        if (!IsCitizenRequestManager(actor) || job.RequestType != JobRequestType.Citizen)
+        {
+            return false;
+        }
+
+        var targetDepartmentIds = await dbContext.JobDepartments.AsNoTracking()
+            .Where(jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target)
+            .Select(jd => jd.DepartmentId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var departmentId in targetDepartmentIds)
+        {
+            if (await CanManageCitizenRequestInTargetDepartmentAsync(
+                    dbContext,
+                    tenantId,
+                    actor,
+                    job,
+                    departmentId,
+                    cancellationToken))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public static IReadOnlyList<string> GetEffectiveRoleCodeStrings(ApplicationUser user)
     {

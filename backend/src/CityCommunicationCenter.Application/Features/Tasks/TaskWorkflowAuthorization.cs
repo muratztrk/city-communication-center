@@ -64,6 +64,18 @@ internal static class TaskWorkflowAuthorization
 
         if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
         if (await IsManagerOfAsync(dbContext, actor, job.OwnerDepartmentId, cancellationToken)) return;
+        if (job.RequestType == JobRequestType.Citizen
+            && task.AssignedDepartmentId.HasValue
+            && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                dbContext,
+                tenantId,
+                actor,
+                job,
+                task.AssignedDepartmentId.Value,
+                cancellationToken))
+        {
+            return;
+        }
 
         throw new ForbiddenAccessException("Bu gorevi atama yetkiniz yok.");
     }
@@ -81,6 +93,18 @@ internal static class TaskWorkflowAuthorization
 
         if (await IsManagerOfAsync(dbContext, actor, task.AssignedDepartmentId, cancellationToken)) return;
         if (await IsManagerOfAsync(dbContext, actor, job.OwnerDepartmentId, cancellationToken)) return;
+        if (job.RequestType == JobRequestType.Citizen
+            && task.AssignedDepartmentId.HasValue
+            && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                dbContext,
+                tenantId,
+                actor,
+                job,
+                task.AssignedDepartmentId.Value,
+                cancellationToken))
+        {
+            return;
+        }
 
         throw new ForbiddenAccessException("Bu gorevi onaylama yetkiniz yok.");
     }

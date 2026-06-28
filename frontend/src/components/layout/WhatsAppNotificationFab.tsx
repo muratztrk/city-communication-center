@@ -38,7 +38,6 @@ export function WhatsAppNotificationFab() {
   const location = useLocation()
   const panelRef = useRef<HTMLDivElement>(null)
   const pulseTimerRef = useRef<number | null>(null)
-  const activeConversationRef = useRef<ActiveWhatsAppConversation>(null)
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [activeConversation, setActiveConversation] = useState<ActiveWhatsAppConversation>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -70,14 +69,11 @@ export function WhatsAppNotificationFab() {
     }, 1800)
   }, [])
 
-  activeConversationRef.current = activeConversation
-
   const isPayloadForActiveConversation = useCallback((payload: WhatsAppMessagePayload) => {
-    const active = activeConversationRef.current
-    if (location.pathname !== '/whatsapp' || !active) return false
-    if (payload.citizenConversationId === active.id) return true
-    return Boolean(active.phone) && matchesPhone(payload.citizenPhone, active.phone)
-  }, [location.pathname])
+    if (location.pathname !== '/whatsapp' || !activeConversation) return false
+    if (payload.citizenConversationId === activeConversation.id) return true
+    return Boolean(activeConversation.phone) && matchesPhone(payload.citizenPhone, activeConversation.phone)
+  }, [activeConversation, location.pathname])
 
   const zeroUnreadForConversation = useCallback((conversationId: string) => {
     setConversations(prev => prev.map(conversation => (

@@ -9,6 +9,7 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'createRequest', path: '/requests/new', labelKey: 'nav.createRequest' },
   { key: 'createRoutineTask', path: '/routine-tasks/new', labelKey: 'nav.createRoutineTask' },
   { key: 'myTasks', path: '/my-tasks', labelKey: 'nav.myTasks' },
+  { key: 'departmentTasks', path: '/department-tasks', labelKey: 'nav.departmentTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequests' },
   { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
@@ -49,6 +50,7 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
         && page.key !== 'edevletActivityPlan'
         && page.key !== 'edevletActivityPlansList'
         && page.key !== 'outgoingRequests'
+        && page.key !== 'departmentTasks'
       return pages
     }
     if (role === 'Manager') {
@@ -101,9 +103,14 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       matrix[role].edevletActivityPlan = false
       matrix[role].edevletActivityPlansList = false
       matrix[role].outgoingRequests = false
+      matrix[role].departmentTasks = false
     }
     if (role === 'CitizenRequestManager' || role === 'EDevletActivityPlan') {
       matrix[role].outgoingRequests = false
+      matrix[role].departmentTasks = false
+    }
+    if (role === 'Manager' || role === 'SystemAdmin') {
+      matrix[role].departmentTasks = true
     }
     return matrix
   }, {} as RolePageAccessMatrix)

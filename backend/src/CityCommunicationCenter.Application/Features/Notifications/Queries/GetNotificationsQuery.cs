@@ -103,6 +103,11 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         continue;
                     }
 
+                    if (IsJobStatusSideEffectOfTaskChange(a))
+                    {
+                        continue;
+                    }
+
                     var isTask = taskIdSet.Contains(a.EntityId);
                     Guid? taskId = isTask && Guid.TryParse(a.EntityId, out var g) ? g : null;
 
@@ -173,6 +178,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             .Take(100)
             .ToList();
     }
+
+    private static bool IsJobStatusSideEffectOfTaskChange(AuditLog audit) =>
+        audit.EntityType == nameof(Job)
+        && !string.IsNullOrWhiteSpace(audit.Notes)
+        && (audit.Notes.Contains("Görev durumu değişikliği sonucu talep durumu güncellendi", StringComparison.Ordinal)
+            || audit.Notes.Contains("Görev iptali sonucu talep durumu güncellendi", StringComparison.Ordinal));
 
     private static string ResolveActionTitle(AuditLog audit) =>
         audit.Action switch

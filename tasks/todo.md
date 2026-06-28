@@ -681,3 +681,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#1069` — Bildirim modal banner'ı `sticky-page-header` gradient ile sayfa banner'larıyla aynı. BE+FE build PASS.
 
 ## STATUS: Round 104 complete — 3 cards moved to Done.
+
+## Round 105 (Doing — #1068 #1070 #1065 reopened)
+- [x] `#1068` — Görev durumu değişince otomatik talep audit bildirimleri gizlendi (`IsJobStatusSideEffectOfTaskChange`).
+- [x] `#1070` — Rol Yetkileri matrisine `departmentTasks` (Birimdeki Görevler) eklendi; nav + route `PageAccessGate`.
+- [x] `#1065` (reopened) — Durum Değiştir butonu açık mavi (`bg-sky-500`). BE+FE build PASS.
+
+## STATUS: Round 105 complete — 3 cards moved to Done.

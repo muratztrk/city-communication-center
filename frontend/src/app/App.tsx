@@ -79,7 +79,7 @@ export default function App() {
           <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" user={user}><TasksPage fixedScope="mine" /></PageAccessGate>} />
           <Route path="/my-requests" element={<PageAccessGate pageKey="myRequests" user={user}><JobsPage mode="myRequests" fixedScope="mine" /></PageAccessGate>} />
           <Route path="/outgoing-requests" element={<PageAccessGate pageKey="outgoingRequests" user={user}><JobsPage mode="departmentOutgoing" fixedScope="outgoing-department" /></PageAccessGate>} />
-          <Route path="/department-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="departmentTasks" fixedScope="department" /></ManagerOnlyGate>} />
+          <Route path="/department-tasks" element={<PageAccessGate pageKey="departmentTasks" user={user}><TasksPage mode="departmentTasks" fixedScope="department" /></PageAccessGate>} />
           <Route path="/staff-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="staffTasks" fixedScope="all" /></ManagerOnlyGate>} />
           <Route path="/tasks" element={<Navigate to="/incoming-requests?kind=all" replace />} />
           <Route path="/jobs" element={<Navigate to="/incoming-requests?kind=all" replace />} />

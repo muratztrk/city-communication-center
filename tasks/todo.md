@@ -680,4 +680,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#1055` (reopened) — WhatsApp FAB `bottom-7` (footer üstü); ScrollFab `6.75rem` — çakışma giderildi.
 - [x] `#1069` — Bildirim modal banner'ı `sticky-page-header` gradient ile sayfa banner'larıyla aynı. BE+FE build PASS.
 
-## STATUS: Round 104 complete — 3 cards ready for Done.
+## STATUS: Round 104 complete — 3 cards moved to Done.

@@ -27,7 +27,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import {
@@ -250,7 +250,7 @@ function stripHtmlTags(value: string | null | undefined) {
 function buildPrintJobStatusLabel(
   detail: JobDetail,
   t: TFunction,
-  options?: { incomingTargetView?: boolean; hidePendingApprovalActor?: boolean },
+  options?: { incomingTargetView?: boolean },
 ): string {
   let status: string
   if (isCitizenRequestJob(detail)) {
@@ -272,9 +272,7 @@ function buildPrintJobStatusLabel(
           ? 'Tamamlanmış'
           : getJobStatusLabel(t, detail.status))
   }
-  const hidePendingApprovalActor = options?.hidePendingApprovalActor
-    && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval')
-  if (detail.statusActorDisplayName && !hidePendingApprovalActor) {
+  if (shouldShowJobStatusActorName(detail)) {
     status += ` (${detail.statusActorDisplayName})`
   }
   if ((detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason) {
@@ -350,7 +348,7 @@ function printJobDetail(
   detail: JobDetail,
   locale: string,
   t: TFunction,
-  options?: { incomingTargetView?: boolean; hidePendingApprovalActor?: boolean },
+  options?: { incomingTargetView?: boolean },
 ) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
@@ -1860,7 +1858,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.cancelJob', 'Talebi İptal Et')}
                   </Button>
                 )}
-                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, hidePendingApprovalActor: isMyRequestsView })}>{t('common.print', 'Yazdır')}</Button>
+                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
                 <button
                   type="button"
                   onClick={closeDetail}
@@ -1976,8 +1974,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                       : detail.status === 'Completed'
                                         ? t('jobs.statusLabel.completed', 'Tamamlanmış')
                                         : getJobStatusLabel(t, detail.status))}
-                                {!(isMyRequestsView && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval'))
-                                  && detail.statusActorDisplayName ? ` (${detail.statusActorDisplayName})` : ''}
+                                {shouldShowJobStatusActorName(detail) ? ` (${detail.statusActorDisplayName})` : ''}
                               </span>
                               {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
                                 <span className="inline-flex items-center text-red-600">

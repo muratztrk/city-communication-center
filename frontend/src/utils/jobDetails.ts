@@ -15,6 +15,14 @@ export function shouldShowRequestApproverField(job: { status: string }): boolean
   return job.status !== 'PendingOwnerApproval' && job.status !== 'PendingExternalApproval'
 }
 
+export function shouldShowJobStatusActorName(job: {
+  status: string
+  statusActorDisplayName?: string | null
+}): boolean {
+  if (!job.statusActorDisplayName) return false
+  return shouldShowRequestApproverField(job)
+}
+
 export function formatJobDestinationsWithAssignees(job: JobDetail): string {
   const destinations = sortJobDepartments(job.departments)
     .filter(department => department.role === 'Target' || department.role === 'Coordinating')

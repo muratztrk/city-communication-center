@@ -688,3 +688,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#1065` (reopened) — Durum Değiştir butonu açık mavi (`bg-sky-500`). BE+FE build PASS.
 
 ## STATUS: Round 105 complete — 3 cards moved to Done.
+
+## Round 106 (Doing — #1065 #1071 #1072 #1073)
+- [x] `#1065` (reopened) — "Durum Değiştir" butonu arka planı turuncu yapıldı: 3 yerde (detay header, grid İşlemler, modal onay) `bg-sky-500 hover:bg-sky-600` → `bg-orange-500 hover:bg-orange-600` (uygulamanın standart turuncusu #f97316, `text-orange-500` ile uyumlu). FE build + lint PASS. main+master, Done.

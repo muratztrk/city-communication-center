@@ -1540,7 +1540,7 @@ const pageKicker = isMyTasksView
                 {isMyTasksView && selectedTask && canChangeCompletedTaskStatus(selectedTask) && (
                   <Button
                     type="button"
-                    className="bg-sky-500 text-white hover:bg-sky-600"
+                    className="bg-orange-500 text-white hover:bg-orange-600"
                     onClick={() => openStatusChangeModal(selectedTask.taskId, selectedTask.currentStatus)}
                   >
                     {t('tasks.actions.changeStatus', 'Durum Değiştir')}
@@ -2490,7 +2490,7 @@ const pageKicker = isMyTasksView
                           <Button
                             size="sm"
                             type="button"
-                            className="bg-sky-500 text-white hover:bg-sky-600"
+                            className="bg-orange-500 text-white hover:bg-orange-600"
                             onClick={() => openStatusChangeModal(task.taskId, task.currentStatus)}
                           >
                             {t('tasks.actions.changeStatus', 'Durum Değiştir')}
@@ -2779,7 +2779,7 @@ const pageKicker = isMyTasksView
               <Button type="button" variant="secondary" onClick={closeStatusChangeModal}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
-              <Button type="button" className="bg-sky-500 text-white hover:bg-sky-600" disabled={statusChangeSaving || !statusChangeReason.trim() || !statusChangeTarget} onClick={() => void handleStatusChangeConfirm()}>
+              <Button type="button" className="bg-orange-500 text-white hover:bg-orange-600" disabled={statusChangeSaving || !statusChangeReason.trim() || !statusChangeTarget} onClick={() => void handleStatusChangeConfirm()}>
                 {statusChangeSaving ? t('common.loading') : t('tasks.actions.changeStatus', 'Durum Değiştir')}
               </Button>
             </div>

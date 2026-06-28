@@ -28,7 +28,7 @@ export type RolePageAccessMatrix = Record<RoleCode, Record<PageAccessKey, boolea
 export const EDEVLET_ROLE_PAGE_KEYS = ['edevletActivityPlan', 'edevletActivityPlansList'] as const satisfies readonly PageAccessKey[]
 
 /** Pages for the Vatandaş Talep Yöneticisi role column. */
-export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = ['incomingRequests'] as const satisfies readonly PageAccessKey[]
+export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = ['createRequest', 'incomingRequests'] as const satisfies readonly PageAccessKey[]
 
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'
 export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'

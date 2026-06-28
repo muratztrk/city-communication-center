@@ -57,24 +57,30 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         var isSystemAdmin = JobWorkflowAuthorization.IsSystemAdmin(actor);
+        var isDepartmentScopedRequester = actor.RoleCode is RoleCode.Staff or RoleCode.Operator or RoleCode.CitizenRequestManager;
 
         // Auth: Staff can only create for own dept, Manager for managed dept, Admin for any
         if (!isSystemAdmin)
         {
-            if (actor.RoleCode is RoleCode.Staff or RoleCode.Operator &&
+            if (isDepartmentScopedRequester &&
                 !await UserDepartmentAccess.CanWorkInDepartmentAsync(_dbContext, tenantId, actor, request.OwnerDepartmentId, cancellationToken, includeManagedDepartments: false))
             {
-                throw new ForbiddenAccessException(actor.RoleCode == RoleCode.Staff
-                    ? "Personel sadece kendi mudurlugu icin is olusturabilir."
-                    : "Operator sadece kendi mudurlugu icin is olusturabilir.");
+                var roleLabel = actor.RoleCode switch
+                {
+                    RoleCode.Staff => "Personel",
+                    RoleCode.Operator => "Operator",
+                    RoleCode.CitizenRequestManager => "Vatandas Talep Yoneticisi",
+                    _ => "Bu rol"
+                };
+                throw new ForbiddenAccessException($"{roleLabel} sadece kendi mudurlugu icin talep olusturabilir.");
             }
             if (actor.RoleCode == RoleCode.Manager &&
                 !await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, request.OwnerDepartmentId, cancellationToken))
             {
-                throw new ForbiddenAccessException("Mudur sadece yonettigi mudurluk icin is olusturabilir.");
+                throw new ForbiddenAccessException("Mudur sadece yonettigi mudurluk icin talep olusturabilir.");
             }
-            // Üst Düzey Yönetici (Reporter) ve Vatandaş Talep Operatörü talep oluşturabilir; sahip müdürlük kısıtı uygulanmaz (Reporter).
-            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager && actor.RoleCode != RoleCode.Reporter && actor.RoleCode != RoleCode.Operator)
+            // Üst Düzey Yönetici (Reporter) sahip müdürlük kısıtı olmadan; CRM/Staff/Operator kendi birimiyle talep oluşturabilir.
+            if (actor.RoleCode != RoleCode.Staff && actor.RoleCode != RoleCode.Manager && actor.RoleCode != RoleCode.Reporter && actor.RoleCode != RoleCode.Operator && actor.RoleCode != RoleCode.CitizenRequestManager)
             {
                 throw new ForbiddenAccessException("Bu rol talep olusturamaz.");
             }
@@ -109,9 +115,9 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 }
             }
 
-            if (!isSystemAdmin && actor.RoleCode == RoleCode.Staff && ownerUsers.Any(u => u.UserId != actor.UserId))
+            if (!isSystemAdmin && actor.RoleCode is RoleCode.Staff or RoleCode.CitizenRequestManager && ownerUsers.Any(u => u.UserId != actor.UserId))
             {
-                throw Validation(nameof(request.OwnerUserIds), "Personel sadece kendisine gorev olusturabilir.");
+                throw Validation(nameof(request.OwnerUserIds), "Talep icin yalnizca kendiniz gorev sahibi secebilirsiniz.");
             }
         }
 
@@ -146,7 +152,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                     : JobRequestType.InternalUnit;
         var isCitizenRequest = requestType == JobRequestType.Citizen
             || sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet;
-        var requiresOwnerApproval = actor.RoleCode == RoleCode.Staff
+        var requiresOwnerApproval = actor.RoleCode is RoleCode.Staff or RoleCode.CitizenRequestManager
             || (actor.RoleCode == RoleCode.Operator && !isCitizenRequest);
 
         if (actor.RoleCode == RoleCode.Operator && isCitizenRequest && targets.Length > 0)

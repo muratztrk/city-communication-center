@@ -707,3 +707,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 108 (Doing — #1079 #1080 #1071 #1072 #1078)
 - [x] `z3QgRcCO` / #1079 — Talep oluşturma yetki uyarısı "Bu rol talep olusturamaz." olarak değiştirildi. BE build PASS. main+master, Done.
+- [x] `bXWdaNhl` / #1080 — Vatandaş Talep Yöneticisi birim içi/birim dışı talep oluşturabilir: backend role guard'a CRM eklendi, sahip birim kendi çalışma birimiyle sınırlandı, Staff gibi sahip onayına düşürüldü; frontend createRequest varsayılan sayfa erişimi + sahip birim seçimi CRM'e açıldı. BE+FE build/lint PASS. main+master, Done.

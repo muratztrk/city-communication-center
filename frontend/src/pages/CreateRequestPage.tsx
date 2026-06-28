@@ -239,7 +239,7 @@ export function CreateRequestPage() {
   }, [activeDepartmentId, user?.departmentId, user?.userId, users, departments])
 
   const ownerDepartmentOptions = useMemo(() => {
-    if ((user?.role === 'Staff' || user?.role === 'Operator') && myDepartmentId) {
+    if ((user?.role === 'Staff' || user?.role === 'Operator' || user?.role === 'CitizenRequestManager') && myDepartmentId) {
       return departments.filter(department => department.departmentId === myDepartmentId)
     }
     if (user?.role === 'Manager') {
@@ -575,7 +575,7 @@ export function CreateRequestPage() {
 
   const handleCreateInternal = async (event: React.FormEvent) => {
     event.preventDefault()
-    const effectiveOwnerDeptId = (user?.role === 'Staff' || user?.role === 'Operator')
+    const effectiveOwnerDeptId = (user?.role === 'Staff' || user?.role === 'Operator' || user?.role === 'CitizenRequestManager')
       ? myDepartmentId
       : (internalForm.ownerDepartmentId || myDepartmentId)
     if (!effectiveOwnerDeptId) {

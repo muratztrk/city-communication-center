@@ -20,13 +20,14 @@ Bu doküman City Communication Center içindeki rollerin ekran ve işlem yetkile
 
 Birim müdürü olmayan ama **vatandaş taleplerini** (Vatandaş Talebi / `VT-…`) yönetebilen kapsamlı (scoped) roldür. Birincil rol olarak veya ek rol olarak (`AdditionalRoleCodesJson`) atanabilir; her iki durumda da `UserRoleAccess.IsCitizenRequestManager` ile tanınır.
 
-- **Varsayılan sayfa erişimi:** yalnızca **Dashboard** + **Birime Gelen Talepler** (`/incoming-requests`). Diğer sayfalar varsayılan kapalıdır; tenant rol/sayfa matrisiyle genişletilebilir.
+- **Varsayılan sayfa erişimi:** **Dashboard** + **Talep Oluştur** (`/requests/new`) + **Birime Gelen Talepler** (`/incoming-requests`). Diğer sayfalar varsayılan kapalıdır; tenant rol/sayfa matrisiyle genişletilebilir.
 - **Kapsam — yalnızca vatandaş talepleri:** Tüm CRM yetkileri `JobCitizenRequestHelper.IsCitizenRequest(job)` ile sınırlıdır. Frontend'de `canCitizenRequestManagerActOnRow` yalnızca `isCitizenRequest` olan ve `VT-` ile başlayan satırlarda işleme izin verir; vatandaş-olmayan talep/satırlarda CRM hiçbir işlem yapamaz.
-- **İşlemler (yalnızca vatandaş talebinde):**
-  - Birime gelen vatandaş taleplerini görüntüleme/yönetme.
-  - Hedef birim onayı/reddi — yalnızca çalışabildiği hedef birim kapsamında (`CanManageCitizenRequestInTargetDepartmentAsync`).
-  - Vatandaş talebine görev oluşturma (`CreateTaskCommand`, Staff dalından bağımsız).
-  - Vatandaş talebini iptal etme (`CancelJobCommand`).
+- **İşlemler:**
+  - Standart kullanıcı gibi kendi birimi adına birim içi / birim dışı talep oluşturma.
+  - Vatandaş talebi kapsamında birime gelen vatandaş taleplerini görüntüleme/yönetme.
+  - Vatandaş talebi kapsamında hedef birim onayı/reddi — yalnızca çalışabildiği hedef birim kapsamında (`CanManageCitizenRequestInTargetDepartmentAsync`).
+  - Vatandaş talebi kapsamında görev oluşturma (`CreateTaskCommand`, Staff dalından bağımsız).
+  - Vatandaş talebi kapsamında iptal etme (`CancelJobCommand`).
 - **Güvenlik:** Tüm kontroller backend'de `IsCitizenRequestManager` + citizen-request + birim erişimi ile doğrulanır; frontend kapsamı yalnızca UX içindir.
 
 ## 2. Sayfa Erişimleri

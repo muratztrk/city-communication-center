@@ -237,7 +237,7 @@
       "status": "Status",
       "priority": "Priority",
       "assignee": "Assigned",
-      "owner": "Task Owner",
+      "owner": "Task Performer",
       "dueDate": "Due"
     }
   },
@@ -612,7 +612,7 @@
       "status": "Status",
       "priority": "Priority",
       "assignedTo": "Assigned",
-      "owner": "Task Owner",
+      "owner": "Task Performer",
       "createdBy": "Created By",
       "progress": "Progress",
       "dueDate": "Due",

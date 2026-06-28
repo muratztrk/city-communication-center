@@ -27,7 +27,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName } from '../utils/jobDetails'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import {
@@ -250,7 +250,7 @@ function stripHtmlTags(value: string | null | undefined) {
 function buildPrintJobStatusLabel(
   detail: JobDetail,
   t: TFunction,
-  options?: { incomingTargetView?: boolean },
+  options?: { incomingTargetView?: boolean; hidePendingApprovalActor?: boolean },
 ): string {
   let status: string
   if (isCitizenRequestJob(detail)) {
@@ -272,7 +272,9 @@ function buildPrintJobStatusLabel(
           ? 'Tamamlanmış'
           : getJobStatusLabel(t, detail.status))
   }
-  if (detail.statusActorDisplayName) {
+  const hidePendingApprovalActor = options?.hidePendingApprovalActor
+    && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval')
+  if (detail.statusActorDisplayName && !hidePendingApprovalActor) {
     status += ` (${detail.statusActorDisplayName})`
   }
   if ((detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason) {
@@ -348,7 +350,7 @@ function printJobDetail(
   detail: JobDetail,
   locale: string,
   t: TFunction,
-  options?: { incomingTargetView?: boolean },
+  options?: { incomingTargetView?: boolean; hidePendingApprovalActor?: boolean },
 ) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
@@ -360,6 +362,7 @@ function printJobDetail(
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Talebi Onaylayan', getJobOwnerApproverDisplayName(detail) ?? '—'],
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')],
     ['Öncelik', getPriorityLabel(t, detail.priority)],
@@ -1565,6 +1568,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
             <table className={`data-table jobs-table${isMyRequestsView ? ' my-requests-table' : ''}${isMyRequestsView || isDepartmentOutgoingView ? ' data-table--zebra' : ''}`}>
+              {(isMyRequestsView || isDepartmentOutgoingView) && (
+                <colgroup>
+                  <col />
+                  <col className="grid-col-request-no" />
+                  <col className="grid-col-date" />
+                  {isDepartmentOutgoingView && <col />}
+                  <col className="grid-col-title" />
+                  {showTaskOwnerColumn && <col />}
+                  <col />
+                  {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <col />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <col />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <col />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <col />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <col />}
+                  <col />
+                </colgroup>
+              )}
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -1838,7 +1858,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.cancelJob', 'Talebi İptal Et')}
                   </Button>
                 )}
-                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
+                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, hidePendingApprovalActor: isMyRequestsView })}>{t('common.print', 'Yazdır')}</Button>
                 <button
                   type="button"
                   onClick={closeDetail}
@@ -1885,6 +1905,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
                       {
+                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+                        value: getJobOwnerApproverDisplayName(detail) ?? '—',
+                      },
+                      {
                         label: 'Talebin Gittiği Birim',
                         value: formatJobDestinationsWithAssignees(detail),
                       },
@@ -1904,6 +1928,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {
                         label: 'Talep Yeri / Oluşturan',
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                      },
+                      {
+                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+                        value: getJobOwnerApproverDisplayName(detail) ?? '—',
                       },
                       {
                         label: 'Talebin Gittiği Birim',
@@ -1946,7 +1974,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                       : detail.status === 'Completed'
                                         ? t('jobs.statusLabel.completed', 'Tamamlanmış')
                                         : getJobStatusLabel(t, detail.status))}
-                                {detail.statusActorDisplayName ? ` (${detail.statusActorDisplayName})` : ''}
+                                {!(isMyRequestsView && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval'))
+                                  && detail.statusActorDisplayName ? ` (${detail.statusActorDisplayName})` : ''}
                               </span>
                               {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
                                 <span className="inline-flex items-center text-red-600">

@@ -361,31 +361,36 @@
 
     .app-content-shell .my-tasks-table .my-tasks-parent-request-col,
     .app-content-shell .my-tasks-all-table .my-tasks-parent-request-col {
-      width: 9.5rem;
+      width: 10rem;
     }
 
     .app-content-shell .grid-col-request-no {
-      width: 9.5rem;
+      width: 10rem;
     }
 
     .app-content-shell .grid-col-task-no {
-      width: 8.25rem;
+      width: 9rem;
     }
 
     .app-content-shell .grid-col-date {
-      width: 7.25rem;
+      width: 8.5rem;
     }
 
     .app-content-shell .grid-col-title {
-      width: 9rem;
-      min-width: 8rem;
+      width: 11rem;
+      min-width: 10rem;
+    }
+
+    .app-content-shell .my-tasks-table .my-tasks-location-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-location-col {
+      width: 12rem;
     }
 
     .app-content-shell .my-tasks-table .my-tasks-title-col,
     .app-content-shell .my-tasks-all-table .my-tasks-title-col {
-      width: auto;
-      min-width: 8rem;
-      max-width: 9rem;
+      width: 11rem;
+      min-width: 10rem;
+      max-width: 13rem;
     }
 
     .app-content-shell .my-tasks-table .my-tasks-type-col,
@@ -426,7 +431,25 @@
     }
 
     .app-content-shell .my-tasks-all-table .cell-title {
-      max-width: 9rem;
+      max-width: 13rem;
+    }
+
+    .app-content-shell .my-requests-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-request-no {
+      width: 10rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-date {
+      width: 8.5rem;
+    }
+
+    .app-content-shell .my-requests-table .grid-col-title {
+      width: 11rem;
+      min-width: 10rem;
     }
 
     /* Fixed-layout tables size columns from their header row. Give the final header

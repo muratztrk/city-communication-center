@@ -958,7 +958,7 @@ export function CreateRequestPage() {
             </div>
             <div className="job-field">
               <span className="job-field-label">
-                {t('tasks.newRequest.ownerUser', 'Görev Sahibi Kişi/Birim')}
+                {t('tasks.newRequest.ownerUser', 'Görevi Yapan Kişi/Birim')}
                 {isManagerLike && <span className="text-red-500"> *</span>}
               </span>
               {isManagerLike ? (

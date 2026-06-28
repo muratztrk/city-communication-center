@@ -30,7 +30,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
-import { formatJobDestinationsWithAssignees } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName } from '../utils/jobDetails'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -187,7 +187,7 @@ function printTaskDetail(
     ...(taskDetail.jobSourceType !== 'Routine'
       ? [['Talep Yeri / Oluşturan', [taskSummary?.ownerDepartmentName, taskDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—']]
       : []),
-    ['Görev Sahibi', taskDetail.ownerDisplayName ?? '—'],
+    ['Görevi Yapan', taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—'],
     ['Görev Tipi', gorevTipi],
     ['Öncelik', getPriorityLabel(t, taskDetail.priority)],
     ...(taskDetail.currentStatus === 'Completed' && taskDetail.notes
@@ -205,6 +205,7 @@ function printTaskDetail(
     ['Vatandaş Adı / Telefon No', [parentJob.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJob.citizenPhone ?? citizenSourceMessage?.citizenPhone)].filter(Boolean).join(' / ') || '—'],
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'],
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(parentJob)],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
@@ -216,7 +217,8 @@ function printTaskDetail(
   ] : [
     ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
     ['Talep Başlığı', parentJob.title],
-    ['Talep Sahibi / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'],
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
@@ -1516,32 +1518,6 @@ const pageKicker = isMyTasksView
                 <div className="loading">{t('common.loading')}</div>
               ) : taskDetail ? (
                 <>
-                  {showAssignmentHistoryInHeader ? (
-                    <div className="mb-4 flex justify-end">
-                      <section className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-3">
-                      <h3 className="mb-2 border-b border-slate-200 pb-1.5 text-sm font-semibold text-emerald-600">
-                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
-                      </h3>
-                      <div className="grid gap-2">
-                        {taskDetail.assignmentHistory.map(item => (
-                          <div
-                            key={item.assignmentId}
-                            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-                          >
-                            <div className="text-slate-950">
-                              <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
-                              {' · '}
-                              <span className="font-bold">{getUserName(item.toUserId)}</span>
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              {new Date(item.actionDateUtc).toLocaleString(locale)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                    </div>
-                  ) : null}
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
                     <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)]' : ''} lg:items-stretch`}>
@@ -1564,7 +1540,7 @@ const pageKicker = isMyTasksView
                                     : []),
                                   // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
                                   // assignedUser önce, yoksa owner (JobsPage Görev Detayları ile aynı) (card #719).
-                                  { label: 'Görev Sahibi', value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
+                                  { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
                                   {
                                     label: 'Görev Tipi',
                                     value: `${taskDetail.jobSourceType === 'Routine'
@@ -1791,6 +1767,32 @@ const pageKicker = isMyTasksView
                                     />
                                   </div>
                                 </div>
+                                {showAssignmentHistoryInHeader ? (
+                                  <div className={`min-w-0 border-slate-200${isCompletedTaskDetail ? ' border-t lg:border-l lg:border-t-0' : ' border-t'}`}>
+                                    <div className="border-b border-slate-200 px-4 py-2">
+                                      <span className="text-xs font-semibold text-emerald-600">
+                                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
+                                      </span>
+                                    </div>
+                                    <div className="space-y-2 px-4 py-3">
+                                      {taskDetail.assignmentHistory.map(item => (
+                                        <div
+                                          key={item.assignmentId}
+                                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                                        >
+                                          <div className="text-slate-950">
+                                            <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
+                                            {' · '}
+                                            <span className="font-bold">{getUserName(item.toUserId)}</span>
+                                          </div>
+                                          <div className="text-xs text-slate-500">
+                                            {new Date(item.actionDateUtc).toLocaleString(locale)}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : null}
                                 {isCompletedTaskDetail ? (
                                   <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
                                     <div className="border-b border-slate-200 px-4 py-2">
@@ -1917,6 +1919,10 @@ const pageKicker = isMyTasksView
                         value: [parentJobDetail.ownerDepartmentName, parentJobDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
                       {
+                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+                        value: getJobOwnerApproverDisplayName(parentJobDetail) ?? '—',
+                      },
+                      {
                         label: 'Talebin Gittiği Birim',
                         value: formatJobDestinationsWithAssignees(parentJobDetail),
                       },
@@ -1934,10 +1940,12 @@ const pageKicker = isMyTasksView
                       },
                       { label: 'Talep Başlığı', value: parentJobDetail.title },
                       {
-                        label: 'Talep Sahibi / Onaylayan',
-                        value: [parentJobDetail.createdByDisplayName, ownerJobDepartment?.approvedByDisplayName]
-                          .filter(Boolean)
-                          .join(' / ') || '—',
+                        label: 'Talep Yeri / Oluşturan',
+                        value: [parentJobDetail.ownerDepartmentName, parentJobDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                      },
+                      {
+                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+                        value: getJobOwnerApproverDisplayName(parentJobDetail) ?? '—',
                       },
                       {
                         label: 'Proje mi',
@@ -2220,7 +2228,7 @@ const pageKicker = isMyTasksView
                   <col className="my-tasks-parent-request-col grid-col-request-no" />
                   <col className="grid-col-task-no" />
                   <col className="grid-col-date" />
-                  <col />
+                  <col className="my-tasks-location-col" />
                   <col className="my-tasks-title-col grid-col-title" />
                   {(isDepartmentTasksView || isStaffTasksView) && <col />}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && <col className="my-tasks-type-col" />}

@@ -141,6 +141,36 @@ public sealed class TaskWorkflowAuthorizationTests
         Assert.Equal(expected, TaskWorkflowAuthorization.IsClaimableFromDepartmentPool(task));
     }
 
+    [Fact]
+    public async Task RecomputeJobCompletionAsync_DemotesCompletedJobWhenAllTasksCancelled()
+    {
+        await using var dbContext = CreateDbContext();
+        await SeedAsync(dbContext);
+
+        var job = CreateJob();
+        job.Status = JobStatus.Completed;
+        job.CompletedAtUtc = DateTimeOffset.UtcNow;
+        job.CompletionPercentage = 100;
+
+        var task = CreateTask(assignedUserId: AssigneeId);
+        task.JobId = job.JobId;
+        task.CurrentStatus = WorkflowTaskStatus.Cancelled;
+
+        dbContext.Jobs.Add(job);
+        dbContext.Tasks.Add(task);
+        await dbContext.SaveChangesAsync();
+
+        var result = await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(
+            dbContext,
+            job.JobId,
+            CancellationToken.None);
+
+        Assert.Equal(JobStatus.Cancelled, result);
+        Assert.Equal(JobStatus.Cancelled, job.Status);
+        Assert.Null(job.CompletedAtUtc);
+        Assert.Equal(0, job.CompletionPercentage);
+    }
+
     private static CityCommunicationCenterDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<CityCommunicationCenterDbContext>()

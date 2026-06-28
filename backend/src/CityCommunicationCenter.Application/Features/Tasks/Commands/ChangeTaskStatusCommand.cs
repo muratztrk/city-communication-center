@@ -90,17 +90,33 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        JobStatus? previousJobStatus = parentJob?.Status;
         await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
 
-        // RecomputeJobCompletionAsync talep durumunu yalnızca terminal'e YÜKSELTİR, geri düşürmez.
-        // Görev "Yapılmakta"ya geri alındığında terminal (Completed/Cancelled/Rejected) takılı kalır →
-        // talebi tekrar Active yap (card #1005).
+        // Karışık terminal durumda recompute Active yapar; InProgress'e geri almada da
+        // Completed/Cancelled takılı kalabilir → Active yap (card #1005).
         if (parentJob is not null
             && newStatus == WorkflowTaskStatus.InProgress
             && parentJob.Status is JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected)
         {
             parentJob.Status = JobStatus.Active;
             parentJob.CompletedAtUtc = null;
+        }
+
+        if (parentJob is not null && previousJobStatus.HasValue && parentJob.Status != previousJobStatus.Value)
+        {
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(Job),
+                EntityId = parentJob.JobId.ToString(),
+                Action = parentJob.Status == JobStatus.Cancelled ? "JobCancelled" : "JobCompleted",
+                ActorUserId = request.ActorUserId,
+                StatusAtEvent = parentJob.Status.ToString(),
+                Notes = "Görev durumu değişikliği sonucu talep durumu güncellendi.",
+                Details = request.Reason
+            });
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

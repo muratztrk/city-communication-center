@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react'
+import { Paperclip, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -29,6 +29,15 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
+
+const COMPLETION_ATTACHMENT_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
+const COMPLETION_ATTACHMENT_ACCEPT = COMPLETION_ATTACHMENT_EXTENSIONS.join(',')
+const COMPLETION_ATTACHMENT_MAX_SIZE = 5 * 1024 * 1024
+
+function completionAttachmentExtension(name: string): string {
+  const dot = name.lastIndexOf('.')
+  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
@@ -418,7 +427,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
   // Tamamlama işlemi henüz yapılmadan eklenen dosyalar, detay kapatılırsa
   // geçici işlemden arta kalmamalıdır (card #739).
-  const [pendingCompletionAttachmentIds, setPendingCompletionAttachmentIds] = useState<string[]>([])
+  const [pendingCompletionAttachments, setPendingCompletionAttachments] = useState<Array<{ attachmentId: string; fileName: string }>>([])
+  const [completionAttachmentError, setCompletionAttachmentError] = useState<string | null>(null)
+  const [completionAttachmentUploading, setCompletionAttachmentUploading] = useState(false)
+  const completeFileInputRef = useRef<HTMLInputElement>(null)
   const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnDeptId, setReturnDeptId] = useState('')
@@ -815,11 +827,51 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const handleComplete = (taskId: string) => {
     setCompleteModal({ taskId })
     setCompletionNote('')
+    setCompletionAttachmentError(null)
+    setPendingCompletionAttachments([])
+  }
+
+  const cleanupPendingCompletionAttachments = (attachments: Array<{ attachmentId: string; fileName: string }>) => {
+    if (attachments.length === 0) return
+    void Promise.all(attachments.map(item => api.deleteAttachment(item.attachmentId))).catch(() => {
+      // Modal kapanışını engelleme; silme yetkisi/bağlantı hatası sonraki açılışta görünür.
+    })
   }
 
   const closeCompleteModal = () => {
+    cleanupPendingCompletionAttachments(pendingCompletionAttachments)
+    setPendingCompletionAttachments([])
+    setCompletionAttachmentError(null)
     setCompleteModal(null)
     setCompletionNote('')
+  }
+
+  const handleCompletionFilesSelected = async (files: FileList | null) => {
+    if (!completeModal || !files || files.length === 0) return
+    setCompletionAttachmentError(null)
+
+    for (const file of Array.from(files)) {
+      if (!COMPLETION_ATTACHMENT_EXTENSIONS.includes(completionAttachmentExtension(file.name))) {
+        setCompletionAttachmentError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+        continue
+      }
+      if (file.size > COMPLETION_ATTACHMENT_MAX_SIZE) {
+        setCompletionAttachmentError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+        continue
+      }
+
+      setCompletionAttachmentUploading(true)
+      try {
+        const attachment = await api.uploadTaskAttachment(completeModal.taskId, file)
+        setPendingCompletionAttachments(current => [...current, { attachmentId: attachment.attachmentId, fileName: attachment.fileName }])
+      } catch (err) {
+        setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
+      } finally {
+        setCompletionAttachmentUploading(false)
+      }
+    }
+
+    if (completeFileInputRef.current) completeFileInputRef.current.value = ''
   }
 
   const handleCompleteConfirm = async () => {
@@ -827,9 +879,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setCompleteSaving(true)
     try {
       await api.completeTask(completeModal.taskId, completionNote.trim())
-      setPendingCompletionAttachmentIds([])
+      setPendingCompletionAttachments([])
       invalidateTasks(queryClient, completeModal.taskId, selectedTask?.jobId)
-      closeCompleteModal()
+      setCompleteModal(null)
+      setCompletionNote('')
+      setCompletionAttachmentError(null)
       closeTaskDetail()
       await reload()
       showToast(t('tasks.actions.completeSuccess', 'Görev başarıyla tamamlandı!'))
@@ -1247,13 +1301,9 @@ const pageKicker = isMyTasksView
   }
 
   const closeTaskDetail = () => {
-    if (pendingCompletionAttachmentIds.length > 0) {
-      const attachmentIds = pendingCompletionAttachmentIds
-      setPendingCompletionAttachmentIds([])
-      void Promise.all(attachmentIds.map(id => api.deleteAttachment(id))).catch(() => {
-        // Modal kapanışını engelleme; silme yetkisi/bağlantı hatası sonraki açılışta görünür.
-      })
-    }
+    cleanupPendingCompletionAttachments(pendingCompletionAttachments)
+    setPendingCompletionAttachments([])
+    setCompletionAttachmentError(null)
     dismissedAutoOpenTaskIdRef.current = autoOpenTaskId
     setSelectedTask(null)
     setTaskDetail(null)
@@ -1759,7 +1809,37 @@ const pageKicker = isMyTasksView
                               </div>
                               {(() => {
                                 const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
+                                const isCompletedRoutineTask = taskDetail.jobSourceType === 'Routine' && isCompletedTaskDetail
                                 const showHistoryBesideDescription = showAssignmentHistoryInHeader
+                                const showTaskAttachmentsInDetail = isCompletedTaskDetail && !isCompletedRoutineTask
+                                const renderAssignmentHistoryColumn = (className = '') => (
+                                  <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
+                                    <div className="border-b border-slate-200 px-4 py-2">
+                                      <span className="text-xs font-semibold text-emerald-600">
+                                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
+                                      </span>
+                                    </div>
+                                    <div className="flex-1 space-y-2 px-4 py-3">
+                                      {taskDetail.assignmentHistory.length === 0 ? (
+                                        <p className="text-sm text-slate-400">{t('tasks.detail.noAssignmentHistory', 'Atama geçmişi yok')}</p>
+                                      ) : taskDetail.assignmentHistory.map(item => (
+                                        <div
+                                          key={item.assignmentId}
+                                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                                        >
+                                          <div className="text-slate-950">
+                                            <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
+                                            {' · '}
+                                            <span className="font-bold">{getUserName(item.toUserId)}</span>
+                                          </div>
+                                          <div className="text-xs text-slate-500">
+                                            {new Date(item.actionDateUtc).toLocaleString(locale)}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )
                                 return (
                               <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${
                                 isCompletedTaskDetail
@@ -1782,33 +1862,9 @@ const pageKicker = isMyTasksView
                                     />
                                   </div>
                                 </div>
-                                {showHistoryBesideDescription ? (
-                                  <div className="flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0">
-                                    <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="text-xs font-semibold text-emerald-600">
-                                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
-                                      </span>
-                                    </div>
-                                    <div className="flex-1 space-y-2 px-4 py-3">
-                                      {taskDetail.assignmentHistory.map(item => (
-                                        <div
-                                          key={item.assignmentId}
-                                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-                                        >
-                                          <div className="text-slate-950">
-                                            <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
-                                            {' · '}
-                                            <span className="font-bold">{getUserName(item.toUserId)}</span>
-                                          </div>
-                                          <div className="text-xs text-slate-500">
-                                            {new Date(item.actionDateUtc).toLocaleString(locale)}
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {isCompletedTaskDetail ? (
+                                {showHistoryBesideDescription ? renderAssignmentHistoryColumn() : null}
+                                {isCompletedRoutineTask ? renderAssignmentHistoryColumn() : null}
+                                {showTaskAttachmentsInDetail ? (
                                   <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
                                     <div className="border-b border-slate-200 px-4 py-2">
                                       <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -2519,20 +2575,68 @@ const pageKicker = isMyTasksView
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}</p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-red-500">*</span></span>
-              <textarea
-                className="field-textarea"
-                rows={3}
-                value={completionNote}
-                onChange={e => setCompletionNote(e.target.value)}
-                placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
-                autoFocus
-              />
+              <div className="flex items-start gap-3">
+                <div className="flex shrink-0 flex-col gap-1">
+                  <span className="text-xs font-semibold text-slate-500">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
+                  <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-1.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${completeSaving || completionAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                    <Paperclip className="size-3.5" />
+                    {t('attachments.addFile', 'Dosya ekle')}
+                    <input
+                      ref={completeFileInputRef}
+                      type="file"
+                      accept={COMPLETION_ATTACHMENT_ACCEPT}
+                      multiple
+                      className="hidden"
+                      disabled={completeSaving || completionAttachmentUploading}
+                      onChange={event => void handleCompletionFilesSelected(event.target.files)}
+                    />
+                  </label>
+                  <div className="min-h-[3.75rem] max-h-[3.75rem] w-[9.5rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white px-2 py-2">
+                    {pendingCompletionAttachments.length === 0 ? (
+                      <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+                    ) : (
+                      <ul className="space-y-1 text-xs">
+                        {pendingCompletionAttachments.map(item => (
+                          <li key={item.attachmentId} className="flex min-w-0 items-start gap-2">
+                            <span className="min-w-0 flex-1 break-words text-left font-medium text-slate-700">{item.fileName}</span>
+                            <button
+                              type="button"
+                              className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                              disabled={completeSaving || completionAttachmentUploading}
+                              onClick={() => {
+                                void api.deleteAttachment(item.attachmentId).then(() => {
+                                  setPendingCompletionAttachments(current => current.filter(entry => entry.attachmentId !== item.attachmentId))
+                                }).catch(err => {
+                                  setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
+                                })
+                              }}
+                            >
+                              {t('common.delete', 'Sil')}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                <textarea
+                  className="field-textarea min-h-[6.5rem] flex-1"
+                  rows={3}
+                  value={completionNote}
+                  onChange={e => setCompletionNote(e.target.value)}
+                  placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                  autoFocus
+                />
+              </div>
+              {completionAttachmentError ? (
+                <p className="text-xs font-medium text-red-600">{completionAttachmentError}</p>
+              ) : null}
             </label>
             <div className="inline-actions justify-end">
-              <Button type="button" variant="secondary" onClick={closeCompleteModal}>
+              <Button type="button" variant="secondary" onClick={closeCompleteModal} disabled={completeSaving || completionAttachmentUploading}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
-              <Button type="button" variant="success" disabled={completeSaving || !completionNote.trim()} onClick={() => void handleCompleteConfirm()}>
+              <Button type="button" variant="success" disabled={completeSaving || completionAttachmentUploading || !completionNote.trim()} onClick={() => void handleCompleteConfirm()}>
                 {completeSaving ? t('common.loading') : t('tasks.actions.complete', 'Tamamla')}
               </Button>
             </div>

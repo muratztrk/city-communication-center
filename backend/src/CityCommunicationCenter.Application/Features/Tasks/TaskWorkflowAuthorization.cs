@@ -288,25 +288,40 @@ internal static class TaskWorkflowAuthorization
 
         if (!allTerminal) return null;
 
-        var hasCompleted = tasks.Any(t => t.CurrentStatus == WorkflowTaskStatus.Completed);
         var allCancelled = tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Cancelled);
+        var allCompleted = tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Completed);
 
-        if (hasCompleted)
+        if (allCancelled)
         {
+            if (job.Status == Domain.Enums.JobStatus.Cancelled)
+            {
+                return null;
+            }
+
+            job.Status = Domain.Enums.JobStatus.Cancelled;
+            job.CompletedAtUtc = null;
+            job.CompletionPercentage = 0;
+            return Domain.Enums.JobStatus.Cancelled;
+        }
+
+        if (allCompleted)
+        {
+            if (job.Status == Domain.Enums.JobStatus.Completed)
+            {
+                return null;
+            }
+
             job.Status = Domain.Enums.JobStatus.Completed;
             job.CompletedAtUtc = DateTimeOffset.UtcNow;
             return Domain.Enums.JobStatus.Completed;
         }
 
-        if (allCancelled
-            && job.Status is not Domain.Enums.JobStatus.Completed
-                and not Domain.Enums.JobStatus.Cancelled
-                and not Domain.Enums.JobStatus.Rejected)
+        // Karışık terminal durum (ör. bir görev tamamlanmış, diğeri iptal) — talep tamamlanmış sayılmaz.
+        if (job.Status is Domain.Enums.JobStatus.Completed or Domain.Enums.JobStatus.Cancelled or Domain.Enums.JobStatus.Rejected)
         {
-            // Tüm görevler iptal edildiğinde talebi de iptal et (Active, PendingOwnerApproval, vb.)
-            job.Status = Domain.Enums.JobStatus.Cancelled;
-            job.CompletionPercentage = 0;
-            return Domain.Enums.JobStatus.Cancelled;
+            job.Status = Domain.Enums.JobStatus.Active;
+            job.CompletedAtUtc = null;
+            return Domain.Enums.JobStatus.Active;
         }
 
         return null;

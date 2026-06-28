@@ -62,10 +62,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   default `null` ile kalır.
 - **Düzenle (UpdateJob):** terminal (Completed/Cancelled/Rejected) hariç düzenlenebilir;
   hedef-departman değişikliği yalnızca onay-öncesi durumda.
-- **`RecomputeJobCompletionAsync` talebi yalnızca terminal'e YÜKSELTİR, geri DÜŞÜRMEZ.** Bir
-  görevi terminal'den (Completed/Cancelled) non-terminal'e (InProgress) geri alırsan talep
-  `Completed`/`Cancelled` takılı kalır → komutta manuel `JobStatus.Active` + `CompletedAtUtc=null`
-  yap (bkz. `ChangeTaskStatusCommand`, card #1005).
+- **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
+  iptal edildiğinde `Cancelled`'a düşürür (card #1044). Karışık terminal durumda (tamamlanmış +
+  iptal görev bir arada) talep `Active`'e geri alınır. Bir görevi terminal'den non-terminal'e
+  (InProgress) geri alırsan ve recompute hâlâ terminal bırakıyorsa komutta manuel
+  `JobStatus.Active` + `CompletedAtUtc=null` yap (bkz. `ChangeTaskStatusCommand`, card #1005).
 
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 

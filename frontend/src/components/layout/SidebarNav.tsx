@@ -87,7 +87,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
       collapsed
         ? 'justify-center gap-0 px-0 py-2.5 text-sm'
         : isEmphasizedNested
-          ? 'gap-3 px-3.5 py-2 text-[0.85rem] font-bold'
+          ? '-ml-3 w-[calc(100%+0.75rem)] gap-2 px-2.5 py-2 text-[0.82rem] font-bold'
           : nested
             ? 'gap-2.5 px-3 py-1.5 text-xs'
             : item.multilineLabel
@@ -114,7 +114,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           <Icon className={cn('shrink-0', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
         ) : null}
         {!collapsed ? (
-          <span className={cn('min-w-0', item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>{item.label}</span>
+          <span className={cn('min-w-0', isEmphasizedNested ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>{item.label}</span>
         ) : null}
       </NavLink>
     )

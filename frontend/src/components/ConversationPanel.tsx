@@ -32,8 +32,8 @@ function getInitials(value: string): string | null {
 
 function DateDivider({ label }: { label: string }) {
   return (
-    <div className="flex justify-center py-1">
-      <span className="rounded-full bg-black/25 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-sm">
+    <div className="flex justify-center py-1.5">
+      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200/80">
         {label}
       </span>
     </div>
@@ -113,16 +113,13 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       </div>
 
       {/* Messages */}
-      <div
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 min-h-0"
-        style={{ background: 'linear-gradient(165deg, var(--color-header-from), var(--color-header-to))' }}
-      >
+      <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
         {conversationQuery.isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="size-5 animate-spin text-white/80" />
+          <div className="flex h-full items-center justify-center">
+            <Loader2 className="size-5 animate-spin text-slate-500" />
           </div>
         ) : entries.length === 0 ? (
-          <p className="text-center text-sm text-white/70 mt-8">{t('social.noMessages', 'Henüz mesaj yok')}</p>
+          <p className="mt-8 text-center text-sm text-slate-500">{t('social.noMessages', 'Henüz mesaj yok')}</p>
         ) : (
           entries.map((entry, i) => {
             const showDivider = i === 0 || !conversationSameDay(entry.sentAt, entries[i - 1].sentAt)
@@ -133,6 +130,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   entry={entry}
                   socialMessageId={socialMessageId}
                   citizenPhone={citizenPhone}
+                  theme="light"
                   onAddMediaAsAttachment={onAddMediaAsAttachment}
                 />
               </Fragment>

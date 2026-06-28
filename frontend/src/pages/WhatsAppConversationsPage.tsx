@@ -428,7 +428,7 @@ function ConversationDetail({
         </div>
       ) : null}
 
-      <div className="min-h-0 flex-1 overflow-y-auto space-y-2.5 bg-[#f0f2f5] px-4 py-4">
+      <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
         {loading ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
@@ -449,7 +449,7 @@ function ConversationDetail({
                     if (element) entryRefs.current.set(index, element)
                     else entryRefs.current.delete(index)
                   }}
-                  className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-[color:var(--color-primary)] ring-offset-2 ring-offset-[#f0f2f5] transition-shadow' : undefined}
+                  className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-[color:var(--color-primary)] ring-offset-2 ring-offset-[var(--wa-chat-bg)] transition-shadow' : undefined}
                 >
                   <ConversationEntryBubble entry={entry} theme="light" />
                 </div>

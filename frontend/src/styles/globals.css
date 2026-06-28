@@ -3095,6 +3095,25 @@
     bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + var(--whatsapp-fab-size) + var(--fab-stack-gap));
   }
 
+  /* WhatsApp-style chat surface: base color + subtle dot pattern (not Meta assets). */
+  .whatsapp-chat-bg {
+    background-color: var(--wa-chat-bg);
+    background-image:
+      radial-gradient(rgb(17 27 33 / 0.045) 0.75px, transparent 0.75px),
+      radial-gradient(rgb(17 27 33 / 0.025) 0.75px, transparent 0.75px);
+    background-size: 22px 22px, 22px 22px;
+    background-position: 0 0, 11px 11px;
+  }
+
+  .whatsapp-chat-bg--dark {
+    background-color: var(--wa-chat-bg-dark);
+    background-image:
+      radial-gradient(rgb(255 255 255 / 0.05) 0.75px, transparent 0.75px),
+      radial-gradient(rgb(255 255 255 / 0.03) 0.75px, transparent 0.75px);
+    background-size: 22px 22px, 22px 22px;
+    background-position: 0 0, 11px 11px;
+  }
+
   @keyframes whatsapp-fab-pulse {
     0%, 100% {
       transform: scale(1);

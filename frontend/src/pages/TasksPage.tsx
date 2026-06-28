@@ -2391,10 +2391,10 @@ const pageKicker = isMyTasksView
             >
               <X className="size-4" />
             </button>
-            <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
+            <h2 className="mb-1 border-b border-slate-200 pb-1.5 text-base font-semibold text-slate-950">
               {t('tasks.actions.changeStatusTitle', 'Görev Durum Değişikliği')}
             </h2>
-            <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}</p>
+            <p className="helper-copy -mt-0.5 mb-2" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}</p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-red-500">*</span></span>
               <textarea
@@ -2407,7 +2407,7 @@ const pageKicker = isMyTasksView
               />
             </label>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'Talep Durumu Seç')}</span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'Görev Durumu Seç')}</span>
               <select className="field-select" value={statusChangeTarget} onChange={e => setStatusChangeTarget(e.target.value)}>
                 <option value="" disabled hidden>{t('tasks.actions.changeStatusPlaceholder', 'Görev durumu seçiniz')}</option>
                 {STATUS_CHANGE_OPTIONS.filter(o => o.value !== statusChangeModal.currentStatus).map(o => (

@@ -660,7 +660,7 @@
       "changeStatusHelp": "Görev durumunu değiştirmek için neden belirtiniz.",
       "changeStatusReason": "Neden",
       "changeStatusReasonPlaceholder": "Durum değişikliği nedenini açıklayınız...",
-      "changeStatusSelect": "Talep Durumu Seç",
+      "changeStatusSelect": "Görev Durumu Seç",
       "changeStatusPlaceholder": "Görev durumu seçiniz",
       "statusChangeSuccess": "Görev durumu güncellendi."
     },

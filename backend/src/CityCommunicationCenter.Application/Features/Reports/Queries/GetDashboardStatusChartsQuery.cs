@@ -42,7 +42,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
         if (context.RoleCode is not ("Manager" or "SystemAdmin"))
         {
-            return await BuildStandardUserChartsAsync(tenantId, context.UserId.Value, context.ActiveDepartmentId, request, cancellationToken);
+            return await BuildStandardUserChartsAsync(
+                tenantId,
+                context.UserId.Value,
+                context.RoleCode,
+                context.ActiveDepartmentId,
+                request,
+                cancellationToken);
         }
 
         var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
@@ -110,6 +116,84 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
     }
 
+    private async Task<List<CitizenJobStatusItem>> ProjectCitizenJobs(IQueryable<Job> jobs, CancellationToken cancellationToken)
+    {
+        return await jobs
+            .Select(job => new CitizenJobStatusItem(
+                job.Status,
+                job.DueDateUtc,
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId)))
+            .ToListAsync(cancellationToken);
+    }
+
+    private static DashboardChartResponse BuildCitizenRequestsChart(
+        IEnumerable<CitizenJobStatusItem> jobs,
+        DateTimeOffset now)
+    {
+        var values = jobs.ToList();
+        var processingReceived = 0;
+        var overdue = 0;
+        var inProgress = 0;
+        var completed = 0;
+        var cancelled = 0;
+
+        foreach (var job in values)
+        {
+            switch (ClassifyCitizenJobStatus(job, now))
+            {
+                case CitizenJobDisplayStatus.Completed:
+                    completed++;
+                    break;
+                case CitizenJobDisplayStatus.Cancelled:
+                    cancelled++;
+                    break;
+                case CitizenJobDisplayStatus.Overdue:
+                    overdue++;
+                    break;
+                case CitizenJobDisplayStatus.InProgress:
+                    inProgress++;
+                    break;
+                default:
+                    processingReceived++;
+                    break;
+            }
+        }
+
+        return new DashboardChartResponse("dashboard.charts.citizenRequests",
+        [
+            new DashboardChartSlice("dashboard.chart.citizenProcessingReceived", processingReceived, "info"),
+            new DashboardChartSlice("dashboard.chart.overdue", overdue, "orange"),
+            new DashboardChartSlice("dashboard.chart.inProgress", inProgress, "success"),
+            new DashboardChartSlice("dashboard.chart.completed", completed, "primary"),
+            new DashboardChartSlice("dashboard.chart.cancelled", cancelled, "danger"),
+        ]);
+    }
+
+    private static CitizenJobDisplayStatus ClassifyCitizenJobStatus(CitizenJobStatusItem job, DateTimeOffset now)
+    {
+        if (job.Status == JobStatus.Completed)
+        {
+            return CitizenJobDisplayStatus.Completed;
+        }
+
+        if (job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
+        {
+            return CitizenJobDisplayStatus.Cancelled;
+        }
+
+        if (job.DueDateUtc.HasValue && job.DueDateUtc.Value < now)
+        {
+            return CitizenJobDisplayStatus.Overdue;
+        }
+
+        if (job.Status == JobStatus.Active && job.TaskCount > 0)
+        {
+            return CitizenJobDisplayStatus.InProgress;
+        }
+
+        return CitizenJobDisplayStatus.ProcessingReceived;
+    }
+
     private async Task<List<JobStatusItem>> ProjectJobs(IQueryable<Job> jobs, CancellationToken cancellationToken)
     {
         return await jobs
@@ -126,6 +210,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
     private async Task<DashboardStatusChartsResponse> BuildStandardUserChartsAsync(
         Guid tenantId,
         Guid userId,
+        string? roleCode,
         Guid? activeDepartmentId,
         GetDashboardStatusChartsQuery request,
         CancellationToken cancellationToken)
@@ -174,8 +259,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
             && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
 
-        return new DashboardStatusChartsResponse(
-        [
+        var charts = new List<DashboardChartResponse>
+        {
             // "Görevlerim" grafiği görev tipine göre filtrelenir (card 762).
             BuildTaskChart("dashboard.charts.myTasks", FilterTasks(tasks, request.MyTaskType), now),
             BuildJobChart("dashboard.charts.myRequests", jobs, "dashboard.chart.pending", now, false),
@@ -184,7 +269,19 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 new DashboardChartSlice("dashboard.chart.assignedToMe", ownDepartmentTaskCount, "primary"),
                 new DashboardChartSlice("dashboard.chart.departmentTotal", departmentOtherTaskCount, "info"),
             ]),
-        ]);
+        };
+
+        if (roleCode is "Reporter" or "Operator")
+        {
+            var citizenJobs = await ProjectCitizenJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
+                job.TenantId == tenantId
+                && job.RequestType == JobRequestType.Citizen
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
+            charts.Add(BuildCitizenRequestsChart(citizenJobs, now));
+        }
+
+        return new DashboardStatusChartsResponse(charts);
     }
 
     private async Task<DashboardChartResponse> BuildStaffTasksChartAsync(
@@ -286,6 +383,16 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType);
     private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks);
+    private sealed record CitizenJobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, int TaskCount);
+
+    private enum CitizenJobDisplayStatus
+    {
+        ProcessingReceived,
+        Overdue,
+        InProgress,
+        Completed,
+        Cancelled,
+    }
 
     private static readonly string[] StaffChartColors = ["primary", "success", "info", "warning", "neutral"];
 }

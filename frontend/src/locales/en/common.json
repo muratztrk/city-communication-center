@@ -377,6 +377,7 @@
       "externalPendingApproval": "External Pending Approval",
       "assignedToMe": "My Tasks",
       "departmentTotal": "Department Tasks",
+      "citizenProcessingReceived": "Processing Received",
       "noData": "No data to display yet."
     },
     "charts": {
@@ -385,7 +386,8 @@
       "myTasks": "My Tasks",
       "outgoingRequests": "Outgoing Requests",
       "incomingRequests": "Incoming Requests",
-      "myRequests": "My Requests"
+      "myRequests": "My Requests",
+      "citizenRequests": "Citizen Requests"
     },
     "taskFilter": {
       "assigned": "Assigned",

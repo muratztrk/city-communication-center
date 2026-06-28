@@ -379,6 +379,7 @@
       "externalPendingApproval": "Birim Dışı Onay Bekleyen",
       "assignedToMe": "Benim Görevlerim",
       "departmentTotal": "Birimdeki Görevler",
+      "citizenProcessingReceived": "İşleme Alındı",
       "noData": "Henüz gösterilecek veri yok."
     },
     "charts": {
@@ -387,7 +388,8 @@
       "myTasks": "Görevlerim",
       "outgoingRequests": "Birimden Giden Talepler",
       "incomingRequests": "Birime Gelen Talepler",
-      "myRequests": "Taleplerim"
+      "myRequests": "Taleplerim",
+      "citizenRequests": "Vatandaş Talepleri"
     },
     "taskFilter": {
       "assigned": "Atanmış",

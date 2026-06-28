@@ -40,6 +40,7 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.incomingRequests': '/incoming-requests',
   'dashboard.charts.outgoingRequests': '/outgoing-requests',
   'dashboard.citizenChannels.title': '/social',
+  'dashboard.charts.citizenRequests': '/social',
 }
 
 // Lejant dilim etiketi → hedef sayfadaki ilgili scope chip (card 797).
@@ -60,6 +61,14 @@ const INCOMING_SLICE_STATUS: Record<string, string> = {
   'dashboard.chart.overdue': 'overdue',
   'dashboard.chart.approved': 'approved',
   'dashboard.chart.inProgress': 'approved',
+  'dashboard.chart.completed': 'completed',
+  'dashboard.chart.cancelled': 'cancelled',
+}
+
+const CITIZEN_SLICE_STATUS: Record<string, string> = {
+  'dashboard.chart.citizenProcessingReceived': 'processing-received',
+  'dashboard.chart.overdue': 'overdue',
+  'dashboard.chart.inProgress': 'in-progress',
   'dashboard.chart.completed': 'completed',
   'dashboard.chart.cancelled': 'cancelled',
 }
@@ -97,6 +106,16 @@ function getSliceRoute(
     return sliceLabel.startsWith('channel.')
       ? `/social?channel=${encodeURIComponent(sliceLabel.slice('channel.'.length))}`
       : '/social'
+  }
+
+  if (titleKey === 'dashboard.charts.citizenRequests') {
+    const requestStatus = CITIZEN_SLICE_STATUS[sliceLabel]
+    const dateParams = period ? periodQueryParams(period.from, period.to) : {}
+    return withQueryParams('/social', {
+      channel: 'all',
+      requestStatus,
+      ...dateParams,
+    })
   }
 
   const taskTypeParam = taskChartFilter && taskChartFilter !== 'all' ? taskChartFilter : undefined

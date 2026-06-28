@@ -615,6 +615,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## STATUS: Round 97 complete — Doing list drained (5 cards).
 
+## Round 98 (Doing — #1046: Vatandaş Talepleri pie chart)
+- [x] `#1046` — Reporter + Operator dashboard'a "Vatandaş Talepleri" pie chart: İşleme Alındı, Son Tarihi Geçmiş, Yapılmakta Olan, Tamamlanan, İptal dilimleri. Backend `GetDashboardStatusChartsQuery` citizen job sınıflandırması (SocialMessagesPage ile uyumlu). FE: locale, CHART_ROUTES, dilim tıklama → `/social?requestStatus=…`. SocialMessagesPage URL `requestStatus` okur. BE build + 29 test + FE build + lint PASS.
+
+## STATUS: Round 98 complete — Doing list drained (1 card).
+
 ## Round 96 (Doing — #1045: Görev Atama Geçmişi başlık + veri)
 - [x] `#1045` — "Görev Atama Geçmişi" başlığı Açıklama ile aynı stil (`text-xs uppercase tracking-wide text-slate-500`). Atama geçmişi satırlarından birim kaldırıldı; yalnızca kullanıcı adı + tarih. FE build + lint PASS. main+master, Done.
 

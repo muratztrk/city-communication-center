@@ -105,6 +105,10 @@ const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: stri
   { value: 'cancelled', labelKey: 'social.requestStatus.cancelled', fallback: 'İptal' },
 ]
 
+function isSocialRequestStatusFilter(value: string | null): value is SocialRequestStatusFilter {
+  return value != null && REQUEST_STATUS_FILTERS.some(filter => filter.value === value)
+}
+
 function getSocialMessageStatusKey(job: JobSummary | undefined, dueDateUtc: string | null): Exclude<SocialRequestStatusFilter, 'all'> {
   if (!job) return 'processing-received'
 
@@ -177,6 +181,8 @@ export function SocialMessagesPage() {
   const channelFilter = channelParam === null
     ? DEFAULT_CHANNEL_FILTER
     : channelParam === ALL_CHANNELS_FILTER ? '' : channelParam
+  const requestStatusParam = searchParams.get('requestStatus')
+  const initialRequestStatus = isSocialRequestStatusFilter(requestStatusParam) ? requestStatusParam : 'all'
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -192,7 +198,14 @@ export function SocialMessagesPage() {
   const [searchText, setSearchText] = useState('')
   const [messagesPage, setMessagesPage] = useState(1)
   const [messagesPageSize, setMessagesPageSize] = useState(10)
-  const [requestStatusFilter, setRequestStatusFilter] = useState<SocialRequestStatusFilter>('all')
+  const [requestStatusFilter, setRequestStatusFilter] = useState<SocialRequestStatusFilter>(initialRequestStatus)
+
+  useEffect(() => {
+    const nextStatus = searchParams.get('requestStatus')
+    if (isSocialRequestStatusFilter(nextStatus)) {
+      setRequestStatusFilter(nextStatus)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     let isActive = true

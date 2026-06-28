@@ -10,6 +10,16 @@ public sealed record CreateRoutineTaskRequest(
     string? Street = null,
     string? OpenAddress = null);
 
+public sealed record UpdateRoutineTaskRequest(
+    string Title,
+    string Description,
+    string Priority,
+    DateTimeOffset? DueDateUtc,
+    string? Notes,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null);
+
 public sealed record CreateTaskRequest(
     Guid JobId,
     string Title,

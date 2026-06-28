@@ -181,7 +181,9 @@ function printTaskDetail(
   const taskDetailRows = [
     ['Görev No', taskDisplayNumber],
     ['Görev Başlığı', taskDetail.title],
-    ['Talep Yeri / Oluşturan', [taskSummary?.ownerDepartmentName, taskDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    ...(taskDetail.jobSourceType !== 'Routine'
+      ? [['Talep Yeri / Oluşturan', [taskSummary?.ownerDepartmentName, taskDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—']]
+      : []),
     ['Görev Sahibi', taskDetail.ownerDisplayName ?? '—'],
     ['Görev Tipi', gorevTipi],
     ['Öncelik', getPriorityLabel(t, taskDetail.priority)],
@@ -266,6 +268,10 @@ function formatTaskDisplayNumber(task: Task): string {
 // aksiyon butonları kaybolur (card 614).
 function isActionableTaskStatus(status: string): boolean {
   return status === 'Assigned' || status === 'InProgress' || status === 'RevisionRequested'
+}
+
+function getRoutineTaskEditPath(taskId: string): string {
+  return `/routine-tasks/${taskId}/edit`
 }
 
 // Görevin atanma günü = bugün mü? (Görevlerim "Yeni" rozeti, card 589)
@@ -836,6 +842,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       invalidateTasks(queryClient, statusChangeModal.taskId)
       closeStatusChangeModal()
       await reload()
+      if (selectedTask?.taskId === statusChangeModal.taskId) {
+        const updatedDetail = await api.getTaskById(statusChangeModal.taskId)
+        setTaskDetail(updatedDetail)
+      }
       showToast(t('tasks.actions.statusChangeSuccess', 'Görev durumu güncellendi.'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -1070,6 +1080,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   }
 
   const isAssignee = (task: Task) => task.assignedUserId === user?.userId
+  const canEditRoutineTask = (task: Pick<Task, 'jobSourceType' | 'assignedUserId' | 'currentStatus'>) =>
+    task.jobSourceType === 'Routine' && task.assignedUserId === user?.userId && isActionableTaskStatus(task.currentStatus)
+  const openRoutineTaskEdit = (taskId: string) => {
+    closeTaskDetail()
+    navigate(getRoutineTaskEditPath(taskId))
+  }
   const getDepartmentName = (departmentId?: string | null) => departments.find(department => department.departmentId === departmentId)?.name ?? '—'
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
 const pageKicker = isMyTasksView
@@ -1401,6 +1417,22 @@ const pageKicker = isMyTasksView
                     {t('tasks.actions.route', 'Görevi Yönlendir')}
                   </Button>
                 )}
+                {isMyTasksView && selectedTask && (canEditRoutineTask(selectedTask) ? (
+                  <Button
+                    type="button"
+                    className="bg-teal-700 text-white hover:bg-teal-800"
+                    onClick={() => openRoutineTaskEdit(selectedTask.taskId)}
+                  >
+                    {t('common.edit', 'Düzenle')}
+                  </Button>
+                ) : (
+                  <DisabledActionButton
+                    className="bg-teal-700 text-white"
+                    hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
+                  >
+                    {t('common.edit', 'Düzenle')}
+                  </DisabledActionButton>
+                ))}
                 {isMyTasksView && canCompleteTask && (
                   <Button type="button" variant="success" onClick={() => handleComplete(taskDetail.taskId)}>
                     {t('tasks.actions.complete', 'Tamamla')}
@@ -1455,10 +1487,12 @@ const pageKicker = isMyTasksView
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
                                   { label: 'Görev Başlığı', value: taskDetail.title },
-                                  {
-                                    label: 'Talep Yeri / Oluşturan',
-                                    value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
-                                  },
+                                  ...(taskDetail.jobSourceType !== 'Routine'
+                                    ? [{
+                                        label: 'Talep Yeri / Oluşturan',
+                                        value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                                      }]
+                                    : []),
                                   // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
                                   // assignedUser önce, yoksa owner (JobsPage Görev Detayları ile aynı) (card #719).
                                   { label: 'Görev Sahibi', value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
@@ -1470,12 +1504,6 @@ const pageKicker = isMyTasksView
                                   },
                                   // Öncelik, Görev Tipi'nin hemen altına (sol kolona) alındı (card #705).
                                   { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
-                                  ...(taskDetail.currentStatus === 'Completed' && taskDetail.notes
-                                    ? [{
-                                        label: t('tasks.detail.taskCompletionNote', 'Görev Tamamlama Notu'),
-                                        value: richTextToPlainText(taskDetail.notes),
-                                      }]
-                                    : []),
                                   // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
                                 ].map(({ label, value }, index, rows) => (
                                   <div key={label} className={`flex items-start gap-2 px-3 py-2${index === rows.length - 1 ? ' border-b border-slate-100' : ''}`}>
@@ -1512,6 +1540,15 @@ const pageKicker = isMyTasksView
                                               onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                             >
                                               ({t('tasks.detail.cancelNote', 'İptal Notu')})
+                                            </button>
+                                          ) : null}
+                                          {taskDetail.currentStatus === 'Completed' && taskDetail.notes ? (
+                                            <button
+                                              type="button"
+                                              className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
+                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                            >
+                                              ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
                                             </button>
                                           ) : null}
                                         </span>
@@ -2190,6 +2227,23 @@ const pageKicker = isMyTasksView
                           </Button>
                         )}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
+                        {isMyTasksView && (canEditRoutineTask(task) ? (
+                          <Button
+                            size="sm"
+                            className="bg-teal-700 text-white hover:bg-teal-800"
+                            onClick={() => navigate(getRoutineTaskEditPath(task.taskId))}
+                          >
+                            {t('common.edit', 'Düzenle')}
+                          </Button>
+                        ) : (
+                          <DisabledActionButton
+                            size="sm"
+                            className="button-placeholder bg-teal-700 text-white"
+                            hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
+                          >
+                            {t('common.edit', 'Düzenle')}
+                          </DisabledActionButton>
+                        ))}
                         {currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}

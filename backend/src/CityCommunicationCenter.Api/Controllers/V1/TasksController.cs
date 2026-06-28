@@ -40,6 +40,23 @@ public sealed class TasksController : ApiControllerBase
         return CreatedAtRoute("GetTaskById", new { taskId = response.TaskId }, response);
     }
 
+    [HttpPut("routine/{taskId:guid}")]
+    public async Task<ActionResult<TaskSummaryResponse>> UpdateRoutine(Guid taskId, [FromBody] UpdateRoutineTaskRequest request, CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new UpdateRoutineTaskCommand(
+            taskId,
+            CurrentContext.UserId,
+            request.Title,
+            request.Description,
+            request.Priority,
+            request.DueDateUtc,
+            request.Notes,
+            request.Neighborhood,
+            request.Street,
+            request.OpenAddress), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpPost("")]
     public async Task<ActionResult<TaskSummaryResponse>> Create([FromBody] CreateTaskRequest request, CancellationToken cancellationToken)
     {

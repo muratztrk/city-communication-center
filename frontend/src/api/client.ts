@@ -600,6 +600,25 @@ export const api = {
     return response.json() as Promise<Task>
   },
 
+  async updateRoutineTask(taskId: string, task: {
+    title: string
+    description: string
+    priority: string
+    dueDateUtc?: string | null
+    notes?: string | null
+    neighborhood?: string | null
+    street?: string | null
+    openAddress?: string | null
+  }): Promise<Task> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/routine/${taskId}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(task),
+    })
+    await ensureOk(response, i18n.t('errors.taskUpdateFailed', 'Görev güncellenemedi.'))
+    return response.json() as Promise<Task>
+  },
+
   async assignTask(taskId: string, departmentId?: string | null, userId?: string | null): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/assign`, {
       method: 'POST',

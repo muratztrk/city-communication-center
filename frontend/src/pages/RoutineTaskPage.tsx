@@ -1,7 +1,7 @@
 import { ClipboardList, Paperclip, Send } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateTasks } from '../api/cacheInvalidation'
@@ -51,18 +51,63 @@ function validateFile(file: File): string | null {
   return null
 }
 
+function toDateTimePickerValue(value: string | null | undefined): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
 export function RoutineTaskPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { taskId } = useParams()
   const queryClient = useQueryClient()
+  const isEditMode = Boolean(taskId)
   const [form, setForm] = useState<FormState>(INITIAL)
   const [submitting, setSubmitting] = useState(false)
+  const [loadingEdit, setLoadingEdit] = useState(isEditMode)
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+
+  useEffect(() => {
+    if (!taskId) return
+    let cancelled = false
+    setLoadingEdit(true)
+    setError(null)
+    void (async () => {
+      try {
+        const detail = await api.getTaskById(taskId)
+        const job = await api.getJobById(detail.jobId)
+        if (cancelled) return
+        if (detail.jobSourceType !== 'Routine') {
+          setError(t('routineTask.editNotRoutine', 'Bu görev rutin görev değil.'))
+          return
+        }
+        setForm({
+          title: detail.title,
+          description: detail.description,
+          priority: detail.priority,
+          dueDateUtc: toDateTimePickerValue(detail.dueDateUtc),
+          neighborhood: job.neighborhood ?? '',
+          street: job.street ?? '',
+          openAddress: job.openAddress ?? '',
+        })
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      } finally {
+        if (!cancelled) setLoadingEdit(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [taskId, t])
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm(current => ({ ...current, [key]: value }))
@@ -77,11 +122,11 @@ export function RoutineTaskPage() {
     }
   }
 
-  const executeCreate = async () => {
+  const executeSave = async () => {
     setSubmitting(true)
     setError(null)
     try {
-      const task = await api.createRoutineTask({
+      const payload = {
         title: form.title.trim(),
         description: form.description.trim(),
         priority: form.priority,
@@ -90,12 +135,17 @@ export function RoutineTaskPage() {
         neighborhood: form.neighborhood || null,
         street: form.street || null,
         openAddress: form.openAddress || null,
-      })
+      }
+
+      const task = isEditMode && taskId
+        ? await api.updateRoutineTask(taskId, payload)
+        : await api.createRoutineTask(payload)
+
       for (const file of pendingFiles) {
         await api.uploadTaskAttachment(task.taskId, file)
       }
-      invalidateTasks(queryClient)
-      navigate('/my-tasks?view=all')
+      invalidateTasks(queryClient, task.taskId, task.jobId)
+      navigate(isEditMode ? '/my-tasks?view=pending' : '/my-tasks?view=all')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -107,18 +157,27 @@ export function RoutineTaskPage() {
     e.preventDefault()
     if (!form.title.trim() || !form.description.trim()) return
     setConfirmDialog({
-      title: t('nav.createRoutineTask', 'Rutin Görev Oluştur'),
-      message: t('routineTask.createConfirm', 'Bu görevi oluşturmak istediğinize emin misiniz?'),
+      title: isEditMode
+        ? t('routineTask.editTitle', 'Rutin Görev Düzenle')
+        : t('nav.createRoutineTask', 'Rutin Görev Oluştur'),
+      message: isEditMode
+        ? t('routineTask.updateConfirm', 'Bu rutin görevi güncellemek istediğinize emin misiniz?')
+        : t('routineTask.createConfirm', 'Bu görevi oluşturmak istediğinize emin misiniz?'),
       titleCompact: true,
       titleDivider: true,
-      confirmLabel: t('routineTask.createConfirmButton', 'Görev Oluştur'),
+      confirmLabel: isEditMode
+        ? t('common.update', 'Güncelle')
+        : t('routineTask.createConfirmButton', 'Görev Oluştur'),
       cancelLabel: t('common.cancel', 'İptal'),
       variant: 'success',
-      onConfirm: () => { void executeCreate() },
+      onConfirm: () => { void executeSave() },
     })
   }
 
-  const canSubmit = !submitting && form.title.trim() !== '' && form.description.trim() !== ''
+  const canSubmit = !submitting && !loadingEdit && form.title.trim() !== '' && form.description.trim() !== ''
+  const pageTitle = isEditMode
+    ? t('routineTask.editTitle', 'Rutin Görev Düzenle')
+    : t('nav.createRoutineTask', 'Rutin Görev Oluştur')
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -126,12 +185,15 @@ export function RoutineTaskPage() {
         <div className="page-header-row">
           <div className="space-y-1">
             <div className="page-kicker">{t('nav.myTasks', 'Görevlerim')}</div>
-            <h1 className="page-title">{t('nav.createRoutineTask', 'Rutin Görev Oluştur')}</h1>
+            <h1 className="page-title">{pageTitle}</h1>
             <p className="page-subtitle text-base">{t('routineTask.subtitle', 'Onay gerektirmeyen kişisel görev')}</p>
           </div>
         </div>
       </header>
 
+      {loadingEdit ? (
+        <div className="loading">{t('common.loading')}</div>
+      ) : (
       <form onSubmit={handleSubmit} className="section-card routine-task-form routine-task-form--readable grid gap-4 xl:grid-cols-2">
         {/* Banner */}
         <div className="xl:col-span-2 flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -140,7 +202,7 @@ export function RoutineTaskPage() {
           </span>
           <div>
             <h2 className="text-xl font-extrabold text-slate-950">
-              {t('nav.createRoutineTask', 'Rutin Görev Oluştur')}
+              {pageTitle}
             </h2>
             <p className="helper-copy mt-0.5 text-base leading-6">
               {t('routineTask.formDescription', 'Onay süreci gerektirmeyen kişisel görevler için kullanın.')}
@@ -324,11 +386,16 @@ export function RoutineTaskPage() {
             </Button>
             <Button type="submit" disabled={!canSubmit} className="gap-2">
               <Send className="size-4" />
-              {submitting ? t('common.loading', 'Kaydediliyor...') : t('routineTask.submit', 'Görevi Oluştur')}
+              {submitting
+                ? t('common.loading', 'Kaydediliyor...')
+                : isEditMode
+                  ? t('common.update', 'Güncelle')
+                  : t('routineTask.submit', 'Görevi Oluştur')}
             </Button>
           </div>
         </div>
       </form>
+      )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )

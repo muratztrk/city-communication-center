@@ -35,6 +35,7 @@ import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttach
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
+import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -530,6 +531,13 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && isManagerLike
     && taskDetail.jobSourceType !== 'Routine'
     && isActionableTaskStatus(taskDetail.currentStatus)
+  const showAssignmentHistoryInHeader = !!taskDetail
+    && isMyTasksView
+    && taskDetail.jobSourceType !== 'Routine'
+    && taskDetail.assignmentHistory.length > 0
+    && (currentMyTaskView === 'pending'
+      || (currentMyTaskView === 'overdue'
+        && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')))
   const canChangeTaskDueDate = !!taskDetail
     && isManagerLike
     && (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
@@ -1508,6 +1516,32 @@ const pageKicker = isMyTasksView
                 <div className="loading">{t('common.loading')}</div>
               ) : taskDetail ? (
                 <>
+                  {showAssignmentHistoryInHeader ? (
+                    <div className="mb-4 flex justify-end">
+                      <section className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-3">
+                      <h3 className="mb-2 border-b border-slate-200 pb-1.5 text-sm font-semibold text-emerald-600">
+                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
+                      </h3>
+                      <div className="grid gap-2">
+                        {taskDetail.assignmentHistory.map(item => (
+                          <div
+                            key={item.assignmentId}
+                            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                          >
+                            <div className="text-slate-950">
+                              <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
+                              {' · '}
+                              <span className="font-bold">{getUserName(item.toUserId)}</span>
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {new Date(item.actionDateUtc).toLocaleString(locale)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                    </div>
+                  ) : null}
                   {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
                   <section className="mb-5">
                     <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)]' : ''} lg:items-stretch`}>
@@ -1890,9 +1924,13 @@ const pageKicker = isMyTasksView
                     ] : [
                       {
                         label: 'Talep No',
-                        value: parentJobDetail.jobNumber
-                          ? `T-${parentJobDetail.jobNumberYear}-${parentJobDetail.jobNumber}`
-                          : '—',
+                        value: (
+                          <RequestNumberWithTypeLabel
+                            job={parentJobDetail}
+                            t={t}
+                            locale={locale}
+                          />
+                        ),
                       },
                       { label: 'Talep Başlığı', value: parentJobDetail.title },
                       {
@@ -2039,6 +2077,7 @@ const pageKicker = isMyTasksView
                   {/* Rutin görevlerde alt işlem/ek bölümleri gösterilmez (card 555).
                       Rutin olmayan görevlerde Yönetici Notu + Ekler ilgili talep detaylarında gösterilir. */}
                   {(() => {
+                    if (showAssignmentHistoryInHeader) return null
                     if (taskDetail.jobSourceType === 'Routine') return null
                     if (taskDetail.assignmentHistory.length === 0) return null
                     return (

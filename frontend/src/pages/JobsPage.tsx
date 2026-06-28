@@ -39,6 +39,7 @@ import {
   shouldShowCitizenTargetApprovalDate,
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
+import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -1891,9 +1892,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     ] : [
                       {
                         label: 'Talep No',
-                        value: detail.jobNumber != null && detail.jobNumberYear != null
-                          ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
-                          : `T-${detail.jobNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`,
+                        value: (
+                          <RequestNumberWithTypeLabel
+                            job={detail}
+                            t={t}
+                            locale={locale}
+                          />
+                        ),
                       },
                       { label: 'Talep Başlığı', value: detail.title },
                       {

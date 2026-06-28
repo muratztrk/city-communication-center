@@ -16,14 +16,10 @@ export function isExternalUnitJob(job: { requestType?: string | null }): boolean
 }
 
 export function getExternalUnitOwnerDisplayStatus(
-  t: TFunction,
-  job: ExternalUnitStatusSource,
+  _t: TFunction,
+  _job: ExternalUnitStatusSource,
 ): string | null {
-  if (!isExternalUnitJob(job)) return null
-  const taskCount = externalTaskCount(job)
-  if ((job.status === 'Active' || job.status === 'PendingExternalApproval') && taskCount === 0) {
-    return t('social.requestStatus.processingReceived', 'İşleme Alındı')
-  }
+  // "İşleme Alındı" yalnızca vatandaş taleplerinde gösterilir (card #1047).
   return null
 }
 

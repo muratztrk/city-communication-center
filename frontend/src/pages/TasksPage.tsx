@@ -549,13 +549,17 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && isManagerLike
     && taskDetail.jobSourceType !== 'Routine'
     && isActionableTaskStatus(taskDetail.currentStatus)
-  const showAssignmentHistoryInHeader = !!taskDetail
+  const showAssignmentHistoryBesideDescription = !!taskDetail
     && isMyTasksView
     && taskDetail.jobSourceType !== 'Routine'
     && taskDetail.assignmentHistory.length > 0
-    && (currentMyTaskView === 'pending'
+    && (
+      currentMyTaskView === 'pending'
       || (currentMyTaskView === 'overdue'
-        && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')))
+        && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress'))
+      || taskDetail.currentStatus === 'Completed'
+      || taskDetail.currentStatus === 'Cancelled'
+    )
   const canChangeTaskDueDate = !!taskDetail
     && isManagerLike
     && (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
@@ -1581,7 +1585,7 @@ const pageKicker = isMyTasksView
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
                             <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:items-stretch ${
-                              showAssignmentHistoryInHeader
+                              showAssignmentHistoryBesideDescription
                                 ? 'lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.72fr)_minmax(0,1.38fr)]'
                                 : 'lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]'
                             }`}>
@@ -1808,9 +1812,9 @@ const pageKicker = isMyTasksView
                               </div>
                               {(() => {
                                 const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
-                                const isCompletedRoutineTask = taskDetail.jobSourceType === 'Routine' && isCompletedTaskDetail
-                                const showHistoryBesideDescription = showAssignmentHistoryInHeader
-                                const showTaskAttachmentsInDetail = isCompletedTaskDetail && !isCompletedRoutineTask
+                                const showHistoryBesideDescription = showAssignmentHistoryBesideDescription
+                                const showTaskAttachmentsInDetail = isCompletedTaskDetail && taskDetail.jobSourceType !== 'Routine'
+                                const rightPanelColumnCount = 1 + (showHistoryBesideDescription ? 1 : 0) + (showTaskAttachmentsInDetail ? 1 : 0)
                                 const renderAssignmentHistoryColumn = (className = '') => (
                                   <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
@@ -1818,33 +1822,30 @@ const pageKicker = isMyTasksView
                                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                                       </span>
                                     </div>
-                                    <div className="flex-1 space-y-2 px-4 py-3">
-                                      {taskDetail.assignmentHistory.length === 0 ? (
-                                        <p className="text-sm text-slate-400">{t('tasks.detail.noAssignmentHistory', 'Atama geçmişi yok')}</p>
-                                      ) : taskDetail.assignmentHistory.map(item => (
-                                        <div
-                                          key={item.assignmentId}
-                                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-                                        >
-                                          <div className="font-bold text-slate-950">
-                                            {getUserName(item.toUserId)}
+                                    <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
+                                      {taskDetail.assignmentHistory.map(item => (
+                                        <li key={item.assignmentId} className="flex gap-2">
+                                          <span className="shrink-0 text-slate-500" aria-hidden>•</span>
+                                          <div className="min-w-0">
+                                            <div className="font-bold text-slate-950">
+                                              {getUserName(item.toUserId)}
+                                            </div>
+                                            <div className="text-xs text-slate-500">
+                                              {new Date(item.actionDateUtc).toLocaleString(locale)}
+                                            </div>
                                           </div>
-                                          <div className="text-xs text-slate-500">
-                                            {new Date(item.actionDateUtc).toLocaleString(locale)}
-                                          </div>
-                                        </div>
+                                        </li>
                                       ))}
-                                    </div>
+                                    </ul>
                                   </div>
                                 )
-                                return (
-                              <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${
-                                isCompletedTaskDetail
-                                  ? ' grid lg:grid-cols-2 lg:items-stretch'
-                                  : showHistoryBesideDescription
-                                    ? ' grid min-h-full lg:grid-cols-2 lg:items-stretch'
+                                const rightPanelGridClass = rightPanelColumnCount === 3
+                                  ? ' grid lg:grid-cols-3 lg:items-stretch'
+                                  : rightPanelColumnCount === 2
+                                    ? ' grid lg:grid-cols-2 lg:items-stretch'
                                     : ''
-                              }`}>
+                                return (
+                              <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${rightPanelGridClass}`}>
                                 <div className="min-w-0">
                                   <div className="border-b border-slate-200 px-4 py-2">
                                     <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -1860,7 +1861,6 @@ const pageKicker = isMyTasksView
                                   </div>
                                 </div>
                                 {showHistoryBesideDescription ? renderAssignmentHistoryColumn() : null}
-                                {isCompletedRoutineTask ? renderAssignmentHistoryColumn() : null}
                                 {showTaskAttachmentsInDetail ? (
                                   <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
                                     <div className="border-b border-slate-200 px-4 py-2">
@@ -2153,7 +2153,7 @@ const pageKicker = isMyTasksView
                   {/* Rutin görevlerde alt işlem/ek bölümleri gösterilmez (card 555).
                       Rutin olmayan görevlerde Yönetici Notu + Ekler ilgili talep detaylarında gösterilir. */}
                   {(() => {
-                    if (showAssignmentHistoryInHeader) return null
+                    if (showAssignmentHistoryBesideDescription) return null
                     if (taskDetail.jobSourceType === 'Routine') return null
                     if (taskDetail.assignmentHistory.length === 0) return null
                     return (
@@ -2162,21 +2162,24 @@ const pageKicker = isMyTasksView
                       <h3 className="mb-2 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                       </h3>
-                        <div className="grid gap-2">
+                        <ul className="grid gap-2">
                           {taskDetail.assignmentHistory.map(item => (
-                            <div
+                            <li
                               key={item.assignmentId}
-                              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700"
+                              className="flex gap-2 text-sm text-slate-700"
                             >
-                              <div className="font-bold text-slate-950">
-                                {getUserName(item.toUserId)}
+                              <span className="shrink-0 text-slate-500" aria-hidden>•</span>
+                              <div className="min-w-0">
+                                <div className="font-bold text-slate-950">
+                                  {getUserName(item.toUserId)}
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                  {new Date(item.actionDateUtc).toLocaleString(locale)}
+                                </div>
                               </div>
-                              <div className="text-xs text-slate-500">
-                                {new Date(item.actionDateUtc).toLocaleString(locale)}
-                              </div>
-                            </div>
+                            </li>
                           ))}
-                        </div>
+                        </ul>
                     </section>
                   </div>
                     )
@@ -2570,70 +2573,63 @@ const pageKicker = isMyTasksView
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}</p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-red-500">*</span></span>
-              <div className="flex items-start gap-3">
-                <div className="flex shrink-0 flex-col gap-1">
-                  <span className="text-xs font-semibold text-slate-500">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                  <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-1.5 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${completeSaving || completionAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
-                    <Paperclip className="size-3.5" />
-                    {t('attachments.addFile', 'Dosya ekle')}
-                    <input
-                      ref={completeFileInputRef}
-                      type="file"
-                      accept={COMPLETION_ATTACHMENT_ACCEPT}
-                      multiple
-                      className="hidden"
-                      disabled={completeSaving || completionAttachmentUploading}
-                      onChange={event => void handleCompletionFilesSelected(event.target.files)}
-                    />
-                  </label>
-                  <div className="min-h-[3.75rem] max-h-[3.75rem] w-[9.5rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white px-2 py-2">
-                    {pendingCompletionAttachments.length === 0 ? (
-                      <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
-                    ) : (
-                      <ul className="space-y-1 text-xs">
-                        {pendingCompletionAttachments.map(item => (
-                          <li key={item.attachmentId} className="flex min-w-0 items-start gap-2">
-                            <span className="min-w-0 flex-1 break-words text-left font-medium text-slate-700">{item.fileName}</span>
-                            <button
-                              type="button"
-                              className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
-                              disabled={completeSaving || completionAttachmentUploading}
-                              onClick={() => {
-                                void api.deleteAttachment(item.attachmentId).then(() => {
-                                  setPendingCompletionAttachments(current => current.filter(entry => entry.attachmentId !== item.attachmentId))
-                                }).catch(err => {
-                                  setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
-                                })
-                              }}
-                            >
-                              {t('common.delete', 'Sil')}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                <textarea
-                  className="field-textarea min-h-[6.5rem] flex-1"
-                  rows={3}
-                  value={completionNote}
-                  onChange={e => setCompletionNote(e.target.value)}
-                  placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
-                  autoFocus
-                />
-              </div>
-              {completionAttachmentError ? (
-                <p className="text-xs font-medium text-red-600">{completionAttachmentError}</p>
-              ) : null}
+              <textarea
+                className="field-textarea"
+                rows={3}
+                value={completionNote}
+                onChange={e => setCompletionNote(e.target.value)}
+                placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                autoFocus
+              />
             </label>
-            <div className="inline-actions justify-end">
-              <Button type="button" variant="secondary" onClick={closeCompleteModal} disabled={completeSaving || completionAttachmentUploading}>
-                {t('common.dismiss', 'Vazgeç')}
-              </Button>
-              <Button type="button" variant="success" disabled={completeSaving || completionAttachmentUploading || !completionNote.trim()} onClick={() => void handleCompleteConfirm()}>
-                {completeSaving ? t('common.loading') : t('tasks.actions.complete', 'Tamamla')}
-              </Button>
+            {pendingCompletionAttachments.length > 0 ? (
+              <ul className="space-y-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+                {pendingCompletionAttachments.map(item => (
+                  <li key={item.attachmentId} className="flex min-w-0 items-start gap-2">
+                    <span className="min-w-0 flex-1 break-words text-left font-medium text-slate-700">{item.fileName}</span>
+                    <button
+                      type="button"
+                      className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                      disabled={completeSaving || completionAttachmentUploading}
+                      onClick={() => {
+                        void api.deleteAttachment(item.attachmentId).then(() => {
+                          setPendingCompletionAttachments(current => current.filter(entry => entry.attachmentId !== item.attachmentId))
+                        }).catch(err => {
+                          setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
+                        })
+                      }}
+                    >
+                      {t('common.delete', 'Sil')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {completionAttachmentError ? (
+              <p className="text-xs font-medium text-red-600">{completionAttachmentError}</p>
+            ) : null}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${completeSaving || completionAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                <Paperclip className="size-3.5" />
+                {t('attachments.addFile', 'Dosya ekle')}
+                <input
+                  ref={completeFileInputRef}
+                  type="file"
+                  accept={COMPLETION_ATTACHMENT_ACCEPT}
+                  multiple
+                  className="hidden"
+                  disabled={completeSaving || completionAttachmentUploading}
+                  onChange={event => void handleCompletionFilesSelected(event.target.files)}
+                />
+              </label>
+              <div className="inline-actions justify-end">
+                <Button type="button" variant="secondary" onClick={closeCompleteModal} disabled={completeSaving || completionAttachmentUploading}>
+                  {t('common.dismiss', 'Vazgeç')}
+                </Button>
+                <Button type="button" variant="success" disabled={completeSaving || completionAttachmentUploading || !completionNote.trim()} onClick={() => void handleCompleteConfirm()}>
+                  {completeSaving ? t('common.loading') : t('tasks.actions.complete', 'Tamamla')}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

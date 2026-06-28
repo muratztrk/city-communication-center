@@ -27,7 +27,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import {
@@ -362,7 +362,9 @@ function printJobDetail(
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
-    ['Talebi Onaylayan', getJobOwnerApproverDisplayName(detail) ?? '—'],
+    ...(shouldShowRequestApproverField(detail)
+      ? [['Talebi Onaylayan', getJobOwnerApproverDisplayName(detail) ?? '—'] as [string, string]]
+      : []),
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')],
     ['Öncelik', getPriorityLabel(t, detail.priority)],
@@ -1904,10 +1906,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: 'Talep Yeri / Oluşturan',
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
-                      {
+                      ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getJobOwnerApproverDisplayName(detail) ?? '—',
-                      },
+                      }] : []),
                       {
                         label: 'Talebin Gittiği Birim',
                         value: formatJobDestinationsWithAssignees(detail),
@@ -1929,10 +1931,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: 'Talep Yeri / Oluşturan',
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
-                      {
+                      ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getJobOwnerApproverDisplayName(detail) ?? '—',
-                      },
+                      }] : []),
                       {
                         label: 'Talebin Gittiği Birim',
                         value: formatJobDestinationsWithAssignees(detail),

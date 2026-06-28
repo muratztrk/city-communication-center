@@ -30,7 +30,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
-import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -205,7 +205,9 @@ function printTaskDetail(
     ['Vatandaş Adı / Telefon No', [parentJob.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJob.citizenPhone ?? citizenSourceMessage?.citizenPhone)].filter(Boolean).join(' / ') || '—'],
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
-    ['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'],
+    ...(shouldShowRequestApproverField(parentJob)
+      ? [['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'] as [string, string]]
+      : []),
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(parentJob)],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
@@ -218,7 +220,9 @@ function printTaskDetail(
     ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
-    ['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'],
+    ...(shouldShowRequestApproverField(parentJob)
+      ? [['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'] as [string, string]]
+      : []),
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
@@ -1527,7 +1531,7 @@ const pageKicker = isMyTasksView
                             <div className="text-sm font-semibold text-emerald-600">
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
-                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]">
+                            <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)] lg:items-stretch">
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
                                   { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
@@ -1752,7 +1756,13 @@ const pageKicker = isMyTasksView
                               {(() => {
                                 const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
                                 return (
-                              <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${isCompletedTaskDetail ? ' grid lg:grid-cols-2' : ''}`}>
+                              <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${
+                                isCompletedTaskDetail
+                                  ? ' grid lg:grid-cols-2'
+                                  : showAssignmentHistoryInHeader
+                                    ? ' flex min-h-full flex-col'
+                                    : ''
+                              }`}>
                                 <div className="min-w-0">
                                   <div className="border-b border-slate-200 px-4 py-2">
                                     <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -1768,13 +1778,13 @@ const pageKicker = isMyTasksView
                                   </div>
                                 </div>
                                 {showAssignmentHistoryInHeader ? (
-                                  <div className={`min-w-0 border-slate-200${isCompletedTaskDetail ? ' border-t lg:border-l lg:border-t-0' : ' border-t'}`}>
+                                  <div className={`flex min-w-0 flex-1 flex-col border-slate-200 border-t${isCompletedTaskDetail ? ' lg:border-l lg:border-t-0' : ''}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
                                       <span className="text-xs font-semibold text-emerald-600">
                                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                                       </span>
                                     </div>
-                                    <div className="space-y-2 px-4 py-3">
+                                    <div className="flex-1 space-y-2 px-4 py-3">
                                       {taskDetail.assignmentHistory.map(item => (
                                         <div
                                           key={item.assignmentId}
@@ -1918,10 +1928,10 @@ const pageKicker = isMyTasksView
                         label: 'Talep Yeri / Oluşturan',
                         value: [parentJobDetail.ownerDepartmentName, parentJobDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
-                      {
+                      ...(shouldShowRequestApproverField(parentJobDetail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getJobOwnerApproverDisplayName(parentJobDetail) ?? '—',
-                      },
+                      }] : []),
                       {
                         label: 'Talebin Gittiği Birim',
                         value: formatJobDestinationsWithAssignees(parentJobDetail),
@@ -1943,10 +1953,10 @@ const pageKicker = isMyTasksView
                         label: 'Talep Yeri / Oluşturan',
                         value: [parentJobDetail.ownerDepartmentName, parentJobDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
-                      {
+                      ...(shouldShowRequestApproverField(parentJobDetail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getJobOwnerApproverDisplayName(parentJobDetail) ?? '—',
-                      },
+                      }] : []),
                       {
                         label: 'Proje mi',
                         value: parentJobDetail.isProject

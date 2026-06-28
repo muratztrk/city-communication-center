@@ -78,12 +78,12 @@ export default function App() {
           <Route path="/routine-tasks/:taskId/edit" element={<PageAccessGate pageKey="createRoutineTask" user={user}><RoutineTaskPage /></PageAccessGate>} />
           <Route path="/my-tasks" element={<PageAccessGate pageKey="myTasks" user={user}><TasksPage fixedScope="mine" /></PageAccessGate>} />
           <Route path="/my-requests" element={<PageAccessGate pageKey="myRequests" user={user}><JobsPage mode="myRequests" fixedScope="mine" /></PageAccessGate>} />
-          <Route path="/outgoing-requests" element={<ManagerOnlyGate role={user?.role}><JobsPage mode="departmentOutgoing" fixedScope="outgoing-department" /></ManagerOnlyGate>} />
+          <Route path="/outgoing-requests" element={<PageAccessGate pageKey="outgoingRequests" user={user}><JobsPage mode="departmentOutgoing" fixedScope="outgoing-department" /></PageAccessGate>} />
           <Route path="/department-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="departmentTasks" fixedScope="department" /></ManagerOnlyGate>} />
           <Route path="/staff-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="staffTasks" fixedScope="all" /></ManagerOnlyGate>} />
           <Route path="/tasks" element={<Navigate to="/incoming-requests?kind=all" replace />} />
           <Route path="/jobs" element={<Navigate to="/incoming-requests?kind=all" replace />} />
-          <Route path="/request-details" element={<PageAccessGate pageKey="jobs" user={user}><JobsPage /></PageAccessGate>} />
+          <Route path="/request-details" element={<PageAccessGate pageKey="incomingRequests" user={user}><JobsPage /></PageAccessGate>} />
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" user={user}><IncomingRequestsPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" user={user}><SocialMessagesPage /></PageAccessGate>} />
           <Route path="/whatsapp" element={<PageAccessGate pageKey="social" user={user}><WhatsAppConversationsPage /></PageAccessGate>} />

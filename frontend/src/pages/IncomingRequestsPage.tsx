@@ -735,7 +735,7 @@ export function IncomingRequestsPage() {
         <div className="page-header-row">
           <div className="space-y-1">
             <div className="page-kicker">{t('nav.incomingRequests', 'Birime Gelen Talepler')}</div>
-            <h1 className="page-title">{t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler')}</h1>
+            <h1 className="page-title">{t('nav.incomingRequests', 'Birime Gelen Talepler')}</h1>
             <p className="page-subtitle">{t('incomingRequests.subtitle', 'Birim içi ve birim dışı gelen talepleri tek listede takip edin.')}</p>
           </div>
           <div className="ml-auto mt-auto shrink-0">

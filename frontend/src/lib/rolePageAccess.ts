@@ -10,8 +10,8 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'createRoutineTask', path: '/routine-tasks/new', labelKey: 'nav.createRoutineTask' },
   { key: 'myTasks', path: '/my-tasks', labelKey: 'nav.myTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
-  { key: 'jobs', path: '/jobs', labelKey: 'nav.jobs' },
-  { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequestsAll' },
+  { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequests' },
+  { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'display', path: '/display', labelKey: 'nav.display' },
   { key: 'departments', path: '/departments', labelKey: 'nav.departments' },
@@ -44,7 +44,14 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
         || CITIZEN_REQUEST_MANAGER_PAGE_KEYS.includes(page.key as typeof CITIZEN_REQUEST_MANAGER_PAGE_KEYS[number])
       return pages
     }
-    if (role === 'Operator' || role === 'Manager' || role === 'Staff' || role === 'Reporter') {
+    if (role === 'Operator' || role === 'Staff' || role === 'Reporter') {
+      pages[page.key] = page.key !== 'settings'
+        && page.key !== 'edevletActivityPlan'
+        && page.key !== 'edevletActivityPlansList'
+        && page.key !== 'outgoingRequests'
+      return pages
+    }
+    if (role === 'Manager') {
       pages[page.key] = page.key !== 'settings'
         && page.key !== 'edevletActivityPlan'
         && page.key !== 'edevletActivityPlansList'
@@ -69,6 +76,13 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
         pages[page.key] = configured
       } else if (page.key === 'edevletActivityPlansList' && typeof source[role]?.edevletActivityPlan === 'boolean') {
         pages[page.key] = source[role].edevletActivityPlan
+      } else if (page.key === 'incomingRequests') {
+        const legacyJobs = (source[role] as Record<string, boolean | undefined> | undefined)?.jobs
+        if (typeof legacyJobs === 'boolean') {
+          pages[page.key] = legacyJobs
+        } else {
+          pages[page.key] = DEFAULT_ROLE_PAGE_ACCESS[role][page.key]
+        }
       } else {
         pages[page.key] = DEFAULT_ROLE_PAGE_ACCESS[role][page.key]
       }
@@ -83,9 +97,13 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     if (role === 'CitizenRequestManager') {
       matrix[role].incomingRequests = true
     }
-    if (role === 'Operator' || role === 'Manager' || role === 'Staff' || role === 'Reporter') {
+    if (role === 'Operator' || role === 'Staff' || role === 'Reporter') {
       matrix[role].edevletActivityPlan = false
       matrix[role].edevletActivityPlansList = false
+      matrix[role].outgoingRequests = false
+    }
+    if (role === 'CitizenRequestManager' || role === 'EDevletActivityPlan') {
+      matrix[role].outgoingRequests = false
     }
     return matrix
   }, {} as RolePageAccessMatrix)

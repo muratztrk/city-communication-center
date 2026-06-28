@@ -335,34 +335,56 @@
       min-width: 56rem;
     }
 
-    /* Görevlerim > Tüm Görevlerim: 15.6" ekranlarda Taleplerim/Tüm Taleplerim gibi dengeli grid (card 548). */
+    /* Görevlerim tabloları: filtre sonucu boş kaldığında kolon genişlikleri sabit kalsın. */
+    .app-content-shell .my-tasks-table,
     .app-content-shell .my-tasks-all-table {
       /* The action cells need one scrollbar-width more than the panel at desktop
          sizes. Otherwise the final cell overflows its own table and is clipped
          instead of participating in the horizontal scroll. */
       min-width: max(68rem, calc(100% + 1rem));
-      /* Fixed layout ignores the first column's minimum width when all visible
-         columns compete for space, collapsing "Sıra" and clipping Actions. */
-      table-layout: auto;
+      table-layout: fixed;
+      width: 100%;
     }
 
     /* The compact row-number header needs enough room for its desktop padding;
        otherwise it visually collides with the parent-request-number column. */
+    .app-content-shell .my-tasks-table th:first-child,
+    .app-content-shell .my-tasks-table td:first-child,
     .app-content-shell .my-tasks-all-table th:first-child,
     .app-content-shell .my-tasks-all-table td:first-child {
       width: 4.5rem;
       min-width: 4.5rem;
     }
 
-    /* Define the first two columns structurally as well as on their cells.
-       Browser fixed-table layout can otherwise shrink cell minimums below their
-       readable size when it calculates the column grid. */
-    .app-content-shell .my-tasks-all-table .my-tasks-all-row-number-col {
+    /* Define key columns structurally as well as on their cells. */
+    .app-content-shell .my-tasks-table .my-tasks-row-number-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-row-number-col {
       width: 4.5rem;
     }
 
-    .app-content-shell .my-tasks-all-table .my-tasks-all-parent-request-col {
+    .app-content-shell .my-tasks-table .my-tasks-parent-request-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-parent-request-col {
       width: 13rem;
+    }
+
+    .app-content-shell .my-tasks-table .my-tasks-title-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-title-col {
+      width: 12rem;
+    }
+
+    .app-content-shell .my-tasks-table .my-tasks-type-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-type-col {
+      width: 7.5rem;
+    }
+
+    .app-content-shell .my-tasks-table .my-tasks-due-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-due-col {
+      width: 9.5rem;
+    }
+
+    .app-content-shell .my-tasks-table .my-tasks-status-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-status-col {
+      width: 9rem;
     }
 
     /* Görevlerim başlık satırı yüksekliği paging bar ile aynı olsun. */
@@ -393,16 +415,25 @@
 
     /* Fixed-layout tables size columns from their header row. Give the final header
        the same width as its action cells so the Actions column reaches the table edge. */
-    .app-content-shell .my-tasks-all-table thead th:last-child,
-    .app-content-shell .my-tasks-all-table tbody td.actions-cell {
-      width: 13.5rem;
-      min-width: 13.5rem;
+    .app-content-shell .my-tasks-table .my-tasks-actions-col,
+    .app-content-shell .my-tasks-all-table .my-tasks-actions-col {
+      width: 17rem;
     }
 
+    .app-content-shell .my-tasks-table thead th:last-child,
+    .app-content-shell .my-tasks-table tbody td.actions-cell,
+    .app-content-shell .my-tasks-all-table thead th:last-child,
+    .app-content-shell .my-tasks-all-table tbody td.actions-cell {
+      width: 17rem;
+      min-width: 17rem;
+    }
+
+    .app-content-shell .my-tasks-table .request-actions,
     .app-content-shell .my-tasks-all-table .request-actions {
       justify-content: flex-start;
     }
 
+    .app-content-shell .my-tasks-table .request-actions .h-8,
     .app-content-shell .my-tasks-all-table .request-actions .h-8 {
       padding-inline: 0.55rem;
     }

@@ -11,7 +11,7 @@ export function TableEmptyStateRows({ columnCount, message }: TableEmptyStateRow
     <>
       <tr aria-hidden="true" className="data-table-width-hold">
         {Array.from({ length: columnCount }, (_, index) => (
-          <td key={index} />
+          <td key={index}>{'\u00A0'}</td>
         ))}
       </tr>
       <tr>

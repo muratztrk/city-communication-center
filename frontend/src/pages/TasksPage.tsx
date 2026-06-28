@@ -2015,10 +2015,21 @@ const pageKicker = isMyTasksView
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
             <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
-              {isMyTasksAllView && (
+              {isMyTasksView && (
                 <colgroup>
-                  <col className="my-tasks-all-row-number-col" />
-                  <col className="my-tasks-all-parent-request-col" />
+                  <col className="my-tasks-row-number-col" />
+                  <col className="my-tasks-parent-request-col" />
+                  <col />
+                  <col />
+                  <col />
+                  <col className="my-tasks-title-col" />
+                  {(isDepartmentTasksView || isStaffTasksView) && <col />}
+                  {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && <col className="my-tasks-type-col" />}
+                  {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <col className="my-tasks-due-col" />}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <col />}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <col />}
+                  {showStatusColumn && <col className="my-tasks-status-col" />}
+                  <col className="my-tasks-actions-col" />
                 </colgroup>
               )}
               <thead>

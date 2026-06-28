@@ -764,6 +764,6 @@ export interface AppNotification {
   sentAtUtc: string | null
   // AuditLog'dan türetilen akış satırı: tek tek okunamaz, "Hepsini okundu yap" ile temizlenir (card 634).
   isHistorical?: boolean
-  // Görev-durumu bildiriminde üst talebi Reporter/Operator oluşturmuşsa başlık yanında turuncu birim adı (card #1072).
+  // Talebi Reporter/Operator oluşturmuşsa bildirim başlığı yanında turuncu birim adı (cards #1072/#1078).
   titleTag?: string | null
 }

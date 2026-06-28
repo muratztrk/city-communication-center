@@ -76,7 +76,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     || managerJobIds.Contains(j.JobId)
                     || _dbContext.Tasks.Any(task => task.JobId == j.JobId
                         && (task.AssignedUserId == userId || task.OwnerUserId == userId))))
-                .Select(j => new { JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
+                .Select(j => new { JobGuid = j.JobId, JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
                 .Where(t => t.TenantId == tenantId && (t.AssignedUserId == userId || t.OwnerUserId == userId || t.CreatedByUserId == userId || managerTaskIds.Contains(t.TaskId)))
@@ -86,13 +86,16 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             var jobsById = jobRecords.ToDictionary(j => j.JobId);
             var tasksById = taskRecords.ToDictionary(t => t.TaskId);
 
-            // card #1072: görev-durumu bildiriminde üst talebi Üst Düzey Yönetici (Reporter) ya da
-            // Vatandaş Talep Operatörü (Operator) oluşturmuşsa o kullanıcının birim adını başlık etiketi yap.
-            var parentJobIds = taskRecords.Select(t => t.JobGuid).Distinct().ToList();
-            var statusTagDeptByJobId = parentJobIds.Count == 0
+            // card #1072/#1078: Talebi Üst Düzey Yönetici (Reporter) ya da Vatandaş Talep Operatörü
+            // (Operator) oluşturmuşsa o kullanıcının birim adını bildirim başlık etiketi yap.
+            var originTagJobIds = jobRecords.Select(t => t.JobGuid)
+                .Concat(taskRecords.Select(t => t.JobGuid))
+                .Distinct()
+                .ToList();
+            var originTagDeptByJobId = originTagJobIds.Count == 0
                 ? new Dictionary<Guid, string>()
                 : await _dbContext.Jobs.AsNoTracking()
-                    .Where(j => j.TenantId == tenantId && parentJobIds.Contains(j.JobId))
+                    .Where(j => j.TenantId == tenantId && originTagJobIds.Contains(j.JobId))
                     .Join(
                         _dbContext.Users.AsNoTracking(),
                         j => j.CreatedByUserId,
@@ -185,7 +188,11 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     if (isTask && IsTaskStatusChange(a)
                         && tasksById.TryGetValue(a.EntityId, out var tagTask))
                     {
-                        statusTagDeptByJobId.TryGetValue(tagTask.JobGuid, out titleTag);
+                        originTagDeptByJobId.TryGetValue(tagTask.JobGuid, out titleTag);
+                    }
+                    else if (!isTask && jobsById.TryGetValue(a.EntityId, out var tagJob))
+                    {
+                        originTagDeptByJobId.TryGetValue(tagJob.JobGuid, out titleTag);
                     }
 
                     feed.Add(new NotificationResponse(

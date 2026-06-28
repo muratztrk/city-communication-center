@@ -484,6 +484,8 @@ export function SocialMessagesPage() {
               {pagedMessages.map((message, index) => {
                 const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
                 const canCancelJob = message.jobId && canCancelLinkedJob(linkedJob?.status)
+                // Hedef birim yöneticisi onayladıktan sonra (görev oluşmuş = taskCount>0) operatör talebi düzenleyemez (card #1075).
+                const isTargetApproved = !!linkedJob && (linkedJob.taskCount ?? 0) > 0
 
                 return (
                 <Fragment key={message.socialMessageId}>
@@ -545,16 +547,22 @@ export function SocialMessagesPage() {
                             {t('social.goToConversation', 'Yazışmaya Git')}
                           </Button>
                         ) : null}
-                        <Button
-                          size="sm"
-                          type="button"
-                          variant="success"
-                          onClick={() => openRequestModal(message)}
-                        >
-                          {message.jobId
-                            ? t('social.editRequest', 'Talep Düzenle')
-                            : t('nav.createRequest', 'Talep Oluştur')}
-                        </Button>
+                        {message.jobId && isTargetApproved ? (
+                          <DisabledActionButton size="sm" variant="success" hoverTitle={t('social.editAfterApprovalDisabled', 'Hedef birim yöneticisi onayladıktan sonra talep düzenlenemez')}>
+                            {t('social.editRequest', 'Talep Düzenle')}
+                          </DisabledActionButton>
+                        ) : (
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant="success"
+                            onClick={() => openRequestModal(message)}
+                          >
+                            {message.jobId
+                              ? t('social.editRequest', 'Talep Düzenle')
+                              : t('nav.createRequest', 'Talep Oluştur')}
+                          </Button>
+                        )}
                         {canCancelJob ? (
                           <Button
                             size="sm"

@@ -50,6 +50,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             // Card 1: My pending requests (internal + external combined) — for every user
             myPendingRequestCount = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId
+                    && j.SourceType != JobSourceType.Routine
                     && j.CreatedByUserId == userId
                     && j.Status != JobStatus.Completed
                     && j.Status != JobStatus.Cancelled
@@ -87,6 +88,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
 
             rejectedOrCancelledRequests = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId
+                    && j.SourceType != JobSourceType.Routine
                     && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled)
                     && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
                     && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
@@ -95,6 +97,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             // Card 7: All my requests (total)
             myTotalRequestCount = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId
+                    && j.SourceType != JobSourceType.Routine
                     && j.CreatedByUserId == userId
                     && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
                     && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
@@ -106,6 +109,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 // göstermelidir; tenant genelindeki bekleyen kayıtlar yanıltıcıdır.
                 pendingApprovals = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
+                        && j.SourceType != JobSourceType.Routine
                         && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
                         && (scopedDepartmentIds.Contains(j.OwnerDepartmentId)
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
@@ -171,6 +175,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 // dış talepler birlikte sayılır.
                 incomingTotalCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
+                        && j.SourceType != JobSourceType.Routine
                         && (scopedDepartmentIds.Contains(j.OwnerDepartmentId)
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                                 && jd.Role == JobDepartmentRole.Target

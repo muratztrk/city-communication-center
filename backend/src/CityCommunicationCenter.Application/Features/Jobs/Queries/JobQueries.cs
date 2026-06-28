@@ -46,7 +46,7 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
 
         IQueryable<Job> q = _dbContext.Jobs
             .AsNoTracking()
-            .Where(j => j.TenantId == tenantId);
+            .Where(j => j.TenantId == tenantId && j.SourceType != JobSourceType.Routine);
 
         if (scope == "mine" && userId.HasValue)
         {

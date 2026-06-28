@@ -220,7 +220,7 @@ function printTaskDetail(taskDetail: TaskDetail, taskSummary: Task | null, paren
     <div class="section-title">Açıklama</div>
     <div class="desc">${description ? escHtml(description).replace(/\n/g, '<br/>') : '<em>Açıklama yok</em>'}</div>
   </div>
-  ${parentJob ? `<div class="section">
+  ${parentJob && taskDetail.jobSourceType !== 'Routine' ? `<div class="section">
     <div class="section-title">İlgili Talep Detayları</div>
     <table><tbody>${parentJobRows}</tbody></table>
   </div>` : ''}

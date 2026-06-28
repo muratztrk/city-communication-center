@@ -64,7 +64,6 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
         }
 
         var year = utcNow.Year;
-        var jobNumber = await SequenceNumberHelper.NextJobNumberAsync(_dbContext, tenantId, year, cancellationToken);
         var taskNumber = await SequenceNumberHelper.NextTaskNumberAsync(_dbContext, tenantId, year, cancellationToken);
 
         var job = new Job
@@ -80,8 +79,8 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             SourceType = Domain.Enums.JobSourceType.Routine,
             DueDateUtc = dueDateUtc,
             CreatedByUserId = context.UserId,
-            JobNumber = jobNumber,
-            JobNumberYear = year,
+            JobNumber = null,
+            JobNumberYear = null,
             Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim(),
             Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
             OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim()

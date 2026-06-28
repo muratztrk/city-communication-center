@@ -1354,6 +1354,11 @@
     background: #f59e0b !important;
   }
 
+  /* Sarı dikkat satırlarında öncelik etiketi/değeri siyah kalır; seviye renkleri amber zeminde okunaksızlaşır. */
+  .data-table tbody tr.row-attention .table-number-cell__priority {
+    color: #000000 !important;
+  }
+
   /* Art arda gelen sarı satırlarda ayırıcı çizgiyi belirginleştir. */
   .data-table tbody tr.row-attention + tr.row-attention td {
     border-top: 1px solid rgba(120, 53, 15, 0.42) !important;

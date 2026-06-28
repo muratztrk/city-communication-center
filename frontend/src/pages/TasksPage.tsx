@@ -2403,7 +2403,7 @@ const pageKicker = isMyTasksView
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>
-                      <div className={`table-number-cell__priority font-sans font-bold ${task.createdByRoleCode === 'Reporter' && task.priority === 'Normal' ? 'text-white' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${task.createdByRoleCode === 'Reporter' ? 'text-black' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
                     </td>
                     <td>
                       <DateCell value={task.createdAtUtc} locale={locale} />

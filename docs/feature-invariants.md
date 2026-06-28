@@ -105,6 +105,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (örnek: "Görevi Birim İçi Yönlendir" başlığı, TasksPage).
 - **Grid'ler boş filtrede başlığı korur:** tabloyu HER ZAMAN render et, boş mesajı `tbody`
   satırı olarak göster (Jobs/Tasks/Incoming).
+- **Sarı `.row-attention` grid satırlarında `table-number-cell__priority` siyah kalır**;
+  öncelik renk paleti amber zemin üzerinde kullanılmaz (card #1084).
 - **Ortak bileşenleri kullan:** `DueDatePill`, `DateCell`, `FilterableTh`,
   `SingleSelectDropdown` (openUp), `StatusPill`, `ChannelIcon`. Yeni grid kolonunda yeniden icat etme.
 - **Login logosu HER ZAMAN `/tire-belediyesi-logo.png`** (LoginPage `LOGIN_LOGO_*_SRC`) —

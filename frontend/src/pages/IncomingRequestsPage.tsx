@@ -158,16 +158,6 @@ function getIncomingKindFilter(): IncomingKindFilter {
   return 'all'
 }
 
-
-// Sarı (dikkat) satırlarda Normal öncelik, diğer grid kayıtlarıyla aynı sarı
-// öncelik rengini korur.
-function attentionPriorityColorClass(priority: string): string {
-  if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
-  if (priority === 'High') return 'text-red-500'
-  if (priority === 'Normal') return 'text-yellow-500'
-  return getPriorityColorClass(priority)
-}
-
 function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilter): boolean {
   if (filter === 'all') return true
   const isOverdue = row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()
@@ -847,8 +837,8 @@ export function IncomingRequestsPage() {
                         {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
                         <span>{row.displayNumber}</span>
                       </div>
-                      {/* Sarı (dikkat) satırda öncelik metni kalın; Çok Yüksek=kırmızı, Yüksek=açık kırmızı, diğeri beyaz. Diğer satırlarda öncelik rengi. */}
-                      <div className={`table-number-cell__priority font-sans ${row.kind === 'external' && row.status === 'Active' ? `font-extrabold ${attentionPriorityColorClass(row.priority)}` : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
+                      {/* Sarı (dikkat) satırda Öncelik etiketi ve değeri siyah kalır (card #1084). Diğer satırlarda öncelik rengi. */}
+                      <div className={`table-number-cell__priority font-sans ${row.kind === 'external' && row.status === 'Active' && row.createdByRoleCode === 'Reporter' ? 'font-extrabold text-black' : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td>
                       <DateCell value={row.createdAtUtc} locale={locale} />

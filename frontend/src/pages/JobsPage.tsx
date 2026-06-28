@@ -17,6 +17,7 @@ import { invalidateJobs, invalidateTasks } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
+import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
@@ -383,8 +384,7 @@ function printJobDetail(
     ['Açık Adres', detail.openAddress],
   ]
   const addressRows = addressFields
-    .filter(([, value]) => value != null && value.trim() !== '')
-    .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value ?? '')}</td></tr>`)
+    .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value?.trim() || '—')}</td></tr>`)
     .join('')
   const managerNote = detail.managerNote?.trim()
   const description = stripHtmlTags(detail.description)
@@ -418,7 +418,7 @@ function printJobDetail(
   </div>
   <div class="section">
     <div class="section-title">Adres Bilgileri</div>
-    ${addressRows ? `<table><tbody>${addressRows}</tbody></table>` : '<p style="color:#888;font-size:11px">Adres bilgisi girilmemiş.</p>'}
+    <table><tbody>${addressRows}</tbody></table>
   </div>
   <div class="section">
     <div class="section-title">Yönetici Notu</div>
@@ -1178,28 +1178,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   // Talep oluştururken opsiyonel olarak girilen adres alanlarını gösterir; veri yoksa boş durum (card 442).
-  const renderJobAddressInfo = (job: JobDetail) => {
-    const fields = [
-      { label: t('address.neighborhoodLabel', 'Mahalle'), value: job.neighborhood },
-      { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: job.street },
-      { label: t('address.openAddressLabel', 'Açık Adres'), value: job.openAddress },
-    ].filter(field => field.value != null && field.value.trim() !== '')
-
-    if (fields.length === 0) {
-      return <p className="text-sm text-slate-400">{t('address.empty', 'Adres bilgisi girilmemiş.')}</p>
-    }
-
-    return (
-      <dl className="space-y-2">
-        {fields.map(field => (
-          <div key={field.label}>
-            <dt className="text-xs font-semibold text-slate-500">{field.label}</dt>
-            <dd className="break-words text-sm text-slate-900">{field.value}</dd>
-          </div>
-        ))}
-      </dl>
-    )
-  }
+  const renderJobAddressInfo = (job: JobDetail) => (
+    <AddressDetailFields
+      neighborhood={job.neighborhood}
+      street={job.street}
+      openAddress={job.openAddress}
+    />
+  )
 
   const handleDownloadTaskAttachment = async (attachmentId: string, fileName: string) => {
     try {

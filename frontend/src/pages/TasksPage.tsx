@@ -14,6 +14,7 @@ import { api } from '../api/client'
 import { invalidateTasks, invalidateNotifications } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
+import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -1797,11 +1798,6 @@ const pageKicker = isMyTasksView
 
                   {/* Rutin görevlerde 2. satır: Adres Bilgileri + Ekler / Fotoğraflar (card 575) */}
                   {taskDetail.jobSourceType === 'Routine' && (() => {
-                    const addressFields = [
-                      { label: t('address.neighborhoodLabel', 'Mahalle'), value: parentJobDetail?.neighborhood },
-                      { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: parentJobDetail?.street },
-                      { label: t('address.openAddressLabel', 'Açık Adres'), value: parentJobDetail?.openAddress },
-                    ].filter(field => field.value != null && field.value.trim() !== '')
                     const isCompleted = taskDetail.currentStatus === 'Completed'
                     return (
                       <section className="mb-5 grid gap-4 lg:grid-cols-3">
@@ -1809,18 +1805,11 @@ const pageKicker = isMyTasksView
                           <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                             {t('address.detailSectionTitle', 'Adres Bilgileri')}
                           </h3>
-                          {addressFields.length === 0 ? (
-                            <p className="text-sm text-slate-400">{t('address.empty', 'Adres bilgisi girilmemiş.')}</p>
-                          ) : (
-                            <dl className="flex flex-wrap gap-x-10 gap-y-3">
-                              {addressFields.map(field => (
-                                <div key={field.label}>
-                                  <dt className="mb-1 border-b border-slate-200 pb-1 text-xs font-semibold text-slate-500">{field.label}</dt>
-                                  <dd className="break-words text-sm text-slate-900">{field.value}</dd>
-                                </div>
-                              ))}
-                            </dl>
-                          )}
+                          <AddressDetailFields
+                            neighborhood={parentJobDetail?.neighborhood}
+                            street={parentJobDetail?.street}
+                            openAddress={parentJobDetail?.openAddress}
+                          />
                         </div>
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
                           <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
@@ -1945,11 +1934,6 @@ const pageKicker = isMyTasksView
                       { label: 'Son Tarih', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },
                     ]
                     const isCompletedTask = taskDetail.currentStatus === 'Completed'
-                    const addressFields = [
-                      { label: t('address.neighborhoodLabel', 'Mahalle'), value: parentJobDetail.neighborhood },
-                      { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: parentJobDetail.street },
-                      { label: t('address.openAddressLabel', 'Açık Adres'), value: parentJobDetail.openAddress },
-                    ].filter(field => field.value != null && field.value.trim() !== '')
                     return (
                       <section className="form-card page-stack mb-5">
                         <div className="text-sm font-semibold text-emerald-600">
@@ -2015,18 +1999,11 @@ const pageKicker = isMyTasksView
                               <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
                               </h3>
-                              {addressFields.length === 0 ? (
-                                <p className="text-sm text-slate-400">{t('address.empty', 'Adres bilgisi girilmemiş.')}</p>
-                              ) : (
-                                <dl className="space-y-2">
-                                  {addressFields.map(field => (
-                                    <div key={field.label}>
-                                      <dt className="text-xs font-semibold text-slate-500">{field.label}</dt>
-                                      <dd className="break-words text-sm text-slate-900">{field.value}</dd>
-                                    </div>
-                                  ))}
-                                </dl>
-                              )}
+                              <AddressDetailFields
+                                neighborhood={parentJobDetail.neighborhood}
+                                street={parentJobDetail.street}
+                                openAddress={parentJobDetail.openAddress}
+                              />
                             </section>
                             {!isCitizenParentJob ? (
                             <section className="rounded-xl border border-slate-200 bg-white p-4">
@@ -2201,11 +2178,11 @@ const pageKicker = isMyTasksView
               {isMyTasksView && (
                 <colgroup>
                   <col className="my-tasks-row-number-col" />
-                  <col className="my-tasks-parent-request-col" />
+                  <col className="my-tasks-parent-request-col grid-col-request-no" />
+                  <col className="grid-col-task-no" />
+                  <col className="grid-col-date" />
                   <col />
-                  <col />
-                  <col />
-                  <col className="my-tasks-title-col" />
+                  <col className="my-tasks-title-col grid-col-title" />
                   {(isDepartmentTasksView || isStaffTasksView) && <col />}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && <col className="my-tasks-type-col" />}
                   {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <col className="my-tasks-due-col" />}

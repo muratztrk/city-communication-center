@@ -86,34 +86,74 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             var jobsById = jobRecords.ToDictionary(j => j.JobId);
             var tasksById = taskRecords.ToDictionary(t => t.TaskId);
 
-            // card #1072/#1078: Talebi Üst Düzey Yönetici (Reporter) ya da Vatandaş Talep Operatörü
-            // (Operator) oluşturmuşsa o kullanıcının birim adını bildirim başlık etiketi yap.
+            // card #1072/#1078/#1087: Talebi Üst Düzey Yönetici (Reporter) oluşturmuşsa birim adını,
+            // Vatandaş Talep Operatörü'nün vatandaş talebiyse statik "Vatandaş Talebi" etiketini
+            // bildirim başlığı yanında göster. Mesajda Operator kaynaklı vatandaş talepleri için
+            // operatör adı + VT numarası + talep başlığı akışı korunur.
             var originTagJobIds = jobRecords.Select(t => t.JobGuid)
                 .Concat(taskRecords.Select(t => t.JobGuid))
                 .Distinct()
                 .ToList();
-            var originTagDeptByJobId = originTagJobIds.Count == 0
-                ? new Dictionary<Guid, string>()
-                : await _dbContext.Jobs.AsNoTracking()
-                    .Where(j => j.TenantId == tenantId && originTagJobIds.Contains(j.JobId))
-                    .Join(
-                        _dbContext.Users.AsNoTracking(),
-                        j => j.CreatedByUserId,
-                        u => (Guid?)u.UserId,
-                        (j, u) => new { JobId = j.JobId, u.RoleCode, u.DepartmentId, u.TenantId })
-                    .Where(x => x.TenantId == tenantId && (x.RoleCode == RoleCode.Reporter || x.RoleCode == RoleCode.Operator))
-                    .Join(
-                        _dbContext.Departments.AsNoTracking(),
-                        x => x.DepartmentId,
-                        department => department.DepartmentId,
-                        (x, department) => new
-                        {
-                            x.JobId,
-                            department.TenantId,
-                            DeptName = department.Name,
-                        })
-                    .Where(x => x.TenantId == tenantId && x.DeptName != null)
-                    .ToDictionaryAsync(x => x.JobId, x => x.DeptName!, cancellationToken);
+            var originRows = await _dbContext.Jobs.AsNoTracking()
+                .Where(j => j.TenantId == tenantId && originTagJobIds.Contains(j.JobId))
+                .Join(
+                    _dbContext.Users.AsNoTracking(),
+                    j => j.CreatedByUserId,
+                    u => (Guid?)u.UserId,
+                    (j, u) => new { j.JobId, j.RequestType, j.SourceType, u.RoleCode, u.DepartmentId, u.DisplayName, u.TenantId })
+                .Where(x => x.TenantId == tenantId && (x.RoleCode == RoleCode.Reporter || x.RoleCode == RoleCode.Operator))
+                .Join(
+                    _dbContext.Departments.AsNoTracking(),
+                    x => x.DepartmentId,
+                    department => department.DepartmentId,
+                    (x, department) => new
+                    {
+                        x.JobId,
+                        x.RoleCode,
+                        x.DisplayName,
+                        x.RequestType,
+                        x.SourceType,
+                        department.TenantId,
+                        DeptName = department.Name,
+                    })
+                .Where(x => x.TenantId == tenantId && x.DeptName != null)
+                .ToListAsync(cancellationToken);
+            var citizenNumberRows = await _dbContext.SocialMessages.AsNoTracking()
+                .Where(message =>
+                    message.TenantId == tenantId
+                    && message.JobId.HasValue
+                    && originTagJobIds.Contains(message.JobId.Value)
+                    && message.CitizenRequestNumber.HasValue)
+                .Select(message => new
+                {
+                    JobId = message.JobId!.Value,
+                    Number = message.CitizenRequestNumber!.Value,
+                    Year = message.CitizenRequestNumberYear,
+                })
+                .ToListAsync(cancellationToken);
+            var citizenNumberByJobId = citizenNumberRows
+                .GroupBy(row => row.JobId)
+                .ToDictionary(
+                    group => group.Key,
+                    group =>
+                    {
+                        var first = group.First();
+                        return new CitizenRequestNumberInfo(first.Number, first.Year);
+                    });
+            var originInfoByJobId = originRows.ToDictionary(
+                row => row.JobId,
+                row =>
+                {
+                    citizenNumberByJobId.TryGetValue(row.JobId, out var citizenNumber);
+                    return new NotificationOriginInfo(
+                        row.RoleCode,
+                        row.DeptName,
+                        row.DisplayName,
+                        row.RequestType,
+                        row.SourceType,
+                        citizenNumber?.Number,
+                        citizenNumber?.Year);
+                });
             var taskIdSet = taskRecords.Select(t => t.TaskId).ToHashSet();
             var entityIds = jobRecords.Select(j => j.JobId).Concat(taskRecords.Select(t => t.TaskId)).Distinct().ToList();
 
@@ -142,6 +182,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
                     string? entityTitle = null;
                     string? entityNumber = null;
+                    NotificationOriginInfo? jobOriginInfo = null;
                     if (isTask && tasksById.TryGetValue(a.EntityId, out var taskRec))
                     {
                         entityTitle = taskRec.Title;
@@ -151,7 +192,11 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     else if (!isTask && jobsById.TryGetValue(a.EntityId, out var jobRec))
                     {
                         entityTitle = jobRec.Title;
-                        if (jobRec.JobNumber.HasValue)
+                        originInfoByJobId.TryGetValue(jobRec.JobGuid, out jobOriginInfo);
+                        var citizenRequestNumber = FormatCitizenRequestNumber(jobOriginInfo);
+                        if (!string.IsNullOrWhiteSpace(citizenRequestNumber))
+                            entityNumber = $"Vatandaş Talep No: {citizenRequestNumber}";
+                        else if (jobRec.JobNumber.HasValue)
                             entityNumber = $"Talep No: {FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear)}";
                     }
 
@@ -170,7 +215,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     }
                     else
                     {
-                        if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
+                        var actorDisplayName = jobOriginInfo?.RoleCode == RoleCode.Operator
+                            && IsCitizenRequestOrigin(jobOriginInfo)
+                            && !string.IsNullOrWhiteSpace(jobOriginInfo.CreatorDisplayName)
+                                ? jobOriginInfo.CreatorDisplayName
+                                : a.ActorDisplayName;
+                        if (!string.IsNullOrWhiteSpace(actorDisplayName)) messageParts.Add(actorDisplayName);
                         if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
                         if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
                         var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
@@ -188,11 +238,15 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     if (isTask && IsTaskStatusChange(a)
                         && tasksById.TryGetValue(a.EntityId, out var tagTask))
                     {
-                        originTagDeptByJobId.TryGetValue(tagTask.JobGuid, out titleTag);
+                        titleTag = originInfoByJobId.TryGetValue(tagTask.JobGuid, out var originInfo)
+                            ? ResolveOriginTitleTag(originInfo)
+                            : null;
                     }
                     else if (!isTask && jobsById.TryGetValue(a.EntityId, out var tagJob))
                     {
-                        originTagDeptByJobId.TryGetValue(tagJob.JobGuid, out titleTag);
+                        titleTag = originInfoByJobId.TryGetValue(tagJob.JobGuid, out var originInfo)
+                            ? ResolveOriginTitleTag(originInfo)
+                            : null;
                     }
 
                     feed.Add(new NotificationResponse(
@@ -282,6 +336,44 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
     private static string FormatNumber(string prefix, int number, int? year) =>
         year.HasValue ? $"{prefix}-{year}-{number}" : $"{prefix}-{number}";
+
+    private static string? ResolveOriginTitleTag(NotificationOriginInfo originInfo)
+    {
+        if (originInfo.RoleCode == RoleCode.Operator && IsCitizenRequestOrigin(originInfo))
+        {
+            return "Vatandaş Talebi";
+        }
+
+        return originInfo.RoleCode is RoleCode.Reporter or RoleCode.Operator
+            ? originInfo.DepartmentName
+            : null;
+    }
+
+    private static string? FormatCitizenRequestNumber(NotificationOriginInfo? originInfo)
+    {
+        if (originInfo?.CitizenRequestNumber is not int number)
+        {
+            return null;
+        }
+
+        return FormatNumber("VT", number, originInfo.CitizenRequestNumberYear);
+    }
+
+    private static bool IsCitizenRequestOrigin(NotificationOriginInfo originInfo) =>
+        originInfo.CitizenRequestNumber.HasValue
+        || originInfo.RequestType == JobRequestType.Citizen
+        || originInfo.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet;
+
+    private sealed record CitizenRequestNumberInfo(int Number, int? Year);
+
+    private sealed record NotificationOriginInfo(
+        RoleCode RoleCode,
+        string? DepartmentName,
+        string? CreatorDisplayName,
+        JobRequestType RequestType,
+        JobSourceType SourceType,
+        int? CitizenRequestNumber,
+        int? CitizenRequestNumberYear);
 
     private static string FormatTaskStatusLabel(string status) => status switch
     {

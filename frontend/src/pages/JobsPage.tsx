@@ -41,6 +41,7 @@ import {
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
 import { userWorksInDepartment } from '../utils/userDepartments'
+import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -847,6 +848,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   const showRequestFlowFilters = isMyRequestsView && user?.role !== 'SystemAdmin' && !isReporter
+  const hideCitizenRequestsFromMyRequests = isMyRequestsView && (user?.role === 'Operator' || hasCitizenRequestManagerRole(user))
   const canMutatePreApprovalJob = (job: JobSummary | JobDetail) => (
     isPreApprovalStatus(job.status) &&
     (user?.role === 'SystemAdmin' || isManagerLike)
@@ -860,6 +862,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
     if (isMyRequestsView) {
       const myJobs = filterMyRequests(jobs, currentMyRequestsView, isReporter, isManagerLike)
+        .filter(job => !hideCitizenRequestsFromMyRequests || !isCitizenRequestJob(job))
       result = showRequestFlowFilters ? myJobs.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter)) : myJobs
     } else if (isDepartmentOutgoingView) {
       result = filterDepartmentOutgoingRequests(jobs, currentDepartmentOutgoingView)
@@ -912,7 +915,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
 
     return result
-  }, [activeDeptId, currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
+  }, [activeDeptId, currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, hideCitizenRequestsFromMyRequests, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()

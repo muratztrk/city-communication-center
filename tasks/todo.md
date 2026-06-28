@@ -713,3 +713,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `IR3Lwi1K` / #1078 — Talep bildirimlerinde (Talep oluşturuldu/güncellendi vb.) talebi Reporter/Operator oluşturduysa aynı turuncu birim titleTag'i başlığa eklendi. BE+FE build/lint PASS. main+master, Done.
 - [x] `rZkC2boY` / #1082 — WhatsApp Konuşması → Vatandaş Talebi Oluştur modalında Açıklama rich-text alanı Talep Başlığı satırının hemen altına taşındı; adres/dosya alanları açıklamadan sonra kaldı. FE build/lint PASS. main+master, Done.
 - [x] `MGT0UWnK` / #1083 — Vatandaş Talebi düzenleme modalında VT numarası "Vatandaş Adı / Gönderen" alanının üstünde turuncu, altı çizili başlık olarak gösterildi. FE build/lint PASS. main+master, Done.
+- [x] `xBPWOWZ9` / #1081 — Operator ve Vatandaş Talep Yöneticisi `Taleplerim` ekranından VT/vatandaş talepleri çıkarıldı; backend `mine` scope citizen filtreli, frontend cached-data guard eklendi. BE+FE build/lint PASS. main+master, Done.

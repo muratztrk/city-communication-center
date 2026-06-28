@@ -53,6 +53,16 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             // Taleplerim: kullanıcının oluşturduğu talepler. Reporter, ekranındaki departman
             // seçimiyle tüm departmanlar arasında gezebilir; diğer roller aktif departmana bağlıdır.
             q = q.Where(j => j.CreatedByUserId == userId);
+            // Vatandaş Talepleri (VT-) kendi ekranında yönetilir; Operator/CRM Taleplerim yalnızca
+            // birim içi ve birim dışı standart talepleri gösterir (card #1081).
+            if (actor is not null && (actor.RoleCode == RoleCode.Operator || UserRoleAccess.IsCitizenRequestManager(actor)))
+            {
+                q = q.Where(j =>
+                    j.RequestType != JobRequestType.Citizen
+                    && j.SourceType != JobSourceType.SocialMessage
+                    && j.SourceType != JobSourceType.CitizenRequest
+                    && j.SourceType != JobSourceType.EDevlet);
+            }
             if (actor?.RoleCode == RoleCode.Reporter)
             {
                 if (request.DepartmentId.HasValue)

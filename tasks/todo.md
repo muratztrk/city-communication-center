@@ -606,6 +606,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 93 (manuel tur — #1003: WhatsApp konuşması yönetici/personel için salt-okunur)
 - [x] `#1003` — Görev/Talep detayından açılan WhatsApp konuşması (WhatsAppConversationModal, JobsPage+TasksPage'de kullanılıyor) `ConversationPanel`'a `canReply={false}` ile salt-okunur yapıldı; yanıt textbox'ı + gönder/şablon butonları gizlendi. Operatörün talep oluşturma akışı (CitizenRequestModal) `canReply` default true ile yazmaya devam ediyor; operatör /whatsapp sayfasından da yazabilir. Karar: sadece-frontend kapsam (kullanıcı onayı). Backend ReplyToSocialMessageCommand yetki kontrolü kapsam dışı bırakıldı. FE build + lint PASS. main+master, Done.
 
+## Round 96 (Doing — #1045: Görev Atama Geçmişi başlık + veri)
+- [x] `#1045` — "Görev Atama Geçmişi" başlığı Açıklama ile aynı stil (`text-xs uppercase tracking-wide text-slate-500`). Atama geçmişi satırlarından birim kaldırıldı; yalnızca kullanıcı adı + tarih. FE build + lint PASS. main+master, Done.
+
+## STATUS: Round 96 complete — Doing list drained (1 card).
+
 ## Round 95 (Doing — #1042 #1043 #1044)
 - [x] `#1043` — Rutin + tamamlanmış görev detayında sağ sütundaki "Görev Ekleri" kaldırıldı; yerine "Görev Atama Geçmişi" (boşsa "Atama geçmişi yok"). FE build + lint PASS.
 - [x] `#1044` — `RecomputeStandardJobCompletionAsync`: tüm görevler iptal → talep `Cancelled` (Completed'dan düşürür); karışık terminal → `Active`. `ChangeTaskStatusCommand` audit + tek recompute. Unit test eklendi. BE build + 1 test + FE PASS. NOT: Mevcut tutarsız kayıtlar (T-2026-309) için görev durumunu tekrar değiştirmek gerekir.

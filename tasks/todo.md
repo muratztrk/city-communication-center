@@ -606,6 +606,15 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 93 (manuel tur — #1003: WhatsApp konuşması yönetici/personel için salt-okunur)
 - [x] `#1003` — Görev/Talep detayından açılan WhatsApp konuşması (WhatsAppConversationModal, JobsPage+TasksPage'de kullanılıyor) `ConversationPanel`'a `canReply={false}` ile salt-okunur yapıldı; yanıt textbox'ı + gönder/şablon butonları gizlendi. Operatörün talep oluşturma akışı (CitizenRequestModal) `canReply` default true ile yazmaya devam ediyor; operatör /whatsapp sayfasından da yazabilir. Karar: sadece-frontend kapsam (kullanıcı onayı). Backend ReplyToSocialMessageCommand yetki kontrolü kapsam dışı bırakıldı. FE build + lint PASS. main+master, Done.
 
+## Round 97 (Doing — #1042 #1047 #1048 #1049 #1050)
+- [x] `#1047` — Birim dışı taleplerde `getExternalUnitOwnerDisplayStatus` artık "İşleme Alındı" döndürmez; yalnızca vatandaş taleplerinde kalır. FE build + lint PASS.
+- [x] `#1048` — Atama geçmişi çerçevesi kaldırıldı; bullet (•) + kullanıcı + tarih listesi.
+- [x] `#1049` — Tamamlanmış/iptal görevlerde atama geçmişi Açıklama yanında (header hizalı); alttaki blok gizlenir.
+- [x] `#1050` — Rutin görevlerde Görev Atama Geçmişi alanı kaldırıldı (#1043 geri alındı).
+- [x] `#1042` (reopened) — Tamamlama popup: textarea tam genişlik; Dosya ekle Vazgeç/Tamamla satırının solunda. FE build + lint PASS. main+master, Done.
+
+## STATUS: Round 97 complete — Doing list drained (5 cards).
+
 ## Round 96 (Doing — #1045: Görev Atama Geçmişi başlık + veri)
 - [x] `#1045` — "Görev Atama Geçmişi" başlığı Açıklama ile aynı stil (`text-xs uppercase tracking-wide text-slate-500`). Atama geçmişi satırlarından birim kaldırıldı; yalnızca kullanıcı adı + tarih. FE build + lint PASS. main+master, Done.
 

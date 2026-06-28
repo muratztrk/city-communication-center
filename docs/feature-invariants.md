@@ -123,7 +123,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görev-durum değişikliğinin talebe yansıyan yan-etki audit'i de gizlenir
   (`IsJobStatusSideEffectOfTaskChange`, #1068). Yeni audit eklerken bu filtreleri kır(ma).
 - **`titleTag`** (NotificationResponse): görev-durumu bildiriminde üst talebi Reporter/Operator
-  oluşturmuşsa başlık yanında turuncu birim adı (card #1072).
+  oluşturmuşsa başlık yanında turuncu birim adı; lookup GUID üzerinden ve user→department join'iyle
+  yapılır, `Guid.ToString()` DB filtresine dayanmaz (card #1072).
 
 ## 6. Tenant / Auth
 

@@ -180,6 +180,115 @@ internal static class TaskWorkflowAuthorization
 
     private sealed record TargetDepartmentSnapshot(Guid DepartmentId, JobApprovalStatus ApprovalStatus);
 
+    private sealed record TaskCompletionSnapshot(
+        Guid? AssignedDepartmentId,
+        WorkflowTaskStatus CurrentStatus,
+        int? CompletionPercentage);
+
+    private static void UpdateJobCompletionPercentage(Job job, IReadOnlyList<TaskCompletionSnapshot> tasks)
+    {
+        if (tasks.Count == 0)
+        {
+            job.CompletionPercentage = 0;
+            return;
+        }
+
+        var total = tasks.Sum(task =>
+            task.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (task.CompletionPercentage ?? 0));
+        job.CompletionPercentage = total / tasks.Count;
+    }
+
+    /// <summary>
+    /// Applies terminal job status transitions from task terminal states.
+    /// Returns the new status when changed; null when no terminal transition applies.
+    /// Does not promote to Completed — callers decide coordinated completion separately.
+    /// </summary>
+    private static Domain.Enums.JobStatus? ApplyTerminalJobStatusFromTasks(
+        Job job,
+        IReadOnlyList<TaskCompletionSnapshot> tasks)
+    {
+        if (tasks.Count == 0)
+        {
+            return null;
+        }
+
+        var allTerminal = tasks.All(task =>
+            task.CurrentStatus is WorkflowTaskStatus.Completed
+                or WorkflowTaskStatus.Cancelled
+                or WorkflowTaskStatus.Rejected);
+        if (!allTerminal)
+        {
+            return null;
+        }
+
+        var allCancelled = tasks.All(task => task.CurrentStatus == WorkflowTaskStatus.Cancelled);
+        if (allCancelled)
+        {
+            if (job.Status == Domain.Enums.JobStatus.Cancelled)
+            {
+                return null;
+            }
+
+            job.Status = Domain.Enums.JobStatus.Cancelled;
+            job.CompletedAtUtc = null;
+            job.CompletionPercentage = 0;
+            return Domain.Enums.JobStatus.Cancelled;
+        }
+
+        var allCompleted = tasks.All(task => task.CurrentStatus == WorkflowTaskStatus.Completed);
+        if (allCompleted)
+        {
+            return null;
+        }
+
+        // Karışık terminal durum (ör. bir görev tamamlanmış, diğeri iptal) — talep tamamlanmış sayılmaz.
+        if (job.Status is Domain.Enums.JobStatus.Completed or Domain.Enums.JobStatus.Cancelled or Domain.Enums.JobStatus.Rejected)
+        {
+            job.Status = Domain.Enums.JobStatus.Active;
+            job.CompletedAtUtc = null;
+            return Domain.Enums.JobStatus.Active;
+        }
+
+        return null;
+    }
+
+    private static Domain.Enums.JobStatus? TryPromoteJobToCompleted(Job job, IReadOnlyList<TaskCompletionSnapshot> tasks)
+    {
+        if (tasks.Count == 0 || !tasks.All(task => task.CurrentStatus == WorkflowTaskStatus.Completed))
+        {
+            return null;
+        }
+
+        if (job.Status == Domain.Enums.JobStatus.Completed)
+        {
+            return null;
+        }
+
+        job.Status = Domain.Enums.JobStatus.Completed;
+        job.CompletedAtUtc = DateTimeOffset.UtcNow;
+        job.CompletionPercentage = 100;
+        return Domain.Enums.JobStatus.Completed;
+    }
+
+    private static Domain.Enums.JobStatus? DemoteCompletedJobWhenTasksNoLongerAllCompleted(
+        Job job,
+        IReadOnlyList<TaskCompletionSnapshot> tasks)
+    {
+        if (job.Status != Domain.Enums.JobStatus.Completed)
+        {
+            return null;
+        }
+
+        if (tasks.Count > 0 && tasks.All(task => task.CurrentStatus == WorkflowTaskStatus.Completed))
+        {
+            return null;
+        }
+
+        job.Status = Domain.Enums.JobStatus.Active;
+        job.CompletedAtUtc = null;
+        return Domain.Enums.JobStatus.Active;
+    }
+
     private static async Task<Domain.Enums.JobStatus?> RecomputeCoordinatedJobCompletionAsync(
         IApplicationDbContext dbContext,
         Job job,
@@ -244,13 +353,19 @@ internal static class TaskWorkflowAuthorization
         }
 
         var tasks = await taskQuery
-            .Select(entity => new
-            {
+            .Select(entity => new TaskCompletionSnapshot(
                 entity.AssignedDepartmentId,
                 entity.CurrentStatus,
-                entity.CompletionPercentage
-            })
+                entity.CompletionPercentage))
             .ToListAsync(cancellationToken);
+
+        UpdateJobCompletionPercentage(job, tasks);
+
+        var terminalStatus = ApplyTerminalJobStatusFromTasks(job, tasks);
+        if (terminalStatus is Domain.Enums.JobStatus.Cancelled or Domain.Enums.JobStatus.Active)
+        {
+            return terminalStatus;
+        }
 
         foreach (var targetId in participatingTargetIds)
         {
@@ -259,19 +374,12 @@ internal static class TaskWorkflowAuthorization
                 .ToList();
             if (targetTasks.Count == 0)
             {
-                job.CompletionPercentage = tasks.Count == 0
-                    ? 0
-                    : tasks.Sum(task =>
-                        task.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (task.CompletionPercentage ?? 0)) / tasks.Count;
-                return null;
+                return DemoteCompletedJobWhenTasksNoLongerAllCompleted(job, tasks);
             }
 
             if (!targetTasks.All(task => task.CurrentStatus == WorkflowTaskStatus.Completed))
             {
-                var total = tasks.Sum(task =>
-                    task.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (task.CompletionPercentage ?? 0));
-                job.CompletionPercentage = total / tasks.Count;
-                return null;
+                return DemoteCompletedJobWhenTasksNoLongerAllCompleted(job, tasks);
             }
         }
 
@@ -281,10 +389,7 @@ internal static class TaskWorkflowAuthorization
             return null;
         }
 
-        job.CompletionPercentage = 100;
-        job.Status = Domain.Enums.JobStatus.Completed;
-        job.CompletedAtUtc = DateTimeOffset.UtcNow;
-        return Domain.Enums.JobStatus.Completed;
+        return TryPromoteJobToCompleted(job, tasks);
     }
 
     private static async Task<Domain.Enums.JobStatus?> RecomputeStandardJobCompletionAsync(
@@ -294,7 +399,10 @@ internal static class TaskWorkflowAuthorization
     {
         var tasks = await dbContext.Tasks
             .Where(entity => entity.JobId == job.JobId)
-            .Select(entity => new { entity.CurrentStatus, entity.CompletionPercentage })
+            .Select(entity => new TaskCompletionSnapshot(
+                entity.AssignedDepartmentId,
+                entity.CurrentStatus,
+                entity.CompletionPercentage))
             .ToListAsync(cancellationToken);
         if (tasks.Count == 0)
         {
@@ -302,53 +410,14 @@ internal static class TaskWorkflowAuthorization
             return null;
         }
 
-        var total = tasks.Sum(t =>
-            t.CurrentStatus == WorkflowTaskStatus.Completed ? 100 : (t.CompletionPercentage ?? 0));
-        job.CompletionPercentage = total / tasks.Count;
+        UpdateJobCompletionPercentage(job, tasks);
 
-        var allTerminal = tasks.All(t =>
-            t.CurrentStatus is WorkflowTaskStatus.Completed
-                or WorkflowTaskStatus.Cancelled
-                or WorkflowTaskStatus.Rejected);
-
-        if (!allTerminal) return null;
-
-        var allCancelled = tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Cancelled);
-        var allCompleted = tasks.All(t => t.CurrentStatus == WorkflowTaskStatus.Completed);
-
-        if (allCancelled)
+        var terminalStatus = ApplyTerminalJobStatusFromTasks(job, tasks);
+        if (terminalStatus is Domain.Enums.JobStatus.Cancelled or Domain.Enums.JobStatus.Active)
         {
-            if (job.Status == Domain.Enums.JobStatus.Cancelled)
-            {
-                return null;
-            }
-
-            job.Status = Domain.Enums.JobStatus.Cancelled;
-            job.CompletedAtUtc = null;
-            job.CompletionPercentage = 0;
-            return Domain.Enums.JobStatus.Cancelled;
+            return terminalStatus;
         }
 
-        if (allCompleted)
-        {
-            if (job.Status == Domain.Enums.JobStatus.Completed)
-            {
-                return null;
-            }
-
-            job.Status = Domain.Enums.JobStatus.Completed;
-            job.CompletedAtUtc = DateTimeOffset.UtcNow;
-            return Domain.Enums.JobStatus.Completed;
-        }
-
-        // Karışık terminal durum (ör. bir görev tamamlanmış, diğeri iptal) — talep tamamlanmış sayılmaz.
-        if (job.Status is Domain.Enums.JobStatus.Completed or Domain.Enums.JobStatus.Cancelled or Domain.Enums.JobStatus.Rejected)
-        {
-            job.Status = Domain.Enums.JobStatus.Active;
-            job.CompletedAtUtc = null;
-            return Domain.Enums.JobStatus.Active;
-        }
-
-        return null;
+        return TryPromoteJobToCompleted(job, tasks);
     }
 }

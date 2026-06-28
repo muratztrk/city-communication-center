@@ -171,6 +171,83 @@ public sealed class TaskWorkflowAuthorizationTests
         Assert.Equal(0, job.CompletionPercentage);
     }
 
+    [Fact]
+    public async Task RecomputeJobCompletionAsync_DemotesCompletedCoordinatedJobWhenAllTasksCancelled()
+    {
+        await using var dbContext = CreateDbContext();
+        await SeedAsync(dbContext);
+
+        var targetDepartmentA = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        var targetDepartmentB = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+        dbContext.Departments.AddRange(
+            new Department
+            {
+                TenantId = TenantId,
+                DepartmentId = targetDepartmentA,
+                Name = "Target A",
+                DepartmentType = "Unit",
+            },
+            new Department
+            {
+                TenantId = TenantId,
+                DepartmentId = targetDepartmentB,
+                Name = "Target B",
+                DepartmentType = "Unit",
+            });
+        await dbContext.SaveChangesAsync();
+
+        var job = CreateJob();
+        job.IsCoordinated = true;
+        job.Status = JobStatus.Completed;
+        job.CompletedAtUtc = DateTimeOffset.UtcNow;
+        job.CompletionPercentage = 100;
+
+        dbContext.JobDepartments.AddRange(
+            new JobDepartment
+            {
+                TenantId = TenantId,
+                JobDepartmentId = Guid.NewGuid(),
+                JobId = job.JobId,
+                DepartmentId = targetDepartmentA,
+                Role = JobDepartmentRole.Target,
+                ApprovalStatus = JobApprovalStatus.Approved,
+            },
+            new JobDepartment
+            {
+                TenantId = TenantId,
+                JobDepartmentId = Guid.NewGuid(),
+                JobId = job.JobId,
+                DepartmentId = targetDepartmentB,
+                Role = JobDepartmentRole.Target,
+                ApprovalStatus = JobApprovalStatus.Approved,
+            });
+
+        var taskA = CreateTask(assignedUserId: AssigneeId);
+        taskA.JobId = job.JobId;
+        taskA.AssignedDepartmentId = targetDepartmentA;
+        taskA.CurrentStatus = WorkflowTaskStatus.Cancelled;
+
+        var taskB = CreateTask(assignedUserId: AssigneeId);
+        taskB.JobId = job.JobId;
+        taskB.AssignedDepartmentId = targetDepartmentB;
+        taskB.CurrentStatus = WorkflowTaskStatus.Cancelled;
+
+        dbContext.Jobs.Add(job);
+        dbContext.Tasks.AddRange(taskA, taskB);
+        await dbContext.SaveChangesAsync();
+
+        var result = await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(
+            dbContext,
+            job.JobId,
+            CancellationToken.None);
+
+        Assert.Equal(JobStatus.Cancelled, result);
+        Assert.Equal(JobStatus.Cancelled, job.Status);
+        Assert.Null(job.CompletedAtUtc);
+        Assert.Equal(0, job.CompletionPercentage);
+    }
+
     private static CityCommunicationCenterDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<CityCommunicationCenterDbContext>()

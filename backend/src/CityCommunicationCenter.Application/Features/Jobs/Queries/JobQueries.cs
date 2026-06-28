@@ -188,6 +188,17 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             .GroupBy(x => x.JobId)
             .ToDictionary(x => x.Key, x => (IReadOnlyCollection<JobDepartmentResponse>)x.Select(d => d.Department).ToArray());
 
+        // Vatandaş taleplerinin VT numarası linkli sosyal mesajda tutulur; gridlerde T- yerine VT-
+        // gösterebilmek için job → CitizenRequestNumber eşlemesi (card #1077).
+        var citizenNumbers = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => m.JobId.HasValue && jobIds.Contains(m.JobId.Value) && m.CitizenRequestNumber != null)
+            .Select(m => new { JobId = m.JobId!.Value, m.CitizenRequestNumber, m.CitizenRequestNumberYear })
+            .ToListAsync(cancellationToken);
+        var citizenNumberMap = citizenNumbers
+            .GroupBy(x => x.JobId)
+            .ToDictionary(g => g.Key, g => g.First());
+
         return rows.Select(r => new JobSummaryResponse(
             r.Job.JobId,
             r.Job.TenantId,
@@ -214,7 +225,9 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.CreatedByDisplayName,
             r.Job.UpdatedAtUtc,
             assignedUsersMap.GetValueOrDefault(r.Job.JobId),
-            r.CreatedByRoleCode)).ToArray();
+            r.CreatedByRoleCode,
+            citizenNumberMap.GetValueOrDefault(r.Job.JobId)?.CitizenRequestNumber,
+            citizenNumberMap.GetValueOrDefault(r.Job.JobId)?.CitizenRequestNumberYear)).ToArray();
     }
 }
 

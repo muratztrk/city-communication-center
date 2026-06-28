@@ -87,7 +87,10 @@ public sealed record JobSummaryResponse(
     string? CreatedByDisplayName,
     DateTimeOffset? UpdatedAtUtc,
     string? AssignedUserDisplayName = null,
-    string? CreatedByRoleCode = null);
+    string? CreatedByRoleCode = null,
+    // Vatandaş talebi (citizen) için linkli sosyal mesajın VT numarası — gridlerde VT- gösterimi (card #1077).
+    int? CitizenRequestNumber = null,
+    int? CitizenRequestNumberYear = null);
 
 public sealed record JobDetailResponse(
     Guid JobId,

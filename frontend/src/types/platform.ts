@@ -266,6 +266,9 @@ export interface JobSummary {
   updatedAtUtc?: string | null;
   assignedUserDisplayName?: string | null;
   createdByRoleCode?: string | null;
+  // Vatandaş talebi VT numarası (linkli sosyal mesajdan) — gridde VT- gösterimi (card #1077).
+  citizenRequestNumber?: number | null;
+  citizenRequestNumberYear?: number | null;
 }
 
 export interface JobDepartmentInfo {

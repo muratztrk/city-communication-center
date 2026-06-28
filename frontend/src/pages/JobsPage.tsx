@@ -147,12 +147,11 @@ function canOperatorEditPendingExternalJob(
 
 function getRequestEditPath(
   job: { jobId: string; requestType: string; sourceType: string },
-  role?: string,
 ): string {
-  if (role === 'Operator'
-    && job.requestType === 'ExternalUnit'
-    && (job.sourceType === 'SocialMessage' || job.sourceType === 'CitizenRequest')) {
-    return `/requests/new?kind=citizen&editJobId=${job.jobId}`
+  // Vatandaş talepleri (her rol için) citizen formunda düzenlenir; kaydedince Vatandaş Talepleri
+  // ekranına döner (returnTo=social) ve VT- numarası korunur — Taleplerim'e düşmez (card #1077).
+  if (isCitizenRequestJob({ requestType: job.requestType, sourceType: job.sourceType })) {
+    return `/requests/new?kind=citizen&editJobId=${job.jobId}&returnTo=social`
   }
   return `/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`
 }
@@ -229,6 +228,13 @@ function toDateTimePickerValue(value: string | null | undefined): string {
 }
 
 function formatJobDisplayNumber(job: JobSummary): string {
+  // Vatandaş talepleri her zaman VT- ile gösterilir; T-{jobNumber}'a dönüşemez (card #1077).
+  if (isCitizenRequestJob(job)) {
+    const year = job.citizenRequestNumberYear ?? job.jobNumberYear ?? new Date().getFullYear()
+    return job.citizenRequestNumber != null
+      ? `VT-${year}-${job.citizenRequestNumber}`
+      : `VT-${year}-Onay Bekleyen`
+  }
   if (job.jobNumber != null && job.jobNumberYear != null) {
     return `T-${job.jobNumberYear}-${job.jobNumber}`
   }
@@ -1688,7 +1694,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               <Button
                                 size="sm"
                                 className="bg-teal-700 text-white hover:bg-teal-800"
-                                onClick={() => navigate(getRequestEditPath(job, user?.role))}
+                                onClick={() => navigate(getRequestEditPath(job))}
                               >
                                 {t('jobs.actions.edit', 'Düzenle')}
                               </Button>
@@ -1840,7 +1846,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <Button
                       type="button"
                       className="bg-teal-700 text-white hover:bg-teal-800"
-                      onClick={() => navigate(getRequestEditPath(detail, user?.role))}
+                      onClick={() => navigate(getRequestEditPath(detail))}
                     >
                       {t('jobs.actions.edit', 'Düzenle')}
                     </Button>

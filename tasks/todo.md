@@ -651,3 +651,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#1060` — Görev durumu değişince bildirim: "Görev Durumu Değişti" + Görev No / başlık / Eski → Yeni. BE+FE build/lint PASS. Commit `bc4e807`, deploy, Done.
 
 ## STATUS: Round 100 complete — 9 cards moved to Done (1 new card in Doing: #1061).
+
+## Round 101 (Doing — #1061 #1054 reopened)
+- [x] `#1061` — Bildirimlerde "tamamlandı" metni yeşil (`NotificationStatusText`, onaylandı ile aynı). FE build + lint PASS.
+- [x] `#1054` (reopened) — Rol matrisinde geçersiz hücreler düz metin yerine diğer satırlarla aynı `role-matrix-toggle` (disabled checkbox + "Pasif"). FE build + lint PASS.
+
+## STATUS: Round 101 complete — Doing list drained (2 cards).

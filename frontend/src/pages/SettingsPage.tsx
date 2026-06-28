@@ -2057,8 +2057,11 @@ export function SettingsPage() {
                         && EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
                       if (hiddenForEdevletRole || hiddenForCitizenRequestManagerRole || hiddenForNonEdevletRole) {
                         return (
-                          <td key={`${role}-${page.key}`} className="text-slate-400">
-                            {t('common.disabled')}
+                          <td key={`${role}-${page.key}`}>
+                            <label className="role-matrix-toggle">
+                              <input checked={false} disabled type="checkbox" readOnly />
+                              <span>{t('common.disabled')}</span>
+                            </label>
                           </td>
                         )
                       }

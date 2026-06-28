@@ -14,6 +14,8 @@ import { ConversationPanel } from './ConversationPanel'
 import type { Department, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { formatCitizenRequestNumber } from '../utils/citizenRequests'
+import { getLocale } from '../utils/localization'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -124,11 +126,13 @@ function sanitizeCitizenName(value: string | null | undefined): string {
  * Vatandaş talebini ilgili WhatsApp konuşması yan tarafta görünür şekilde bir pop-up içinde oluşturur.
  */
 export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, citizenConversationId = null, onClose, onCreated }: CitizenRequestModalProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isEditMode = Boolean(editJobId)
+  const locale = getLocale(i18n.language)
+  const editCitizenRequestNumber = isEditMode ? formatCitizenRequestNumber(message, locale) : null
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
   const [citizenHandle, setCitizenHandle] = useState(() => (
@@ -434,6 +438,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               <div className="flex flex-1 items-center justify-center py-12 text-sm text-slate-500">{t('common.loading')}</div>
             ) : (
             <div className="grid gap-2.5">
+              {editCitizenRequestNumber ? (
+                <div className="text-sm font-extrabold text-orange-500 underline decoration-orange-500 decoration-2 underline-offset-4">
+                  {t('social.citizenRequestNumberLabel', 'Vatandaş Talep No')}: {editCitizenRequestNumber}
+                </div>
+              ) : null}
               <div className="grid gap-2.5 md:grid-cols-2">
                 <label className="job-field">
                   <span className="job-field-label">

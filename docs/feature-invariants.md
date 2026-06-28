@@ -88,6 +88,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yazabilir; görev/talep bağlamından açılan (`WhatsAppConversationModal`) salt-okunur olmalı.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
+- **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
+  üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Job status değişince `IWhatsAppJobNotifier` otomatik vatandaş mesajı atar**
   (Tamamlanmış / İptal). Yeni durum-değişim akışları da tutarlılık için bunu tetiklemeli.
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;

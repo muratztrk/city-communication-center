@@ -625,7 +625,9 @@
       "parentRequestNo": "Bağlı Olduğu Talep No",
       "parentRequestLinked": "Bağlı Olduğu",
       "parentRequestNoShort": "Talep No",
-      "routineNoParentRequest": "Rutin görev Talep No olmaz"
+      "routineNoParentRequest": "Rutin görev Talep No olmaz",
+      "routineTaskLabel": "Rutin Görev",
+      "routineNoRequestNo": "Talep No olmaz"
     },
     "new": "+ Yeni İş",
     "newCancel": "ptal",
@@ -707,7 +709,10 @@
       "taskAssignmentHistory": "Görev Atama Geçmişi",
       "noAssignmentHistory": "Atama geçmişi yok",
       "routineEditHistoryTitle": "Rutin Görev Düzenleme Geçmişi",
-      "routineEditHistoryEmpty": "Düzenleme geçmişi bulunmuyor."
+      "routineEditHistoryEmpty": "Düzenleme geçmişi bulunmuyor.",
+      "showRoutineEdits": "Düzenlemeleri Göster",
+      "routineEditBefore": "Önceki",
+      "routineEditAfter": "Sonraki"
     }
   },
   "incomingRequests": {

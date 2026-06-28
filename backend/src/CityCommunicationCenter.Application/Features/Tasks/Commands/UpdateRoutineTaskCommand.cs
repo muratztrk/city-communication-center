@@ -5,6 +5,13 @@ using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
 
+public sealed record RoutineTaskEditSnapshotAttachment(
+    Guid AttachmentId,
+    string FileName,
+    string ContentType,
+    long FileSizeBytes,
+    string RelativeUrl);
+
 public sealed record RoutineTaskEditSnapshot(
     string Title,
     string Description,
@@ -12,7 +19,8 @@ public sealed record RoutineTaskEditSnapshot(
     DateTimeOffset? DueDateUtc,
     string? Neighborhood,
     string? Street,
-    string? OpenAddress);
+    string? OpenAddress,
+    IReadOnlyList<RoutineTaskEditSnapshotAttachment> Attachments);
 
 public sealed record UpdateRoutineTaskCommand(
     Guid TaskId,
@@ -72,6 +80,18 @@ public sealed class UpdateRoutineTaskCommandHandler : ICommandHandler<UpdateRout
         await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
+        var attachments = await _dbContext.Attachments
+            .AsNoTracking()
+            .Where(a => a.TenantId == tenantId && a.EntityType == "Task" && a.EntityId == request.TaskId)
+            .OrderBy(a => a.CreatedAtUtc)
+            .Select(a => new RoutineTaskEditSnapshotAttachment(
+                a.AttachmentId,
+                a.FileName,
+                a.ContentType,
+                a.FileSizeBytes,
+                a.RelativeUrl))
+            .ToListAsync(cancellationToken);
+
         var snapshot = new RoutineTaskEditSnapshot(
             task.Title,
             task.Description,
@@ -79,7 +99,8 @@ public sealed class UpdateRoutineTaskCommandHandler : ICommandHandler<UpdateRout
             task.DueDateUtc,
             job.Neighborhood,
             job.Street,
-            job.OpenAddress);
+            job.OpenAddress,
+            attachments);
 
         _dbContext.AuditLogs.Add(new AuditLog
         {

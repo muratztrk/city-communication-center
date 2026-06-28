@@ -620,7 +620,9 @@
       "parentRequestNo": "Parent Request No",
       "parentRequestLinked": "Linked To",
       "parentRequestNoShort": "Request No",
-      "routineNoParentRequest": "A routine task has no request no"
+      "routineNoParentRequest": "A routine task has no request no",
+      "routineTaskLabel": "Routine Task",
+      "routineNoRequestNo": "No request no"
     },
     "new": "+ New Task",
     "newCancel": "Cancel",
@@ -702,7 +704,10 @@
       "taskAssignmentHistory": "Task Assignment History",
       "noAssignmentHistory": "No assignment history",
       "routineEditHistoryTitle": "Routine Task Edit History",
-      "routineEditHistoryEmpty": "No edit history found."
+      "routineEditHistoryEmpty": "No edit history found.",
+      "showRoutineEdits": "Show Edits",
+      "routineEditBefore": "Before",
+      "routineEditAfter": "After"
     }
   },
   "incomingRequests": {

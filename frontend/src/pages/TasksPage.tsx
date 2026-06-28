@@ -30,7 +30,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { formatJobDestinationsWithAssignees } from '../utils/jobDetails'
-import { parseRoutineTaskEditHistory, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
+import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -399,6 +399,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
   const [parentJobDetail, setParentJobDetail] = useState<JobDetail | null>(null)
   const [routineEditHistory, setRoutineEditHistory] = useState<RoutineTaskEditHistoryEntry[]>([])
+  const [routineEditHistoryModalOpen, setRoutineEditHistoryModalOpen] = useState(false)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [conversationModal, setConversationModal] = useState<{
     socialMessageId: string
@@ -664,7 +665,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         if (key === 'cancelReturnStatus') return row.currentStatus === 'Cancelled' ? 'İptal' : 'İade'
         if (key === 'priority') return getPriorityLabel(t, row.priority)
         if (key === 'jobNumber') return row.jobSourceType === 'Routine'
-          ? t('tasks.columns.routineNoParentRequest', 'Rutin görev Talep No olmaz')
+          ? `${t('tasks.columns.routineTaskLabel', 'Rutin Görev')} ${t('tasks.columns.routineNoRequestNo', 'Talep No olmaz')}`
           : formatTaskJobDisplayNumber(row, socialByJobId, locale)
         if (key === 'taskNumber') return formatTaskDisplayNumber(row)
         if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
@@ -1243,6 +1244,7 @@ const pageKicker = isMyTasksView
     setTaskDetail(null)
     setParentJobDetail(null)
     setRoutineEditHistory([])
+    setRoutineEditHistoryModalOpen(false)
     setDueDateEdit(null)
     setExtraTimeEdit(null)
     setExtraTimeReview(null)
@@ -1259,6 +1261,25 @@ const pageKicker = isMyTasksView
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('taskId')
     setSearchParams(nextParams, { replace: true })
+  }
+
+  const routineEditFieldLabel = (fieldKey: string) => {
+    switch (fieldKey) {
+      case 'title': return t('tasks.newRequest.title', 'Başlık')
+      case 'priority': return t('tasks.newRequest.priority', 'Öncelik')
+      case 'dueDateUtc': return t('tasks.columns.dueDate', 'Son Tarih')
+      case 'address': return t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')
+      case 'description': return t('tasks.newRequest.description', 'Açıklama')
+      case 'attachments': return t('attachments.sectionTitle', 'Ekler / Fotoğraflar')
+      default: return fieldKey
+    }
+  }
+
+  const formatRoutineEditChangeValue = (fieldKey: string, value: string) => {
+    if (!value || value === '—') return '—'
+    if (fieldKey === 'dueDateUtc') return formatDateTime(value, locale)
+    if (fieldKey === 'priority') return getPriorityLabel(t, value)
+    return value
   }
 
   return (
@@ -1824,42 +1845,9 @@ const pageKicker = isMyTasksView
                           {routineEditHistory.length === 0 ? (
                             <p className="text-sm text-slate-400">{t('tasks.detail.routineEditHistoryEmpty', 'Düzenleme geçmişi bulunmuyor.')}</p>
                           ) : (
-                            <div className="max-h-56 space-y-3 overflow-y-auto pr-1">
-                              {routineEditHistory.map(entry => (
-                                <div key={entry.auditLogId} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                                  <div className="mb-2 text-xs font-bold text-slate-700">
-                                    {formatDateTime(entry.editedAtUtc, locale)}
-                                    {entry.editedByDisplayName ? ` · ${entry.editedByDisplayName}` : ''}
-                                  </div>
-                                  <dl className="space-y-2 text-xs">
-                                    <div>
-                                      <dt className="font-semibold text-slate-500">{t('tasks.newRequest.title', 'Başlık')}</dt>
-                                      <dd className="break-words text-slate-900">{entry.snapshot.title}</dd>
-                                    </div>
-                                    <div>
-                                      <dt className="font-semibold text-slate-500">{t('tasks.newRequest.priority', 'Öncelik')}</dt>
-                                      <dd className="text-slate-900">{getPriorityLabel(t, entry.snapshot.priority)}</dd>
-                                    </div>
-                                    <div>
-                                      <dt className="font-semibold text-slate-500">{t('tasks.columns.dueDate', 'Son Tarih')}</dt>
-                                      <dd className="text-slate-900">{entry.snapshot.dueDateUtc ? formatDateTime(entry.snapshot.dueDateUtc, locale) : '—'}</dd>
-                                    </div>
-                                    {(entry.snapshot.neighborhood || entry.snapshot.street || entry.snapshot.openAddress) && (
-                                      <div>
-                                        <dt className="font-semibold text-slate-500">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</dt>
-                                        <dd className="break-words text-slate-900">
-                                          {[entry.snapshot.neighborhood, entry.snapshot.street, entry.snapshot.openAddress].filter(Boolean).join(' · ') || '—'}
-                                        </dd>
-                                      </div>
-                                    )}
-                                    <div>
-                                      <dt className="font-semibold text-slate-500">{t('tasks.newRequest.description', 'Açıklama')}</dt>
-                                      <dd className="break-words text-slate-900">{richTextToPlainText(entry.snapshot.description) || '—'}</dd>
-                                    </div>
-                                  </dl>
-                                </div>
-                              ))}
-                            </div>
+                            <Button type="button" variant="secondary" className="w-full" onClick={() => setRoutineEditHistoryModalOpen(true)}>
+                              {t('tasks.detail.showRoutineEdits', 'Düzenlemeleri Göster')}
+                            </Button>
                           )}
                         </div>
                       </section>
@@ -2111,6 +2099,98 @@ const pageKicker = isMyTasksView
         document.body
       )}
 
+      {routineEditHistoryModalOpen && createPortal(
+        <div
+          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/45 p-4"
+          onClick={() => setRoutineEditHistoryModalOpen(false)}
+          role="presentation"
+        >
+          <section
+            className="flex max-h-[min(85dvh,52rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            onClick={event => event.stopPropagation()}
+          >
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
+              <h2 className="text-base font-bold text-slate-900">
+                {t('tasks.detail.routineEditHistoryTitle', 'Rutin Görev Düzenleme Geçmişi')}
+              </h2>
+              <button
+                type="button"
+                className="rounded-full p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                aria-label={t('common.close', 'Kapat')}
+                onClick={() => setRoutineEditHistoryModalOpen(false)}
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
+              {routineEditHistory.map((entry, index) => {
+                const afterSnapshot = index === 0 && taskDetail
+                  ? buildRoutineSnapshotFromTaskDetail(taskDetail, parentJobDetail)
+                  : routineEditHistory[index - 1]!.snapshot
+                const changes = getRoutineEditFieldChanges(entry.snapshot, afterSnapshot)
+                const attachmentsChanged = changes.some(change => change.fieldKey === 'attachments')
+                const fieldChanges = changes.filter(change => change.fieldKey !== 'attachments')
+
+                return (
+                  <div key={entry.auditLogId} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-3 text-sm font-bold text-slate-800">
+                      {formatDateTime(entry.editedAtUtc, locale)}
+                      {entry.editedByDisplayName ? ` · ${entry.editedByDisplayName}` : ''}
+                    </div>
+                    {fieldChanges.length === 0 && !attachmentsChanged ? (
+                      <p className="text-sm text-slate-500">{t('tasks.detail.routineEditHistoryEmpty', 'Düzenleme geçmişi bulunmuyor.')}</p>
+                    ) : (
+                      <dl className="space-y-3 text-sm">
+                        {fieldChanges.map(change => (
+                          <div key={`${entry.auditLogId}-${change.fieldKey}`}>
+                            <dt className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              {routineEditFieldLabel(change.fieldKey)}
+                            </dt>
+                            <dd className="grid gap-2 sm:grid-cols-2">
+                              <div className="rounded-lg border border-slate-200 bg-white p-3">
+                                <div className="mb-1 text-[11px] font-semibold text-slate-400">{t('tasks.detail.routineEditBefore', 'Önceki')}</div>
+                                <div className="break-words text-slate-900">{formatRoutineEditChangeValue(change.fieldKey, change.before)}</div>
+                              </div>
+                              <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3">
+                                <div className="mb-1 text-[11px] font-semibold text-emerald-700">{t('tasks.detail.routineEditAfter', 'Sonraki')}</div>
+                                <div className="break-words text-slate-900">{formatRoutineEditChangeValue(change.fieldKey, change.after)}</div>
+                              </div>
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+                    {attachmentsChanged ? (
+                      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                        <div className="rounded-lg border border-slate-200 bg-white p-3">
+                          <div className="mb-2 text-xs font-semibold text-slate-500">{t('tasks.detail.routineEditBefore', 'Önceki')}</div>
+                          <AttachmentSection
+                            attachments={snapshotAttachmentsToAttachmentList(entry.snapshot.attachments)}
+                            readOnly
+                            compact
+                            emptyText={t('attachments.routineEmpty', 'Rutin Görev için ek/fotoğraf bulunmamaktadır.')}
+                          />
+                        </div>
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3">
+                          <div className="mb-2 text-xs font-semibold text-emerald-700">{t('tasks.detail.routineEditAfter', 'Sonraki')}</div>
+                          <AttachmentSection
+                            attachments={snapshotAttachmentsToAttachmentList(afterSnapshot.attachments)}
+                            readOnly
+                            compact
+                            emptyText={t('attachments.routineEmpty', 'Rutin Görev için ek/fotoğraf bulunmamaktadır.')}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        </div>,
+        document.body
+      )}
+
       {error && <div className="alert alert-error">{error}</div>}
       {loading ? (
         <div className="loading">{t('common.loading')}</div>
@@ -2187,7 +2267,12 @@ const pageKicker = isMyTasksView
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
                     <td className="table-number-cell text-xs text-slate-500">
                       {task.jobSourceType === 'Routine'
-                        ? <div className="table-number-cell__value font-sans text-slate-400">{t('tasks.columns.routineNoParentRequest', 'Rutin görev Talep No olmaz')}</div>
+                        ? (
+                          <>
+                            <div className="table-number-cell__value font-sans text-slate-400">{t('tasks.columns.routineTaskLabel', 'Rutin Görev')}</div>
+                            <div className="table-number-cell__priority font-sans text-slate-400">{t('tasks.columns.routineNoRequestNo', 'Talep No olmaz')}</div>
+                          </>
+                        )
                         : isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })
                           ? (
                             <div className="table-number-cell__value font-mono inline-flex items-center gap-1.5">

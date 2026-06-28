@@ -472,6 +472,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   // Vatandaş Talep Yöneticisi "Birimdeki Görevler"de yalnızca vatandaş taleplerinin görevlerini görür (card #1073).
   const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
+  const showDepartmentTaskFlowFilters = isDepartmentTasksView && isManagerLike
   const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin'
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
   const currentUserRecord = useMemo(() => activeUsers.find(item => item.userId === user?.userId) ?? null, [activeUsers, user?.userId])
@@ -615,9 +616,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       // Kontrol paneli "Birimdeki Görevler" grafiği yalnızca birime atanmış görevleri sayar.
       const departmentTasks = tasks.filter(task =>
         task.assignedDepartmentId != null && managedDepartmentIds.has(task.assignedDepartmentId))
-      result = filterMyTasks(departmentTasks, currentMyTaskView).filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
+      result = filterMyTasks(departmentTasks, currentMyTaskView)
       if (isCitizenRequestManager) {
         result = result.filter(task => isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType }))
+      } else {
+        result = result.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
       }
     } else if (!isMyTasksView) {
       result = tasks
@@ -1450,17 +1453,21 @@ const pageKicker = isMyTasksView
               {t(view.labelKey)}
             </button>
           ))}
-          <span className="scope-chip-divider" aria-hidden="true">|</span>
-          {DEPARTMENT_TASK_FLOWS.map(flow => (
-            <button
-              key={flow.value}
-              type="button"
-              className={`scope-chip scope-chip--${flow.value}${flow.value === currentRequestFlowFilter ? ' active' : ''}`}
-              onClick={() => setDepartmentTaskFlow(flow.value)}
-            >
-              {t(flow.labelKey)}
-            </button>
-          ))}
+          {showDepartmentTaskFlowFilters ? (
+            <>
+              <span className="scope-chip-divider" aria-hidden="true">|</span>
+              {DEPARTMENT_TASK_FLOWS.map(flow => (
+                <button
+                  key={flow.value}
+                  type="button"
+                  className={`scope-chip scope-chip--${flow.value}${flow.value === currentRequestFlowFilter ? ' active' : ''}`}
+                  onClick={() => setDepartmentTaskFlow(flow.value)}
+                >
+                  {t(flow.labelKey)}
+                </button>
+              ))}
+            </>
+          ) : null}
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">

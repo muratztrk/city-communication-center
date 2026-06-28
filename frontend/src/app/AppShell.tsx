@@ -27,6 +27,7 @@ import {
   shouldUsePrimaryDepartmentOnLoad,
 } from '../api/http'
 import { queryKeys } from '../api/queryKeys'
+import { refreshRolePageAccessFromServer } from '../api/auth'
 import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
@@ -154,6 +155,21 @@ export function AppShell() {
       window.removeEventListener(ROLE_PAGE_ACCESS_EVENT, updateAccess)
     }
   }, [])
+
+  // Rol matrisi admin tarafından güncellendiğinde açık oturumlarda menüyü yenile.
+  useEffect(() => {
+    if (!user?.userId) return
+
+    const syncAccess = () => {
+      void refreshRolePageAccessFromServer().then(ok => {
+        if (ok) setAccessVersion(version => version + 1)
+      })
+    }
+
+    syncAccess()
+    window.addEventListener('focus', syncAccess)
+    return () => window.removeEventListener('focus', syncAccess)
+  }, [user?.userId])
 
   useEffect(() => {
     const updateActiveDepartment = () => setActiveDepartmentVersion(version => version + 1)

@@ -226,6 +226,27 @@ function syncRolePageAccess(value: string | null | undefined): void {
   saveRolePageAccessMatrix(parseRolePageAccessMatrix(value) ?? DEFAULT_ROLE_PAGE_ACCESS)
 }
 
+/** Tenant rol matrisini sunucudan çekip localStorage ile hizalar (admin kaydı / sekme odağı). */
+export async function refreshRolePageAccessFromServer(): Promise<boolean> {
+  try {
+    const response = await fetch(SESSION_ME_ENDPOINT, {
+      credentials: 'include',
+      headers: {
+        'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+      },
+    })
+    if (!response.ok) {
+      return false
+    }
+
+    const profile = await response.json() as AuthenticatedUserProfileResponse
+    syncRolePageAccess(profile.rolePageAccessJson)
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function requestJson<T>(url: string, init: RequestInit, fallbackMessage: string): Promise<T> {
   const response = await fetch(url, {
     ...init,

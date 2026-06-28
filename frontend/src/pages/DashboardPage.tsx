@@ -9,6 +9,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart } from '../components/ui/PieChart'
 import { useAuth } from '../context/AuthContext'
+import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 
 interface MetricCard {
@@ -234,6 +235,7 @@ export function DashboardPage() {
   })
 
   const isManagerOrAdmin = role === 'Manager' || role === 'SystemAdmin'
+  const canAccessDepartmentTasks = canAnyRoleAccessPage(getEffectiveUserRoles(currentUser), 'departmentTasks')
   const statusChartsQuery = useQuery({
     queryKey: queryKeys.dashboard.statusCharts({
       from: activeFrom,
@@ -492,7 +494,7 @@ export function DashboardPage() {
           : chartCards.map(card => {
             // Standart kullanıcıların erişemediği "Birimdeki Görevler" listesine
             // dashboard'dan yönlendirme yapılmaz; grafik yalnızca bilgilendirme amaçlıdır.
-            const isReadOnlyDepartmentChart = !isManagerOrAdmin && card.titleKey === 'dashboard.charts.departmentTasks'
+            const isReadOnlyDepartmentChart = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             const chartRoute = isReadOnlyDepartmentChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined

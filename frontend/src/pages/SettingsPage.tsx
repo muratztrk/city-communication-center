@@ -506,9 +506,11 @@ export function SettingsPage() {
     setMessage(null)
     try {
       const matrixJson = serializeRolePageAccessMatrix(rolePageAccess)
+      const normalizedMatrix = parseRolePageAccessMatrix(matrixJson) ?? rolePageAccess
       await api.updateRolePageAccess(user.tenantId, matrixJson)
       invalidateSettings(queryClient)
-      saveRolePageAccessMatrix(rolePageAccess)
+      saveRolePageAccessMatrix(normalizedMatrix)
+      setRolePageAccess(normalizedMatrix)
       setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
       setMessage({ type: 'success', text: t('settings.roles.saveSuccess') })
     } catch (saveError) {

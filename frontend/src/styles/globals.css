@@ -3086,6 +3086,15 @@
     }
   }
 
+  /* Fixed FAB stack: WhatsApp above footer, scroll arrow above WhatsApp (#1055). */
+  .fixed-fab-whatsapp {
+    bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap));
+  }
+
+  .fixed-fab-scroll {
+    bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + var(--whatsapp-fab-size) + var(--fab-stack-gap));
+  }
+
   @keyframes whatsapp-fab-pulse {
     0%, 100% {
       transform: scale(1);

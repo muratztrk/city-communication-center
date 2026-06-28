@@ -1695,7 +1695,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             )
                           }
 
-                          if (activeJobView === 'all' || activeJobView === 'overdue') {
+                          // Onaylanmış (approved) + Tümü + Süresi Geçmiş görünümlerde düzenlenemeyen
+                          // kayıtlarda da hizalama için pasif Düzenle göster (card #1076).
+                          if (activeJobView === 'all' || activeJobView === 'overdue' || activeJobView === 'approved') {
                             return (
                               <DisabledActionButton
                                 size="sm"

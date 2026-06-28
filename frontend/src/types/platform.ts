@@ -381,6 +381,12 @@ export interface CitizenConversationSummary {
   isBlocked: boolean;
   lastMessagePreview: string | null;
   openTicketCount: number;
+  lastMessageDirection?: 'Inbound' | 'Outbound' | null;
+  latestCitizenRequestNumber?: number | null;
+  latestCitizenRequestNumberYear?: number | null;
+  latestTicketPriority?: string | null;
+  latestTicketStatus?: string | null;
+  assigneeDisplayName?: string | null;
 }
 
 export interface CitizenConversationTimelineEntry {

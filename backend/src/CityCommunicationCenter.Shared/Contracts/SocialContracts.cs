@@ -181,7 +181,13 @@ public sealed record CitizenConversationSummaryDto(
     int UnreadCount,
     bool IsBlocked,
     string? LastMessagePreview,
-    int OpenTicketCount);
+    int OpenTicketCount,
+    string? LastMessageDirection,
+    int? LatestCitizenRequestNumber,
+    int? LatestCitizenRequestNumberYear,
+    string? LatestTicketPriority,
+    string? LatestTicketStatus,
+    string? AssigneeDisplayName);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

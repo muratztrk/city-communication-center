@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { AlertCircle, Link2, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
+import { AlertCircle, ArrowDownUp, Check, Link2, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -19,7 +19,7 @@ import { conversationSameDay, formatConversationDayDivider } from '../utils/conv
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
-import { formatWhatsAppTicketLabel, isUrgentConversationPriority } from '../utils/whatsappConversationTicket'
+import { formatWhatsAppSummaryTicketLabel, formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
 
@@ -91,7 +91,15 @@ function findClosestTimelineEntryIndex(
   return bestIndex
 }
 
-// ─── left panel: conversation list item ──────────────────────────────────────
+// ─── left panel: conversation list ────────────────────────────────────────────
+
+type ConversationListFilter = 'all' | 'unread' | 'pending' | 'assigned'
+type ConversationSortOrder = 'newest' | 'oldest'
+
+function isRecentConversationTime(dateStr: string): boolean {
+  const diffMin = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000)
+  return diffMin >= 0 && diffMin < 60
+}
 
 function ConversationListItem({
   conv,
@@ -104,56 +112,246 @@ function ConversationListItem({
 }) {
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
+  const displayName = conv.citizenName ?? formatPhone(conv.citizenPhone)
   const initials = conv.citizenName ? getInitials(conv.citizenName) : null
+  const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
+  const waitingForResponse = isWaitingForConversationResponse(conv)
+  const ticketOpen = isConversationTicketOpen(conv)
+  const ticketLabel = formatWhatsAppSummaryTicketLabel(conv)
+  const timeLabel = formatConversationListTime(conv.lastMessageAt, locale, t, { compact: true })
+  const recentTime = isRecentConversationTime(conv.lastMessageAt)
+  const assigneeName = conv.assigneeDisplayName?.trim() || null
+  const assigneeInitials = assigneeName ? getInitials(assigneeName) : null
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left px-4 py-3 border-b border-[color:var(--color-border)] transition-colors ${
+      className={`group w-full text-left px-3.5 py-3 border-b border-slate-100 transition-colors ${
         selected
-          ? 'bg-[color:var(--color-primary)]/[0.08] border-l-[3px] border-l-[color:var(--color-primary)]'
-          : 'bg-white hover:bg-slate-50 border-l-[3px] border-l-transparent'
+          ? 'bg-emerald-50/90'
+          : 'bg-white hover:bg-slate-50/80'
       }`}
     >
-      <div className="flex items-start justify-between gap-2 min-w-0">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="size-9 shrink-0 rounded-full bg-[color:var(--color-primary)]/15 flex items-center justify-center text-[color:var(--color-primary)] text-xs font-bold">
-            {initials ?? <MessageCircle className="size-4" />}
+      <div className="flex items-start gap-3 min-w-0">
+        <div className="relative shrink-0">
+          <div className="size-11 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-sm font-bold">
+            {initials ?? <MessageCircle className="size-4.5 opacity-70" />}
           </div>
-          <div className="min-w-0">
-            <p className="font-semibold text-sm text-[color:var(--color-foreground)] truncate">
-              {conv.citizenName ?? formatPhone(conv.citizenPhone)}
-            </p>
-            {conv.citizenName && (
-              <p className="text-xs text-[color:var(--color-muted-foreground)] truncate">
-                {formatPhone(conv.citizenPhone)}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-1 shrink-0">
-          <span className="text-[11px] text-[color:var(--color-muted-foreground)]">
-            {formatConversationListTime(conv.lastMessageAt, locale, t)}
-          </span>
-          {conv.unreadCount > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[1.2rem] h-5 px-1 rounded-full bg-[color:var(--color-primary)] text-white text-[10px] font-bold">
-              {conv.unreadCount}
-            </span>
+          {(isUrgent || waitingForResponse || ticketOpen) && (
+            <span
+              className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full ring-2 ring-white ${
+                isUrgent || waitingForResponse ? 'bg-orange-400' : 'bg-emerald-500'
+              }`}
+              aria-hidden="true"
+            />
           )}
         </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <p className="font-semibold text-[13px] text-slate-900 truncate">{displayName}</p>
+              {isUrgent && (
+                <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide uppercase bg-orange-100 text-orange-700">
+                  {t('whatsapp.urgent', 'ACİL')}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className={`text-[11px] font-medium ${recentTime ? 'text-emerald-700' : 'text-slate-400'}`}>
+                {timeLabel}
+              </span>
+              {conv.unreadCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full bg-emerald-700 text-white text-[10px] font-bold leading-none">
+                  {conv.unreadCount}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {conv.lastMessagePreview && (
+            <p className="mt-0.5 text-xs text-slate-500 truncate leading-relaxed">
+              {formatConversationDisplayContent(conv.lastMessagePreview)}
+            </p>
+          )}
+
+          <div className="mt-2 flex items-center justify-between gap-2 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+              {waitingForResponse && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
+                  <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+                  {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
+                </span>
+              )}
+              {!waitingForResponse && ticketOpen && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+                  <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                  {t('whatsapp.ticketOpen', 'Açık')}
+                </span>
+              )}
+              {!ticketOpen && conv.openTicketCount === 0 && conv.latestTicketStatus && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                  <Check className="size-3" aria-hidden="true" />
+                  {t('whatsapp.ticketResolved', 'Çözüldü')}
+                </span>
+              )}
+              {ticketLabel && (
+                <span className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
+                  {ticketLabel}
+                </span>
+              )}
+              {conv.isBlocked && (
+                <span className="inline-flex items-center rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
+                  {t('whatsapp.blocked')}
+                </span>
+              )}
+            </div>
+
+            <div className="shrink-0 flex items-center gap-1 max-w-[42%]">
+              {assigneeName ? (
+                <>
+                  <span className="size-5 rounded-full bg-slate-200 text-[9px] font-bold text-slate-600 flex items-center justify-center">
+                    {assigneeInitials}
+                  </span>
+                  <span className="text-[10px] text-slate-500 truncate">{assigneeName}</span>
+                </>
+              ) : ticketOpen ? (
+                <span className="text-[10px] text-slate-400 truncate">{t('whatsapp.unassigned', 'Atanmadı')}</span>
+              ) : null}
+            </div>
+          </div>
+        </div>
       </div>
-      {conv.lastMessagePreview && (
-        <p className="mt-1 ml-[2.875rem] text-xs text-[color:var(--color-muted-foreground)] truncate">
-          {formatConversationDisplayContent(conv.lastMessagePreview)}
-        </p>
-      )}
-      {conv.isBlocked && (
-        <span className="mt-1 ml-[2.875rem] inline-block text-[10px] font-semibold text-red-500">
-          {t('whatsapp.blocked')}
-        </span>
-      )}
     </button>
+  )
+}
+
+function ConversationListPanel({
+  conversations,
+  filtered,
+  loading,
+  search,
+  onSearchChange,
+  listFilter,
+  onListFilterChange,
+  sortOrder,
+  onSortOrderChange,
+  selectedId,
+  onSelect,
+}: {
+  conversations: CitizenConversationSummary[]
+  filtered: CitizenConversationSummary[]
+  loading: boolean
+  search: string
+  onSearchChange: (value: string) => void
+  listFilter: ConversationListFilter
+  onListFilterChange: (value: ConversationListFilter) => void
+  sortOrder: ConversationSortOrder
+  onSortOrderChange: (value: ConversationSortOrder) => void
+  selectedId: string | null
+  onSelect: (id: string) => void
+}) {
+  const { t } = useTranslation()
+
+  const unreadCount = useMemo(
+    () => conversations.filter(c => c.unreadCount > 0).length,
+    [conversations],
+  )
+
+  const filterOptions: { value: ConversationListFilter; label: string; badge?: number }[] = [
+    { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü') },
+    { value: 'unread', label: t('whatsapp.listFilter.unread', 'Okunmamış'), badge: unreadCount || undefined },
+    { value: 'pending', label: t('whatsapp.listFilter.pending', 'Bekleyen') },
+    { value: 'assigned', label: t('whatsapp.listFilter.assigned', 'Atanmış') },
+  ]
+
+  return (
+    <div className="w-[21.5rem] shrink-0 flex flex-col border-r border-[color:var(--color-border)] bg-white shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]">
+      <div className="shrink-0 px-4 pt-4 pb-3 space-y-3 border-b border-slate-100">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-2 min-w-0">
+            <h2 className="text-base font-bold text-slate-900">{t('whatsapp.conversationsTitle', 'Konuşmalar')}</h2>
+            <span className="text-sm font-semibold text-emerald-700">{conversations.length}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => onSortOrderChange(sortOrder === 'newest' ? 'oldest' : 'newest')}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+            aria-label={t('whatsapp.sort', 'Sırala')}
+          >
+            <ArrowDownUp className="size-3.5" aria-hidden="true" />
+            {t('whatsapp.sort', 'Sırala')}
+          </button>
+        </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" aria-hidden="true" />
+          <input
+            type="search"
+            value={search}
+            onChange={event => onSearchChange(event.target.value)}
+            placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon, isim veya talep no…')}
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
+          />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => onSearchChange('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-slate-400 hover:text-slate-600"
+              aria-label={t('common.clear', 'Temizle')}
+            >
+              <X className="size-4" />
+            </button>
+          ) : null}
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {filterOptions.map(option => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onListFilterChange(option.value)}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                listFilter === option.value
+                  ? 'bg-emerald-800 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
+              }`}
+            >
+              {option.label}
+              {option.badge != null && option.badge > 0 ? (
+                <span className={`inline-flex min-w-[1rem] h-4 px-1 items-center justify-center rounded-full text-[10px] font-bold ${
+                  listFilter === option.value ? 'bg-red-500 text-white' : 'bg-red-500 text-white'
+                }`}>
+                  {option.badge}
+                </span>
+              ) : null}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        {loading ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <p className="text-center text-sm text-[color:var(--color-muted-foreground)] mt-8 px-4">
+            {t('whatsapp.empty')}
+          </p>
+        ) : (
+          filtered.map(conv => (
+            <ConversationListItem
+              key={conv.citizenConversationId}
+              conv={conv}
+              selected={conv.citizenConversationId === selectedId}
+              onClick={() => onSelect(conv.citizenConversationId)}
+            />
+          ))
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -536,6 +734,8 @@ export function WhatsAppConversationsPage() {
   const [search, setSearch] = useState(searchParams.get('phone') ?? '')
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
+  const [listFilter, setListFilter] = useState<ConversationListFilter>('all')
+  const [sortOrder, setSortOrder] = useState<ConversationSortOrder>('newest')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
@@ -587,20 +787,34 @@ export function WhatsAppConversationsPage() {
 
   const normalizedSearchPhone = normalizePhone(search)
   const normalizedSearchName = search.toLocaleLowerCase('tr')
-  const filtered = conversations.filter(conversation => {
-    const matchesSearch = normalizedSearchPhone.length === 0 && normalizedSearchName.length === 0
-      ? true
-      : (normalizedSearchPhone.length > 0 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
-        || (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName)
-        || normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone)
-    if (!matchesSearch) return false
-    if (filterFrom || filterTo) {
-      const date = conversation.lastMessageAt.slice(0, 10)
-      if (filterFrom && date < filterFrom.slice(0, 10)) return false
-      if (filterTo && date > filterTo.slice(0, 10)) return false
-    }
-    return true
-  })
+  const normalizedSearchTicket = search.replace(/\D/g, '')
+  const filtered = useMemo(() => {
+    const matches = conversations.filter(conversation => {
+      const ticketNumber = conversation.latestCitizenRequestNumber?.toString() ?? ''
+      const matchesSearch = normalizedSearchPhone.length === 0 && normalizedSearchName.length === 0
+        ? true
+        : (normalizedSearchPhone.length > 0 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
+          || (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName)
+          || normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone)
+          || (normalizedSearchTicket.length > 0 && ticketNumber.includes(normalizedSearchTicket))
+      if (!matchesSearch) return false
+      if (filterFrom || filterTo) {
+        const date = conversation.lastMessageAt.slice(0, 10)
+        if (filterFrom && date < filterFrom.slice(0, 10)) return false
+        if (filterTo && date > filterTo.slice(0, 10)) return false
+      }
+      if (listFilter === 'unread' && conversation.unreadCount <= 0) return false
+      if (listFilter === 'pending' && !isWaitingForConversationResponse(conversation)) return false
+      if (listFilter === 'assigned' && !conversation.assigneeDisplayName?.trim()) return false
+      return true
+    })
+
+    return matches.sort((a, b) => {
+      const aTime = new Date(a.lastMessageAt).getTime()
+      const bTime = new Date(b.lastMessageAt).getTime()
+      return sortOrder === 'newest' ? bTime - aTime : aTime - bTime
+    })
+  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, sortOrder])
 
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
 
@@ -706,21 +920,6 @@ export function WhatsAppConversationsPage() {
           </div>
           <div className="ml-auto mt-auto shrink-0">
             <div className="scope-chips-filters">
-              <div className="scope-chip-search-wrap">
-                <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
-                <input
-                  type="text"
-                  className="scope-chip-search-input"
-                  placeholder={t('whatsapp.searchPlaceholder', 'Telefon no bul…')}
-                  value={search}
-                  onChange={event => setSearch(event.target.value)}
-                />
-                {search ? (
-                  <button type="button" onClick={() => setSearch('')} className="scope-chip-search-clear shrink-0 font-extrabold transition-colors" aria-label={t('common.clear', 'Temizle')}>
-                    <X className="size-3.5" strokeWidth={3} />
-                  </button>
-                ) : null}
-              </div>
               <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder={t('filters.startDate', 'Başlangıç tarihi')} className="scope-chip-date" forceDown />
               <span className="text-xs text-white/60">–</span>
               <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder={t('filters.endDate', 'Bitiş tarihi')} className="scope-chip-date" forceDown />
@@ -732,28 +931,19 @@ export function WhatsAppConversationsPage() {
       {/* Split panel layout */}
       <div className="flex flex-1 min-h-0 overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-slate-50">
         {/* Left: conversation list */}
-        <div className="w-80 shrink-0 flex flex-col border-r border-[color:var(--color-border)] bg-white">
-          <div className="flex-1 overflow-y-auto">
-            {loading ? (
-              <div className="flex items-center justify-center h-32">
-                <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
-              </div>
-            ) : filtered.length === 0 ? (
-              <p className="text-center text-sm text-[color:var(--color-muted-foreground)] mt-8 px-4">
-                {t('whatsapp.empty')}
-              </p>
-            ) : (
-              filtered.map(conv => (
-                <ConversationListItem
-                  key={conv.citizenConversationId}
-                  conv={conv}
-                  selected={conv.citizenConversationId === selectedId}
-                  onClick={() => setSelectedId(conv.citizenConversationId)}
-                />
-              ))
-            )}
-          </div>
-        </div>
+        <ConversationListPanel
+          conversations={conversations}
+          filtered={filtered}
+          loading={loading}
+          search={search}
+          onSearchChange={setSearch}
+          listFilter={listFilter}
+          onListFilterChange={setListFilter}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+        />
 
         {/* Right: conversation detail */}
         <div className="flex-1 min-w-0 bg-slate-50">

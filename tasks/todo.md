@@ -638,3 +638,16 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## STATUS: Round 95 complete — Doing list drained (3 cards).
 - [x] `#1005` — Görevlerim'de Tamamlanmış ve İptal (rejected view = Cancelled+Rejected; yalnızca Cancelled satırları) görevlerde İşlemler'de "Detaylar"ın soluna teal "Durum Değiştir" butonu. Açılan pop-up "Görevi Birim İçi Yönlendir" tasarımında: başlık "Görev Durum Değişikliği" + ayraç, "Görev durumunu değiştirmek için neden belirtiniz." helper, Neden textbox, "Talep Durumu Seç" dropdown (default "Görev durumu seçiniz", seçenekler Yapılmakta/Tamamlanmış/İptal eksi mevcut durum), Vazgeç + yeşil "Durum Değiştir". **Backend**: yeni `ChangeTaskStatusCommand` (`POST /tasks/{id}/change-status`, `ChangeTaskStatusRequest`): yalnızca Completed/Cancelled görevde; hedef InProgress/Completed/Cancelled; yetki `EnsureCanActAsAssigneeAsync` (atanan/SystemAdmin, kullanıcı kararı); audit "TaskStatusChanged"; job recompute + WhatsApp bildirim. InProgress'e geri alma: RecomputeJobCompletionAsync terminal'i geri düşürmediğinden talep manuel `Active`+CompletedAtUtc=null yapılıyor (yeni invariant eklendi). Hedef: InProgress→CompletedAtUtc=null/%=0; Completed→%=100/Notes=neden; Cancelled→RevisionReason=neden. dotnet build + FE build/lint PASS. main+master, Done.
 - NOT: Veriye bağlı (Tamamlanmış/İptal görev + atanan kullanıcı), seed yok → kod + build doğrulaması; kullanıcı kendi ortamında (gerçek veri var) gözle teyit edebilir. feature-invariants.md §1 (reopen komutu artık VAR) + §2 (recompute demote etmez) güncellendi.
+
+## Round 100 (Doing — #1052–#1060: UI polish batch)
+- [x] `#1052` — Pop-up'lar backdrop tıklamasıyla kapanmıyor (`ModalBackdrop` + tüm sayfa/modal overlay'leri).
+- [x] `#1053` — Görevi Tamamla popup'ında turuncu Görev No.
+- [x] `#1054` — Rol matrisinde checkbox olmayan hücreler "Pasif".
+- [x] `#1055` — WhatsApp FAB footer'dan yukarı (`bottom-20`); dış tıklama kapatması kaldırıldı.
+- [x] `#1056` — Vatandaş talebinde "Talebi Onaylayan" hedef onayına kadar gizli (`shouldShowRequestApproverField`).
+- [x] `#1057` — "Durum Değiştir" detay header'a (koyu mavi); rutin Tamamlanmış/İptal için Düzenle aktif.
+- [x] `#1058` — Tamamlama sonrası detay yenileniyor; Görev Ekleri'nde ekler görünür.
+- [x] `#1059` — Vatandaş→görev detayında İlgili Talep Detayları'ndan Durum kaldırıldı.
+- [x] `#1060` — Görev durumu değişince bildirim: "Görev Durumu Değişti" + Görev No / başlık / Eski → Yeni. BE+FE build/lint PASS. Commit `bc4e807`, deploy, Done.
+
+## STATUS: Round 100 complete — 9 cards moved to Done (1 new card in Doing: #1061).

@@ -30,6 +30,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { formatJobDestinationsWithAssignees } from '../utils/jobDetails'
+import { parseRoutineTaskEditHistory, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -397,6 +398,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
   const [parentJobDetail, setParentJobDetail] = useState<JobDetail | null>(null)
+  const [routineEditHistory, setRoutineEditHistory] = useState<RoutineTaskEditHistoryEntry[]>([])
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [conversationModal, setConversationModal] = useState<{
     socialMessageId: string
@@ -1114,6 +1116,7 @@ const pageKicker = isMyTasksView
     setSelectedTask(task)
     setTaskDetail(null)
     setParentJobDetail(null)
+    setRoutineEditHistory([])
     setDetailLoading(true)
     try {
       const [detail, jobDetail] = await Promise.all([
@@ -1122,6 +1125,10 @@ const pageKicker = isMyTasksView
       ])
       setTaskDetail(detail)
       setParentJobDetail(jobDetail)
+      if (detail.jobSourceType === 'Routine') {
+        const auditEntries = await api.getTaskAuditLog(task.taskId).catch(() => [])
+        setRoutineEditHistory(parseRoutineTaskEditHistory(auditEntries))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -1134,12 +1141,17 @@ const pageKicker = isMyTasksView
   const openTaskDetailById = async (taskId: string) => {
     setTaskDetail(null)
     setParentJobDetail(null)
+    setRoutineEditHistory([])
     setDetailLoading(true)
     try {
       const detail = await api.getTaskById(taskId)
       const parentJob = detail.jobId ? await api.getJobById(detail.jobId).catch(() => null) : null
       setTaskDetail(detail)
       setParentJobDetail(parentJob)
+      if (detail.jobSourceType === 'Routine') {
+        const auditEntries = await api.getTaskAuditLog(taskId).catch(() => [])
+        setRoutineEditHistory(parseRoutineTaskEditHistory(auditEntries))
+      }
       // Modal başlığı/yazdırma için Task özetini detaydan + bağlı talepten türet.
       setSelectedTask({
         ...detail,
@@ -1230,6 +1242,7 @@ const pageKicker = isMyTasksView
     setSelectedTask(null)
     setTaskDetail(null)
     setParentJobDetail(null)
+    setRoutineEditHistory([])
     setDueDateEdit(null)
     setExtraTimeEdit(null)
     setExtraTimeReview(null)
@@ -1534,22 +1547,30 @@ const pageKicker = isMyTasksView
                                             {taskDetail.statusActorDisplayName ? ` (${taskDetail.statusActorDisplayName})` : ''}
                                           </span>
                                           {taskDetail.currentStatus === 'Cancelled' && taskDetail.revisionReason ? (
-                                            <button
-                                              type="button"
-                                              className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
-                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                            >
-                                              ({t('tasks.detail.cancelNote', 'İptal Notu')})
-                                            </button>
+                                            <span className="inline-flex items-center text-red-600">
+                                              <span>(</span>
+                                              <button
+                                                type="button"
+                                                className="font-semibold hover:text-red-700"
+                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                              >
+                                                <span className="underline underline-offset-2">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>
+                                              </button>
+                                              <span>)</span>
+                                            </span>
                                           ) : null}
                                           {taskDetail.currentStatus === 'Completed' && taskDetail.notes ? (
-                                            <button
-                                              type="button"
-                                              className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                            >
-                                              ({t('tasks.detail.completionNote', 'Tamamlama Notu')})
-                                            </button>
+                                            <span className="inline-flex items-center text-emerald-600">
+                                              <span>(</span>
+                                              <button
+                                                type="button"
+                                                className="font-semibold hover:text-emerald-700"
+                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                              >
+                                                <span className="underline underline-offset-2">{t('tasks.detail.completionNote', 'Tamamlama Notu')}</span>
+                                              </button>
+                                              <span>)</span>
+                                            </span>
                                           ) : null}
                                         </span>
                                       ),
@@ -1762,7 +1783,7 @@ const pageKicker = isMyTasksView
                     ].filter(field => field.value != null && field.value.trim() !== '')
                     const isCompleted = taskDetail.currentStatus === 'Completed'
                     return (
-                      <section className="mb-5 grid gap-4 lg:grid-cols-2">
+                      <section className="mb-5 grid gap-4 lg:grid-cols-3">
                         <div className="rounded-xl border border-slate-200 bg-white p-4">
                           <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
                             {t('address.detailSectionTitle', 'Adres Bilgileri')}
@@ -1794,6 +1815,51 @@ const pageKicker = isMyTasksView
                             <p className="mt-2 text-xs font-medium text-amber-600">
                               {t('attachments.routineLocked', 'Rutin görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
                             </p>
+                          )}
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white p-4">
+                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                            {t('tasks.detail.routineEditHistoryTitle', 'Rutin Görev Düzenleme Geçmişi')}
+                          </h3>
+                          {routineEditHistory.length === 0 ? (
+                            <p className="text-sm text-slate-400">{t('tasks.detail.routineEditHistoryEmpty', 'Düzenleme geçmişi bulunmuyor.')}</p>
+                          ) : (
+                            <div className="max-h-56 space-y-3 overflow-y-auto pr-1">
+                              {routineEditHistory.map(entry => (
+                                <div key={entry.auditLogId} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                                  <div className="mb-2 text-xs font-bold text-slate-700">
+                                    {formatDateTime(entry.editedAtUtc, locale)}
+                                    {entry.editedByDisplayName ? ` · ${entry.editedByDisplayName}` : ''}
+                                  </div>
+                                  <dl className="space-y-2 text-xs">
+                                    <div>
+                                      <dt className="font-semibold text-slate-500">{t('tasks.newRequest.title', 'Başlık')}</dt>
+                                      <dd className="break-words text-slate-900">{entry.snapshot.title}</dd>
+                                    </div>
+                                    <div>
+                                      <dt className="font-semibold text-slate-500">{t('tasks.newRequest.priority', 'Öncelik')}</dt>
+                                      <dd className="text-slate-900">{getPriorityLabel(t, entry.snapshot.priority)}</dd>
+                                    </div>
+                                    <div>
+                                      <dt className="font-semibold text-slate-500">{t('tasks.columns.dueDate', 'Son Tarih')}</dt>
+                                      <dd className="text-slate-900">{entry.snapshot.dueDateUtc ? formatDateTime(entry.snapshot.dueDateUtc, locale) : '—'}</dd>
+                                    </div>
+                                    {(entry.snapshot.neighborhood || entry.snapshot.street || entry.snapshot.openAddress) && (
+                                      <div>
+                                        <dt className="font-semibold text-slate-500">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</dt>
+                                        <dd className="break-words text-slate-900">
+                                          {[entry.snapshot.neighborhood, entry.snapshot.street, entry.snapshot.openAddress].filter(Boolean).join(' · ') || '—'}
+                                        </dd>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <dt className="font-semibold text-slate-500">{t('tasks.newRequest.description', 'Açıklama')}</dt>
+                                      <dd className="break-words text-slate-900">{richTextToPlainText(entry.snapshot.description) || '—'}</dd>
+                                    </div>
+                                  </dl>
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </div>
                       </section>

@@ -700,7 +700,9 @@
       "completionNote": "Completion Note",
       "assignmentHistory": "Assignment History",
       "taskAssignmentHistory": "Task Assignment History",
-      "noAssignmentHistory": "No assignment history"
+      "noAssignmentHistory": "No assignment history",
+      "routineEditHistoryTitle": "Routine Task Edit History",
+      "routineEditHistoryEmpty": "No edit history found."
     }
   },
   "incomingRequests": {

@@ -705,7 +705,9 @@
       "completionNote": "Tamamlama Notu",
       "assignmentHistory": "Atama Geçmişi",
       "taskAssignmentHistory": "Görev Atama Geçmişi",
-      "noAssignmentHistory": "Atama geçmişi yok"
+      "noAssignmentHistory": "Atama geçmişi yok",
+      "routineEditHistoryTitle": "Rutin Görev Düzenleme Geçmişi",
+      "routineEditHistoryEmpty": "Düzenleme geçmişi bulunmuyor."
     }
   },
   "incomingRequests": {

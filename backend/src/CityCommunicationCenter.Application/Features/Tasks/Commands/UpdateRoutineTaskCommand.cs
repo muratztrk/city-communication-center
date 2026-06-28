@@ -1,8 +1,18 @@
+using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
+
+public sealed record RoutineTaskEditSnapshot(
+    string Title,
+    string Description,
+    string Priority,
+    DateTimeOffset? DueDateUtc,
+    string? Neighborhood,
+    string? Street,
+    string? OpenAddress);
 
 public sealed record UpdateRoutineTaskCommand(
     Guid TaskId,
@@ -62,6 +72,29 @@ public sealed class UpdateRoutineTaskCommandHandler : ICommandHandler<UpdateRout
         await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
+        var snapshot = new RoutineTaskEditSnapshot(
+            task.Title,
+            task.Description,
+            task.Priority,
+            task.DueDateUtc,
+            job.Neighborhood,
+            job.Street,
+            job.OpenAddress);
+
+        _dbContext.AuditLogs.Add(new AuditLog
+        {
+            AuditLogId = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = nameof(WorkTask),
+            EntityId = task.TaskId.ToString(),
+            Action = "RoutineTaskEditSnapshot",
+            ActorUserId = context.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = task.CurrentStatus.ToString(),
+            Notes = JsonSerializer.Serialize(snapshot, JsonSerializerOptions.Web),
+            Details = $"Routine task snapshot before edit by {actor.DisplayName}"
+        });
+
         var title = request.Title.Trim();
         var description = request.Description.Trim();
         var priority = request.Priority.Trim();

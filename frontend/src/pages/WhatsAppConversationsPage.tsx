@@ -20,6 +20,8 @@ import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { formatWhatsAppTicketLabel, isUrgentConversationPriority } from '../utils/whatsappConversationTicket'
+import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
+import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -30,10 +32,6 @@ function formatPhone(phone: string): string {
     return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
   }
   return `+${digits}`
-}
-
-function normalizePhone(phone: string): string {
-  return phone.replace(/\D/g, '').replace(/^0(?=5\d{9}$)/, '90')
 }
 
 function toLocalPhoneFilterDigits(phone: string): string {
@@ -224,10 +222,14 @@ function ConversationDetail({
     try {
       const data = await api.getCitizenConversationDetail(conversationId)
       setDetail(data)
+      if (data.unreadCount > 0) {
+        await api.markConversationRead(conversationId)
+        onReadMarked?.()
+      }
     } catch {
       // Keep the current timeline visible if a background refresh fails.
     }
-  }, [conversationId])
+  }, [conversationId, onReadMarked])
 
   useEffect(() => {
     void loadDetail()
@@ -559,6 +561,15 @@ export function WhatsAppConversationsPage() {
     }
   }, [])
 
+  const silentRefreshConversations = useCallback(async () => {
+    try {
+      const data = await api.getCitizenConversations()
+      setConversations(data)
+    } catch {
+      // Ignore background refresh failures.
+    }
+  }, [])
+
   useEffect(() => {
     void loadConversations()
   }, [loadConversations])
@@ -598,6 +609,54 @@ export function WhatsAppConversationsPage() {
       prev.map(c => c.citizenConversationId === selectedId ? { ...c, unreadCount: 0 } : c),
     )
   }, [selectedId])
+
+  useEffect(() => {
+    const detail = selectedId
+      ? {
+          citizenConversationId: selectedId,
+          citizenPhone: selectedConv?.citizenPhone ?? '',
+        }
+      : null
+    window.dispatchEvent(new CustomEvent('ccc:whatsapp-active-conversation', { detail }))
+    return () => {
+      window.dispatchEvent(new CustomEvent('ccc:whatsapp-active-conversation', { detail: null }))
+    }
+  }, [selectedId, selectedConv?.citizenPhone])
+
+  useEffect(() => {
+    function handleIncomingWhatsAppMessage(event: Event) {
+      const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
+      if (!selectedId) {
+        void silentRefreshConversations()
+        return
+      }
+
+      const matchesSelected = payload.citizenConversationId === selectedId
+        || (selectedConv?.citizenPhone && matchesPhone(payload.citizenPhone, selectedConv.citizenPhone))
+
+      if (matchesSelected) {
+        void api.markConversationRead(selectedId)
+          .then(() => handleReadMarked())
+          .catch(() => {})
+        setDetailRefreshKey(key => key + 1)
+        return
+      }
+
+      setConversations(prev => prev.map(conversation => (
+        conversation.citizenConversationId === payload.citizenConversationId
+          ? {
+              ...conversation,
+              unreadCount: payload.unreadCount,
+              lastMessageAt: payload.lastMessageAt,
+              lastMessagePreview: payload.messagePreview ?? conversation.lastMessagePreview,
+            }
+          : conversation
+      )))
+    }
+
+    window.addEventListener('ccc:whatsapp-message', handleIncomingWhatsAppMessage)
+    return () => window.removeEventListener('ccc:whatsapp-message', handleIncomingWhatsAppMessage)
+  }, [handleReadMarked, selectedConv?.citizenPhone, selectedId, silentRefreshConversations])
 
   const enrichMessageWithConversation = useCallback((message: SocialMessage, conversationId: string | null): SocialMessage => {
     const conversation = conversations.find(item => item.citizenConversationId === conversationId)

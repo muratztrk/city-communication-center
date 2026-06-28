@@ -9,8 +9,14 @@ import type { CitizenConversationSummary } from '../../types/platform'
 import { formatConversationDisplayContent } from '../../utils/socialConversationContent'
 import { formatConversationListTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
+import { matchesPhone } from '../../utils/phoneNormalization'
 
 const POLL_INTERVAL_MS = 12_000
+
+type ActiveWhatsAppConversation = {
+  id: string
+  phone: string
+} | null
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, '')
@@ -32,7 +38,9 @@ export function WhatsAppNotificationFab() {
   const location = useLocation()
   const panelRef = useRef<HTMLDivElement>(null)
   const pulseTimerRef = useRef<number | null>(null)
+  const activeConversationRef = useRef<ActiveWhatsAppConversation>(null)
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
+  const [activeConversation, setActiveConversation] = useState<ActiveWhatsAppConversation>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isPulsing, setIsPulsing] = useState(false)
 
@@ -62,10 +70,34 @@ export function WhatsAppNotificationFab() {
     }, 1800)
   }, [])
 
-  const handleWhatsAppMessage = useCallback((_payload: WhatsAppMessagePayload) => {
+  activeConversationRef.current = activeConversation
+
+  const isPayloadForActiveConversation = useCallback((payload: WhatsAppMessagePayload) => {
+    const active = activeConversationRef.current
+    if (location.pathname !== '/whatsapp' || !active) return false
+    if (payload.citizenConversationId === active.id) return true
+    return Boolean(active.phone) && matchesPhone(payload.citizenPhone, active.phone)
+  }, [location.pathname])
+
+  const zeroUnreadForConversation = useCallback((conversationId: string) => {
+    setConversations(prev => prev.map(conversation => (
+      conversation.citizenConversationId === conversationId
+        ? { ...conversation, unreadCount: 0 }
+        : conversation
+    )))
+  }, [])
+
+  const handleWhatsAppMessage = useCallback((payload: WhatsAppMessagePayload) => {
+    if (isPayloadForActiveConversation(payload)) {
+      void api.markConversationRead(payload.citizenConversationId)
+        .then(() => zeroUnreadForConversation(payload.citizenConversationId))
+        .catch(() => zeroUnreadForConversation(payload.citizenConversationId))
+      return
+    }
+
     void refreshConversations()
     triggerPulse()
-  }, [refreshConversations, triggerPulse])
+  }, [isPayloadForActiveConversation, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useSignalR({
     onWhatsAppMessage: handleWhatsAppMessage,
@@ -85,12 +117,30 @@ export function WhatsAppNotificationFab() {
   }, [fetchConversations, location.pathname])
 
   useEffect(() => {
-    const onWindowEvent = () => {
+    const onWindowEvent = (event: Event) => {
+      const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
+      if (isPayloadForActiveConversation(payload)) {
+        void api.markConversationRead(payload.citizenConversationId)
+          .then(() => zeroUnreadForConversation(payload.citizenConversationId))
+          .catch(() => zeroUnreadForConversation(payload.citizenConversationId))
+        return
+      }
       void refreshConversations()
     }
     window.addEventListener('ccc:whatsapp-message', onWindowEvent)
     return () => window.removeEventListener('ccc:whatsapp-message', onWindowEvent)
-  }, [refreshConversations])
+  }, [isPayloadForActiveConversation, refreshConversations, zeroUnreadForConversation])
+
+  useEffect(() => {
+    const onActiveConversationChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ citizenConversationId: string; citizenPhone: string } | null>).detail
+      setActiveConversation(detail
+        ? { id: detail.citizenConversationId, phone: detail.citizenPhone }
+        : null)
+    }
+    window.addEventListener('ccc:whatsapp-active-conversation', onActiveConversationChange)
+    return () => window.removeEventListener('ccc:whatsapp-active-conversation', onActiveConversationChange)
+  }, [])
 
   useEffect(() => {
     if (document.visibilityState !== 'visible') return
@@ -127,9 +177,18 @@ export function WhatsAppNotificationFab() {
 
   const unreadConversations = useMemo(
     () => conversations
-      .filter(conversation => conversation.unreadCount > 0)
+      .filter(conversation => {
+        if (conversation.unreadCount <= 0) return false
+        if (location.pathname === '/whatsapp' && activeConversation) {
+          if (conversation.citizenConversationId === activeConversation.id) return false
+          if (activeConversation.phone && matchesPhone(conversation.citizenPhone, activeConversation.phone)) {
+            return false
+          }
+        }
+        return true
+      })
       .sort((left, right) => new Date(right.lastMessageAt).getTime() - new Date(left.lastMessageAt).getTime()),
-    [conversations],
+    [activeConversation, conversations, location.pathname],
   )
 
   const unreadTotal = useMemo(

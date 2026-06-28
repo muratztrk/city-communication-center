@@ -69,13 +69,14 @@ public sealed class WhatsAppTemplateAutoReplyTests
     }
 
     [Fact]
-    public void SelectTemplatesForInbound_PrefersKeywordMatchesOverGeneralTemplate()
+    public void SelectTemplatesForInbound_SendsGeneralBeforeKeywordWhenBothEligible()
     {
         var general = BuildTemplate(
             autoReply: true,
             timedReplyEnabled: true,
-            name: "KVKK Hoşgeldiniz");
+            name: "Mesai Dışı");
         general.IsGeneral = true;
+        general.Content = "Mesai dışı yanıt";
 
         var keyword = BuildTemplate(
             autoReply: true,
@@ -87,6 +88,40 @@ public sealed class WhatsAppTemplateAutoReplyTests
         keyword.Content = "Eczane yanıtı";
 
         var utcNow = new DateTimeOffset(2026, 6, 26, 20, 0, 0, TimeSpan.Zero);
+        var selected = WhatsAppTemplateAutoReply.SelectTemplatesForInbound(
+            [general, keyword],
+            "Yakın eczane nerede?",
+            utcNow,
+            Istanbul);
+
+        Assert.Equal(2, selected.Count);
+        Assert.Equal("Mesai Dışı", selected[0].Name);
+        Assert.Equal("Eczane", selected[1].Name);
+    }
+
+    [Fact]
+    public void SelectTemplatesForInbound_ReturnsOnlyKeywordWhenGeneralNotEligible()
+    {
+        var general = BuildTemplate(
+            autoReply: true,
+            timedReplyEnabled: true,
+            name: "Mesai Dışı",
+            startTime: "17:30",
+            endTime: "08:30");
+        general.Content = "Mesai dışı yanıt";
+
+        var keyword = BuildTemplate(
+            autoReply: true,
+            timedReplyEnabled: true,
+            hasKeyword: true,
+            keywordsJson: "[\"eczane\"]",
+            name: "Eczane",
+            startTime: "08:30",
+            endTime: "17:30");
+        keyword.Content = "Eczane yanıtı";
+
+        // Cuma 14:00 İstanbul = mesai içi
+        var utcNow = new DateTimeOffset(2026, 6, 26, 11, 0, 0, TimeSpan.Zero);
         var selected = WhatsAppTemplateAutoReply.SelectTemplatesForInbound(
             [general, keyword],
             "Yakın eczane nerede?",

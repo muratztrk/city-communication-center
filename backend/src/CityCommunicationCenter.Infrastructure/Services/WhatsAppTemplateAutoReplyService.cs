@@ -75,15 +75,21 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
 
                 foreach (var template in selectedTemplates)
                 {
-                    var alreadySent = await dbContext.ConversationEntries
+                    var (dayStartUtc, dayEndUtc) = WhatsAppAutoReplyDuplicateGuard.GetLocalDayUtcBounds(
+                        receivedAtUtc,
+                        IstanbulTimeZone);
+
+                    var alreadySentToday = await dbContext.ConversationEntries
                         .AsNoTracking()
                         .AnyAsync(
                             e => e.SocialMessageId == socialMessageId
                                  && e.Direction == ConversationEntryDirection.Outbound
-                                 && e.Content == template.Content,
+                                 && e.Content == template.Content
+                                 && e.SentAt >= dayStartUtc
+                                 && e.SentAt < dayEndUtc,
                             CancellationToken.None);
 
-                    if (alreadySent)
+                    if (alreadySentToday)
                         continue;
 
                     if (template.ReplyDelaySecs > 0)

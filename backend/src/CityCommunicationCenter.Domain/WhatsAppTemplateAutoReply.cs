@@ -60,8 +60,9 @@ public static class WhatsAppTemplateAutoReply
     }
 
     /// <summary>
-    /// Anahtar kelime eşleşen şablonları önceler; eşleşme yoksa en fazla bir genel şablon döner.
-    /// Birden fazla anahtar kelime şablonu aynı mesajla eşleşirse hepsi döner.
+    /// Mesai dışı genel şablon (anahtar kelimesiz) uygunsa önce o gelir; ardından eşleşen anahtar kelime şablonları.
+    /// Yalnızca anahtar kelime eşleşmesi varsa anahtar kelime şablonları döner.
+    /// Eşleşme yoksa en fazla bir genel şablon döner.
     /// </summary>
     public static IReadOnlyList<WhatsAppMessageTemplate> SelectTemplatesForInbound(
         IEnumerable<WhatsAppMessageTemplate> templates,
@@ -74,13 +75,20 @@ public static class WhatsAppTemplateAutoReply
             .ToList();
 
         var keywordMatches = eligible.Where(template => template.HasKeyword).ToList();
+        var generalMatches = eligible.Where(template => !template.HasKeyword).ToList();
+
+        if (keywordMatches.Count > 0 && generalMatches.Count > 0)
+        {
+            var ordered = new List<WhatsAppMessageTemplate>(generalMatches.Count + keywordMatches.Count);
+            ordered.AddRange(generalMatches.Take(1));
+            ordered.AddRange(keywordMatches);
+            return ordered;
+        }
+
         if (keywordMatches.Count > 0)
             return keywordMatches;
 
-        return eligible
-            .Where(template => !template.HasKeyword)
-            .Take(1)
-            .ToList();
+        return generalMatches.Take(1).ToList();
     }
 
     private static IReadOnlyList<string> ParseKeywords(string json)

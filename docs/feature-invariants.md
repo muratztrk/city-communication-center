@@ -86,6 +86,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yazabiliyor. Yanıt yetkisini kim taşımalı, açıkça kararlaştırılmalı (bkz. kart #1003).
 - **`ConversationPanel.canReply` default `true`.** Operatör görünümü (`CitizenRequestModal`)
   yazabilir; görev/talep bağlamından açılan (`WhatsAppConversationModal`) salt-okunur olmalı.
+- **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
+  hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **Job status değişince `IWhatsAppJobNotifier` otomatik vatandaş mesajı atar**
   (Tamamlanmış / İptal). Yeni durum-değişim akışları da tutarlılık için bunu tetiklemeli.
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;

@@ -513,6 +513,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 </div>
               </div>
 
+              <div className="job-field min-h-0">
+                <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="text-red-500">*</span></span>
+                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-28" />
+              </div>
+
               <div className="job-field">
                 <div className="grid gap-2 md:grid-cols-2 md:items-stretch">
                   <label className="job-field grid gap-1">
@@ -599,11 +604,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   </div>
                   {fileError ? <div className="mt-1 text-xs text-red-500">{fileError}</div> : null}
                 </div>
-              </div>
-
-              <div className="job-field min-h-0">
-                <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="text-red-500">*</span></span>
-                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-28" />
               </div>
 
               {error ? <div className="error">{error}</div> : null}

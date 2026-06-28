@@ -2055,10 +2055,7 @@ export function SettingsPage() {
                       const hiddenForNonEdevletRole = role !== 'EDevletActivityPlan'
                         && role !== 'SystemAdmin'
                         && EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
-                      const hiddenForNonCitizenRequestManagerRole = role !== 'CitizenRequestManager'
-                        && role !== 'SystemAdmin'
-                        && CITIZEN_REQUEST_MANAGER_PAGE_KEYS.includes(page.key as typeof CITIZEN_REQUEST_MANAGER_PAGE_KEYS[number])
-                      if (hiddenForEdevletRole || hiddenForCitizenRequestManagerRole || hiddenForNonEdevletRole || hiddenForNonCitizenRequestManagerRole) {
+                      if (hiddenForEdevletRole || hiddenForCitizenRequestManagerRole || hiddenForNonEdevletRole) {
                         return <td key={`${role}-${page.key}`} aria-hidden="true" />
                       }
                       const disabled = page.key === 'dashboard' || page.key === 'settings'

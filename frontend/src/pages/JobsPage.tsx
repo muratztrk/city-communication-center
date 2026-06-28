@@ -27,7 +27,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import {
@@ -361,7 +361,7 @@ function printJobDetail(
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(shouldShowRequestApproverField(detail)
-      ? [['Talebi Onaylayan', getJobOwnerApproverDisplayName(detail) ?? '—'] as [string, string]]
+      ? [['Talebi Onaylayan', getRequestApproverDisplayName(detail) ?? '—'] as [string, string]]
       : []),
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')],
@@ -1780,7 +1780,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       {detail && createPortal(
         <div
           className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
-          onClick={closeDetail}
           role="presentation"
         >
           <section
@@ -1906,7 +1905,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: getJobOwnerApproverDisplayName(detail) ?? '—',
+                        value: getRequestApproverDisplayName(detail) ?? '—',
                       }] : []),
                       {
                         label: 'Talebin Gittiği Birim',
@@ -1931,7 +1930,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: getJobOwnerApproverDisplayName(detail) ?? '—',
+                        value: getRequestApproverDisplayName(detail) ?? '—',
                       }] : []),
                       {
                         label: 'Talebin Gittiği Birim',
@@ -2618,7 +2617,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       {editModal && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setEditModal(null)}
           role="presentation"
         >
           <form
@@ -2694,7 +2692,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       {staffAssignModal && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setStaffAssignModal(null)}
           role="presentation"
         >
           <div className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -2753,7 +2750,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       {cancelModal && createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={() => setCancelModal(null)} role="presentation">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
           <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-job-dialog-title">
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <XIcon className="size-4" />

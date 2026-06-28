@@ -39,7 +39,8 @@ function completionAttachmentExtension(name: string): string {
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
-import { formatJobDestinationsWithAssignees, getJobOwnerApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getRequestApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -215,7 +216,7 @@ function printTaskDetail(
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(shouldShowRequestApproverField(parentJob)
-      ? [['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'] as [string, string]]
+      ? [['Talebi Onaylayan', getRequestApproverDisplayName(parentJob) ?? '—'] as [string, string]]
       : []),
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(parentJob)],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
@@ -230,7 +231,7 @@ function printTaskDetail(
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(shouldShowRequestApproverField(parentJob)
-      ? [['Talebi Onaylayan', getJobOwnerApproverDisplayName(parentJob) ?? '—'] as [string, string]]
+      ? [['Talebi Onaylayan', getRequestApproverDisplayName(parentJob) ?? '—'] as [string, string]]
       : []),
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
@@ -436,7 +437,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [returnDeptId, setReturnDeptId] = useState('')
   const [returnUserId, setReturnUserId] = useState('')
   const [returnSaving, setReturnSaving] = useState(false)
-  const [completeModal, setCompleteModal] = useState<{ taskId: string } | null>(null)
+  const [completeModal, setCompleteModal] = useState<{ taskId: string; displayNumber: string } | null>(null)
   const [completeSaving, setCompleteSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
@@ -828,8 +829,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
   }
 
-  const handleComplete = (taskId: string) => {
-    setCompleteModal({ taskId })
+  const handleComplete = (task: Task) => {
+    setCompleteModal({ taskId: task.taskId, displayNumber: formatTaskDisplayNumber(task) })
     setCompletionNote('')
     setCompletionAttachmentError(null)
     setPendingCompletionAttachments([])
@@ -888,8 +889,17 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       setCompleteModal(null)
       setCompletionNote('')
       setCompletionAttachmentError(null)
-      closeTaskDetail()
-      await reload()
+      if (selectedTask?.taskId === completeModal.taskId) {
+        const [updatedDetail, updatedList] = await Promise.all([
+          api.getTaskById(completeModal.taskId),
+          api.getTasks(currentScope),
+        ])
+        setTaskDetail(updatedDetail)
+        setSelectedTask(current => current ? { ...current, currentStatus: 'Completed', completedAtUtc: updatedDetail.completedAtUtc } : current)
+        setTasks(updatedList)
+      } else {
+        await reload()
+      }
       showToast(t('tasks.actions.completeSuccess', 'Görev başarıyla tamamlandı!'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -1157,7 +1167,16 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
   const isAssignee = (task: Task) => task.assignedUserId === user?.userId
   const canEditRoutineTask = (task: Pick<Task, 'jobSourceType' | 'assignedUserId' | 'currentStatus'>) =>
-    task.jobSourceType === 'Routine' && task.assignedUserId === user?.userId && isActionableTaskStatus(task.currentStatus)
+    task.jobSourceType === 'Routine'
+    && task.assignedUserId === user?.userId
+    && (isActionableTaskStatus(task.currentStatus)
+      || task.currentStatus === 'Completed'
+      || task.currentStatus === 'Cancelled')
+  const canChangeCompletedTaskStatus = (task: Pick<Task, 'currentStatus' | 'assignedUserId'>) =>
+    isMyTasksView
+    && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+    && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+    && isAssignee(task as Task)
   const openRoutineTaskEdit = (taskId: string) => {
     closeTaskDetail()
     navigate(getRoutineTaskEditPath(taskId))
@@ -1484,7 +1503,6 @@ const pageKicker = isMyTasksView
       {selectedTask && createPortal(
         <div
           className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
-          onClick={closeTaskDetail}
           role="presentation"
         >
           <section
@@ -1519,6 +1537,15 @@ const pageKicker = isMyTasksView
                     {t('tasks.actions.route', 'Görevi Yönlendir')}
                   </Button>
                 )}
+                {isMyTasksView && selectedTask && canChangeCompletedTaskStatus(selectedTask) && (
+                  <Button
+                    type="button"
+                    className="bg-blue-900 text-white hover:bg-blue-950"
+                    onClick={() => openStatusChangeModal(selectedTask.taskId, selectedTask.currentStatus)}
+                  >
+                    {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                  </Button>
+                )}
                 {isMyTasksView && selectedTask && (canEditRoutineTask(selectedTask) ? (
                   <Button
                     type="button"
@@ -1536,7 +1563,7 @@ const pageKicker = isMyTasksView
                   </DisabledActionButton>
                 ))}
                 {isMyTasksView && canCompleteTask && (
-                  <Button type="button" variant="success" onClick={() => handleComplete(taskDetail.taskId)}>
+                  <Button type="button" variant="success" onClick={() => selectedTask && handleComplete(selectedTask)}>
                     {t('tasks.actions.complete', 'Tamamla')}
                   </Button>
                 )}
@@ -1988,7 +2015,7 @@ const pageKicker = isMyTasksView
                       },
                       ...(shouldShowRequestApproverField(parentJobDetail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: getJobOwnerApproverDisplayName(parentJobDetail) ?? '—',
+                        value: getRequestApproverDisplayName(parentJobDetail) ?? '—',
                       }] : []),
                       {
                         label: 'Talebin Gittiği Birim',
@@ -2013,7 +2040,7 @@ const pageKicker = isMyTasksView
                       },
                       ...(shouldShowRequestApproverField(parentJobDetail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: getJobOwnerApproverDisplayName(parentJobDetail) ?? '—',
+                        value: getRequestApproverDisplayName(parentJobDetail) ?? '—',
                       }] : []),
                       {
                         label: 'Proje mi',
@@ -2024,10 +2051,6 @@ const pageKicker = isMyTasksView
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
                     ]
                     const rightFields = [
-                      ...(isCitizenParentJob ? [{
-                        label: 'Durum',
-                        value: getCitizenRequestStatusLabel(t, parentJobDetail),
-                      }] : []),
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
                       ...(!isCitizenParentJob ? [{
                         // Hem birim-içi hem birim-dışı talepte aynı etiket kullanılır (card #706).
@@ -2193,14 +2216,9 @@ const pageKicker = isMyTasksView
       )}
 
       {routineEditHistoryModalOpen && createPortal(
-        <div
-          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/45 p-4"
-          onClick={() => setRoutineEditHistoryModalOpen(false)}
-          role="presentation"
-        >
+        <ModalBackdrop className="fixed inset-0 z-[130] flex items-center justify-center bg-black/45 p-4">
           <section
             className="flex max-h-[min(85dvh,52rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
-            onClick={event => event.stopPropagation()}
           >
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
               <h2 className="text-base font-bold text-slate-900">
@@ -2280,7 +2298,7 @@ const pageKicker = isMyTasksView
               })}
             </div>
           </section>
-        </div>,
+        </ModalBackdrop>,
         document.body
       )}
 
@@ -2468,13 +2486,6 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </DisabledActionButton>
                           ))}
-                        {isMyTasksView
-                          && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
-                          && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled') && (
-                          <Button size="sm" className="bg-teal-700 text-white hover:bg-teal-800" onClick={() => openStatusChangeModal(task.taskId, task.currentStatus)}>
-                            {t('tasks.actions.changeStatus', 'Durum Değiştir')}
-                          </Button>
-                        )}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
                         {isMyTasksView && (canEditRoutineTask(task) ? (
                           <Button
@@ -2499,7 +2510,7 @@ const pageKicker = isMyTasksView
                         {(() => {
                           const canComplete = isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus)
                           if (canComplete) {
-                            return <Button size="sm" variant="success" onClick={() => handleComplete(task.taskId)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
+                            return <Button size="sm" variant="success" onClick={() => handleComplete(task)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
                           }
                           if (isMyTasksView && currentMyTaskView === 'all') {
                             return <DisabledActionButton size="sm" variant="success" hoverTitle={t('tasks.actions.completeUnavailable', 'Bu görev şu an tamamlanamaz')}>{t('tasks.actions.complete', 'Tamamla')}</DisabledActionButton>
@@ -2556,11 +2567,8 @@ const pageKicker = isMyTasksView
       )}
 
       {completeModal && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
-          onClick={closeCompleteModal}
-        >
-          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <ModalBackdrop>
+          <div className="form-card page-stack relative w-full max-w-md">
             <button
               type="button"
               onClick={closeCompleteModal}
@@ -2570,7 +2578,11 @@ const pageKicker = isMyTasksView
               <X className="size-4" />
             </button>
             <h2 className="border-b border-slate-200 pb-2 text-xl font-extrabold text-slate-950">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h2>
-            <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}</p>
+            <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
+              <span className="font-semibold text-orange-500">{completeModal.displayNumber}</span>
+              {' '}
+              {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
+            </p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-red-500">*</span></span>
               <textarea
@@ -2632,15 +2644,12 @@ const pageKicker = isMyTasksView
               </div>
             </div>
           </div>
-        </div>
+        </ModalBackdrop>
       )}
 
       {returnModal && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
-          onClick={closeReturnModal}
-        >
-          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <ModalBackdrop>
+          <div className="form-card page-stack relative w-full max-w-md">
             {/* Sağ üstte kapatma (X) ikonu. */}
             <button
               type="button"
@@ -2718,15 +2727,12 @@ const pageKicker = isMyTasksView
             )}
 
           </div>
-        </div>
+        </ModalBackdrop>
       )}
 
       {statusChangeModal && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
-          onClick={closeStatusChangeModal}
-        >
-          <div className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <ModalBackdrop>
+          <div className="form-card page-stack relative w-full max-w-md">
             <button
               type="button"
               onClick={closeStatusChangeModal}
@@ -2768,7 +2774,7 @@ const pageKicker = isMyTasksView
               </Button>
             </div>
           </div>
-        </div>
+        </ModalBackdrop>
       )}
 
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />

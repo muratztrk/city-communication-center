@@ -50,6 +50,7 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
         // Yetki: görevin atananı veya SystemAdmin (Tamamla/İptal ile aynı).
         await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
 
+        var previousStatus = task.CurrentStatus;
         var utcNow = DateTimeOffset.UtcNow;
         task.CurrentStatus = newStatus;
         task.UpdatedAtUtc = utcNow;
@@ -82,7 +83,7 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
             ActorUserId = request.ActorUserId,
             StatusAtEvent = newStatus.ToString(),
             Notes = request.Reason,
-            Details = request.Reason
+            Details = $"{previousStatus}->{newStatus}"
         });
 
         var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(

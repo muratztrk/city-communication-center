@@ -47,7 +47,6 @@ export function LoginPasswordResetModal({ tenantId, onClose }: LoginPasswordRese
   return createPortal(
     <div
       className="fixed inset-0 z-[140] flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
       role="dialog"
       aria-modal="true"
     >

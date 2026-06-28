@@ -369,7 +369,7 @@ export function DepartmentsPage() {
       </section>
 
       {editId ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" onClick={cancelEdit}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
           <form className="w-full max-w-2xl rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl" onSubmit={event => { event.preventDefault(); void handleUpdate(editId) }} onClick={event => event.stopPropagation()}>
             <div className="page-header-row mb-5">
               <div>

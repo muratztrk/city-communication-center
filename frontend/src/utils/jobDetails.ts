@@ -1,4 +1,5 @@
 import type { JobDetail, JobDepartmentInfo } from '../types/platform'
+import { isCitizenRequestJob } from './citizenRequests'
 
 function sortJobDepartments(departments: JobDepartmentInfo[]) {
   const order: Record<string, number> = { Owner: 0, Target: 1, Coordinating: 2 }
@@ -11,8 +12,35 @@ export function getJobOwnerApproverDisplayName(
   return job.departments.find(department => department.role === 'Owner')?.approvedByDisplayName ?? null
 }
 
-export function shouldShowRequestApproverField(job: { status: string }): boolean {
-  return job.status !== 'PendingOwnerApproval' && job.status !== 'PendingExternalApproval'
+export function getJobTargetApproverDisplayName(
+  job: Pick<JobDetail, 'departments'>,
+): string | null {
+  return job.departments.find(department => department.role === 'Target')?.approvedByDisplayName ?? null
+}
+
+export function getRequestApproverDisplayName(
+  job: Pick<JobDetail, 'departments' | 'requestType' | 'sourceType'>,
+): string | null {
+  if (isCitizenRequestJob(job)) {
+    return getJobTargetApproverDisplayName(job) ?? getJobOwnerApproverDisplayName(job)
+  }
+  return getJobOwnerApproverDisplayName(job)
+}
+
+export function shouldShowRequestApproverField(job: {
+  status: string
+  requestType?: string | null
+  sourceType?: string | null
+  departments?: { role: string; approvalStatus?: string | null }[]
+}): boolean {
+  if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') {
+    return false
+  }
+  if (isCitizenRequestJob(job)) {
+    const target = job.departments?.find(department => department.role === 'Target')
+    return target?.approvalStatus === 'Approved'
+  }
+  return true
 }
 
 export function shouldShowJobStatusActorName(job: {

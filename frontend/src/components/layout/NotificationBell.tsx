@@ -202,7 +202,7 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
   const description = data ? (data as TaskDetail | JobDetail).description : ''
 
   return createPortal(
-    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-4" onClick={() => !loading && onClose()} role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
       <section className="detail-modal-shell flex max-h-[min(85dvh,42rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={event => event.stopPropagation()}>
         <header className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
           <div>

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { Button } from './button'
+import { ModalBackdrop } from './modal-backdrop'
 
 export interface ConfirmDialogState {
   title?: string
@@ -31,14 +32,9 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   }
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-      role="presentation"
-    >
+    <ModalBackdrop>
       <div
         className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
-        onClick={e => e.stopPropagation()}
       >
         <button
           type="button"
@@ -67,6 +63,6 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
           </Button>
         </div>
       </div>
-    </div>
+    </ModalBackdrop>
   , document.body)
 }

@@ -115,11 +115,26 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     }
 
                     var messageParts = new List<string>();
-                    if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
-                    if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
-                    if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
-                    var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
-                    if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
+                    if (a.Action == "TaskStatusChanged"
+                        && !string.IsNullOrWhiteSpace(a.Details)
+                        && a.Details.Contains("->", StringComparison.Ordinal))
+                    {
+                        var transition = a.Details.Split("->", 2, StringSplitOptions.TrimEntries);
+                        if (transition.Length == 2)
+                        {
+                            if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
+                            if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
+                            messageParts.Add($"{FormatTaskStatusLabel(transition[0])} -> {FormatTaskStatusLabel(transition[1])}");
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
+                        if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
+                        if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
+                        var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
+                        if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
+                    }
 
                     // İmleçten sonraki ve kullanıcının kendi yapmadığı olaylar okunmamış (rozette sayılır).
                     // Tek tıkla okunabilir (tekil işaret, card 633) veya "Hepsini okundu yap" ile imleç
@@ -182,11 +197,23 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         "TaskExtraTimeRejected" => "Ek süre talebi reddedildi",
         "TaskCloseApproved" => "Görev kapatma onaylandı",
         "TaskCloseRejected" => "Görev kapatma reddedildi",
+        "TaskStatusChanged" => "Görev Durumu Değişti",
         _ => "İşlem gerçekleşti",
     };
 
     private static string FormatNumber(string prefix, int number, int? year) =>
         year.HasValue ? $"{prefix}-{year}-{number}" : $"{prefix}-{number}";
+
+    private static string FormatTaskStatusLabel(string status) => status switch
+    {
+        "InProgress" => "Yapılmakta",
+        "Completed" => "Tamamlanmış",
+        "Cancelled" => "İptal",
+        "Assigned" => "Atanmış",
+        "Waiting" => "Bekleyen",
+        "Rejected" => "Reddedildi",
+        _ => status,
+    };
 
     // Bildirim mesajlarında kullanıcıya gösterilen denetim notlarını sadeleştirir:
     // teknik/hata ayıklama notlarını gizler, İngilizce ifadeleri Türkçeye çevirir (card 308).

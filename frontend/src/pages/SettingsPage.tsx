@@ -2056,7 +2056,11 @@ export function SettingsPage() {
                         && role !== 'SystemAdmin'
                         && EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
                       if (hiddenForEdevletRole || hiddenForCitizenRequestManagerRole || hiddenForNonEdevletRole) {
-                        return <td key={`${role}-${page.key}`} aria-hidden="true" />
+                        return (
+                          <td key={`${role}-${page.key}`} className="text-slate-400">
+                            {t('common.disabled')}
+                          </td>
+                        )
                       }
                       const disabled = page.key === 'dashboard' || page.key === 'settings'
                       return (

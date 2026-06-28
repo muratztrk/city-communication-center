@@ -81,7 +81,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         {
             if (UserRoleAccess.IsCitizenRequestManager(actor))
             {
-                if (job.RequestType != JobRequestType.Citizen)
+                if (!JobCitizenRequestHelper.IsCitizenRequest(job))
                 {
                     throw new ForbiddenAccessException("Vatandas talep yoneticisi yalnizca vatandas taleplerine gorev atayabilir.");
                 }

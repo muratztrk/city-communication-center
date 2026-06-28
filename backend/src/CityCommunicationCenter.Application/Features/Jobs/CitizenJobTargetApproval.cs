@@ -15,8 +15,7 @@ internal static class CitizenJobTargetApproval
             return false;
         }
 
-        var isCitizenRequest = job.RequestType == JobRequestType.Citizen
-            || job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet;
+        var isCitizenRequest = JobCitizenRequestHelper.IsCitizenRequest(job);
         if (!isCitizenRequest)
         {
             return false;

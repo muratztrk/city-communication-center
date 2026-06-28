@@ -674,3 +674,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#1066` — Tamamlanmış/İptal Görevlerim grid İşlemler sütununda "Durum Değiştir" geri eklendi (detay header ile birlikte). BE+FE build PASS.
 
 ## STATUS: Round 103 complete — 2 cards moved to Done.
+
+## Round 104 (Doing — #1062 reopened #1055 reopened #1069)
+- [x] `#1062` (reopened) — CRM görev oluşturma: `JobCitizenRequestHelper` ile `SourceType` (SocialMessage vb.) dahil vatandaş talep tanımı BE/FE ile hizalandı.
+- [x] `#1055` (reopened) — WhatsApp FAB `bottom-7` (footer üstü); ScrollFab `6.75rem` — çakışma giderildi.
+- [x] `#1069` — Bildirim modal banner'ı `sticky-page-header` gradient ile sayfa banner'larıyla aynı. BE+FE build PASS.
+
+## STATUS: Round 104 complete — 3 cards ready for Done.

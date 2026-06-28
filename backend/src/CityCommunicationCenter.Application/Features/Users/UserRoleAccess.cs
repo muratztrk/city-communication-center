@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
 using FluentValidation;
@@ -68,7 +69,7 @@ public static class UserRoleAccess
         Guid departmentId,
         CancellationToken cancellationToken)
     {
-        if (!IsCitizenRequestManager(actor) || job.RequestType != JobRequestType.Citizen)
+        if (!IsCitizenRequestManager(actor) || !JobCitizenRequestHelper.IsCitizenRequest(job))
         {
             return false;
         }
@@ -97,7 +98,7 @@ public static class UserRoleAccess
         Job job,
         CancellationToken cancellationToken)
     {
-        if (!IsCitizenRequestManager(actor) || job.RequestType != JobRequestType.Citizen)
+        if (!IsCitizenRequestManager(actor) || !JobCitizenRequestHelper.IsCitizenRequest(job))
         {
             return false;
         }

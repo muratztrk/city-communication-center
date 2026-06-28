@@ -13,6 +13,8 @@ import {
   setActiveDepartmentId,
 } from '../api/http'
 import type { AuthSession, AuthUser } from '../types/platform'
+import { queryClient } from '../app/queryClient'
+import { queryKeys } from '../api/queryKeys'
 
 // Sekmeler arası gerçek logout sinyali için ayrılmış localStorage anahtarı.
 const LOGOUT_BROADCAST_KEY = 'ccc_logout_broadcast'
@@ -63,7 +65,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
   // döndüğünde bu sekmeyi de login ekranına düşür. Yalnızca özel logout sinyalini
   // dinleriz; başka sekmenin açılışında storage'ın geçici değişmesi oturumu DÜŞÜRMEZ.
   useEffect(() => {
-    const handleSessionExpired = () => setSession(null)
+    const handleSessionExpired = () => {
+      void queryClient.removeQueries({ queryKey: queryKeys.all })
+      setSession(null)
+    }
     const handleStorage = (event: StorageEvent) => {
       if (event.key === LOGOUT_BROADCAST_KEY && event.newValue) {
         setSession(null)
@@ -81,7 +86,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const establishSession = async (nextSession: AuthSession) => {
     markUsePrimaryDepartmentOnNextLoad()
     setActiveDepartmentId(null, true)
+    await queryClient.removeQueries({ queryKey: queryKeys.all })
     setSession(nextSession)
+    setActiveDepartmentId(null, true, nextSession.user.userId)
   }
 
   const signIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
@@ -95,8 +102,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }
 
   const logout = async () => {
-    setActiveDepartmentId(null, true)
+    const currentUserId = session?.user.userId
+    if (currentUserId) {
+      setActiveDepartmentId(null, true, currentUserId)
+    } else {
+      setActiveDepartmentId(null, true)
+    }
     clearUsePrimaryDepartmentOnLoad()
+    await queryClient.removeQueries({ queryKey: queryKeys.all })
     await logoutSession()
     setSession(null)
     // Diğer sekmelere gerçek logout sinyali gönder.

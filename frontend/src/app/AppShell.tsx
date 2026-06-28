@@ -30,6 +30,7 @@ import { queryKeys } from '../api/queryKeys'
 import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
+import { sortUserDepartments } from '../utils/departmentAccess'
 
 
 function useResponsiveZoom() {
@@ -80,48 +81,52 @@ export function AppShell() {
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-  const [activeDeptId, setActiveDeptId] = useState<string | null>(getActiveDepartmentId)
+  const [activeDeptId, setActiveDeptId] = useState<string | null>(() => getActiveDepartmentId(user?.userId))
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const [notificationDetailTarget, setNotificationDetailTarget] = useState<NotificationDetailTarget | null>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   const userDepartmentsQuery = useQuery({
-    queryKey: queryKeys.departments.me(),
+    queryKey: queryKeys.departments.me(user?.userId),
     queryFn: () => api.getMyDepartments(),
+    enabled: !!user?.userId,
   })
-  const userDepartments = useMemo(() => userDepartmentsQuery.data ?? [], [userDepartmentsQuery.data])
+  const userDepartments = useMemo(
+    () => sortUserDepartments(userDepartmentsQuery.data ?? []),
+    [userDepartmentsQuery.data],
+  )
 
   useEffect(() => {
-    if (!userDepartmentsQuery.data) return
+    if (!user?.userId || !userDepartmentsQuery.data) return
 
-    const currentDeptId = getActiveDepartmentId()
+    const currentDeptId = getActiveDepartmentId(user.userId)
     const primary = userDepartments.find(d => d.isPrimary) ?? userDepartments[0] ?? null
     const forcePrimary = shouldUsePrimaryDepartmentOnLoad()
 
     if (forcePrimary && primary) {
       clearUsePrimaryDepartmentOnLoad()
-      setActiveDepartmentId(primary.departmentId, true)
+      setActiveDepartmentId(primary.departmentId, true, user.userId)
       const frame = window.requestAnimationFrame(() => setActiveDeptId(primary.departmentId))
       return () => window.cancelAnimationFrame(frame)
     }
 
     if (userDepartments.length > 0 && (!currentDeptId || !userDepartments.some(d => d.departmentId === currentDeptId))) {
       if (!primary) return
-      setActiveDepartmentId(primary.departmentId, true) // silent: don't trigger Outlet remount on initial load
+      setActiveDepartmentId(primary.departmentId, true, user.userId)
       const frame = window.requestAnimationFrame(() => setActiveDeptId(primary.departmentId))
       return () => window.cancelAnimationFrame(frame)
     }
 
     const frame = window.requestAnimationFrame(() => setActiveDeptId(currentDeptId))
     return () => window.cancelAnimationFrame(frame)
-  }, [userDepartments, userDepartmentsQuery.data])
+  }, [user?.userId, userDepartments, userDepartmentsQuery.data])
 
   useEffect(() => {
-    const handler = () => setActiveDeptId(getActiveDepartmentId())
+    const handler = () => setActiveDeptId(getActiveDepartmentId(user?.userId))
     window.addEventListener('activeDepartmentChanged', handler)
     return () => window.removeEventListener('activeDepartmentChanged', handler)
-  }, [])
+  }, [user?.userId])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -134,7 +139,7 @@ export function AppShell() {
   }, [])
 
   const handleDeptSelect = (dept: DepartmentSummary) => {
-    setActiveDepartmentId(dept.departmentId) // also fires activeDepartmentChanged → setActiveDepartmentVersion
+    setActiveDepartmentId(dept.departmentId, false, user?.userId) // also fires activeDepartmentChanged → setActiveDepartmentVersion
     setActiveDeptId(dept.departmentId)
     setActiveDepartmentVersion(v => v + 1)   // direct increment ensures Outlet remounts and data re-fetches
     setIsUserMenuOpen(false)

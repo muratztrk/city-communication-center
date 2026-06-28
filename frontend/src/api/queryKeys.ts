@@ -39,7 +39,7 @@ export const queryKeys = {
   departments: {
     all: ['ccc', 'departments'] as const,
     list: () => ['ccc', 'departments', 'list'] as const,
-    me: () => ['ccc', 'departments', 'me'] as const,
+    me: (userId?: string | null) => ['ccc', 'departments', 'me', userId ?? 'anonymous'] as const,
   },
   jobs: {
     all: ['ccc', 'jobs'] as const,

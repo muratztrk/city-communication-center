@@ -1,8 +1,22 @@
 import i18n from '../i18n'
 import { clearAuthSession, getStoredSession, getValidAccessToken } from './auth'
 
-const ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_id'
+const ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_v2'
+const LEGACY_ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_id'
 const USE_PRIMARY_DEPARTMENT_KEY = 'ccc_use_primary_department'
+
+type ActiveDepartmentState = {
+  userId: string
+  departmentId: string
+}
+
+function readCurrentUserId(): string | null {
+  return getStoredSession()?.user?.userId ?? null
+}
+
+function removeLegacyActiveDepartmentKey(): void {
+  window.localStorage.removeItem(LEGACY_ACTIVE_DEPARTMENT_KEY)
+}
 
 export function markUsePrimaryDepartmentOnNextLoad(): void {
   window.sessionStorage.setItem(USE_PRIMARY_DEPARTMENT_KEY, '1')
@@ -27,16 +41,55 @@ function notifySessionExpired(): void {
   }
 }
 
-export function getActiveDepartmentId(): string | null {
-  return window.localStorage.getItem(ACTIVE_DEPARTMENT_KEY)
+export function getActiveDepartmentId(userId?: string | null): string | null {
+  const expectedUserId = userId ?? readCurrentUserId()
+  if (!expectedUserId) {
+    return null
+  }
+
+  const raw = window.localStorage.getItem(ACTIVE_DEPARTMENT_KEY)
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as ActiveDepartmentState
+      if (parsed.userId === expectedUserId && parsed.departmentId) {
+        return parsed.departmentId
+      }
+    } catch {
+      // ignore malformed cache
+    }
+  }
+
+  // Eski sürümde kullanıcıya bağlı olmayan anahtar; yeni oturumda yok sayılır.
+  removeLegacyActiveDepartmentKey()
+  return null
 }
 
-export function setActiveDepartmentId(departmentId: string | null, silent = false): void {
-  if (departmentId) {
-    window.localStorage.setItem(ACTIVE_DEPARTMENT_KEY, departmentId)
-  } else {
+export function setActiveDepartmentId(departmentId: string | null, silent = false, userId?: string | null): void {
+  const resolvedUserId = userId ?? readCurrentUserId()
+  removeLegacyActiveDepartmentKey()
+
+  if (!resolvedUserId) {
     window.localStorage.removeItem(ACTIVE_DEPARTMENT_KEY)
+  } else if (departmentId) {
+    const payload: ActiveDepartmentState = {
+      userId: resolvedUserId,
+      departmentId,
+    }
+    window.localStorage.setItem(ACTIVE_DEPARTMENT_KEY, JSON.stringify(payload))
+  } else {
+    const raw = window.localStorage.getItem(ACTIVE_DEPARTMENT_KEY)
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as ActiveDepartmentState
+        if (parsed.userId === resolvedUserId) {
+          window.localStorage.removeItem(ACTIVE_DEPARTMENT_KEY)
+        }
+      } catch {
+        window.localStorage.removeItem(ACTIVE_DEPARTMENT_KEY)
+      }
+    }
   }
+
   if (!silent) {
     window.dispatchEvent(new CustomEvent('activeDepartmentChanged'))
   }

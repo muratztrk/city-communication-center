@@ -5,39 +5,46 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import { queryKeys } from '../../api/queryKeys'
 import { getActiveDepartmentId, setActiveDepartmentId } from '../../api/http'
+import { useAuth } from '../../context/AuthContext'
 import type { DepartmentSummary } from '../../types/platform'
+import { sortUserDepartments } from '../../utils/departmentAccess'
 
 export function DepartmentSwitcher() {
   const { t } = useTranslation()
-  const [activeDeptId, setActiveDeptId] = useState<string | null>(getActiveDepartmentId)
+  const { user } = useAuth()
+  const [activeDeptId, setActiveDeptId] = useState<string | null>(() => getActiveDepartmentId(user?.userId))
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const departmentsQuery = useQuery({
-    queryKey: queryKeys.departments.me(),
+    queryKey: queryKeys.departments.me(user?.userId),
     queryFn: () => api.getMyDepartments(),
+    enabled: !!user?.userId,
   })
-  const departments = useMemo(() => departmentsQuery.data ?? [], [departmentsQuery.data])
+  const departments = useMemo(
+    () => sortUserDepartments(departmentsQuery.data ?? []),
+    [departmentsQuery.data],
+  )
 
   useEffect(() => {
-    if (!departmentsQuery.data) return
-    const currentDeptId = getActiveDepartmentId()
+    if (!user?.userId || !departmentsQuery.data) return
+    const currentDeptId = getActiveDepartmentId(user.userId)
 
     if (departments.length > 0 && (!currentDeptId || !departments.some(dept => dept.departmentId === currentDeptId))) {
       const primary = departments.find(d => d.isPrimary) ?? departments[0]
-      setActiveDepartmentId(primary.departmentId)
+      setActiveDepartmentId(primary.departmentId, false, user.userId)
       const frame = window.requestAnimationFrame(() => setActiveDeptId(primary.departmentId))
       return () => window.cancelAnimationFrame(frame)
     }
 
     const frame = window.requestAnimationFrame(() => setActiveDeptId(currentDeptId))
     return () => window.cancelAnimationFrame(frame)
-  }, [departments, departmentsQuery.data])
+  }, [departments, departmentsQuery.data, user?.userId])
 
   useEffect(() => {
-    const handler = () => setActiveDeptId(getActiveDepartmentId())
+    const handler = () => setActiveDeptId(getActiveDepartmentId(user?.userId))
     window.addEventListener('activeDepartmentChanged', handler)
     return () => window.removeEventListener('activeDepartmentChanged', handler)
-  }, [])
+  }, [user?.userId])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -54,7 +61,7 @@ export function DepartmentSwitcher() {
   const activeDept = departments.find(d => d.departmentId === activeDeptId) ?? departments[0]
 
   const handleSelect = (dept: DepartmentSummary) => {
-    setActiveDepartmentId(dept.departmentId)
+    setActiveDepartmentId(dept.departmentId, false, user?.userId)
     setActiveDeptId(dept.departmentId)
     setIsOpen(false)
   }

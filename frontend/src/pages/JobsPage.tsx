@@ -40,7 +40,7 @@ import {
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
-import { userWorksInDepartment } from '../utils/userDepartments'
+import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -1243,10 +1243,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         setStaffAssignModal({
           jobId,
           selectedUserIds: [],
-          users: users.filter(u =>
-            u.isActive
-            && (u.roleCode === 'Staff' || u.userId === user?.userId)
-            && userWorksInDepartment(u, departmentId)),
+          users: users.filter(u => isAssignableDepartmentUser(u, departmentId, user?.userId)),
           saving: false,
           // Birim içi talepte oluşturan kişi kendini görev sahibi seçtiyse işaretle (card 616).
           selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),

@@ -11,6 +11,14 @@ export function userWorksInAnyDepartment(user: User, departmentIds: Set<string>)
   return Boolean(user.departments?.some(department => departmentIds.has(department.departmentId)))
 }
 
+const TASK_ASSIGNABLE_ROLE_CODES = new Set(['Staff', 'Operator'])
+
+/** Onayla/Personel Ata modallarında görev atanabilecek aktif kullanıcılar. */
+export function isAssignableDepartmentUser(user: User, departmentId: string, currentUserId?: string | null): boolean {
+  if (!user.isActive || !userWorksInDepartment(user, departmentId)) return false
+  return TASK_ASSIGNABLE_ROLE_CODES.has(user.roleCode) || user.userId === currentUserId
+}
+
 /** Yöneticinin "Personelimin Görevleri" listesinde gösterilebilecek aktif personel. */
 export function isDepartmentStaffUser(user: User, departmentIds: Set<string>): boolean {
   if (!user.isActive || user.roleCode !== 'Staff') return false

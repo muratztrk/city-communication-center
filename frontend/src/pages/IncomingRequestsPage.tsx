@@ -45,7 +45,7 @@ import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
 import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
-import { userWorksInDepartment } from '../utils/userDepartments'
+import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobsPage } from './JobsPage'
@@ -399,8 +399,9 @@ export function IncomingRequestsPage() {
         setJobs(jobList)
         setSocialMessages(socialList)
         const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
-        // Personel listesi + atamayı yapan yöneticinin kendisi (görevi kendine atayabilsin).
-        setDepartmentUsers(userList.filter(u => u.isActive && userWorksInDepartment(u, currentDeptId ?? '') && (u.roleCode === 'Staff' || u.userId === user?.userId)))
+        // Personel listesi + Vatandaş Talep Operatörü + atamayı yapan yöneticinin kendisi
+        // (görevi kendine atayabilsin). Operator rolü kendi talebini görev olarak alabilmeli (card #1086).
+        setDepartmentUsers(userList.filter(u => isAssignableDepartmentUser(u, currentDeptId ?? '', user?.userId)))
         setError(null)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })

@@ -1158,7 +1158,6 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     closeTaskDetail()
     navigate(getRoutineTaskEditPath(taskId))
   }
-  const getDepartmentName = (departmentId?: string | null) => departments.find(department => department.departmentId === departmentId)?.name ?? '—'
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
 const pageKicker = isMyTasksView
     ? currentMyTaskViewLabel
@@ -1815,7 +1814,7 @@ const pageKicker = isMyTasksView
                                 const renderAssignmentHistoryColumn = (className = '') => (
                                   <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="text-xs font-semibold text-emerald-600">
+                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                                       </span>
                                     </div>
@@ -1827,10 +1826,8 @@ const pageKicker = isMyTasksView
                                           key={item.assignmentId}
                                           className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
                                         >
-                                          <div className="text-slate-950">
-                                            <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
-                                            {' · '}
-                                            <span className="font-bold">{getUserName(item.toUserId)}</span>
+                                          <div className="font-bold text-slate-950">
+                                            {getUserName(item.toUserId)}
                                           </div>
                                           <div className="text-xs text-slate-500">
                                             {new Date(item.actionDateUtc).toLocaleString(locale)}
@@ -2162,7 +2159,7 @@ const pageKicker = isMyTasksView
                     return (
                   <div className="grid gap-4">
                     <section className="form-card page-stack">
-                      <h3 className="mb-2 border-b border-slate-200 pb-2 text-sm font-semibold text-emerald-600">
+                      <h3 className="mb-2 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                       </h3>
                         <div className="grid gap-2">
@@ -2171,10 +2168,8 @@ const pageKicker = isMyTasksView
                               key={item.assignmentId}
                               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700"
                             >
-                              <div className="text-slate-950">
-                                <span className="font-normal">{getDepartmentName(item.toDepartmentId)}</span>
-                                {' · '}
-                                <span className="font-bold">{getUserName(item.toUserId)}</span>
+                              <div className="font-bold text-slate-950">
+                                {getUserName(item.toUserId)}
                               </div>
                               <div className="text-xs text-slate-500">
                                 {new Date(item.actionDateUtc).toLocaleString(locale)}

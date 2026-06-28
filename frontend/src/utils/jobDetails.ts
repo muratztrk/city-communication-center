@@ -18,6 +18,28 @@ export function getJobTargetApproverDisplayName(
   return job.departments.find(department => department.role === 'Target')?.approvedByDisplayName ?? null
 }
 
+export function getRequestApproverDepartmentName(
+  job: Pick<JobDetail, 'departments' | 'requestType' | 'sourceType'>,
+): string | null {
+  if (isCitizenRequestJob(job)) {
+    const target = job.departments.find(department => department.role === 'Target')
+    if (target?.approvedByDisplayName) {
+      return target.departmentName
+    }
+    return job.departments.find(department => department.role === 'Owner')?.departmentName ?? null
+  }
+  return job.departments.find(department => department.role === 'Owner')?.departmentName ?? null
+}
+
+export function formatRequestApproverDisplay(
+  job: Pick<JobDetail, 'departments' | 'requestType' | 'sourceType'>,
+): string | null {
+  const approverName = getRequestApproverDisplayName(job)
+  if (!approverName) return null
+  const departmentName = getRequestApproverDepartmentName(job)
+  return departmentName ? `${departmentName} / ${approverName}` : approverName
+}
+
 export function getRequestApproverDisplayName(
   job: Pick<JobDetail, 'departments' | 'requestType' | 'sourceType'>,
 ): string | null {

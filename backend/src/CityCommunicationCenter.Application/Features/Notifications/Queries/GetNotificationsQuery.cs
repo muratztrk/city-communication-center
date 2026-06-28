@@ -96,6 +96,11 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
                 foreach (var a in logs)
                 {
+                    if (a.ActorUserId == userId)
+                    {
+                        continue;
+                    }
+
                     var isTask = taskIdSet.Contains(a.EntityId);
                     Guid? taskId = isTask && Guid.TryParse(a.EntityId, out var g) ? g : null;
 

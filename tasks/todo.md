@@ -657,3 +657,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `#1054` (reopened) — Rol matrisinde geçersiz hücreler düz metin yerine diğer satırlarla aynı `role-matrix-toggle` (disabled checkbox + "Pasif"). FE build + lint PASS.
 
 ## STATUS: Round 101 complete — Doing list drained (2 cards).
+
+## Round 102 (Doing — #1054 #1055 #1061 #1062 #1063 #1064 #1065)
+- [x] `#1062` — Vatandaş Talep Yöneticisi görev oluşturma: `CreateTaskCommand` CRM yetkisi Staff dalından bağımsız.
+- [x] `#1063` — Bildirim feed'inden kullanıcının kendi audit olayları çıkarıldı.
+- [x] `#1064` — Talebi Onaylayan: `Birim Adı / Onaylayan` formatı (Jobs + Tasks).
+- [x] `#1065` — Durum Değiştir butonu mavi (`bg-blue-600`).
+- [x] `#1055` (reopened) — WhatsApp FAB `bottom-14`.
+- [x] `#1054` (reopened) — Rol matrisi pasif hücreler tıklanabilir toggle.
+- [x] `#1061` (reopened) — "Tamamlandı" bildirim metni yeşil. BE+FE build/lint PASS.
+
+## STATUS: Round 102 complete — 7 cards moved to Done.

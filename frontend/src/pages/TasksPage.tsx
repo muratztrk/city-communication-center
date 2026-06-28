@@ -39,7 +39,7 @@ function completionAttachmentExtension(name: string): string {
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
-import { formatJobDestinationsWithAssignees, getRequestApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
@@ -216,7 +216,7 @@ function printTaskDetail(
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(shouldShowRequestApproverField(parentJob)
-      ? [['Talebi Onaylayan', getRequestApproverDisplayName(parentJob) ?? '—'] as [string, string]]
+      ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(parentJob)],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
@@ -231,7 +231,7 @@ function printTaskDetail(
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(shouldShowRequestApproverField(parentJob)
-      ? [['Talebi Onaylayan', getRequestApproverDisplayName(parentJob) ?? '—'] as [string, string]]
+      ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
@@ -1540,7 +1540,7 @@ const pageKicker = isMyTasksView
                 {isMyTasksView && selectedTask && canChangeCompletedTaskStatus(selectedTask) && (
                   <Button
                     type="button"
-                    className="bg-blue-900 text-white hover:bg-blue-950"
+                    className="bg-blue-600 text-white hover:bg-blue-700"
                     onClick={() => openStatusChangeModal(selectedTask.taskId, selectedTask.currentStatus)}
                   >
                     {t('tasks.actions.changeStatus', 'Durum Değiştir')}
@@ -2015,7 +2015,7 @@ const pageKicker = isMyTasksView
                       },
                       ...(shouldShowRequestApproverField(parentJobDetail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: getRequestApproverDisplayName(parentJobDetail) ?? '—',
+                        value: formatRequestApproverDisplay(parentJobDetail) ?? '—',
                       }] : []),
                       {
                         label: 'Talebin Gittiği Birim',
@@ -2040,7 +2040,7 @@ const pageKicker = isMyTasksView
                       },
                       ...(shouldShowRequestApproverField(parentJobDetail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: getRequestApproverDisplayName(parentJobDetail) ?? '—',
+                        value: formatRequestApproverDisplay(parentJobDetail) ?? '—',
                       }] : []),
                       {
                         label: 'Proje mi',
@@ -2769,7 +2769,7 @@ const pageKicker = isMyTasksView
               <Button type="button" variant="secondary" onClick={closeStatusChangeModal}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
-              <Button type="button" variant="success" disabled={statusChangeSaving || !statusChangeReason.trim() || !statusChangeTarget} onClick={() => void handleStatusChangeConfirm()}>
+              <Button type="button" className="bg-blue-600 text-white hover:bg-blue-700" disabled={statusChangeSaving || !statusChangeReason.trim() || !statusChangeTarget} onClick={() => void handleStatusChangeConfirm()}>
                 {statusChangeSaving ? t('common.loading') : t('tasks.actions.changeStatus', 'Durum Değiştir')}
               </Button>
             </div>

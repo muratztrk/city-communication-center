@@ -20,8 +20,6 @@ import { useTenantTheme } from '../context/ThemeContext'
 import { DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
 import {
   DEFAULT_ROLE_PAGE_ACCESS,
-  CITIZEN_REQUEST_MANAGER_PAGE_KEYS,
-  EDEVLET_ROLE_PAGE_KEYS,
   PAGE_ACCESS_ITEMS,
   ROLE_CODES,
   loadRolePageAccessMatrix,
@@ -2046,25 +2044,6 @@ export function SettingsPage() {
                   <tr key={page.key}>
                     <td className="font-semibold">{t(page.labelKey)}</td>
                     {ROLE_CODES.map(role => {
-                      const hiddenForEdevletRole = role === 'EDevletActivityPlan'
-                        && page.key !== 'dashboard'
-                        && !EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
-                      const hiddenForCitizenRequestManagerRole = role === 'CitizenRequestManager'
-                        && page.key !== 'dashboard'
-                        && !CITIZEN_REQUEST_MANAGER_PAGE_KEYS.includes(page.key as typeof CITIZEN_REQUEST_MANAGER_PAGE_KEYS[number])
-                      const hiddenForNonEdevletRole = role !== 'EDevletActivityPlan'
-                        && role !== 'SystemAdmin'
-                        && EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
-                      if (hiddenForEdevletRole || hiddenForCitizenRequestManagerRole || hiddenForNonEdevletRole) {
-                        return (
-                          <td key={`${role}-${page.key}`}>
-                            <label className="role-matrix-toggle">
-                              <input checked={false} disabled type="checkbox" readOnly />
-                              <span>{t('common.disabled')}</span>
-                            </label>
-                          </td>
-                        )
-                      }
                       const disabled = page.key === 'dashboard' || page.key === 'settings'
                       return (
                         <td key={`${role}-${page.key}`}>

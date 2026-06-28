@@ -79,17 +79,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
 
         if (!isSystemAdmin)
         {
-            if (actor.RoleCode == RoleCode.Staff && !UserRoleAccess.IsCitizenRequestManager(actor))
-            {
-                if (assignedUserId.HasValue && assignedUserId.Value != actor.UserId)
-                {
-                    throw Validation(nameof(request.AssignedUserId), "Personel sadece kendisine gorev atayabilir.");
-                }
-
-                assignedUserId = actor.UserId;
-                assignedDepartmentId ??= actorDepartmentId;
-            }
-            else if (actor.RoleCode == RoleCode.Staff && UserRoleAccess.IsCitizenRequestManager(actor))
+            if (UserRoleAccess.IsCitizenRequestManager(actor))
             {
                 if (job.RequestType != JobRequestType.Citizen)
                 {
@@ -112,6 +102,16 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
 
                 assignedDepartmentId = managerDept;
                 assigningManagerId = actor.UserId;
+            }
+            else if (actor.RoleCode == RoleCode.Staff)
+            {
+                if (assignedUserId.HasValue && assignedUserId.Value != actor.UserId)
+                {
+                    throw Validation(nameof(request.AssignedUserId), "Personel sadece kendisine gorev atayabilir.");
+                }
+
+                assignedUserId = actor.UserId;
+                assignedDepartmentId ??= actorDepartmentId;
             }
             else if (actor.RoleCode == RoleCode.Manager)
             {

@@ -1199,9 +1199,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const canEditRoutineTask = (task: Pick<Task, 'jobSourceType' | 'assignedUserId' | 'currentStatus'>) =>
     task.jobSourceType === 'Routine'
     && task.assignedUserId === user?.userId
-    && (isActionableTaskStatus(task.currentStatus)
-      || task.currentStatus === 'Completed'
-      || task.currentStatus === 'Cancelled')
+    && isActionableTaskStatus(task.currentStatus)
   const canChangeCompletedTaskStatus = (task: Pick<Task, 'currentStatus' | 'assignedUserId'>) =>
     isMyTasksView
     && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')

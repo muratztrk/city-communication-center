@@ -1902,9 +1902,17 @@ const pageKicker = isMyTasksView
                                 const renderStatusChangeHistoryColumn = (className = '') => (
                                   <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
-                                      </span>
+                                      {showAssignmentHistory ? (
+                                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                          <span className="whitespace-nowrap">{t('tasks.detail.statusChangeHistoryPrefix', 'Durum Değişikliği')}</span>
+                                          <br />
+                                          <span>{t('tasks.detail.statusChangeHistorySuffix', 'Geçmişi')}</span>
+                                        </span>
+                                      ) : (
+                                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                          {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
+                                        </span>
+                                      )}
                                     </div>
                                     <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
                                       {statusChangeHistory.map((item, idx) => (
@@ -1927,7 +1935,7 @@ const pageKicker = isMyTasksView
                                 const rightPanelGridClass = rightPanelColumnCount === 4
                                   ? ' grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.8fr)] lg:items-stretch'
                                   : rightPanelColumnCount === 3
-                                    ? ' grid lg:grid-cols-3 lg:items-stretch'
+                                    ? ' grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-stretch'
                                     : rightPanelColumnCount === 2
                                       ? ' grid lg:grid-cols-2 lg:items-stretch'
                                       : ''

@@ -52,6 +52,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
   birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
   gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).
+- **Durum Değişikliği Geçmişi (TasksPage detayı, card #2):** `TaskDetailResponse.StatusChangeHistory`
+  AuditLog'lardan (`Action == "TaskStatusChanged"`) türetilir; `Details` = `"from->to"`, `Notes` = neden.
+  `ChangeTaskStatusCommand` audit'e `ActorDisplayName` yazar (yoksa geçmişte aktör boş görünür).
+  Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun (rutin görevlerde gösterilmez).
 
 ## 2. Talepler (Jobs) — `pages/JobsPage.tsx`
 
@@ -79,6 +83,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   {SocialMessage, CitizenRequest, EDevlet}.
 - **Talep oluşturma yetki hatalarında kullanıcı metni "talep" der, "iş" değil**
   (`CreateJobCommand`, card #1079).
+- **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
+  hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
+  vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)
+  taleplerde owner=target korunur (FE `CitizenRequestModal`/`CreateRequestPage` de sahip birimi listede tutar).
+  Owner=target citizen talebinde JobDepartment hem Owner(Approved) hem Target(Pending) satırı alır; onay
+  sorgusu `Role==Target` filtrelediği için çakışmaz.
+- **Görev durum değişikliği talebin İptal Notu'na yansır (card #3):** `ChangeTaskStatusCommand`
+  görevi iptal edip talebi `Cancelled/Rejected`'a düşürdüğünde `job.CancelReason = reason` yazar
+  (tamamlama notu zaten `JobQueries` tarafından tamamlanan görevin `Notes`'undan türetilir).
 - **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
   iptal edildiğinde `Cancelled`'a düşürür (card #1044). Karışık terminal durumda (tamamlanmış +
   iptal görev bir arada) talep `Active`'e geri alınır. Bir görevi terminal'den non-terminal'e

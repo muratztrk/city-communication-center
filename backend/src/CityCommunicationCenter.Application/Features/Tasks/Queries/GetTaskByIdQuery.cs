@@ -106,6 +106,33 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
+        // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).
+        var statusChangeAudits = await _dbContext.AuditLogs.AsNoTracking()
+            .Where(a => a.TenantId == tenantId
+                && a.EntityType == nameof(WorkTask)
+                && a.EntityId == request.TaskId.ToString()
+                && a.Action == "TaskStatusChanged")
+            .OrderByDescending(a => a.EventTimeUtc)
+            .Select(a => new { a.Details, a.Notes, a.ActorDisplayName, a.StatusAtEvent, a.EventTimeUtc })
+            .ToListAsync(cancellationToken);
+        var statusChangeHistory = statusChangeAudits
+            .Select(a =>
+            {
+                string? fromStatus = null;
+                var toStatus = a.StatusAtEvent ?? string.Empty;
+                if (!string.IsNullOrWhiteSpace(a.Details))
+                {
+                    var parts = a.Details.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length == 2)
+                    {
+                        fromStatus = parts[0];
+                        toStatus = parts[1];
+                    }
+                }
+                return new TaskStatusChangeHistoryResponse(fromStatus, toStatus, a.Notes, a.ActorDisplayName, a.EventTimeUtc);
+            })
+            .ToArray();
+
         return new TaskDetailResponse(
             task.TaskId,
             task.TenantId,
@@ -159,7 +186,8 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             assignedUserDisplayName,
             task.TaskNumber,
             task.TaskNumberYear,
-            statusActorDisplayName);
+            statusActorDisplayName,
+            statusChangeHistory);
     }
 
     private static string ResolveTaskDescription(string? taskDescription, string? jobDescription)

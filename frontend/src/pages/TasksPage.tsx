@@ -1856,7 +1856,40 @@ const pageKicker = isMyTasksView
                                 const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
                                 const showHistoryBesideDescription = showAssignmentHistoryBesideDescription
                                 const showTaskAttachmentsInDetail = isCompletedTaskDetail && taskDetail.jobSourceType !== 'Routine'
-                                const rightPanelColumnCount = 1 + (showHistoryBesideDescription ? 1 : 0) + (showTaskAttachmentsInDetail ? 1 : 0)
+                                // Durum Değişikliği Geçmişi: "Durum Değiştir" ile değiştirilmiş görevlerde Açıklama'nın sağında sütun (card #2).
+                                const statusChangeHistory = taskDetail.statusChangeHistory ?? []
+                                const showStatusChangeHistory = taskDetail.jobSourceType !== 'Routine' && statusChangeHistory.length > 0
+                                const rightPanelColumnCount = 1
+                                  + (showHistoryBesideDescription ? 1 : 0)
+                                  + (showStatusChangeHistory ? 1 : 0)
+                                  + (showTaskAttachmentsInDetail ? 1 : 0)
+                                const renderStatusChangeHistoryColumn = (className = '') => (
+                                  <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
+                                    <div className="border-b border-slate-200 px-4 py-2">
+                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
+                                      </span>
+                                    </div>
+                                    <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
+                                      {statusChangeHistory.map((item, idx) => (
+                                        <li key={`${item.changedAtUtc}-${idx}`} className="flex gap-2">
+                                          <span className="shrink-0 text-slate-500" aria-hidden>•</span>
+                                          <div className="min-w-0">
+                                            <div className="font-bold text-slate-950">
+                                              {item.fromStatus ? `${getTaskStatusLabel(t, item.fromStatus)} → ` : ''}{getTaskStatusLabel(t, item.toStatus)}
+                                            </div>
+                                            {item.reason ? (
+                                              <div className="break-words text-xs text-slate-600">{item.reason}</div>
+                                            ) : null}
+                                            <div className="text-xs text-slate-500">
+                                              {item.actorDisplayName ? `${item.actorDisplayName} · ` : ''}{new Date(item.changedAtUtc).toLocaleString(locale)}
+                                            </div>
+                                          </div>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )
                                 const renderAssignmentHistoryColumn = (className = '') => (
                                   <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
@@ -1881,11 +1914,13 @@ const pageKicker = isMyTasksView
                                     </ul>
                                   </div>
                                 )
-                                const rightPanelGridClass = rightPanelColumnCount === 3
-                                  ? ' grid lg:grid-cols-3 lg:items-stretch'
-                                  : rightPanelColumnCount === 2
-                                    ? ' grid lg:grid-cols-2 lg:items-stretch'
-                                    : ''
+                                const rightPanelGridClass = rightPanelColumnCount === 4
+                                  ? ' grid lg:grid-cols-4 lg:items-stretch'
+                                  : rightPanelColumnCount === 3
+                                    ? ' grid lg:grid-cols-3 lg:items-stretch'
+                                    : rightPanelColumnCount === 2
+                                      ? ' grid lg:grid-cols-2 lg:items-stretch'
+                                      : ''
                                 return (
                               <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${rightPanelGridClass}`}>
                                 <div className="min-w-0">
@@ -1903,6 +1938,7 @@ const pageKicker = isMyTasksView
                                   </div>
                                 </div>
                                 {showHistoryBesideDescription ? renderAssignmentHistoryColumn() : null}
+                                {showStatusChangeHistory ? renderStatusChangeHistoryColumn() : null}
                                 {showTaskAttachmentsInDetail ? (
                                   <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
                                     <div className="border-b border-slate-200 px-4 py-2">

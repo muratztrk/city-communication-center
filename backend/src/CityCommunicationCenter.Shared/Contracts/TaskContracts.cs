@@ -115,6 +115,14 @@ public sealed record AssignmentHistoryResponse(
     string ActionType,
     DateTimeOffset ActionDateUtc);
 
+// "Durum Değiştir" işlemiyle yapılan durum değişikliklerinin geçmişi (card #2).
+public sealed record TaskStatusChangeHistoryResponse(
+    string? FromStatus,
+    string ToStatus,
+    string? Reason,
+    string? ActorDisplayName,
+    DateTimeOffset ChangedAtUtc);
+
 public sealed record TaskDetailResponse(
     Guid TaskId,
     Guid TenantId,
@@ -148,4 +156,6 @@ public sealed record TaskDetailResponse(
     int? TaskNumber,
     int? TaskNumberYear,
     // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) — denetim kaydından (card 642).
-    string? StatusActorDisplayName = null);
+    string? StatusActorDisplayName = null,
+    // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).
+    IReadOnlyCollection<TaskStatusChangeHistoryResponse>? StatusChangeHistory = null);

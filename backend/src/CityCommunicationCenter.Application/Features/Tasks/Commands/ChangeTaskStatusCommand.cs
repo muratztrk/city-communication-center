@@ -73,6 +73,14 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
                 break;
         }
 
+        // Durum Değişikliği Geçmişi denetim kaydında işlemi yapan kişinin adı görünmeli (card #2).
+        var actorDisplayName = request.ActorUserId.HasValue
+            ? await _dbContext.Users.AsNoTracking()
+                .Where(u => u.UserId == request.ActorUserId.Value && u.TenantId == tenantId)
+                .Select(u => u.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         _dbContext.AuditLogs.Add(new AuditLog
         {
             AuditLogId = Guid.NewGuid(),
@@ -81,6 +89,7 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
             EntityId = task.TaskId.ToString(),
             Action = "TaskStatusChanged",
             ActorUserId = request.ActorUserId,
+            ActorDisplayName = actorDisplayName,
             StatusAtEvent = newStatus.ToString(),
             Notes = request.Reason,
             Details = $"{previousStatus}->{newStatus}"

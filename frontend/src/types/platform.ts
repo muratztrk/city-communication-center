@@ -177,6 +177,16 @@ export interface TaskDetail {
   taskNumberYear: number | null;
   // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) (card 642).
   statusActorDisplayName?: string | null;
+  // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).
+  statusChangeHistory?: TaskStatusChangeHistory[] | null;
+}
+
+export interface TaskStatusChangeHistory {
+  fromStatus: string | null;
+  toStatus: string;
+  reason: string | null;
+  actorDisplayName: string | null;
+  changedAtUtc: string;
 }
 
 export interface AssignmentHistory {

@@ -1660,7 +1660,11 @@ const pageKicker = isMyTasksView
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
                             <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:items-stretch ${
-                              'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.6fr)_minmax(0,1.6fr)]'
+                              parentJobDetail && taskDetail.jobSourceType !== 'Routine'
+                                ? (taskDetail.currentStatus === 'Completed'
+                                  ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)_minmax(0,1fr)]'
+                                  : 'lg:grid-cols-[44%_20%_36%]')
+                                : 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.6fr)_minmax(0,1.6fr)]'
                             }`}>
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
@@ -1686,7 +1690,7 @@ const pageKicker = isMyTasksView
                                   // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
                                 ].map(({ label, value }, index, rows) => (
                                   <div key={label} className={`flex items-start gap-2 px-3 py-2${index === rows.length - 1 ? ' border-b border-slate-100' : ''}`}>
-                                    <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                                    <span className={`${parentJobDetail && taskDetail.jobSourceType !== 'Routine' ? 'w-28' : 'w-36'} shrink-0 pt-0.5 text-xs font-semibold text-slate-500`}>{label}</span>
                                     <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
                                   </div>
                                 ))}

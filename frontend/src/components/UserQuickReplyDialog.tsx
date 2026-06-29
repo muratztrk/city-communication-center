@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { UserQuickReplyTemplate } from '../types/platform'
-import { TemplateDropdownList } from './WhatsAppTemplatePicker'
 import { Button } from './ui/button'
 import { ModalBackdrop } from './ui/modal-backdrop'
 import { ModalCloseButton } from './ui/modal-close-button'
@@ -74,7 +73,13 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
     }
   }
 
-  const handleSelectTemplate = (template: UserQuickReplyTemplate) => {
+  const handleSelectTemplate = (templateId: string) => {
+    if (!templateId) {
+      resetForm()
+      return
+    }
+    const template = templates.find(item => item.templateId === templateId)
+    if (!template) return
     setSelectedId(template.templateId)
     setEditingId(template.templateId)
     setName(template.name)
@@ -110,7 +115,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
         </div>
 
         <div className="space-y-4 overflow-y-auto px-5 py-4">
-          <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
             <p className="text-xs font-semibold text-slate-600">
               {editingId
                 ? t('whatsapp.editUserQuickReply', 'Şablonu düzenle')
@@ -130,7 +135,46 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
               placeholder={t('whatsapp.userQuickReplyContent', 'Mesaj metni')}
               className="field-input min-h-[4.5rem] w-full resize-y text-sm"
             />
+
+            <div className="space-y-1.5">
+              <label htmlFor="user-quick-reply-select" className="text-xs font-semibold text-slate-600">
+                {t('whatsapp.userQuickReplyList', 'Kayıtlı şablonlar')}
+              </label>
+              <select
+                id="user-quick-reply-select"
+                className="field-select w-full text-sm"
+                value={selectedId ?? ''}
+                disabled={loading}
+                onChange={event => handleSelectTemplate(event.target.value)}
+              >
+                <option value="">
+                  {loading
+                    ? t('common.loading', 'Yükleniyor…')
+                    : templates.length === 0
+                      ? t('whatsapp.noUserQuickReplies', 'Henüz kişisel şablon yok.')
+                      : t('whatsapp.selectUserQuickReply', 'Şablon seçin…')}
+                </option>
+                {templates.map(template => (
+                  <option key={template.templateId} value={template.templateId}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
             <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                disabled={!selectedId || saving}
+                onClick={() => void handleDelete()}
+              >
+                <Trash2 className="size-3.5" />
+                {t('common.delete', 'Sil')}
+              </Button>
               {editingId ? (
                 <Button type="button" variant="secondary" size="sm" onClick={resetForm}>
                   {t('common.cancel', 'İptal')}
@@ -145,50 +189,6 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
                 {editingId ? t('common.save', 'Kaydet') : t('common.add', 'Ekle')}
               </Button>
             </div>
-          </div>
-
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-slate-600">
-              {t('whatsapp.userQuickReplyList', 'Kayıtlı şablonlar')}
-            </p>
-            {loading ? (
-              <p className="text-sm text-slate-500">{t('common.loading', 'Yükleniyor…')}</p>
-            ) : (
-              <TemplateDropdownList
-                items={templates}
-                selectedId={selectedId}
-                onSelect={handleSelectTemplate}
-                emptyLabel={t('whatsapp.noUserQuickReplies', 'Henüz kişisel şablon yok.')}
-              />
-            )}
-            {selectedId ? (
-              <div className="flex justify-end gap-2 pt-1">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    const selected = templates.find(item => item.templateId === selectedId)
-                    if (selected) handleSelectTemplate(selected)
-                  }}
-                >
-                  <Pencil className="size-3.5" />
-                  {t('common.edit', 'Düzenle')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  disabled={saving}
-                  onClick={() => void handleDelete()}
-                >
-                  <Trash2 className="size-3.5" />
-                  {t('common.delete', 'Sil')}
-                </Button>
-              </div>
-            ) : null}
           </div>
         </div>
       </div>

@@ -60,16 +60,11 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     queryKey: queryKeys.socialMessages.conversation(socialMessageId),
     queryFn: () => api.getSocialConversation(socialMessageId),
   })
-  const templatesQuery = useQuery({
-    queryKey: queryKeys.whatsappTemplates.list(),
-    queryFn: () => api.getWhatsAppTemplates(),
-  })
   const userQuickRepliesQuery = useQuery({
     queryKey: queryKeys.userQuickReplies.list(),
     queryFn: () => api.getUserQuickReplies(),
   })
   const entries = useMemo(() => conversationQuery.data ?? [], [conversationQuery.data])
-  const templates = templatesQuery.data ?? []
   const userQuickReplies = userQuickRepliesQuery.data ?? []
 
   useEffect(() => {
@@ -182,9 +177,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         <div className="shrink-0 space-y-3 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-3">
           <div className="flex flex-wrap items-center gap-2">
             <WhatsAppTemplatePicker
-              templates={templates}
               userQuickReplies={userQuickReplies}
               onSelect={content => setReplyText(content)}
+              menuAlign="start"
             />
             <UserQuickReplyAddButton onChanged={() => { void userQuickRepliesQuery.refetch() }} />
           </div>

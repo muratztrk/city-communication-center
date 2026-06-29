@@ -1,39 +1,37 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, FileText } from 'lucide-react'
-import type { UserQuickReplyTemplate, WhatsAppMessageTemplate } from '../types/platform'
+import type { UserQuickReplyTemplate } from '../types/platform'
 import { Button } from './ui/button'
 
 interface WhatsAppTemplatePickerProps {
-  templates: WhatsAppMessageTemplate[]
   userQuickReplies?: UserQuickReplyTemplate[]
   onSelect: (content: string) => void
   tone?: 'default' | 'on-dark'
+  /** start = menu opens upward, aligned to button left (extends right); end = aligned to button right */
+  menuAlign?: 'start' | 'end'
 }
 
-type PickerItem = {
-  id: string
-  name: string
-  content: string
-}
-
-function computeMenuStyle(button: HTMLDivElement, itemCount: number) {
+function computeMenuStyle(button: HTMLDivElement, itemCount: number, menuAlign: 'start' | 'end') {
   const rect = button.getBoundingClientRect()
   const menuWidth = 256
   const menuHeight = Math.min(256, itemCount * 56)
   const openUp = rect.top >= menuHeight + 8
+  const left = menuAlign === 'start'
+    ? Math.min(rect.left, window.innerWidth - menuWidth - 8)
+    : Math.max(8, rect.right - menuWidth)
   return {
     top: openUp ? rect.top - menuHeight - 4 : rect.bottom + 4,
-    left: Math.max(8, rect.right - menuWidth),
+    left,
     width: menuWidth,
   }
 }
 
 export function WhatsAppTemplatePicker({
-  templates,
   userQuickReplies = [],
   onSelect,
   tone = 'default',
+  menuAlign = 'end',
 }: WhatsAppTemplatePickerProps) {
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLDivElement>(null)
@@ -41,25 +39,10 @@ export function WhatsAppTemplatePicker({
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
 
   const active = useMemo(() => {
-    const orgItems: PickerItem[] = templates
-      .filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
-      .map(t => ({ id: t.templateId, name: t.name, content: t.content }))
-    const pinnedOrder = ['KVKK Hoşgeldiniz', 'Eksik Bilgi']
-    const sortedOrg = [...orgItems].sort((left, right) => {
-      const leftIndex = pinnedOrder.indexOf(left.name)
-      const rightIndex = pinnedOrder.indexOf(right.name)
-      if (leftIndex !== -1 || rightIndex !== -1) {
-        if (leftIndex === -1) return 1
-        if (rightIndex === -1) return -1
-        return leftIndex - rightIndex
-      }
-      return left.name.localeCompare(right.name, 'tr')
-    })
-    const userItems: PickerItem[] = userQuickReplies
+    return userQuickReplies
       .map(t => ({ id: t.templateId, name: t.name, content: t.content }))
       .sort((left, right) => left.name.localeCompare(right.name, 'tr'))
-    return [...sortedOrg, ...userItems]
-  }, [templates, userQuickReplies])
+  }, [userQuickReplies])
 
   useLayoutEffect(() => {
     if (open && menuRef.current) {
@@ -88,7 +71,7 @@ export function WhatsAppTemplatePicker({
       return
     }
     if (buttonRef.current) {
-      setMenuStyle(computeMenuStyle(buttonRef.current, active.length))
+      setMenuStyle(computeMenuStyle(buttonRef.current, active.length, menuAlign))
     }
     setOpen(true)
   }

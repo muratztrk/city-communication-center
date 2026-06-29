@@ -14,7 +14,6 @@ import type {
   Department,
   SocialMessage,
   UserQuickReplyTemplate,
-  WhatsAppMessageTemplate,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
 import { formatConversationListTime } from '../utils/conversationListTime'
@@ -378,7 +377,6 @@ function ConversationDetail({
   conversationId,
   citizenName,
   citizenPhone,
-  templates,
   userQuickReplies,
   onUserQuickRepliesChanged,
   anchorAtUtc,
@@ -390,7 +388,6 @@ function ConversationDetail({
   conversationId: string
   citizenName?: string | null
   citizenPhone?: string | null
-  templates: WhatsAppMessageTemplate[]
   userQuickReplies: UserQuickReplyTemplate[]
   onUserQuickRepliesChanged: () => void
   anchorAtUtc?: string | null
@@ -547,8 +544,7 @@ function ConversationDetail({
   const openTicket = detail ? pickReplyTicket(detail.tickets) : undefined
   const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
-  const activeTemplates = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
-  const hasSelectableTemplates = activeTemplates.length > 0 || userQuickReplies.length > 0
+  const hasSelectableTemplates = userQuickReplies.length > 0
 
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
@@ -706,7 +702,6 @@ function ConversationDetail({
               {t('nav.createRequest', 'Talep oluştur')}
             </button>
             <WhatsAppTemplatePicker
-              templates={templates}
               userQuickReplies={userQuickReplies}
               onSelect={content => setReplyText(content)}
             />
@@ -759,7 +754,6 @@ export function WhatsAppConversationsPage() {
   const requestedAt = searchParams.get('at') ?? ''
   const requestedMessageId = searchParams.get('messageId') ?? ''
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
-  const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
   const [userQuickReplies, setUserQuickReplies] = useState<UserQuickReplyTemplate[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
@@ -777,17 +771,13 @@ export function WhatsAppConversationsPage() {
   const loadConversations = useCallback(async () => {
     setLoading(true)
     try {
-      const [convResult, tplResult, quickReplyResult, departmentResult] = await Promise.allSettled([
+      const [convResult, quickReplyResult, departmentResult] = await Promise.allSettled([
         api.getCitizenConversations(),
-        api.getWhatsAppTemplates(),
         api.getUserQuickReplies(),
         api.getDepartments(),
       ])
       if (convResult.status === 'fulfilled') {
         setConversations(convResult.value)
-      }
-      if (tplResult.status === 'fulfilled') {
-        setTemplates(tplResult.value)
       }
       if (quickReplyResult.status === 'fulfilled') {
         setUserQuickReplies(quickReplyResult.value)
@@ -1000,7 +990,6 @@ export function WhatsAppConversationsPage() {
               conversationId={selectedId}
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}
-              templates={templates}
               userQuickReplies={userQuickReplies}
               onUserQuickRepliesChanged={() => { void refreshUserQuickReplies() }}
               anchorAtUtc={requestedAt || null}

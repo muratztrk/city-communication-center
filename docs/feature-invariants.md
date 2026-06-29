@@ -117,8 +117,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterir, onaylanınca iletir. Yanında turuncu "Düzenle" → balon metni yerinde textarea ile düzenlenir
   (`EditPendingConversationEntryCommand`, `POST .../conversation/{entryId}/edit`, yetki Operator/SystemAdmin,
   yalnızca Pending+Outbound). Düzenlenen bekleyen mesajlarda `EditedAtUtc` doludur ve "Beklemede" solunda
-  turuncu "Düzenlendi" etiketi görünür. Gönderim WhatsApp 24s penceresi açıkken iletilir; pencere kapalıysa
-  API reddeder ve balon `Failed`="İletilemedi" gösterir (platform kısıtı, kod hatası değil).
+  turuncu "Düzenlendi" etiketi görünür. Operatör aksiyon butonları (`Düzenle`/`Mesajı Gönder`) daha yüksek
+  `py-1.5` pill görünümünü korur. Gönderim WhatsApp 24s penceresi açıkken iletilir; pencere kapalıysa API
+  reddeder ve balon `Failed`="İletilemedi" gösterir (platform kısıtı, kod hatası değil).
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının

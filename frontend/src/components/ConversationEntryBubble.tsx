@@ -168,7 +168,7 @@ export function ConversationEntryBubble({
               type="button"
               onClick={() => { setDraft(entry.content); setIsEditing(true) }}
               disabled={sendingPending}
-              className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:opacity-60"
             >
               <Pencil className="size-3.5" />
               {t('common.edit', 'Düzenle')}
@@ -177,7 +177,7 @@ export function ConversationEntryBubble({
               type="button"
               onClick={() => onSendPending?.(entry.entryId)}
               disabled={sendingPending}
-              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60"
             >
               {sendingPending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
               {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}

@@ -121,8 +121,13 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             }
         }
 
+        var sourceType = Enum.TryParse<JobSourceType>(request.SourceType, true, out var st) ? st : JobSourceType.Manual;
+        // Vatandaş talepleri operatörün kendi birimine de yönlendirilebilir; bu yüzden sahip birim
+        // hedeften ayıklanmaz. Birim içi/dışı taleplerde sahip=hedef anlamsızdır, ayıklanır.
+        var isCitizenSource = string.Equals(request.RequestType, JobRequestType.Citizen.ToString(), StringComparison.OrdinalIgnoreCase)
+            || sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet;
         var targets = request.TargetDepartmentIds?
-            .Where(id => id != request.OwnerDepartmentId)
+            .Where(id => isCitizenSource || id != request.OwnerDepartmentId)
             .Distinct()
             .ToArray() ?? [];
 
@@ -142,7 +147,6 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             throw Validation(nameof(request.OwnerUserIds), "Talep icin yalnizca bir gorev sahibi secilebilir.");
         }
 
-        var sourceType = Enum.TryParse<JobSourceType>(request.SourceType, true, out var st) ? st : JobSourceType.Manual;
         var requestType = Enum.TryParse<JobRequestType>(request.RequestType, true, out var rt)
             ? rt
             : sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet

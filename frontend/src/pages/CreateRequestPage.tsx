@@ -255,11 +255,10 @@ export function CreateRequestPage() {
       && !isPresidencyLevelDepartment(department))
   }, [departments, externalForm.ownerDepartmentId])
 
+  // Vatandaş talebi operatörün kendi birimine de yönlendirilebilir (card #1090).
   const citizenTargetDepartmentOptions = useMemo(() => {
-    return departments.filter(department =>
-      department.departmentId !== myDepartmentId
-      && !isPresidencyLevelDepartment(department))
-  }, [departments, myDepartmentId])
+    return departments.filter(department => !isPresidencyLevelDepartment(department))
+  }, [departments])
 
   // Birim İçi talepte "Görev Sahibi Kişi/Birim": yalnızca birim yöneticisi/sorumlusu,
   // kendisi dahil birimin tüm personellerini görev sahibi olarak seçebilir.

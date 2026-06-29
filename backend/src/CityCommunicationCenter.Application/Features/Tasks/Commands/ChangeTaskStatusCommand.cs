@@ -104,6 +104,15 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
             parentJob.CompletedAtUtc = null;
         }
 
+        // Görev durum değişikliği talebi iptale/redde düşürürse, yazılan neden talebin İptal
+        // Notu olarak da yansısın (tamamlama notu zaten tamamlanan görevin Notes'undan türetilir) — card #3.
+        if (parentJob is not null
+            && newStatus == WorkflowTaskStatus.Cancelled
+            && parentJob.Status is JobStatus.Cancelled or JobStatus.Rejected)
+        {
+            parentJob.CancelReason = request.Reason;
+        }
+
         if (parentJob is not null && previousJobStatus.HasValue && parentJob.Status != previousJobStatus.Value)
         {
             _dbContext.AuditLogs.Add(new AuditLog

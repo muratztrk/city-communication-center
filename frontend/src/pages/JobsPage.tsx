@@ -1805,7 +1805,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) && (
                   <Button
                     type="button"
-                    className="bg-[#007985] text-white hover:bg-[#006570]"
+                    className="bg-blue-600 text-white hover:bg-blue-700"
                     onClick={openCitizenConversationModal}
                   >
                     {t('social.goToConversation', 'Yazışmaya Git')}

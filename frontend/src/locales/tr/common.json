@@ -771,6 +771,8 @@
   "whatsapp": {
     "title": "WhatsApp Konuşmaları",
     "subtitle": "Vatandaşlardan gelen WhatsApp mesajlarını yönetin.",
+    "pendingBadge": "Beklemede",
+    "sendPendingMessage": "Mesajı Gönder",
     "searchPlaceholder": "Telefon no bul…",
     "searchPlaceholderExtended": "Telefon, isim veya talep no…",
     "conversationsTitle": "Konuşmalar",

@@ -29,7 +29,10 @@ export function WhatsAppConversationModal({
           citizenPhone={citizenPhone}
           headerMode="phone"
           onClose={onClose}
-          canReply={false}
+          // Birim yöneticisi/atanan personel yazabilir ama mesaj "Beklemede" kuyruğa girer;
+          // vatandaşa iletme yetkisi yalnızca operatördedir (canSendPending=false) — card #1091.
+          canReply
+          canSendPending={false}
         />
       </section>
     </div>,

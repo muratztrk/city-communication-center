@@ -192,6 +192,22 @@ public sealed class SocialMessagesController : ApiControllerBase
         return NoContent();
     }
 
+    /// <summary>Beklemedeki bir yanıtı vatandaşa iletir (yalnızca Vatandaş Operatörü/SystemAdmin) — card #1091.</summary>
+    [HttpPost("{messageId:guid}/conversation/{entryId:guid}/send")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SendPendingConversationEntry(
+        Guid messageId,
+        Guid entryId,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new SendPendingConversationEntryCommand(messageId, entryId, CurrentContext.UserId),
+            cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     /// <summary>Proxies WhatsApp media (image/video/audio/document) through the server.</summary>
     [HttpGet("{messageId:guid}/conversation/media/{entryId:guid}")]
     [AllowAnonymous]

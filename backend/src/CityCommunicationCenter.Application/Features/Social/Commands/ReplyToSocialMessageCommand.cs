@@ -37,33 +37,25 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         string? externalEntryId = null;
         string? deliveryError = null;
 
-        var client = _clientFactory.GetClient(message.Channel, tenantId);
-        if (message.Channel == SocialChannel.WhatsApp && client is not null)
+        // WhatsApp yanıtları doğrudan iletilmez: tüm yanıtlar "Beklemede" kuyruğa alınır ve
+        // yalnızca Vatandaş Operatörü "Mesajı Gönder" (SendPendingConversationEntryCommand) ile
+        // vatandaşa iletir (card #1091). Diğer kanallar mevcut davranışla anında gönderilir.
+        var isWhatsApp = message.Channel == SocialChannel.WhatsApp;
+        if (isWhatsApp)
         {
-            var sendResult = await client.SendMessageAsync(new SendMessageRequest
-            {
-                RecipientId = message.CitizenHandle,
-                Message = request.Content
-            }, cancellationToken);
-
-            if (sendResult.Success)
-            {
-                externalEntryId = sendResult.MessageId;
-                deliveryStatus = ConversationDeliveryStatus.Sent;
-            }
-            else
-            {
-                deliveryStatus = ConversationDeliveryStatus.Failed;
-                deliveryError = sendResult.Error;
-            }
+            deliveryStatus = ConversationDeliveryStatus.Pending;
         }
-        else if (client is not null)
+        else
         {
-            await client.SendMessageAsync(new SendMessageRequest
+            var client = _clientFactory.GetClient(message.Channel, tenantId);
+            if (client is not null)
             {
-                RecipientId = message.CitizenHandle,
-                Message = request.Content
-            }, cancellationToken);
+                await client.SendMessageAsync(new SendMessageRequest
+                {
+                    RecipientId = message.CitizenHandle,
+                    Message = request.Content
+                }, cancellationToken);
+            }
         }
 
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
@@ -80,11 +72,15 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             DeliveryError = deliveryError,
         });
 
-        message.ResponseContent = request.Content;
-        message.RespondedAtUtc = DateTimeOffset.UtcNow;
-        if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
+        // WhatsApp'ta mesaj henüz iletilmedi → "Yanıtlandı" durumu gönderim anında işlenir.
+        if (!isWhatsApp)
         {
-            message.Status = SocialMessageStatus.Responded;
+            message.ResponseContent = request.Content;
+            message.RespondedAtUtc = utcNow;
+            if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
+            {
+                message.Status = SocialMessageStatus.Responded;
+            }
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

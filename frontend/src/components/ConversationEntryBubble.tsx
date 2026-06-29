@@ -1,3 +1,4 @@
+import { Loader2, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
@@ -15,7 +16,7 @@ export interface ConversationEntryBubbleData {
   sentAt: string
   socialMessageId?: string
   senderLabel?: string | null
-  deliveryStatus?: 'Sent' | 'Delivered' | 'Read' | 'Failed' | string | null
+  deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | string | null
   deliveryError?: string | null
 }
 
@@ -25,6 +26,10 @@ interface ConversationEntryBubbleProps {
   citizenPhone?: string | null
   onAddMediaAsAttachment?: (file: File) => void
   theme?: 'dark' | 'light'
+  /** Beklemedeki giden mesajın yanında "Mesajı Gönder" butonu gösterilsin mi (yalnızca operatör) — card #1091. */
+  canSendPending?: boolean
+  onSendPending?: (entryId: string) => void
+  sendingPending?: boolean
 }
 
 export function ConversationEntryBubble({
@@ -33,10 +38,14 @@ export function ConversationEntryBubble({
   citizenPhone,
   onAddMediaAsAttachment,
   theme = 'dark',
+  canSendPending = false,
+  onSendPending,
+  sendingPending = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const isInbound = entry.direction === 'Inbound'
+  const isPending = !isInbound && entry.deliveryStatus === 'Pending'
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
@@ -82,7 +91,9 @@ export function ConversationEntryBubble({
             <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
           )}
           <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
-            {!isInbound && entry.deliveryStatus ? (
+            {isPending ? (
+              <span className="font-semibold uppercase tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+            ) : !isInbound && entry.deliveryStatus ? (
               <WhatsAppDeliveryStatusIndicator
                 status={entry.deliveryStatus}
                 error={entry.deliveryError}
@@ -94,6 +105,17 @@ export function ConversationEntryBubble({
           </p>
         </div>
       </div>
+      {isPending && canSendPending ? (
+        <button
+          type="button"
+          onClick={() => onSendPending?.(entry.entryId)}
+          disabled={sendingPending}
+          className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60"
+        >
+          {sendingPending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+          {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}
+        </button>
+      ) : null}
     </div>
   )
 }

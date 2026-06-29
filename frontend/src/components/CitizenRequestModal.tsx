@@ -428,6 +428,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               citizenPhone={citizenPhone}
               headerMode="phone"
               onClose={onClose}
+              // Yalnızca Vatandaş Operatörü beklemedeki mesajı vatandaşa iletebilir — card #1091.
+              canSendPending={user?.role === 'Operator' || user?.role === 'SystemAdmin'}
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
               onAddMediaAsAttachment={addPendingFile}
             />

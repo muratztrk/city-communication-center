@@ -17,6 +17,8 @@ interface ConversationPanelProps {
   citizenPhone?: string | null
   onClose: () => void
   canReply?: boolean
+  /** Beklemedeki giden mesajların yanında "Mesajı Gönder" butonu göster (yalnızca operatör) — card #1091. */
+  canSendPending?: boolean
   onReplySent?: () => void
   onAddMediaAsAttachment?: (file: File) => void
   /** Popup'ta telefon numarası başlığı göster (card 6a3f8858). */
@@ -40,13 +42,14 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, onReplySent, onAddMediaAsAttachment, headerMode = 'default' }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default' }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
   const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
+  const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const conversationQuery = useQuery({
@@ -75,6 +78,17 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       onReplySent?.()
     } finally {
       setSending(false)
+    }
+  }
+
+  const handleSendPending = async (entryId: string) => {
+    if (sendingPendingId) return
+    setSendingPendingId(entryId)
+    try {
+      await api.sendPendingConversationEntry(socialMessageId, entryId)
+      invalidateSocialMessages(queryClient, socialMessageId)
+    } finally {
+      setSendingPendingId(null)
     }
   }
 
@@ -132,6 +146,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   citizenPhone={citizenPhone}
                   theme="light"
                   onAddMediaAsAttachment={onAddMediaAsAttachment}
+                  canSendPending={canSendPending}
+                  onSendPending={handleSendPending}
+                  sendingPending={sendingPendingId === entry.entryId}
                 />
               </Fragment>
             )

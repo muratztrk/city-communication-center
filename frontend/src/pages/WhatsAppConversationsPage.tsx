@@ -3,6 +3,7 @@ import { AlertCircle, ArrowDownUp, Check, Link2, Loader2, MessageCircle, MoreVer
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
@@ -387,12 +388,16 @@ function ConversationDetail({
   onOpenViewRequests: (citizenPhone: string) => void
 }) {
   const { t, i18n } = useTranslation()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const locale = getLocale(i18n.language)
   const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
+  // Beklemedeki mesajı yalnızca Vatandaş Operatörü (veya SystemAdmin) iletebilir — card #1091.
+  const canSendPending = user?.role === 'Operator' || user?.role === 'SystemAdmin'
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
+  const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [chatSearch, setChatSearch] = useState('')
   const [showChatSearch, setShowChatSearch] = useState(false)
@@ -500,6 +505,17 @@ function ConversationDetail({
       await refreshDetail()
     } finally {
       setSending(false)
+    }
+  }
+
+  const handleSendPending = async (entry: CitizenConversationTimelineEntry) => {
+    if (sendingPendingId) return
+    setSendingPendingId(entry.entryId)
+    try {
+      await api.sendPendingConversationEntry(entry.socialMessageId, entry.entryId)
+      await refreshDetail()
+    } finally {
+      setSendingPendingId(null)
     }
   }
 
@@ -649,7 +665,13 @@ function ConversationDetail({
                   }}
                   className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-[color:var(--color-primary)] ring-offset-2 ring-offset-[var(--wa-chat-bg)] transition-shadow' : undefined}
                 >
-                  <ConversationEntryBubble entry={entry} theme="light" />
+                  <ConversationEntryBubble
+                    entry={entry}
+                    theme="light"
+                    canSendPending={canSendPending}
+                    onSendPending={() => void handleSendPending(entry)}
+                    sendingPending={sendingPendingId === entry.entryId}
+                  />
                 </div>
               </Fragment>
             )

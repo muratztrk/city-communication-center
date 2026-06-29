@@ -357,7 +357,7 @@ export interface SocialConversationEntry {
   mediaMimeType: string | null;
   sentAt: string;
   senderLabel?: string | null;
-  deliveryStatus?: 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
+  deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
 }
 
@@ -408,7 +408,7 @@ export interface CitizenConversationTimelineEntry {
   sentAt: string;
   socialMessageId: string;
   senderLabel?: string | null;
-  deliveryStatus?: 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
+  deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
 }
 

@@ -766,6 +766,8 @@
   "whatsapp": {
     "title": "WhatsApp Conversations",
     "subtitle": "Manage incoming WhatsApp messages from citizens.",
+    "pendingBadge": "Pending",
+    "sendPendingMessage": "Send Message",
     "searchPlaceholder": "Find phone no…",
     "searchPlaceholderExtended": "Phone, name or request no…",
     "conversationsTitle": "Conversations",

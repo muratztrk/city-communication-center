@@ -769,5 +769,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a42974f` reopened / #1117 — Kart metni güncellendi: Görevlerim/Birimdeki Görevler grid `İşlemler` sütununda artık `Detaylar` hariç buton kalmaz; aksiyonlar detay popup header'ında kalır. FE build/lint PASS. main+master, Done.
 - [x] `6a429afa` / #1119 — Görevlerim/Birimdeki Görevler banner aramasına gridde görünen `Bağlı Olduğu Talep No` formatı eklendi (`formatTaskJobDisplayNumber`); `T-2026-328` gibi talep numarasıyla arama artık satırı düşürmez. FE build/lint PASS. main+master, Done.
 - [x] `6a429bcc` / #1120 — Görevlerim `Tamamlanmış Görevlerim` ve `İptal Görevlerim` detay popup header'ına `Düzenle` geri eklendi; `Durum Değiştir` yanında mevcut aktif/pasif edit mantığıyla görünür, `Tüm Görevler` terminal detayındaki pasif Düzenle gizleme kuralı korunur. FE build/lint PASS. main+master, Done.
+- [x] `6a429e79` / #1122 — Görevlerim gridlerinin `İşlemler` kolonu tek `Detaylar` butonuna göre daraltıldı (`17rem` → `7.5rem`) ve buton ortalandı; diğer tablo action düzenlerine dokunulmadı. FE build/lint PASS. main+master, Done.
 
-## STATUS: Round 115 complete — Doing list drained.
+## STATUS: Round 116 complete — Doing list drained.

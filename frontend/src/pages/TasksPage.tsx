@@ -23,7 +23,7 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
-import type { Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
+import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus, getSocialChannelLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -37,6 +37,17 @@ const COMPLETION_ATTACHMENT_MAX_SIZE = 5 * 1024 * 1024
 function completionAttachmentExtension(name: string): string {
   const dot = name.lastIndexOf('.')
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
+
+function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHistory[] {
+  const chronological = [...history].sort((a, b) => new Date(a.actionDateUtc).getTime() - new Date(b.actionDateUtc).getTime())
+  const firstAssignedUserId = chronological.find(item => item.toUserId)?.toUserId
+  if (!firstAssignedUserId) return []
+
+  const hasReassignmentToAnotherUser = chronological.some(item => item.toUserId && item.toUserId !== firstAssignedUserId)
+  return hasReassignmentToAnotherUser
+    ? chronological.filter(item => item.toUserId).reverse()
+    : []
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
@@ -567,17 +578,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && canManageDepartmentTaskActions(taskDetail)
     && taskDetail.jobSourceType !== 'Routine'
     && isActionableTaskStatus(taskDetail.currentStatus)
-  const showAssignmentHistoryBesideDescription = !!taskDetail
-    && isMyTasksView
-    && taskDetail.jobSourceType !== 'Routine'
-    && taskDetail.assignmentHistory.length > 0
-    && (
-      currentMyTaskView === 'pending'
-      || (currentMyTaskView === 'overdue'
-        && (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress'))
-      || taskDetail.currentStatus === 'Completed'
-      || taskDetail.currentStatus === 'Cancelled'
-    )
+  const visibleAssignmentHistory = useMemo(
+    () => getVisibleAssignmentHistory(taskDetail?.assignmentHistory ?? []),
+    [taskDetail?.assignmentHistory],
+  )
   const canChangeTaskDueDate = !!taskDetail
     && canManageDepartmentTaskActions(taskDetail)
     && (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
@@ -1629,10 +1633,7 @@ const pageKicker = isMyTasksView
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
                             <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:items-stretch ${
-                              showAssignmentHistoryBesideDescription
-                                // Açıklama + Atama/Durum Değişikliği Geçmişi sütunu biraz genişletildi (card #1093).
-                                ? 'lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.65fr)_minmax(0,1.75fr)]'
-                                : 'lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]'
+                              'lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]'
                             }`}>
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
@@ -1857,13 +1858,11 @@ const pageKicker = isMyTasksView
                               </div>
                               {(() => {
                                 const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
-                                const showHistoryBesideDescription = showAssignmentHistoryBesideDescription
                                 const showTaskAttachmentsInDetail = isCompletedTaskDetail && taskDetail.jobSourceType !== 'Routine'
                                 // Durum Değişikliği Geçmişi: "Durum Değiştir" ile değiştirilmiş görevlerde Açıklama'nın sağında sütun (card #2).
                                 const statusChangeHistory = taskDetail.statusChangeHistory ?? []
                                 const showStatusChangeHistory = taskDetail.jobSourceType !== 'Routine' && statusChangeHistory.length > 0
                                 const rightPanelColumnCount = 1
-                                  + (showHistoryBesideDescription ? 1 : 0)
                                   + (showStatusChangeHistory ? 1 : 0)
                                   + (showTaskAttachmentsInDetail ? 1 : 0)
                                 const renderStatusChangeHistoryColumn = (className = '') => (
@@ -1884,30 +1883,6 @@ const pageKicker = isMyTasksView
                                             </div>
                                             <div className="text-xs text-slate-500">
                                               {new Date(item.changedAtUtc).toLocaleString(locale)}
-                                            </div>
-                                          </div>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )
-                                const renderAssignmentHistoryColumn = (className = '') => (
-                                  <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
-                                    <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
-                                      </span>
-                                    </div>
-                                    <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
-                                      {taskDetail.assignmentHistory.map(item => (
-                                        <li key={item.assignmentId} className="flex gap-2">
-                                          <span className="shrink-0 text-slate-500" aria-hidden>•</span>
-                                          <div className="min-w-0">
-                                            <div className="font-bold text-slate-950">
-                                              {getUserName(item.toUserId)}
-                                            </div>
-                                            <div className="text-xs text-slate-500">
-                                              {new Date(item.actionDateUtc).toLocaleString(locale)}
                                             </div>
                                           </div>
                                         </li>
@@ -1938,7 +1913,6 @@ const pageKicker = isMyTasksView
                                     />
                                   </div>
                                 </div>
-                                {showHistoryBesideDescription ? renderAssignmentHistoryColumn() : null}
                                 {showStatusChangeHistory ? renderStatusChangeHistoryColumn() : null}
                                 {showTaskAttachmentsInDetail ? (
                                   <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
@@ -2025,6 +1999,32 @@ const pageKicker = isMyTasksView
                       </section>
                     )
                   })()}
+
+                  {taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0 ? (
+                    <section className="form-card page-stack mb-5">
+                      <h3 className="mb-2 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
+                      </h3>
+                      <ul className="grid gap-2">
+                        {visibleAssignmentHistory.map(item => (
+                          <li
+                            key={item.assignmentId}
+                            className="flex gap-2 text-sm text-slate-700"
+                          >
+                            <span className="shrink-0 text-slate-500" aria-hidden>•</span>
+                            <div className="min-w-0">
+                              <div className="font-bold text-slate-950">
+                                {getUserName(item.toUserId)}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {new Date(item.actionDateUtc).toLocaleString(locale)}
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
 
                   {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388).
                       Rutin görevlerde talep olmadığı için bu bölüm gösterilmez (card 395). */}
@@ -2225,40 +2225,6 @@ const pageKicker = isMyTasksView
                     )
                   })()}
 
-                  {/* Rutin görevlerde alt işlem/ek bölümleri gösterilmez (card 555).
-                      Rutin olmayan görevlerde Yönetici Notu + Ekler ilgili talep detaylarında gösterilir. */}
-                  {(() => {
-                    if (showAssignmentHistoryBesideDescription) return null
-                    if (taskDetail.jobSourceType === 'Routine') return null
-                    if (taskDetail.assignmentHistory.length === 0) return null
-                    return (
-                  <div className="grid gap-4">
-                    <section className="form-card page-stack">
-                      <h3 className="mb-2 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
-                      </h3>
-                        <ul className="grid gap-2">
-                          {taskDetail.assignmentHistory.map(item => (
-                            <li
-                              key={item.assignmentId}
-                              className="flex gap-2 text-sm text-slate-700"
-                            >
-                              <span className="shrink-0 text-slate-500" aria-hidden>•</span>
-                              <div className="min-w-0">
-                                <div className="font-bold text-slate-950">
-                                  {getUserName(item.toUserId)}
-                                </div>
-                                <div className="text-xs text-slate-500">
-                                  {new Date(item.actionDateUtc).toLocaleString(locale)}
-                                </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                    </section>
-                  </div>
-                    )
-                  })()}
                 </>
               ) : null}
             </div>

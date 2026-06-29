@@ -744,5 +744,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4228ca` / #1097 — Durum Değişikliği Geçmişi G-2026-247 gibi normal akışla (Atandı→Yapılmakta) değişen görevlerde görünmüyordu (sorgu yalnızca `TaskStatusChanged` audit'ine bakıyordu). Artık görevin TÜM audit'lerindeki `StatusAtEvent`'ten geçişler türetiliyor (ilk durum baseline, sonraki her farklı durum kayıt). BE+FE build/lint PASS. feature-invariants §1 güncellendi. main+master, Done.
 - [x] `6a42251f` / #1098 — WhatsApp Konuşmaları "Mesajı Gönder" onay pop-up'ı: #1096 ile zaten eklenmiş ve canlı; kod değişikliği gerekmedi. Done.
 - [x] `6a429848` / #1099 — "Yazışmaya Git" butonları Vatandaş Talepleri gridview hariç (TasksPage + JobsPage detay) açık mavi (bg-sky-400) yapıldı; SocialMessagesPage teal korundu. FE build/lint PASS. main+master, Done.
+- [x] `6a422d3c` / #1104 — Görev Atama Geçmişi yalnızca ilk atanan personelden farklı kullanıcıya yönlendirme varsa görünür; kart İlgili Talep Detayları'nın hemen üstüne taşındı. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

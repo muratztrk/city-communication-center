@@ -2,7 +2,7 @@ import { Paperclip, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -51,6 +51,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
+import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
@@ -350,6 +351,22 @@ function formatTaskJobDisplayNumber(
   return `T-${year}-Onay Bekleyen`
 }
 
+const TASK_SEARCH_COLUMN_KEYS = [
+  'jobNumber',
+  'taskNumber',
+  'createdAtUtc',
+  'ownerDepartmentName',
+  'title',
+  'taskOwnerDisplayName',
+  'jobSourceType',
+  'dueDateUtc',
+  'completedAtUtc',
+  'updatedAtUtc',
+  'currentStatus',
+  'cancelReturnStatus',
+  'priority',
+] as const
+
 function getCitizenTaskChannel(task: Task, socialByJobId: Map<string, SocialMessage>): string {
   return socialByJobId.get(task.jobId)?.channel ?? 'WhatsApp'
 }
@@ -606,6 +623,24 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && (isDepartmentTasksView || isStaffTasksView)
     && pendingExtraTimeApproval != null
 
+  const getTaskColumnValue = useCallback((key: string, row: Task & { taskOwnerDisplayName?: string; cancelReturnStatus?: string }): string => {
+    if (key === 'currentStatus') return getTaskDisplayStatus(t, row)
+    if (key === 'cancelReturnStatus') return row.currentStatus === 'Cancelled' ? 'İptal' : 'İade'
+    if (key === 'priority') return getPriorityLabel(t, row.priority)
+    if (key === 'jobNumber') return row.jobSourceType === 'Routine'
+      ? `${t('tasks.columns.routineTaskLabel', 'Rutin Görev')} ${t('tasks.columns.routineNoRequestNo', 'Talep No olmaz')}`
+      : formatTaskJobDisplayNumber(row, socialByJobId, locale)
+    if (key === 'taskNumber') return formatTaskDisplayNumber(row)
+    if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
+    if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
+    if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
+    if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
+    if (key === 'assignedDepartmentName') return row.assignedDepartmentName ?? row.assignedUserDisplayName ?? ''
+    if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
+    if (key === 'taskOwnerDisplayName') return row.taskOwnerDisplayName ?? row.assignedUserDisplayName ?? row.ownerDisplayName ?? ''
+    return String((row as unknown as Record<string, unknown>)[key] ?? '')
+  }, [t, locale, socialByJobId])
+
   const visibleTasks = useMemo(() => {
     let result: typeof tasks
 
@@ -655,32 +690,21 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     if (searchText.trim()) {
-      // Türkçe "İ" eşleşmesi için tr-locale lowercase (birim/oluşturan adları için kritik).
-      const q = searchText.toLocaleLowerCase('tr')
-      // Banner araması tüm sütunlarda arar (sadece Başlık değil).
       result = result.filter(task => {
-        const haystack = [
-          formatTaskDisplayNumber(task),
-          formatTaskJobDisplayNumber(task, socialByJobId, locale),
-          task.title,
-          task.jobTitle ?? '',
-          getTaskStatusLabel(t, task.currentStatus),
-          getPriorityLabel(t, task.priority),
-          formatDateTime(task.createdAtUtc, locale),
-          formatDateTime(task.dueDateUtc, locale),
-          formatDateTime(task.completedAtUtc ?? null, locale),
-          formatDateTime(task.updatedAtUtc ?? null, locale),
-          task.ownerDepartmentName ?? '',
-          task.createdByDisplayName ?? '',
-          task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
-          task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış'),
-        ].join(' ').toLocaleLowerCase('tr')
-        return haystack.includes(q)
+        const enriched = {
+          ...task,
+          taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
+          cancelReturnStatus: 'İptal',
+        }
+        return matchesBannerSearch(
+          searchText,
+          TASK_SEARCH_COLUMN_KEYS.map(key => getTaskColumnValue(key, enriched)),
+        )
       })
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, socialByJobId, staffUserIds, tasks, t, locale])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, getTaskColumnValue, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()
@@ -722,23 +746,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
         cancelReturnStatus: 'İptal',
       }))
-      .filter(task => taskMatchesFilters(task, (key, row) => {
-        if (key === 'currentStatus') return getTaskDisplayStatus(t, row)
-        if (key === 'cancelReturnStatus') return row.currentStatus === 'Cancelled' ? 'İptal' : 'İade'
-        if (key === 'priority') return getPriorityLabel(t, row.priority)
-        if (key === 'jobNumber') return row.jobSourceType === 'Routine'
-          ? `${t('tasks.columns.routineTaskLabel', 'Rutin Görev')} ${t('tasks.columns.routineNoRequestNo', 'Talep No olmaz')}`
-          : formatTaskJobDisplayNumber(row, socialByJobId, locale)
-        if (key === 'taskNumber') return formatTaskDisplayNumber(row)
-        if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
-        if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
-        if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
-        if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
-        if (key === 'assignedDepartmentName') return row.assignedDepartmentName ?? row.assignedUserDisplayName ?? ''
-        if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
-        return String((row as unknown as Record<string, unknown>)[key] ?? '')
-      })),
-    [visibleTasks, taskMatchesFilters, t, locale, socialByJobId],
+      .filter(task => taskMatchesFilters(task, getTaskColumnValue)),
+    [visibleTasks, taskMatchesFilters, getTaskColumnValue],
   )
 
   // Kullanıcı kolon sıralaması seçmediyse, Tamamlanmış/İptal görünümlerinde en yeni tarihli en üstte

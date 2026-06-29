@@ -3,10 +3,10 @@ import type { CitizenConversationTicket } from '../types/platform'
 export function formatWhatsAppTicketLabel(ticket: CitizenConversationTicket | null | undefined): string | null {
   if (!ticket) return null
   if (ticket.citizenRequestNumber != null) {
-    return `Talep #${ticket.citizenRequestNumber}`
+    return `Talep Sayısı: ${ticket.citizenRequestNumber}`
   }
   if (ticket.jobNumber != null && ticket.jobNumberYear != null) {
-    return `Talep #${ticket.jobNumber}`
+    return `Talep Sayısı: ${ticket.jobNumber}`
   }
   return null
 }
@@ -15,7 +15,7 @@ export function formatWhatsAppSummaryTicketLabel(summary: {
   latestCitizenRequestNumber?: number | null
 } | null | undefined): string | null {
   if (!summary?.latestCitizenRequestNumber) return null
-  return `Talep #${summary.latestCitizenRequestNumber}`
+  return `Talep Sayısı: ${summary.latestCitizenRequestNumber}`
 }
 
 export function isWaitingForConversationResponse(summary: {

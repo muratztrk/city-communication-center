@@ -460,6 +460,12 @@ export interface WhatsAppMessageTemplate {
   activeDays: string[];
 }
 
+export interface UserQuickReplyTemplate {
+  templateId: string;
+  name: string;
+  content: string;
+}
+
 export interface AuditLog {
   auditLogId: string;
   tenantId: string;

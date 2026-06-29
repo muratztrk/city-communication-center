@@ -46,6 +46,7 @@ import type {
   CitizenConversationSummary,
   CitizenConversationDetail,
   WhatsAppMessageTemplate,
+  UserQuickReplyTemplate,
 } from '../types/platform'
 import { API_BASE } from './config'
 import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
@@ -1058,6 +1059,40 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.socialSettingsDeleteFailed'))
+  },
+
+  async getUserQuickReplies(): Promise<UserQuickReplyTemplate[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/quick-replies`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.genericLoadFailed', 'Veriler yüklenemedi.'))
+    return response.json() as Promise<UserQuickReplyTemplate[]>
+  },
+
+  async createUserQuickReply(data: { name: string; content: string }): Promise<UserQuickReplyTemplate> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/quick-replies`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.genericSaveFailed', 'Kaydedilemedi.'))
+    return response.json() as Promise<UserQuickReplyTemplate>
+  },
+
+  async updateUserQuickReply(templateId: string, data: { name: string; content: string }): Promise<UserQuickReplyTemplate> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/quick-replies/${templateId}`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.genericSaveFailed', 'Kaydedilemedi.'))
+    return response.json() as Promise<UserQuickReplyTemplate>
+  },
+
+  async deleteUserQuickReply(templateId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/quick-replies/${templateId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.genericDeleteFailed', 'Silinemedi.'))
   },
 
   async getAuditLogs(): Promise<AuditLog[]> {

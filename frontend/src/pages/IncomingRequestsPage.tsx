@@ -50,6 +50,7 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
+import { matchesBannerSearch } from '../utils/bannerSearch'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
@@ -619,9 +620,10 @@ export function IncomingRequestsPage() {
       })
     }
     if (searchText.trim()) {
-      // Türkçe "İ" eşleşmesi için tr-locale lowercase (Talep Yeri birim adları için kritik).
-      const q = searchText.toLocaleLowerCase('tr')
-      result = result.filter(row => SEARCH_COLUMN_KEYS.some(key => getColumnValue(key, row).toLocaleLowerCase('tr').includes(q)))
+      result = result.filter(row => matchesBannerSearch(
+        searchText,
+        SEARCH_COLUMN_KEYS.map(key => getColumnValue(key, row)),
+      ))
     }
     return result
     // eslint-disable-next-line react-hooks/exhaustive-deps

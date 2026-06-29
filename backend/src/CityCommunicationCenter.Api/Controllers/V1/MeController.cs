@@ -40,4 +40,45 @@ public sealed class MeController : ApiControllerBase
             cancellationToken);
         return NoContent();
     }
+
+    [HttpGet("quick-replies")]
+    [ProducesResponseType<IReadOnlyList<UserQuickReplyTemplateResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<UserQuickReplyTemplateResponse>>> GetQuickReplies(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetUserQuickReplyTemplatesQuery(), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpPost("quick-replies")]
+    [ProducesResponseType<UserQuickReplyTemplateResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserQuickReplyTemplateResponse>> CreateQuickReply(
+        [FromBody] UserQuickReplyTemplateRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new SaveUserQuickReplyTemplateCommand(null, request.Name, request.Content),
+            cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpPut("quick-replies/{templateId:guid}")]
+    [ProducesResponseType<UserQuickReplyTemplateResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserQuickReplyTemplateResponse>> UpdateQuickReply(
+        Guid templateId,
+        [FromBody] UserQuickReplyTemplateRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new SaveUserQuickReplyTemplateCommand(templateId, request.Name, request.Content),
+            cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpDelete("quick-replies/{templateId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteQuickReply(Guid templateId, CancellationToken cancellationToken)
+    {
+        var deleted = await _sender.Send(new DeleteUserQuickReplyTemplateCommand(templateId), cancellationToken);
+        return deleted ? NoContent() : NotFound();
+    }
 }

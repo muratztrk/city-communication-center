@@ -165,6 +165,19 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     .Take(100)
                     .ToListAsync(cancellationToken);
 
+                var actorIdsNeedingNames = logs
+                    .Where(a => a.Action == "TaskAssigned"
+                        && string.IsNullOrWhiteSpace(a.ActorDisplayName)
+                        && a.ActorUserId.HasValue)
+                    .Select(a => a.ActorUserId!.Value)
+                    .Distinct()
+                    .ToList();
+                var actorNamesById = actorIdsNeedingNames.Count == 0
+                    ? new Dictionary<Guid, string>()
+                    : await _dbContext.Users.AsNoTracking()
+                        .Where(u => u.TenantId == tenantId && actorIdsNeedingNames.Contains(u.UserId))
+                        .ToDictionaryAsync(u => u.UserId, u => u.DisplayName, cancellationToken);
+
                 foreach (var a in logs)
                 {
                     if (a.ActorUserId == userId)
@@ -255,7 +268,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         userId,
                         "InApp",
                         "Sent",
-                        ResolveActionTitle(a),
+                        ResolveNotificationTitle(a, actorNamesById),
                         string.Join(" — ", messageParts),
                         isHistoricalRead,
                         isTask
@@ -286,6 +299,26 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         && !string.IsNullOrWhiteSpace(audit.Notes)
         && (audit.Notes.Contains("Görev durumu değişikliği sonucu talep durumu güncellendi", StringComparison.Ordinal)
             || audit.Notes.Contains("Görev iptali sonucu talep durumu güncellendi", StringComparison.Ordinal));
+
+    private static string ResolveNotificationTitle(
+        AuditLog audit,
+        IReadOnlyDictionary<Guid, string> actorNamesById)
+    {
+        if (audit.Action == "TaskAssigned")
+        {
+            var actorName = audit.ActorDisplayName;
+            if (string.IsNullOrWhiteSpace(actorName) && audit.ActorUserId.HasValue)
+            {
+                actorNamesById.TryGetValue(audit.ActorUserId.Value, out actorName);
+            }
+
+            return string.IsNullOrWhiteSpace(actorName)
+                ? "Görev atandı"
+                : $"Görev atandı ({actorName})";
+        }
+
+        return ResolveActionTitle(audit);
+    }
 
     private static string ResolveActionTitle(AuditLog audit) =>
         audit.Action switch

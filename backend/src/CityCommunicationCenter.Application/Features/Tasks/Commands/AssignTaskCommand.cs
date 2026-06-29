@@ -93,6 +93,14 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
             throw Validation(nameof(request.DepartmentId), "Kullanici icin gecerli bir departman bulunamadi.");
         }
 
+        ApplicationUser? actor = null;
+        if (request.ActorUserId.HasValue)
+        {
+            actor = await _dbContext.Users.FirstOrDefaultAsync(
+                e => e.UserId == request.ActorUserId.Value && e.TenantId == tenantId,
+                cancellationToken);
+        }
+
         var previousDepartmentId = task.AssignedDepartmentId;
         var previousUserId = task.AssignedUserId;
         var utcNow = DateTimeOffset.UtcNow;
@@ -138,6 +146,7 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
             EntityId = request.TaskId.ToString(),
             Action = "TaskAssigned",
             ActorUserId = request.ActorUserId,
+            ActorDisplayName = actor?.DisplayName,
             StatusAtEvent = WorkflowTaskStatus.Assigned.ToString()
         });
 

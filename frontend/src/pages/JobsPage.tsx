@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -42,6 +42,7 @@ import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus }
 import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
+import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -242,6 +243,23 @@ function formatJobDisplayNumber(job: JobSummary): string {
   const year = job.jobNumberYear ?? new Date().getFullYear()
   return `T-${year}-Onay Bekleyen`
 }
+
+const JOB_SEARCH_COLUMN_KEYS = [
+  'jobNumber',
+  'title',
+  'status',
+  'priority',
+  'createdAtUtc',
+  'dueDateUtc',
+  'ownerDecidedAtUtc',
+  'completedAtUtc',
+  'updatedAtUtc',
+  'destinationText',
+  'ownerDepartmentName',
+  'assignedUserDisplayName',
+  'createdByDisplayName',
+  'cancelReturnStatus',
+] as const
 
 function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -857,6 +875,35 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ? t('jobs.scopes.rejected', 'İptal/Red Edilen')
     : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Onaylanmış Talepler')
 
+  type EnrichedJobRow = JobSummary & {
+    destinationText: string
+    ownerDecidedAtUtc: string | null
+    cancelReturnStatus: string
+  }
+
+  const enrichJobRow = useCallback((job: JobSummary): EnrichedJobRow => {
+    const targets = getTargetJobDepartments(job)
+    const destinationText = targets.length > 0
+      ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
+      : job.ownerDepartmentName ?? ''
+    const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
+    return { ...job, destinationText, ownerDecidedAtUtc, cancelReturnStatus: 'İptal' }
+  }, [])
+
+  const getJobColumnValue = useCallback((key: string, row: EnrichedJobRow): string => {
+    if (key === 'destinationText') return row.destinationText
+    if (key === 'cancelReturnStatus') return row.cancelReturnStatus
+    if (key === 'jobNumber') return formatJobDisplayNumber(row)
+    if (key === 'status') return getJobDisplayStatus(t, row)
+    if (key === 'priority') return getPriorityLabel(t, row.priority)
+    if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc ?? null, locale)
+    if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc ?? null, locale)
+    if (key === 'ownerDecidedAtUtc') return formatDateTime(row.ownerDecidedAtUtc ?? null, locale)
+    if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
+    if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
+    return String((row as unknown as Record<string, unknown>)[key] ?? '')
+  }, [t, locale])
+
   const visibleJobs = useMemo(() => {
     let result: typeof jobs
 
@@ -884,38 +931,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
 
     if (searchText.trim()) {
-      // Türkçe büyük "İ" -> "i" doğru eşleşsin diye tr-locale lowercase (birim adları için kritik).
-      const q = searchText.toLocaleLowerCase('tr')
-      // Banner araması tüm sütunlarda arar (sadece Başlık değil; Gittiği Yer/Oluşturan birimleri dahil).
-      result = result.filter(job => {
-        const targets = getTargetJobDepartments(job)
-        const destinationText = targets.length > 0
-          ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
-          : job.ownerDepartmentName ?? ''
-        const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
-        const deptNames = (job.departments ?? []).map(d => d.departmentName ?? '').filter(Boolean)
-        const haystack = [
-          formatJobDisplayNumber(job),
-          job.title,
-          getJobStatusLabel(t, job.status),
-          getPriorityLabel(t, job.priority),
-          formatDateTime(job.createdAtUtc ?? null, locale),
-          formatDateTime(job.dueDateUtc ?? null, locale),
-          formatDateTime(ownerDecidedAtUtc, locale),
-          formatDateTime(job.completedAtUtc ?? null, locale),
-          formatDateTime(job.updatedAtUtc ?? null, locale),
-          destinationText,
-          job.ownerDepartmentName ?? '',
-          job.assignedUserDisplayName ?? '',
-          job.createdByDisplayName ?? '',
-          ...deptNames,
-        ].join(' ').toLocaleLowerCase('tr')
-        return haystack.includes(q)
-      })
+      result = result.filter(job => matchesBannerSearch(
+        searchText,
+        JOB_SEARCH_COLUMN_KEYS.map(key => getJobColumnValue(key, enrichJobRow(job))),
+      ))
     }
 
     return result
-  }, [activeDeptId, currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, filterFrom, filterTo, hideCitizenRequestsFromMyRequests, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters, t, locale])
+  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, enrichJobRow, filterFrom, filterTo, getJobColumnValue, hideCitizenRequestsFromMyRequests, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()
@@ -927,30 +950,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const columnFilteredJobs = useMemo(
     () => visibleJobs
-      .map(job => {
-        const targets = getTargetJobDepartments(job)
-        const destinationText = targets.length > 0
-          ? targets.map(d => d.departmentName ?? '').filter(Boolean).join(', ')
-          : job.ownerDepartmentName ?? ''
-        const ownerDecidedAtUtc = job.departments?.find(d => d.role === 'Owner')?.decidedAtUtc ?? null
-        const cancelReturnStatus = 'İptal'
-        const statusSortText = getJobDisplayStatus(t, job)
-        return { ...job, destinationText, ownerDecidedAtUtc, cancelReturnStatus, statusSortText }
-      })
-      .filter(job => jobMatchesFilters(job, (key, row) => {
-        if (key === 'destinationText') return row.destinationText
-        if (key === 'cancelReturnStatus') return 'İptal'
-        if (key === 'jobNumber') return formatJobDisplayNumber(row)
-        if (key === 'status') return getJobDisplayStatus(t, row)
-        if (key === 'priority') return getPriorityLabel(t, row.priority)
-        if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc ?? null, locale)
-        if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc ?? null, locale)
-        if (key === 'ownerDecidedAtUtc') return formatDateTime(row.ownerDecidedAtUtc ?? null, locale)
-        if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
-        if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
-        return String((row as unknown as Record<string, unknown>)[key] ?? '')
-      })),
-    [visibleJobs, jobMatchesFilters, t, locale],
+      .map(job => ({
+        ...enrichJobRow(job),
+        statusSortText: getJobDisplayStatus(t, job),
+      }))
+      .filter(job => jobMatchesFilters(job, getJobColumnValue)),
+    [visibleJobs, jobMatchesFilters, enrichJobRow, getJobColumnValue, t],
   )
 
   useEffect(() => { setJobsPage(1) }, [jobFilters])

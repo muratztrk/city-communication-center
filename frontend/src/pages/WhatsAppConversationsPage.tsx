@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { ArrowDownUp, Check, Link2, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Check, ClipboardPlus, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -21,6 +21,7 @@ import { conversationSameDay, formatConversationDayDivider } from '../utils/conv
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
+import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { formatWhatsAppSummaryTicketLabel, formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
@@ -226,8 +227,6 @@ function ConversationListItem({
                   </span>
                   <span className="text-[10px] text-slate-500 truncate">{assigneeName}</span>
                 </>
-              ) : ticketOpen ? (
-                <span className="text-[10px] text-slate-400 truncate">{t('whatsapp.unassigned', 'Atanmadı')}</span>
               ) : null}
             </div>
           </div>
@@ -301,7 +300,7 @@ function ConversationListPanel({
             type="search"
             value={search}
             onChange={event => onSearchChange(event.target.value)}
-            placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon, isim veya talep no…')}
+            placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon no…')}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
           />
           {search ? (
@@ -398,7 +397,6 @@ function ConversationDetail({
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
-  const navigate = useNavigate()
   const locale = getLocale(i18n.language)
   const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
   // Beklemedeki mesajı yalnızca Vatandaş Operatörü (veya SystemAdmin) iletebilir — card #1091.
@@ -552,6 +550,13 @@ function ConversationDetail({
   const headerInitials = citizenName ? getInitials(citizenName) : null
   const ticketLabel = formatWhatsAppTicketLabel(primaryTicket)
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
+  const headerSubtitleParts: string[] = []
+  if (citizenName?.trim() && phoneForHeader) {
+    headerSubtitleParts.push(formatPhone(phoneForHeader))
+  }
+  if (ticketLabel) {
+    headerSubtitleParts.push(ticketLabel)
+  }
   const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
   const visibleTimeline = useMemo(() => {
     if (!detail) return []
@@ -561,16 +566,6 @@ function ConversationDetail({
       || (entry.senderLabel ?? '').toLocaleLowerCase('tr').includes(normalizedChatSearch),
     )
   }, [detail, normalizedChatSearch])
-
-  const handleLinkTicket = () => {
-    if (primaryTicket?.jobId) {
-      navigate(`/jobs?jobId=${encodeURIComponent(primaryTicket.jobId)}`)
-      return
-    }
-    if (primaryTicket) {
-      onOpenCreateRequest(primaryTicket.socialMessageId)
-    }
-  }
 
   return (
     <div className="flex h-full flex-col bg-white text-[color:var(--color-foreground)]">
@@ -591,21 +586,10 @@ function ConversationDetail({
             ) : null}
           </div>
           <p className="truncate text-xs text-slate-500">
-            {phoneForHeader ? formatPhone(phoneForHeader) : t('whatsapp.title', 'WhatsApp')}
-            {ticketLabel ? ` · ${ticketLabel}` : ''}
+            {headerSubtitleParts.length > 0 ? headerSubtitleParts.join(' · ') : t('whatsapp.title', 'WhatsApp')}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          {primaryTicket ? (
-            <button
-              type="button"
-              onClick={handleLinkTicket}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-            >
-              <Link2 className="size-3.5" />
-              {primaryTicket.jobId ? t('whatsapp.openLinkedRequest', 'Talebe git') : t('whatsapp.linkToRequest', 'Talebe bağla')}
-            </button>
-          ) : null}
           <button
             type="button"
             aria-label={t('common.search', 'Ara')}
@@ -628,12 +612,13 @@ function ConversationDetail({
                 {primaryTicket ? (
                   <button
                     type="button"
-                    className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                     onClick={() => {
                       setMenuOpen(false)
                       onOpenCreateRequest(primaryTicket.socialMessageId)
                     }}
                   >
+                    <ClipboardPlus className="size-4 shrink-0 text-slate-500" aria-hidden="true" />
                     {t('nav.createRequest', 'Talep oluştur')}
                   </button>
                 ) : null}
@@ -718,6 +703,7 @@ function ConversationDetail({
               templates={templates}
               onSelect={content => setReplyText(content)}
             />
+            <UserQuickReplyAddButton onSelect={content => setReplyText(content)} />
           </div>
           <div className="flex items-end gap-2">
             <textarea

@@ -29,23 +29,9 @@ public static class ConversationEntrySenderLabelHelper
     public static string FormatStaffLabel(string? departmentName, string? displayName)
     {
         var dept = string.IsNullOrWhiteSpace(departmentName) ? null : departmentName.Trim();
-        var shortName = FormatShortPersonName(displayName);
-        if (dept != null && shortName != null) return $"{dept} · {shortName}";
-        if (dept != null && !string.IsNullOrWhiteSpace(displayName)) return $"{dept} · {displayName.Trim()}";
-        return shortName ?? dept ?? "Belediye";
-    }
-
-    public static string? FormatShortPersonName(string? displayName)
-    {
-        if (string.IsNullOrWhiteSpace(displayName)) return null;
-
-        var parts = displayName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length == 0) return null;
-        if (parts.Length == 1) return parts[0];
-
-        var last = parts[^1];
-        var initial = last.Length > 0 ? $"{char.ToUpperInvariant(last[0])}." : string.Empty;
-        return $"{parts[0]} {initial}".Trim();
+        var fullName = string.IsNullOrWhiteSpace(displayName) ? null : displayName.Trim();
+        if (dept != null && fullName != null) return $"{dept} · {fullName}";
+        return fullName ?? dept ?? "Belediye";
     }
 
     public static string FormatPhoneOutboundLabel(string municipalityName)

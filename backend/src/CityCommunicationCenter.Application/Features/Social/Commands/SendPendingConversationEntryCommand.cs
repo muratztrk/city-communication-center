@@ -7,10 +7,12 @@ namespace CityCommunicationCenter.Application.Features.Social;
 public sealed record SendPendingConversationEntryCommand(
     Guid SocialMessageId,
     Guid EntryId,
-    Guid? ActorUserId) : ICommand<bool>;
+    Guid? ActorUserId) : ICommand<SendPendingConversationEntryResult>;
+
+public sealed record SendPendingConversationEntryResult(bool Found, bool Sent);
 
 public sealed class SendPendingConversationEntryCommandHandler
-    : ICommandHandler<SendPendingConversationEntryCommand, bool>
+    : ICommandHandler<SendPendingConversationEntryCommand, SendPendingConversationEntryResult>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
@@ -26,7 +28,7 @@ public sealed class SendPendingConversationEntryCommandHandler
         _clientFactory = clientFactory;
     }
 
-    public async ValueTask<bool> Handle(SendPendingConversationEntryCommand request, CancellationToken cancellationToken)
+    public async ValueTask<SendPendingConversationEntryResult> Handle(SendPendingConversationEntryCommand request, CancellationToken cancellationToken)
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var actor = await ActorAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
@@ -38,11 +40,11 @@ public sealed class SendPendingConversationEntryCommandHandler
 
         var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(
             m => m.SocialMessageId == request.SocialMessageId && m.TenantId == tenantId, cancellationToken);
-        if (message is null) return false;
+        if (message is null) return new SendPendingConversationEntryResult(false, false);
 
         var entry = await _dbContext.ConversationEntries.FirstOrDefaultAsync(
             e => e.EntryId == request.EntryId && e.SocialMessageId == request.SocialMessageId, cancellationToken);
-        if (entry is null) return false;
+        if (entry is null) return new SendPendingConversationEntryResult(false, false);
 
         // Yalnızca beklemedeki giden mesajlar iletilebilir.
         if (entry.Direction != ConversationEntryDirection.Outbound
@@ -106,6 +108,6 @@ public sealed class SendPendingConversationEntryCommandHandler
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return entry.DeliveryStatus != ConversationDeliveryStatus.Failed;
+        return new SendPendingConversationEntryResult(true, entry.DeliveryStatus != ConversationDeliveryStatus.Failed);
     }
 }

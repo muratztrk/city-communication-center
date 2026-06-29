@@ -747,5 +747,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a422d3c` / #1104 — Görev Atama Geçmişi yalnızca ilk atanan personelden farklı kullanıcıya yönlendirme varsa görünür; kart İlgili Talep Detayları'nın hemen üstüne taşındı. FE build/lint PASS. main+master, Done.
 - [x] `6a422e96` / #1105 — Bekleyen WhatsApp mesajı düzenlenirse `EditedAtUtc` tutulur ve balonda "Beklemede" solunda turuncu "Düzenlendi" etiketi gösterilir. BE+FE build/lint PASS. main+master, Done.
 - [x] `6a422f55` / #1106 — WhatsApp bekleyen mesaj aksiyonlarında `Düzenle` ve `Mesajı Gönder` butonlarının yüksekliği biraz artırıldı (`py-1`→`py-1.5`). FE build/lint PASS. main+master, Done.
+- [x] `6a4225d7` reopened / #1099 — Bekleyen WhatsApp mesajı gönderimi gerçek platform hatasında artık 404 dönüp refresh'i kesmiyor; entry bulunduysa API 204 dönüyor, konuşma yenilenip balonda `İletilemedi` görünüyor. BE+FE build/lint PASS. main+master, Done.
+- [x] `6a42318d` / #1108 — WhatsApp konuşma balonlarında personel adı soyadı artık kısaltılmadan kaydediliyor/görünüyor (`Gamze Gürel`, `Gamze G.` değil). BE+FE build/lint PASS. main+master, Done.
+- [x] `6a4230b4` / #1107 — `Mesajı Gönder` confirm pop-up başlığı altı çizili yapıldı (`titleUnderline`). BE+FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

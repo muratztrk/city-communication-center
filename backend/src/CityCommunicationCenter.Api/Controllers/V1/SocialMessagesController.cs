@@ -201,10 +201,10 @@ public sealed class SocialMessagesController : ApiControllerBase
         Guid entryId,
         CancellationToken cancellationToken)
     {
-        var ok = await _sender.Send(
+        var result = await _sender.Send(
             new SendPendingConversationEntryCommand(messageId, entryId, CurrentContext.UserId),
             cancellationToken);
-        if (!ok) return NotFound();
+        if (!result.Found) return NotFound();
         return NoContent();
     }
 

@@ -114,12 +114,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `WhatsAppConversationModal` artık yazabilir (`canReply`) ama `canSendPending=false` (yönetici/personel
   yalnızca kuyruğa yazar, iletemez). (Eskiden salt-okunurdu — card #1091 değiştirdi.)
 - **"Mesajı Gönder" onay pop-up'ı + "Düzenle" (card #1094/#1096):** gönder butonu önce `ConfirmDialog`
-  gösterir, onaylanınca iletir. Yanında turuncu "Düzenle" → balon metni yerinde textarea ile düzenlenir
-  (`EditPendingConversationEntryCommand`, `POST .../conversation/{entryId}/edit`, yetki Operator/SystemAdmin,
-  yalnızca Pending+Outbound). Düzenlenen bekleyen mesajlarda `EditedAtUtc` doludur ve "Beklemede" solunda
-  turuncu "Düzenlendi" etiketi görünür. Operatör aksiyon butonları (`Düzenle`/`Mesajı Gönder`) daha yüksek
-  `py-1.5` pill görünümünü korur. Gönderim WhatsApp 24s penceresi açıkken iletilir; pencere kapalıysa API
-  reddeder ve balon `Failed`="İletilemedi" gösterir (platform kısıtı, kod hatası değil).
+  gösterir, başlığı altı çizilidir, onaylanınca iletir. Yanında turuncu "Düzenle" → balon metni
+  yerinde textarea ile düzenlenir (`EditPendingConversationEntryCommand`, `POST .../conversation/{entryId}/edit`,
+  yetki Operator/SystemAdmin, yalnızca Pending+Outbound). Düzenlenen bekleyen mesajlarda `EditedAtUtc` doludur
+  ve "Beklemede" solunda turuncu "Düzenlendi" etiketi görünür. Operatör aksiyon butonları (`Düzenle`/`Mesajı Gönder`)
+  daha yüksek `py-1.5` pill görünümünü korur. Gönderim başarısız olsa bile API 204 döner, konuşma refresh olur
+  ve balon `Failed`="İletilemedi" gösterir; 404 sadece mesaj/entry bulunamadığında döner.
+- **WhatsApp konuşma balonu sender label:** personel adı soyadı kısaltılmaz; backend `FormatStaffLabel`
+  tam `DisplayName` yazar (eski kayıtlarda kısaltılmış label kalabilir).
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının

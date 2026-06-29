@@ -1649,7 +1649,7 @@ const pageKicker = isMyTasksView
                               {t('tasks.detail.title', 'Görev Detayları')}
                             </div>
                             <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:items-stretch ${
-                              'lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]'
+                              'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.6fr)_minmax(0,1.6fr)]'
                             }`}>
                               <div className="min-w-0 divide-y divide-slate-100">
                                 {[
@@ -1888,7 +1888,7 @@ const pageKicker = isMyTasksView
                                 const renderAssignmentHistoryColumn = (className = '') => (
                                   <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                      <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-slate-500 xl:text-xs">
                                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                                       </span>
                                     </div>
@@ -1935,9 +1935,9 @@ const pageKicker = isMyTasksView
                                   </div>
                                 )
                                 const rightPanelGridClass = rightPanelColumnCount === 4
-                                  ? ' grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.8fr)] lg:items-stretch'
+                                  ? ' grid lg:grid-cols-[minmax(7.5rem,0.8fr)_minmax(10.5rem,1fr)_minmax(13.25rem,1.25fr)_minmax(7rem,0.75fr)] lg:items-stretch'
                                   : rightPanelColumnCount === 3
-                                    ? ' grid lg:grid-cols-[minmax(0,0.85fr)_minmax(9.5rem,1fr)_minmax(12.25rem,1.35fr)] lg:items-stretch'
+                                    ? ' grid lg:grid-cols-[minmax(8.5rem,0.85fr)_minmax(11.5rem,1.05fr)_minmax(14.5rem,1.3fr)] lg:items-stretch'
                                     : rightPanelColumnCount === 2
                                       ? ' grid lg:grid-cols-2 lg:items-stretch'
                                       : ''
@@ -2143,7 +2143,7 @@ const pageKicker = isMyTasksView
                         <div className="text-sm font-semibold text-emerald-600">
                           {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
-                        <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${isCompletedTask ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]' : isCitizenParentJob ? 'lg:grid-cols-[48.5%_21.2%_30.3%]' : 'lg:grid-cols-[48.5%_21.2%_15.15%_15.15%]'}`}>
+                        <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${isCompletedTask ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)]' : isCitizenParentJob ? 'lg:grid-cols-[44%_20%_36%]' : 'lg:grid-cols-[44%_20%_18%_18%]'}`}>
                           <div className="min-w-0 divide-y divide-slate-100">
                             {leftFields.map(({ label, value }) => (
                               // Sol kolon orta kolondan kısa olunca son satır "Öncelik"in altına

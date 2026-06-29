@@ -759,5 +759,7 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a42116e` reopened / #1093 — Tasks detayında `Görev Atama Geçmişi` ayrı karttan kaldırılıp Görev Detayları içindeki Açıklama'nın sağ sütununa taşındı. BE+FE build/lint PASS. main+master, Done.
 - [x] `6a422e96` reopened / #1105 — `/whatsapp` conversation detail timeline artık `EditedAtUtc` taşıyor; düzenlenen bekleyen balonda turuncu `Düzenlendi` rozeti görünür. BE+FE build/lint PASS. main+master, Done.
 - [x] `6a4228ca` reopened / #1101 — Status audit zinciri ilk kaydı doğrudan yeni durumla başlıyorsa Atandı→ilk durum geçişi üretiliyor; Durum Değişikliği Geçmişi Açıklama sağında Atama Geçmişiyle birlikte görünür. BE+FE build/lint PASS. main+master, Done.
+- [x] `6a4223f6` reopened / #1096 — Personelimin Görevleri detay popup header'ında `Görevi Yönlendir` ve `Görevi İptal Et` kaldırıldı. FE build/lint PASS. main+master, Done.
+- [x] `6a3fbfda` reopened / #1004 — Görevlerim `Tüm Görevler` terminal görev detayında sağ üstte `Durum Değiştir`, solunda varsa `Yazışmaya Git` görünüyor; pasif `Düzenle` placeholder'ı gizleniyor. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

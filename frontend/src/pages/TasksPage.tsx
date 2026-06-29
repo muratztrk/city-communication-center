@@ -576,6 +576,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         : t('tasks.detail.title', 'Görev Detayları')
   const canRouteTaskDetail = !!taskDetail
     && canManageDepartmentTaskActions(taskDetail)
+    && !isStaffTasksView
     && taskDetail.jobSourceType !== 'Routine'
     && isActionableTaskStatus(taskDetail.currentStatus)
   const visibleAssignmentHistory = useMemo(
@@ -1203,6 +1204,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
     && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
     && isAssignee(task as Task)
+  const canChangeTaskStatusFromDetail = (task: Pick<Task, 'currentStatus' | 'assignedUserId'>) =>
+    isMyTasksView
+    && (currentMyTaskView === 'all' || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+    && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+    && isAssignee(task as Task)
   const openRoutineTaskEdit = (taskId: string) => {
     closeTaskDetail()
     navigate(getRoutineTaskEditPath(taskId))
@@ -1556,7 +1562,7 @@ const pageKicker = isMyTasksView
                     {t('tasks.actions.route', 'Görevi Yönlendir')}
                   </Button>
                 )}
-                {isMyTasksView && selectedTask && canChangeCompletedTaskStatus(selectedTask) && (
+                {isMyTasksView && selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
                   <Button
                     type="button"
                     className="bg-orange-500 text-white hover:bg-orange-600"
@@ -1565,7 +1571,7 @@ const pageKicker = isMyTasksView
                     {t('tasks.actions.changeStatus', 'Durum Değiştir')}
                   </Button>
                 )}
-                {isMyTasksView && selectedTask && (canEditRoutineTask(selectedTask) ? (
+                {isMyTasksView && selectedTask && !canChangeTaskStatusFromDetail(selectedTask) && (canEditRoutineTask(selectedTask) ? (
                   <Button
                     type="button"
                     className="bg-teal-700 text-white hover:bg-teal-800"
@@ -1592,7 +1598,7 @@ const pageKicker = isMyTasksView
                   </Button>
                 )}
                 {taskDetail
-                  && (isDepartmentTasksView || isStaffTasksView)
+                  && isDepartmentTasksView
                   && canManageDepartmentTaskActions(taskDetail)
                   && isActionableTaskStatus(taskDetail.currentStatus) && (
                     <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>

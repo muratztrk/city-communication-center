@@ -525,7 +525,7 @@ function ConversationDetail({
   const handleSendPending = (entry: CitizenConversationTimelineEntry) => {
     setConfirmDialog({
       title: t('whatsapp.sendPendingConfirmTitle', 'Mesajı Gönder'),
-      titleUnderline: true,
+      titleDivider: true,
       message: t('whatsapp.sendPendingConfirmMessage', 'Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?'),
       confirmLabel: t('whatsapp.sendPendingMessage', 'Mesajı Gönder'),
       variant: 'success',

@@ -1902,17 +1902,9 @@ const pageKicker = isMyTasksView
                                 const renderStatusChangeHistoryColumn = (className = '') => (
                                   <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
-                                      {showAssignmentHistory ? (
-                                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                          <span className="whitespace-nowrap">{t('tasks.detail.statusChangeHistoryPrefix', 'Durum Değişikliği')}</span>
-                                          <br />
-                                          <span>{t('tasks.detail.statusChangeHistorySuffix', 'Geçmişi')}</span>
-                                        </span>
-                                      ) : (
-                                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                          {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
-                                        </span>
-                                      )}
+                                      <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-slate-500 xl:text-xs">
+                                        {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
+                                      </span>
                                     </div>
                                     <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
                                       {statusChangeHistory.map((item, idx) => (
@@ -1935,7 +1927,7 @@ const pageKicker = isMyTasksView
                                 const rightPanelGridClass = rightPanelColumnCount === 4
                                   ? ' grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.8fr)] lg:items-stretch'
                                   : rightPanelColumnCount === 3
-                                    ? ' grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-stretch'
+                                    ? ' grid lg:grid-cols-[minmax(0,0.85fr)_minmax(9.5rem,1fr)_minmax(12.25rem,1.35fr)] lg:items-stretch'
                                     : rightPanelColumnCount === 2
                                       ? ' grid lg:grid-cols-2 lg:items-stretch'
                                       : ''
@@ -2559,7 +2551,7 @@ const pageKicker = isMyTasksView
                           return null
                         })()}
                         {(() => {
-                          const canCancel = (isDepartmentTasksView && isActionableTaskStatus(task.currentStatus))
+                          const canCancel = (isDepartmentTasksView && currentMyTaskView !== 'all' && isActionableTaskStatus(task.currentStatus))
                             || (isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus))
                           if (canCancel) {
                             return (
@@ -2584,8 +2576,9 @@ const pageKicker = isMyTasksView
                               </Button>
                             )
                           }
-                          // Görsel bütünlük: Görevlerim ve Birimdeki Görevler "Tüm Görevler"de iptal edilemeyen satırlarda pasif İptal Et (card 545).
-                          if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all') {
+                          // Görsel bütünlük: Görevlerim "Tüm Görevler"de iptal edilemeyen satırlarda pasif İptal Et (card 545).
+                          // Birimdeki Görevler "Tüm Görevler"de İptal Et hiç gösterilmez (card #1103 reopened).
+                          if (isMyTasksView && currentMyTaskView === 'all') {
                             return <DisabledActionButton size="sm" variant="destructive" hoverTitle={t('tasks.actions.cancelUnavailable', 'Bu görev şu an iptal edilemez')}>{t('jobs.actions.cancel', 'İptal Et')}</DisabledActionButton>
                           }
                           return null

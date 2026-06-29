@@ -762,5 +762,7 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4223f6` reopened / #1096 — Personelimin Görevleri detay popup header'ında `Görevi Yönlendir` ve `Görevi İptal Et` kaldırıldı. FE build/lint PASS. main+master, Done.
 - [x] `6a3fbfda` reopened / #1004 — Görevlerim `Tüm Görevler` terminal görev detayında sağ üstte `Durum Değiştir`, solunda varsa `Yazışmaya Git` görünüyor; pasif `Düzenle` placeholder'ı gizleniyor. FE build/lint PASS. main+master, Done.
 - [x] `6a422b93` / #1103 — Atama Geçmişi ve Durum Değişikliği Geçmişi yan yana olduğunda `Durum Değişikliği` başlığı ilk satır, `Geçmişi` ikinci satır olacak şekilde sabitlendi. FE build/lint PASS. main+master, Done.
+- [x] `6a422b93` reopened / #1103 — Birimdeki Görevler `Tüm Görevler` gridinde İşlemler sütunundaki `İptal Et` butonu sadece bu görünümden kaldırıldı. FE build/lint PASS. main+master, Done.
+- [x] `6a4291a3` / #1114 — Görev Detayları'nda Atama Geçmişi ve Durum Değişikliği Geçmişi yan yanayken iki başlık da tek satırda sığacak kolon oranına alındı. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

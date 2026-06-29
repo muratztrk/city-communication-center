@@ -19,6 +19,7 @@ export interface ConversationEntryBubbleData {
   senderLabel?: string | null
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | string | null
   deliveryError?: string | null
+  editedAtUtc?: string | null
 }
 
 interface ConversationEntryBubbleProps {
@@ -112,7 +113,12 @@ export function ConversationEntryBubble({
           )}
           <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
             {isPending ? (
-              <span className="font-semibold uppercase tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+              <>
+                {entry.editedAtUtc ? (
+                  <span className="font-semibold uppercase tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+                ) : null}
+                <span className="font-semibold uppercase tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+              </>
             ) : !isInbound && entry.deliveryStatus ? (
               <WhatsAppDeliveryStatusIndicator
                 status={entry.deliveryStatus}

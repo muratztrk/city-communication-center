@@ -1485,6 +1485,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("direction");
 
+                    b.Property<DateTimeOffset?>("EditedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("editedatutc");
+
                     b.Property<string>("ExternalEntryId")
                         .HasColumnType("text")
                         .HasColumnName("externalentryid");

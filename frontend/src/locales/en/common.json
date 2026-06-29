@@ -767,6 +767,7 @@
     "title": "WhatsApp Conversations",
     "subtitle": "Manage incoming WhatsApp messages from citizens.",
     "pendingBadge": "Pending",
+    "editedBadge": "Edited",
     "sendPendingMessage": "Send Message",
     "sendPendingConfirmTitle": "Send Message",
     "sendPendingConfirmMessage": "This message will be delivered to the citizen via WhatsApp. Do you confirm?",

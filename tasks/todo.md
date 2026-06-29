@@ -745,5 +745,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a42251f` / #1098 — WhatsApp Konuşmaları "Mesajı Gönder" onay pop-up'ı: #1096 ile zaten eklenmiş ve canlı; kod değişikliği gerekmedi. Done.
 - [x] `6a429848` / #1099 — "Yazışmaya Git" butonları Vatandaş Talepleri gridview hariç (TasksPage + JobsPage detay) açık mavi (bg-sky-400) yapıldı; SocialMessagesPage teal korundu. FE build/lint PASS. main+master, Done.
 - [x] `6a422d3c` / #1104 — Görev Atama Geçmişi yalnızca ilk atanan personelden farklı kullanıcıya yönlendirme varsa görünür; kart İlgili Talep Detayları'nın hemen üstüne taşındı. FE build/lint PASS. main+master, Done.
+- [x] `6a422e96` / #1105 — Bekleyen WhatsApp mesajı düzenlenirse `EditedAtUtc` tutulur ve balonda "Beklemede" solunda turuncu "Düzenlendi" etiketi gösterilir. BE+FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

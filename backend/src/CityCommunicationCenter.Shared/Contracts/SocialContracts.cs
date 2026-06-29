@@ -169,7 +169,8 @@ public sealed record SocialConversationEntryDto(
     DateTimeOffset SentAt,
     string? SenderLabel,
     string? DeliveryStatus,
-    string? DeliveryError);
+    string? DeliveryError,
+    DateTimeOffset? EditedAtUtc = null);
 
 public sealed record SocialReplyRequest(string Content);
 

@@ -772,6 +772,7 @@
     "title": "WhatsApp Konuşmaları",
     "subtitle": "Vatandaşlardan gelen WhatsApp mesajlarını yönetin.",
     "pendingBadge": "Beklemede",
+    "editedBadge": "Düzenlendi",
     "sendPendingMessage": "Mesajı Gönder",
     "sendPendingConfirmTitle": "Mesajı Gönder",
     "sendPendingConfirmMessage": "Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?",

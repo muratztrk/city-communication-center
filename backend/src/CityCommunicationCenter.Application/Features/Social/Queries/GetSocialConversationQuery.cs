@@ -58,6 +58,7 @@ public sealed class GetSocialConversationQueryHandler
                 e.SenderLabel,
                 DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
                 e.DeliveryError,
+                e.EditedAtUtc,
             })
             .ToListAsync(cancellationToken);
 
@@ -71,6 +72,7 @@ public sealed class GetSocialConversationQueryHandler
                 null,
                 message.ReceivedAtUtc,
                 citizenPhoneLabel,
+                null,
                 null,
                 null)];
         }
@@ -87,6 +89,7 @@ public sealed class GetSocialConversationQueryHandler
                     ? citizenPhoneLabel
                     : tenantName),
             e.DeliveryStatus,
-            e.DeliveryError)).ToList();
+            e.DeliveryError,
+            e.EditedAtUtc)).ToList();
     }
 }

@@ -30,5 +30,7 @@ public sealed class SocialConversationEntry
 
     public string? DeliveryError { get; set; }
 
+    public DateTimeOffset? EditedAtUtc { get; set; }
+
     public SocialMessage SocialMessage { get; set; } = null!;
 }

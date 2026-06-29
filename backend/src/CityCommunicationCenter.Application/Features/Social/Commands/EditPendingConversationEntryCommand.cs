@@ -60,6 +60,7 @@ public sealed class EditPendingConversationEntryCommandHandler
         }
 
         entry.Content = request.Content.Trim();
+        entry.EditedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

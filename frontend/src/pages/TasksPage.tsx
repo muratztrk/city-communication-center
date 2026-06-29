@@ -2345,8 +2345,8 @@ const pageKicker = isMyTasksView
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
-              {isMyTasksView && (
+            <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isStaffTasksView ? ' staff-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
+              {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && (
                 <colgroup>
                   <col className="my-tasks-row-number-col" />
                   <col className="my-tasks-parent-request-col grid-col-request-no" />
@@ -2354,11 +2354,11 @@ const pageKicker = isMyTasksView
                   <col className="grid-col-date" />
                   <col className="my-tasks-location-col" />
                   <col className="my-tasks-title-col grid-col-title" />
-                  {(isDepartmentTasksView || isStaffTasksView) && <col />}
+                  {(isDepartmentTasksView || isStaffTasksView) && <col className="task-grid-owner-col" />}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && <col className="my-tasks-type-col" />}
                   {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <col className="my-tasks-due-col" />}
-                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <col />}
-                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <col />}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <col className="task-grid-terminal-date-col" />}
+                  {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <col className="task-grid-terminal-date-col" />}
                   {showStatusColumn && <col className="my-tasks-status-col" />}
                   <col className="my-tasks-actions-col" />
                 </colgroup>

@@ -335,9 +335,11 @@
       min-width: 56rem;
     }
 
-    /* Görevlerim tabloları: filtre sonucu boş kaldığında kolon genişlikleri sabit kalsın. */
+    /* Görev tabloları: filtre sonucu boş kaldığında kolon genişlikleri sabit kalsın. */
     .app-content-shell .my-tasks-table,
-    .app-content-shell .my-tasks-all-table {
+    .app-content-shell .my-tasks-all-table,
+    .app-content-shell .department-tasks-table,
+    .app-content-shell .staff-tasks-table {
       min-width: 68rem;
       table-layout: fixed;
       width: 100%;
@@ -355,12 +357,16 @@
 
     /* Define key columns structurally as well as on their cells. */
     .app-content-shell .my-tasks-table .my-tasks-row-number-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-row-number-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-row-number-col,
+    .app-content-shell .department-tasks-table .my-tasks-row-number-col,
+    .app-content-shell .staff-tasks-table .my-tasks-row-number-col {
       width: 4.5rem;
     }
 
     .app-content-shell .my-tasks-table .my-tasks-parent-request-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-parent-request-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-parent-request-col,
+    .app-content-shell .department-tasks-table .my-tasks-parent-request-col,
+    .app-content-shell .staff-tasks-table .my-tasks-parent-request-col {
       width: 12.5rem;
     }
 
@@ -382,29 +388,47 @@
     }
 
     .app-content-shell .my-tasks-table .my-tasks-location-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-location-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-location-col,
+    .app-content-shell .department-tasks-table .my-tasks-location-col,
+    .app-content-shell .staff-tasks-table .my-tasks-location-col {
       width: 12rem;
     }
 
     .app-content-shell .my-tasks-table .my-tasks-title-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-title-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-title-col,
+    .app-content-shell .department-tasks-table .my-tasks-title-col,
+    .app-content-shell .staff-tasks-table .my-tasks-title-col {
       width: 11rem;
       min-width: 10rem;
       max-width: 13rem;
     }
 
+    .app-content-shell .task-grid-owner-col {
+      width: 9rem;
+    }
+
     .app-content-shell .my-tasks-table .my-tasks-type-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-type-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-type-col,
+    .app-content-shell .department-tasks-table .my-tasks-type-col,
+    .app-content-shell .staff-tasks-table .my-tasks-type-col {
       width: 7.5rem;
     }
 
     .app-content-shell .my-tasks-table .my-tasks-due-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-due-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-due-col,
+    .app-content-shell .department-tasks-table .my-tasks-due-col,
+    .app-content-shell .staff-tasks-table .my-tasks-due-col {
       width: 9.5rem;
     }
 
+    .app-content-shell .task-grid-terminal-date-col {
+      width: 9rem;
+    }
+
     .app-content-shell .my-tasks-table .my-tasks-status-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-status-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-status-col,
+    .app-content-shell .department-tasks-table .my-tasks-status-col,
+    .app-content-shell .staff-tasks-table .my-tasks-status-col {
       width: 9rem;
     }
 
@@ -525,22 +549,30 @@
       max-width: 100%;
     }
 
-    /* Görevlerim gridlerinde tek "Detaylar" kaldı; actions kolonu dar ve ortalı kalır. */
+    /* Görev gridlerinde tek "Detaylar" kaldığında actions kolonu dar ve ortalı kalır. */
     .app-content-shell .my-tasks-table .my-tasks-actions-col,
-    .app-content-shell .my-tasks-all-table .my-tasks-actions-col {
+    .app-content-shell .my-tasks-all-table .my-tasks-actions-col,
+    .app-content-shell .department-tasks-table .my-tasks-actions-col,
+    .app-content-shell .staff-tasks-table .my-tasks-actions-col {
       width: 7.5rem;
     }
 
     .app-content-shell .my-tasks-table thead th:last-child,
     .app-content-shell .my-tasks-table tbody td.actions-cell,
     .app-content-shell .my-tasks-all-table thead th:last-child,
-    .app-content-shell .my-tasks-all-table tbody td.actions-cell {
+    .app-content-shell .my-tasks-all-table tbody td.actions-cell,
+    .app-content-shell .department-tasks-table thead th:last-child,
+    .app-content-shell .department-tasks-table tbody td.actions-cell,
+    .app-content-shell .staff-tasks-table thead th:last-child,
+    .app-content-shell .staff-tasks-table tbody td.actions-cell {
       width: 7.5rem;
       min-width: 7.5rem;
     }
 
     .app-content-shell .my-tasks-table .request-actions,
-    .app-content-shell .my-tasks-all-table .request-actions {
+    .app-content-shell .my-tasks-all-table .request-actions,
+    .app-content-shell .department-tasks-table .request-actions,
+    .app-content-shell .staff-tasks-table .request-actions {
       justify-content: center;
       min-width: 0;
     }
@@ -550,8 +582,13 @@
       padding-inline: 0.55rem;
     }
 
-    /* Birimdeki Görevler tablosu yatay scroll yerine kullanılabilir genişliğe sığsın (card 397). */
+    /* Birimdeki Görevler/Personelimin Görevleri tablosu yatay scroll yerine kullanılabilir genişliğe sığsın. */
     .app-content-shell .department-tasks-table {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .app-content-shell .staff-tasks-table {
       min-width: 0;
       width: 100%;
     }

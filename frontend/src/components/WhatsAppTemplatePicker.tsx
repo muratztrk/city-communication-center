@@ -62,9 +62,10 @@ export function WhatsAppTemplatePicker({
     return () => document.removeEventListener('mousedown', onPointerDown)
   }, [open])
 
-  if (active.length === 0) return null
+  const isEmpty = active.length === 0
 
   const toggleOpen = () => {
+    if (isEmpty) return
     if (open) {
       setOpen(false)
       setMenuStyle(null)
@@ -106,10 +107,11 @@ export function WhatsAppTemplatePicker({
         size="sm"
         variant={isOnDark ? 'ghost' : 'secondary'}
         onClick={toggleOpen}
+        disabled={isEmpty}
         className={
           isOnDark
-            ? 'h-9 gap-1.5 rounded-full border border-white/30 bg-transparent px-4 text-white hover:bg-white/10 hover:text-white'
-            : 'h-9 gap-1'
+            ? 'h-9 gap-1.5 rounded-full border border-white/30 bg-transparent px-4 text-white hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent'
+            : 'h-9 gap-1 disabled:opacity-50'
         }
       >
         <FileText className="size-3.5" />

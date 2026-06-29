@@ -381,8 +381,8 @@ export function RoutineTaskPage() {
           ) : null}
 
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={() => navigate(-1)} disabled={submitting}>
-              {t('common.cancel', 'İptal')}
+            <Button type="button" variant="secondary" onClick={() => navigate(-1)} disabled={submitting}>
+              {t('common.dismiss', 'Vazgeç')}
             </Button>
             <Button type="submit" disabled={!canSubmit} className="gap-2">
               <Send className="size-4" />

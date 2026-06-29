@@ -443,7 +443,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
   // Tamamlanmış/İptal görevin durumunu değiştirme pop-up'ı (card #1005).
-  const [statusChangeModal, setStatusChangeModal] = useState<{ taskId: string; currentStatus: string } | null>(null)
+  const [statusChangeModal, setStatusChangeModal] = useState<{ taskId: string; currentStatus: string; displayNumber: string } | null>(null)
   const [statusChangeReason, setStatusChangeReason] = useState('')
   const [statusChangeTarget, setStatusChangeTarget] = useState('')
   const [statusChangeSaving, setStatusChangeSaving] = useState(false)
@@ -930,8 +930,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
   }
 
-  const openStatusChangeModal = (taskId: string, currentStatus: string) => {
-    setStatusChangeModal({ taskId, currentStatus })
+  const openStatusChangeModal = (task: Task) => {
+    setStatusChangeModal({ taskId: task.taskId, currentStatus: task.currentStatus, displayNumber: formatTaskDisplayNumber(task) })
     setStatusChangeReason('')
     setStatusChangeTarget('')
   }
@@ -1556,7 +1556,7 @@ const pageKicker = isMyTasksView
                   <Button
                     type="button"
                     className="bg-orange-500 text-white hover:bg-orange-600"
-                    onClick={() => openStatusChangeModal(selectedTask.taskId, selectedTask.currentStatus)}
+                    onClick={() => openStatusChangeModal(selectedTask)}
                   >
                     {t('tasks.actions.changeStatus', 'Durum Değiştir')}
                   </Button>
@@ -2542,7 +2542,7 @@ const pageKicker = isMyTasksView
                             size="sm"
                             type="button"
                             className="bg-orange-500 text-white hover:bg-orange-600"
-                            onClick={() => openStatusChangeModal(task.taskId, task.currentStatus)}
+                            onClick={() => openStatusChangeModal(task)}
                           >
                             {t('tasks.actions.changeStatus', 'Durum Değiştir')}
                           </Button>
@@ -2805,7 +2805,10 @@ const pageKicker = isMyTasksView
             <h2 className="mb-1 border-b border-slate-200 pb-1.5 text-base font-semibold text-slate-950">
               {t('tasks.actions.changeStatusTitle', 'Görev Durum Değişikliği')}
             </h2>
-            <p className="helper-copy -mt-0.5 mb-2" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}</p>
+            <p className="helper-copy -mt-0.5 mb-2" style={{ fontSize: '0.85rem' }}>
+              <span className="font-semibold text-orange-500">{statusChangeModal.displayNumber}</span>{' '}
+              {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
+            </p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-red-500">*</span></span>
               <textarea

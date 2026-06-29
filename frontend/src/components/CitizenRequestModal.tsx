@@ -567,7 +567,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <div className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
                     <div className="flex min-h-[5.5rem] items-stretch gap-2">
-                      <label className={`inline-flex h-[2.75rem] w-[7.6rem] shrink-0 cursor-pointer items-center justify-center gap-1 self-start rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
+                      <label className={`inline-flex h-[2.0625rem] w-[7.6rem] shrink-0 cursor-pointer items-center justify-center gap-1 self-end rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
                         <Paperclip className="size-3.5" />
                         {t('attachments.addFile', 'Dosya ekle')}
                         <input

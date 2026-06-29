@@ -1630,7 +1630,8 @@ const pageKicker = isMyTasksView
                             </div>
                             <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:items-stretch ${
                               showAssignmentHistoryBesideDescription
-                                ? 'lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.72fr)_minmax(0,1.38fr)]'
+                                // Açıklama + Atama/Durum Değişikliği Geçmişi sütunu biraz genişletildi (card #1093).
+                                ? 'lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.65fr)_minmax(0,1.75fr)]'
                                 : 'lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)]'
                             }`}>
                               <div className="min-w-0 divide-y divide-slate-100">

@@ -750,5 +750,7 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4225d7` reopened / #1099 — Bekleyen WhatsApp mesajı gönderimi gerçek platform hatasında artık 404 dönüp refresh'i kesmiyor; entry bulunduysa API 204 dönüyor, konuşma yenilenip balonda `İletilemedi` görünüyor. BE+FE build/lint PASS. main+master, Done.
 - [x] `6a42318d` / #1108 — WhatsApp konuşma balonlarında personel adı soyadı artık kısaltılmadan kaydediliyor/görünüyor (`Gamze Gürel`, `Gamze G.` değil). BE+FE build/lint PASS. main+master, Done.
 - [x] `6a4230b4` / #1107 — `Mesajı Gönder` confirm pop-up başlığı altı çizili yapıldı (`titleUnderline`). BE+FE build/lint PASS. main+master, Done.
+- [x] `6a423345` / #1109 — Tasks detayında `Görev Ekleri` sütunu yalnız görev eki varsa render ediliyor; ek yoksa alan tamamen gizleniyor. FE build/lint PASS. main+master, Done.
+- [x] `6a4233e0` / #1110 — WhatsApp bekleyen mesajda `Düzenle` ve `Mesajı Gönder` butonları gönderim sırasında disabled + not-allowed cursor ile pasif görünüyor. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

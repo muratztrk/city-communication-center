@@ -59,6 +59,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gibi normal geçişler de dahil. Mantık: audit'ler zaman sırasıyla gezilir, `StatusAtEvent` bir öncekinden
   farklıysa bir geçiş kaydı çıkar (ilk durum = başlangıç, değişiklik sayılmaz). Sadece Görevlerim detayında,
   Açıklama'nın sağında ek sütun (rutin görevlerde gizli); UI yalnızca **durum + tarih** gösterir (card #1095).
+- **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
+  görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
 
 ## 2. Talepler (Jobs) — `pages/JobsPage.tsx`
 
@@ -118,8 +120,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yerinde textarea ile düzenlenir (`EditPendingConversationEntryCommand`, `POST .../conversation/{entryId}/edit`,
   yetki Operator/SystemAdmin, yalnızca Pending+Outbound). Düzenlenen bekleyen mesajlarda `EditedAtUtc` doludur
   ve "Beklemede" solunda turuncu "Düzenlendi" etiketi görünür. Operatör aksiyon butonları (`Düzenle`/`Mesajı Gönder`)
-  daha yüksek `py-1.5` pill görünümünü korur. Gönderim başarısız olsa bile API 204 döner, konuşma refresh olur
-  ve balon `Failed`="İletilemedi" gösterir; 404 sadece mesaj/entry bulunamadığında döner.
+  daha yüksek `py-1.5` pill görünümünü ve gönderim sırasında pasif (`disabled`, opacity + not-allowed cursor)
+  durumunu korur. Gönderim başarısız olsa bile API 204 döner, konuşma refresh olur ve balon
+  `Failed`="İletilemedi" gösterir; 404 sadece mesaj/entry bulunamadığında döner.
 - **WhatsApp konuşma balonu sender label:** personel adı soyadı kısaltılmaz; backend `FormatStaffLabel`
   tam `DisplayName` yazar (eski kayıtlarda kısaltılmış label kalabilir).
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);

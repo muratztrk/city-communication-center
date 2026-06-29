@@ -1858,7 +1858,9 @@ const pageKicker = isMyTasksView
                               </div>
                               {(() => {
                                 const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
-                                const showTaskAttachmentsInDetail = isCompletedTaskDetail && taskDetail.jobSourceType !== 'Routine'
+                                const showTaskAttachmentsInDetail = isCompletedTaskDetail
+                                  && taskDetail.jobSourceType !== 'Routine'
+                                  && (taskDetail.attachments?.length ?? 0) > 0
                                 // Durum Değişikliği Geçmişi: "Durum Değiştir" ile değiştirilmiş görevlerde Açıklama'nın sağında sütun (card #2).
                                 const statusChangeHistory = taskDetail.statusChangeHistory ?? []
                                 const showStatusChangeHistory = taskDetail.jobSourceType !== 'Routine' && statusChangeHistory.length > 0
@@ -1922,23 +1924,19 @@ const pageKicker = isMyTasksView
                                       </span>
                                     </div>
                                     <div className="px-4 py-3">
-                                      {(taskDetail.attachments?.length ?? 0) > 0 ? (
-                                        <ul className="space-y-1 text-[11px] leading-4">
-                                          {taskDetail.attachments!.map(att => (
-                                            <li key={att.attachmentId}>
-                                              <button
-                                                type="button"
-                                                className="w-full break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                                onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
-                                              >
-                                                {att.fileName}
-                                              </button>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      ) : (
-                                        <p className="text-sm text-slate-400">{t('attachments.taskEmpty', 'Görev için ek/fotoğraf bulunmamaktadır.')}</p>
-                                      )}
+                                      <ul className="space-y-1 text-[11px] leading-4">
+                                        {taskDetail.attachments!.map(att => (
+                                          <li key={att.attachmentId}>
+                                            <button
+                                              type="button"
+                                              className="w-full break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                              onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
+                                            >
+                                              {att.fileName}
+                                            </button>
+                                          </li>
+                                        ))}
+                                      </ul>
                                       <p className="mt-2 text-xs font-medium text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
                                     </div>
                                   </div>

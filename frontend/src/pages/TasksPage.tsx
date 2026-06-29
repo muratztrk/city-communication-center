@@ -1617,9 +1617,11 @@ const pageKicker = isMyTasksView
                 <div className="loading">{t('common.loading')}</div>
               ) : taskDetail ? (
                 <>
-                  {/* Görev bilgi kutusu — birleşik detay alanı ve sağda tamamla kartı */}
+                  {/* Görev bilgi kutusu — birleşik detay alanı, tüm satır genişliğinde (card #1092).
+                      Tamamlama aksiyonu üstteki başlık butonlarında; eskiden sağda boş kalan
+                      0.75fr sütun kaldırıldı, böylece detay sütunları sıkışmaz. */}
                   <section className="mb-5">
-                    <div className={`grid gap-4 ${canCompleteTask ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)]' : ''} lg:items-stretch`}>
+                    <div className="grid gap-4 lg:items-stretch">
                       <div className="form-card page-stack min-w-0">
                         <div className="space-y-4">
                           <div className="space-y-3">

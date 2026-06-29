@@ -773,6 +773,8 @@
     "subtitle": "Vatandaşlardan gelen WhatsApp mesajlarını yönetin.",
     "pendingBadge": "Beklemede",
     "sendPendingMessage": "Mesajı Gönder",
+    "sendPendingConfirmTitle": "Mesajı Gönder",
+    "sendPendingConfirmMessage": "Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?",
     "searchPlaceholder": "Telefon no bul…",
     "searchPlaceholderExtended": "Telefon, isim veya talep no…",
     "conversationsTitle": "Konuşmalar",

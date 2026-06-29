@@ -110,6 +110,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   SystemAdmin rolüne göre verir → beklemedeki giden balonun altında buton. Görev/talep bağlamından açılan
   `WhatsAppConversationModal` artık yazabilir (`canReply`) ama `canSendPending=false` (yönetici/personel
   yalnızca kuyruğa yazar, iletemez). (Eskiden salt-okunurdu — card #1091 değiştirdi.)
+- **"Mesajı Gönder" onay pop-up'ı + "Düzenle" (card #1094/#1096):** gönder butonu önce `ConfirmDialog`
+  gösterir, onaylanınca iletir. Yanında turuncu "Düzenle" → balon metni yerinde textarea ile düzenlenir
+  (`EditPendingConversationEntryCommand`, `POST .../conversation/{entryId}/edit`, yetki Operator/SystemAdmin,
+  yalnızca Pending+Outbound). Gönderim WhatsApp 24s penceresi açıkken iletilir; pencere kapalıysa API
+  reddeder ve balon `Failed`="İletilemedi" gösterir (platform kısıtı, kod hatası değil).
+- **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
+  veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres

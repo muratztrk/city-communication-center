@@ -1878,14 +1878,12 @@ const pageKicker = isMyTasksView
                                         <li key={`${item.changedAtUtc}-${idx}`} className="flex gap-2">
                                           <span className="shrink-0 text-slate-500" aria-hidden>•</span>
                                           <div className="min-w-0">
+                                            {/* Yalnızca durum ve tarih bilgisi gösterilir (card #1095). */}
                                             <div className="font-bold text-slate-950">
                                               {item.fromStatus ? `${getTaskStatusLabel(t, item.fromStatus)} → ` : ''}{getTaskStatusLabel(t, item.toStatus)}
                                             </div>
-                                            {item.reason ? (
-                                              <div className="break-words text-xs text-slate-600">{item.reason}</div>
-                                            ) : null}
                                             <div className="text-xs text-slate-500">
-                                              {item.actorDisplayName ? `${item.actorDisplayName} · ` : ''}{new Date(item.changedAtUtc).toLocaleString(locale)}
+                                              {new Date(item.changedAtUtc).toLocaleString(locale)}
                                             </div>
                                           </div>
                                         </li>

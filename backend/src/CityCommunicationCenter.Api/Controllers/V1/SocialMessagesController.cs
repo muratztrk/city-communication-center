@@ -208,6 +208,23 @@ public sealed class SocialMessagesController : ApiControllerBase
         return NoContent();
     }
 
+    /// <summary>Beklemedeki bir yanıtın metnini düzenler (yalnızca Vatandaş Operatörü/SystemAdmin) — card #1094.</summary>
+    [HttpPost("{messageId:guid}/conversation/{entryId:guid}/edit")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> EditPendingConversationEntry(
+        Guid messageId,
+        Guid entryId,
+        [FromBody] SocialReplyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new EditPendingConversationEntryCommand(messageId, entryId, request.Content, CurrentContext.UserId),
+            cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     /// <summary>Proxies WhatsApp media (image/video/audio/document) through the server.</summary>
     [HttpGet("{messageId:guid}/conversation/media/{entryId:guid}")]
     [AllowAnonymous]

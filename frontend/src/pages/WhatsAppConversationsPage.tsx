@@ -18,6 +18,7 @@ import { getLocale } from '../utils/localization'
 import { formatConversationListTime } from '../utils/conversationListTime'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
+import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { formatWhatsAppSummaryTicketLabel, formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
@@ -398,6 +399,7 @@ function ConversationDetail({
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [sending, setSending] = useState(false)
   const [chatSearch, setChatSearch] = useState('')
   const [showChatSearch, setShowChatSearch] = useState(false)
@@ -508,7 +510,7 @@ function ConversationDetail({
     }
   }
 
-  const handleSendPending = async (entry: CitizenConversationTimelineEntry) => {
+  const doSendPending = async (entry: CitizenConversationTimelineEntry) => {
     if (sendingPendingId) return
     setSendingPendingId(entry.entryId)
     try {
@@ -517,6 +519,22 @@ function ConversationDetail({
     } finally {
       setSendingPendingId(null)
     }
+  }
+
+  // "Mesajı Gönder" önce onay pop-up'ı gösterir; onaylanınca vatandaşa iletilir (card #1096).
+  const handleSendPending = (entry: CitizenConversationTimelineEntry) => {
+    setConfirmDialog({
+      title: t('whatsapp.sendPendingConfirmTitle', 'Mesajı Gönder'),
+      message: t('whatsapp.sendPendingConfirmMessage', 'Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?'),
+      confirmLabel: t('whatsapp.sendPendingMessage', 'Mesajı Gönder'),
+      variant: 'success',
+      onConfirm: () => doSendPending(entry),
+    })
+  }
+
+  const handleEditPending = async (entry: CitizenConversationTimelineEntry, content: string) => {
+    await api.editPendingConversationEntry(entry.socialMessageId, entry.entryId, content)
+    await refreshDetail()
   }
 
   const openTicket = detail?.tickets.slice().reverse().find(t => t.status !== 'Closed')
@@ -669,8 +687,9 @@ function ConversationDetail({
                     entry={entry}
                     theme="light"
                     canSendPending={canSendPending}
-                    onSendPending={() => void handleSendPending(entry)}
+                    onSendPending={() => handleSendPending(entry)}
                     sendingPending={sendingPendingId === entry.entryId}
+                    onEditPending={(_entryId, content) => handleEditPending(entry, content)}
                   />
                 </div>
               </Fragment>
@@ -733,6 +752,7 @@ function ConversationDetail({
           {t('whatsapp.noTickets')}
         </footer>
       )}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
+import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ConversationEntryBubble } from './ConversationEntryBubble'
 import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { getLocale } from '../utils/localization'
@@ -50,6 +51,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const conversationQuery = useQuery({
@@ -81,7 +83,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     }
   }
 
-  const handleSendPending = async (entryId: string) => {
+  const doSendPending = async (entryId: string) => {
     if (sendingPendingId) return
     setSendingPendingId(entryId)
     try {
@@ -90,6 +92,22 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     } finally {
       setSendingPendingId(null)
     }
+  }
+
+  // "Mesajı Gönder" önce onay pop-up'ı gösterir; onaylanınca vatandaşa iletilir (card #1096).
+  const handleSendPending = (entryId: string) => {
+    setConfirmDialog({
+      title: t('whatsapp.sendPendingConfirmTitle', 'Mesajı Gönder'),
+      message: t('whatsapp.sendPendingConfirmMessage', 'Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?'),
+      confirmLabel: t('whatsapp.sendPendingMessage', 'Mesajı Gönder'),
+      variant: 'success',
+      onConfirm: () => doSendPending(entryId),
+    })
+  }
+
+  const handleEditPending = async (entryId: string, content: string) => {
+    await api.editPendingConversationEntry(socialMessageId, entryId, content)
+    invalidateSocialMessages(queryClient, socialMessageId)
   }
 
   const headerSubtitle = headerMode === 'phone'
@@ -149,6 +167,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   canSendPending={canSendPending}
                   onSendPending={handleSendPending}
                   sendingPending={sendingPendingId === entry.entryId}
+                  onEditPending={handleEditPending}
                 />
               </Fragment>
             )
@@ -180,6 +199,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
           </div>
         </div>
       )}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
 }

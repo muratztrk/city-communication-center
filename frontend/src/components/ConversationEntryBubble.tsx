@@ -1,4 +1,5 @@
-import { Loader2, Send } from 'lucide-react'
+import { useState } from 'react'
+import { Loader2, Pencil, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
@@ -26,10 +27,12 @@ interface ConversationEntryBubbleProps {
   citizenPhone?: string | null
   onAddMediaAsAttachment?: (file: File) => void
   theme?: 'dark' | 'light'
-  /** Beklemedeki giden mesajın yanında "Mesajı Gönder" butonu gösterilsin mi (yalnızca operatör) — card #1091. */
+  /** Beklemedeki giden mesajın yanında "Mesajı Gönder"/"Düzenle" butonları gösterilsin mi (yalnızca operatör) — card #1091/#1094. */
   canSendPending?: boolean
   onSendPending?: (entryId: string) => void
   sendingPending?: boolean
+  /** Beklemedeki mesaj metnini düzenler (yalnızca operatör) — card #1094. */
+  onEditPending?: (entryId: string, content: string) => void | Promise<void>
 }
 
 export function ConversationEntryBubble({
@@ -41,9 +44,13 @@ export function ConversationEntryBubble({
   canSendPending = false,
   onSendPending,
   sendingPending = false,
+  onEditPending,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
+  const [isEditing, setIsEditing] = useState(false)
+  const [draft, setDraft] = useState(entry.content)
+  const [savingEdit, setSavingEdit] = useState(false)
   const isInbound = entry.direction === 'Inbound'
   const isPending = !isInbound && entry.deliveryStatus === 'Pending'
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
@@ -84,11 +91,24 @@ export function ConversationEntryBubble({
               />
             </div>
           )}
-          {entry.content && !isPlaceholderBracketContent(entry.content) && (
-            <p className="whitespace-pre-wrap break-words leading-snug">{formatConversationDisplayContent(entry.content)}</p>
-          )}
-          {isPlaceholderBracketContent(entry.content) && !hasMedia && (
-            <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
+          {isEditing ? (
+            // Mesaj metni aynı balon üzerinde düzenlenir (card #1094).
+            <textarea
+              value={draft}
+              onChange={e => setDraft(e.target.value)}
+              rows={3}
+              autoFocus
+              className="w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
+            />
+          ) : (
+            <>
+              {entry.content && !isPlaceholderBracketContent(entry.content) && (
+                <p className="whitespace-pre-wrap break-words leading-snug">{formatConversationDisplayContent(entry.content)}</p>
+              )}
+              {isPlaceholderBracketContent(entry.content) && !hasMedia && (
+                <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>
+              )}
+            </>
           )}
           <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
             {isPending ? (
@@ -106,15 +126,58 @@ export function ConversationEntryBubble({
         </div>
       </div>
       {isPending && canSendPending ? (
-        <button
-          type="button"
-          onClick={() => onSendPending?.(entry.entryId)}
-          disabled={sendingPending}
-          className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60"
-        >
-          {sendingPending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-          {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}
-        </button>
+        isEditing ? (
+          <div className="mt-1 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => { setIsEditing(false); setDraft(entry.content) }}
+              disabled={savingEdit}
+              className="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-300 disabled:opacity-60"
+            >
+              {t('common.dismiss', 'Vazgeç')}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                const text = draft.trim()
+                if (!text || savingEdit) return
+                setSavingEdit(true)
+                try {
+                  await onEditPending?.(entry.entryId, text)
+                  setIsEditing(false)
+                } finally {
+                  setSavingEdit(false)
+                }
+              }}
+              disabled={savingEdit || !draft.trim()}
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {savingEdit ? <Loader2 className="size-3.5 animate-spin" /> : null}
+              {t('common.save', 'Kaydet')}
+            </button>
+          </div>
+        ) : (
+          <div className="mt-1 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => { setDraft(entry.content); setIsEditing(true) }}
+              disabled={sendingPending}
+              className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:opacity-60"
+            >
+              <Pencil className="size-3.5" />
+              {t('common.edit', 'Düzenle')}
+            </button>
+            <button
+              type="button"
+              onClick={() => onSendPending?.(entry.entryId)}
+              disabled={sendingPending}
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {sendingPending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+              {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}
+            </button>
+          </div>
+        )
       ) : null}
     </div>
   )

@@ -60,9 +60,23 @@ public sealed class SendPendingConversationEntryCommandHandler
 
         if (message.Channel == SocialChannel.WhatsApp && client is not null)
         {
+            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+                _dbContext,
+                message,
+                cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(recipientPhone))
+            {
+                entry.DeliveryStatus = ConversationDeliveryStatus.Failed;
+                entry.DeliveryError = "WhatsApp alıcı telefonu bulunamadı. Konuşma kaydındaki telefon numarasını kontrol edin.";
+                entry.DeliveryStatusUpdatedAtUtc = utcNow;
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                return new SendPendingConversationEntryResult(true, false);
+            }
+
             var sendResult = await client.SendMessageAsync(new SendMessageRequest
             {
-                RecipientId = message.CitizenHandle,
+                RecipientId = recipientPhone,
                 Message = entry.Content
             }, cancellationToken);
 

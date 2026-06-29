@@ -10,6 +10,7 @@ import type {
   CitizenConversationSummary,
   CitizenConversationDetail,
   CitizenConversationTimelineEntry,
+  CitizenConversationTicket,
   Department,
   SocialMessage,
   WhatsAppMessageTemplate,
@@ -91,6 +92,13 @@ function findClosestTimelineEntryIndex(
     }
   }
   return bestIndex
+}
+
+function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversationTicket | undefined {
+  const ordered = tickets.slice().reverse()
+  const replyableStatuses = new Set(['New', 'Categorized', 'Routed', 'Responded'])
+  return ordered.find(ticket => replyableStatuses.has(ticket.status))
+    ?? ordered.find(ticket => ticket.status !== 'Closed')
 }
 
 // ─── left panel: conversation list ────────────────────────────────────────────
@@ -493,11 +501,7 @@ function ConversationDetail({
     const text = replyText.trim()
     if (!text || sending || !detail) return
 
-    // Find the most recent open SocialMessage to reply to
-    const openTicket = detail.tickets
-      .slice()
-      .reverse()
-      .find(t => t.status !== 'Closed')
+    const openTicket = pickReplyTicket(detail.tickets)
     if (!openTicket) return
 
     setSending(true)
@@ -538,7 +542,7 @@ function ConversationDetail({
     await refreshDetail()
   }
 
-  const openTicket = detail?.tickets.slice().reverse().find(t => t.status !== 'Closed')
+  const openTicket = detail ? pickReplyTicket(detail.tickets) : undefined
   const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
   const activeTemplates = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))

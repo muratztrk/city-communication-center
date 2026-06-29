@@ -1537,7 +1537,7 @@ const pageKicker = isMyTasksView
                   && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage) && (
                   <Button
                     type="button"
-                    className="bg-blue-600 text-white hover:bg-blue-700"
+                    className="!bg-sky-400 !text-white hover:!bg-sky-500"
                     onClick={openCitizenConversationModal}
                   >
                     {t('social.goToConversation', 'Yazışmaya Git')}

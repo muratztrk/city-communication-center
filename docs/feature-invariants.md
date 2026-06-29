@@ -125,6 +125,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sığar (card #1088).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
+- **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal
+  tonda kalır; Jobs/Tasks detay modallarındaki aynı buton açık mavi görünür.
 - **Job status değişince `IWhatsAppJobNotifier` otomatik vatandaş mesajı atar**
   (Tamamlanmış / İptal). Yeni durum-değişim akışları da tutarlılık için bunu tetiklemeli.
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;

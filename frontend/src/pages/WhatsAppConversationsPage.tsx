@@ -13,6 +13,7 @@ import type {
   CitizenConversationTicket,
   Department,
   SocialMessage,
+  UserQuickReplyTemplate,
   WhatsAppMessageTemplate,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
@@ -207,11 +208,6 @@ function ConversationListItem({
                   {t('whatsapp.ticketResolved', 'Çözüldü')}
                 </span>
               )}
-              {ticketLabel && (
-                <span className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
-                  {ticketLabel}
-                </span>
-              )}
               {conv.isBlocked && (
                 <span className="inline-flex items-center rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
                   {t('whatsapp.blocked')}
@@ -230,6 +226,10 @@ function ConversationListItem({
               ) : null}
             </div>
           </div>
+
+          {ticketLabel ? (
+            <p className="mt-1.5 text-[10px] font-semibold text-slate-600">{ticketLabel}</p>
+          ) : null}
         </div>
       </div>
     </button>
@@ -379,6 +379,8 @@ function ConversationDetail({
   citizenName,
   citizenPhone,
   templates,
+  userQuickReplies,
+  onUserQuickRepliesChanged,
   anchorAtUtc,
   anchorSocialMessageId,
   onReadMarked,
@@ -389,6 +391,8 @@ function ConversationDetail({
   citizenName?: string | null
   citizenPhone?: string | null
   templates: WhatsAppMessageTemplate[]
+  userQuickReplies: UserQuickReplyTemplate[]
+  onUserQuickRepliesChanged: () => void
   anchorAtUtc?: string | null
   anchorSocialMessageId?: string | null
   onReadMarked?: () => void
@@ -544,6 +548,7 @@ function ConversationDetail({
   const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
   const activeTemplates = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
+  const hasSelectableTemplates = activeTemplates.length > 0 || userQuickReplies.length > 0
 
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
@@ -553,9 +558,6 @@ function ConversationDetail({
   const headerSubtitleParts: string[] = []
   if (citizenName?.trim() && phoneForHeader) {
     headerSubtitleParts.push(formatPhone(phoneForHeader))
-  }
-  if (ticketLabel) {
-    headerSubtitleParts.push(ticketLabel)
   }
   const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
   const visibleTimeline = useMemo(() => {
@@ -588,6 +590,9 @@ function ConversationDetail({
           <p className="truncate text-xs text-slate-500">
             {headerSubtitleParts.length > 0 ? headerSubtitleParts.join(' · ') : t('whatsapp.title', 'WhatsApp')}
           </p>
+          {ticketLabel ? (
+            <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">{ticketLabel}</p>
+          ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <button
@@ -695,15 +700,17 @@ function ConversationDetail({
             <button
               type="button"
               onClick={() => onOpenCreateRequest(primaryTicket!.socialMessageId)}
-              className="inline-flex h-9 items-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
+              <ClipboardPlus className="size-3.5 shrink-0 text-slate-500" aria-hidden="true" />
               {t('nav.createRequest', 'Talep oluştur')}
             </button>
             <WhatsAppTemplatePicker
               templates={templates}
+              userQuickReplies={userQuickReplies}
               onSelect={content => setReplyText(content)}
             />
-            <UserQuickReplyAddButton onSelect={content => setReplyText(content)} />
+            <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
           </div>
           <div className="flex items-end gap-2">
             <textarea
@@ -717,7 +724,7 @@ function ConversationDetail({
                 }
               }}
               placeholder={windowOpen ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
-              disabled={!windowOpen && activeTemplates.length === 0}
+              disabled={!windowOpen && !hasSelectableTemplates}
               className="field-input min-h-[3.25rem] max-h-28 flex-1 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
             />
             <button
@@ -753,6 +760,7 @@ export function WhatsAppConversationsPage() {
   const requestedMessageId = searchParams.get('messageId') ?? ''
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
+  const [userQuickReplies, setUserQuickReplies] = useState<UserQuickReplyTemplate[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
   const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
@@ -769,9 +777,10 @@ export function WhatsAppConversationsPage() {
   const loadConversations = useCallback(async () => {
     setLoading(true)
     try {
-      const [convResult, tplResult, departmentResult] = await Promise.allSettled([
+      const [convResult, tplResult, quickReplyResult, departmentResult] = await Promise.allSettled([
         api.getCitizenConversations(),
         api.getWhatsAppTemplates(),
+        api.getUserQuickReplies(),
         api.getDepartments(),
       ])
       if (convResult.status === 'fulfilled') {
@@ -779,6 +788,9 @@ export function WhatsAppConversationsPage() {
       }
       if (tplResult.status === 'fulfilled') {
         setTemplates(tplResult.value)
+      }
+      if (quickReplyResult.status === 'fulfilled') {
+        setUserQuickReplies(quickReplyResult.value)
       }
       if (departmentResult.status === 'fulfilled') {
         setDepartments(departmentResult.value)
@@ -792,6 +804,14 @@ export function WhatsAppConversationsPage() {
     try {
       const data = await api.getCitizenConversations()
       setConversations(data)
+    } catch {
+      // Ignore background refresh failures.
+    }
+  }, [])
+
+  const refreshUserQuickReplies = useCallback(async () => {
+    try {
+      setUserQuickReplies(await api.getUserQuickReplies())
     } catch {
       // Ignore background refresh failures.
     }
@@ -981,6 +1001,8 @@ export function WhatsAppConversationsPage() {
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}
               templates={templates}
+              userQuickReplies={userQuickReplies}
+              onUserQuickRepliesChanged={() => { void refreshUserQuickReplies() }}
               anchorAtUtc={requestedAt || null}
               anchorSocialMessageId={requestedMessageId || null}
               onReadMarked={handleReadMarked}

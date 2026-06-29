@@ -104,4 +104,8 @@ export const queryKeys = {
     all: ['ccc', 'whatsapp-templates'] as const,
     list: () => ['ccc', 'whatsapp-templates', 'list'] as const,
   },
+  userQuickReplies: {
+    all: ['ccc', 'user-quick-replies'] as const,
+    list: () => ['ccc', 'user-quick-replies', 'list'] as const,
+  },
 }

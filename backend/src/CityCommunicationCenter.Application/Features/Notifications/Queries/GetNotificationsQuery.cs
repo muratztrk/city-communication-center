@@ -172,11 +172,28 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     .Select(a => a.ActorUserId!.Value)
                     .Distinct()
                     .ToList();
-                var actorNamesById = actorIdsNeedingNames.Count == 0
+                    var actorNamesById = actorIdsNeedingNames.Count == 0
                     ? new Dictionary<Guid, string>()
                     : await _dbContext.Users.AsNoTracking()
                         .Where(u => u.TenantId == tenantId && actorIdsNeedingNames.Contains(u.UserId))
                         .ToDictionaryAsync(u => u.UserId, u => u.DisplayName, cancellationToken);
+
+                var jobIdsFromLogs = logs
+                    .Where(a => a.EntityType == nameof(Job) && Guid.TryParse(a.EntityId, out _))
+                    .Select(a => Guid.Parse(a.EntityId))
+                    .Distinct()
+                    .ToList();
+                var jobIdsWithAssignedTaskForUser = jobIdsFromLogs.Count == 0
+                    ? new HashSet<Guid>()
+                    : (await _dbContext.Tasks.AsNoTracking()
+                        .Where(task =>
+                            task.TenantId == tenantId
+                            && task.AssignedUserId == userId
+                            && jobIdsFromLogs.Contains(task.JobId))
+                        .Select(task => task.JobId)
+                        .Distinct()
+                        .ToListAsync(cancellationToken))
+                    .ToHashSet();
 
                 foreach (var a in logs)
                 {
@@ -191,6 +208,16 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     }
 
                     var isTask = taskIdSet.Contains(a.EntityId);
+
+                    // Atanan personele yalnızca görev bildirimi gitsin; aynı talep için "Talep oluşturuldu" tekrar etmesin (card #1136).
+                    if (a.Action == "JobCreated"
+                        && !isTask
+                        && Guid.TryParse(a.EntityId, out var createdJobId)
+                        && jobIdsWithAssignedTaskForUser.Contains(createdJobId))
+                    {
+                        continue;
+                    }
+
                     Guid? taskId = isTask && Guid.TryParse(a.EntityId, out var g) ? g : null;
 
                     string? entityTitle = null;

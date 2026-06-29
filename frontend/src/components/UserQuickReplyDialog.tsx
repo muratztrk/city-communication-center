@@ -1,30 +1,34 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Pencil, Plus, Trash2, X } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { UserQuickReplyTemplate } from '../types/platform'
+import { TemplateDropdownList } from './WhatsAppTemplatePicker'
 import { Button } from './ui/button'
 import { ModalBackdrop } from './ui/modal-backdrop'
+import { ModalCloseButton } from './ui/modal-close-button'
 
 interface UserQuickReplyDialogProps {
   open: boolean
   onClose: () => void
-  onSelect: (content: string) => void
+  onChanged?: () => void
 }
 
-export function UserQuickReplyDialog({ open, onClose, onSelect }: UserQuickReplyDialogProps) {
+export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickReplyDialogProps) {
   const { t } = useTranslation()
   const [templates, setTemplates] = useState<UserQuickReplyTemplate[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [content, setContent] = useState('')
 
   const resetForm = () => {
     setEditingId(null)
+    setSelectedId(null)
     setName('')
     setContent('')
   }
@@ -62,6 +66,7 @@ export function UserQuickReplyDialog({ open, onClose, onSelect }: UserQuickReply
       }
       resetForm()
       await loadTemplates()
+      onChanged?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error', 'Hata oluştu'))
     } finally {
@@ -69,19 +74,22 @@ export function UserQuickReplyDialog({ open, onClose, onSelect }: UserQuickReply
     }
   }
 
-  const handleEdit = (template: UserQuickReplyTemplate) => {
+  const handleSelectTemplate = (template: UserQuickReplyTemplate) => {
+    setSelectedId(template.templateId)
     setEditingId(template.templateId)
     setName(template.name)
     setContent(template.content)
   }
 
-  const handleDelete = async (templateId: string) => {
+  const handleDelete = async () => {
+    if (!selectedId) return
     setSaving(true)
     setError(null)
     try {
-      await api.deleteUserQuickReply(templateId)
-      if (editingId === templateId) resetForm()
+      await api.deleteUserQuickReply(selectedId)
+      resetForm()
       await loadTemplates()
+      onChanged?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error', 'Hata oluştu'))
     } finally {
@@ -98,14 +106,7 @@ export function UserQuickReplyDialog({ open, onClose, onSelect }: UserQuickReply
           <h2 className="text-lg font-bold text-slate-950">
             {t('whatsapp.userQuickRepliesTitle', 'Kişisel şablon mesajlar')}
           </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t('common.close', 'Kapat')}
-            className="flex size-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-          >
-            <X className="size-4" />
-          </button>
+          <ModalCloseButton onClick={onClose} label={t('common.close', 'Kapat')} />
         </div>
 
         <div className="space-y-4 overflow-y-auto px-5 py-4">
@@ -148,52 +149,47 @@ export function UserQuickReplyDialog({ open, onClose, onSelect }: UserQuickReply
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-          {loading ? (
-            <p className="text-sm text-slate-500">{t('common.loading', 'Yükleniyor…')}</p>
-          ) : templates.length === 0 ? (
-            <p className="text-sm text-slate-500">{t('whatsapp.noUserQuickReplies', 'Henüz kişisel şablon yok.')}</p>
-          ) : (
-            <ul className="space-y-2">
-              {templates.map(template => (
-                <li
-                  key={template.templateId}
-                  className="rounded-xl border border-slate-200 bg-white p-3"
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-slate-600">
+              {t('whatsapp.userQuickReplyList', 'Kayıtlı şablonlar')}
+            </p>
+            {loading ? (
+              <p className="text-sm text-slate-500">{t('common.loading', 'Yükleniyor…')}</p>
+            ) : (
+              <TemplateDropdownList
+                items={templates}
+                selectedId={selectedId}
+                onSelect={handleSelectTemplate}
+                emptyLabel={t('whatsapp.noUserQuickReplies', 'Henüz kişisel şablon yok.')}
+              />
+            )}
+            {selectedId ? (
+              <div className="flex justify-end gap-2 pt-1">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    const selected = templates.find(item => item.templateId === selectedId)
+                    if (selected) handleSelectTemplate(selected)
+                  }}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <button
-                      type="button"
-                      className="min-w-0 flex-1 text-left"
-                      onClick={() => {
-                        onSelect(template.content)
-                        onClose()
-                      }}
-                    >
-                      <p className="truncate text-sm font-semibold text-slate-900">{template.name}</p>
-                      <p className="mt-1 line-clamp-2 text-xs text-slate-500">{template.content}</p>
-                    </button>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <button
-                        type="button"
-                        aria-label={t('common.edit', 'Düzenle')}
-                        onClick={() => handleEdit(template)}
-                        className="flex size-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
-                      >
-                        <Pencil className="size-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={t('common.delete', 'Sil')}
-                        onClick={() => void handleDelete(template.templateId)}
-                        className="flex size-8 items-center justify-center rounded-full text-red-500 hover:bg-red-50"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                  <Pencil className="size-3.5" />
+                  {t('common.edit', 'Düzenle')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={saving}
+                  onClick={() => void handleDelete()}
+                >
+                  <Trash2 className="size-3.5" />
+                  {t('common.delete', 'Sil')}
+                </Button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </ModalBackdrop>,
@@ -202,10 +198,10 @@ export function UserQuickReplyDialog({ open, onClose, onSelect }: UserQuickReply
 }
 
 interface UserQuickReplyAddButtonProps {
-  onSelect: (content: string) => void
+  onChanged?: () => void
 }
 
-export function UserQuickReplyAddButton({ onSelect }: UserQuickReplyAddButtonProps) {
+export function UserQuickReplyAddButton({ onChanged }: UserQuickReplyAddButtonProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
@@ -222,7 +218,7 @@ export function UserQuickReplyAddButton({ onSelect }: UserQuickReplyAddButtonPro
       <UserQuickReplyDialog
         open={open}
         onClose={() => setOpen(false)}
-        onSelect={onSelect}
+        onChanged={onChanged}
       />
     </>
   )

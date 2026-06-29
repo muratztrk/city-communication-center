@@ -76,6 +76,26 @@ interface NotifItemProps {
   largeDetailButton?: boolean
 }
 
+function NotificationTitle({ title, isUnread }: { title: string; isUnread: boolean }) {
+  const mainWeight = isUnread ? 'font-bold text-slate-900' : 'font-medium text-slate-700'
+  const match = title.match(/^(.+?)\s(\([^)]+\))$/)
+  if (match) {
+    return (
+      <>
+        <span className={mainWeight}>
+          <NotificationStatusText value={match[1]} />
+        </span>
+        <span className="font-normal text-slate-600"> {match[2]}</span>
+      </>
+    )
+  }
+  return (
+    <span className={mainWeight}>
+      <NotificationStatusText value={title} />
+    </span>
+  )
+}
+
 function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton = false }: NotifItemProps) {
   const { t } = useTranslation()
   // Satıra tıklamak bildirimi okundu yapar; ilgili detay sadece "Detay" butonuyla açılır (card 439/445).
@@ -100,8 +120,8 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
         ${!n.isRead ? 'bg-slate-300 group-hover:bg-slate-400' : 'bg-emerald-500'}`} />
 
       <div className="min-w-0 flex-1">
-        <p className={`text-sm leading-snug ${!n.isRead ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
-          <NotificationStatusText value={n.title} />
+        <p className="text-sm leading-snug">
+          <NotificationTitle title={n.title} isUnread={!n.isRead} />
           {n.titleTag ? <span className="font-semibold text-orange-500"> ({n.titleTag})</span> : null}
         </p>
         {n.message && (

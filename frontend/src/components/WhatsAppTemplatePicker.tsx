@@ -1,13 +1,20 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, FileText } from 'lucide-react'
-import type { WhatsAppMessageTemplate } from '../types/platform'
+import type { UserQuickReplyTemplate, WhatsAppMessageTemplate } from '../types/platform'
 import { Button } from './ui/button'
 
 interface WhatsAppTemplatePickerProps {
   templates: WhatsAppMessageTemplate[]
+  userQuickReplies?: UserQuickReplyTemplate[]
   onSelect: (content: string) => void
   tone?: 'default' | 'on-dark'
+}
+
+type PickerItem = {
+  id: string
+  name: string
+  content: string
 }
 
 function computeMenuStyle(button: HTMLDivElement, itemCount: number) {
@@ -22,16 +29,23 @@ function computeMenuStyle(button: HTMLDivElement, itemCount: number) {
   }
 }
 
-export function WhatsAppTemplatePicker({ templates, onSelect, tone = 'default' }: WhatsAppTemplatePickerProps) {
+export function WhatsAppTemplatePicker({
+  templates,
+  userQuickReplies = [],
+  onSelect,
+  tone = 'default',
+}: WhatsAppTemplatePickerProps) {
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
 
   const active = useMemo(() => {
-    const filtered = templates.filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
+    const orgItems: PickerItem[] = templates
+      .filter(t => t.isActive && (t.channel === 'Genel' || t.channel === 'WhatsApp'))
+      .map(t => ({ id: t.templateId, name: t.name, content: t.content }))
     const pinnedOrder = ['KVKK Hoşgeldiniz', 'Eksik Bilgi']
-    return [...filtered].sort((left, right) => {
+    const sortedOrg = [...orgItems].sort((left, right) => {
       const leftIndex = pinnedOrder.indexOf(left.name)
       const rightIndex = pinnedOrder.indexOf(right.name)
       if (leftIndex !== -1 || rightIndex !== -1) {
@@ -41,7 +55,11 @@ export function WhatsAppTemplatePicker({ templates, onSelect, tone = 'default' }
       }
       return left.name.localeCompare(right.name, 'tr')
     })
-  }, [templates])
+    const userItems: PickerItem[] = userQuickReplies
+      .map(t => ({ id: t.templateId, name: t.name, content: t.content }))
+      .sort((left, right) => left.name.localeCompare(right.name, 'tr'))
+    return [...sortedOrg, ...userItems]
+  }, [templates, userQuickReplies])
 
   useLayoutEffect(() => {
     if (open && menuRef.current) {
@@ -78,12 +96,12 @@ export function WhatsAppTemplatePicker({ templates, onSelect, tone = 'default' }
   const menu = open && menuStyle ? createPortal(
     <div
       ref={menuRef}
-      className="fixed z-[200] max-h-64 overflow-y-auto rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg"
+      className="fixed z-[200] max-h-64 overflow-y-auto rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg divide-y divide-slate-100"
       style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
     >
       {active.map(tpl => (
         <button
-          key={tpl.templateId}
+          key={tpl.id}
           type="button"
           onClick={() => { onSelect(tpl.content); setOpen(false); setMenuStyle(null) }}
           className="w-full text-left px-3 py-2 hover:bg-[color:var(--color-surface-raised)] transition-colors"
@@ -116,6 +134,40 @@ export function WhatsAppTemplatePicker({ templates, onSelect, tone = 'default' }
         <ChevronDown className={`size-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </Button>
       {menu}
+    </div>
+  )
+}
+
+export function TemplateDropdownList({
+  items,
+  selectedId,
+  onSelect,
+  emptyLabel,
+}: {
+  items: UserQuickReplyTemplate[]
+  selectedId?: string | null
+  onSelect: (template: UserQuickReplyTemplate) => void
+  emptyLabel: string
+}) {
+  if (items.length === 0) {
+    return <p className="text-sm text-slate-500">{emptyLabel}</p>
+  }
+
+  return (
+    <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white divide-y divide-slate-100">
+      {items.map(template => (
+        <button
+          key={template.templateId}
+          type="button"
+          onClick={() => onSelect(template)}
+          className={`w-full text-left px-3 py-2 transition-colors hover:bg-slate-50 ${
+            selectedId === template.templateId ? 'bg-emerald-50/70' : ''
+          }`}
+        >
+          <p className="text-xs font-semibold text-slate-900 truncate">{template.name}</p>
+          <p className="text-[11px] text-slate-500 truncate mt-0.5">{template.content}</p>
+        </button>
+      ))}
     </div>
   )
 }

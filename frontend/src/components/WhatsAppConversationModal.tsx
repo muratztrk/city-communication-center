@@ -20,7 +20,7 @@ export function WhatsAppConversationModal({
       role="presentation"
     >
       <section
-        className="flex h-[min(85dvh,40rem)] w-full max-w-lg flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="flex h-[min(85dvh,40rem)] w-full max-w-2xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <ConversationPanel

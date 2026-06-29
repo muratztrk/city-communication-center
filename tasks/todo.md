@@ -736,3 +736,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4223f6` / #1093 — Görev Detayları iç grid 3. sütunu (Açıklama + Atama/Durum Değişikliği Geçmişi) biraz genişletildi (1.38fr→1.75fr; sol özet 1.45→1.25, durum 0.72→0.65). FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 109 complete — Doing list drained.
+
+## Round 110 (Doing — 2026-06-29, WhatsApp bekleyen mesaj + durum geçmişi iterasyonları)
+- [x] `6a42266f` / #1095 — Durum Değişikliği Geçmişi'nde yalnızca durum + tarih (neden/aktör kaldırıldı). FE. main+master, Done.
+- [x] `6a422563` / #1094 — Bekleyen mesaj yanında turuncu "Düzenle" butonu; balon metni yerinde textarea ile düzenlenip kaydedilir (`EditPendingConversationEntryCommand`, POST .../conversation/{entryId}/edit, Operator/SystemAdmin, Pending+Outbound). BE+FE build/lint PASS. main+master, Done.
+- [x] `6a4225d7` / #1096 — "Mesajı Gönder" önce `ConfirmDialog` onayı gösterir; onaylanınca iletilir (ConversationPanel + WhatsAppConversationsPage). "İletilemedi" = WhatsApp 24s penceresi kapalıyken platform reddi; gönderim kodu değişmedi. FE build/lint PASS. main+master, Done.
+- [x] `6a4228ca` / #1097 — Durum Değişikliği Geçmişi G-2026-247 gibi normal akışla (Atandı→Yapılmakta) değişen görevlerde görünmüyordu (sorgu yalnızca `TaskStatusChanged` audit'ine bakıyordu). Artık görevin TÜM audit'lerindeki `StatusAtEvent`'ten geçişler türetiliyor (ilk durum baseline, sonraki her farklı durum kayıt). BE+FE build/lint PASS. feature-invariants §1 güncellendi. main+master, Done.
+- [x] `6a42251f` / #1098 — WhatsApp Konuşmaları "Mesajı Gönder" onay pop-up'ı: #1096 ile zaten eklenmiş ve canlı; kod değişikliği gerekmedi. Done.
+- [x] `6a429848` / #1099 — "Yazışmaya Git" butonları Vatandaş Talepleri gridview hariç (TasksPage + JobsPage detay) mavi (bg-blue-600) yapıldı; SocialMessagesPage teal korundu. FE build/lint PASS. main+master, Done.
+
+## STATUS: Round 110 complete — Doing list drained.

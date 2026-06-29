@@ -50,16 +50,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Sahibi gösterimi:** `assignedUserDisplayName ?? ownerDisplayName` (yönlendirme
   sonrası güncel atanan). `AssignTask` `OwnerUserId`'i değiştirmez, sadece `AssignedUserId`.
 - **Görev Atama Geçmişi:** ilk atanan kullanıcıdan farklı bir kullanıcıya yönlendirme yoksa
-  gösterilmez; varsa Tasks detayında İlgili Talep Detayları'nın hemen üstünde tek karttır ve
-  ilk kayıt başlık çizgisine yakın, ekstra geniş boşluk bırakmadan konumlanır.
+  gösterilmez; varsa Tasks detayındaki Görev Detayları kartında Açıklama'nın sağında sütun olarak görünür.
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
   birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
   gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).
 - **Durum Değişikliği Geçmişi (TasksPage detayı, card #2/#1097):** `TaskDetailResponse.StatusChangeHistory`
   görevin TÜM audit'lerindeki `StatusAtEvent`'ten türetilir — yalnızca "Durum Değiştir" değil, Atandı→Yapılmakta
   gibi normal geçişler de dahil. Mantık: audit'ler zaman sırasıyla gezilir, `StatusAtEvent` bir öncekinden
-  farklıysa bir geçiş kaydı çıkar (ilk durum = başlangıç, değişiklik sayılmaz). Sadece Görevlerim detayında,
-  Açıklama'nın sağında ek sütun (rutin görevlerde gizli); UI yalnızca **durum + tarih** gösterir (card #1095).
+  farklıysa bir geçiş kaydı çıkar. Eski audit zinciri ilk kaydı doğrudan yeni durumla başlatırsa
+  Atandı→ilk durum geçişi sentetik görünür. Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun
+  (rutin görevlerde gizli); UI yalnızca **durum + tarih** gösterir (card #1095).
 - **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
   görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
 
@@ -123,7 +123,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Onaylanınca iletir. Yanında turuncu "Düzenle" → balon metni
   yerinde textarea ile düzenlenir (`EditPendingConversationEntryCommand`, `POST .../conversation/{entryId}/edit`,
   yetki Operator/SystemAdmin, yalnızca Pending+Outbound). Düzenlenen bekleyen mesajlarda `EditedAtUtc` doludur
-  ve "Beklemede" solunda turuncu "Düzenlendi" etiketi görünür. Operatör aksiyon butonları (`Düzenle`/`Mesajı Gönder`)
+  ve hem sosyal mesaj konuşmasında hem `/whatsapp` konuşma detayında "Beklemede" solunda turuncu
+  "Düzenlendi" etiketi görünür. Operatör aksiyon butonları (`Düzenle`/`Mesajı Gönder`)
   daha yüksek `py-1.5` pill görünümünü ve gönderim sırasında pasif (`disabled`, opacity + not-allowed cursor)
   durumunu korur. Gönderim başarısız olsa bile API 204 döner, konuşma refresh olur ve balon
   `Failed`="İletilemedi" gösterir; 404 sadece mesaj/entry bulunamadığında döner.

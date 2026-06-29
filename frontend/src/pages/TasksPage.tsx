@@ -1864,9 +1864,35 @@ const pageKicker = isMyTasksView
                                 // Durum Değişikliği Geçmişi: "Durum Değiştir" ile değiştirilmiş görevlerde Açıklama'nın sağında sütun (card #2).
                                 const statusChangeHistory = taskDetail.statusChangeHistory ?? []
                                 const showStatusChangeHistory = taskDetail.jobSourceType !== 'Routine' && statusChangeHistory.length > 0
+                                const showAssignmentHistory = taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0
                                 const rightPanelColumnCount = 1
+                                  + (showAssignmentHistory ? 1 : 0)
                                   + (showStatusChangeHistory ? 1 : 0)
                                   + (showTaskAttachmentsInDetail ? 1 : 0)
+                                const renderAssignmentHistoryColumn = (className = '') => (
+                                  <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
+                                    <div className="border-b border-slate-200 px-4 py-2">
+                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
+                                      </span>
+                                    </div>
+                                    <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
+                                      {visibleAssignmentHistory.map(item => (
+                                        <li key={item.assignmentId} className="flex gap-2">
+                                          <span className="shrink-0 text-slate-500" aria-hidden>•</span>
+                                          <div className="min-w-0">
+                                            <div className="font-bold text-slate-950">
+                                              {getUserName(item.toUserId)}
+                                            </div>
+                                            <div className="text-xs text-slate-500">
+                                              {new Date(item.actionDateUtc).toLocaleString(locale)}
+                                            </div>
+                                          </div>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )
                                 const renderStatusChangeHistoryColumn = (className = '') => (
                                   <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
                                     <div className="border-b border-slate-200 px-4 py-2">
@@ -1893,7 +1919,7 @@ const pageKicker = isMyTasksView
                                   </div>
                                 )
                                 const rightPanelGridClass = rightPanelColumnCount === 4
-                                  ? ' grid lg:grid-cols-4 lg:items-stretch'
+                                  ? ' grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.8fr)] lg:items-stretch'
                                   : rightPanelColumnCount === 3
                                     ? ' grid lg:grid-cols-3 lg:items-stretch'
                                     : rightPanelColumnCount === 2
@@ -1915,6 +1941,7 @@ const pageKicker = isMyTasksView
                                     />
                                   </div>
                                 </div>
+                                {showAssignmentHistory ? renderAssignmentHistoryColumn() : null}
                                 {showStatusChangeHistory ? renderStatusChangeHistoryColumn() : null}
                                 {showTaskAttachmentsInDetail ? (
                                   <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
@@ -1997,32 +2024,6 @@ const pageKicker = isMyTasksView
                       </section>
                     )
                   })()}
-
-                  {taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0 ? (
-                    <section className="form-card mb-5 grid min-w-0 gap-2">
-                      <h3 className="border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
-                      </h3>
-                      <ul className="grid gap-2">
-                        {visibleAssignmentHistory.map(item => (
-                          <li
-                            key={item.assignmentId}
-                            className="flex gap-2 text-sm text-slate-700"
-                          >
-                            <span className="shrink-0 text-slate-500" aria-hidden>•</span>
-                            <div className="min-w-0">
-                              <div className="font-bold text-slate-950">
-                                {getUserName(item.toUserId)}
-                              </div>
-                              <div className="text-xs text-slate-500">
-                                {new Date(item.actionDateUtc).toLocaleString(locale)}
-                              </div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </section>
-                  ) : null}
 
                   {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388).
                       Rutin görevlerde talep olmadığı için bu bölüm gösterilmez (card 395). */}

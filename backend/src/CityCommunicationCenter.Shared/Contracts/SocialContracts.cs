@@ -212,7 +212,8 @@ public sealed record CitizenConversationTimelineEntryDto(
     Guid SocialMessageId,
     string? SenderLabel,
     string? DeliveryStatus,
-    string? DeliveryError);
+    string? DeliveryError,
+    DateTimeOffset? EditedAtUtc = null);
 
 public sealed record CitizenConversationTicketDto(
     Guid SocialMessageId,

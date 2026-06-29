@@ -1,3 +1,5 @@
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
+
 namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record GetTaskByIdQuery(Guid TaskId) : IQuery<TaskDetailResponse?>;
@@ -124,7 +126,21 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             if (string.IsNullOrWhiteSpace(status)) continue;
             if (previousStatus is null)
             {
-                // İlk durum = başlangıç (Atandı), bir "değişiklik" değil.
+                // Eski audit zincirlerinde ilk kayıt bazen "Assigned" yerine doğrudan yeni durumu
+                // taşır; bu durumda normal görev akışı için Atandı -> ilk durum geçişini görünür kıl.
+                if (task.AssignedAtUtc.HasValue
+                    && !string.Equals(status, WorkflowTaskStatus.Assigned.ToString(), StringComparison.Ordinal)
+                    && !string.Equals(status, WorkflowTaskStatus.Waiting.ToString(), StringComparison.Ordinal))
+                {
+                    statusTransitions.Add(new TaskStatusChangeHistoryResponse(
+                        WorkflowTaskStatus.Assigned.ToString(),
+                        status,
+                        null,
+                        null,
+                        audit.EventTimeUtc));
+                }
+
+                // İlk durum = başlangıç, tekrar değişiklik olarak sayılmaz.
                 previousStatus = status;
                 continue;
             }

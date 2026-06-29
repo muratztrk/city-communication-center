@@ -756,5 +756,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a42371a` / #1112 — WhatsApp konuşma balonlarında eski `Vatandaş O.` sender label'ı `Vatandaş Operatörü` olarak genişletiliyor; personel/operator adı kısaltılmıyor. FE build/lint PASS. main+master, Done.
 - [x] `6a4230b4` reopened / #1107 — `Mesajı Gönder` confirm pop-up'ında başlık metni underline değil, önceki modal standardındaki başlık-altı ayraç çizgisi (`titleDivider`) kullanılıyor. FE build/lint PASS. main+master, Done.
 - [x] `6a4238dd` / #1113 — `/whatsapp` konuşma footer'ındaki 24 saat pencere uyarı satırı kaldırıldı. FE build/lint PASS. main+master, Done.
+- [x] `6a42116e` reopened / #1093 — Tasks detayında `Görev Atama Geçmişi` ayrı karttan kaldırılıp Görev Detayları içindeki Açıklama'nın sağ sütununa taşındı. BE+FE build/lint PASS. main+master, Done.
+- [x] `6a422e96` reopened / #1105 — `/whatsapp` conversation detail timeline artık `EditedAtUtc` taşıyor; düzenlenen bekleyen balonda turuncu `Düzenlendi` rozeti görünür. BE+FE build/lint PASS. main+master, Done.
+- [x] `6a4228ca` reopened / #1101 — Status audit zinciri ilk kaydı doğrudan yeni durumla başlıyorsa Atandı→ilk durum geçişi üretiliyor; Durum Değişikliği Geçmişi Açıklama sağında Atama Geçmişiyle birlikte görünür. BE+FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

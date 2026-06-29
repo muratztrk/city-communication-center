@@ -63,6 +63,7 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 e.SenderLabel,
                 DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
                 e.DeliveryError,
+                e.EditedAtUtc,
             })
             .ToListAsync(cancellationToken);
 
@@ -80,7 +81,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
                         ? citizenPhoneLabel
                         : tenantName),
                 e.DeliveryStatus,
-                e.DeliveryError))
+                e.DeliveryError,
+                e.EditedAtUtc))
             .ToList();
 
         var lastInboundAt = timeline

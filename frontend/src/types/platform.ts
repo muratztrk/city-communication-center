@@ -411,6 +411,7 @@ export interface CitizenConversationTimelineEntry {
   senderLabel?: string | null;
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
+  editedAtUtc?: string | null;
 }
 
 export interface CitizenConversationTicket {

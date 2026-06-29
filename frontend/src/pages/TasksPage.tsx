@@ -1582,7 +1582,9 @@ const pageKicker = isMyTasksView
                     {t('tasks.actions.changeStatus', 'Durum Değiştir')}
                   </Button>
                 )}
-                {isMyTasksView && selectedTask && !canChangeTaskStatusFromDetail(selectedTask) && (canEditRoutineTask(selectedTask) ? (
+                {isMyTasksView && selectedTask
+                  && (!canChangeTaskStatusFromDetail(selectedTask) || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+                  && (canEditRoutineTask(selectedTask) ? (
                   <Button
                     type="button"
                     className="bg-teal-700 text-white hover:bg-teal-800"

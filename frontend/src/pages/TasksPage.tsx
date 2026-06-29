@@ -1211,6 +1211,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && (currentMyTaskView === 'all' || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
     && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
     && isAssignee(task as Task)
+  const showOnlyDetailsInTaskGridActions = isMyTasksView || isDepartmentTasksView
   const openRoutineTaskEdit = (taskId: string) => {
     closeTaskDetail()
     navigate(getRoutineTaskEditPath(taskId))
@@ -2501,7 +2502,8 @@ const pageKicker = isMyTasksView
                     })()}
                     <td className="actions-cell">
                       <div className="request-actions">
-                        {isDepartmentTasksView
+                        {!showOnlyDetailsInTaskGridActions
+                          && isDepartmentTasksView
                           && canManageDepartmentTaskActions(task)
                           && (currentMyTaskView === 'pending' || currentMyTaskView === 'overdue')
                           && (task.jobSourceType !== 'Routine' && isActionableTaskStatus(task.currentStatus) ? (
@@ -2519,7 +2521,7 @@ const pageKicker = isMyTasksView
                               {t('tasks.actions.routeShort', 'Yönlendir')}
                             </DisabledActionButton>
                           ))}
-                        {canChangeCompletedTaskStatus(task) && (
+                        {!showOnlyDetailsInTaskGridActions && canChangeCompletedTaskStatus(task) && (
                           <Button
                             size="sm"
                             type="button"
@@ -2530,7 +2532,7 @@ const pageKicker = isMyTasksView
                           </Button>
                         )}
                         <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
-                        {isMyTasksView && (canEditRoutineTask(task) ? (
+                        {!showOnlyDetailsInTaskGridActions && isMyTasksView && (canEditRoutineTask(task) ? (
                           <Button
                             size="sm"
                             className="bg-teal-700 text-white hover:bg-teal-800"
@@ -2547,10 +2549,11 @@ const pageKicker = isMyTasksView
                             {t('common.edit', 'Düzenle')}
                           </DisabledActionButton>
                         ))}
-                        {currentScope === 'department-pool' && !task.assignedUserId && (
+                        {!showOnlyDetailsInTaskGridActions && currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
                         {(() => {
+                          if (showOnlyDetailsInTaskGridActions) return null
                           const canComplete = isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus)
                           if (canComplete) {
                             return <Button size="sm" variant="success" onClick={() => handleComplete(task)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
@@ -2561,6 +2564,7 @@ const pageKicker = isMyTasksView
                           return null
                         })()}
                         {(() => {
+                          if (showOnlyDetailsInTaskGridActions) return null
                           const canCancel = (isDepartmentTasksView && currentMyTaskView !== 'all' && isActionableTaskStatus(task.currentStatus))
                             || (isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus))
                           if (canCancel) {

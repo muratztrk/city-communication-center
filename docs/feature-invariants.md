@@ -43,6 +43,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünür; "Yazışmaya Git" varsa solunda kalır ve pasif "Düzenle" placeholder'ı gösterilmez.
 - **Personelimin Görevleri detay popup header'ı izleme odaklıdır:** sağ üstte "Görevi Yönlendir"
   ve "Görevi İptal Et" gösterilmez.
+- **Görevlerim/Birimdeki Görevler detay popup header aksiyonları, grid `İşlemler`
+  mantığını tekrarlar;** eşdeğer buton varsa çoğaltma. Birimdeki Görevler'de "Görevi Yönlendir"
+  sadece Bekleyen/Son Tarihi Geçmiş görünümlerinde görünür (yönlendirilemeyende pasif), Tüm Görevler'de
+  "Görevi İptal Et" detayda da gösterilmez.
 - **"Görev Detayları" özet kartı, TasksPage (Görevlerim) ile JobsPage (Birime Gelen) arasında
   BİREBİR AYNI tutulur** (card 649/705). Birine alan eklersen diğerine de ekle.
 - **AMA TasksPage "İlgili Talep Detayları" (üst-talep özeti) ile JobsPage "Talep Detayları"

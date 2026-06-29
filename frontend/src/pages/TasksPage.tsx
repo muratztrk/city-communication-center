@@ -574,9 +574,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       : isStaffTasksView
         ? t('nav.staffTasks', 'Personelimin Görevleri')
         : t('tasks.detail.title', 'Görev Detayları')
-  const canRouteTaskDetail = !!taskDetail
+  const showRouteTaskDetailAction = !!taskDetail
     && canManageDepartmentTaskActions(taskDetail)
-    && !isStaffTasksView
+    && isDepartmentTasksView
+    && (currentMyTaskView === 'pending' || currentMyTaskView === 'overdue')
+  const canRouteTaskDetail = showRouteTaskDetailAction
     && taskDetail.jobSourceType !== 'Routine'
     && isActionableTaskStatus(taskDetail.currentStatus)
   const visibleAssignmentHistory = useMemo(
@@ -1553,7 +1555,7 @@ const pageKicker = isMyTasksView
                     {t('social.goToConversation', 'Yazışmaya Git')}
                   </Button>
                 )}
-                {canRouteTaskDetail && selectedTask && (
+                {showRouteTaskDetailAction && selectedTask && (canRouteTaskDetail ? (
                   <Button
                     type="button"
                     className="bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
@@ -1561,7 +1563,14 @@ const pageKicker = isMyTasksView
                   >
                     {t('tasks.actions.route', 'Görevi Yönlendir')}
                   </Button>
-                )}
+                ) : (
+                  <DisabledActionButton
+                    className="bg-[#007985] text-white"
+                    hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}
+                  >
+                    {t('tasks.actions.route', 'Görevi Yönlendir')}
+                  </DisabledActionButton>
+                ))}
                 {isMyTasksView && selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
                   <Button
                     type="button"
@@ -1599,6 +1608,7 @@ const pageKicker = isMyTasksView
                 )}
                 {taskDetail
                   && isDepartmentTasksView
+                  && currentMyTaskView !== 'all'
                   && canManageDepartmentTaskActions(taskDetail)
                   && isActionableTaskStatus(taskDetail.currentStatus) && (
                     <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { AlertCircle, ArrowDownUp, Check, Link2, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Check, Link2, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -702,12 +702,6 @@ function ConversationDetail({
 
       {openTicket ? (
         <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
-          {!windowOpen ? (
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700">
-              <AlertCircle className="size-3.5 shrink-0" />
-              24 saatlik pencere kapalı — yalnızca şablon gönderilebilir
-            </div>
-          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"

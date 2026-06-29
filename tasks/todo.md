@@ -755,5 +755,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a423486` / #1111 — Tasks detayındaki `Görev Atama Geçmişi` kartında ilk kayıt yukarı alındı; kart içi gap sıkılaştırıldı. FE build/lint PASS. main+master, Done.
 - [x] `6a42371a` / #1112 — WhatsApp konuşma balonlarında eski `Vatandaş O.` sender label'ı `Vatandaş Operatörü` olarak genişletiliyor; personel/operator adı kısaltılmıyor. FE build/lint PASS. main+master, Done.
 - [x] `6a4230b4` reopened / #1107 — `Mesajı Gönder` confirm pop-up'ında başlık metni underline değil, önceki modal standardındaki başlık-altı ayraç çizgisi (`titleDivider`) kullanılıyor. FE build/lint PASS. main+master, Done.
+- [x] `6a4238dd` / #1113 — `/whatsapp` konuşma footer'ındaki 24 saat pencere uyarı satırı kaldırıldı. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

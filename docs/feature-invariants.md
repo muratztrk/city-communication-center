@@ -52,10 +52,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
   birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
   gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).
-- **Durum Değişikliği Geçmişi (TasksPage detayı, card #2):** `TaskDetailResponse.StatusChangeHistory`
-  AuditLog'lardan (`Action == "TaskStatusChanged"`) türetilir; `Details` = `"from->to"`, `Notes` = neden.
-  `ChangeTaskStatusCommand` audit'e `ActorDisplayName` yazar (yoksa geçmişte aktör boş görünür).
-  Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun (rutin görevlerde gösterilmez).
+- **Durum Değişikliği Geçmişi (TasksPage detayı, card #2/#1097):** `TaskDetailResponse.StatusChangeHistory`
+  görevin TÜM audit'lerindeki `StatusAtEvent`'ten türetilir — yalnızca "Durum Değiştir" değil, Atandı→Yapılmakta
+  gibi normal geçişler de dahil. Mantık: audit'ler zaman sırasıyla gezilir, `StatusAtEvent` bir öncekinden
+  farklıysa bir geçiş kaydı çıkar (ilk durum = başlangıç, değişiklik sayılmaz). Sadece Görevlerim detayında,
+  Açıklama'nın sağında ek sütun (rutin görevlerde gizli); UI yalnızca **durum + tarih** gösterir (card #1095).
 
 ## 2. Talepler (Jobs) — `pages/JobsPage.tsx`
 

@@ -1880,7 +1880,7 @@ const pageKicker = isMyTasksView
                                           <div className="min-w-0">
                                             {/* Yalnızca durum ve tarih bilgisi gösterilir (card #1095). */}
                                             <div className="font-bold text-slate-950">
-                                              {item.fromStatus ? `${getTaskStatusLabel(t, item.fromStatus)} → ` : ''}{getTaskStatusLabel(t, item.toStatus)}
+                                              {getTaskStatusLabel(t, item.toStatus)}
                                             </div>
                                             <div className="text-xs text-slate-500">
                                               {new Date(item.changedAtUtc).toLocaleString(locale)}

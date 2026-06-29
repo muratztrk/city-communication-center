@@ -106,32 +106,36 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).
-        var statusChangeAudits = await _dbContext.AuditLogs.AsNoTracking()
+        // Görevin durum değişiklikleri geçmişi: yalnızca "Durum Değiştir" değil, TÜM durum geçişleri
+        // (Atandı→Yapılmakta vb.) görev audit'lerindeki StatusAtEvent'ten türetilir (card #1097).
+        var taskStatusAudits = await _dbContext.AuditLogs.AsNoTracking()
             .Where(a => a.TenantId == tenantId
                 && a.EntityType == nameof(WorkTask)
                 && a.EntityId == request.TaskId.ToString()
-                && a.Action == "TaskStatusChanged")
-            .OrderByDescending(a => a.EventTimeUtc)
-            .Select(a => new { a.Details, a.Notes, a.ActorDisplayName, a.StatusAtEvent, a.EventTimeUtc })
+                && a.StatusAtEvent != null)
+            .OrderBy(a => a.EventTimeUtc)
+            .Select(a => new { a.StatusAtEvent, a.EventTimeUtc })
             .ToListAsync(cancellationToken);
-        var statusChangeHistory = statusChangeAudits
-            .Select(a =>
+        var statusTransitions = new List<TaskStatusChangeHistoryResponse>();
+        string? previousStatus = null;
+        foreach (var audit in taskStatusAudits)
+        {
+            var status = audit.StatusAtEvent;
+            if (string.IsNullOrWhiteSpace(status)) continue;
+            if (previousStatus is null)
             {
-                string? fromStatus = null;
-                var toStatus = a.StatusAtEvent ?? string.Empty;
-                if (!string.IsNullOrWhiteSpace(a.Details))
-                {
-                    var parts = a.Details.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length == 2)
-                    {
-                        fromStatus = parts[0];
-                        toStatus = parts[1];
-                    }
-                }
-                return new TaskStatusChangeHistoryResponse(fromStatus, toStatus, a.Notes, a.ActorDisplayName, a.EventTimeUtc);
-            })
-            .ToArray();
+                // İlk durum = başlangıç (Atandı), bir "değişiklik" değil.
+                previousStatus = status;
+                continue;
+            }
+            if (!string.Equals(status, previousStatus, StringComparison.Ordinal))
+            {
+                statusTransitions.Add(new TaskStatusChangeHistoryResponse(previousStatus, status, null, null, audit.EventTimeUtc));
+                previousStatus = status;
+            }
+        }
+        statusTransitions.Reverse(); // en yeni üstte
+        var statusChangeHistory = statusTransitions.ToArray();
 
         return new TaskDetailResponse(
             task.TaskId,

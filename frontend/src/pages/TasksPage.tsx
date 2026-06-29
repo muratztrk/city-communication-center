@@ -1999,8 +1999,8 @@ const pageKicker = isMyTasksView
                   })()}
 
                   {taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0 ? (
-                    <section className="form-card page-stack mb-5">
-                      <h3 className="mb-2 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <section className="form-card mb-5 grid min-w-0 gap-2">
+                      <h3 className="border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
                       </h3>
                       <ul className="grid gap-2">

@@ -50,7 +50,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Sahibi gösterimi:** `assignedUserDisplayName ?? ownerDisplayName` (yönlendirme
   sonrası güncel atanan). `AssignTask` `OwnerUserId`'i değiştirmez, sadece `AssignedUserId`.
 - **Görev Atama Geçmişi:** ilk atanan kullanıcıdan farklı bir kullanıcıya yönlendirme yoksa
-  gösterilmez; varsa Tasks detayında İlgili Talep Detayları'nın hemen üstünde tek karttır.
+  gösterilmez; varsa Tasks detayında İlgili Talep Detayları'nın hemen üstünde tek karttır ve
+  ilk kayıt başlık çizgisine yakın, ekstra geniş boşluk bırakmadan konumlanır.
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
   birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
   gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).

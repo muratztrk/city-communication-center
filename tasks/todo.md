@@ -752,5 +752,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4230b4` / #1107 — `Mesajı Gönder` confirm pop-up başlığı altı çizili yapıldı (`titleUnderline`). BE+FE build/lint PASS. main+master, Done.
 - [x] `6a423345` / #1109 — Tasks detayında `Görev Ekleri` sütunu yalnız görev eki varsa render ediliyor; ek yoksa alan tamamen gizleniyor. FE build/lint PASS. main+master, Done.
 - [x] `6a4233e0` / #1110 — WhatsApp bekleyen mesajda `Düzenle` ve `Mesajı Gönder` butonları gönderim sırasında disabled + not-allowed cursor ile pasif görünüyor. FE build/lint PASS. main+master, Done.
+- [x] `6a423486` / #1111 — Tasks detayındaki `Görev Atama Geçmişi` kartında ilk kayıt yukarı alındı; kart içi gap sıkılaştırıldı. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 110 complete — Doing list drained.

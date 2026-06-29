@@ -661,6 +661,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       result = result.filter(task => {
         const haystack = [
           formatTaskDisplayNumber(task),
+          formatTaskJobDisplayNumber(task, socialByJobId, locale),
           task.title,
           task.jobTitle ?? '',
           getTaskStatusLabel(t, task.currentStatus),
@@ -679,7 +680,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks, t, locale])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, socialByJobId, staffUserIds, tasks, t, locale])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()

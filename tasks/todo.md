@@ -767,5 +767,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a42974f` / #1117 — Görevlerim/Birimdeki Görevler grid `İşlemler` aksiyonları detay popup sağ üst header mantığıyla hizalandı: Birimdeki görevlerde `Yönlendir` yalnız Bekleyen/Son Tarihi Geçmiş görünümünde (pasif durum dahil), Birimdeki `Tüm Görevler` detayında `Görevi İptal Et` yok. FE build/lint PASS. main+master, Done.
 - [x] `6a4291a3` reopened / #1114 — Tasarım bozulduğu için Görev Detayları üst kartında sol Görev No kolonunu yeniden daraltıp sağ Açıklama/Geçmişler panelini genişlettim; iki geçmiş başlığı `nowrap` ve yeterli kolon min-width ile tek satırda kalır. İlgili Talep Detayları'nda Talep No kolonu da daraltıldı. FE build/lint PASS. main+master, Done.
 - [x] `6a42974f` reopened / #1117 — Kart metni güncellendi: Görevlerim/Birimdeki Görevler grid `İşlemler` sütununda artık `Detaylar` hariç buton kalmaz; aksiyonlar detay popup header'ında kalır. FE build/lint PASS. main+master, Done.
+- [x] `6a429afa` / #1119 — Görevlerim/Birimdeki Görevler banner aramasına gridde görünen `Bağlı Olduğu Talep No` formatı eklendi (`formatTaskJobDisplayNumber`); `T-2026-328` gibi talep numarasıyla arama artık satırı düşürmez. FE build/lint PASS. main+master, Done.
 
-## STATUS: Round 113 complete — Doing list drained.
+## STATUS: Round 114 complete — Doing list drained.

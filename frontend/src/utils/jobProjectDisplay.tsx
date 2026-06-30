@@ -1,16 +1,5 @@
 import type { TFunction } from 'i18next'
-
-type JobProjectFields = {
-  isProject: boolean
-  isProjectCreatorRequested?: boolean
-}
-
-export function formatJobProjectLabel(job: JobProjectFields, t: TFunction): string {
-  if (job.isProjectCreatorRequested) {
-    return t('common.yes', 'Evet')
-  }
-  return job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')
-}
+import { formatJobProjectLabel, type JobProjectFields } from './jobProjectLabel'
 
 export function JobProjectValue({
   job,
@@ -22,5 +11,5 @@ export function JobProjectValue({
   if (job.isProjectCreatorRequested) {
     return <span className="font-semibold text-orange-500">{t('common.yes', 'Evet')}</span>
   }
-  return job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')
+  return formatJobProjectLabel(job, t)
 }

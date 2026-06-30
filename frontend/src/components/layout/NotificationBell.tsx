@@ -149,10 +149,11 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
 }
 
 function NotificationStatusText({ value }: { value: string }) {
-  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı)/gi).map((part, index) => {
+  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|iptal edildi|İptal Edildi)/gi).map((part, index) => {
     if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
+    if (/^iptal edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     return part
   })
 }

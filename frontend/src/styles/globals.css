@@ -425,6 +425,19 @@
       width: 9rem;
     }
 
+    /* Tamamlanmış / iptal görünümlerinde Son Tarih kolonu kalkınca tip + terminal tarih başlıkları sığsın (#1166). */
+    .app-content-shell .my-tasks-table.my-tasks-table--terminal-view .my-tasks-type-col,
+    .app-content-shell .department-tasks-table.my-tasks-table--terminal-view .my-tasks-type-col {
+      width: 10.5rem;
+      min-width: 10.5rem;
+    }
+
+    .app-content-shell .my-tasks-table.my-tasks-table--terminal-view .task-grid-terminal-date-col,
+    .app-content-shell .department-tasks-table.my-tasks-table--terminal-view .task-grid-terminal-date-col {
+      width: 11.5rem;
+      min-width: 11.5rem;
+    }
+
     .app-content-shell .my-tasks-table .my-tasks-status-col,
     .app-content-shell .my-tasks-all-table .my-tasks-status-col,
     .app-content-shell .department-tasks-table .my-tasks-status-col,

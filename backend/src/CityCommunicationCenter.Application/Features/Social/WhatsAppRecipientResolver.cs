@@ -1,6 +1,6 @@
 namespace CityCommunicationCenter.Application.Features.Social;
 
-internal static class WhatsAppRecipientResolver
+public static class WhatsAppRecipientResolver
 {
     public static async Task<string?> ResolveRecipientPhoneAsync(
         IApplicationDbContext dbContext,

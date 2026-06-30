@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Jobs;
 
 namespace CityCommunicationCenter.Application.Features.Social;
@@ -37,15 +38,18 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly IMediator _sender;
+    private readonly ICitizenJobStatusNotifier _citizenJobStatusNotifier;
 
     public ConvertSocialMessageToJobCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        IMediator sender)
+        IMediator sender,
+        ICitizenJobStatusNotifier citizenJobStatusNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _sender = sender;
+        _citizenJobStatusNotifier = citizenJobStatusNotifier;
     }
 
     public async ValueTask<JobSummaryResponse?> Handle(ConvertSocialMessageToJobCommand request, CancellationToken cancellationToken)
@@ -95,6 +99,15 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
         message.UpdatedByUserId = request.ActorUserId;
         message.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(
+            j => j.JobId == jobSummary.JobId && j.TenantId == tenantId, cancellationToken);
+        if (job is not null)
+        {
+            var taskCount = await _dbContext.Tasks.CountAsync(
+                t => t.JobId == job.JobId && t.TenantId == tenantId, cancellationToken);
+            await _citizenJobStatusNotifier.NotifyCreatedAsync(tenantId, message, job, taskCount, cancellationToken);
+        }
 
         return jobSummary;
     }

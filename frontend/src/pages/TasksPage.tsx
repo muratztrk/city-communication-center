@@ -610,6 +610,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     currentMyTaskView === 'rejected'
     || (isMyTasksView && currentMyTaskView === 'completed')
   )
+  const hasTerminalDateColumn = (isMyTasksView || isDepartmentTasksView) && (
+    currentMyTaskView === 'completed' || currentMyTaskView === 'rejected'
+  )
   const tasksTableColumnCount = useMemo(() => {
     let count = 7
     if (isStaffTasksView || isMyTasksView || isDepartmentTasksView) count += 1
@@ -2393,7 +2396,7 @@ const pageKicker = isMyTasksView
       ) : (
         <section className="section-card desktop-page-fill">
           <div className={`table-wrap desktop-panel-scroll${isDepartmentTasksView || isStaffTasksView ? ' w-full' : ''}`}>
-            <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isStaffTasksView ? ' staff-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
+            <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isStaffTasksView ? ' staff-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}${hasTerminalDateColumn ? ' my-tasks-table--terminal-view' : ''}`}>
               {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && (
                 <colgroup>
                   <col className="my-tasks-row-number-col" />

@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.BelediyeSoap;
 using CityCommunicationCenter.Infrastructure.BelediyeSoap;
 using CityCommunicationCenter.Infrastructure.Persistence.Interceptors;
@@ -48,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantAppearanceService, TenantAppearanceService>();
         services.AddScoped<ITenantWorkingHoursService, TenantWorkingHoursService>();
         services.AddScoped<ITenantSmsSettingsService, TenantSmsSettingsService>();
+        services.AddScoped<ICitizenJobStatusNotifier, CitizenJobStatusNotifier>();
         services.AddScoped<ITenantFileStorageSettingsService, TenantFileStorageSettingsService>();
         services.AddScoped<ISyslogForwarderService, SyslogForwarderService>();
         services.AddScoped<ISlaCalculatorService, SlaCalculatorService>();

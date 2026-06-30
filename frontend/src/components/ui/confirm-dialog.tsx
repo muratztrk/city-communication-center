@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { createPortal } from 'react-dom'
@@ -14,6 +15,7 @@ export interface ConfirmDialogState {
   cancelLabel?: string
   variant?: 'destructive' | 'primary' | 'success'
   hideCancel?: boolean
+  banner?: ReactNode
   onConfirm: () => void | Promise<void>
 }
 
@@ -51,6 +53,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
             {state.title}
           </h2>
         )}
+        {state.banner ? <div className="mb-3">{state.banner}</div> : null}
         <p className="mb-6 mt-2 text-sm text-slate-700">{state.message}</p>
         <div className="flex justify-end gap-2">
           {!state.hideCancel && (

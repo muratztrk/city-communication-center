@@ -744,6 +744,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       .map(task => ({
         ...task,
         taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
+        taskTypeCategory: task.jobSourceType === 'Routine' ? 'Rutin' : 'Atanmış',
         cancelReturnStatus: 'İptal',
       }))
       .filter(task => taskMatchesFilters(task, getTaskColumnValue)),
@@ -2391,7 +2392,7 @@ const pageKicker = isMyTasksView
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
-                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="jobSourceType" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
+                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="taskTypeCategory" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
                       <span className="inline-flex flex-col leading-tight">
                         <span>{t('tasks.columns.taskType', 'Görev Tipi')}</span>
                         <span>{t('tasks.columns.owner', 'Görevi Yapan')}</span>

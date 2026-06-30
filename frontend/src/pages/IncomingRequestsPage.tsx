@@ -48,6 +48,7 @@ import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequest
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
+import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
@@ -364,6 +365,7 @@ export function IncomingRequestsPage() {
     selectedUserIds: string[]
     selfRequestedOwnerUserId: string | null
     requiresProjectConfirmation: boolean
+    showProjectNotice: boolean
     projectDecision: boolean | null
   } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
@@ -444,6 +446,7 @@ export function IncomingRequestsPage() {
       selectedUserIds: [],
       selfRequestedOwnerUserId: job ? getSelfRequestedOwnerUserId(job) : null,
       requiresProjectConfirmation: job?.isProjectCreatorRequested === true,
+      showProjectNotice: false,
       projectDecision: null,
     })
   }
@@ -451,18 +454,22 @@ export function IncomingRequestsPage() {
   // One-step external flow: the job is already Active in this department's pool —
   // just assign staff (create tasks), no approval call needed.
   const handleAssignStaff = (jobId: string) => {
+    const job = jobs.find(item => item.jobId === jobId)
     setStaffAssignModal({
       jobId,
       approvalType: 'assign',
       selectedUserIds: [],
       selfRequestedOwnerUserId: null,
       requiresProjectConfirmation: false,
+      showProjectNotice: job?.isProject === true,
       projectDecision: null,
     })
   }
 
   const handleApproveTarget = (jobId: string, departmentId: string) => {
+    const job = jobs.find(item => item.jobId === jobId)
     setConfirmDialog({
+      banner: job?.isProject ? <JobProjectDeclaredNotice t={t} /> : undefined,
       message: t('jobs.approveTargetConfirm', 'Bu koordine talebi onaylamak istediğinizden emin misiniz?'),
       variant: 'primary',
       confirmLabel: t('common.approve', 'Onayla'),
@@ -1013,33 +1020,15 @@ export function IncomingRequestsPage() {
                 : t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
             </h3>
             {staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation ? (
-              <div className="mb-4 space-y-2">
-                <p className="text-sm font-semibold text-slate-800">
-                  {t('jobs.projectConfirmationPrompt', 'Talebin proje niteliğinde olduğunu onaylıyor musunuz?')}
-                </p>
-                <div className="flex flex-col gap-1.5">
-                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
-                    <input
-                      type="radio"
-                      name="incoming-project-confirmation"
-                      className="size-4"
-                      checked={staffAssignModal.projectDecision === true}
-                      onChange={() => setStaffAssignModal(prev => prev ? { ...prev, projectDecision: true } : prev)}
-                    />
-                    <span className="text-sm text-slate-800">{t('common.yes', 'Evet')}</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
-                    <input
-                      type="radio"
-                      name="incoming-project-confirmation"
-                      className="size-4"
-                      checked={staffAssignModal.projectDecision === false}
-                      onChange={() => setStaffAssignModal(prev => prev ? { ...prev, projectDecision: false } : prev)}
-                    />
-                    <span className="text-sm text-slate-800">{t('common.no', 'Hayır')}</span>
-                  </label>
-                </div>
-              </div>
+              <JobProjectConfirmationPrompt
+                t={t}
+                name="incoming-project-confirmation"
+                decision={staffAssignModal.projectDecision}
+                onDecisionChange={value => setStaffAssignModal(prev => prev ? { ...prev, projectDecision: value } : prev)}
+              />
+            ) : null}
+            {staffAssignModal.approvalType === 'assign' && staffAssignModal.showProjectNotice ? (
+              <JobProjectDeclaredNotice t={t} />
             ) : null}
             <p className="mb-4 text-sm text-slate-600">
               {staffAssignModal.approvalType === 'assign'

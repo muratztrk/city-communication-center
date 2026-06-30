@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import { formatJobProjectLabel, type JobProjectFields } from './jobProjectLabel'
+import { formatJobProjectLabel, shouldHighlightProjectYes, type JobProjectFields } from './jobProjectLabel'
 
 export function JobProjectValue({
   job,
@@ -8,7 +8,7 @@ export function JobProjectValue({
   job: JobProjectFields
   t: TFunction
 }) {
-  if (job.isProjectCreatorRequested) {
+  if (shouldHighlightProjectYes(job)) {
     return <span className="font-semibold text-orange-500">{t('common.yes', 'Evet')}</span>
   }
   return formatJobProjectLabel(job, t)

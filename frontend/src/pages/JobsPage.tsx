@@ -28,6 +28,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
@@ -1287,7 +1288,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   const handleApproveTarget = (jobId: string, departmentId: string) => {
+    const job = detail?.jobId === jobId ? detail : jobs.find(item => item.jobId === jobId)
     setConfirmDialog({
+      banner: job?.isProject ? <JobProjectDeclaredNotice t={t} /> : undefined,
       message: t('jobs.approveTargetConfirm', 'Bu koordine talebi onaylamak istediğinizden emin misiniz?'),
       variant: 'primary',
       confirmLabel: t('common.approve', 'Onayla'),
@@ -2726,33 +2729,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               {t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
             </h3>
             {staffAssignModal.requiresProjectConfirmation ? (
-              <div className="mb-4 space-y-2">
-                <p className="text-sm font-semibold text-slate-800">
-                  {t('jobs.projectConfirmationPrompt', 'Talebin proje niteliğinde olduğunu onaylıyor musunuz?')}
-                </p>
-                <div className="flex flex-col gap-1.5">
-                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
-                    <input
-                      type="radio"
-                      name="project-confirmation"
-                      className="size-4"
-                      checked={staffAssignModal.projectDecision === true}
-                      onChange={() => setStaffAssignModal(current => current ? { ...current, projectDecision: true } : current)}
-                    />
-                    <span className="text-sm text-slate-800">{t('common.yes', 'Evet')}</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
-                    <input
-                      type="radio"
-                      name="project-confirmation"
-                      className="size-4"
-                      checked={staffAssignModal.projectDecision === false}
-                      onChange={() => setStaffAssignModal(current => current ? { ...current, projectDecision: false } : current)}
-                    />
-                    <span className="text-sm text-slate-800">{t('common.no', 'Hayır')}</span>
-                  </label>
-                </div>
-              </div>
+              <JobProjectConfirmationPrompt
+                t={t}
+                name="project-confirmation"
+                decision={staffAssignModal.projectDecision}
+                onDecisionChange={value => setStaffAssignModal(current => current ? { ...current, projectDecision: value } : current)}
+              />
             ) : null}
             <p className="mb-4 text-sm text-slate-600">
               {t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}

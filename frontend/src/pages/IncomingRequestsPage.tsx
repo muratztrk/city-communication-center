@@ -898,7 +898,7 @@ export function IncomingRequestsPage() {
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}
                         <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)} className="gap-1.5">
-                          {t('jobs.actions.details', 'Detaylar')}
+                          {t('jobs.actions.details', 'Detay Gör')}
                           <ArrowRight className="size-3.5" />
                         </Button>
                         {/* Onayla — onay bekleyen iş satırlarında */}

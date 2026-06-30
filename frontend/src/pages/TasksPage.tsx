@@ -2443,7 +2443,7 @@ const pageKicker = isMyTasksView
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={taskFilters['completedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="completedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={taskFilters['updatedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="updatedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
                   {showStatusColumn && <FilterableTh filterKey="currentStatus" filterValue={taskFilters['currentStatus'] ?? ''} onFilter={setTaskFilter} sortKey="currentStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.status', 'Durum')}</FilterableTh>}
-                  <th>{t('tasks.columns.actions', 'Detaylar')}</th>
+                  <th>{t('tasks.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -2605,7 +2605,7 @@ const pageKicker = isMyTasksView
                             {t('tasks.actions.changeStatus', 'Durum Değiştir')}
                           </Button>
                         )}
-                        <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'İşlemler')}</Button>
+                        <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detay Gör')}</Button>
                         {!showOnlyDetailsInTaskGridActions && isMyTasksView && (canEditRoutineTask(task) ? (
                           <Button
                             size="sm"

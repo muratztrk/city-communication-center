@@ -618,7 +618,7 @@
       "createdBy": "Created By",
       "progress": "Progress",
       "dueDate": "Due",
-      "actions": "Details",
+      "actions": "Actions",
       "parentRequestNo": "Parent Request No",
       "parentRequestLinked": "Linked To",
       "parentRequestNoShort": "Request No",
@@ -664,7 +664,7 @@
       "changeStatusSelect": "Select Task Status",
       "changeStatusPlaceholder": "Select a task status",
       "statusChangeSuccess": "Task status updated.",
-      "details": "Actions"
+      "details": "View Details"
     },
     "statusChange": {
       "inProgress": "In Progress",
@@ -1359,7 +1359,7 @@
       "project": "Project",
       "taskCount": "Tasks",
       "dueDate": "Due",
-      "actions": "Details"
+      "actions": "Actions"
     },
     "actions": {
       "approveOwner": "Approve",
@@ -1379,7 +1379,7 @@
       "rejectReason": "Reason:",
       "cancelReason": "Cancel reason:",
       "new": "New Job",
-      "details": "Actions",
+      "details": "View Details",
       "save": "Save",
       "close": "Close"
     },

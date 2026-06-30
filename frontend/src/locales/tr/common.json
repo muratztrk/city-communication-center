@@ -623,7 +623,7 @@
       "creator": "Oluşturan",
       "progress": "İlerleme",
       "dueDate": "Son Tarih",
-      "actions": "Detaylar",
+      "actions": "İşlemler",
       "parentRequestNo": "Bağlı Olduğu Talep No",
       "parentRequestLinked": "Bağlı Olduğu",
       "parentRequestNoShort": "Talep No",
@@ -669,7 +669,7 @@
       "changeStatusSelect": "Görev Durumu Seç",
       "changeStatusPlaceholder": "Görev durumu seçiniz",
       "statusChangeSuccess": "Görev durumu güncellendi.",
-      "details": "İşlemler"
+      "details": "Detay Gör"
     },
     "statusChange": {
       "inProgress": "Yapılmakta",
@@ -1392,7 +1392,7 @@
       "project": "Proje mi",
       "taskCount": "Görevler",
       "dueDate": "Son Tarih",
-      "actions": "Detaylar"
+      "actions": "İşlemler"
     },
     "actions": {
       "approveOwner": "Onayla",
@@ -1414,7 +1414,7 @@
       "rejectReason": "Red nedeni:",
       "cancelReason": "İptal Nedeni:",
       "new": "Yeni İş",
-      "details": "İşlemler",
+      "details": "Detay Gör",
       "save": "Kaydet",
       "close": "Kapat"
     },

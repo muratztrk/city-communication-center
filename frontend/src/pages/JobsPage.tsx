@@ -1893,7 +1893,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     variant="destructive"
                     onClick={() => handleCancel(detail.jobId)}
                   >
-                    {t('jobs.actions.cancelJob', 'Talebi İptal Et')}
+                    {t('jobs.actions.cancel', 'İptal Et')}
                   </Button>
                 )}
                 <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>

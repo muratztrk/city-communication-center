@@ -48,6 +48,7 @@ import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
+import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
@@ -1482,6 +1483,70 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     )
   }
 
+  const canReporterEditMyRequest = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
+  const canEditMyRequestDetailJob = detail != null && (
+    canReporterEditMyRequest
+    || canOperatorEditPendingExternalJob(user?.role, { ...detail, taskCount: detail.tasks?.length ?? 0 })
+    || isPreApprovalStatus(detail.status)
+    || (isManagerLike && (
+      (detail.requestType === 'ExternalUnit' && detail.status === 'PendingExternalApproval')
+      || (detail.requestType === 'InternalUnit' && detail.status === 'Active')
+      || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0)
+    ))
+  )
+  const showMyRequestEditDisabled = isMyRequestsView && detail != null && !canEditMyRequestDetailJob && (isManagerLike || isPresidencyReporter)
+  const canPresidencyEditMyRequestAttachments = isPresidencyReporter && isMyRequestsView
+    && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress' || currentMyRequestsView === 'overdue')
+  const canEditMyRequestAttachments = detail != null && (
+    (isPreApprovalStatus(detail.status) && isMyRequestsView)
+    || canPresidencyEditMyRequestAttachments
+  )
+  const isTerminalMyRequestStatus = detail != null && (detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected')
+  const showMyRequestAttachmentLockNotice = detail != null && !canEditMyRequestAttachments && isTerminalMyRequestStatus
+  const myRequestAttachmentLockText = detail?.status === 'Completed'
+    ? t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')
+    : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
+      ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
+      : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
+  const myRequestStatusContent = detail != null ? (
+    <>
+      {isCitizenRequestDetail
+        ? getCitizenRequestStatusLabel(t, detail)
+        : getExternalUnitOwnerDisplayStatus(t, detail)
+          ?? (detail.status === 'Active'
+            ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+            : detail.status === 'Completed'
+              ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+              : getJobStatusLabel(t, detail.status))}
+      {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
+        <span className="inline-flex items-center text-red-600">
+          <span>(</span>
+          <button
+            type="button"
+            className="font-semibold hover:text-red-700"
+            onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+          >
+            <span className="underline underline-offset-2">{t('jobs.detail.cancelNote', 'İptal Notu')}</span>
+          </button>
+          <span>)</span>
+        </span>
+      ) : null}
+      {detail.status === 'Completed' && detail.completionNote ? (
+        <span className="inline-flex items-center text-emerald-600">
+          <span>(</span>
+          <button
+            type="button"
+            className="font-semibold hover:text-emerald-700"
+            onClick={() => setConfirmDialog({ title: t('jobs.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+          >
+            <span className="underline underline-offset-2">{t('jobs.detail.completionNote', 'Tamamlama Notu')}</span>
+          </button>
+          <span>)</span>
+        </span>
+      ) : null}
+    </>
+  ) : null
+
   return (
     <div className={detailOnly ? 'hidden' : 'page-stack desktop-page-shell'}>
       <header className="sticky-page-header">
@@ -1821,6 +1886,68 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
           role="presentation"
         >
+          {isMyRequestsView ? (
+            <MyRequestDetailModal
+              detail={detail}
+              title={detailHeaderTitle}
+              locale={locale}
+              detailLoading={detailLoading}
+              citizenSourceMessage={citizenSourceMessage}
+              detailStatusClass={detailStatusClass}
+              statusContent={myRequestStatusContent}
+              canChangeDueDate={canChangeDetailDueDate}
+              detailDueDateEdit={detailDueDateEdit}
+              onOpenDueDateEdit={openDetailDueDateEdit}
+              onCloseDueDateEdit={closeDetailDueDateEdit}
+              onDueDateChange={value => setDetailDueDateEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
+              onDueDateSave={() => void handleDetailDueDateSave()}
+              onClose={closeDetail}
+              onPrint={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}
+              onCancel={canCancelDetail ? () => handleCancel(detail.jobId) : undefined}
+              onEdit={canEditMyRequestDetailJob ? () => navigate(getRequestEditPath(detail)) : undefined}
+              showEditDisabled={showMyRequestEditDisabled}
+              onGoToConversation={isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) ? openCitizenConversationModal : undefined}
+              showManagerNoteColumn={showManagerNoteColumn}
+              canEditManagerNote={canEditManagerNote}
+              canManageCoordination={canManageCoordination}
+              managerNoteDraft={managerNoteDraft}
+              managerNoteEditing={managerNoteEditing}
+              managerNoteSaved={managerNoteSaved}
+              managerNoteSaving={managerNoteSaving}
+              onManagerNoteDraftChange={value => {
+                setManagerNoteDraft(value)
+                setManagerNoteSaved(false)
+              }}
+              onManagerNoteEditStart={() => {
+                setManagerNoteDraft(detail.managerNote ?? '')
+                setManagerNoteEditing(true)
+                setManagerNoteSaved(false)
+              }}
+              onManagerNoteSave={() => void handleSaveManagerNote()}
+              onManagerNoteDeleteConfirm={() => void handleDeleteManagerNote()}
+              setConfirmDialog={setConfirmDialog}
+              canEditJobAttachments={canEditMyRequestAttachments}
+              showAttachmentLockNotice={showMyRequestAttachmentLockNotice}
+              attachmentLockText={myRequestAttachmentLockText}
+              attachmentUploading={attachmentUploading}
+              onAttachmentUpload={async (file, onProgress) => {
+                setAttachmentUploading(true)
+                try {
+                  await api.uploadJobAttachment(detail.jobId, file, onProgress)
+                  invalidateJobs(queryClient, detail.jobId)
+                  await refreshDetail()
+                } finally {
+                  setAttachmentUploading(false)
+                }
+              }}
+              onAttachmentDelete={async (id) => {
+                await api.deleteAttachment(id)
+                invalidateJobs(queryClient, detail.jobId)
+                await refreshDetail()
+              }}
+              onDownloadTaskAttachment={(attachmentId, fileName) => void handleDownloadTaskAttachment(attachmentId, fileName)}
+            />
+          ) : (
           <section
             className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
@@ -2649,6 +2776,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             )}
            </div>
           </section>
+          )}
         </div>,
         document.body
       )}

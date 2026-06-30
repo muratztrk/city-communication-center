@@ -23,8 +23,14 @@ interface AttachmentSectionProps {
   readOnly?: boolean
   emptyText?: string
   compact?: boolean
-  /** gallery: kutucuk önizleme; list: yalnızca dosya adı bağlantıları (card #855). */
-  displayMode?: 'gallery' | 'list'
+  /** gallery: kutucuk önizleme; list: yalnızca dosya adı bağlantıları; rich-list: ikon kutusu + ad + boyut (Taleplerim detay). */
+  displayMode?: 'gallery' | 'list' | 'rich-list'
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 export function AttachmentSection({ attachments, onUpload, onDelete, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery' }: AttachmentSectionProps) {
@@ -162,6 +168,40 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
       )}
 
       {/* Dosya listesi — Talep Detayları ve görev tamamlama paneliyle aynı görünüm (card #855). */}
+      {attachments.length > 0 && displayMode === 'rich-list' && (
+        <ul className="space-y-2">
+          {attachments.map(att => (
+            <li key={att.attachmentId} className="group flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500">
+                <FileText className="size-4" aria-hidden="true" />
+              </div>
+              <button
+                type="button"
+                className="min-w-0 flex-1 text-left disabled:cursor-wait"
+                disabled={downloadingId === att.attachmentId}
+                onClick={() => void handleDownload(att)}
+              >
+                <span className="block truncate text-sm font-semibold text-slate-900 hover:text-emerald-700">
+                  {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
+                </span>
+                <span className="text-xs text-slate-500">{formatFileSize(att.fileSizeBytes)}</span>
+              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  title={t('attachments.deleteConfirm', 'Sil')}
+                  disabled={deletingId === att.attachmentId || isDisabled}
+                  className="shrink-0 text-xs font-medium text-red-500 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100 disabled:cursor-not-allowed"
+                  onClick={() => void handleDelete(att.attachmentId)}
+                >
+                  {deletingId === att.attachmentId ? '…' : t('common.delete', 'Sil')}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
       {attachments.length > 0 && displayMode === 'list' && (
         <ul className="space-y-1 text-[11px] leading-4">
           {attachments.map(att => (

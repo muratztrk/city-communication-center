@@ -361,7 +361,8 @@ export function IncomingRequestsPage() {
   const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
-    approvalType: 'owner' | 'assign'
+    approvalType: 'owner' | 'assign' | 'target'
+    targetDepartmentId?: string | null
     selectedUserIds: string[]
     selfRequestedOwnerUserId: string | null
     requiresProjectConfirmation: boolean
@@ -468,27 +469,21 @@ export function IncomingRequestsPage() {
 
   const handleApproveTarget = (jobId: string, departmentId: string) => {
     const job = jobs.find(item => item.jobId === jobId)
-    setConfirmDialog({
-      banner: job?.isProject ? <JobProjectDeclaredNotice t={t} /> : undefined,
-      message: t('jobs.approveTargetConfirm', 'Bu koordine talebi onaylamak istediğinizden emin misiniz?'),
-      variant: 'primary',
-      confirmLabel: t('common.approve', 'Onayla'),
-      onConfirm: async () => {
-        setError(null)
-        try {
-          await api.approveJobTarget(jobId, departmentId)
-          invalidateJobs(queryClient, jobId)
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
+    setStaffAssignModal({
+      jobId,
+      approvalType: 'target',
+      targetDepartmentId: departmentId,
+      selectedUserIds: [],
+      selfRequestedOwnerUserId: job ? getSelfRequestedOwnerUserId(job) : null,
+      requiresProjectConfirmation: false,
+      showProjectNotice: job?.isProject === true,
+      projectDecision: null,
     })
   }
 
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
-    const { jobId, approvalType, selectedUserIds, requiresProjectConfirmation, projectDecision } = staffAssignModal
+    const { jobId, approvalType, targetDepartmentId, selectedUserIds, requiresProjectConfirmation, projectDecision } = staffAssignModal
     if (approvalType === 'owner' && requiresProjectConfirmation && projectDecision === null) {
       setError(t('jobs.projectConfirmationRequired', 'Proje niteliği onayı zorunludur.'))
       return
@@ -498,6 +493,10 @@ export function IncomingRequestsPage() {
     try {
       if (approvalType === 'owner') {
         await api.approveJobOwner(jobId, null, requiresProjectConfirmation ? projectDecision : null)
+        invalidateJobs(queryClient, jobId)
+      }
+      if (approvalType === 'target' && targetDepartmentId) {
+        await api.approveJobTarget(jobId, targetDepartmentId)
         invalidateJobs(queryClient, jobId)
       }
       if (selectedUserIds.length > 0) {
@@ -1015,9 +1014,7 @@ export function IncomingRequestsPage() {
               <X className="size-4" />
             </button>
             <h3 className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
-              {staffAssignModal.approvalType === 'assign'
-                ? t('jobs.actions.assignStaff', 'Personel Ata')
-                : t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
+              {t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
             </h3>
             {staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation ? (
               <JobProjectConfirmationPrompt
@@ -1027,13 +1024,11 @@ export function IncomingRequestsPage() {
                 onDecisionChange={value => setStaffAssignModal(prev => prev ? { ...prev, projectDecision: value } : prev)}
               />
             ) : null}
-            {staffAssignModal.approvalType === 'assign' && staffAssignModal.showProjectNotice ? (
+            {(staffAssignModal.approvalType === 'assign' || staffAssignModal.approvalType === 'target') && staffAssignModal.showProjectNotice ? (
               <JobProjectDeclaredNotice t={t} />
             ) : null}
             <p className="mb-4 text-sm text-slate-600">
-              {staffAssignModal.approvalType === 'assign'
-                ? t('jobs.actions.assignStaffHelp', 'Bu talebe görev atayacağınız personeli seçin.')
-                : t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}
+              {t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}
             </p>
             {departmentUsers.length === 0 ? (
               <p className="mb-4 text-sm text-slate-400">{t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}</p>
@@ -1074,7 +1069,7 @@ export function IncomingRequestsPage() {
                 disabled={staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null}
                 onClick={handleStaffAssignConfirm}
               >
-                {staffAssignModal.approvalType === 'assign' ? t('jobs.actions.assign', 'Ata') : t('common.approve', 'Onayla')}
+                {t('common.approve', 'Onayla')}
               </Button>
               <Button type="button" variant="secondary" onClick={() => setStaffAssignModal(null)}>
                 {t('common.cancel', 'Vazgeç')}

@@ -593,6 +593,17 @@
       width: 100%;
     }
 
+    .app-content-shell .section-card.desktop-page-fill > .table-wrap.desktop-panel-scroll {
+      width: 100%;
+      align-self: stretch;
+    }
+
+    .app-content-shell .table-wrap.desktop-panel-scroll > .department-tasks-table,
+    .app-content-shell .table-wrap.desktop-panel-scroll > .staff-tasks-table {
+      width: 100%;
+      min-width: 100%;
+    }
+
     .app-content-shell .users-table {
       min-width: 70rem;
     }

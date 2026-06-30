@@ -657,7 +657,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     saving: boolean
     selfRequestedOwnerUserId: string | null
     approvalRequired: boolean
+    targetApprovalRequired: boolean
+    targetDepartmentId: string | null
     requiresProjectConfirmation: boolean
+    showProjectNotice: boolean
     projectDecision: boolean | null
   } | null>(null)
   const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
@@ -1257,7 +1260,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           saving: false,
           selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
           approvalRequired: true,
+          targetApprovalRequired: false,
+          targetDepartmentId: null,
           requiresProjectConfirmation: jobDetail.isProjectCreatorRequested === true,
+          showProjectNotice: false,
           projectDecision: null,
         })
         return
@@ -1287,30 +1293,32 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
   }
 
-  const handleApproveTarget = (jobId: string, departmentId: string) => {
-    const job = detail?.jobId === jobId ? detail : jobs.find(item => item.jobId === jobId)
-    setConfirmDialog({
-      banner: job?.isProject ? <JobProjectDeclaredNotice t={t} /> : undefined,
-      message: t('jobs.approveTargetConfirm', 'Bu koordine talebi onaylamak istediğinizden emin misiniz?'),
-      variant: 'primary',
-      confirmLabel: t('common.approve', 'Onayla'),
-      onConfirm: async () => {
-        setError(null)
-        try {
-          await api.approveJobTarget(jobId, departmentId)
-          invalidateJobs(queryClient, jobId)
-          await refreshDetail()
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
+  const handleApproveTarget = async (jobId: string, departmentId: string) => {
+    setError(null)
+    try {
+      const jobDetail = detail?.jobId === jobId ? detail : await api.getJobById(jobId)
+      const users = await api.getUsers()
+      setStaffAssignModal({
+        jobId,
+        selectedUserIds: [],
+        users: users.filter(u => isAssignableDepartmentUser(u, departmentId, user?.userId)),
+        saving: false,
+        selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
+        approvalRequired: false,
+        targetApprovalRequired: true,
+        targetDepartmentId: departmentId,
+        requiresProjectConfirmation: false,
+        showProjectNotice: jobDetail.isProject === true,
+        projectDecision: null,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
   }
 
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
-    const { jobId, selectedUserIds, approvalRequired, requiresProjectConfirmation, projectDecision } = staffAssignModal
+    const { jobId, selectedUserIds, approvalRequired, targetApprovalRequired, targetDepartmentId, requiresProjectConfirmation, projectDecision } = staffAssignModal
     if (requiresProjectConfirmation && projectDecision === null) {
       setError(t('jobs.projectConfirmationRequired', 'Proje niteliği onayı zorunludur.'))
       return
@@ -1319,6 +1327,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     try {
       if (approvalRequired) {
         await api.approveJobOwner(jobId, null, requiresProjectConfirmation ? projectDecision : null)
+        invalidateJobs(queryClient, jobId)
+      }
+      if (targetApprovalRequired && targetDepartmentId) {
+        await api.approveJobTarget(jobId, targetDepartmentId)
         invalidateJobs(queryClient, jobId)
       }
       if (selectedUserIds.length > 0) {
@@ -2735,6 +2747,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 decision={staffAssignModal.projectDecision}
                 onDecisionChange={value => setStaffAssignModal(current => current ? { ...current, projectDecision: value } : current)}
               />
+            ) : null}
+            {staffAssignModal.showProjectNotice ? (
+              <JobProjectDeclaredNotice t={t} />
             ) : null}
             <p className="mb-4 text-sm text-slate-600">
               {t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}

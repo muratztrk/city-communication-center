@@ -15,6 +15,7 @@ export function JobProjectConfirmationPrompt({
     <div className="mb-4 space-y-2">
       <p className="text-sm font-semibold text-orange-500">
         {t('jobs.projectConfirmationPrompt', 'Talebin proje niteliğinde olduğunu onaylıyor musunuz?')}
+        {' '}
         <span className="text-red-600">*</span>
       </p>
       <div className="flex flex-col gap-1.5 border-b border-slate-200 pb-3">
@@ -45,8 +46,10 @@ export function JobProjectConfirmationPrompt({
 
 export function JobProjectDeclaredNotice({ t }: { t: TFunction }) {
   return (
-    <p className="mb-4 text-sm font-semibold text-orange-500">
-      {t('jobs.projectDeclaredNotice', 'Talep proje niteliğindedir.')}
-    </p>
+    <div className="mb-4 border-b border-slate-200 pb-3">
+      <p className="text-sm font-semibold text-orange-500">
+        {t('jobs.projectDeclaredNotice', 'Talep proje niteliğindedir.')}
+      </p>
+    </div>
   )
 }

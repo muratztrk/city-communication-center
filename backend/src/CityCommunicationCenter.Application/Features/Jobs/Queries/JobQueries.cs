@@ -277,6 +277,13 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
+        var createdByRoleCode = job.CreatedByUserId.HasValue
+            ? await _dbContext.Users.AsNoTracking()
+                .Where(u => u.UserId == job.CreatedByUserId.Value)
+                .Select(u => (string?)u.RoleCode.ToString())
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         var depts = await _dbContext.JobDepartments
             .AsNoTracking()
             .Where(jd => jd.JobId == job.JobId)
@@ -490,6 +497,6 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.JobNumber, job.JobNumberYear,
             job.ManagerNote,
             depts, tasks, approvals, attachments,
-            jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc);
+            jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc, createdByRoleCode);
     }
 }

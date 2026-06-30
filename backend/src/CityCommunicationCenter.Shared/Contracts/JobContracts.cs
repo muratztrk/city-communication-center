@@ -136,4 +136,5 @@ public sealed record JobDetailResponse(
     // Tamamlanan talebin görevindeki tamamlama notu (card 643).
     string? CompletionNote = null,
     // Talebin son güncellenme zamanı — "Talep Detayları"nda iptal tarihi olarak kullanılır (card #715).
-    DateTimeOffset? UpdatedAtUtc = null);
+    DateTimeOffset? UpdatedAtUtc = null,
+    string? CreatedByRoleCode = null);

@@ -8,6 +8,7 @@ import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -330,6 +331,39 @@ function getExtraTimeProposedDueDate(comment: string | null | undefined): string
   if (!comment) return null
   const match = comment.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/)
   return match?.[0] ?? null
+}
+
+function isTerminalTaskForExtraTimeDisplay(status: string): boolean {
+  return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
+}
+
+function TaskGridExtraTimeMarkers({
+  task,
+  t,
+}: {
+  task: Pick<Task, 'hasPendingExtraTimeRequest' | 'lastExtraTimeRequestDecision'>
+  t: TFunction
+}) {
+  if (!task.hasPendingExtraTimeRequest && !task.lastExtraTimeRequestDecision) return null
+  return (
+    <>
+      {task.hasPendingExtraTimeRequest && (
+        <div className="mt-1 text-xs font-bold text-amber-500">
+          {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+        </div>
+      )}
+      {task.lastExtraTimeRequestDecision === 'Approved' && (
+        <div className="mt-1 text-xs font-bold text-emerald-600">
+          {t('tasks.actions.extraTimeApproved', 'Ek süre talebi onaylandı')}
+        </div>
+      )}
+      {task.lastExtraTimeRequestDecision === 'Rejected' && (
+        <div className="mt-1 text-xs font-bold text-red-600">
+          {t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi')}
+        </div>
+      )}
+    </>
+  )
 }
 
 function formatTaskJobDisplayNumber(
@@ -2354,7 +2388,7 @@ const pageKicker = isMyTasksView
         <div className="loading">{t('common.loading')}</div>
       ) : (
         <section className="section-card desktop-page-fill">
-          <div className="table-wrap desktop-panel-scroll">
+          <div className={`table-wrap desktop-panel-scroll${isDepartmentTasksView || isStaffTasksView ? ' w-full' : ''}`}>
             <table className={`data-table jobs-table data-table--zebra${isMyTasksView ? ' my-tasks-table' : ''}${isDepartmentTasksView ? ' department-tasks-table' : ''}${isStaffTasksView ? ' staff-tasks-table' : ''}${isMyTasksAllView ? ' my-tasks-all-table' : ''}`}>
               {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && (
                 <colgroup>
@@ -2421,7 +2455,27 @@ const pageKicker = isMyTasksView
                     }
                   />
                 )}
-                {pagedTasks.map((task, index) => (
+                {pagedTasks.map((task, index) => {
+                  const showExtraTimeInGrid = isMyTasksView || isDepartmentTasksView || isStaffTasksView
+                  const terminalExtraTimeTask = isTerminalTaskForExtraTimeDisplay(task.currentStatus)
+                  const extraTimeMarkers = showExtraTimeInGrid
+                    ? <TaskGridExtraTimeMarkers task={task} t={t} />
+                    : null
+                  const showExtraTimeUnderDue = showExtraTimeInGrid && !terminalExtraTimeTask
+                  const showExtraTimeUnderCompleted = showExtraTimeInGrid
+                    && task.currentStatus === 'Completed'
+                    && (isMyTasksView || isDepartmentTasksView)
+                    && currentMyTaskView === 'completed'
+                  const showExtraTimeUnderCancelled = showExtraTimeInGrid
+                    && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
+                    && (isMyTasksView || isDepartmentTasksView)
+                    && currentMyTaskView === 'rejected'
+                  const showExtraTimeUnderStatus = showExtraTimeInGrid
+                    && terminalExtraTimeTask
+                    && currentMyTaskView === 'all'
+                    && showStatusColumn
+
+                  return (
                   // Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (dikkat).
                   <tr key={task.taskId} className={task.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
@@ -2479,25 +2533,21 @@ const pageKicker = isMyTasksView
                     {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && (
                       <td>
                         <DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} />
-                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.hasPendingExtraTimeRequest && (
-                          <div className="mt-1 text-xs font-bold text-amber-500">
-                            {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
-                          </div>
-                        )}
-                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.lastExtraTimeRequestDecision === 'Approved' && (
-                          <div className="mt-1 text-xs font-bold text-emerald-600">
-                            {t('tasks.actions.extraTimeApproved', 'Ek süre talebi onaylandı')}
-                          </div>
-                        )}
-                        {(isMyTasksView || isDepartmentTasksView || isStaffTasksView) && task.lastExtraTimeRequestDecision === 'Rejected' && (
-                          <div className="mt-1 text-xs font-bold text-red-600">
-                            {t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi')}
-                          </div>
-                        )}
+                        {showExtraTimeUnderDue ? extraTimeMarkers : null}
                       </td>
                     )}
-                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <td><DateCell value={task.completedAtUtc ?? null} locale={locale} /></td>}
-                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <td><DateCell value={task.updatedAtUtc ?? null} locale={locale} /></td>}
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && (
+                      <td>
+                        <DateCell value={task.completedAtUtc ?? null} locale={locale} />
+                        {showExtraTimeUnderCompleted ? extraTimeMarkers : null}
+                      </td>
+                    )}
+                    {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && (
+                      <td>
+                        <DateCell value={task.updatedAtUtc ?? null} locale={locale} />
+                        {showExtraTimeUnderCancelled ? extraTimeMarkers : null}
+                      </td>
+                    )}
                     {showStatusColumn && (() => {
                       // Tamamlanmış→tamamlanma, İptal→iptal tarihi; tarih durum pill'inin İÇİNDE
                       // alt satırda gösterilir (card #714, #711'in rafine hali).
@@ -2514,6 +2564,7 @@ const pageKicker = isMyTasksView
                                 </span>
                               : getTaskDisplayStatus(t, task)}
                           </StatusPill>
+                          {showExtraTimeUnderStatus ? extraTimeMarkers : null}
                         </td>
                       )
                     })()}
@@ -2617,7 +2668,8 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>

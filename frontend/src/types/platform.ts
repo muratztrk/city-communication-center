@@ -338,6 +338,7 @@ export interface JobDetail {
   street?: string | null;
   openAddress?: string | null;
   createdByDisplayName: string | null;
+  createdByRoleCode?: string | null;
   createdAtUtc: string;
   jobNumber: number | null;
   jobNumberYear: number | null;

@@ -606,15 +606,19 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const showStatusColumn =
     ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
     || isStaffTasksView
+  const hideDueDateColumn = (isMyTasksView || isDepartmentTasksView) && (
+    currentMyTaskView === 'rejected'
+    || (isMyTasksView && currentMyTaskView === 'completed')
+  )
   const tasksTableColumnCount = useMemo(() => {
     let count = 7
     if (isStaffTasksView || isMyTasksView || isDepartmentTasksView) count += 1
-    if (!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected')) count += 1
+    if (!hideDueDateColumn) count += 1
     if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed') count += 1
     if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') count += 1
     if (showStatusColumn) count += 1
     return count
-  }, [currentMyTaskView, isDepartmentTasksView, isMyTasksView, isStaffTasksView, showStatusColumn])
+  }, [currentMyTaskView, hideDueDateColumn, isDepartmentTasksView, isMyTasksView, isStaffTasksView, showStatusColumn])
   const taskTypeParam = searchParams.get('taskType') ?? 'all'
   const currentTaskTypeFilter: 'all' | 'assigned' | 'routine' =
     taskTypeParam === 'assigned' || taskTypeParam === 'routine' ? taskTypeParam : 'all'
@@ -1726,7 +1730,7 @@ const pageKicker = isMyTasksView
                                 ].map(({ label, value }, index, rows) => (
                                   <div key={label} className={`flex items-start gap-2 px-3 py-2${index === rows.length - 1 ? ' border-b border-slate-100' : ''}`}>
                                     <span className={`${parentJobDetail && taskDetail.jobSourceType !== 'Routine' ? 'w-28' : 'w-36'} shrink-0 pt-0.5 text-xs font-semibold text-slate-500`}>{label}</span>
-                                    <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                                    <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
                                   </div>
                                 ))}
                               </div>
@@ -2198,7 +2202,7 @@ const pageKicker = isMyTasksView
                               // kapanış çizgisi (card #694; #712/#713 ile aynı yaklaşım).
                               <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
                                 <span className="w-28 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                                <span className="min-w-0 break-words text-sm text-slate-900">{value}</span>
+                                <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
                               </div>
                             ))}
                           </div>
@@ -2400,7 +2404,7 @@ const pageKicker = isMyTasksView
                   <col className="my-tasks-title-col grid-col-title" />
                   {(isDepartmentTasksView || isStaffTasksView) && <col className="task-grid-owner-col" />}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && <col className="my-tasks-type-col" />}
-                  {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <col className="my-tasks-due-col" />}
+                  {!hideDueDateColumn && <col className="my-tasks-due-col" />}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <col className="task-grid-terminal-date-col" />}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <col className="task-grid-terminal-date-col" />}
                   {showStatusColumn && <col className="my-tasks-status-col" />}
@@ -2433,7 +2437,7 @@ const pageKicker = isMyTasksView
                       </span>
                     </FilterableTh>
                   )}
-                  {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>}
+                  {!hideDueDateColumn && <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={taskFilters['completedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="completedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={taskFilters['updatedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="updatedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
                   {showStatusColumn && <FilterableTh filterKey="currentStatus" filterValue={taskFilters['currentStatus'] ?? ''} onFilter={setTaskFilter} sortKey="currentStatus" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.status', 'Durum')}</FilterableTh>}
@@ -2530,7 +2534,7 @@ const pageKicker = isMyTasksView
                         </div>
                       </td>
                     )}
-                    {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && (
+                    {!hideDueDateColumn && (
                       <td>
                         <DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} />
                         {showExtraTimeUnderDue ? extraTimeMarkers : null}

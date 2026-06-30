@@ -6,9 +6,8 @@ export type JobProjectFields = {
   createdByRoleCode?: string | null
 }
 
-export function shouldHighlightProjectYes(job: JobProjectFields): boolean {
-  return job.isProjectCreatorRequested === true
-    || (job.isProject === true && job.createdByRoleCode === 'Reporter')
+export function isJobProjectYesLabel(job: JobProjectFields, t: TFunction): boolean {
+  return formatJobProjectLabel(job, t) === t('common.yes', 'Evet')
 }
 
 export function formatJobProjectLabel(job: JobProjectFields, t: TFunction): string {

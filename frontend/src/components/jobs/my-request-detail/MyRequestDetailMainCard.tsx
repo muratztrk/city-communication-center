@@ -11,6 +11,7 @@ import { buildJobProcessSteps } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import { formatDateTime } from './format'
+import { DETAIL_ICON_PROPS } from './detailIcons'
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -102,14 +103,14 @@ export function MyRequestDetailMainCard({
   return (
     <section className="my-request-detail-main form-card page-stack mb-5">
       <div className="job-detail-section-title mb-1">
-        <FileText className="size-4 text-emerald-600" aria-hidden="true" />
+        <FileText {...DETAIL_ICON_PROPS} />
         {t('jobs.detail.requestInfo', 'Talep Detayları')}
       </div>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
           <div className="divide-y divide-slate-100">
             {fields.map(field => (
-              <div key={field.label} className="job-detail-field-row">
+              <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
                 <div className="job-detail-field-row__label">{field.label}</div>
                 <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
                   {field.value}
@@ -131,8 +132,8 @@ export function MyRequestDetailMainCard({
           />
         </div>
         <div className="min-w-0 p-4">
-          <div className="job-detail-section-title mb-3">
-            <FileText className="size-4 text-emerald-600" aria-hidden="true" />
+          <div className="job-detail-section-title job-detail-section-title--muted mb-3">
+            <FileText {...DETAIL_ICON_PROPS} />
             {t('jobs.form.description', 'AÇIKLAMA')}
           </div>
           <RichTextContent

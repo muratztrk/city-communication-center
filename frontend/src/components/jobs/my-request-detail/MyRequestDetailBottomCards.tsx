@@ -1,10 +1,11 @@
-import { MapPin, Paperclip, StickyNote } from 'lucide-react'
+import { MapPin, MessageSquare, Paperclip } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AddressDetailFields } from '../../ui/AddressDetailFields'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import { Button } from '../../ui/button'
 import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail } from '../../../types/platform'
+import { DETAIL_ICON_PROPS } from './detailIcons'
 
 interface MyRequestDetailBottomCardsProps {
   detail: JobDetail
@@ -56,8 +57,8 @@ export function MyRequestDetailBottomCards({
   return (
     <div className={`my-request-detail-bottom grid gap-4 ${gridClass}`}>
       <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-        <div className="job-detail-section-title mb-3 border-b border-slate-200 pb-2">
-          <MapPin className="size-4 text-emerald-600" aria-hidden="true" />
+        <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
+          <MapPin {...DETAIL_ICON_PROPS} />
           {t('address.detailSectionTitle', 'Adres Bilgileri')}
         </div>
         <AddressDetailFields
@@ -70,8 +71,8 @@ export function MyRequestDetailBottomCards({
 
       {showManagerNoteColumn && (
         <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-          <div className="job-detail-section-title mb-3 border-b border-slate-200 pb-2">
-            <StickyNote className="size-4 text-emerald-600" aria-hidden="true" />
+          <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
+            <MessageSquare {...DETAIL_ICON_PROPS} />
             {t('jobs.managerNote.title', 'Yönetici Notu')}
           </div>
           {!canEditManagerNote ? (
@@ -141,8 +142,8 @@ export function MyRequestDetailBottomCards({
       )}
 
       <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-        <div className="job-detail-section-title mb-3 border-b border-slate-200 pb-2">
-          <Paperclip className="size-4 text-emerald-600" aria-hidden="true" />
+        <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
+          <Paperclip {...DETAIL_ICON_PROPS} />
           {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
         </div>
         <AttachmentSection

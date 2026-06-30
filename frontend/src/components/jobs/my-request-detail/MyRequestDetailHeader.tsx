@@ -50,7 +50,7 @@ export function MyRequestDetailHeader({
             onClick={onEdit}
             aria-label={t('jobs.actions.edit', 'Düzenle')}
           >
-            <Pencil className="size-3.5" aria-hidden="true" />
+            <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
             {t('jobs.actions.edit', 'Düzenle')}
           </Button>
         )}
@@ -59,7 +59,7 @@ export function MyRequestDetailHeader({
             className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
             hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
           >
-            <Pencil className="size-3.5" aria-hidden="true" />
+            <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
             {t('jobs.actions.edit', 'Düzenle')}
           </DisabledActionButton>
         )}
@@ -71,7 +71,7 @@ export function MyRequestDetailHeader({
             onClick={onCancel}
             aria-label={t('jobs.actions.cancel', 'İptal Et')}
           >
-            <XCircle className="size-3.5" aria-hidden="true" />
+            <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
             {t('jobs.actions.cancel', 'İptal Et')}
           </Button>
         )}
@@ -82,7 +82,7 @@ export function MyRequestDetailHeader({
           onClick={onPrint}
           aria-label={t('common.print', 'Yazdır')}
         >
-          <Printer className="size-3.5" aria-hidden="true" />
+          <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
           {t('common.print', 'Yazdır')}
         </Button>
         <button
@@ -91,7 +91,7 @@ export function MyRequestDetailHeader({
           className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
           aria-label={t('common.close', 'Kapat')}
         >
-          <XIcon className="size-4" />
+          <XIcon className="size-4" strokeWidth={1.75} />
         </button>
       </div>
     </div>

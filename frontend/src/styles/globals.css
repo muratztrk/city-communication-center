@@ -172,10 +172,23 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: rgb(5 150 105);
+  }
+
+  .job-detail-section-title--muted {
+    color: rgb(100 116 139);
+  }
+
+  .job-detail-card-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: rgb(15 23 42);
   }
 
   .job-detail-field-row {
@@ -209,6 +222,20 @@
     line-height: 1.4;
     color: rgb(15 23 42);
     word-break: break-word;
+  }
+
+  .job-detail-field-row--request-info {
+    padding: 0.7rem 0;
+    gap: 1rem;
+  }
+
+  .job-detail-field-row--request-info .job-detail-field-row__label {
+    width: 10rem;
+  }
+
+  .job-detail-field-row--request-info .job-detail-field-row__value {
+    text-align: right;
+    font-weight: 600;
   }
 
   .job-detail-field-row--detail-card {
@@ -250,15 +277,15 @@
   }
 
   .job-process-timeline__line--to-current {
-    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(249 115 22) 100%);
+    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(5 150 105) 38%, rgb(249 115 22) 100%);
   }
 
   .job-process-timeline__line--from-current {
-    background: linear-gradient(to bottom, rgb(249 115 22) 0%, rgb(203 213 225) 100%);
+    background: rgb(203 213 225);
   }
 
   .job-process-timeline__line--to-upcoming {
-    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(203 213 225) 70%);
+    background: rgb(203 213 225);
   }
 
   .job-process-timeline__line--upcoming {
@@ -286,7 +313,7 @@
     height: 0.875rem;
     margin-top: 0.125rem;
     background: rgb(249 115 22);
-    box-shadow: 0 0 0 4px rgb(255 237 213);
+    box-shadow: none;
   }
 
   .job-process-timeline__indicator--upcoming {

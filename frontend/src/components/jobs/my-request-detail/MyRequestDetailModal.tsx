@@ -1,3 +1,4 @@
+import { MapPin, MessageSquare, Paperclip } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { AttachmentSection } from '../../ui/AttachmentSection'
@@ -9,6 +10,7 @@ import { MyRequestDetailHeader } from './MyRequestDetailHeader'
 import type { DetailDueDateEditState } from './MyRequestDetailMainCard'
 import { MyRequestDetailMainCard } from './MyRequestDetailMainCard'
 import { MyRequestTaskDetailsSection } from './MyRequestTaskDetailsSection'
+import { DETAIL_ICON_PROPS } from './detailIcons'
 
 export interface MyRequestDetailModalProps {
   detail: JobDetail
@@ -151,7 +153,8 @@ export function MyRequestDetailModal({
         ) : (
           <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-              <div className="job-detail-section-title mb-3 border-b border-slate-200 pb-2">
+              <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
+                <MapPin {...DETAIL_ICON_PROPS} />
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
               </div>
               <AddressDetailFields
@@ -163,7 +166,8 @@ export function MyRequestDetailModal({
             </section>
             {showManagerNoteColumn && (
               <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-                <div className="job-detail-section-title mb-3 border-b border-slate-200 pb-2">
+                <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
+                  <MessageSquare {...DETAIL_ICON_PROPS} />
                   {t('jobs.managerNote.title', 'Yönetici Notu')}
                 </div>
                 {detail.managerNote ? (
@@ -174,7 +178,8 @@ export function MyRequestDetailModal({
               </section>
             )}
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-              <div className="job-detail-section-title mb-3 border-b border-slate-200 pb-2">
+              <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
+                <Paperclip {...DETAIL_ICON_PROPS} />
                 {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
               </div>
               <AttachmentSection

@@ -82,17 +82,13 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
   if (match) {
     return (
       <>
-        <span className={mainWeight}>
-          <NotificationTitleStatusText value={match[1]} />
-        </span>
+        <NotificationTitleStatusText value={match[1]} plainClassName={mainWeight} />
         <span className="font-normal text-slate-600"> {match[2]}</span>
       </>
     )
   }
   return (
-    <span className={mainWeight}>
-      <NotificationTitleStatusText value={title} />
-    </span>
+    <NotificationTitleStatusText value={title} plainClassName={mainWeight} />
   )
 }
 
@@ -148,13 +144,14 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
   )
 }
 
-function NotificationTitleStatusText({ value }: { value: string }) {
+function NotificationTitleStatusText({ value, plainClassName }: { value: string; plainClassName: string }) {
   return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi)/gi).map((part, index) => {
+    if (!part) return null
     if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     if (/^İptal Edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
-    return part
+    return <span key={index} className={plainClassName}>{part}</span>
   })
 }
 

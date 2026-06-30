@@ -528,11 +528,11 @@ export function SocialMessagesPage() {
                             variant="secondary"
                             onClick={() => setDetailJobId(message.jobId!)}
                           >
-                            {t('jobs.actions.details', 'Detay Gör')}
+                            {t('jobs.actions.details', 'Detaylar')}
                           </Button>
                         ) : (
                           <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
-                            {t('jobs.actions.details', 'Detay Gör')}
+                            {t('jobs.actions.details', 'Detaylar')}
                           </DisabledActionButton>
                         )}
                         {message.channel === 'WhatsApp' && message.whatsAppPhone ? (

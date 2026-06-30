@@ -2605,7 +2605,7 @@ const pageKicker = isMyTasksView
                             {t('tasks.actions.changeStatus', 'Durum Değiştir')}
                           </Button>
                         )}
-                        <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detay Gör')}</Button>
+                        <Button size="sm" variant="secondary" onClick={() => void openTaskDetail(task)}>{t('tasks.actions.details', 'Detaylar')}</Button>
                         {!showOnlyDetailsInTaskGridActions && isMyTasksView && (canEditRoutineTask(task) ? (
                           <Button
                             size="sm"

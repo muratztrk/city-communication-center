@@ -669,7 +669,7 @@
       "changeStatusSelect": "Görev Durumu Seç",
       "changeStatusPlaceholder": "Görev durumu seçiniz",
       "statusChangeSuccess": "Görev durumu güncellendi.",
-      "details": "Detay Gör"
+      "details": "Detaylar"
     },
     "statusChange": {
       "inProgress": "Yapılmakta",
@@ -1414,7 +1414,7 @@
       "rejectReason": "Red nedeni:",
       "cancelReason": "İptal Nedeni:",
       "new": "Yeni İş",
-      "details": "Detay Gör",
+      "details": "Detaylar",
       "save": "Kaydet",
       "close": "Kapat"
     },

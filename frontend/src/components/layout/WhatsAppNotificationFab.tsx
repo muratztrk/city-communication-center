@@ -36,7 +36,6 @@ export function WhatsAppNotificationFab() {
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const location = useLocation()
-  const panelRef = useRef<HTMLDivElement>(null)
   const pulseTimerRef = useRef<number | null>(null)
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [activeConversation, setActiveConversation] = useState<ActiveWhatsAppConversation>(null)
@@ -213,9 +212,10 @@ export function WhatsAppNotificationFab() {
   const badgeLabel = formatBadgeCount(unreadTotal)
 
   return (
-    <div ref={panelRef} className="fixed-fab-whatsapp fixed right-5 z-[75] relative">
-      {isOpen ? (
-        <div className="absolute bottom-full right-0 mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
+    <div className="fixed-fab-whatsapp fixed right-5 z-[75]">
+      <div className="relative size-14">
+        {isOpen ? (
+          <div className="absolute bottom-full right-0 mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[#25D366]/10 px-4 py-3">
             <div>
               <p className="text-sm font-bold text-[color:var(--color-foreground)]">
@@ -292,23 +292,25 @@ export function WhatsAppNotificationFab() {
             </button>
           </div>
         </div>
-      ) : null}
-
-      <button
-        type="button"
-        aria-label={t('whatsapp.notificationFabLabel', 'WhatsApp bildirimleri')}
-        title={t('whatsapp.notificationFabLabel', 'WhatsApp bildirimleri')}
-        onClick={() => setIsOpen(current => !current)}
-        className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl active:scale-95 ${isPulsing ? 'whatsapp-fab-pulse' : ''}`}
-      >
-        <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:scale-125" aria-hidden="true" />
-        <img src="/icons/whatsapp.svg" alt="" className="relative size-7 brightness-0 invert" aria-hidden="true" />
-        {unreadTotal > 0 ? (
-          <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
-            {badgeLabel}
-          </span>
         ) : null}
-      </button>
+
+        <button
+          type="button"
+          aria-label={t('whatsapp.notificationFabLabel', 'WhatsApp bildirimleri')}
+          title={t('whatsapp.notificationFabLabel', 'WhatsApp bildirimleri')}
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen(current => !current)}
+          className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isPulsing ? 'whatsapp-fab-pulse' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
+        >
+          <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
+          <img src="/icons/whatsapp.svg" alt="" className="relative size-7 brightness-0 invert" aria-hidden="true" />
+          {unreadTotal > 0 ? (
+            <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
+              {badgeLabel}
+            </span>
+          ) : null}
+        </button>
+      </div>
     </div>
   )
 }

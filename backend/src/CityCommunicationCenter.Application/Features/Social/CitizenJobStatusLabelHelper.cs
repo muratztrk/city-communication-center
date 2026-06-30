@@ -24,6 +24,6 @@ public static class CitizenJobStatusLabelHelper
             message.CitizenRequestNumberYear,
             message.ReceivedAtUtc);
         var statusLabel = GetDisplayStatus(job, taskCount, utcNow);
-        return $"{requestNumber} no'lu Talebinizin durumu {statusLabel}.";
+        return $"{requestNumber} no'lu talebinizin durumu {statusLabel}.";
     }
 }

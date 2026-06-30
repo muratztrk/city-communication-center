@@ -623,7 +623,7 @@
       "creator": "Oluşturan",
       "progress": "İlerleme",
       "dueDate": "Son Tarih",
-      "actions": "İşlemler",
+      "actions": "Detaylar",
       "parentRequestNo": "Bağlı Olduğu Talep No",
       "parentRequestLinked": "Bağlı Olduğu",
       "parentRequestNoShort": "Talep No",
@@ -668,7 +668,8 @@
       "changeStatusReasonPlaceholder": "Durum değişikliği nedenini açıklayınız...",
       "changeStatusSelect": "Görev Durumu Seç",
       "changeStatusPlaceholder": "Görev durumu seçiniz",
-      "statusChangeSuccess": "Görev durumu güncellendi."
+      "statusChangeSuccess": "Görev durumu güncellendi.",
+      "details": "İşlemler"
     },
     "statusChange": {
       "inProgress": "Yapılmakta",

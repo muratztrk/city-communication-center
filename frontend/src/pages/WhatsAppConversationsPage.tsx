@@ -104,7 +104,7 @@ function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversat
 
 // ─── left panel: conversation list ────────────────────────────────────────────
 
-type ConversationListFilter = 'all' | 'unread' | 'pending' | 'assigned'
+type ConversationListFilter = 'all' | 'unread'
 type ConversationSortOrder = 'newest' | 'oldest'
 
 function isRecentConversationTime(dateStr: string): boolean {
@@ -270,8 +270,6 @@ function ConversationListPanel({
   const filterOptions: { value: ConversationListFilter; label: string; badge?: number }[] = [
     { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü') },
     { value: 'unread', label: t('whatsapp.listFilter.unread', 'Okunmamış'), badge: unreadCount || undefined },
-    { value: 'pending', label: t('whatsapp.listFilter.pending', 'Bekleyen') },
-    { value: 'assigned', label: t('whatsapp.listFilter.assigned', 'Atanmış') },
   ]
 
   return (
@@ -841,8 +839,6 @@ export function WhatsAppConversationsPage() {
         if (filterTo && date > filterTo.slice(0, 10)) return false
       }
       if (listFilter === 'unread' && conversation.unreadCount <= 0) return false
-      if (listFilter === 'pending' && !isWaitingForConversationResponse(conversation)) return false
-      if (listFilter === 'assigned' && !conversation.assigneeDisplayName?.trim()) return false
       return true
     })
 

@@ -618,7 +618,7 @@
       "createdBy": "Created By",
       "progress": "Progress",
       "dueDate": "Due",
-      "actions": "Actions",
+      "actions": "Details",
       "parentRequestNo": "Parent Request No",
       "parentRequestLinked": "Linked To",
       "parentRequestNoShort": "Request No",
@@ -663,7 +663,8 @@
       "changeStatusReasonPlaceholder": "Explain the reason for the status change...",
       "changeStatusSelect": "Select Task Status",
       "changeStatusPlaceholder": "Select a task status",
-      "statusChangeSuccess": "Task status updated."
+      "statusChangeSuccess": "Task status updated.",
+      "details": "Actions"
     },
     "statusChange": {
       "inProgress": "In Progress",

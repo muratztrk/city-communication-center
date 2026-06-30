@@ -107,7 +107,7 @@ export function MyRequestDetailMainCard({
       </div>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
-          <div className="space-y-3">
+          <div className="divide-y divide-slate-100">
             {fields.map(field => (
               <div key={field.label} className="job-detail-field-row">
                 <div className="job-detail-field-row__label">{field.label}</div>

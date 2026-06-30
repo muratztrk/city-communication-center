@@ -22,11 +22,11 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
 
   if (variant === 'detail-card') {
     return (
-      <dl className="space-y-3">
+      <dl className="divide-y divide-slate-100">
         {fields.map(field => (
-          <div key={field.label}>
-            <dt className="mb-1 text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">{field.label}</dt>
-            <dd className="break-words text-sm font-semibold text-slate-900">{displayAddressValue(field.value)}</dd>
+          <div key={field.label} className="job-detail-field-row job-detail-field-row--detail-card">
+            <dt className="job-detail-field-row__label">{field.label}</dt>
+            <dd className="job-detail-field-row__value">{displayAddressValue(field.value)}</dd>
           </div>
         ))}
       </dl>

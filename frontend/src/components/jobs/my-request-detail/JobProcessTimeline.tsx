@@ -1,7 +1,21 @@
-import { Check } from 'lucide-react'
+import { Check, Route } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
+
+function getLineClass(step: JobProcessStep, nextStep: JobProcessStep | undefined): string {
+  if (!nextStep) return ''
+  const stepDone = step.state === 'completed' || step.state === 'terminal-success'
+  const nextDone = nextStep.state === 'completed' || nextStep.state === 'terminal-success'
+
+  if (stepDone && nextDone) return 'job-process-timeline__line--completed'
+  if (stepDone && nextStep.state === 'current') return 'job-process-timeline__line--to-current'
+  if (step.state === 'current') return 'job-process-timeline__line--from-current'
+  if (stepDone && (nextStep.state === 'upcoming' || nextStep.state === 'terminal-danger')) {
+    return nextStep.state === 'upcoming' ? 'job-process-timeline__line--to-upcoming' : 'job-process-timeline__line--completed'
+  }
+  return 'job-process-timeline__line--upcoming'
+}
 
 interface JobProcessTimelineProps {
   steps: JobProcessStep[]
@@ -32,11 +46,14 @@ export function JobProcessTimeline({ steps, statusContent, dueDateContent }: Job
   return (
     <div className="job-process-timeline">
       <div className="job-detail-section-title mb-3">
+        <Route className="size-4 text-emerald-600" aria-hidden="true" />
         {t('jobs.detail.processTitle', 'SÜREÇ')}
       </div>
       <ol className="job-process-timeline__list">
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1
+          const nextStep = isLast ? undefined : steps[index + 1]
+          const lineClass = getLineClass(step, nextStep)
           const valueTone = step.id === 'completionDate'
             ? 'text-emerald-600'
             : step.id === 'cancelDate'
@@ -51,7 +68,7 @@ export function JobProcessTimeline({ steps, statusContent, dueDateContent }: Job
             <li key={step.id} className="job-process-timeline__item">
               <div className="job-process-timeline__track">
                 <StepIndicator state={step.state} />
-                {!isLast && <span className="job-process-timeline__line" aria-hidden="true" />}
+                {!isLast && <span className={`job-process-timeline__line ${lineClass}`} aria-hidden="true" />}
               </div>
               <div className="job-process-timeline__content min-w-0 pb-4">
                 <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">

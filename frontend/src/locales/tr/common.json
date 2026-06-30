@@ -783,7 +783,7 @@
     "sort": "Sırala",
     "urgent": "ACİL",
     "waitingForResponse": "Yanıt bekliyor",
-    "ticketOpen": "Açık",
+    "ticketOpen": "Yanıt verildi",
     "ticketResolved": "Çözüldü",
     "unassigned": "Atanmadı",
     "listFilter": {

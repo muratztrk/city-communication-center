@@ -778,7 +778,7 @@
     "sort": "Sort",
     "urgent": "URGENT",
     "waitingForResponse": "Awaiting reply",
-    "ticketOpen": "Open",
+    "ticketOpen": "Replied",
     "ticketResolved": "Resolved",
     "unassigned": "Unassigned",
     "listFilter": {

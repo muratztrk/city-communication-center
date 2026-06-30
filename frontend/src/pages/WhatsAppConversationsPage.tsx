@@ -198,7 +198,7 @@ function ConversationListItem({
               {!waitingForResponse && ticketOpen && (
                 <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
                   <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                  {t('whatsapp.ticketOpen', 'Açık')}
+                  {t('whatsapp.ticketOpen', 'Yanıt verildi')}
                 </span>
               )}
               {!ticketOpen && conv.openTicketCount === 0 && conv.latestTicketStatus && (

@@ -31,9 +31,10 @@
   --radius-2xl: 1.25rem;
 
   /* Fixed FAB stack: WhatsApp above footer, scroll arrow above WhatsApp. */
-  --fab-footer-clearance: 2.25rem;
+  --fab-footer-clearance: 1.75rem;
   --fab-stack-gap: 0.875rem;
   --whatsapp-fab-size: 3.5rem;
+  --scroll-fab-size: 2.75rem;
   --wa-chat-bg: #ece5dd;
   --wa-chat-bg-dark: #0b141a;
 }

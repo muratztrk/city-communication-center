@@ -689,8 +689,16 @@ export function AppShell() {
       <AppFooter />
       </div>
       </div> {/* end main area row */}
-      <ScrollFab />
-      {canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}
+      <div className="fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex flex-col-reverse items-end">
+        {canSeeWhatsAppNotifications ? (
+          <div className="pointer-events-auto">
+            <WhatsAppNotificationFab />
+          </div>
+        ) : null}
+        <div className="pointer-events-auto">
+          <ScrollFab />
+        </div>
+      </div>
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
       {notificationDetailTarget?.kind === 'task' && (
         <TasksPage

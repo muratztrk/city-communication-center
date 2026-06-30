@@ -645,7 +645,7 @@
     "claim": "Claim",
     "complete": "Complete",
     "actions": {
-      "cancelTask": "Cancel Task",
+      "cancelTask": "Cancel",
       "cancelReason": "Cancellation Reason:",
       "routeTask": "Route Task",
       "route": "Route",
@@ -1359,7 +1359,7 @@
       "project": "Project",
       "taskCount": "Tasks",
       "dueDate": "Due",
-      "actions": "Actions"
+      "actions": "Details"
     },
     "actions": {
       "approveOwner": "Approve",
@@ -1379,7 +1379,7 @@
       "rejectReason": "Reason:",
       "cancelReason": "Cancel reason:",
       "new": "New Job",
-      "details": "Details",
+      "details": "Actions",
       "save": "Save",
       "close": "Close"
     },

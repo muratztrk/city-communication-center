@@ -83,7 +83,7 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
     return (
       <>
         <span className={mainWeight}>
-          <NotificationStatusText value={match[1]} />
+          <NotificationTitleStatusText value={match[1]} />
         </span>
         <span className="font-normal text-slate-600"> {match[2]}</span>
       </>
@@ -91,7 +91,7 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
   }
   return (
     <span className={mainWeight}>
-      <NotificationStatusText value={title} />
+      <NotificationTitleStatusText value={title} />
     </span>
   )
 }
@@ -148,12 +148,21 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
   )
 }
 
-function NotificationStatusText({ value }: { value: string }) {
-  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|iptal edildi|İptal Edildi)/gi).map((part, index) => {
+function NotificationTitleStatusText({ value }: { value: string }) {
+  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi)/gi).map((part, index) => {
     if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
-    if (/^iptal edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
+    if (/^İptal Edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
+    return part
+  })
+}
+
+function NotificationStatusText({ value }: { value: string }) {
+  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı)/gi).map((part, index) => {
+    if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
+    if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
+    if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     return part
   })
 }

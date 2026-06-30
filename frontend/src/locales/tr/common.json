@@ -650,7 +650,7 @@
     "claim": "Üstlen",
     "complete": "Tamamla",
     "actions": {
-      "cancelTask": "Görevi İptal Et",
+      "cancelTask": "İptal Et",
       "cancelReason": "İptal Nedeni:",
       "routeTask": "Görevi Yönlendir",
       "route": "Görevi Yönlendir",
@@ -1392,7 +1392,7 @@
       "project": "Proje mi",
       "taskCount": "Görevler",
       "dueDate": "Son Tarih",
-      "actions": "İşlemler"
+      "actions": "Detaylar"
     },
     "actions": {
       "approveOwner": "Onayla",
@@ -1414,7 +1414,7 @@
       "rejectReason": "Red nedeni:",
       "cancelReason": "İptal Nedeni:",
       "new": "Yeni İş",
-      "details": "Detaylar",
+      "details": "İşlemler",
       "save": "Kaydet",
       "close": "Kapat"
     },

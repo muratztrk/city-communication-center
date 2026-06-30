@@ -795,11 +795,11 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobReturnFailed', 'Failed to return job'))
   },
 
-  async approveJobOwner(jobId: string, comment?: string | null): Promise<void> {
+  async approveJobOwner(jobId: string, comment?: string | null, confirmedIsProject?: boolean | null): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/owner-approval/approve`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ comment: comment || null }),
+      body: JSON.stringify({ comment: comment || null, confirmedIsProject: confirmedIsProject ?? null }),
     })
     await ensureOk(response, i18n.t('errors.jobApproveFailed', 'Failed to approve job'))
   },

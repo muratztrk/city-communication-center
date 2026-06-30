@@ -18,6 +18,12 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 
     public bool IsProject { get; set; }
 
+    /// <summary>Creator selected "project yes" and owner manager must confirm on approval.</summary>
+    public bool IsProjectCreatorRequested { get; set; }
+
+    /// <summary>Owner manager finalized project status; cannot be changed afterward.</summary>
+    public bool IsProjectOwnerConfirmed { get; set; }
+
     public string? CitizenName { get; set; }
 
     public string? CitizenPhone { get; set; }

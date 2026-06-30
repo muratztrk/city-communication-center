@@ -85,7 +85,25 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         job.Latitude = request.Latitude;
         job.Longitude = request.Longitude;
         // null = değiştirme; verilen alanlar (boş string dahil) güncellenir (card 452).
-        if (request.IsProject.HasValue) job.IsProject = request.IsProject.Value;
+        if (request.IsProject.HasValue)
+        {
+            if (job.IsProjectOwnerConfirmed && request.IsProject.Value != job.IsProject)
+            {
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(nameof(request.IsProject), "Proje niteligi birim yoneticisi tarafindan onaylandiktan sonra degistirilemez.")
+                ]);
+            }
+
+            if (job.Status == JobStatus.PendingOwnerApproval && !job.IsProjectOwnerConfirmed)
+            {
+                job.IsProjectCreatorRequested = request.IsProject.Value;
+                job.IsProject = false;
+            }
+            else if (!job.IsProjectOwnerConfirmed)
+            {
+                job.IsProject = request.IsProject.Value;
+            }
+        }
         if (request.Neighborhood is not null) job.Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood;
         if (request.Street is not null) job.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street;
         if (request.OpenAddress is not null) job.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress;

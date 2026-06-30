@@ -54,6 +54,8 @@ internal static class JobSummaryResponseFactory
             job.Priority,
             job.RequestType.ToString(),
             job.IsProject,
+            job.IsProjectCreatorRequested,
+            job.IsProjectOwnerConfirmed,
             job.CitizenName,
             job.CitizenPhone,
             job.OwnerDepartmentId,

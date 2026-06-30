@@ -71,7 +71,7 @@ public sealed class JobsController : ApiControllerBase
     [HttpPost("{jobId:guid}/owner-approval/approve")]
     public async Task<IActionResult> ApproveOwner(Guid jobId, [FromBody] JobApprovalDecisionRequest request, CancellationToken cancellationToken)
     {
-        var ok = await _sender.Send(new ApproveJobOwnerCommand(jobId, CurrentContext.UserId, request.Comment), cancellationToken);
+        var ok = await _sender.Send(new ApproveJobOwnerCommand(jobId, CurrentContext.UserId, request.Comment, request.ConfirmedIsProject), cancellationToken);
         return ok ? NoContent() : NotFound();
     }
 

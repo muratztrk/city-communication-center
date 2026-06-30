@@ -28,6 +28,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { JobProjectValue, formatJobProjectLabel } from '../utils/jobProjectDisplay'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import {
@@ -389,7 +390,7 @@ function printJobDetail(
       ? [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]
       : []),
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
-    ['Proje mi', detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')],
+    ['Proje mi', formatJobProjectLabel(detail, t)],
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
@@ -654,6 +655,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     saving: boolean
     selfRequestedOwnerUserId: string | null
     approvalRequired: boolean
+    requiresProjectConfirmation: boolean
+    projectDecision: boolean | null
   } | null>(null)
   const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
   const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
@@ -1239,10 +1242,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
   }
   const handleApproveOwner = async (jobId: string) => {
-    if (isIncomingRequestDetail) {
-      setError(null)
-      try {
-        const jobDetail = detail?.jobId === jobId ? detail : await api.getJobById(jobId)
+    setError(null)
+    try {
+      const jobDetail = detail?.jobId === jobId ? detail : await api.getJobById(jobId)
+      if (jobDetail.status === 'PendingOwnerApproval') {
         const departmentId = activeDeptId ?? jobDetail.ownerDepartmentId
         const users = await api.getUsers()
         setStaffAssignModal({
@@ -1250,35 +1253,36 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           selectedUserIds: [],
           users: users.filter(u => isAssignableDepartmentUser(u, departmentId, user?.userId)),
           saving: false,
-          // Birim içi talepte oluşturan kişi kendini görev sahibi seçtiyse işaretle (card 616).
           selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
-          approvalRequired: jobDetail.status === 'PendingOwnerApproval',
+          approvalRequired: true,
+          requiresProjectConfirmation: jobDetail.isProjectCreatorRequested === true,
+          projectDecision: null,
         })
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t('common.error'))
+        return
       }
-      return
-    }
 
-    setConfirmDialog({
-      title: isDepartmentOutgoingView ? 'Birimden Giden Talep' : undefined,
-      titleCompact: isDepartmentOutgoingView,
-      titleDivider: isDepartmentOutgoingView,
-      message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
-      variant: 'primary',
-      confirmLabel: t('common.approve', 'Onayla'),
-      onConfirm: async () => {
-        setError(null)
-        try {
-          await api.approveJobOwner(jobId)
-          invalidateJobs(queryClient, jobId)
-          await refreshDetail()
-          await reload()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : t('common.error'))
-        }
-      },
-    })
+      setConfirmDialog({
+        title: isDepartmentOutgoingView ? 'Birimden Giden Talep' : undefined,
+        titleCompact: isDepartmentOutgoingView,
+        titleDivider: isDepartmentOutgoingView,
+        message: t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?'),
+        variant: 'primary',
+        confirmLabel: t('common.approve', 'Onayla'),
+        onConfirm: async () => {
+          setError(null)
+          try {
+            await api.approveJobOwner(jobId)
+            invalidateJobs(queryClient, jobId)
+            await refreshDetail()
+            await reload()
+          } catch (err) {
+            setError(err instanceof Error ? err.message : t('common.error'))
+          }
+        },
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
   }
 
   const handleApproveTarget = (jobId: string, departmentId: string) => {
@@ -1302,11 +1306,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
-    const { jobId, selectedUserIds, approvalRequired } = staffAssignModal
+    const { jobId, selectedUserIds, approvalRequired, requiresProjectConfirmation, projectDecision } = staffAssignModal
+    if (requiresProjectConfirmation && projectDecision === null) {
+      setError(t('jobs.projectConfirmationRequired', 'Proje niteliği onayı zorunludur.'))
+      return
+    }
     setStaffAssignModal(current => current ? { ...current, saving: true } : null)
     try {
       if (approvalRequired) {
-        await api.approveJobOwner(jobId)
+        await api.approveJobOwner(jobId, null, requiresProjectConfirmation ? projectDecision : null)
         invalidateJobs(queryClient, jobId)
       }
       if (selectedUserIds.length > 0) {
@@ -1654,7 +1662,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       ) : renderJobDepartments(job)}
                     </td>
                     {!(isMyRequestsView || isDepartmentOutgoingView) && <td>{getPriorityLabel(t, job.priority)}</td>}
-                    {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}</td>}
+                    {!isMyRequestsView && !isDepartmentOutgoingView && (
+                      <td><JobProjectValue job={job} t={t} /></td>
+                    )}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <td><DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
@@ -1949,7 +1959,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: 'Talebin Gittiği Birim',
                         value: formatJobDestinationsWithAssignees(detail),
                       },
-                      { label: 'Proje mi', value: detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır') },
+                      { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                     ]).map(({ label, value }) => (
                       <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
@@ -2711,9 +2721,38 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             <button type="button" onClick={() => setStaffAssignModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <XIcon className="size-4" />
             </button>
-            <h3 className="mb-1 text-base font-bold text-slate-950">
+            <h3 className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
               {t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
             </h3>
+            {staffAssignModal.requiresProjectConfirmation ? (
+              <div className="mb-4 space-y-2">
+                <p className="text-sm font-semibold text-slate-800">
+                  {t('jobs.projectConfirmationPrompt', 'Talebin proje niteliğinde olduğunu onaylıyor musunuz?')}
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      name="project-confirmation"
+                      className="size-4"
+                      checked={staffAssignModal.projectDecision === true}
+                      onChange={() => setStaffAssignModal(current => current ? { ...current, projectDecision: true } : current)}
+                    />
+                    <span className="text-sm text-slate-800">{t('common.yes', 'Evet')}</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      name="project-confirmation"
+                      className="size-4"
+                      checked={staffAssignModal.projectDecision === false}
+                      onChange={() => setStaffAssignModal(current => current ? { ...current, projectDecision: false } : current)}
+                    />
+                    <span className="text-sm text-slate-800">{t('common.no', 'Hayır')}</span>
+                  </label>
+                </div>
+              </div>
+            ) : null}
             <p className="mb-4 text-sm text-slate-600">
               {t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}
             </p>
@@ -2750,7 +2789,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <Button type="button" variant="success" disabled={staffAssignModal.saving} onClick={() => void handleStaffAssignConfirm()}>
+              <Button
+                type="button"
+                variant="success"
+                disabled={staffAssignModal.saving || (staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null)}
+                onClick={() => void handleStaffAssignConfirm()}
+              >
                 {staffAssignModal.saving ? t('common.loading') : t('common.approve', 'Onayla')}
               </Button>
               <Button type="button" variant="secondary" disabled={staffAssignModal.saving} onClick={() => setStaffAssignModal(null)}>

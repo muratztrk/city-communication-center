@@ -39,7 +39,7 @@ public sealed record UpdateJobRequest(
 
 public sealed record CancelJobRequest(string Reason);
 
-public sealed record JobApprovalDecisionRequest(string? Comment);
+public sealed record JobApprovalDecisionRequest(string? Comment, bool? ConfirmedIsProject = null);
 
 public sealed record RejectJobRequest(string Reason);
 
@@ -69,6 +69,8 @@ public sealed record JobSummaryResponse(
     string Priority,
     string RequestType,
     bool IsProject,
+    bool IsProjectCreatorRequested,
+    bool IsProjectOwnerConfirmed,
     string? CitizenName,
     string? CitizenPhone,
     Guid OwnerDepartmentId,
@@ -101,6 +103,8 @@ public sealed record JobDetailResponse(
     string Priority,
     string RequestType,
     bool IsProject,
+    bool IsProjectCreatorRequested,
+    bool IsProjectOwnerConfirmed,
     string? CitizenName,
     string? CitizenPhone,
     Guid OwnerDepartmentId,

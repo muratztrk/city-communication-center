@@ -257,6 +257,8 @@ export interface JobSummary {
   priority: string;
   requestType: JobRequestType;
   isProject: boolean;
+  isProjectCreatorRequested?: boolean;
+  isProjectOwnerConfirmed?: boolean;
   citizenName: string | null;
   citizenPhone: string | null;
   ownerDepartmentId: string;
@@ -316,6 +318,8 @@ export interface JobDetail {
   priority: string;
   requestType: JobRequestType;
   isProject: boolean;
+  isProjectCreatorRequested?: boolean;
+  isProjectOwnerConfirmed?: boolean;
   citizenName: string | null;
   citizenPhone: string | null;
   ownerDepartmentId: string;

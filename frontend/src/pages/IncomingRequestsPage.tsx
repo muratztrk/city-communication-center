@@ -363,6 +363,8 @@ export function IncomingRequestsPage() {
     approvalType: 'owner' | 'assign'
     selectedUserIds: string[]
     selfRequestedOwnerUserId: string | null
+    requiresProjectConfirmation: boolean
+    projectDecision: boolean | null
   } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
@@ -441,6 +443,8 @@ export function IncomingRequestsPage() {
       approvalType: 'owner',
       selectedUserIds: [],
       selfRequestedOwnerUserId: job ? getSelfRequestedOwnerUserId(job) : null,
+      requiresProjectConfirmation: job?.isProjectCreatorRequested === true,
+      projectDecision: null,
     })
   }
 
@@ -452,6 +456,8 @@ export function IncomingRequestsPage() {
       approvalType: 'assign',
       selectedUserIds: [],
       selfRequestedOwnerUserId: null,
+      requiresProjectConfirmation: false,
+      projectDecision: null,
     })
   }
 
@@ -475,12 +481,16 @@ export function IncomingRequestsPage() {
 
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
-    const { jobId, approvalType, selectedUserIds } = staffAssignModal
+    const { jobId, approvalType, selectedUserIds, requiresProjectConfirmation, projectDecision } = staffAssignModal
+    if (approvalType === 'owner' && requiresProjectConfirmation && projectDecision === null) {
+      setError(t('jobs.projectConfirmationRequired', 'Proje niteliği onayı zorunludur.'))
+      return
+    }
     setStaffAssignModal(null)
     setError(null)
     try {
       if (approvalType === 'owner') {
-        await api.approveJobOwner(jobId)
+        await api.approveJobOwner(jobId, null, requiresProjectConfirmation ? projectDecision : null)
         invalidateJobs(queryClient, jobId)
       }
       if (selectedUserIds.length > 0) {
@@ -997,11 +1007,40 @@ export function IncomingRequestsPage() {
             <button type="button" onClick={() => setStaffAssignModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <X className="size-4" />
             </button>
-            <h3 className="mb-1 text-base font-bold text-slate-950">
+            <h3 className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
               {staffAssignModal.approvalType === 'assign'
                 ? t('jobs.actions.assignStaff', 'Personel Ata')
                 : t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
             </h3>
+            {staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation ? (
+              <div className="mb-4 space-y-2">
+                <p className="text-sm font-semibold text-slate-800">
+                  {t('jobs.projectConfirmationPrompt', 'Talebin proje niteliğinde olduğunu onaylıyor musunuz?')}
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      name="incoming-project-confirmation"
+                      className="size-4"
+                      checked={staffAssignModal.projectDecision === true}
+                      onChange={() => setStaffAssignModal(prev => prev ? { ...prev, projectDecision: true } : prev)}
+                    />
+                    <span className="text-sm text-slate-800">{t('common.yes', 'Evet')}</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      name="incoming-project-confirmation"
+                      className="size-4"
+                      checked={staffAssignModal.projectDecision === false}
+                      onChange={() => setStaffAssignModal(prev => prev ? { ...prev, projectDecision: false } : prev)}
+                    />
+                    <span className="text-sm text-slate-800">{t('common.no', 'Hayır')}</span>
+                  </label>
+                </div>
+              </div>
+            ) : null}
             <p className="mb-4 text-sm text-slate-600">
               {staffAssignModal.approvalType === 'assign'
                 ? t('jobs.actions.assignStaffHelp', 'Bu talebe görev atayacağınız personeli seçin.')
@@ -1040,7 +1079,12 @@ export function IncomingRequestsPage() {
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <Button type="button" variant="success" onClick={handleStaffAssignConfirm}>
+              <Button
+                type="button"
+                variant="success"
+                disabled={staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null}
+                onClick={handleStaffAssignConfirm}
+              >
                 {staffAssignModal.approvalType === 'assign' ? t('jobs.actions.assign', 'Ata') : t('common.approve', 'Onayla')}
               </Button>
               <Button type="button" variant="secondary" onClick={() => setStaffAssignModal(null)}>

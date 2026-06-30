@@ -53,6 +53,7 @@ import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenR
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
@@ -573,7 +574,6 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     || isStaffTasksView
   const tasksTableColumnCount = useMemo(() => {
     let count = 7
-    if (isDepartmentTasksView || isStaffTasksView) count += 1
     if (isStaffTasksView || isMyTasksView || isDepartmentTasksView) count += 1
     if (!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected')) count += 1
     if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed') count += 1
@@ -2126,9 +2126,7 @@ const pageKicker = isMyTasksView
                       }] : []),
                       {
                         label: 'Proje mi',
-                        value: parentJobDetail.isProject
-                          ? t('common.yes', 'Evet')
-                          : t('common.no', 'Hayır'),
+                        value: <JobProjectValue job={parentJobDetail} t={t} />,
                       },
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
                     ]
@@ -2392,11 +2390,13 @@ const pageKicker = isMyTasksView
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
-                  {(isDepartmentTasksView || isStaffTasksView) && (
-                    <FilterableTh filterKey="taskOwnerDisplayName" filterValue={taskFilters['taskOwnerDisplayName'] ?? ''} onFilter={setTaskFilter} sortKey="taskOwnerDisplayName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>
-                  )}
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
-                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="jobSourceType" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskType', 'Görev Tipi')}</FilterableTh>
+                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="jobSourceType" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
+                      <span className="inline-flex flex-col leading-tight">
+                        <span>{t('tasks.columns.taskType', 'Görev Tipi')}</span>
+                        <span>{t('tasks.columns.owner', 'Görevi Yapan')}</span>
+                      </span>
+                    </FilterableTh>
                   )}
                   {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && <FilterableTh filterKey="dueDateUtc" filterValue={taskFilters['dueDateUtc']} onFilter={setTaskFilter} sortKey="dueDateUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={taskFilters['completedAtUtc'] ?? ''} onFilter={setTaskFilter} sortKey="completedAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
@@ -2463,14 +2463,16 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td><span className="cell-title">{task.title}</span></td>
-                    {(isDepartmentTasksView || isStaffTasksView) && (
-                      <td>{task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}</td>
-                    )}
                     {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
                       <td>
-                        <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
-                          {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
-                        </StatusPill>
+                        <div className="mx-auto max-w-[11rem] text-center">
+                          <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
+                            {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
+                          </StatusPill>
+                          <div className="mt-1 truncate text-xs text-slate-600">
+                            {task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}
+                          </div>
+                        </div>
                       </td>
                     )}
                     {!((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') && (

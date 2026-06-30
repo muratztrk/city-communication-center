@@ -217,6 +217,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.Priority,
             r.Job.RequestType.ToString(),
             r.Job.IsProject,
+            r.Job.IsProjectCreatorRequested,
+            r.Job.IsProjectOwnerConfirmed,
             r.Job.CitizenName,
             r.Job.CitizenPhone,
             r.Job.OwnerDepartmentId,
@@ -477,7 +479,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         return new JobDetailResponse(
             job.JobId, job.TenantId, job.Title, job.Description,
             job.Status.ToString(), job.Priority,
-            job.RequestType.ToString(), job.IsProject, job.CitizenName, job.CitizenPhone,
+            job.RequestType.ToString(), job.IsProject, job.IsProjectCreatorRequested, job.IsProjectOwnerConfirmed, job.CitizenName, job.CitizenPhone,
             job.OwnerDepartmentId, ownerName,
             job.StartDateUtc, job.DueDateUtc, job.CompletedAtUtc,
             job.CompletionPercentage, job.IsCoordinated,

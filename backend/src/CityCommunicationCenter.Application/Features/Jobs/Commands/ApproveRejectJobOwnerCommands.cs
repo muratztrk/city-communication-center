@@ -2,7 +2,7 @@ using CityCommunicationCenter.Application.Abstractions;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
-public sealed record ApproveJobOwnerCommand(Guid JobId, Guid? ActorUserId, string? Comment) : ICommand<bool>;
+public sealed record ApproveJobOwnerCommand(Guid JobId, Guid? ActorUserId, string? Comment, bool? ConfirmedIsProject = null) : ICommand<bool>;
 
 public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOwnerCommand, bool>
 {
@@ -34,6 +34,20 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "Sadece sahip onayi bekleyen isler onaylanabilir.")
             ]);
+        }
+
+        if (job.IsProjectCreatorRequested)
+        {
+            if (!request.ConfirmedIsProject.HasValue)
+            {
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(nameof(request.ConfirmedIsProject), "Talebin proje niteliginde oldugunu onaylamaniz gerekir.")
+                ]);
+            }
+
+            job.IsProject = request.ConfirmedIsProject.Value;
+            job.IsProjectCreatorRequested = false;
+            job.IsProjectOwnerConfirmed = true;
         }
 
         var ownerDept = await _dbContext.JobDepartments

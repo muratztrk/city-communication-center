@@ -213,9 +213,9 @@ export function WhatsAppNotificationFab() {
   const badgeLabel = formatBadgeCount(unreadTotal)
 
   return (
-    <div ref={panelRef} className="fixed-fab-whatsapp fixed right-5 z-[75]">
+    <div ref={panelRef} className="fixed-fab-whatsapp fixed right-5 z-[75] relative">
       {isOpen ? (
-        <div className="mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
+        <div className="absolute bottom-full right-0 mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[#25D366]/10 px-4 py-3">
             <div>
               <p className="text-sm font-bold text-[color:var(--color-foreground)]">

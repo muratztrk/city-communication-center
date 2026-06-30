@@ -144,6 +144,16 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
   )
 }
 
+function NotificationEntityLabelText({ value, plainClassName }: { value: string; plainClassName: string }) {
+  return value.split(/(Görev|Talep)/g).map((segment, index) => {
+    if (!segment) return null
+    if (segment === 'Görev' || segment === 'Talep') {
+      return <span key={index} className="font-bold text-slate-900">{segment}</span>
+    }
+    return <span key={index} className={plainClassName}>{segment}</span>
+  })
+}
+
 function NotificationTitleStatusText({ value, plainClassName }: { value: string; plainClassName: string }) {
   return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi)/gi).map((part, index) => {
     if (!part) return null
@@ -151,7 +161,7 @@ function NotificationTitleStatusText({ value, plainClassName }: { value: string;
     if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     if (/^İptal Edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
-    return <span key={index} className={plainClassName}>{part}</span>
+    return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} />
   })
 }
 

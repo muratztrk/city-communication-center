@@ -348,19 +348,19 @@
   }
 
   .job-process-timeline__line--to-current {
-    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(5 150 105) 38%, rgb(249 115 22) 100%);
+    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(249 115 22) 100%);
   }
 
   .job-process-timeline__line--to-danger {
-    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(5 150 105) 38%, rgb(220 38 38) 100%);
+    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(220 38 38) 100%);
   }
 
   .job-process-timeline__line--to-current-from-danger {
-    background: linear-gradient(to bottom, rgb(220 38 38) 0%, rgb(220 38 38) 38%, rgb(249 115 22) 100%);
+    background: linear-gradient(to bottom, rgb(220 38 38) 0%, rgb(249 115 22) 100%);
   }
 
   .job-process-timeline__line--to-success-from-danger {
-    background: linear-gradient(to bottom, rgb(220 38 38) 0%, rgb(220 38 38) 38%, rgb(5 150 105) 100%);
+    background: linear-gradient(to bottom, rgb(220 38 38) 0%, rgb(5 150 105) 100%);
   }
 
   .job-process-timeline__line--from-danger {

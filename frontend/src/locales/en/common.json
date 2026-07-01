@@ -387,10 +387,7 @@
       "outgoingRequests": "Outgoing Requests",
       "incomingRequests": "Incoming Requests",
       "myRequests": "My Requests",
-      "citizenRequests": "Citizen Requests",
-      "externalRequestCreators": "Requesting Departments",
-      "externalRequestPending": "Requests Pending in Department",
-      "externalRequestFulfillers": "Departments Completing Requests"
+      "citizenRequests": "Citizen Requests"
     },
     "taskFilter": {
       "assigned": "Assigned",

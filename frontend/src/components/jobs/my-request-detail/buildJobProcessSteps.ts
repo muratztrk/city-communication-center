@@ -124,13 +124,14 @@ export function buildJobProcessSteps(
   ]
 
   if (!isCitizenRequestJob(detail)) {
+    const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
+    const ownerApprovalLabel = t('jobs.detail.ownerManagerApprovalDate', 'Talebin Birim Yöneticisinin Onay Tarihi')
     steps.push({
       id: 'ownerApproval',
-      label: t('jobs.detail.ownerManagerApprovalDate', 'Talebin Birim Yöneticisinin Onay Tarihi'),
-      displayValue: formatDueDateTime(
-        detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
-        locale,
-      ),
+      label: ownerDepartment?.approvedByDisplayName
+        ? `${ownerApprovalLabel} (${ownerDepartment.approvedByDisplayName})`
+        : ownerApprovalLabel,
+      displayValue: formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
     })
   }
 

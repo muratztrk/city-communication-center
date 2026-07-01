@@ -76,7 +76,7 @@ export function JobProcessTimeline({ steps, statusContent, dueDateContent }: Job
                 {!isLast && <span className={`job-process-timeline__line ${lineClass}`} aria-hidden="true" />}
               </div>
               <div className="job-process-timeline__content min-w-0 pb-4">
-                <div className={`text-xs font-semibold uppercase tracking-wide ${getStepLabelClass(step.state)}`}>
+                <div className={`text-xs font-semibold tracking-wide ${getStepLabelClass(step.state)}`}>
                   {step.label}
                 </div>
                 {step.id === 'status' && statusContent ? (

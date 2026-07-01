@@ -5,6 +5,8 @@ import type { ReactNode } from 'react'
 import { DateTimePicker } from '../../ui/date-time-picker'
 import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
+import { RichTextEditor } from '../../ui/RichTextEditor'
+import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
@@ -34,6 +36,9 @@ interface MyRequestDetailMainCardProps {
   onCloseDueDateEdit: () => void
   onDueDateChange: (value: string) => void
   onDueDateSave: () => void
+  isEditing?: boolean
+  editDraft?: MyRequestEditDraft
+  onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
 }
 
 export function MyRequestDetailMainCard({
@@ -50,15 +55,27 @@ export function MyRequestDetailMainCard({
   onCloseDueDateEdit,
   onDueDateChange,
   onDueDateSave,
+  isEditing = false,
+  editDraft,
+  onEditDraftChange,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
+  const titleLabel = t('jobs.form.title', 'Talep Başlığı')
+  const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   const fields = useMemo(
     () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage),
     [detail, t, locale, citizenSourceMessage],
   )
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale), [t, detail, locale])
 
-  const dueDateContent = detailDueDateEdit?.jobId === detail.jobId ? (
+  const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
+    <DateTimePicker
+      value={editDraft.dueDateUtc}
+      onChange={value => onEditDraftChange({ dueDateUtc: value })}
+      placeholder={t('jobs.form.dueDate', 'Son Tarih')}
+      forceUp
+    />
+  ) : detailDueDateEdit?.jobId === detail.jobId ? (
     <div className="mt-1 flex flex-col gap-1.5">
       <DateTimePicker
         value={detailDueDateEdit.value}
@@ -116,7 +133,28 @@ export function MyRequestDetailMainCard({
               <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
                 <div className="job-detail-field-row__label">{field.label}</div>
                 <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
-                  {field.value}
+                  {isEditing && editDraft && onEditDraftChange && field.label === titleLabel ? (
+                    <input
+                      className="field-input w-full text-right font-semibold"
+                      value={editDraft.title}
+                      onChange={e => onEditDraftChange({ title: e.target.value })}
+                      required
+                    />
+                  ) : isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (
+                    <select
+                      className="field-select w-full text-right font-semibold"
+                      value={editDraft.priority}
+                      onChange={e => onEditDraftChange({ priority: e.target.value })}
+                    >
+                      <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
+                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                      <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                      <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+                    </select>
+                  ) : (
+                    field.value
+                  )}
                 </div>
               </div>
             ))}
@@ -129,9 +167,9 @@ export function MyRequestDetailMainCard({
             statusContent={(
               <span className={`inline ${detailStatusClass}`}>
                 {statusLabel ?? statusContent}
-                {shouldShowJobStatusActorName(detail) ? ` (${detail.statusActorDisplayName})` : ''}
               </span>
             )}
+            statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
             statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}
           />
@@ -140,11 +178,18 @@ export function MyRequestDetailMainCard({
           <MyRequestSectionHeading icon={FileText}>
             {t('jobs.form.description', 'AÇIKLAMA')}
           </MyRequestSectionHeading>
-          <RichTextContent
-            value={detail.description}
-            emptyText={t('common.none')}
-            className="rich-text-content text-sm leading-6 text-slate-900"
-          />
+          {isEditing && editDraft && onEditDraftChange ? (
+            <RichTextEditor
+              value={editDraft.description}
+              onChange={value => onEditDraftChange({ description: value })}
+            />
+          ) : (
+            <RichTextContent
+              value={detail.description}
+              emptyText={t('common.none')}
+              className="rich-text-content text-sm leading-6 text-slate-900"
+            />
+          )}
         </div>
       </div>
     </section>

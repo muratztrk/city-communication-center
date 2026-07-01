@@ -49,6 +49,7 @@ import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
+import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
@@ -653,6 +654,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // Mevcut not için Değiştir/Sil moduna geçildi mi (card #727).
   const [managerNoteEditing, setManagerNoteEditing] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
+  const [myRequestEditing, setMyRequestEditing] = useState(false)
+  const [myRequestEditDraft, setMyRequestEditDraft] = useState<MyRequestEditDraft | null>(null)
+  const [myRequestEditSaving, setMyRequestEditSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
   const [staffAssignModal, setStaffAssignModal] = useState<{
@@ -1153,7 +1157,52 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     setManagerNoteSaved(false)
     setManagerNoteEditing(false)
     setDetailDueDateEdit(null)
+    setMyRequestEditing(false)
+    setMyRequestEditDraft(null)
+    setMyRequestEditSaving(false)
   }, [detail?.jobId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const startMyRequestEdit = () => {
+    if (!detail) return
+    setDetailDueDateEdit(null)
+    setMyRequestEditDraft(buildMyRequestEditDraft(detail))
+    setMyRequestEditing(true)
+  }
+
+  const cancelMyRequestEdit = () => {
+    setMyRequestEditing(false)
+    setMyRequestEditDraft(null)
+  }
+
+  const handleSaveMyRequestEdit = async () => {
+    if (!detail || !myRequestEditDraft || !myRequestEditDraft.title.trim()) return
+    setMyRequestEditSaving(true)
+    setError(null)
+    try {
+      await api.updateJob(detail.jobId, {
+        title: myRequestEditDraft.title.trim(),
+        description: myRequestEditDraft.description,
+        priority: myRequestEditDraft.priority,
+        startDateUtc: detail.startDateUtc,
+        dueDateUtc: myRequestEditDraft.dueDateUtc ? new Date(myRequestEditDraft.dueDateUtc).toISOString() : null,
+        latitude: detail.latitude,
+        longitude: detail.longitude,
+        isProject: detail.isProject,
+        neighborhood: myRequestEditDraft.neighborhood || null,
+        street: myRequestEditDraft.street || null,
+        openAddress: myRequestEditDraft.openAddress || null,
+      })
+      invalidateJobs(queryClient, detail.jobId)
+      setMyRequestEditing(false)
+      setMyRequestEditDraft(null)
+      await refreshDetail()
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setMyRequestEditSaving(false)
+    }
+  }
 
   const handleSaveManagerNote = async () => {
     if (!detail) return
@@ -1195,6 +1244,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // takılı kalınmaması için bağlama göre ilgili listeye dönülür (card 431).
   const closeDetail = () => {
     setDetail(null)
+    setMyRequestEditing(false)
+    setMyRequestEditDraft(null)
     if (notificationJobId) {
       onNotificationDetailClose?.()
       return
@@ -1528,27 +1579,27 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const myRequestStatusNoteContent = detail != null ? (
     <>
       {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
-        <span className="inline-flex items-center text-red-600">
+        <span className="inline-flex items-center text-xs text-red-600">
           <span>(</span>
           <button
             type="button"
             className="font-semibold hover:text-red-700"
             onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
-            <span className="underline underline-offset-2">{t('jobs.detail.cancelNote', 'İptal Notu')}</span>
+            <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
           </button>
           <span>)</span>
         </span>
       ) : null}
       {detail.status === 'Completed' && detail.completionNote ? (
-        <span className="inline-flex items-center text-emerald-600">
+        <span className="inline-flex items-center text-xs text-emerald-600">
           <span>(</span>
           <button
             type="button"
             className="font-semibold hover:text-emerald-700"
             onClick={() => setConfirmDialog({ title: t('jobs.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
-            <span className="underline underline-offset-2">{t('jobs.detail.completionNote', 'Tamamlama Notu')}</span>
+            <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
           </button>
           <span>)</span>
         </span>
@@ -1787,47 +1838,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
-                        {/* Düzenle — onay öncesi (hedef onaylamadan) talebi Talep Oluştur sayfasında dolu olarak aç (card 452). */}
-                        {isMyRequestsView && (() => {
-                          const canReporterEdit = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
-                          const canEdit =
-                          canReporterEdit
-                          || canOperatorEditPendingExternalJob(user?.role, job)
-                          || isPreApprovalStatus(job.status)
-                          || (isManagerLike && (
-                            (job.requestType === 'ExternalUnit' && job.status === 'PendingExternalApproval')
-                            || (job.requestType === 'InternalUnit' && job.status === 'Active')
-                            || (job.status === 'Active' && job.taskCount === 0)
-                          ))
-
-                          if (canEdit) {
-                            return (
-                              <Button
-                                size="sm"
-                                className="bg-teal-700 text-white hover:bg-teal-800"
-                                onClick={() => navigate(getRequestEditPath(job))}
-                              >
-                                {t('jobs.actions.edit', 'Düzenle')}
-                              </Button>
-                            )
-                          }
-
-                          // Onaylanmış (approved) + Tümü + Süresi Geçmiş görünümlerde düzenlenemeyen
-                          // kayıtlarda da hizalama için pasif Düzenle göster (card #1076).
-                          if (activeJobView === 'all' || activeJobView === 'overdue' || activeJobView === 'approved') {
-                            return (
-                              <DisabledActionButton
-                                size="sm"
-                                className="button-placeholder bg-teal-700 text-white"
-                                hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
-                              >
-                                {t('jobs.actions.edit', 'Düzenle')}
-                              </DisabledActionButton>
-                            )
-                          }
-
-                          return null
-                        })()}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => void handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
                         )}
@@ -1860,23 +1870,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             </Button>
                           )
                         )}
-                        {/* Talebi oluşturan kullanıcı talebini iade edemez; yalnızca iptal edebilir.
-                            Başkanlık seviyesi üst düzey yönetici, "Tüm Taleplerim"de iptal edilemeyen
-                            satırlarda görsel bütünlük için pasif "İptal" görür (card 660). */}
-                        {isMyRequestsView && (() => {
-                          const canCancel = job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval' || job.status === 'Active'
-                          if (canCancel) {
-                            return <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel', 'İptal')}</Button>
-                          }
-                          if (activeJobView === 'all') {
-                            return (
-                              <DisabledActionButton size="sm" variant="destructive" hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')}>
-                                {t('jobs.actions.cancel', 'İptal')}
-                              </DisabledActionButton>
-                            )
-                          }
-                          return null
-                        })()}
                       </div>
                     </td>
                   </tr>
@@ -1921,8 +1914,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onClose={closeDetail}
               onPrint={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, myRequestView: isMyRequestsView })}
               onCancel={canCancelDetail ? () => handleCancel(detail.jobId) : undefined}
-              onEdit={canEditMyRequestDetailJob ? () => navigate(getRequestEditPath(detail)) : undefined}
-              showEditDisabled={showMyRequestEditDisabled}
+              onEdit={canEditMyRequestDetailJob && !myRequestEditing ? startMyRequestEdit : undefined}
+              showEditDisabled={showMyRequestEditDisabled && !myRequestEditing}
               onGoToConversation={isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) ? openCitizenConversationModal : undefined}
               showManagerNoteColumn={showManagerNoteColumn}
               canEditManagerNote={canEditManagerNote}
@@ -1963,6 +1956,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 await refreshDetail()
               }}
               onDownloadTaskAttachment={(attachmentId, fileName) => void handleDownloadTaskAttachment(attachmentId, fileName)}
+              isEditing={myRequestEditing}
+              editDraft={myRequestEditDraft ?? undefined}
+              onEditDraftChange={patch => setMyRequestEditDraft(current => current ? { ...current, ...patch } : current)}
+              editSaving={myRequestEditSaving}
+              onSaveEdit={() => void handleSaveMyRequestEdit()}
+              onCancelEdit={cancelMyRequestEdit}
             />
           ) : (
           <section

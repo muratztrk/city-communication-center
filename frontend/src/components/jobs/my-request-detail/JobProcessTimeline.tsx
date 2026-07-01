@@ -47,6 +47,7 @@ interface JobProcessTimelineProps {
   steps: JobProcessStep[]
   recoveredFromCancellation?: boolean
   statusContent?: ReactNode
+  statusActorName?: string | null
   statusNoteContent?: ReactNode
   dueDateContent?: ReactNode
 }
@@ -72,6 +73,7 @@ export function JobProcessTimeline({
   steps,
   recoveredFromCancellation = false,
   statusContent,
+  statusActorName,
   statusNoteContent,
   dueDateContent,
 }: JobProcessTimelineProps) {
@@ -87,7 +89,9 @@ export function JobProcessTimeline({
           const isLast = index === steps.length - 1
           const nextStep = isLast ? undefined : steps[index + 1]
           const lineClass = getLineClass(step, nextStep, recoveredFromCancellation)
-          const showStatusOnDate = (step.id === 'completionDate' || step.id === 'cancelDate') && statusContent
+          const showStatusOnLabel = (step.id === 'completionDate' || step.id === 'cancelDate')
+            && statusContent
+            && !(step.id === 'cancelDate' && recoveredFromCancellation)
           const valueTone = step.id === 'completionDate'
             ? 'text-emerald-600'
             : step.id === 'cancelDate'
@@ -106,20 +110,20 @@ export function JobProcessTimeline({
               </div>
               <div className="job-process-timeline__content min-w-0 pb-4">
                 <div className={`text-xs font-semibold tracking-wide ${getStepLabelClass(step.state)}`}>
-                  {showStatusOnDate ? (
-                    <span className="inline">{step.label} ({statusContent})</span>
+                  {showStatusOnLabel ? (
+                    <span className="inline">
+                      {step.label} ({statusContent})
+                      {statusActorName ? ` ${statusActorName}` : ''}
+                    </span>
                   ) : (
                     step.label
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
                   <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
-                    <span className="inline">
-                      {statusContent}
-                      {statusNoteContent}
-                    </span>
+                    {statusContent}
                   </div>
-                ) : showStatusOnDate ? (
+                ) : showStatusOnLabel ? (
                   <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
                     <span className="inline">
                       {step.displayValue}

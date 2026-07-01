@@ -12,6 +12,10 @@ interface MyRequestDetailHeaderProps {
   onGoToConversation?: () => void
   showEditDisabled?: boolean
   editDisabledTitle?: string
+  isEditing?: boolean
+  editSaving?: boolean
+  onSaveEdit?: () => void
+  onCancelEdit?: () => void
 }
 
 export function MyRequestDetailHeader({
@@ -23,6 +27,10 @@ export function MyRequestDetailHeader({
   onGoToConversation,
   showEditDisabled,
   editDisabledTitle,
+  isEditing = false,
+  editSaving = false,
+  onSaveEdit,
+  onCancelEdit,
 }: MyRequestDetailHeaderProps) {
   const { t } = useTranslation()
 
@@ -43,37 +51,50 @@ export function MyRequestDetailHeader({
             {t('social.goToConversation', 'Yazışmaya Git')}
           </Button>
         )}
-        {onEdit && (
-          <Button
-            type="button"
-            className="inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800"
-            onClick={onEdit}
-            aria-label={t('jobs.actions.edit', 'Düzenle')}
-          >
-            <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-            {t('jobs.actions.edit', 'Düzenle')}
-          </Button>
-        )}
-        {showEditDisabled && (
-          <DisabledActionButton
-            className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
-            hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
-          >
-            <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-            {t('jobs.actions.edit', 'Düzenle')}
-          </DisabledActionButton>
-        )}
-        {onCancel && (
-          <Button
-            type="button"
-            variant="destructive"
-            className="inline-flex items-center gap-1.5"
-            onClick={onCancel}
-            aria-label={t('jobs.actions.cancel', 'İptal Et')}
-          >
-            <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-            {t('jobs.actions.cancel', 'İptal Et')}
-          </Button>
+        {isEditing ? (
+          <>
+            <Button type="button" variant="success" disabled={editSaving} onClick={onSaveEdit}>
+              {editSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+            </Button>
+            <Button type="button" variant="secondary" disabled={editSaving} onClick={onCancelEdit}>
+              {t('common.cancel', 'Vazgeç')}
+            </Button>
+          </>
+        ) : (
+          <>
+            {onEdit && (
+              <Button
+                type="button"
+                className="inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800"
+                onClick={onEdit}
+                aria-label={t('jobs.actions.edit', 'Düzenle')}
+              >
+                <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                {t('jobs.actions.edit', 'Düzenle')}
+              </Button>
+            )}
+            {showEditDisabled && (
+              <DisabledActionButton
+                className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
+                hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
+              >
+                <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                {t('jobs.actions.edit', 'Düzenle')}
+              </DisabledActionButton>
+            )}
+            {onCancel && (
+              <Button
+                type="button"
+                variant="destructive"
+                className="inline-flex items-center gap-1.5"
+                onClick={onCancel}
+                aria-label={t('jobs.actions.cancel', 'İptal Et')}
+              >
+                <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                {t('jobs.actions.cancel', 'İptal Et')}
+              </Button>
+            )}
+          </>
         )}
         <Button
           type="button"

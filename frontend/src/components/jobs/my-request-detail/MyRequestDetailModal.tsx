@@ -11,6 +11,8 @@ import type { DetailDueDateEditState } from './MyRequestDetailMainCard'
 import { MyRequestDetailMainCard } from './MyRequestDetailMainCard'
 import { MyRequestTaskDetailsSection } from './MyRequestTaskDetailsSection'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
+import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
+import type { MyRequestEditDraft } from './myRequestEditDraft'
 
 export interface MyRequestDetailModalProps {
   detail: JobDetail
@@ -54,6 +56,12 @@ export interface MyRequestDetailModalProps {
   onAttachmentUpload: (file: File, onProgress?: (percent: number) => void) => Promise<void>
   onAttachmentDelete: (attachmentId: string) => Promise<void>
   onDownloadTaskAttachment: (attachmentId: string, fileName: string) => void
+  isEditing?: boolean
+  editDraft?: MyRequestEditDraft
+  onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
+  editSaving?: boolean
+  onSaveEdit?: () => void
+  onCancelEdit?: () => void
 }
 
 export function MyRequestDetailModal({
@@ -98,6 +106,12 @@ export function MyRequestDetailModal({
   onAttachmentUpload,
   onAttachmentDelete,
   onDownloadTaskAttachment,
+  isEditing = false,
+  editDraft,
+  onEditDraftChange,
+  editSaving = false,
+  onSaveEdit,
+  onCancelEdit,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
@@ -115,6 +129,10 @@ export function MyRequestDetailModal({
         showEditDisabled={showEditDisabled}
         editDisabledTitle={editDisabledTitle}
         onGoToConversation={onGoToConversation}
+        isEditing={isEditing}
+        editSaving={editSaving}
+        onSaveEdit={onSaveEdit}
+        onCancelEdit={onCancelEdit}
       />
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -132,6 +150,9 @@ export function MyRequestDetailModal({
           onCloseDueDateEdit={onCloseDueDateEdit}
           onDueDateChange={value => onDueDateChange(value)}
           onDueDateSave={onDueDateSave}
+          isEditing={isEditing}
+          editDraft={editDraft}
+          onEditDraftChange={onEditDraftChange}
         />
 
         {canManageCoordination ? (
@@ -149,12 +170,15 @@ export function MyRequestDetailModal({
             onManagerNoteSave={onManagerNoteSave}
             onManagerNoteDeleteConfirm={onManagerNoteDeleteConfirm}
             setConfirmDialog={setConfirmDialog}
-            canEditJobAttachments={canEditJobAttachments}
-            showAttachmentLockNotice={showAttachmentLockNotice}
+            canEditJobAttachments={canEditJobAttachments || isEditing}
+            showAttachmentLockNotice={showAttachmentLockNotice && !isEditing}
             attachmentLockText={attachmentLockText}
             attachmentUploading={attachmentUploading}
             onAttachmentUpload={onAttachmentUpload}
             onAttachmentDelete={onAttachmentDelete}
+            isEditing={isEditing}
+            editDraft={editDraft}
+            onEditDraftChange={onEditDraftChange}
           />
         ) : (
           <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
@@ -162,12 +186,16 @@ export function MyRequestDetailModal({
               <MyRequestSectionHeading icon={MapPin}>
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
               </MyRequestSectionHeading>
-              <AddressDetailFields
-                variant="my-request"
-                neighborhood={detail.neighborhood}
-                street={detail.street}
-                openAddress={detail.openAddress}
-              />
+              {isEditing && editDraft && onEditDraftChange ? (
+                <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
+              ) : (
+                <AddressDetailFields
+                  variant="my-request"
+                  neighborhood={detail.neighborhood}
+                  street={detail.street}
+                  openAddress={detail.openAddress}
+                />
+              )}
             </section>
             {showManagerNoteColumn && (
               <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
@@ -187,11 +215,14 @@ export function MyRequestDetailModal({
               </MyRequestSectionHeading>
               <AttachmentSection
                 attachments={detail.attachments ?? []}
-                readOnly
+                readOnly={!isEditing && !canEditJobAttachments}
                 displayMode="list"
                 emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                onUpload={isEditing || canEditJobAttachments ? onAttachmentUpload : undefined}
+                onDelete={isEditing || canEditJobAttachments ? onAttachmentDelete : undefined}
+                disabled={attachmentUploading}
               />
-              {showAttachmentLockNotice && (
+              {showAttachmentLockNotice && !isEditing && (
                 <p className="mt-2 text-xs font-medium text-amber-600">{attachmentLockText}</p>
               )}
             </section>

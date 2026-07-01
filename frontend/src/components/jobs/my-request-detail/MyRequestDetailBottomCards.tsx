@@ -6,6 +6,8 @@ import { Button } from '../../ui/button'
 import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail } from '../../../types/platform'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
+import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
+import type { MyRequestEditDraft } from './myRequestEditDraft'
 
 interface MyRequestDetailBottomCardsProps {
   detail: JobDetail
@@ -27,6 +29,9 @@ interface MyRequestDetailBottomCardsProps {
   attachmentUploading: boolean
   onAttachmentUpload: (file: File, onProgress?: (percent: number) => void) => Promise<void>
   onAttachmentDelete: (attachmentId: string) => Promise<void>
+  isEditing?: boolean
+  editDraft?: MyRequestEditDraft
+  onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
 }
 
 export function MyRequestDetailBottomCards({
@@ -49,6 +54,9 @@ export function MyRequestDetailBottomCards({
   attachmentUploading,
   onAttachmentUpload,
   onAttachmentDelete,
+  isEditing = false,
+  editDraft,
+  onEditDraftChange,
 }: MyRequestDetailBottomCardsProps) {
   const { t } = useTranslation()
 
@@ -60,12 +68,16 @@ export function MyRequestDetailBottomCards({
         <MyRequestSectionHeading icon={MapPin}>
           {t('address.detailSectionTitle', 'Adres Bilgileri')}
         </MyRequestSectionHeading>
-        <AddressDetailFields
-          variant="my-request"
-          neighborhood={detail.neighborhood}
-          street={detail.street}
-          openAddress={detail.openAddress}
-        />
+        {isEditing && editDraft && onEditDraftChange ? (
+          <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
+        ) : (
+          <AddressDetailFields
+            variant="my-request"
+            neighborhood={detail.neighborhood}
+            street={detail.street}
+            openAddress={detail.openAddress}
+          />
+        )}
       </div>
 
       {showManagerNoteColumn && (

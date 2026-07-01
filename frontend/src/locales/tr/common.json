@@ -1423,7 +1423,7 @@
       "close": "Kapat"
     },
     "form": {
-      "title": "İş Başlığı",
+      "title": "Talep Başlığı",
       "titlePlaceholder": "Örn: Park bakımı organizasyonu",
       "description": "Açıklama",
       "descriptionPlaceholder": "Detaylar...",

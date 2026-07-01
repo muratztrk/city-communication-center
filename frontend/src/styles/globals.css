@@ -264,6 +264,7 @@
   .detail-modal-shell--my-request .job-detail-section-heading:has(> .job-detail-section-title:not(.job-detail-section-title--muted)) {
     border-bottom: none;
     padding-bottom: 0;
+    margin-bottom: 0.25rem;
   }
 
   .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label {
@@ -337,8 +338,8 @@
 
   .job-process-timeline__line {
     position: absolute;
-    top: 1.25rem;
-    bottom: -0.25rem;
+    top: 0.625rem;
+    bottom: -0.625rem;
     width: 2px;
     background: rgb(203 213 225);
   }
@@ -348,19 +349,55 @@
   }
 
   .job-process-timeline__line--to-current {
-    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(249 115 22) 100%);
+    width: 3px;
+    margin-left: -0.5px;
+    background: linear-gradient(
+      to bottom,
+      rgb(5 150 105) 0%,
+      rgb(52 211 153) 25%,
+      rgb(250 204 21) 55%,
+      rgb(251 146 60) 80%,
+      rgb(249 115 22) 100%
+    );
   }
 
   .job-process-timeline__line--to-danger {
-    background: linear-gradient(to bottom, rgb(5 150 105) 0%, rgb(220 38 38) 100%);
+    width: 3px;
+    margin-left: -0.5px;
+    background: linear-gradient(
+      to bottom,
+      rgb(5 150 105) 0%,
+      rgb(52 211 153) 20%,
+      rgb(248 113 113) 55%,
+      rgb(239 68 68) 80%,
+      rgb(220 38 38) 100%
+    );
   }
 
   .job-process-timeline__line--to-current-from-danger {
-    background: linear-gradient(to bottom, rgb(220 38 38) 0%, rgb(249 115 22) 100%);
+    width: 3px;
+    margin-left: -0.5px;
+    background: linear-gradient(
+      to bottom,
+      rgb(220 38 38) 0%,
+      rgb(248 113 113) 25%,
+      rgb(250 204 21) 55%,
+      rgb(251 146 60) 80%,
+      rgb(249 115 22) 100%
+    );
   }
 
   .job-process-timeline__line--to-success-from-danger {
-    background: linear-gradient(to bottom, rgb(220 38 38) 0%, rgb(5 150 105) 100%);
+    width: 3px;
+    margin-left: -0.5px;
+    background: linear-gradient(
+      to bottom,
+      rgb(220 38 38) 0%,
+      rgb(248 113 113) 25%,
+      rgb(52 211 153) 55%,
+      rgb(16 185 129) 80%,
+      rgb(5 150 105) 100%
+    );
   }
 
   .job-process-timeline__line--from-danger {

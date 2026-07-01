@@ -109,13 +109,8 @@ export function JobProcessTimeline({
                 {step.id === 'status' && statusContent ? (
                   <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>{statusContent}</div>
                 ) : showStatusOnDate ? (
-                  <div className={`mt-0.5 flex flex-wrap items-center gap-x-1 text-sm font-semibold ${valueTone}`}>
-                    <span>{step.displayValue}</span>
-                    <span className="inline-flex flex-wrap items-center gap-x-1">
-                      <span>(</span>
-                      {statusContent}
-                      <span>)</span>
-                    </span>
+                  <div className={`mt-0.5 text-sm font-semibold leading-snug ${valueTone}`}>
+                    <span className="inline">{step.displayValue} ({statusContent})</span>
                   </div>
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>

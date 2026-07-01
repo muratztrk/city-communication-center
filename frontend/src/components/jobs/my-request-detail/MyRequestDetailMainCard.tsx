@@ -123,7 +123,7 @@ export function MyRequestDetailMainCard({
             steps={steps}
             recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
             statusContent={(
-              <span className={`inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 ${detailStatusClass}`}>
+              <span className={`inline ${detailStatusClass}`}>
                 {statusContent}
                 {shouldShowJobStatusActorName(detail) ? ` (${detail.statusActorDisplayName})` : ''}
               </span>

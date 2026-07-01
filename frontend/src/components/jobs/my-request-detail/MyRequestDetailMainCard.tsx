@@ -26,6 +26,8 @@ interface MyRequestDetailMainCardProps {
   citizenSourceMessage?: SocialMessage | null
   detailStatusClass: string
   statusContent: ReactNode
+  statusLabel?: ReactNode
+  statusNoteContent?: ReactNode
   canChangeDueDate: boolean
   detailDueDateEdit: DetailDueDateEditState | null
   onOpenDueDateEdit: () => void
@@ -40,6 +42,8 @@ export function MyRequestDetailMainCard({
   citizenSourceMessage,
   detailStatusClass,
   statusContent,
+  statusLabel,
+  statusNoteContent,
   canChangeDueDate,
   detailDueDateEdit,
   onOpenDueDateEdit,
@@ -124,10 +128,11 @@ export function MyRequestDetailMainCard({
             recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
             statusContent={(
               <span className={`inline ${detailStatusClass}`}>
-                {statusContent}
+                {statusLabel ?? statusContent}
                 {shouldShowJobStatusActorName(detail) ? ` (${detail.statusActorDisplayName})` : ''}
               </span>
             )}
+            statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}
           />
         </div>

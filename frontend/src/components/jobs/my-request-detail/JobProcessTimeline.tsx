@@ -47,6 +47,7 @@ interface JobProcessTimelineProps {
   steps: JobProcessStep[]
   recoveredFromCancellation?: boolean
   statusContent?: ReactNode
+  statusNoteContent?: ReactNode
   dueDateContent?: ReactNode
 }
 
@@ -71,6 +72,7 @@ export function JobProcessTimeline({
   steps,
   recoveredFromCancellation = false,
   statusContent,
+  statusNoteContent,
   dueDateContent,
 }: JobProcessTimelineProps) {
   const { t } = useTranslation()
@@ -78,7 +80,7 @@ export function JobProcessTimeline({
   return (
     <div className="job-process-timeline">
       <MyRequestSectionHeading icon={Clock}>
-        {t('jobs.detail.processTitle', 'SÜREÇ')}
+        {t('jobs.detail.processTitle', 'Süreç')}
       </MyRequestSectionHeading>
       <ol className="job-process-timeline__list">
         {steps.map((step, index) => {
@@ -111,9 +113,19 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>{statusContent}</div>
+                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
+                    <span className="inline">
+                      {statusContent}
+                      {statusNoteContent}
+                    </span>
+                  </div>
                 ) : showStatusOnDate ? (
-                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>{step.displayValue}</div>
+                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
+                    <span className="inline">
+                      {step.displayValue}
+                      {statusNoteContent ? <> {statusNoteContent}</> : null}
+                    </span>
+                  </div>
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (

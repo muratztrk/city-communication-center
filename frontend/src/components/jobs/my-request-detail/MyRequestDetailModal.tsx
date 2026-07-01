@@ -20,6 +20,8 @@ export interface MyRequestDetailModalProps {
   citizenSourceMessage?: SocialMessage | null
   detailStatusClass: string
   statusContent: ReactNode
+  statusLabel?: ReactNode
+  statusNoteContent?: ReactNode
   canChangeDueDate: boolean
   detailDueDateEdit: DetailDueDateEditState | null
   onOpenDueDateEdit: () => void
@@ -62,6 +64,8 @@ export function MyRequestDetailModal({
   citizenSourceMessage,
   detailStatusClass,
   statusContent,
+  statusLabel,
+  statusNoteContent,
   canChangeDueDate,
   detailDueDateEdit,
   onOpenDueDateEdit,
@@ -120,6 +124,8 @@ export function MyRequestDetailModal({
           citizenSourceMessage={citizenSourceMessage}
           detailStatusClass={detailStatusClass}
           statusContent={statusContent}
+          statusLabel={statusLabel}
+          statusNoteContent={statusNoteContent}
           canChangeDueDate={canChangeDueDate}
           detailDueDateEdit={detailDueDateEdit}
           onOpenDueDateEdit={onOpenDueDateEdit}

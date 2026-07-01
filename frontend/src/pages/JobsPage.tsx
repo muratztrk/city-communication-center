@@ -1515,16 +1515,18 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     : (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
       ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
       : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
-  const myRequestStatusContent = detail != null ? (
+  const myRequestStatusLabel = detail != null ? (
+    isCitizenRequestDetail
+      ? getCitizenRequestStatusLabel(t, detail)
+      : getExternalUnitOwnerDisplayStatus(t, detail)
+        ?? (detail.status === 'Active'
+          ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+          : detail.status === 'Completed'
+            ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+            : getJobStatusLabel(t, detail.status))
+  ) : null
+  const myRequestStatusNoteContent = detail != null ? (
     <>
-      {isCitizenRequestDetail
-        ? getCitizenRequestStatusLabel(t, detail)
-        : getExternalUnitOwnerDisplayStatus(t, detail)
-          ?? (detail.status === 'Active'
-            ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
-            : detail.status === 'Completed'
-              ? t('jobs.statusLabel.completed', 'Tamamlanmış')
-              : getJobStatusLabel(t, detail.status))}
       {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
         <span className="inline-flex items-center text-red-600">
           <span>(</span>
@@ -1551,6 +1553,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <span>)</span>
         </span>
       ) : null}
+    </>
+  ) : null
+  const myRequestStatusContent = detail != null ? (
+    <>
+      {myRequestStatusLabel}
+      {myRequestStatusNoteContent}
     </>
   ) : null
 
@@ -1902,6 +1910,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               citizenSourceMessage={citizenSourceMessage}
               detailStatusClass={detailStatusClass}
               statusContent={myRequestStatusContent}
+              statusLabel={myRequestStatusLabel}
+              statusNoteContent={myRequestStatusNoteContent}
               canChangeDueDate={canChangeDetailDueDate}
               detailDueDateEdit={detailDueDateEdit}
               onOpenDueDateEdit={openDetailDueDateEdit}

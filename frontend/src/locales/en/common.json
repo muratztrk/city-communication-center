@@ -1411,7 +1411,7 @@
     "detail": {
       "title": "Job Detail",
       "requestInfo": "Request Details",
-      "processTitle": "PROCESS",
+      "processTitle": "Process",
       "requestDate": "Request Date",
       "ownerManagerApprovalDate": "Owner Unit Manager Approval Date",
       "targetManagerApprovalDate": "Target Unit Manager Approval Date",

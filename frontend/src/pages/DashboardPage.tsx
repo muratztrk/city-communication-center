@@ -178,7 +178,7 @@ export function DashboardPage() {
   const { user: currentUser } = useAuth()
   const role = currentUser?.role ?? ''
 
-  const [period, setPeriod] = useState<Period>('monthly')
+  const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
   const [taskChartFilters, setTaskChartFilters] = useState<Record<TaskChartKey, TaskChartFilter>>({
@@ -406,7 +406,7 @@ export function DashboardPage() {
           <span className="text-xs font-semibold text-[color:var(--color-muted-foreground)] uppercase tracking-wide mr-1">
             {t('dashboard.period.label', 'Dönem')}:
           </span>
-          {(['daily', 'weekly', 'monthly'] as const).map(p => (
+          {(['daily', 'weekly', 'monthly', 'yearly'] as const).map(p => (
             <button
               key={p}
               type="button"

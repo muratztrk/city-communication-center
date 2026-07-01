@@ -11,6 +11,8 @@ function getLineClass(step: JobProcessStep, nextStep: JobProcessStep | undefined
 
   if (stepDone && nextDone) return 'job-process-timeline__line--completed'
   if (stepDone && nextStep.state === 'current') return 'job-process-timeline__line--to-current'
+  if (stepDone && nextStep.state === 'terminal-danger') return 'job-process-timeline__line--to-danger'
+  if (step.state === 'terminal-danger') return 'job-process-timeline__line--from-danger'
   if (step.state === 'current') return 'job-process-timeline__line--upcoming'
   return 'job-process-timeline__line--upcoming'
 }

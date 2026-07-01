@@ -46,6 +46,11 @@ function isTerminalStatus(status: string): boolean {
   return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
 }
 
+function wasRecoveredFromCancellation(detail: JobDetail): boolean {
+  return Boolean(detail.cancelReason?.trim())
+    && (detail.status === 'Active' || detail.status === 'Completed')
+}
+
 function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDetail): JobProcessStep[] {
   if (detail.status === 'Completed') {
     return steps.map(step => ({
@@ -166,11 +171,17 @@ export function buildJobProcessSteps(
     })
   }
 
-  steps.push({
-    id: 'dueDate',
-    label: t('jobs.columns.dueDate', 'Son Tarih'),
-    displayValue: formatDueDateTime(detail.dueDateUtc, locale),
-  })
+  if (!isTerminalStatus(detail.status)) {
+    steps.push({
+      id: 'dueDate',
+      label: t('jobs.columns.dueDate', 'Son Tarih'),
+      displayValue: formatDueDateTime(detail.dueDateUtc, locale),
+    })
+  }
 
   return resolveStepStates(steps, detail)
+}
+
+export function isJobRecoveredFromCancellation(detail: JobDetail): boolean {
+  return wasRecoveredFromCancellation(detail)
 }

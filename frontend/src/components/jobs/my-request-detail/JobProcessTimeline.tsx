@@ -4,13 +4,26 @@ import type { ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 
-function getLineClass(step: JobProcessStep, nextStep: JobProcessStep | undefined): string {
+function getLineClass(
+  step: JobProcessStep,
+  nextStep: JobProcessStep | undefined,
+  recoveredFromCancellation: boolean,
+): string {
   if (!nextStep) return ''
   const stepDone = step.state === 'completed' || step.state === 'terminal-success'
   const nextDone = nextStep.state === 'completed' || nextStep.state === 'terminal-success'
 
   if (stepDone && nextDone) return 'job-process-timeline__line--completed'
-  if (stepDone && nextStep.state === 'current') return 'job-process-timeline__line--to-current'
+  if (stepDone && nextStep.state === 'current') {
+    return recoveredFromCancellation
+      ? 'job-process-timeline__line--to-current-from-danger'
+      : 'job-process-timeline__line--to-current'
+  }
+  if (stepDone && nextStep.state === 'terminal-success') {
+    return recoveredFromCancellation
+      ? 'job-process-timeline__line--to-success-from-danger'
+      : 'job-process-timeline__line--completed'
+  }
   if (stepDone && nextStep.state === 'terminal-danger') return 'job-process-timeline__line--to-danger'
   if (step.state === 'terminal-danger') return 'job-process-timeline__line--from-danger'
   if (step.state === 'current') return 'job-process-timeline__line--upcoming'
@@ -26,6 +39,7 @@ function getStepLabelClass(state: JobProcessStep['state']): string {
 
 interface JobProcessTimelineProps {
   steps: JobProcessStep[]
+  recoveredFromCancellation?: boolean
   statusContent?: ReactNode
   dueDateContent?: ReactNode
 }
@@ -47,7 +61,12 @@ function StepIndicator({ state }: { state: JobProcessStep['state'] }) {
   return <span className="job-process-timeline__indicator job-process-timeline__indicator--upcoming" aria-hidden="true" />
 }
 
-export function JobProcessTimeline({ steps, statusContent, dueDateContent }: JobProcessTimelineProps) {
+export function JobProcessTimeline({
+  steps,
+  recoveredFromCancellation = false,
+  statusContent,
+  dueDateContent,
+}: JobProcessTimelineProps) {
   const { t } = useTranslation()
 
   return (
@@ -59,7 +78,7 @@ export function JobProcessTimeline({ steps, statusContent, dueDateContent }: Job
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1
           const nextStep = isLast ? undefined : steps[index + 1]
-          const lineClass = getLineClass(step, nextStep)
+          const lineClass = getLineClass(step, nextStep, recoveredFromCancellation)
           const valueTone = step.id === 'completionDate'
             ? 'text-emerald-600'
             : step.id === 'cancelDate'

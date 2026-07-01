@@ -7,7 +7,7 @@ import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
-import { buildJobProcessSteps } from './buildJobProcessSteps'
+import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
@@ -121,6 +121,7 @@ export function MyRequestDetailMainCard({
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
           <JobProcessTimeline
             steps={steps}
+            recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
             statusContent={(
               <span className={`inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 ${detailStatusClass}`}>
                 {statusContent}

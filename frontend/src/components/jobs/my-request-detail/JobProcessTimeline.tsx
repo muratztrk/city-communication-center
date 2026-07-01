@@ -79,6 +79,7 @@ export function JobProcessTimeline({
           const isLast = index === steps.length - 1
           const nextStep = isLast ? undefined : steps[index + 1]
           const lineClass = getLineClass(step, nextStep, recoveredFromCancellation)
+          const showStatusOnDate = (step.id === 'completionDate' || step.id === 'cancelDate') && statusContent
           const valueTone = step.id === 'completionDate'
             ? 'text-emerald-600'
             : step.id === 'cancelDate'
@@ -101,6 +102,15 @@ export function JobProcessTimeline({
                 </div>
                 {step.id === 'status' && statusContent ? (
                   <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>{statusContent}</div>
+                ) : showStatusOnDate ? (
+                  <div className={`mt-0.5 flex flex-wrap items-center gap-x-1 text-sm font-semibold ${valueTone}`}>
+                    <span>{step.displayValue}</span>
+                    <span className="inline-flex flex-wrap items-center gap-x-1">
+                      <span>(</span>
+                      {statusContent}
+                      <span>)</span>
+                    </span>
+                  </div>
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (

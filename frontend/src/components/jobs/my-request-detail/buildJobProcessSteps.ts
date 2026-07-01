@@ -51,17 +51,21 @@ function wasRecoveredFromCancellation(detail: JobDetail): boolean {
     && (detail.status === 'Active' || detail.status === 'Completed')
 }
 
+function isTerminalTimelineStatus(status: string): boolean {
+  return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
+}
+
 function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDetail): JobProcessStep[] {
   if (detail.status === 'Completed') {
     return steps.map(step => ({
       ...step,
-      state: step.id === 'status' ? 'terminal-success' : 'completed',
+      state: step.id === 'completionDate' ? 'terminal-success' : 'completed',
     }))
   }
   if (detail.status === 'Cancelled' || detail.status === 'Rejected') {
     return steps.map(step => ({
       ...step,
-      state: step.id === 'status' ? 'terminal-danger' : (step.id === 'dueDate' ? 'upcoming' : 'completed'),
+      state: step.id === 'cancelDate' ? 'terminal-danger' : 'completed',
     }))
   }
 
@@ -151,11 +155,13 @@ export function buildJobProcessSteps(
     })
   }
 
-  steps.push({
-    id: 'status',
-    label: t('jobs.columns.status', 'Durum'),
-    displayValue: getMyRequestStatusLabel(t, detail),
-  })
+  if (!isTerminalTimelineStatus(detail.status)) {
+    steps.push({
+      id: 'status',
+      label: t('jobs.columns.status', 'Durum'),
+      displayValue: getMyRequestStatusLabel(t, detail),
+    })
+  }
 
   if (detail.status === 'Completed') {
     steps.push({
@@ -163,7 +169,7 @@ export function buildJobProcessSteps(
       label: t('jobs.detail.completedAt', 'Tamamlanma Tarihi'),
       displayValue: formatDateTime(detail.completedAtUtc ?? null, locale),
     })
-  } else if (detail.status === 'Cancelled') {
+  } else if (detail.status === 'Cancelled' || detail.status === 'Rejected') {
     steps.push({
       id: 'cancelDate',
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),

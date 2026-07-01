@@ -389,7 +389,10 @@
       "outgoingRequests": "Birimden Giden Talepler",
       "incomingRequests": "Birime Gelen Talepler",
       "myRequests": "Taleplerim",
-      "citizenRequests": "Vatandaş Talepleri"
+      "citizenRequests": "Vatandaş Talepleri",
+      "externalRequestCreators": "Talep Oluşturan Birimler",
+      "externalRequestPending": "Birimde Bekleyen Talepler",
+      "externalRequestFulfillers": "Talebi Gerçekleştiren Birimler"
     },
     "taskFilter": {
       "assigned": "Atanmış",

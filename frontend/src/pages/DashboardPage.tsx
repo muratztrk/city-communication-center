@@ -492,9 +492,14 @@ export function DashboardPage() {
               </div>
             ))
           : chartCards.map(card => {
-            // Standart kullanıcıların erişemediği "Birimdeki Görevler" listesine
-            // dashboard'dan yönlendirme yapılmaz; grafik yalnızca bilgilendirme amaçlıdır.
-            const isReadOnlyDepartmentChart = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
+            // Standart kullanıcıların erişemediği "Birimdeki Görevler" ile Üst Düzey Yönetici'ye
+            // özel birim-dışı dağılım grafikleri (card #835/#763) yalnızca bilgilendirme amaçlıdır;
+            // dashboard'dan yönlendirme yapılmaz.
+            const isReadOnlyDepartmentChart =
+              (!canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks')
+              || card.titleKey === 'dashboard.charts.externalRequestCreators'
+              || card.titleKey === 'dashboard.charts.externalRequestPending'
+              || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
             const chartRoute = isReadOnlyDepartmentChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined

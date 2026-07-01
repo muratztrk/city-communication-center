@@ -10,7 +10,7 @@ import { MyRequestDetailHeader } from './MyRequestDetailHeader'
 import type { DetailDueDateEditState } from './MyRequestDetailMainCard'
 import { MyRequestDetailMainCard } from './MyRequestDetailMainCard'
 import { MyRequestTaskDetailsSection } from './MyRequestTaskDetailsSection'
-import { DETAIL_ICON_PROPS } from './detailIcons'
+import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 
 export interface MyRequestDetailModalProps {
   detail: JobDetail
@@ -153,10 +153,9 @@ export function MyRequestDetailModal({
         ) : (
           <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-              <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
-                <MapPin {...DETAIL_ICON_PROPS} />
+              <MyRequestSectionHeading icon={MapPin}>
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
-              </div>
+              </MyRequestSectionHeading>
               <AddressDetailFields
                 variant="my-request"
                 neighborhood={detail.neighborhood}
@@ -166,10 +165,9 @@ export function MyRequestDetailModal({
             </section>
             {showManagerNoteColumn && (
               <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-                <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
-                  <MessageSquare {...DETAIL_ICON_PROPS} />
+                <MyRequestSectionHeading icon={MessageSquare}>
                   {t('jobs.managerNote.title', 'Yönetici Notu')}
-                </div>
+                </MyRequestSectionHeading>
                 {detail.managerNote ? (
                   <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
                 ) : (
@@ -178,10 +176,9 @@ export function MyRequestDetailModal({
               </section>
             )}
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-              <div className="job-detail-card-title mb-3 border-b border-slate-200 pb-2">
-                <Paperclip {...DETAIL_ICON_PROPS} />
+              <MyRequestSectionHeading icon={Paperclip}>
                 {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-              </div>
+              </MyRequestSectionHeading>
               <AttachmentSection
                 attachments={detail.attachments ?? []}
                 readOnly

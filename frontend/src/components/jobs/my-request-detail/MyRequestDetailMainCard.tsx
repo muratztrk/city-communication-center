@@ -10,8 +10,8 @@ import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
 import { buildJobProcessSteps } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
+import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime } from './format'
-import { DETAIL_ICON_PROPS } from './detailIcons'
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -102,10 +102,9 @@ export function MyRequestDetailMainCard({
 
   return (
     <section className="my-request-detail-main form-card page-stack mb-5">
-      <div className="job-detail-section-title mb-1">
-        <FileText {...DETAIL_ICON_PROPS} />
+      <MyRequestSectionHeading icon={FileText} tone="primary">
         {t('jobs.detail.requestInfo', 'Talep Detayları')}
-      </div>
+      </MyRequestSectionHeading>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
           <div className="divide-y divide-slate-100">
@@ -132,10 +131,9 @@ export function MyRequestDetailMainCard({
           />
         </div>
         <div className="min-w-0 p-4">
-          <div className="job-detail-section-title job-detail-section-title--muted mb-3">
-            <FileText {...DETAIL_ICON_PROPS} />
+          <MyRequestSectionHeading icon={FileText} tone="muted">
             {t('jobs.form.description', 'AÇIKLAMA')}
-          </div>
+          </MyRequestSectionHeading>
           <RichTextContent
             value={detail.description}
             emptyText={t('common.none')}

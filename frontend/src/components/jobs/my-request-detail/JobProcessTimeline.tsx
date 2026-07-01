@@ -2,7 +2,7 @@ import { Check, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
-import { DETAIL_ICON_PROPS } from './detailIcons'
+import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 
 function getLineClass(step: JobProcessStep, nextStep: JobProcessStep | undefined): string {
   if (!nextStep) return ''
@@ -52,10 +52,9 @@ export function JobProcessTimeline({ steps, statusContent, dueDateContent }: Job
 
   return (
     <div className="job-process-timeline">
-      <div className="job-detail-section-title job-detail-section-title--muted mb-3">
-        <Clock {...DETAIL_ICON_PROPS} />
+      <MyRequestSectionHeading icon={Clock} tone="muted">
         {t('jobs.detail.processTitle', 'SÜREÇ')}
-      </div>
+      </MyRequestSectionHeading>
       <ol className="job-process-timeline__list">
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1

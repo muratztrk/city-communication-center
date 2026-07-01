@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { ReactNode } from 'react'
 import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
-import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../../../utils/jobDetails'
+import { formatJobDestinationsWithAssignees } from '../../../utils/jobDetails'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import {
   formatCitizenPhoneDisplay,
@@ -48,10 +48,6 @@ export function buildMyRequestDetailFields(
         label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
       },
-      ...(shouldShowRequestApproverField(detail) ? [{
-        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-        value: formatRequestApproverDisplay(detail) ?? '—',
-      }] : []),
       {
         label: t('jobs.detail.targetDepartment', 'Talebin Gittiği Birim'),
         value: formatJobDestinationsWithAssignees(detail),
@@ -70,10 +66,6 @@ export function buildMyRequestDetailFields(
       label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
       value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
     },
-    ...(shouldShowRequestApproverField(detail) ? [{
-      label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-      value: formatRequestApproverDisplay(detail) ?? '—',
-    }] : []),
     {
       label: t('jobs.detail.targetDepartment', 'Talebin Gittiği Birim'),
       value: formatJobDestinationsWithAssignees(detail),

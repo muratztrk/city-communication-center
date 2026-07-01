@@ -4,7 +4,7 @@ type AddressDetailFieldsProps = {
   neighborhood?: string | null
   street?: string | null
   openAddress?: string | null
-  variant?: 'default' | 'detail-card'
+  variant?: 'default' | 'detail-card' | 'my-request'
 }
 
 function displayAddressValue(value: string | null | undefined): string {
@@ -19,6 +19,27 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
     { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: street },
     { label: t('address.openAddressLabel', 'Açık Adres'), value: openAddress },
   ]
+
+  if (variant === 'my-request') {
+    return (
+      <dl className="address-detail-my-request">
+        <div className="address-detail-my-request__grid">
+          <div className="address-detail-my-request__item">
+            <dt className="address-detail-my-request__label">{t('address.neighborhoodLabel', 'Mahalle')}</dt>
+            <dd className="address-detail-my-request__value">{displayAddressValue(neighborhood)}</dd>
+          </div>
+          <div className="address-detail-my-request__item">
+            <dt className="address-detail-my-request__label">{t('address.streetShortLabel', 'Cadde / Sokak')}</dt>
+            <dd className="address-detail-my-request__value">{displayAddressValue(street)}</dd>
+          </div>
+        </div>
+        <div className="address-detail-my-request__item address-detail-my-request__item--full">
+          <dt className="address-detail-my-request__label">{t('address.openAddressLabel', 'Açık Adres')}</dt>
+          <dd className="address-detail-my-request__value">{displayAddressValue(openAddress)}</dd>
+        </div>
+      </dl>
+    )
+  }
 
   if (variant === 'detail-card') {
     return (

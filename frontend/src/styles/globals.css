@@ -268,6 +268,44 @@
     padding: 0 !important;
   }
 
+  .address-detail-my-request {
+    margin: 0;
+  }
+
+  .address-detail-my-request__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .address-detail-my-request__item {
+    min-width: 0;
+  }
+
+  .address-detail-my-request__item--full {
+    padding-top: 0.75rem;
+    border-top: 1px solid rgb(241 245 249);
+  }
+
+  .address-detail-my-request__label {
+    margin: 0 0 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(100 116 139);
+  }
+
+  .address-detail-my-request__value {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.45;
+    color: rgb(15 23 42);
+    word-break: break-word;
+  }
+
   .job-process-timeline__list {
     list-style: none;
     margin: 0;

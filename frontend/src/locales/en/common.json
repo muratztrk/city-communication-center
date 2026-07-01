@@ -1494,6 +1494,7 @@
     "neighborhoodLabel": "Neighborhood",
     "neighborhoodPlaceholder": "Select neighborhood",
     "streetLabel": "Street / Avenue / Boulevard",
+    "streetShortLabel": "Street / Avenue",
     "streetPlaceholder": "e.g. Atatürk Avenue",
     "openAddressLabel": "Full Address",
     "openAddressPlaceholder": "Building no, floor, apartment..."

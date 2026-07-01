@@ -1529,6 +1529,7 @@
     "neighborhoodLabel": "Mahalle",
     "neighborhoodPlaceholder": "Mahalle seçin",
     "streetLabel": "Cadde / Sokak / Bulvar",
+    "streetShortLabel": "Cadde / Sokak",
     "streetPlaceholder": "ör. Atatürk Caddesi",
     "openAddressLabel": "Açık Adres",
     "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."

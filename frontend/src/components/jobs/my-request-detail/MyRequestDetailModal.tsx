@@ -158,7 +158,7 @@ export function MyRequestDetailModal({
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
               </div>
               <AddressDetailFields
-                variant="detail-card"
+                variant="my-request"
                 neighborhood={detail.neighborhood}
                 street={detail.street}
                 openAddress={detail.openAddress}

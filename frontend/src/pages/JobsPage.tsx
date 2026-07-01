@@ -377,7 +377,7 @@ function printJobDetail(
   detail: JobDetail,
   locale: string,
   t: TFunction,
-  options?: { incomingTargetView?: boolean },
+  options?: { incomingTargetView?: boolean; myRequestView?: boolean },
 ) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
@@ -385,19 +385,23 @@ function printJobDetail(
     : `T-${detail.jobNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`
   const ownerApprovalDate = detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
   const targetApprovalDate = detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null
+  const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
+  const ownerApprovalLabel = ownerDepartment?.approvedByDisplayName
+    ? `Talebin Birim Yöneticisinin Onay Tarihi (${ownerDepartment.approvedByDisplayName})`
+    : 'Talebin Birim Yöneticisinin Onay Tarihi'
   const requestDetailRows: Array<[string, string]> = [
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
-    ...(shouldShowRequestApproverField(detail)
-      ? [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]
-      : []),
+    ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
+      ? []
+      : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
     ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', formatJobProjectLabel(detail, t)],
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
-    ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApprovalDate)] as [string, string]]),
+    ...(isCitizenRequestJob(detail) ? [] : [[ownerApprovalLabel, fd(ownerApprovalDate)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApprovalDate)] as [string, string]]
       : []),
@@ -1905,7 +1909,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onDueDateChange={value => setDetailDueDateEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
               onDueDateSave={() => void handleDetailDueDateSave()}
               onClose={closeDetail}
-              onPrint={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}
+              onPrint={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, myRequestView: isMyRequestsView })}
               onCancel={canCancelDetail ? () => handleCancel(detail.jobId) : undefined}
               onEdit={canEditMyRequestDetailJob ? () => navigate(getRequestEditPath(detail)) : undefined}
               showEditDisabled={showMyRequestEditDisabled}

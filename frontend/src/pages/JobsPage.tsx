@@ -930,8 +930,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
 
     if (filterFrom || filterTo) {
+      const useDueDatePeriod =
+        (isMyRequestsView && currentMyRequestsView === 'overdue')
+        || (isDepartmentOutgoingView && currentDepartmentOutgoingView === 'overdue')
       result = result.filter(job => {
-        const d = job.createdAtUtc?.slice(0, 10)
+        const d = (useDueDatePeriod ? job.dueDateUtc : job.createdAtUtc)?.slice(0, 10)
         if (!d) return false
         if (filterFrom && d < filterFrom.slice(0, 10)) return false
         if (filterTo && d > filterTo.slice(0, 10)) return false

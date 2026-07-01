@@ -721,11 +721,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     if (filterFrom || filterTo) {
+      const useDueDatePeriod = (isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'overdue'
       result = result.filter(task => {
-        const created = task.createdAtUtc
-        if (!created) return false
-        if (filterFrom && created < filterFrom) return false
-        if (filterTo && created > filterTo) return false
+        const dateValue = useDueDatePeriod ? task.dueDateUtc : task.createdAtUtc
+        if (!dateValue) return false
+        if (filterFrom && dateValue < filterFrom) return false
+        if (filterTo && dateValue > filterTo) return false
         return true
       })
     }

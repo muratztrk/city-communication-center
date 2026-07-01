@@ -627,8 +627,9 @@ export function IncomingRequestsPage() {
       result = result.filter(row => row.isCitizenRequest)
     }
     if (filterFrom || filterTo) {
+      const useDueDatePeriod = currentStatusFilter === 'overdue'
       result = result.filter(row => {
-        const d = row.createdAtUtc?.slice(0, 10)
+        const d = (useDueDatePeriod ? row.dueDateUtc : row.createdAtUtc)?.slice(0, 10)
         if (!d) return false
         if (filterFrom && d < filterFrom.slice(0, 10)) return false
         if (filterTo && d > filterTo.slice(0, 10)) return false

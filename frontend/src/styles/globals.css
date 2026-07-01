@@ -246,6 +246,26 @@
     width: 7.5rem;
   }
 
+  /* Taleplerim detay popup görsel düzeltmeleri (card #1130) */
+  .detail-modal-shell--my-request .job-detail-section-title > svg,
+  .detail-modal-shell--my-request .job-detail-card-title > svg {
+    background-color: rgb(241 245 249);
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    box-sizing: content-box;
+  }
+
+  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
+    text-transform: capitalize;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
   .job-process-timeline__list {
     list-style: none;
     margin: 0;

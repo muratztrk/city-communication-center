@@ -25,6 +25,12 @@ function getLineClass(
       : 'job-process-timeline__line--completed'
   }
   if (stepDone && nextStep.state === 'terminal-danger') return 'job-process-timeline__line--to-danger'
+  if (step.state === 'terminal-danger' && nextStep.state === 'current' && recoveredFromCancellation) {
+    return 'job-process-timeline__line--to-current-from-danger'
+  }
+  if (step.state === 'terminal-danger' && nextStep.state === 'terminal-success' && recoveredFromCancellation) {
+    return 'job-process-timeline__line--to-success-from-danger'
+  }
   if (step.state === 'terminal-danger') return 'job-process-timeline__line--from-danger'
   if (step.state === 'current') return 'job-process-timeline__line--upcoming'
   return 'job-process-timeline__line--upcoming'

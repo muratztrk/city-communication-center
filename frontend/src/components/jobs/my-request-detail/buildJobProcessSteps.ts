@@ -56,6 +56,29 @@ function isTerminalTimelineStatus(status: string): boolean {
 }
 
 function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDetail): JobProcessStep[] {
+  if (wasRecoveredFromCancellation(detail)) {
+    let foundCurrent = false
+    return steps.map(step => {
+      if (foundCurrent) {
+        return { ...step, state: 'upcoming' as const }
+      }
+      if (step.id === 'cancelDate') {
+        return { ...step, state: 'terminal-danger' as const }
+      }
+      if (step.id === 'status') {
+        foundCurrent = true
+        return { ...step, state: 'current' as const }
+      }
+      if (step.id === 'completionDate') {
+        return { ...step, state: 'terminal-success' as const }
+      }
+      if (step.id === 'dueDate') {
+        return { ...step, state: 'upcoming' as const }
+      }
+      return { ...step, state: 'completed' as const }
+    })
+  }
+
   if (detail.status === 'Completed') {
     return steps.map(step => ({
       ...step,
@@ -152,6 +175,14 @@ export function buildJobProcessSteps(
         detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
         locale,
       ),
+    })
+  }
+
+  if (wasRecoveredFromCancellation(detail) && detail.status !== 'Cancelled' && detail.status !== 'Rejected') {
+    steps.push({
+      id: 'cancelDate',
+      label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
+      displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
     })
   }
 

@@ -71,7 +71,7 @@ export function JobProcessTimeline({
 
   return (
     <div className="job-process-timeline">
-      <MyRequestSectionHeading icon={Clock} tone="muted">
+      <MyRequestSectionHeading icon={Clock}>
         {t('jobs.detail.processTitle', 'SÜREÇ')}
       </MyRequestSectionHeading>
       <ol className="job-process-timeline__list">

@@ -132,7 +132,7 @@ export function MyRequestDetailMainCard({
           />
         </div>
         <div className="min-w-0 p-4">
-          <MyRequestSectionHeading icon={FileText} tone="muted">
+          <MyRequestSectionHeading icon={FileText}>
             {t('jobs.form.description', 'AÇIKLAMA')}
           </MyRequestSectionHeading>
           <RichTextContent

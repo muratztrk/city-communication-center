@@ -261,14 +261,6 @@
     padding-bottom: 0.5rem;
   }
 
-  .detail-modal-shell--my-request .my-request-detail-main__grid .job-detail-section-heading {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    margin-top: -0.25rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
   .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label {
     text-transform: none;
     letter-spacing: normal;

@@ -66,7 +66,8 @@ export function MyRequestDetailHeader({
         {onCancel && (
           <Button
             type="button"
-            className="inline-flex items-center gap-1.5 bg-red-500 text-white hover:bg-red-600"
+            variant="destructive"
+            className="inline-flex items-center gap-1.5"
             onClick={onCancel}
             aria-label={t('jobs.actions.cancel', 'İptal Et')}
           >

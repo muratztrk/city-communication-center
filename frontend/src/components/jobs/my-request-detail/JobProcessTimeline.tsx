@@ -104,14 +104,16 @@ export function JobProcessTimeline({
               </div>
               <div className="job-process-timeline__content min-w-0 pb-4">
                 <div className={`text-xs font-semibold tracking-wide ${getStepLabelClass(step.state)}`}>
-                  {step.label}
+                  {showStatusOnDate ? (
+                    <span className="inline">{step.label} ({statusContent})</span>
+                  ) : (
+                    step.label
+                  )}
                 </div>
                 {step.id === 'status' && statusContent ? (
                   <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>{statusContent}</div>
                 ) : showStatusOnDate ? (
-                  <div className={`mt-0.5 text-sm font-semibold leading-snug ${valueTone}`}>
-                    <span className="inline">{step.displayValue} ({statusContent})</span>
-                  </div>
+                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>{step.displayValue}</div>
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (

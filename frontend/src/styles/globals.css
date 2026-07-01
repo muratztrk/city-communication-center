@@ -349,53 +349,41 @@
   }
 
   .job-process-timeline__line--to-current {
-    width: 3px;
-    margin-left: -0.5px;
     background: linear-gradient(
       to bottom,
       rgb(5 150 105) 0%,
-      rgb(52 211 153) 25%,
-      rgb(250 204 21) 55%,
-      rgb(251 146 60) 80%,
+      rgb(5 150 105) 30%,
+      rgb(249 115 22) 70%,
       rgb(249 115 22) 100%
     );
   }
 
   .job-process-timeline__line--to-danger {
-    width: 3px;
-    margin-left: -0.5px;
     background: linear-gradient(
       to bottom,
       rgb(5 150 105) 0%,
-      rgb(52 211 153) 20%,
-      rgb(248 113 113) 55%,
-      rgb(239 68 68) 80%,
+      rgb(5 150 105) 30%,
+      rgb(220 38 38) 70%,
       rgb(220 38 38) 100%
     );
   }
 
   .job-process-timeline__line--to-current-from-danger {
-    width: 3px;
-    margin-left: -0.5px;
     background: linear-gradient(
       to bottom,
       rgb(220 38 38) 0%,
-      rgb(248 113 113) 25%,
-      rgb(250 204 21) 55%,
-      rgb(251 146 60) 80%,
+      rgb(220 38 38) 30%,
+      rgb(249 115 22) 70%,
       rgb(249 115 22) 100%
     );
   }
 
   .job-process-timeline__line--to-success-from-danger {
-    width: 3px;
-    margin-left: -0.5px;
     background: linear-gradient(
       to bottom,
       rgb(220 38 38) 0%,
-      rgb(248 113 113) 25%,
-      rgb(52 211 153) 55%,
-      rgb(16 185 129) 80%,
+      rgb(220 38 38) 30%,
+      rgb(5 150 105) 70%,
       rgb(5 150 105) 100%
     );
   }

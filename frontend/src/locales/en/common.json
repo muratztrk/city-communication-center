@@ -390,7 +390,7 @@
       "citizenRequests": "Citizen Requests",
       "externalRequestCreators": "Requesting Departments",
       "externalRequestPending": "Requests Pending in Department",
-      "externalRequestFulfillers": "Fulfilling Departments"
+      "externalRequestFulfillers": "Departments Completing Requests"
     },
     "taskFilter": {
       "assigned": "Assigned",

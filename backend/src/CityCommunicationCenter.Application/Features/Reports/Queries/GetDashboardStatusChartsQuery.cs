@@ -323,7 +323,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken))
             .Select(item => (item.DepartmentId, item.Count));
 
-        // #763 "Talebi Gerçekleştiren Birimler" — dış birimden gelip Tamamlanmış taleplerin hedef birime göre.
+        // #763 "Talebi Tamamlayan Birimler" — dış birimden gelip Tamamlanmış taleplerin hedef birime göre.
         var fulfillers = (await _dbContext.JobDepartments.AsNoTracking()
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.Job.TenantId == tenantId

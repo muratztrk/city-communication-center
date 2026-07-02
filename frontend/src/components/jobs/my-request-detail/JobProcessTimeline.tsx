@@ -89,7 +89,7 @@ export function JobProcessTimeline({
           const isLast = index === steps.length - 1
           const nextStep = isLast ? undefined : steps[index + 1]
           const lineClass = getLineClass(step, nextStep, recoveredFromCancellation)
-          const showStatusOnLabel = (step.id === 'completionDate' || step.id === 'cancelDate')
+          const showTerminalDateMeta = (step.id === 'completionDate' || step.id === 'cancelDate')
             && statusContent
             && !(step.id === 'cancelDate' && recoveredFromCancellation)
           const valueTone = step.id === 'completionDate'
@@ -110,9 +110,9 @@ export function JobProcessTimeline({
               </div>
               <div className="job-process-timeline__content min-w-0 pb-4">
                 <div className={`text-xs font-semibold tracking-wide ${getStepLabelClass(step.state)}`}>
-                  {showStatusOnLabel ? (
+                  {showTerminalDateMeta ? (
                     <span className="inline">
-                      {step.label} ({statusContent})
+                      {step.label}
                       {statusActorName ? ` ${statusActorName}` : ''}
                     </span>
                   ) : (
@@ -123,7 +123,7 @@ export function JobProcessTimeline({
                   <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
                     {statusContent}
                   </div>
-                ) : showStatusOnLabel ? (
+                ) : showTerminalDateMeta ? (
                   <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
                     <span className="inline">
                       {step.displayValue}

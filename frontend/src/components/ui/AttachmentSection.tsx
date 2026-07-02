@@ -34,9 +34,11 @@ interface AttachmentSectionProps {
   compact?: boolean
   /** gallery: kutucuk önizleme; list: yalnızca dosya adı bağlantıları; rich-list: ikon kutusu + ad + boyut (Taleplerim detay). */
   displayMode?: 'gallery' | 'list' | 'rich-list'
+  /** Upload açık olsa bile silme aksiyonunu yalnızca gerçek düzenleme modunda göstermek için. */
+  showDeleteActions?: boolean
 }
 
-export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery' }: AttachmentSectionProps) {
+export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery', showDeleteActions }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -120,6 +122,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const sectionClassName = displayMode === 'rich-list' && !readOnly
     ? 'page-stack attachment-section--rich-edit'
     : 'page-stack'
+  const canShowDeleteActions = !readOnly && (showDeleteActions ?? true)
 
   return (
     <div className={sectionClassName}>
@@ -182,7 +185,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                   {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
                 </span>
               </button>
-              {!readOnly && (
+              {canShowDeleteActions && (
                 <button
                   type="button"
                   title={t('attachments.deleteConfirm', 'Sil')}
@@ -216,7 +219,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               >
                 {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
               </button>
-              {!readOnly && (
+              {canShowDeleteActions && (
                 <button
                   type="button"
                   title={t('attachments.deleteConfirm', 'Sil')}
@@ -270,7 +273,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               >
                 {downloadingId === att.attachmentId ? <span className="text-[10px]">…</span> : <Download className="h-3.5 w-3.5" />}
               </button>
-              {!readOnly && (
+              {canShowDeleteActions && (
               <button
                 type="button"
                 title={t('attachments.deleteConfirm', 'Sil')}

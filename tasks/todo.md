@@ -832,3 +832,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a464923` / #1210 — Ekrana Yansıt gridinde vatandaş talepleri için Oluşturan bilgisinin başına sosyal kanal/e-Devlet ikonu eklendi; vatandaş satırına verilen özel renk ve sıra numarası yanındaki sarı şerit kaldırıldı.
 
 ## STATUS: Round 126 complete — Doing list drained.
+
+## Round 127 (Doing — 2026-07-02, ek sil aksiyonu düzenleme modu)
+- [x] `6a4647a2` reopened / #1208 — Ek listelerinde `Sil` yazısı hover beklemeden görünmeye devam eder; ancak Taleplerim detayında `Düzenle` moduna geçmeden görünmez. Yükleme izni açık olsa bile silme aksiyonu gerçek düzenleme moduna bağlandı.
+
+## STATUS: Round 127 complete — Doing list drained.

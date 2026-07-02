@@ -162,6 +162,7 @@ export function MyRequestDetailBottomCards({
           onUpload={canEditJobAttachments ? onAttachmentUpload : undefined}
           onDelete={canEditJobAttachments ? onAttachmentDelete : undefined}
           disabled={attachmentUploading}
+          showDeleteActions={isEditing}
         />
         {showAttachmentLockNotice && (
           <p className="mt-2 text-xs font-medium text-amber-600">{attachmentLockText}</p>

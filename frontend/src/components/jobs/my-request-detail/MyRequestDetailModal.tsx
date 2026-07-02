@@ -221,6 +221,7 @@ export function MyRequestDetailModal({
                 onUpload={isEditing || canEditJobAttachments ? onAttachmentUpload : undefined}
                 onDelete={isEditing || canEditJobAttachments ? onAttachmentDelete : undefined}
                 disabled={attachmentUploading}
+                showDeleteActions={isEditing}
               />
               {showAttachmentLockNotice && !isEditing && (
                 <p className="mt-2 text-xs font-medium text-amber-600">{attachmentLockText}</p>

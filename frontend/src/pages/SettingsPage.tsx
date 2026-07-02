@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save } from 'lucide-react'
+import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, SquarePen } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -2212,7 +2212,10 @@ export function SettingsPage() {
                         <td>{rule.priority}</td>
                         <td>
                           <div className="inline-actions">
-                            <Button size="sm" type="button" variant="ghost" onClick={() => editRule(rule)}>{t('common.edit')}</Button>
+                            <Button size="sm" type="button" variant="ghost" className="inline-flex items-center gap-1.5" onClick={() => editRule(rule)}>
+                              <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                              {t('common.edit')}
+                            </Button>
                             <Button size="sm" type="button" variant="danger" onClick={() => void removeRule(rule.ruleId)}>{t('common.delete')}</Button>
                           </div>
                         </td>

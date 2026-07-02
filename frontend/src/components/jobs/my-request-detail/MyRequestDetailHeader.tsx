@@ -1,4 +1,4 @@
-import { Pencil, Printer, X as XIcon, XCircle } from 'lucide-react'
+import { Printer, SquarePen, X as XIcon, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../ui/button'
 import { DisabledActionButton } from '../../ui/DisabledActionButton'
@@ -69,7 +69,7 @@ export function MyRequestDetailHeader({
                 onClick={onEdit}
                 aria-label={t('jobs.actions.edit', 'Düzenle')}
               >
-                <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                 {t('jobs.actions.edit', 'Düzenle')}
               </Button>
             )}
@@ -78,7 +78,7 @@ export function MyRequestDetailHeader({
                 className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
                 hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
               >
-                <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                 {t('jobs.actions.edit', 'Düzenle')}
               </DisabledActionButton>
             )}

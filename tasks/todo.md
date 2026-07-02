@@ -870,3 +870,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4651ff` / #1218 — Taleplerim detay popup üst başlığı görseldeki daha büyük/açık gri/harf aralıklı stile yaklaştırıldı; ana `Talep Detayları` başlığı title-case ve daha bold yeşil görünüme alındı.
 
 ## STATUS: Round 133 complete — Doing list drained.
+
+## Round 134 (Doing — 2026-07-02, düzenle ikonları ve başlık ölçüsü)
+- [x] `6a465394` / #1219 — Düzenle aksiyonlarında ikon görseldeki stile yaklaştırılarak `SquarePen` ile tekilleştirildi; metinli düzenle butonlarına sol ikon eklendi.
+- [x] `6a4654de` / #1220 — Taleplerim detay popup üst başlığı ve ana `Talep Detayları` başlığı önceki büyütmeye göre küçültüldü; title-case görünüm korundu.
+- [x] `6a464d52` reopened / #1215 — Standart kullanıcı owner approval bekleyen satırında parantez içindeki yönetici adı da turuncu gösteriliyor.
+
+## STATUS: Round 134 complete — Doing list drained.

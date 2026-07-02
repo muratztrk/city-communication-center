@@ -168,9 +168,9 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-header__title {
-    font-size: 0.95rem;
+    font-size: 0.78rem;
     font-weight: 700;
-    letter-spacing: 0.34em;
+    letter-spacing: 0.28em;
     color: rgb(148 163 184);
   }
 
@@ -275,7 +275,7 @@
   }
 
   .detail-modal-shell--my-request .job-detail-section-title:not(.job-detail-section-title--muted) {
-    font-size: 1.25rem;
+    font-size: 1.05rem;
     font-weight: 800;
     letter-spacing: 0;
     text-transform: none;

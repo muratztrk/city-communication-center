@@ -1,4 +1,4 @@
-import { Building2, Layers3, Pencil, Trash2, X } from 'lucide-react'
+import { Building2, Layers3, SquarePen, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -347,7 +347,7 @@ export function DepartmentsPage() {
                                   </Button>
                                 )}
                                 <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>
-                                  <Pencil className="size-4" />
+                                  <SquarePen className="size-4" strokeWidth={1.75} aria-hidden="true" />
                                 </button>
                               </>
                             ) : null}

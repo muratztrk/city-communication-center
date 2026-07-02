@@ -99,6 +99,7 @@ export function JobProcessTimeline({
               : step.state === 'current'
                 ? 'text-[#f97316]'
                 : 'text-slate-900'
+          const displayMetaTone = step.state === 'current' ? 'text-[#f97316]' : 'text-emerald-600'
 
           return (
             <li key={step.id} className="job-process-timeline__item">
@@ -135,7 +136,7 @@ export function JobProcessTimeline({
                     <span className="inline">
                       {step.displayValue}
                       {step.displayMeta ? (
-                        <span className="ml-1 align-baseline text-xs font-semibold text-emerald-600">
+                        <span className={`ml-1 align-baseline text-xs font-semibold ${displayMetaTone}`}>
                           ({step.displayMeta})
                         </span>
                       ) : null}

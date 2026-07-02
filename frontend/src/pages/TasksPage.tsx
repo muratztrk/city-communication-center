@@ -1,4 +1,4 @@
-import { FileImage, FileText, Paperclip, Search, X } from 'lucide-react'
+import { FileImage, FileText, Paperclip, Search, SquarePen, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -1645,16 +1645,18 @@ const pageKicker = isMyTasksView
                   && (canEditRoutineTask(selectedTask) ? (
                   <Button
                     type="button"
-                    className="bg-teal-700 text-white hover:bg-teal-800"
+                    className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
                     onClick={() => openRoutineTaskEdit(selectedTask.taskId)}
                   >
+                    <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.edit', 'Düzenle')}
                   </Button>
                 ) : (
                   <DisabledActionButton
-                    className="bg-teal-700 text-white"
+                    className="inline-flex items-center gap-1.5 bg-teal-700 text-white"
                     hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
                   >
+                    <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.edit', 'Düzenle')}
                   </DisabledActionButton>
                 ))}
@@ -2621,17 +2623,19 @@ const pageKicker = isMyTasksView
                         {!showOnlyDetailsInTaskGridActions && isMyTasksView && (canEditRoutineTask(task) ? (
                           <Button
                             size="sm"
-                            className="bg-teal-700 text-white hover:bg-teal-800"
+                            className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
                             onClick={() => navigate(getRoutineTaskEditPath(task.taskId))}
                           >
+                            <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('common.edit', 'Düzenle')}
                           </Button>
                         ) : (
                           <DisabledActionButton
                             size="sm"
-                            className="button-placeholder bg-teal-700 text-white"
+                            className="button-placeholder inline-flex items-center gap-1.5 bg-teal-700 text-white"
                             hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
                           >
+                            <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('common.edit', 'Düzenle')}
                           </DisabledActionButton>
                         ))}

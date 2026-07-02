@@ -1,4 +1,4 @@
-import { Send } from 'lucide-react'
+import { Send, SquarePen } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -220,6 +220,7 @@ export function EDevletActivityPlanPage() {
                 <Button
                   type="button"
                   variant="secondary"
+                  className="inline-flex items-center gap-1.5"
                   disabled={!form.activityTypeId}
                   onClick={() => {
                     const selected = activityTypes.find(type => type.activityTypeId === form.activityTypeId)
@@ -228,6 +229,7 @@ export function EDevletActivityPlanPage() {
                     setTypeName(selected.name)
                   }}
                 >
+                  <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.edit', 'Düzenle')}
                 </Button>
                 <Button

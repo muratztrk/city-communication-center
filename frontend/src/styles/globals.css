@@ -297,30 +297,10 @@
   .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label {
     text-transform: none;
     letter-spacing: normal;
-    font-size: 0.8125rem;
-  }
-
-  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
-    font-size: 0.9375rem;
-  }
-
-  .detail-modal-shell--my-request .job-process-timeline__content > .text-xs {
-    font-size: 0.8125rem;
-  }
-
-  .detail-modal-shell--my-request .job-process-timeline__content > .text-sm {
-    font-size: 0.9375rem;
-  }
-
-  .detail-modal-shell--my-request .address-detail-my-request__label {
     font-size: 0.75rem;
   }
 
-  .detail-modal-shell--my-request .address-detail-my-request__value {
-    font-size: 0.9375rem;
-  }
-
-  .detail-modal-shell--my-request .attachment-rich-list button span {
+  .detail-modal-shell--my-request .job-process-timeline__step-value {
     font-size: 0.8125rem;
   }
 

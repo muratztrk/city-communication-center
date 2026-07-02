@@ -119,11 +119,11 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}>
                     {statusContent}
                   </div>
                 ) : showTerminalDateMeta ? (
-                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}>
                     <span className="inline">
                       {step.displayValue}
                       {statusNoteContent ? <> {statusNoteContent}</> : null}
@@ -132,7 +132,7 @@ export function JobProcessTimeline({
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (
-                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}>
                     <span className="inline">
                       {step.displayValue}
                       {step.displayMeta ? (

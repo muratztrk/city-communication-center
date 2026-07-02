@@ -60,6 +60,59 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı.",
 }
 
+const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
+const CITIZEN_REQUEST_TITLE_TOKEN = '{VatandaşTalepBaşlığı}'
+const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
+const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
+
+type CitizenAutoReplyTemplateKey = keyof CitizenAutoReplyTemplates
+
+function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string) {
+  const normalizedBody = bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT
+  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}.`
+}
+
+function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) {
+  const titleIndex = template.indexOf(CITIZEN_REQUEST_TITLE_TOKEN)
+  const afterTitle = titleIndex >= 0
+    ? template.slice(titleIndex + CITIZEN_REQUEST_TITLE_TOKEN.length)
+    : template
+  return afterTitle
+    .replace(CITIZEN_REQUEST_STATUS_TOKEN, '')
+    .replace(statusLabel, '')
+    .replace(/[.\s]+$/u, '')
+    .trim() || DEFAULT_AUTO_REPLY_BODY_TEXT
+}
+
+interface CitizenAutoReplyTemplateFieldProps {
+  label: string
+  statusLabel: string
+  value: string
+  onChange: (value: string) => void
+}
+
+function CitizenAutoReplyTemplateField({ label, statusLabel, value, onChange }: CitizenAutoReplyTemplateFieldProps) {
+  return (
+    <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700">
+      <span className="text-slate-800">{label}</span>
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
+        <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_NO_TOKEN}</span>
+        <span>no'lu</span>
+        <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_TITLE_TOKEN}</span>
+      </div>
+      <textarea
+        className="field-textarea min-h-[4.5rem]"
+        value={extractCitizenAutoReplyBodyText(value, statusLabel)}
+        onChange={event => onChange(buildCitizenAutoReplyTemplate(event.target.value, statusLabel))}
+      />
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
+        <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 font-bold text-emerald-700">{statusLabel}</span>
+        <span>.</span>
+      </div>
+    </div>
+  )
+}
+
 interface ChannelConfig {
   id: ChannelType
   titleKey: string
@@ -915,7 +968,22 @@ export function SettingsPage() {
     if (!user?.tenantId) return
     setCitizenAutoReplySaving(true)
     try {
-      await api.updateCitizenAutoReplyTemplates(user.tenantId, citizenAutoReplyTemplates)
+      const normalizedTemplates: CitizenAutoReplyTemplates = {
+        processingReceived: buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.processingReceived, t('social.requestStatus.processingReceived', 'İşleme Alındı')),
+          t('social.requestStatus.processingReceived', 'İşleme Alındı'),
+        ),
+        inProgress: buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.inProgress, t('social.requestStatus.inProgress', 'Yapılmakta')),
+          t('social.requestStatus.inProgress', 'Yapılmakta'),
+        ),
+        completed: buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.completed, t('social.requestStatus.completed', 'Tamamlandı')),
+          t('social.requestStatus.completed', 'Tamamlandı'),
+        ),
+      }
+      await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
+      setCitizenAutoReplyTemplates(normalizedTemplates)
       showToast('success', t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'))
     } catch (saveError) {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
@@ -2173,6 +2241,36 @@ export function SettingsPage() {
           <section className="section-card page-stack">
             <div className="page-header-row">
               <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.autoRepliesTitle', 'Vatandaşa Giden Cevaplar')}</h2>
+                <p className="helper-copy">{t('settings.routing.autoRepliesDescription', 'Vatandaş talebi durumlarına göre otomatik gönderilecek taslak cevapları düzenleyin.')}</p>
+              </div>
+              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
+                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {([
+                ['processingReceived', t('social.requestStatus.processingReceived', 'İşleme Alındı')],
+                ['inProgress', t('social.requestStatus.inProgress', 'Yapılmakta')],
+                ['completed', t('social.requestStatus.completed', 'Tamamlandı')],
+              ] as Array<[CitizenAutoReplyTemplateKey, string]>).map(([key, statusLabel]) => (
+                <CitizenAutoReplyTemplateField
+                  key={key}
+                  label={statusLabel}
+                  statusLabel={statusLabel}
+                  value={citizenAutoReplyTemplates[key]}
+                  onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, [key]: value }))}
+                />
+              ))}
+            </div>
+            <p className="text-xs font-medium text-slate-500">
+              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı} ve durum adı.')}
+            </p>
+          </section>
+
+          <section className="section-card page-stack">
+            <div className="page-header-row">
+              <div>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.rules')}</h2>
                 <p className="helper-copy">{t('settings.routing.rulesDescription')}</p>
               </div>
@@ -2266,34 +2364,6 @@ export function SettingsPage() {
             {testResult ? <StatusPill tone="info">{testResult}</StatusPill> : null}
           </section>
 
-          <section className="section-card page-stack">
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.autoRepliesTitle', 'Vatandaşa Giden Cevaplar')}</h2>
-                <p className="helper-copy">{t('settings.routing.autoRepliesDescription', 'Vatandaş talebi durumlarına göre otomatik gönderilecek taslak cevapları düzenleyin.')}</p>
-              </div>
-              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
-                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-              </Button>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('social.requestStatus.processingReceived', 'İşleme Alındı')}</span>
-                <textarea className="field-textarea min-h-[8rem]" value={citizenAutoReplyTemplates.processingReceived} onChange={event => setCitizenAutoReplyTemplates(current => ({ ...current, processingReceived: event.target.value }))} />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('social.requestStatus.inProgress', 'Yapılmakta')}</span>
-                <textarea className="field-textarea min-h-[8rem]" value={citizenAutoReplyTemplates.inProgress} onChange={event => setCitizenAutoReplyTemplates(current => ({ ...current, inProgress: event.target.value }))} />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('social.requestStatus.completed', 'Tamamlandı')}</span>
-                <textarea className="field-textarea min-h-[8rem]" value={citizenAutoReplyTemplates.completed} onChange={event => setCitizenAutoReplyTemplates(current => ({ ...current, completed: event.target.value }))} />
-              </label>
-            </div>
-            <p className="text-xs font-medium text-slate-500">
-              {t('settings.routing.autoRepliesTokens', 'Kullanılabilir alanlar: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, {VatandaşTalepDurumu}')}
-            </p>
-          </section>
         </div>
       ) : null}
       {activeTab === 'citizen' ? (

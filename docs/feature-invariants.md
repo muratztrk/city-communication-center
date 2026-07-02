@@ -232,7 +232,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
   (İşleme Alındı / Yapılmakta / Tamamlandı). Varsayılan mesajda VT no'dan sonra talep başlığı
-  yer alır ve metinler tenant `CitizenAutoReplyTemplatesJson` ayarından değiştirilebilir
+  yer alır ve metinler tenant `CitizenAutoReplyTemplatesJson` ayarından değiştirilebilir.
+  Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
+  kartının hemen altında durur; `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
+  kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir (cards #1258/#1263).
   (cards #1257/#1258).
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;
   rich-text (`dangerouslySetInnerHTML`) ve plain-text dalları ayrı işlenir (card 551).

@@ -301,7 +301,11 @@
   }
 
   .detail-modal-shell--my-request .job-process-timeline__step-value {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+  }
+
+  .detail-modal-shell--my-request .job-process-timeline__step-value .text-xs {
+    font-size: 0.6875rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main {
@@ -413,8 +417,8 @@
     background: linear-gradient(
       to bottom,
       rgb(5 150 105) 0%,
-      rgb(5 150 105) 30%,
-      rgb(249 115 22) 70%,
+      rgb(5 150 105) 38%,
+      rgb(249 115 22) 62%,
       rgb(249 115 22) 100%
     );
   }
@@ -433,8 +437,8 @@
     background: linear-gradient(
       to bottom,
       rgb(220 38 38) 0%,
-      rgb(220 38 38) 30%,
-      rgb(249 115 22) 70%,
+      rgb(220 38 38) 38%,
+      rgb(249 115 22) 62%,
       rgb(249 115 22) 100%
     );
   }
@@ -496,13 +500,13 @@
     border: none;
     box-shadow:
       0 0 0 2px white,
-      0 0 0 4px rgb(255 237 213);
+      0 0 0 5px rgb(255 237 213);
   }
 
   .job-process-timeline__indicator--current::after {
     content: '';
-    width: 0.45rem;
-    height: 0.45rem;
+    width: 0.55rem;
+    height: 0.55rem;
     border-radius: 9999px;
     background: rgb(249 115 22);
   }

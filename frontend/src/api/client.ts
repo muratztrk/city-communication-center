@@ -12,6 +12,7 @@ import type {
   RoutingConfig,
   RoutingRule,
   RoutingTestResult,
+  CitizenAutoReplyTemplates,
   SocialConnectionTestResult,
   SocialMessage,
   SocialConversationEntry,
@@ -1201,6 +1202,21 @@ export const api = {
 
     await ensureOk(response, i18n.t('errors.routingTestFailed'))
     return response.json() as Promise<RoutingTestResult>
+  },
+
+  async getCitizenAutoReplyTemplates(tenantId: string): Promise<CitizenAutoReplyTemplates> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/citizen-auto-replies`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.settingsLoadFailed'))
+    return response.json() as Promise<CitizenAutoReplyTemplates>
+  },
+
+  async updateCitizenAutoReplyTemplates(tenantId: string, payload: CitizenAutoReplyTemplates): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/citizen-auto-replies`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+    await ensureOk(response, i18n.t('errors.settingsSaveFailed'))
   },
 
   async getUnreadNotificationCount(): Promise<number> {

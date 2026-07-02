@@ -33,6 +33,8 @@ export interface MyRequestDetailModalProps {
   onClose: () => void
   onPrint: () => void
   onCancel?: () => void
+  showCancelDisabled?: boolean
+  cancelDisabledTitle?: string
   onEdit?: () => void
   showEditDisabled?: boolean
   editDisabledTitle?: string
@@ -83,6 +85,8 @@ export function MyRequestDetailModal({
   onClose,
   onPrint,
   onCancel,
+  showCancelDisabled,
+  cancelDisabledTitle,
   onEdit,
   showEditDisabled,
   editDisabledTitle,
@@ -125,6 +129,8 @@ export function MyRequestDetailModal({
         onClose={onClose}
         onPrint={onPrint}
         onCancel={onCancel}
+        showCancelDisabled={showCancelDisabled}
+        cancelDisabledTitle={cancelDisabledTitle}
         onEdit={onEdit}
         showEditDisabled={showEditDisabled}
         editDisabledTitle={editDisabledTitle}
@@ -215,11 +221,11 @@ export function MyRequestDetailModal({
               </MyRequestSectionHeading>
               <AttachmentSection
                 attachments={detail.attachments ?? []}
-                readOnly={!isEditing || !canEditJobAttachments}
+                readOnly={!isEditing || !(canEditJobAttachments || isEditing)}
                 displayMode="rich-list"
                 emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-                onUpload={isEditing && canEditJobAttachments ? onAttachmentUpload : undefined}
-                onDelete={isEditing && canEditJobAttachments ? onAttachmentDelete : undefined}
+                onUpload={isEditing && (canEditJobAttachments || isEditing) ? onAttachmentUpload : undefined}
+                onDelete={isEditing && (canEditJobAttachments || isEditing) ? onAttachmentDelete : undefined}
                 disabled={attachmentUploading}
                 showDeleteActions={isEditing}
               />

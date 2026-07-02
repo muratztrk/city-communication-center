@@ -19,11 +19,27 @@ public static class CitizenJobStatusLabelHelper
 
     public static string BuildStatusMessage(SocialMessage message, Job job, int taskCount, DateTimeOffset utcNow)
     {
+        return BuildStatusMessage(message, job, taskCount, utcNow, null);
+    }
+
+    public static string BuildStatusMessage(SocialMessage message, Job job, int taskCount, DateTimeOffset utcNow, string? template)
+    {
         var requestNumber = ConversationEntrySenderLabelHelper.FormatCitizenRequestNumber(
             message.CitizenRequestNumber,
             message.CitizenRequestNumberYear,
             message.ReceivedAtUtc);
         var statusLabel = GetDisplayStatus(job, taskCount, utcNow);
-        return $"{requestNumber} no'lu talebinizin durumu {statusLabel}.";
+        var title = string.IsNullOrWhiteSpace(job.Title) ? "talebiniz" : job.Title.Trim();
+        var messageTemplate = string.IsNullOrWhiteSpace(template)
+            ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu {VatandaşTalepDurumu}."
+            : template;
+
+        return messageTemplate
+            .Replace("{VatandaşTalepNo}", requestNumber, StringComparison.Ordinal)
+            .Replace("{Vatandaş Talep No}", requestNumber, StringComparison.Ordinal)
+            .Replace("{VatandaşTalepBaşlığı}", title, StringComparison.Ordinal)
+            .Replace("{Vatandaş Talep Başlığı}", title, StringComparison.Ordinal)
+            .Replace("{VatandaşTalepDurumu}", statusLabel, StringComparison.Ordinal)
+            .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal);
     }
 }

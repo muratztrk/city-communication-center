@@ -34,6 +34,8 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? RolePageAccessJson { get; set; }
 
+    public string? CitizenAutoReplyTemplatesJson { get; set; }
+
     /// <summary>Türksat Belediye Standart V3 belediye kodu (tenant çözümleme).</summary>
     public string? BelediyeKodu { get; set; }
 

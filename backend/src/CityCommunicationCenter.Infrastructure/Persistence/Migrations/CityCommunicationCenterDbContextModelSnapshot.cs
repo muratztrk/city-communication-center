@@ -1757,6 +1757,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(32)")
                         .HasColumnName("belediyekodu");
 
+                    b.Property<string>("CitizenAutoReplyTemplatesJson")
+                        .HasColumnType("text")
+                        .HasColumnName("citizenautoreplytemplatesjson");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdatutc");

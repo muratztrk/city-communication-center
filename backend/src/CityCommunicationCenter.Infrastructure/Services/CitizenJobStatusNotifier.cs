@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
+using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
@@ -45,7 +46,12 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         }
 
         var utcNow = DateTimeOffset.UtcNow;
-        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(message, job, taskCount, utcNow);
+        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+            message,
+            job,
+            taskCount,
+            utcNow,
+            await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken));
 
         if (message.Channel == SocialChannel.WhatsApp)
         {
@@ -54,6 +60,28 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         }
 
         await SendSmsAsync(tenantId, message, content, cancellationToken);
+    }
+
+    private async Task<string?> ResolveTemplateAsync(
+        Guid tenantId,
+        Job job,
+        int taskCount,
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken)
+    {
+        var raw = await _dbContext.TenantSettings
+            .AsNoTracking()
+            .Where(setting => setting.TenantId == tenantId)
+            .Select(setting => setting.CitizenAutoReplyTemplatesJson)
+            .FirstOrDefaultAsync(cancellationToken);
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(raw);
+        var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
+        return statusLabel switch
+        {
+            "Yapılmakta" => templates.InProgress,
+            "Tamamlanmış" or "Tamamlandı" => templates.Completed,
+            _ => templates.ProcessingReceived,
+        };
     }
 
     private async Task SendWhatsAppAsync(

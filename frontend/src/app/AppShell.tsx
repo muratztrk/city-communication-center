@@ -378,6 +378,26 @@ export function AppShell() {
     settings: t('nav.groupAdmin'),
   }
 
+  const breadcrumbParentIcon: Record<string, typeof LayoutDashboard> = {
+    'my-tasks': ListChecks,
+    'my-requests': Clock3,
+    'outgoing-requests': ArrowUpRight,
+    'department-tasks': SquareKanban,
+    'staff-tasks': Users,
+    'incoming-requests': FolderKanban,
+    tasks: SquareKanban,
+    directorate: FolderKanban,
+    coordinated: Workflow,
+    jobs: FolderKanban,
+    display: MonitorUp,
+    social: MessageSquareMore,
+    whatsapp: MessageSquareMore,
+    departments: Building,
+    users: Users,
+    audit: ScrollText,
+    settings: Settings2,
+  }
+
   const breadcrumbSkipSegments = new Set(['projects', 'requests'])
 
   const breadcrumbIcon: Record<string, typeof LayoutDashboard> = {
@@ -406,6 +426,7 @@ export function AppShell() {
   const requestKindBreadcrumbLabel = currentBreadcrumbSegment === 'new' ? requestKindLabels[requestKindParam] : null
   const currentBreadcrumbParent = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? t('nav.createRequest', 'Talep Oluştur') : breadcrumbParent[currentBreadcrumbSegment]) : null
   const currentBreadcrumbLabel = currentBreadcrumbSegment ? requestKindBreadcrumbLabel || breadcrumbLabels[currentBreadcrumbSegment] || currentBreadcrumbSegment : null
+  const CurrentBreadcrumbParentIcon = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? ClipboardPlus : breadcrumbParentIcon[currentBreadcrumbSegment]) : null
   const CurrentBreadcrumbIcon = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? requestKindIcons[requestKindParam] : breadcrumbIcon[currentBreadcrumbSegment]) : null
   const currentBreadcrumbIconImageSrc = currentBreadcrumbSegment === 'whatsapp' ? '/icons/whatsapp.svg' : null
 
@@ -564,7 +585,10 @@ export function AppShell() {
             {currentBreadcrumbParent ? (
               <>
                 <ChevronRight className="size-3.5 shrink-0 text-slate-300" />
-                <span className="max-w-[14rem] truncate px-2 font-semibold text-slate-500">{currentBreadcrumbParent}</span>
+                <span className="inline-flex max-w-[14rem] min-w-0 items-center gap-1 px-2 font-semibold text-slate-500">
+                  {CurrentBreadcrumbParentIcon ? <CurrentBreadcrumbParentIcon className="size-3.5 shrink-0" /> : null}
+                  <span className="truncate">{currentBreadcrumbParent}</span>
+                </span>
               </>
             ) : null}
             {currentBreadcrumbLabel ? (

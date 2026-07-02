@@ -218,8 +218,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal
   tonda kalır; Jobs/Tasks detay modallarındaki aynı buton açık mavi görünür.
-- **Job status değişince `IWhatsAppJobNotifier` otomatik vatandaş mesajı atar**
-  (Tamamlanmış / İptal). Yeni durum-değişim akışları da tutarlılık için bunu tetiklemeli.
+- **Vatandaş Talepleri grid aksiyonları:** Gridde `Son Tarih` sütunu gösterilmez; `İşlemler`
+  kolonunda yalnız `Detaylar` kalır. Yazışmaya Git / Düzenle / İptal aksiyonları detay popup
+  header'ında görünür (card #1255).
+- **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
+  bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
+- **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
+  (İşleme Alındı / Yapılmakta / Tamamlandı). Varsayılan mesajda VT no'dan sonra talep başlığı
+  yer alır ve metinler tenant `CitizenAutoReplyTemplatesJson` ayarından değiştirilebilir
+  (cards #1257/#1258).
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;
   rich-text (`dangerouslySetInnerHTML`) ve plain-text dalları ayrı işlenir (card 551).
 
@@ -235,6 +242,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   öncelik renk paleti amber zemin üzerinde kullanılmaz (card #1084).
 - **Ortak bileşenleri kullan:** `DueDatePill`, `DateCell`, `FilterableTh`,
   `SingleSelectDropdown` (openUp), `StatusPill`, `ChannelIcon`. Yeni grid kolonunda yeniden icat etme.
+- **Breadcrumb parent segmentlerinde her ifade kendi ikonunu taşır:** ör. `Birimdeki Görevler`,
+  `Vatandaş Talepleri`, `Yönetim` gibi ara segmentler metinden önce ilgili lucide ikonunu gösterir
+  (card #1251).
 - **Login logosu HER ZAMAN `/tire-belediyesi-logo.png`** (LoginPage `LOGIN_LOGO_*_SRC`) —
   tenant `appearance.logoUrl` ile override edilmez.
 - **Sol menüde `/whatsapp` alt linki `SidebarNavLinkItem.emphasized` ile biraz büyük ve sola

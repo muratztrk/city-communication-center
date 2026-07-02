@@ -55,6 +55,34 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpGet("tenants/{tenantId:guid}/citizen-auto-replies")]
+    public async Task<ActionResult<CitizenAutoReplyTemplatesResponse>> GetCitizenAutoReplyTemplates(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var templates = await _sender.Send(new GetCitizenAutoReplyTemplatesQuery(tenantId), cancellationToken);
+        if (templates is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(templates);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/citizen-auto-replies")]
+    public async Task<IActionResult> UpdateCitizenAutoReplyTemplates(
+        Guid tenantId,
+        [FromBody] UpdateCitizenAutoReplyTemplatesRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(new UpdateCitizenAutoReplyTemplatesCommand(
+            tenantId,
+            request.ProcessingReceived,
+            request.InProgress,
+            request.Completed), cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/appearance")]
     public async Task<ActionResult<TenantAppearanceResponse>> GetTenantAppearance(Guid tenantId, CancellationToken cancellationToken)
     {

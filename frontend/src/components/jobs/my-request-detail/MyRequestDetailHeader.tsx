@@ -8,6 +8,8 @@ interface MyRequestDetailHeaderProps {
   onClose: () => void
   onPrint: () => void
   onCancel?: () => void
+  showCancelDisabled?: boolean
+  cancelDisabledTitle?: string
   onEdit?: () => void
   onGoToConversation?: () => void
   showEditDisabled?: boolean
@@ -23,6 +25,8 @@ export function MyRequestDetailHeader({
   onClose,
   onPrint,
   onCancel,
+  showCancelDisabled,
+  cancelDisabledTitle,
   onEdit,
   onGoToConversation,
   showEditDisabled,
@@ -93,6 +97,16 @@ export function MyRequestDetailHeader({
                 <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                 {t('jobs.actions.cancel', 'İptal Et')}
               </Button>
+            )}
+            {showCancelDisabled && !onCancel && (
+              <DisabledActionButton
+                variant="destructive"
+                className="inline-flex items-center gap-1.5"
+                hoverTitle={cancelDisabledTitle ?? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')}
+              >
+                <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                {t('jobs.actions.cancel', 'İptal Et')}
+              </DisabledActionButton>
             )}
           </>
         )}

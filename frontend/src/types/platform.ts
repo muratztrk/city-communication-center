@@ -679,6 +679,12 @@ export interface RoutingTestResult {
   targetDepartmentName: string | null;
 }
 
+export interface CitizenAutoReplyTemplates {
+  processingReceived: string;
+  inProgress: string;
+  completed: string;
+}
+
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }
 export interface WorkingHoursDepartmentOverride { departmentId: string; departmentName: string | null; isAlwaysOpen: boolean; schedule: WorkingHoursDaySchedule[] }
 export interface WorkingHoursSchedule { isAlwaysOpen: boolean; schedule: WorkingHoursDaySchedule[] }

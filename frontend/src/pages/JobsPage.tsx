@@ -604,9 +604,16 @@ interface JobsPageProps {
   detailOnly?: boolean
   detailContextOverride?: 'incoming' | 'social'
   onNotificationDetailClose?: () => void
+  socialActions?: {
+    goToConversation?: () => void
+    edit?: () => void
+    editDisabledTitle?: string
+    cancel?: () => void
+    cancelDisabledTitle?: string
+  }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -1920,10 +1927,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onDueDateSave={() => void handleDetailDueDateSave()}
               onClose={closeDetail}
               onPrint={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, myRequestView: isMyRequestsView })}
-              onCancel={canCancelDetail ? () => handleCancel(detail.jobId) : undefined}
-              onEdit={canEditMyRequestDetailJob && !myRequestEditing ? startMyRequestEdit : undefined}
-              showEditDisabled={showMyRequestEditDisabled && !myRequestEditing}
-              onGoToConversation={isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) ? openCitizenConversationModal : undefined}
+              onCancel={socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined)}
+              showCancelDisabled={Boolean(socialActions && !socialActions.cancel)}
+              cancelDisabledTitle={socialActions?.cancelDisabledTitle}
+              onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? (canEditMyRequestDetailJob && !myRequestEditing ? startMyRequestEdit : undefined))}
+              showEditDisabled={socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing)}
+              editDisabledTitle={socialActions?.editDisabledTitle}
+              onGoToConversation={socialActions?.goToConversation ?? (isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) ? openCitizenConversationModal : undefined)}
               showManagerNoteColumn={showManagerNoteColumn}
               canEditManagerNote={canEditManagerNote}
               canManageCoordination={canManageCoordination}

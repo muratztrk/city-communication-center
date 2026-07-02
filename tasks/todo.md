@@ -931,3 +931,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46a991` / #1254 — Konuşma detay header'ında telefon numarasının altındaki `WhatsApp Konuşmaları` subtitle'ı kaldırıldı.
 
 ## STATUS: Round 142 complete — Doing list drained.
+
+## Round 143 (Doing — 2026-07-02, vatandaş talebi aksiyonları ve otomatik cevaplar)
+- [x] `6a46aaee` / #1255 — Vatandaş Talepleri gridinden `Son Tarih` sütunu kaldırıldı; grid işlemlerinde yalnız `Detaylar` bırakıldı, Yazışmaya Git / Düzenle / İptal aksiyonları detay popup header'ına taşındı.
+- [x] `6a46a88d` reopened / #1251 — Breadcrumb ara segmentlerine kendi ikonları eklendi.
+- [x] `6a46abd3` / #1258 — Ayarlar > Otomatik Yönlendirme altında `Vatandaşa Giden Cevaplar` bölümü eklendi; İşleme Alındı, Yapılmakta ve Tamamlandı şablonları tenant ayarına kaydediliyor.
+- [x] `6a46ab40` / #1256 — Vatandaş Talebi detay popup'ında düzenleme modunda `Ekler / Fotoğraflar` bölümünde `Dosya ekle` aksiyonu görünür hale getirildi.
+- [x] `6a46ab6b` / #1257 — Otomatik vatandaş cevaplarının varsayılan metnine `no'lu` ifadesinden sonra talep başlığı eklendi.
+
+## STATUS: Round 143 complete — build/lint passed; Doing list drain pending.

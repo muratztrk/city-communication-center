@@ -20,6 +20,16 @@ public sealed record UpdateTenantSettingsRequest(
 
 public sealed record UpdateRolePageAccessRequest(string? MatrixJson);
 
+public sealed record CitizenAutoReplyTemplatesResponse(
+    string ProcessingReceived,
+    string InProgress,
+    string Completed);
+
+public sealed record UpdateCitizenAutoReplyTemplatesRequest(
+    string ProcessingReceived,
+    string InProgress,
+    string Completed);
+
 public sealed record TenantAppearanceResponse(
     string ThemePreset,
     string PrimaryColor,

@@ -33,6 +33,7 @@ import {
 import type {
   Department,
   RoutingConfig,
+  CitizenAutoReplyTemplates,
   SocialSettingsStatus,
   TenantAppearanceInput,
   TenantAuthenticationPolicy,
@@ -52,6 +53,12 @@ type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'c
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
+
+const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
+  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı.",
+  inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta.",
+  completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı.",
+}
 
 interface ChannelConfig {
   id: ChannelType
@@ -269,6 +276,8 @@ export function SettingsPage() {
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
   const [routingConfig, setRoutingConfig] = useState<RoutingConfig | null>(null)
+  const [citizenAutoReplyTemplates, setCitizenAutoReplyTemplates] = useState<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
+  const [citizenAutoReplySaving, setCitizenAutoReplySaving] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
@@ -356,6 +365,7 @@ export function SettingsPage() {
       api.getTenantAppearance(user.tenantId),
       api.getSocialSettingsStatus(),
       api.getRoutingConfig(),
+      api.getCitizenAutoReplyTemplates(user.tenantId),
       api.getDepartments(),
       api.getWorkingHours(user.tenantId),
       api.getSmsSettings(user.tenantId),
@@ -364,7 +374,7 @@ export function SettingsPage() {
       api.getSlaWeekendSettings(user.tenantId),
       api.getWhatsAppTemplates(),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
         if (!isActive) {
           return
         }
@@ -412,6 +422,7 @@ export function SettingsPage() {
           }))
         }
         setRoutingConfig(routingResponse)
+        setCitizenAutoReplyTemplates(autoReplyResponse)
         setDepartments(departmentResponse)
         setWorkingHoursForm(workingHoursResponse)
         setSmsSettings(smsResponse)
@@ -897,6 +908,19 @@ export function SettingsPage() {
       setTestResult(result.targetDepartmentName ? t('settings.routing.testSuccess', { department: result.targetDepartmentName }) : t('settings.routing.testNoMatch'))
     } catch (testError) {
       setMessage({ type: 'error', text: testError instanceof Error ? testError.message : t('common.error') })
+    }
+  }
+
+  const saveCitizenAutoReplies = async () => {
+    if (!user?.tenantId) return
+    setCitizenAutoReplySaving(true)
+    try {
+      await api.updateCitizenAutoReplyTemplates(user.tenantId, citizenAutoReplyTemplates)
+      showToast('success', t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'))
+    } catch (saveError) {
+      showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
+    } finally {
+      setCitizenAutoReplySaving(false)
     }
   }
 
@@ -2240,6 +2264,35 @@ export function SettingsPage() {
               <Button type="button" onClick={() => void testRouting()}>{t('common.test')}</Button>
             </div>
             {testResult ? <StatusPill tone="info">{testResult}</StatusPill> : null}
+          </section>
+
+          <section className="section-card page-stack">
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.autoRepliesTitle', 'Vatandaşa Giden Cevaplar')}</h2>
+                <p className="helper-copy">{t('settings.routing.autoRepliesDescription', 'Vatandaş talebi durumlarına göre otomatik gönderilecek taslak cevapları düzenleyin.')}</p>
+              </div>
+              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
+                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('social.requestStatus.processingReceived', 'İşleme Alındı')}</span>
+                <textarea className="field-textarea min-h-[8rem]" value={citizenAutoReplyTemplates.processingReceived} onChange={event => setCitizenAutoReplyTemplates(current => ({ ...current, processingReceived: event.target.value }))} />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('social.requestStatus.inProgress', 'Yapılmakta')}</span>
+                <textarea className="field-textarea min-h-[8rem]" value={citizenAutoReplyTemplates.inProgress} onChange={event => setCitizenAutoReplyTemplates(current => ({ ...current, inProgress: event.target.value }))} />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('social.requestStatus.completed', 'Tamamlandı')}</span>
+                <textarea className="field-textarea min-h-[8rem]" value={citizenAutoReplyTemplates.completed} onChange={event => setCitizenAutoReplyTemplates(current => ({ ...current, completed: event.target.value }))} />
+              </label>
+            </div>
+            <p className="text-xs font-medium text-slate-500">
+              {t('settings.routing.autoRepliesTokens', 'Kullanılabilir alanlar: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, {VatandaşTalepDurumu}')}
+            </p>
           </section>
         </div>
       ) : null}

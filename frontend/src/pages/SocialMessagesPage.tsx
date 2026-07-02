@@ -1,6 +1,5 @@
 import { DateCell } from '../components/ui/date-cell'
-import { DueDatePill } from '../components/ui/due-date-pill'
-import { MapPin, Search, PenLine, X } from 'lucide-react'
+import { MapPin, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -16,10 +15,9 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
-import type { Department, JobSummary, SocialMessage } from '../types/platform'
+import type { JobSummary, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone } from '../utils/localization'
 import { StatusPill } from '../components/ui/status-pill'
-import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
@@ -185,12 +183,9 @@ export function SocialMessagesPage() {
   const initialRequestStatus = isSocialRequestStatusFilter(requestStatusParam) ? requestStatusParam : 'all'
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
-  const [departments, setDepartments] = useState<Department[]>([])
   const [jobsById, setJobsById] = useState<Map<string, JobSummary>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [requestModalMessage, setRequestModalMessage] = useState<SocialMessage | null>(null)
-  const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
   const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [filterFrom, setFilterFrom] = useState('')
@@ -212,16 +207,14 @@ export function SocialMessagesPage() {
 
     void Promise.all([
       api.getSocialMessages(),
-      api.getDepartments(),
       api.getJobs('all'),
     ])
-      .then(([messageList, departmentList, jobList]) => {
+      .then(([messageList, jobList]) => {
         if (!isActive) {
           return
         }
 
         setMessages(messageList)
-        setDepartments(departmentList)
         setJobsById(new Map(jobList.map(job => [job.jobId, job])))
       })
       .catch(loadError => {
@@ -245,32 +238,18 @@ export function SocialMessagesPage() {
     setError('')
 
     try {
-      const [messageList, departmentList, jobList] = await Promise.all([
+      const [messageList, jobList] = await Promise.all([
         api.getSocialMessages(),
-        api.getDepartments(),
         api.getJobs('all'),
       ])
 
       setMessages(messageList)
-      setDepartments(departmentList)
       setJobsById(new Map(jobList.map(job => [job.jobId, job])))
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleRequestCreated = () => {
-    setRequestModalMessage(null)
-    setRequestModalEditJobId(null)
-    void reload()
-    invalidateSocialMessages(queryClient, requestModalMessage?.socialMessageId)
-  }
-
-  const openRequestModal = (message: SocialMessage) => {
-    setRequestModalEditJobId(message.jobId)
-    setRequestModalMessage(message)
   }
 
   const handleCancelConfirm = async () => {
@@ -475,7 +454,6 @@ export function SocialMessagesPage() {
                 <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
                 <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş İsmi')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
-                <FilterableTh filterKey="dueDateUtc" filterValue={socialFilters['dueDateUtc'] ?? ''} onFilter={setSocialFilter} sortKey="dueDateUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.lastDate', 'Son Tarih')}</FilterableTh>
                 <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
@@ -483,9 +461,6 @@ export function SocialMessagesPage() {
             <tbody>
               {pagedMessages.map((message, index) => {
                 const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
-                const canCancelJob = message.jobId && canCancelLinkedJob(linkedJob?.status)
-                // Hedef birim yöneticisi onayladıktan sonra (görev oluşmuş = taskCount>0) operatör talebi düzenleyemez (card #1075).
-                const isTargetApproved = !!linkedJob && (linkedJob.taskCount ?? 0) > 0
 
                 return (
                 <Fragment key={message.socialMessageId}>
@@ -509,7 +484,6 @@ export function SocialMessagesPage() {
                     <td className="font-semibold">{message.citizenPhone}</td>
                     <td className="font-semibold">{message.citizenName}</td>
                     <td>{message.assignedDepartmentName ?? t('common.none')}</td>
-                    <td><DueDatePill value={getSocialMessageDueDate(message, linkedJob)} locale={locale} completedAtUtc={linkedJob?.completedAtUtc} emptyLabel={locale.startsWith('tr') ? 'İşleme Alındı' : 'Processing Received'} /></td>
                     <td>
                       {linkedJob ? (
                         <StatusPill className={getStatusPillClass(getJobStatusTone(linkedJob))}>
@@ -533,57 +507,6 @@ export function SocialMessagesPage() {
                         ) : (
                           <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
                             {t('jobs.actions.details', 'Detaylar')}
-                          </DisabledActionButton>
-                        )}
-                        {message.channel === 'WhatsApp' && message.whatsAppPhone ? (
-                          <Button
-                            size="sm"
-                            type="button"
-                            className="bg-[#007985] text-white hover:bg-[#006570]"
-                            onClick={() => navigate(
-                              `/whatsapp?phone=${encodeURIComponent(message.whatsAppPhone!)}&at=${encodeURIComponent(message.receivedAtUtc)}&messageId=${encodeURIComponent(message.socialMessageId)}`,
-                            )}
-                          >
-                            {t('social.goToConversation', 'Yazışmaya Git')}
-                          </Button>
-                        ) : null}
-                        {message.jobId && isTargetApproved ? (
-                          <DisabledActionButton size="sm" variant="success" className="inline-flex items-center gap-1.5" hoverTitle={t('social.editAfterApprovalDisabled', 'Hedef birim yöneticisi onayladıktan sonra talep düzenlenemez')}>
-                            <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                            {t('social.editRequest', 'Talep Düzenle')}
-                          </DisabledActionButton>
-                        ) : (
-                          <Button
-                            size="sm"
-                            type="button"
-                            variant="success"
-                            className={message.jobId ? 'inline-flex items-center gap-1.5' : undefined}
-                            onClick={() => openRequestModal(message)}
-                          >
-                            {message.jobId ? <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" /> : null}
-                            {message.jobId
-                              ? t('social.editRequest', 'Talep Düzenle')
-                              : t('nav.createRequest', 'Talep Oluştur')}
-                          </Button>
-                        )}
-                        {canCancelJob ? (
-                          <Button
-                            size="sm"
-                            type="button"
-                            variant="destructive"
-                            onClick={() => setCancelModal({ jobId: message.jobId!, reason: '', saving: false })}
-                          >
-                            {t('jobs.actions.cancel', 'İptal Et')}
-                          </Button>
-                        ) : (
-                          <DisabledActionButton
-                            size="sm"
-                            variant="destructive"
-                            hoverTitle={message.jobId
-                              ? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')
-                              : t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}
-                          >
-                            {t('jobs.actions.cancel', 'İptal Et')}
                           </DisabledActionButton>
                         )}
                       </div>
@@ -613,7 +536,7 @@ export function SocialMessagesPage() {
                 )
               })}
               {columnFilteredMessages.length === 0 ? (
-                <TableEmptyStateRows columnCount={10} message={t('social.empty')} />
+                <TableEmptyStateRows columnCount={9} message={t('social.empty')} />
               ) : null}
             </tbody>
           </table>
@@ -627,19 +550,6 @@ export function SocialMessagesPage() {
         />
       </section>
 
-      {requestModalMessage && (
-        <CitizenRequestModal
-          message={requestModalMessage}
-          departments={departments}
-          editJobId={requestModalEditJobId}
-          onClose={() => {
-            setRequestModalMessage(null)
-            setRequestModalEditJobId(null)
-          }}
-          onCreated={handleRequestCreated}
-        />
-      )}
-
       {detailJobId && (
         <JobsPage
           mode="myRequests"
@@ -648,6 +558,28 @@ export function SocialMessagesPage() {
           detailContextOverride="social"
           notificationJobId={detailJobId}
           onNotificationDetailClose={() => setDetailJobId(null)}
+          socialActions={(() => {
+            const message = messages.find(item => item.jobId === detailJobId)
+            if (!message) return undefined
+            const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
+            const canCancelJob = message.jobId && canCancelLinkedJob(linkedJob?.status)
+            const isTargetApproved = !!linkedJob && (linkedJob.taskCount ?? 0) > 0
+            const whatsAppPhone = getSocialMessageWhatsAppPhone(message)
+            return {
+              goToConversation: message.channel === 'WhatsApp' && whatsAppPhone
+                ? () => navigate(`/whatsapp?phone=${encodeURIComponent(whatsAppPhone)}&at=${encodeURIComponent(message.receivedAtUtc)}&messageId=${encodeURIComponent(message.socialMessageId)}`)
+                : undefined,
+              editDisabledTitle: isTargetApproved
+                ? t('social.editAfterApprovalDisabled', 'Hedef birim yöneticisi onayladıktan sonra talep düzenlenemez')
+                : undefined,
+              cancel: canCancelJob
+                ? () => setCancelModal({ jobId: message.jobId!, reason: '', saving: false })
+                : undefined,
+              cancelDisabledTitle: message.jobId
+                ? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')
+                : t('social.detailsUnavailable', 'Henüz talep oluşturulmadı'),
+            }
+          })()}
         />
       )}
 

@@ -925,3 +925,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a468ba2` / #1247 — Birim içi/dışı/vatandaş talebi oluşturma adres alanlarında `Açık Adres` girilen metin büyütüldü; cadde input'u aynı okunurlukta tutuldu.
 
 ## STATUS: Round 141 complete — build/lint passed; Doing list drain pending.
+
+## Round 142 (Doing — 2026-07-02, WhatsApp breadcrumb ve header metni)
+- [x] `6a46a92b` / #1253 — Breadcrumb'daki `WhatsApp` pill'inin başına WhatsApp ikonu eklendi.
+- [x] `6a46a991` / #1254 — Konuşma detay header'ında telefon numarasının altındaki `WhatsApp Konuşmaları` subtitle'ı kaldırıldı.
+
+## STATUS: Round 142 complete — build/lint passed; Doing list drain pending.

@@ -582,9 +582,9 @@ function ConversationDetail({
               </span>
             ) : null}
           </div>
-          <p className="truncate text-xs text-slate-500">
-            {headerSubtitleParts.length > 0 ? headerSubtitleParts.join(' · ') : t('whatsapp.title', 'WhatsApp')}
-          </p>
+          {headerSubtitleParts.length > 0 ? (
+            <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+          ) : null}
           {ticketLabel ? (
             <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}

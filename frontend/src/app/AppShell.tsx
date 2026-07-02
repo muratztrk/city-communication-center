@@ -407,6 +407,7 @@ export function AppShell() {
   const currentBreadcrumbParent = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? t('nav.createRequest', 'Talep Oluştur') : breadcrumbParent[currentBreadcrumbSegment]) : null
   const currentBreadcrumbLabel = currentBreadcrumbSegment ? requestKindBreadcrumbLabel || breadcrumbLabels[currentBreadcrumbSegment] || currentBreadcrumbSegment : null
   const CurrentBreadcrumbIcon = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? requestKindIcons[requestKindParam] : breadcrumbIcon[currentBreadcrumbSegment]) : null
+  const currentBreadcrumbIconImageSrc = currentBreadcrumbSegment === 'whatsapp' ? '/icons/whatsapp.svg' : null
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[color:var(--color-sidebar)]">
@@ -570,7 +571,8 @@ export function AppShell() {
               <>
                 <ChevronRight className="size-3.5 shrink-0 text-slate-300" />
                 <span className="inline-flex h-8 min-w-0 max-w-[18rem] items-center gap-1 rounded-full bg-white px-3 font-bold text-[color:var(--color-primary)] shadow-sm ring-1 ring-slate-200">
-                  {CurrentBreadcrumbIcon ? <CurrentBreadcrumbIcon className="size-3.5 shrink-0" /> : null}
+                  {currentBreadcrumbIconImageSrc ? <img src={currentBreadcrumbIconImageSrc} alt="" className="size-3.5 shrink-0" aria-hidden="true" /> : null}
+                  {!currentBreadcrumbIconImageSrc && CurrentBreadcrumbIcon ? <CurrentBreadcrumbIcon className="size-3.5 shrink-0" /> : null}
                   <span className="truncate">{currentBreadcrumbLabel}</span>
                 </span>
               </>

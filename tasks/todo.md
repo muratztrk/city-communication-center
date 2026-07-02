@@ -973,4 +973,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 149 (Doing — 2026-07-02, adres etiketi satır kırma)
 - [x] `6a46afc9` reopened / #1260 — Detay popup `Adres Bilgileri` içindeki `Cadde / Sokak / Bulvar` etiketi tek satır kalacak şekilde nowrap yapıldı.
 
-## STATUS: Round 149 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 149 complete — Doing list drained.

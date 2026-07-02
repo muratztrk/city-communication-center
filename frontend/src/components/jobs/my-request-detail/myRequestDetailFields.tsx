@@ -49,8 +49,8 @@ export function buildMyRequestDetailFields(
         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
       },
       {
-        label: t('jobs.detail.targetDepartment', 'Talebin Gittiği Birim'),
-        value: formatJobDestinationsWithAssignees(detail),
+        label: t('jobs.detail.targetDepartmentAssignee', 'Talebin Gittiği Birim / Görevi Yapan'),
+        value: formatJobDestinationsWithAssignees(detail, true),
       },
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
     ]
@@ -67,8 +67,8 @@ export function buildMyRequestDetailFields(
       value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
     },
     {
-      label: t('jobs.detail.targetDepartment', 'Talebin Gittiği Birim'),
-      value: formatJobDestinationsWithAssignees(detail),
+      label: t('jobs.detail.targetDepartmentAssignee', 'Talebin Gittiği Birim / Görevi Yapan'),
+      value: formatJobDestinationsWithAssignees(detail, true),
     },
     {
       label: t('jobs.form.isProject', 'Proje mi'),

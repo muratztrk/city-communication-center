@@ -18,7 +18,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
 
   return (
     <div className="my-request-edit-fields grid gap-3">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-3">
         <label className="grid gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
           <SingleSelectDropdown
@@ -41,17 +41,17 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             disabled={!hasNeighborhood}
           />
         </label>
+        <label className="grid gap-1">
+          <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+          <textarea
+            className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+            placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+            value={draft.openAddress}
+            onChange={e => onChange({ openAddress: e.target.value })}
+            disabled={!hasNeighborhood}
+          />
+        </label>
       </div>
-      <label className="grid gap-1">
-        <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
-        <textarea
-          className="field-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-          placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
-          value={draft.openAddress}
-          onChange={e => onChange({ openAddress: e.target.value })}
-          disabled={!hasNeighborhood}
-        />
-      </label>
     </div>
   )
 }

@@ -73,7 +73,7 @@ export function shouldShowJobStatusActorName(job: {
   return shouldShowRequestApproverField(job)
 }
 
-export function formatJobDestinationsWithAssignees(job: JobDetail): string {
+export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassignedPlaceholder = false): string {
   const destinations = sortJobDepartments(job.departments)
     .filter(department => department.role === 'Target' || department.role === 'Coordinating')
   const effectiveDestinations = destinations.length > 0
@@ -91,7 +91,10 @@ export function formatJobDestinationsWithAssignees(job: JobDetail): string {
           .filter((name): name is string => Boolean(name)),
       )]
       const departmentName = department.departmentName ?? job.ownerDepartmentName ?? '—'
-      return assignees.length > 0 ? `${departmentName} / ${assignees.join(', ')}` : departmentName
+      if (assignees.length > 0) {
+        return `${departmentName} / ${assignees.join(', ')}`
+      }
+      return showUnassignedPlaceholder ? `${departmentName} / -` : departmentName
     })
-    .join(', ') || job.ownerDepartmentName || '—'
+    .join(', ') || (showUnassignedPlaceholder ? `${job.ownerDepartmentName || '—'} / -` : job.ownerDepartmentName || '—')
 }

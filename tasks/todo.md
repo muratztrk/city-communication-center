@@ -939,4 +939,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46ab40` / #1256 — Vatandaş Talebi detay popup'ında düzenleme modunda `Ekler / Fotoğraflar` bölümünde `Dosya ekle` aksiyonu görünür hale getirildi.
 - [x] `6a46ab6b` / #1257 — Otomatik vatandaş cevaplarının varsayılan metnine `no'lu` ifadesinden sonra talep başlığı eklendi.
 
-## STATUS: Round 143 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 143 complete — cards moved to Done; follow-up Doing cards picked up.
+
+## Round 144 (Doing — 2026-07-02, detay alt kartları)
+- [x] `6a46af30` / #1259 — Detay popup `Ekler / Fotoğraflar` kart zemini `Açıklama` paneliyle aynı soluk nötr renge çekildi.
+- [x] `6a46afc9` / #1260 — Detay popup adres bölümünde `Açık Adres`, `Cadde / Sokak / Bulvar` alanının sağ tarafındaki aynı satır akışına alındı.
+- [x] `6a46b083` / #1261 — Detay popup `Talebin Gittiği Birim` etiketi `Talebin Gittiği Birim / Görevi Yapan` oldu; atama yoksa değer `Birim / -` gösteriyor.
+
+## STATUS: Round 144 complete — build/lint passed; Doing list drain pending.

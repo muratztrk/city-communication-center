@@ -188,7 +188,7 @@ export function MyRequestDetailModal({
           />
         ) : (
           <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
-            <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+            <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
               <MyRequestSectionHeading icon={MapPin}>
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
               </MyRequestSectionHeading>

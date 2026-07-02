@@ -326,16 +326,19 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+  }
+
+  .address-detail-my-request__grid--three {
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   }
 
   .address-detail-my-request__item {
     min-width: 0;
   }
 
-  .address-detail-my-request__item--full {
-    padding-top: 0.75rem;
-    border-top: 1px solid rgb(241 245 249);
+  .detail-modal-shell--my-request .my-request-detail-card--attachments {
+    background: rgb(248 250 249) !important;
   }
 
   .address-detail-my-request__label {

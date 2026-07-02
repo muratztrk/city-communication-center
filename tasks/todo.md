@@ -968,4 +968,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 148 (Doing — 2026-07-02, otomatik cevap sabit alanları)
 - [x] `6a46b541` / #1263 — Ayarlar > Otomatik Yönlendirme altında `Vatandaşa Giden Cevaplar` bölümü üstteki Otomatik Yönlendirme kartının altına alındı; VT no, talep başlığı ve durum adları sabit chip/pill olarak gösterilip yalnız orta metin düzenlenebilir kaldı.
 
-## STATUS: Round 148 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 148 complete — Doing list drained.

@@ -1594,7 +1594,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <button
             type="button"
             className="font-semibold hover:text-red-700"
-            onClick={() => setConfirmDialog({ title: t('jobs.detail.notes', 'Not'), titleDivider: true, message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+            onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
             <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
           </button>
@@ -1607,7 +1607,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <button
             type="button"
             className="font-semibold hover:text-emerald-700"
-            onClick={() => setConfirmDialog({ title: t('jobs.detail.notes', 'Not'), titleDivider: true, message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+            onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
             <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
           </button>
@@ -2182,7 +2182,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   <button
                                     type="button"
                                     className="font-semibold hover:text-red-700"
-                                    onClick={() => setConfirmDialog({ title: t('jobs.detail.notes', 'Not'), titleDivider: true, message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                    onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                   >
                                     <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                                   </button>
@@ -2195,7 +2195,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   <button
                                     type="button"
                                     className="font-semibold hover:text-emerald-700"
-                                    onClick={() => setConfirmDialog({ title: t('jobs.detail.notes', 'Not'), titleDivider: true, message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                    onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                   >
                                     <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                                   </button>

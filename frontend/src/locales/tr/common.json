@@ -768,7 +768,7 @@
       "pendingApproval": "Onay Bekleyen",
       "overdue": "Son Tarihi Geçmiş",
       "inProgress": "Yapılmakta",
-      "completed": "Tamamlanmış",
+      "completed": "Tamamlandı",
       "cancelled": "İptal"
     }
   },

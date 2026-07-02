@@ -974,3 +974,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46afc9` reopened / #1260 — Detay popup `Adres Bilgileri` içindeki `Cadde / Sokak / Bulvar` etiketi tek satır kalacak şekilde nowrap yapıldı.
 
 ## STATUS: Round 149 complete — Doing list drained.
+
+## Round 150 (Doing — 2026-07-02, terminal not ve otomatik cevap metni)
+- [x] `6a46b7c7` / #1264 — Talep detayında terminal `Not` popup başlığı iptalde `İptal Notu`, tamamlanmış talepte `Tamamlanma Notu` oldu.
+- [x] `6a46b846` / #1265 — Vatandaşa Giden Cevaplar tamamlanma durum etiketi `Tamamlanmış` yerine `Tamamlandı` gösteriyor.
+
+## STATUS: Round 150 complete — build/lint passed; Doing list drain pending.

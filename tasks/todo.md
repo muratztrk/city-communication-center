@@ -877,3 +877,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a464d52` reopened / #1215 — Standart kullanıcı owner approval bekleyen satırında parantez içindeki yönetici adı da turuncu gösteriliyor.
 
 ## STATUS: Round 134 complete — Doing list drained.
+
+## Round 135 (Doing — 2026-07-02, detay popup üst boşluğu)
+- [x] `6a465593` / #1221 — Taleplerim detay popup header'ında üst boşluk payı artırıldı; başlık satırı modal üst kenarına yapışmıyor.
+
+## STATUS: Round 135 complete — Doing list drained.

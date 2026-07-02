@@ -137,7 +137,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı geniş harf aralıklı açık gri kalır;
   ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
-  zorlaması uygulanmaz (cards #1218/#1220).
+  zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
+  yapışmaz (cards #1218/#1220/#1221).
 - **Düzenle ikonları:** Metinli veya ikon-only `Düzenle` aksiyonları lucide `SquarePen` ikonunu
   kullanır; eski `Pencil` ikonu edit aksiyonlarında geri getirilmez (card #1219).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`

@@ -854,3 +854,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a464d52` / #1215 — Taleplerim/Görev detay Süreç timeline'ındaki ayrı `Durum` step'i kaldırıldı; akış talep/onay/tamamlanma-son tarih satırlarıyla kalır.
 
 ## STATUS: Round 130 complete — Doing list drained.
+
+## Round 131 (Doing — 2026-07-02, süreç onaylayan isim stili)
+- [x] `6a464e53` / #1216 — Süreç onay tarihi satırlarında parantez içindeki yönetici adı tarih değerinin yanında küçük ve yeşil metin olarak ayrı render ediliyor.
+
+## STATUS: Round 131 complete — Doing list drained.

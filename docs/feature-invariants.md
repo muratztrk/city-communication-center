@@ -128,9 +128,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (cards #1199/#1200/#1201/#1204/#1208/#1211).
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
   Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
-  değerinin yanında parantez içinde gösterilir. Manager/SystemAdmin/Reporter rolünde Süreç altında
-  owner approval (`Talebin Birim Yöneticisinin Onay Tarihi`) satırı gösterilmez. Süreç timeline'ında
-  ayrı `Durum` step'i gösterilmez (cards #1212/#1213/#1214/#1215).
+  değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
+  rolünde Süreç altında owner approval (`Talebin Birim Yöneticisinin Onay Tarihi`) satırı
+  gösterilmez. Süreç timeline'ında ayrı `Durum` step'i gösterilmez (cards #1212/#1213/#1214/#1215/#1216).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

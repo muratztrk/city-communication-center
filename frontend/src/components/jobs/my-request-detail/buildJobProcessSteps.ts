@@ -21,6 +21,7 @@ export interface JobProcessStep {
   id: JobProcessStepId
   label: string
   displayValue: string
+  displayMeta?: string
   state: JobProcessStepState
 }
 
@@ -140,10 +141,8 @@ export function buildJobProcessSteps(
     steps.push({
       id: 'ownerApproval',
       label: ownerApprovalLabel,
-      displayValue: formatApprovalValue(
-        formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
-        ownerDepartment?.approvedByDisplayName,
-      ),
+      displayValue: formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
+      displayMeta: ownerDepartment?.approvedByDisplayName ?? undefined,
     })
   }
 
@@ -152,10 +151,8 @@ export function buildJobProcessSteps(
     steps.push({
       id: 'targetApproval',
       label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
-      displayValue: formatApprovalValue(
-        formatDueDateTime(targetDepartment?.decidedAtUtc ?? null, locale),
-        targetDepartment?.approvedByDisplayName,
-      ),
+      displayValue: formatDueDateTime(targetDepartment?.decidedAtUtc ?? null, locale),
+      displayMeta: targetDepartment?.approvedByDisplayName ?? undefined,
     })
   }
 
@@ -194,8 +191,4 @@ export function buildJobProcessSteps(
 
 export function isJobRecoveredFromCancellation(detail: JobDetail): boolean {
   return wasRecoveredFromCancellation(detail)
-}
-
-function formatApprovalValue(value: string, approverName: string | null | undefined): string {
-  return approverName ? `${value} (${approverName})` : value
 }

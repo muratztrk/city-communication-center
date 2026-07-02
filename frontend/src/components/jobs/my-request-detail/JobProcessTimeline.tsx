@@ -133,7 +133,16 @@ export function JobProcessTimeline({
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (
-                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>{step.displayValue}</div>
+                  <div className={`mt-0.5 text-sm font-semibold ${valueTone}`}>
+                    <span className="inline">
+                      {step.displayValue}
+                      {step.displayMeta ? (
+                        <span className="ml-1 align-baseline text-xs font-semibold text-emerald-600">
+                          ({step.displayMeta})
+                        </span>
+                      ) : null}
+                    </span>
+                  </div>
                 )}
               </div>
             </li>

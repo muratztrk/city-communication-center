@@ -7,9 +7,9 @@ type AddressDetailFieldsProps = {
   variant?: 'default' | 'detail-card' | 'my-request'
 }
 
-function displayAddressValue(value: string | null | undefined): string {
+function displayAddressValue(value: string | null | undefined, emptyValue = '—'): string {
   const trimmed = value?.trim()
-  return trimmed ? trimmed : '—'
+  return trimmed ? trimmed : emptyValue
 }
 
 export function AddressDetailFields({ neighborhood, street, openAddress, variant = 'default' }: AddressDetailFieldsProps) {
@@ -26,15 +26,15 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
         <div className="address-detail-my-request__grid address-detail-my-request__grid--three">
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.neighborhoodLabel', 'Mahalle')}</dt>
-            <dd className="address-detail-my-request__value">{displayAddressValue(neighborhood)}</dd>
+            <dd className="address-detail-my-request__value">{displayAddressValue(neighborhood, '-')}</dd>
           </div>
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</dt>
-            <dd className="address-detail-my-request__value">{displayAddressValue(street)}</dd>
+            <dd className="address-detail-my-request__value">{displayAddressValue(street, '-')}</dd>
           </div>
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.openAddressLabel', 'Açık Adres')}</dt>
-            <dd className="address-detail-my-request__value">{displayAddressValue(openAddress)}</dd>
+            <dd className="address-detail-my-request__value">{displayAddressValue(openAddress, '-')}</dd>
           </div>
         </div>
       </dl>

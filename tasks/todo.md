@@ -996,3 +996,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 153 (Doing — 2026-07-02, vatandaş cevap iptal ve operatör onayı)
 - [x] `6a46c200` / #1268 — Vatandaşa Giden Cevaplar ayarına en sonda `İptal` durumu eklendi; İptal şablonu tenant JSON ayarında saklanır ve vatandaş talebi iptale geçince otomatik cevap kuyruğa alınır. WhatsApp durum cevapları doğrudan gönderilmez, vatandaş operatörü `Mesajı Gönder` ile onaylayınca iletilir.
 - [x] `6a46c19c` / #1267 — Vatandaş operatörü bekleyen Tamamlandı/İptal otomatik mesajlarında `Düzenle` yanında yeşil `Tamamlanma Notu` veya kırmızı `İptal Notu` butonu görür; tıklanınca görev/talep sahibinin notu popup'ta açılır.
+
+## STATUS: Round 153 complete — cards moved to Done; follow-up Doing cards picked up.
+
+## Round 154 (Doing — 2026-07-02, adres çizgi ve log metinleri)
+- [x] `6a46afc9` reopened / #1260 — Taleplerim detay `Adres Bilgileri` boş değer çizgisi `—` yerine `-` oldu; label çizgisi ve değer font ağırlığı hafifletildi.
+- [x] `6a46c43a` / #1269 — Log ekranında `Şlem` sütun başlığı `İşlem` oldu; audit aksiyonlarında `İş tamamlandı` yerine `Görev tamamlandı` / `Talep tamamlandı` ayrımı yapıldı.

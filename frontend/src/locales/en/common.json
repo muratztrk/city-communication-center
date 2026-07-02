@@ -1239,6 +1239,7 @@
       "JobUpdated": "Job updated",
       "JobDeleted": "Job deleted",
       "JobCancelled": "Job cancelled",
+      "JobCompleted": "Request completed",
       "JobOwnerApproved": "Owner approval granted",
       "JobOwnerRejected": "Owner approval rejected",
       "JobTargetApproved": "Target approval granted",

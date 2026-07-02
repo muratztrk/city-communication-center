@@ -352,7 +352,7 @@
     letter-spacing: 0;
     text-transform: none;
     color: rgb(100 116 139);
-    border-bottom: 1px solid rgb(203 213 225);
+    border-bottom: 1px solid rgb(226 232 240);
     padding-bottom: 0.2rem;
     white-space: nowrap;
   }
@@ -360,7 +360,7 @@
   .address-detail-my-request__value {
     margin: 0;
     font-size: 0.875rem;
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.45;
     color: rgb(15 23 42);
     word-break: break-word;

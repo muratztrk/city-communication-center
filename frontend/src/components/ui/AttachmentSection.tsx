@@ -36,12 +36,6 @@ interface AttachmentSectionProps {
   displayMode?: 'gallery' | 'list' | 'rich-list'
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
 export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery' }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -185,13 +179,13 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
 
       {/* Dosya listesi — Talep Detayları ve görev tamamlama paneliyle aynı görünüm (card #855). */}
       {attachments.length > 0 && displayMode === 'rich-list' && (
-        <ul className="attachment-rich-list space-y-2">
+        <ul className="attachment-rich-list space-y-1.5">
           {attachments.map(att => {
             const Icon = getAttachmentIcon(att.fileName)
             return (
-            <li key={att.attachmentId} className="group flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
-                <Icon className="size-4" aria-hidden="true" />
+            <li key={att.attachmentId} className="group flex min-w-0 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+              <div className="flex size-6 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                <Icon className="size-3" aria-hidden="true" />
               </div>
               <button
                 type="button"
@@ -199,10 +193,9 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >
-                <span className="block truncate text-sm font-semibold text-slate-900 hover:text-emerald-700">
+                <span className="block truncate text-[11px] font-normal text-emerald-700 underline underline-offset-2 hover:text-emerald-800">
                   {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
                 </span>
-                <span className="text-xs text-slate-500">{formatFileSize(att.fileSizeBytes)}</span>
               </button>
               {!readOnly && (
                 <button
@@ -222,17 +215,17 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       )}
 
       {attachments.length > 0 && displayMode === 'list' && (
-        <ul className="space-y-2 text-[11px] leading-4">
+        <ul className="space-y-1.5 text-[11px] leading-4">
           {attachments.map(att => {
             const Icon = getAttachmentIcon(att.fileName)
             return (
             <li key={att.attachmentId} className="flex min-w-0 items-start gap-2">
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
-                <Icon className="size-3.5" aria-hidden="true" />
+              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                <Icon className="size-3" aria-hidden="true" />
               </span>
               <button
                 type="button"
-                className="min-w-0 flex-1 break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800 disabled:cursor-wait"
+                className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-emerald-700 underline underline-offset-2 hover:text-emerald-800 disabled:cursor-wait"
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >

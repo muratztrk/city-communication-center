@@ -607,12 +607,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                               const Icon = pendingFileIcon(file.name)
                               return (
                               <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
-                                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
-                                  <Icon className="size-3.5" aria-hidden="true" />
+                                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                                  <Icon className="size-3" aria-hidden="true" />
                                 </span>
                                 <button
                                   type="button"
-                                  className="min-w-0 flex-1 break-words text-left font-medium text-slate-700 underline-offset-2 hover:underline"
+                                  className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-slate-700 underline-offset-2 hover:underline"
                                   onClick={() => downloadPendingFile(file)}
                                 >
                                   {file.name}

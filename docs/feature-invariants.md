@@ -116,6 +116,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ekler / Fotoğraflar ortak bileşendir:** Talepler detay popup'larında düzenlenebilir ek alanı
   yarı genişlikte yükleme + sağda dosya listesi (`rich-list`) düzenini kullanır; tüm ek listesi
   modlarında ve geçici seçili dosya listelerinde doküman/görsel dosya ikonu uzantıya göre görünür
+  ama ikonlar küçük, dosya adı normal ağırlıkta/küçük ve boyut bilgisi gizli kalır
   (cards #1199/#1200/#1201).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;

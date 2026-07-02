@@ -797,3 +797,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a45553c` reopened / #1196 — Taleplerim süreç timeline'ında terminal tarih label'ında aktör adı parantez içine alındı (`İptal Tarihi (Gamze Gürel)`); `Not` linki tarih değerinin yanında kalır. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 120 complete — Doing list drained.
+
+## Round 121 (Doing — 2026-07-02, ek ikon kompakt stil)
+- [x] `6a4558fa` reopened / #1199 — Ek dosya ikonları küçültüldü; dosya adları bold olmaktan çıkarılıp text boyutu düşürüldü; rich-list boyut bilgisi kaldırıldı. Aynı kompakt stil geçici seçili dosya listelerine de uygulandı. FE build/lint PASS. main+master, Done.
+
+## STATUS: Round 121 complete — Doing list drained.

@@ -38,7 +38,6 @@ export function MyRequestDetailBottomCards({
   detail,
   showManagerNoteColumn,
   canEditManagerNote,
-  canManageCoordination,
   managerNoteDraft,
   managerNoteEditing,
   managerNoteSaved,
@@ -158,7 +157,7 @@ export function MyRequestDetailBottomCards({
         <AttachmentSection
           attachments={detail.attachments ?? []}
           readOnly={!canEditJobAttachments}
-          displayMode={canManageCoordination ? 'rich-list' : 'list'}
+          displayMode="rich-list"
           emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
           onUpload={canEditJobAttachments ? onAttachmentUpload : undefined}
           onDelete={canEditJobAttachments ? onAttachmentDelete : undefined}

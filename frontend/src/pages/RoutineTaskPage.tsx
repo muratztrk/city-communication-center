@@ -114,7 +114,9 @@ export function RoutineTaskPage() {
   }, [taskId, t])
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
-    setForm(current => ({ ...current, [key]: value }))
+    setForm(current => key === 'neighborhood' && !value
+      ? { ...current, neighborhood: '', street: '', openAddress: '' }
+      : { ...current, [key]: value })
 
   const addFiles = (files: FileList | null) => {
     if (!files) return
@@ -177,6 +179,7 @@ export function RoutineTaskPage() {
       onConfirm: () => { void executeSave() },
     })
   }
+  const hasNeighborhood = form.neighborhood.trim().length > 0
 
   const canSubmit = !submitting && !loadingEdit && form.title.trim() !== '' && form.description.trim() !== ''
   const pageTitle = isEditMode
@@ -283,10 +286,11 @@ export function RoutineTaskPage() {
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
                   <input
-                    className="field-input"
+                    className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                     value={form.street}
                     onChange={e => set('street', e.target.value)}
+                    disabled={!hasNeighborhood}
                   />
                 </div>
               </div>
@@ -294,10 +298,11 @@ export function RoutineTaskPage() {
                 <label className="grid min-h-0 gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
                   <textarea
-                    className="field-textarea h-full min-h-[5.5rem] resize-none"
+                    className="field-textarea h-full min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                     value={form.openAddress}
                     onChange={e => set('openAddress', e.target.value)}
+                    disabled={!hasNeighborhood}
                   />
                 </label>
 

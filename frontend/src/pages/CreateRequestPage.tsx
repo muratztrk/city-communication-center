@@ -528,7 +528,10 @@ export function CreateRequestPage() {
   const renderAddressFields = (
     form: { neighborhood: string; street: string; openAddress: string },
     setField: (field: 'neighborhood' | 'street' | 'openAddress', value: string) => void,
-  ) => (
+  ) => {
+    const hasNeighborhood = form.neighborhood.trim().length > 0
+
+    return (
     <div className="job-field">
       <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
       <div className="grid gap-2">
@@ -538,7 +541,14 @@ export function CreateRequestPage() {
             <select
               className="field-select"
               value={form.neighborhood}
-              onChange={e => setField('neighborhood', e.target.value)}
+              onChange={e => {
+                const neighborhood = e.target.value
+                setField('neighborhood', neighborhood)
+                if (!neighborhood) {
+                  setField('street', '')
+                  setField('openAddress', '')
+                }
+              }}
             >
               <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
               {neighborhoods.map(n => (
@@ -549,10 +559,11 @@ export function CreateRequestPage() {
           <div className="grid gap-1">
             <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
             <input
-              className="field-input"
+              className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
               value={form.street}
               onChange={e => setField('street', e.target.value)}
+              disabled={!hasNeighborhood}
             />
           </div>
         </div>
@@ -560,17 +571,19 @@ export function CreateRequestPage() {
           <label className="grid gap-1 min-h-0">
             <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
             <textarea
-              className="field-textarea min-h-[5.5rem] resize-none"
+              className="field-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
               value={form.openAddress}
               onChange={e => setField('openAddress', e.target.value)}
+              disabled={!hasNeighborhood}
             />
           </label>
           {renderPhotoUpload('min-h-0')}
         </div>
       </div>
     </div>
-  )
+    )
+  }
 
   const handleCreateInternal = async (event: React.FormEvent) => {
     event.preventDefault()

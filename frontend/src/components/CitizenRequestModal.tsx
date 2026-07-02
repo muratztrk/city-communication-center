@@ -536,7 +536,14 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <select
                       className="field-select"
                       value={neighborhood}
-                      onChange={event => setNeighborhood(event.target.value)}
+                      onChange={event => {
+                        const nextNeighborhood = event.target.value
+                        setNeighborhood(nextNeighborhood)
+                        if (!nextNeighborhood) {
+                          setStreet('')
+                          setOpenAddress('')
+                        }
+                      }}
                     >
                       <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
                       {neighborhoods.map(item => (
@@ -547,10 +554,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
                     <input
-                      className="field-input"
+                      className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                       value={street}
                       onChange={event => setStreet(event.target.value)}
+                      disabled={!neighborhood}
                     />
                   </label>
                 </div>
@@ -558,10 +566,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <label className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
-                      className="field-textarea field-textarea--compact min-h-[5.5rem] flex-1 resize-none"
+                      className="field-textarea field-textarea--compact min-h-[5.5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}
+                      disabled={!neighborhood}
                     />
                   </label>
                   <div className="job-field flex min-h-0 flex-col gap-1">

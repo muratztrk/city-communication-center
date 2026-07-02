@@ -1,4 +1,4 @@
-import { Download, FileText } from 'lucide-react'
+import { Download, FileImage, FileText } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
@@ -12,6 +12,10 @@ const MAX_SIZE = 5 * 1024 * 1024
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
+
+function isImageFile(name: string): boolean {
+  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name))
 }
 
 interface AttachmentSectionProps {
@@ -111,16 +115,19 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
     ? 'grid grid-cols-[repeat(auto-fit,minmax(4.75rem,1fr))] gap-2'
     : 'grid grid-cols-[repeat(auto-fit,minmax(6.5rem,1fr))] gap-3'
   const previewHeightClassName = compact ? 'h-16' : 'h-24'
+  const sectionClassName = displayMode === 'rich-list' && !readOnly
+    ? 'page-stack attachment-section--rich-edit'
+    : 'page-stack'
 
   return (
-    <div className="page-stack">
+    <div className={sectionClassName}>
       {/* Upload zone — salt-okunur modda gizli (card 537). */}
       {!readOnly && (
       <div
         role="button"
         tabIndex={isDisabled ? -1 : 0}
         aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-6 text-sm transition-colors ${
+        className={`attachment-upload-zone flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-6 text-sm transition-colors ${
           dragOver ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'
         } ${isDisabled ? 'pointer-events-none opacity-50' : ''}`}
         onClick={() => !isDisabled && fileInputRef.current?.click()}
@@ -169,11 +176,13 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
 
       {/* Dosya listesi — Talep Detayları ve görev tamamlama paneliyle aynı görünüm (card #855). */}
       {attachments.length > 0 && displayMode === 'rich-list' && (
-        <ul className="space-y-2">
-          {attachments.map(att => (
+        <ul className="attachment-rich-list space-y-2">
+          {attachments.map(att => {
+            const Icon = isImageFile(att.fileName) ? FileImage : FileText
+            return (
             <li key={att.attachmentId} className="group flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500">
-                <FileText className="size-4" aria-hidden="true" />
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                <Icon className="size-4" aria-hidden="true" />
               </div>
               <button
                 type="button"
@@ -198,7 +207,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
                 </button>
               )}
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
 

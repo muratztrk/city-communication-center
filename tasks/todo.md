@@ -773,3 +773,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a42a0b4` / #1123 — Birimdeki Görevler ve Personelimin Görevleri gridleri yatay alt scroll'a düşmesin diye aynı fixed colgroup planına alındı; personel/departman action kolonu da tek `Detaylar` butonuna göre 7.5rem ve ortalı. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 117 complete — Doing list drained.
+
+## Round 118 (Doing — 2026-07-02, Taleplerim detay popup kartları)
+- [x] `6a450127` / #1192 — Taleplerim detay düzenlemede öncelik seçenekleri Talep Oluştur ile eşitlendi (Çok Yüksek/Yüksek/Normal); adres alt alanları mahalle seçilmeden kilitli; ek yükleme alanı rich-list modunda iki kolonlu, dosya adları sağda. FE build/lint PASS. main+master, Done.
+- [x] `6a4558fa` / #1199 — Taleplerim detay ekleri rich-list olarak her rolde gösteriliyor; PDF/Office dosyaları belge ikonu, JPG/PNG dosyaları görsel ikonu ile ayrışıyor. FE build/lint PASS. main+master, Done.
+- [x] `6a455845` / #1198 — Taleplerim adres etiketleri title-case kaldı, `Cadde / Sokak / Bulvar` etiketi kullanıldı; büyük harf zorlaması kaldırıldı. FE build/lint PASS. main+master, Done.
+- [x] `6a455843` / #1197 — Tüm adres giriş yüzeylerinde Cadde/Sokak/Bulvar ve Açık Adres mahalle seçimine bağlandı; mahalle temizlenince alt adresler de temizleniyor. FE build/lint PASS. main+master, Done.
+- [x] `6a4501f6` / #1193 — Taleplerim tamamlanan gridinde Tamamlanma Tarihi kolonu genişletildi. FE build/lint PASS. main+master, Done.
+- [x] `6a4553ef` / #1195 — Taleplerim detay başlığı ikonu sol menüdeki Taleplerim `ClipboardList` ikonu ile eşitlendi. FE build/lint PASS. main+master, Done.
+- [x] `6a45553c` / #1196 — Terminal talep not linkleri `Not` metniyle gösteriliyor; tamamlanan/iptal taleplerde Görev Detayları içindeki duplicate iptal/tamamlama not linkleri gizlendi. FE build/lint PASS. main+master, Done.
+
+## STATUS: Round 118 complete — Doing list drained.

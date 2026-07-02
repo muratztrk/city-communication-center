@@ -30,6 +30,7 @@ export function MyRequestTaskDetailsSection({
       </div>
       <div className="space-y-3">
         {detail.tasks.map(task => {
+          const hideTerminalTaskNote = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'
           const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
             .filter(Boolean)
             .join(' / ') || '—'
@@ -50,28 +51,28 @@ export function MyRequestTaskDetailsSection({
               >
                 {getTaskStatusLabel(t, task.currentStatus)}
               </span>
-              {task.currentStatus === 'Cancelled' && task.revisionReason ? (
+              {!hideTerminalTaskNote && task.currentStatus === 'Cancelled' && task.revisionReason ? (
                 <span className="inline-flex items-center text-red-600">
                   <span>(</span>
                   <button
                     type="button"
                     className="font-semibold hover:text-red-700"
-                    onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: task.revisionReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                    onClick={() => setConfirmDialog({ title: t('jobs.detail.notes', 'Not'), message: task.revisionReason!, hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                   >
-                    <span className="underline underline-offset-2">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>
+                    <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                   </button>
                   <span>)</span>
                 </span>
               ) : null}
-              {task.currentStatus === 'Completed' && task.notes ? (
+              {!hideTerminalTaskNote && task.currentStatus === 'Completed' && task.notes ? (
                 <span className="inline-flex items-center text-emerald-600">
                   <span>(</span>
                   <button
                     type="button"
                     className="font-semibold hover:text-emerald-700"
-                    onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), message: richTextToPlainText(task.notes), hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                    onClick={() => setConfirmDialog({ title: t('jobs.detail.notes', 'Not'), message: richTextToPlainText(task.notes), hideCancel: true, variant: 'primary', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                   >
-                    <span className="underline underline-offset-2">{t('tasks.detail.completionNote', 'Tamamlama Notu')}</span>
+                    <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                   </button>
                   <span>)</span>
                 </span>

@@ -1,4 +1,4 @@
-import { FileText } from 'lucide-react'
+import { ClipboardList, FileText } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
@@ -123,7 +123,7 @@ export function MyRequestDetailMainCard({
 
   return (
     <section className="my-request-detail-main form-card page-stack mb-5">
-      <MyRequestSectionHeading icon={FileText} tone="primary">
+      <MyRequestSectionHeading icon={ClipboardList} tone="primary">
         {t('jobs.detail.requestInfo', 'Talep Detayları')}
       </MyRequestSectionHeading>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
@@ -146,11 +146,9 @@ export function MyRequestDetailMainCard({
                       value={editDraft.priority}
                       onChange={e => onEditDraftChange({ priority: e.target.value })}
                     >
-                      <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
-                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
                       <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                      <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
                     </select>
                   ) : (
                     field.value

@@ -308,8 +308,8 @@
     margin: 0 0 0.35rem;
     font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
     color: rgb(100 116 139);
   }
 
@@ -320,6 +320,31 @@
     line-height: 1.45;
     color: rgb(15 23 42);
     word-break: break-word;
+  }
+
+  .attachment-section--rich-edit {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+  }
+
+  .attachment-section--rich-edit .attachment-upload-zone {
+    min-height: 6.25rem;
+  }
+
+  .attachment-section--rich-edit .attachment-rich-list {
+    min-width: 0;
+  }
+
+  .attachment-section--rich-edit .alert {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 767px) {
+    .attachment-section--rich-edit {
+      grid-template-columns: 1fr;
+    }
   }
 
   .job-process-timeline__list {
@@ -808,7 +833,10 @@
       width: 8.75rem;
     }
 
-    .app-content-shell .my-requests-table .grid-col-status-date,
+    .app-content-shell .my-requests-table .grid-col-status-date {
+      width: 11.5rem;
+    }
+
     .app-content-shell .incoming-requests-table .grid-col-status-date {
       width: 9rem;
     }

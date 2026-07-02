@@ -259,7 +259,12 @@ export function EDevletActivityPlanPage() {
               <select
                 className="field-select"
                 value={form.neighborhood}
-                onChange={event => setForm(current => ({ ...current, neighborhood: event.target.value }))}
+                onChange={event => {
+                  const neighborhood = event.target.value
+                  setForm(current => neighborhood
+                    ? { ...current, neighborhood }
+                    : { ...current, neighborhood, street: '' })
+                }}
                 required
               >
                 <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
@@ -274,11 +279,12 @@ export function EDevletActivityPlanPage() {
               </label>
               <input
                 id="activity-street"
-                className="field-input"
+                className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                 placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                 value={form.street}
                 maxLength={STREET_MAX}
                 onChange={event => setForm(current => ({ ...current, street: event.target.value }))}
+                disabled={!form.neighborhood}
                 required
               />
             </div>

@@ -108,6 +108,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   {SocialMessage, CitizenRequest, EDevlet}.
 - **Talep oluşturma yetki hatalarında kullanıcı metni "talep" der, "iş" değil**
   (`CreateJobCommand`, card #1079).
+- **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
+  Cadde/Sokak/Bulvar ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
+  alt adres alanları da temizlenir. Taleplerim terminal talep notu süreç satırında tekil **Not**
+  linkidir; Görev Detayları terminal not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

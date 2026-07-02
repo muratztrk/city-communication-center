@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Application.Features.Tasks;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -11,15 +12,18 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly ICitizenJobStatusNotifier? _citizenJobStatusNotifier;
 
     public ApproveJobTargetCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        ISlaCalculatorService slaCalculator)
+        ISlaCalculatorService slaCalculator,
+        ICitizenJobStatusNotifier? citizenJobStatusNotifier = null)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _citizenJobStatusNotifier = citizenJobStatusNotifier;
     }
 
     public async ValueTask<bool> Handle(ApproveJobTargetCommand request, CancellationToken cancellationToken)
@@ -51,6 +55,15 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
                 new FluentValidation.Results.ValidationFailure(nameof(request.DepartmentId), "Sadece onay bekleyen kayitlar onaylanabilir.")
             ]);
         }
+
+        var previousTaskCount = await _dbContext.Tasks
+            .AsNoTracking()
+            .CountAsync(entity => entity.JobId == job.JobId && entity.TenantId == tenantId, cancellationToken);
+        var previousDisplayStatus = CitizenJobStatusLabelHelper.GetDisplayStatus(
+            job.Status,
+            job.DueDateUtc,
+            previousTaskCount,
+            utcNow);
 
         jd.ApprovalStatus = JobApprovalStatus.Approved;
         jd.ApprovedByUserId = actor.UserId;
@@ -112,6 +125,14 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        if (_citizenJobStatusNotifier is not null)
+        {
+            await _citizenJobStatusNotifier.NotifyStatusChangedAsync(
+                tenantId,
+                job.JobId,
+                previousDisplayStatus,
+                cancellationToken);
+        }
 
         return true;
     }

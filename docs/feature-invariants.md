@@ -236,10 +236,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
   (İşleme Alındı / Yapılmakta / Tamamlandı). Varsayılan mesajda VT no'dan sonra talep başlığı
   yer alır ve metinler tenant `CitizenAutoReplyTemplatesJson` ayarından değiştirilebilir.
+  İlk görev eklenince `Yapılmakta`, görev kapatma/tamamlama akışı talebi terminale taşıyınca
+  `Tamamlanmış` şablonu da gönderilir; iptal/red/son tarihi geçmiş etiketleri bu otomatik
+  üçlü şablona düşürülmez (card #1266).
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
   kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir (cards #1258/#1263).
   (cards #1257/#1258).
+- **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
+  `Açık Adres`) üçlü yan yana düzende tek satır kalır ve altı çizili görünür (card #1260 reopen).
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;
   rich-text (`dangerouslySetInnerHTML`) ve plain-text dalları ayrı işlenir (card 551).
 
@@ -249,6 +254,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   butonları sağa istiyorsan açıkça `justify-end`.
 - **Modal başlığı altı ayraç konvansiyonu:** `mb-3 border-b border-slate-200 pb-2`
   (örnek: "Görevi Birim İçi Yönlendir" başlığı, TasksPage).
+- **Terminal not popup başlıkları:** `İptal Notu` başlığı kırmızı, `Tamamlanma/Tamamlama Notu`
+  başlığı yeşil görünür; bu renk `ConfirmDialog.titleTone` ile yalnız ilgili bilgi popup'larına
+  verilir (card #1264).
 - **Grid'ler boş filtrede başlığı korur:** tabloyu HER ZAMAN render et, boş mesajı `tbody`
   satırı olarak göster (Jobs/Tasks/Incoming).
 - **Sarı `.row-attention` grid satırlarında `table-number-cell__priority` siyah kalır**;

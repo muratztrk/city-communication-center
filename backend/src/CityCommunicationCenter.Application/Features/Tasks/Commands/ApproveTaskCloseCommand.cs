@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Social;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -9,11 +10,16 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ICitizenJobStatusNotifier? _citizenJobStatusNotifier;
 
-    public ApproveTaskCloseCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public ApproveTaskCloseCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ICitizenJobStatusNotifier? citizenJobStatusNotifier = null)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _citizenJobStatusNotifier = citizenJobStatusNotifier;
     }
 
     public async ValueTask<bool> Handle(ApproveTaskCloseCommand request, CancellationToken cancellationToken)
@@ -34,6 +40,15 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
         await TaskWorkflowAuthorization.EnsureCanApproveTaskCloseAsync(_dbContext, task, job, request.ActorUserId, tenantId, cancellationToken);
 
         var utcNow = DateTimeOffset.UtcNow;
+        var previousTaskCount = await _dbContext.Tasks
+            .AsNoTracking()
+            .CountAsync(entity => entity.JobId == job.JobId && entity.TenantId == tenantId, cancellationToken);
+        var previousDisplayStatus = CitizenJobStatusLabelHelper.GetDisplayStatus(
+            job.Status,
+            job.DueDateUtc,
+            previousTaskCount,
+            utcNow);
+
         task.CurrentStatus = WorkflowTaskStatus.Completed;
         task.CompletedAtUtc = utcNow;
         task.CompletionPercentage = 100;
@@ -73,6 +88,14 @@ public sealed class ApproveTaskCloseCommandHandler : ICommandHandler<ApproveTask
         await _dbContext.SaveChangesAsync(cancellationToken);
         await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
+        if (_citizenJobStatusNotifier is not null)
+        {
+            await _citizenJobStatusNotifier.NotifyStatusChangedAsync(
+                tenantId,
+                task.JobId,
+                previousDisplayStatus,
+                cancellationToken);
+        }
 
         return true;
     }

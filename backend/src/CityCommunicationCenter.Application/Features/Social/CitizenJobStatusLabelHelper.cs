@@ -7,12 +7,17 @@ public static class CitizenJobStatusLabelHelper
 {
     public static string GetDisplayStatus(Job job, int taskCount, DateTimeOffset utcNow)
     {
-        if (job.Status == JobStatus.Completed) return "Tamamlanmış";
-        if (job.Status == JobStatus.Cancelled) return "İptal";
-        if (job.Status == JobStatus.Rejected) return "Reddedildi";
-        if (job.Status == JobStatus.RevisionRequested) return "İade Edildi";
-        if (job.DueDateUtc.HasValue && job.DueDateUtc.Value < utcNow) return "Son Tarihi Geçmiş";
-        if (job.Status == JobStatus.Active && taskCount > 0) return "Yapılmakta";
+        return GetDisplayStatus(job.Status, job.DueDateUtc, taskCount, utcNow);
+    }
+
+    public static string GetDisplayStatus(JobStatus status, DateTimeOffset? dueDateUtc, int taskCount, DateTimeOffset utcNow)
+    {
+        if (status == JobStatus.Completed) return "Tamamlanmış";
+        if (status == JobStatus.Cancelled) return "İptal";
+        if (status == JobStatus.Rejected) return "Reddedildi";
+        if (status == JobStatus.RevisionRequested) return "İade Edildi";
+        if (dueDateUtc.HasValue && dueDateUtc.Value < utcNow) return "Son Tarihi Geçmiş";
+        if (status == JobStatus.Active && taskCount > 0) return "Yapılmakta";
 
         return "İşleme Alındı";
     }

@@ -35,6 +35,59 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         int taskCount,
         CancellationToken cancellationToken = default)
     {
+        await NotifyCurrentStatusAsync(tenantId, message, job, taskCount, cancellationToken);
+    }
+
+    public async Task NotifyStatusChangedAsync(
+        Guid tenantId,
+        Guid jobId,
+        string previousDisplayStatus,
+        CancellationToken cancellationToken = default)
+    {
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(
+            entity => entity.JobId == jobId && entity.TenantId == tenantId,
+            cancellationToken);
+        if (job is null)
+        {
+            return;
+        }
+
+        var taskCount = await _dbContext.Tasks
+            .AsNoTracking()
+            .CountAsync(entity => entity.JobId == job.JobId && entity.TenantId == tenantId, cancellationToken);
+
+        var utcNow = DateTimeOffset.UtcNow;
+        var currentDisplayStatus = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
+        if (string.Equals(currentDisplayStatus, previousDisplayStatus, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!IsSupportedAutoReplyStatus(currentDisplayStatus))
+        {
+            return;
+        }
+
+        var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(
+            entity => entity.TenantId == tenantId
+                && (entity.JobId == job.JobId
+                    || (job.SourceRefId.HasValue && entity.SocialMessageId == job.SourceRefId.Value)),
+            cancellationToken);
+        if (message is null)
+        {
+            return;
+        }
+
+        await NotifyCurrentStatusAsync(tenantId, message, job, taskCount, cancellationToken);
+    }
+
+    private async Task NotifyCurrentStatusAsync(
+        Guid tenantId,
+        SocialMessage message,
+        Job job,
+        int taskCount,
+        CancellationToken cancellationToken)
+    {
         if (job.RequestType != JobRequestType.Citizen && job.SourceType != JobSourceType.SocialMessage)
         {
             return;
@@ -46,12 +99,18 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         }
 
         var utcNow = DateTimeOffset.UtcNow;
+        var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
+        if (template is null)
+        {
+            return;
+        }
+
         var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
             message,
             job,
             taskCount,
             utcNow,
-            await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken));
+            template);
 
         if (message.Channel == SocialChannel.WhatsApp)
         {
@@ -78,11 +137,15 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
         return statusLabel switch
         {
+            "İşleme Alındı" => templates.ProcessingReceived,
             "Yapılmakta" => templates.InProgress,
             "Tamamlanmış" or "Tamamlandı" => templates.Completed,
-            _ => templates.ProcessingReceived,
+            _ => null,
         };
     }
+
+    private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
+        statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı";
 
     private async Task SendWhatsAppAsync(
         Guid tenantId,

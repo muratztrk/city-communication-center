@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Jobs;
+using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
@@ -35,15 +36,18 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly ICitizenJobStatusNotifier? _citizenJobStatusNotifier;
 
     public CreateTaskCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        ISlaCalculatorService slaCalculator)
+        ISlaCalculatorService slaCalculator,
+        ICitizenJobStatusNotifier? citizenJobStatusNotifier = null)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _citizenJobStatusNotifier = citizenJobStatusNotifier;
     }
 
     public async ValueTask<TaskSummaryResponse> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
@@ -60,6 +64,16 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         {
             throw Validation(nameof(request.JobId), "Sadece aktif islere gorev eklenebilir.");
         }
+
+        var utcNow = DateTimeOffset.UtcNow;
+        var previousTaskCount = await _dbContext.Tasks
+            .AsNoTracking()
+            .CountAsync(entity => entity.JobId == job.JobId && entity.TenantId == tenantId, cancellationToken);
+        var previousDisplayStatus = CitizenJobStatusLabelHelper.GetDisplayStatus(
+            job.Status,
+            job.DueDateUtc,
+            previousTaskCount,
+            utcNow);
 
         var actor = await TaskWorkflowAuthorization.RequireActiveActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         var isSystemAdmin = TaskWorkflowAuthorization.IsSystemAdmin(actor);
@@ -166,7 +180,6 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         }
 
         var initialStatus = assignedUserId.HasValue ? WorkflowTaskStatus.Assigned : WorkflowTaskStatus.Waiting;
-        var utcNow = DateTimeOffset.UtcNow;
         var dueDateUtc = request.DueDateUtc;
         if (initialStatus == WorkflowTaskStatus.Assigned && dueDateUtc is null)
         {
@@ -250,6 +263,14 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        if (_citizenJobStatusNotifier is not null)
+        {
+            await _citizenJobStatusNotifier.NotifyStatusChangedAsync(
+                tenantId,
+                job.JobId,
+                previousDisplayStatus,
+                cancellationToken);
+        }
 
         return await TaskSummaryResponseFactory.CreateAsync(_dbContext, task, cancellationToken);
     }

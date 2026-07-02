@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Social;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -22,11 +23,16 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
 
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ICitizenJobStatusNotifier? _citizenJobStatusNotifier;
 
-    public ChangeTaskStatusCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public ChangeTaskStatusCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ICitizenJobStatusNotifier? citizenJobStatusNotifier = null)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _citizenJobStatusNotifier = citizenJobStatusNotifier;
     }
 
     public async ValueTask<bool> Handle(ChangeTaskStatusCommand request, CancellationToken cancellationToken)
@@ -52,6 +58,15 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
 
         var previousStatus = task.CurrentStatus;
         var utcNow = DateTimeOffset.UtcNow;
+        var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
+            e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
+        var previousTaskCount = await _dbContext.Tasks
+            .AsNoTracking()
+            .CountAsync(entity => entity.JobId == task.JobId && entity.TenantId == tenantId, cancellationToken);
+        var previousDisplayStatus = parentJob is null
+            ? null
+            : CitizenJobStatusLabelHelper.GetDisplayStatus(parentJob.Status, parentJob.DueDateUtc, previousTaskCount, utcNow);
+
         task.CurrentStatus = newStatus;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
@@ -94,9 +109,6 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
             Notes = request.Reason,
             Details = $"{previousStatus}->{newStatus}"
         });
-
-        var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
-            e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -144,6 +156,14 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        if (_citizenJobStatusNotifier is not null && previousDisplayStatus is not null)
+        {
+            await _citizenJobStatusNotifier.NotifyStatusChangedAsync(
+                tenantId,
+                task.JobId,
+                previousDisplayStatus,
+                cancellationToken);
+        }
 
         return true;
     }

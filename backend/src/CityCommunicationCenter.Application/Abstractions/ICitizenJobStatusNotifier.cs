@@ -10,4 +10,10 @@ public interface ICitizenJobStatusNotifier
         Job job,
         int taskCount,
         CancellationToken cancellationToken = default);
+
+    Task NotifyStatusChangedAsync(
+        Guid tenantId,
+        Guid jobId,
+        string previousDisplayStatus,
+        CancellationToken cancellationToken = default);
 }

@@ -10,6 +10,7 @@ export interface ConfirmDialogState {
   titleDivider?: boolean
   /** Smaller title styling for compact confirmation popups. */
   titleCompact?: boolean
+  titleTone?: 'danger' | 'success'
   message: string
   confirmLabel?: string
   cancelLabel?: string
@@ -32,6 +33,11 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
     void Promise.resolve(state.onConfirm())
     onClose()
   }
+  const titleToneClass = state.titleTone === 'danger'
+    ? 'text-[color:var(--color-destructive)]'
+    : state.titleTone === 'success'
+      ? 'text-[color:var(--color-success)]'
+      : 'text-slate-950'
 
   return createPortal(
     <ModalBackdrop>
@@ -48,7 +54,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
         </button>
         {state.title && (
           <h2
-            className={`text-slate-950 ${state.titleCompact ? 'text-base font-semibold' : 'text-lg font-bold'} ${state.titleDivider ? 'mb-3 border-b border-slate-200 pb-2' : 'mb-2'}`}
+            className={`${titleToneClass} ${state.titleCompact ? 'text-base font-semibold' : 'text-lg font-bold'} ${state.titleDivider ? 'mb-3 border-b border-slate-200 pb-2' : 'mb-2'}`}
           >
             {state.title}
           </h2>

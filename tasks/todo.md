@@ -980,3 +980,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46b846` / #1265 — Vatandaşa Giden Cevaplar tamamlanma durum etiketi `Tamamlanmış` yerine `Tamamlandı` gösteriyor.
 
 ## STATUS: Round 150 complete — Doing list drained.
+
+## Round 151 (Doing — 2026-07-02, vatandaş durum bildirimi ve detay stilleri)
+- [x] `6a46b91a` / #1266 — Vatandaş talebi görünen durum geçişlerinde otomatik cevap tetiklenir: ilk görevle `Yapılmakta`, kapanış/tamamlama ile `Tamamlanmış`, oluşturma/başlangıçta `İşleme Alındı`; iptal/red/son tarihi geçmiş etiketleri bu üçlü şablona yanlış düşmez.
+- [x] `6a46b7c7` reopened / #1264 — Detay popup terminal not başlıkları renklendirildi: `İptal Notu` kırmızı, `Tamamlanma/Tamamlama Notu` yeşil.
+- [x] `6a46afc9` reopened / #1260 — Taleplerim detay `Adres Bilgileri` etiketleri (`Mahalle`, `Cadde / Sokak / Bulvar`, `Açık Adres`) altı çizili hale getirildi.

@@ -1778,7 +1778,7 @@ const pageKicker = isMyTasksView
                                               <button
                                                 type="button"
                                                 className="font-semibold hover:text-red-700"
-                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, titleTone: 'danger', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                               >
                                                 <span className="underline underline-offset-2">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>
                                               </button>
@@ -1791,7 +1791,7 @@ const pageKicker = isMyTasksView
                                               <button
                                                 type="button"
                                                 className="font-semibold hover:text-emerald-700"
-                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                               >
                                                 <span className="underline underline-offset-2">{t('tasks.detail.completionNote', 'Tamamlama Notu')}</span>
                                               </button>

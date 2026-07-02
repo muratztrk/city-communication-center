@@ -594,7 +594,7 @@ export function CreateRequestPage() {
           <label className="grid gap-1 min-h-0">
             <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
             <textarea
-              className="field-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+              className="field-textarea address-open-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
               value={form.openAddress}
               onChange={e => setField('openAddress', e.target.value)}
@@ -970,6 +970,27 @@ export function CreateRequestPage() {
               <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
               <input className="field-input" required maxLength={50} value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
             </div>
+            <div className="job-field">
+              <span className="job-field-label">
+                {t('tasks.newRequest.ownerUser', 'Görevi Yapan Kişi/Birim')}
+                {isManagerLike && <span className="text-red-500"> *</span>}
+              </span>
+              {isManagerLike ? (
+                <SingleSelectDropdown
+                  options={internalOwnerUserSelectOptions}
+                  value={internalForm.ownerUserIds[0] ?? ''}
+                  onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
+                  placeholder={t('tasks.newRequest.selectStaff', 'Personel seçiniz')}
+                />
+              ) : (
+                <SingleSelectDropdown
+                  options={internalOwnerUserSelectOptions}
+                  value={internalForm.ownerUserIds[0] ?? ''}
+                  onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
+                  placeholder={t('tasks.newRequest.departmentPool', 'Birim Havuzu')}
+                />
+              )}
+            </div>
             <div className="grid gap-3 md:grid-cols-3">
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
@@ -993,27 +1014,6 @@ export function CreateRequestPage() {
                   placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
                 />
               </div>
-            </div>
-            <div className="job-field">
-              <span className="job-field-label">
-                {t('tasks.newRequest.ownerUser', 'Görevi Yapan Kişi/Birim')}
-                {isManagerLike && <span className="text-red-500"> *</span>}
-              </span>
-              {isManagerLike ? (
-                <SingleSelectDropdown
-                  options={internalOwnerUserSelectOptions}
-                  value={internalForm.ownerUserIds[0] ?? ''}
-                  onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
-                  placeholder={t('tasks.newRequest.selectStaff', 'Personel seçiniz')}
-                />
-              ) : (
-                <SingleSelectDropdown
-                  options={internalOwnerUserSelectOptions}
-                  value={internalForm.ownerUserIds[0] ?? ''}
-                  onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
-                  placeholder={t('tasks.newRequest.departmentPool', 'Birim Havuzu')}
-                />
-              )}
             </div>
             {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
           </div>

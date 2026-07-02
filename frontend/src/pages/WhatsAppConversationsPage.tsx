@@ -566,7 +566,7 @@ function ConversationDetail({
 
   return (
     <div className="flex h-full flex-col bg-white text-[color:var(--color-foreground)]">
-      <header className="flex shrink-0 items-start gap-3 border-b border-slate-200 bg-white px-4 py-3">
+      <header className="flex shrink-0 items-start gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
         <div
           className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
           style={{ backgroundColor: 'var(--color-header-from)' }}

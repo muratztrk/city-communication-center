@@ -917,3 +917,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a468d9b` / #1249 — Birim içi, birim dışı ve vatandaş talebi oluşturma formlarındaki input/dropdown/textarea kontrol yükseklikleri ilgili formlar içinde biraz küçültüldü.
 
 ## STATUS: Round 140 complete — Doing list drained.
+
+## Round 141 (Doing — 2026-07-02, dashboard chart ve form yerleşimi)
+- [x] `6a46a775` / #1250 — Birim içi talep oluşturma formunda `Görevi Yapan Kişi/Birim` alanı Öncelik/Bitiş/Proje satırının üstüne alındı.
+- [x] `6a46a8e2` / #1252 — WhatsApp konuşma detay üst bilgi şeridi breadcrumb `Anasayfa` yüzeyiyle aynı açık zemine çekildi.
+- [x] `6a46a88d` / #1251 — Kontrol paneli status pie chart sorgusunda görev kaynak tipi navigation bağımlılığı kaldırıldı; chart endpoint'i daha dayanıklı projeksiyonla çalışır.
+- [x] `6a468ba2` / #1247 — Birim içi/dışı/vatandaş talebi oluşturma adres alanlarında `Açık Adres` girilen metin büyütüldü; cadde input'u aynı okunurlukta tutuldu.
+
+## STATUS: Round 141 complete — build/lint passed; Doing list drain pending.

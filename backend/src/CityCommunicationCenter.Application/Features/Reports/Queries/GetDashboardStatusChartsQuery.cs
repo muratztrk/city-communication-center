@@ -64,14 +64,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
         }
 
         var now = DateTimeOffset.UtcNow;
-        var tasks = await _dbContext.Tasks.AsNoTracking()
+        var taskQuery = _dbContext.Tasks.AsNoTracking()
             .Where(task => task.TenantId == tenantId
                 && task.AssignedDepartmentId.HasValue
                 && departmentIds.Contains(task.AssignedDepartmentId.Value)
                 && (MatchesCreatedPeriod(task.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                    || IsOpenOverdueTask(task.CurrentStatus, task.DueDateUtc, now)))
-            .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc, task.Job.SourceType))
-            .ToListAsync(cancellationToken);
+                    || IsOpenOverdueTask(task.CurrentStatus, task.DueDateUtc, now)));
+        var tasks = await ProjectTaskStatusItems(taskQuery, tenantId).ToListAsync(cancellationToken);
 
         var outgoingJobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
@@ -216,13 +215,12 @@ public sealed class GetDashboardStatusChartsQueryHandler
         CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
-        var tasks = await _dbContext.Tasks.AsNoTracking()
+        var taskQuery = _dbContext.Tasks.AsNoTracking()
             .Where(task => task.TenantId == tenantId
                 && task.AssignedUserId == userId
                 && (MatchesCreatedPeriod(task.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                    || IsOpenOverdueTask(task.CurrentStatus, task.DueDateUtc, now)))
-            .Select(task => new TaskStatusItem(task.AssignedUserId, task.CurrentStatus, task.DueDateUtc, task.Job.SourceType))
-            .ToListAsync(cancellationToken);
+                    || IsOpenOverdueTask(task.CurrentStatus, task.DueDateUtc, now)));
+        var tasks = await ProjectTaskStatusItems(taskQuery, tenantId).ToListAsync(cancellationToken);
         var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
             user => user.TenantId == tenantId && user.UserId == userId && user.IsActive,
             cancellationToken);
@@ -238,8 +236,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
             && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value));
         departmentTasksQuery = request.DepartmentTaskType switch
         {
-            TaskDashboardFilter.Assigned => departmentTasksQuery.Where(task => task.Job.SourceType != JobSourceType.Routine),
-            TaskDashboardFilter.Routine => departmentTasksQuery.Where(task => task.Job.SourceType == JobSourceType.Routine),
+            TaskDashboardFilter.Assigned => departmentTasksQuery.Where(task =>
+                _dbContext.Jobs.Any(job => job.TenantId == tenantId
+                    && job.JobId == task.JobId
+                    && job.SourceType != JobSourceType.Routine)),
+            TaskDashboardFilter.Routine => departmentTasksQuery.Where(task =>
+                _dbContext.Jobs.Any(job => job.TenantId == tenantId
+                    && job.JobId == task.JobId
+                    && job.SourceType == JobSourceType.Routine)),
             _ => departmentTasksQuery,
         };
         departmentTasksQuery = departmentTasksQuery.Where(task =>
@@ -473,6 +477,18 @@ public sealed class GetDashboardStatusChartsQueryHandler
         TaskDashboardFilter.Routine => tasks.Where(task => task.SourceType == JobSourceType.Routine),
         _ => tasks,
     };
+
+    private IQueryable<TaskStatusItem> ProjectTaskStatusItems(IQueryable<WorkTask> tasks, Guid tenantId)
+    {
+        return from task in tasks
+               join job in _dbContext.Jobs.AsNoTracking().Where(job => job.TenantId == tenantId)
+                   on task.JobId equals job.JobId
+               select new TaskStatusItem(
+                   task.AssignedUserId,
+                   task.CurrentStatus,
+                   task.DueDateUtc,
+                   job.SourceType);
+    }
 
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType);
     private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks);

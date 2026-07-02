@@ -156,7 +156,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   adres değerlerinin font boyutu değiştirilmez (card #1246).
 - **Talep oluştur adres girişleri:** Birim içi, birim dışı ve vatandaş talebi oluşturma
   formlarında `Cadde / Sokak / Bulvar` input değer fontu `Açık Adres` textarea değeriyle
-  aynı okunurlukta kalır (card #1247).
+  aynı okunurlukta kalır; açık adres değeri özellikle küçük düşürülmez (card #1247).
+- **Birim içi talep oluşturma alan sırası:** `Talep Başlığı`ndan sonra `Görevi Yapan Kişi/Birim`
+  gelir; `Öncelik / Bitiş Tarihi / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)
@@ -199,6 +201,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma balonu sender label:** personel adı soyadı kısaltılmaz; backend `FormatStaffLabel`
   tam `DisplayName` yazar. Frontend eski `Dept / Name` biçimini `Dept · Name` yapar ve eski
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.
+- **WhatsApp konuşma detay header zemini:** seçili konuşmanın üst bilgi şeridi breadcrumb `Anasayfa`
+  yüzeyiyle aynı açık `slate-50` zemininde kalır; chat mesaj alanı ayrı WhatsApp dokulu zemindir
+  (card #1252).
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
@@ -252,6 +257,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan
   grafiklerde tüm dilimler 0 olsa bile nötr donut + sıfır lejant gösterilir; kart boş/çökmüş
   görünmez.
+- **Dashboard status pie chart query'si görev→talep kaynak tipini navigation property'ye güvenmeden
+  üretir:** chart endpoint'i orphan/eksik ilişki veya provider translation yüzünden tüm paneli
+  hata banner'ına düşürmemeli (card #1251).
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
   başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur.

@@ -2169,12 +2169,22 @@
 
   .request-form--readable .address-street-input,
   .citizen-request-form .address-street-input {
-    font-size: 1rem;
+    font-size: 1.05rem;
+    line-height: 1.5rem;
+  }
+
+  .request-form--readable .address-open-textarea {
+    font-size: 1.05rem;
     line-height: 1.5rem;
   }
 
   .citizen-request-form .address-street-input {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+
+  .citizen-request-form .address-open-textarea {
+    font-size: 0.9rem;
     line-height: 1.35;
   }
 

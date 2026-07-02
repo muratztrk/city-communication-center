@@ -569,7 +569,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <label className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
                     <textarea
-                      className="field-textarea field-textarea--compact min-h-[5.5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      className="field-textarea field-textarea--compact address-open-textarea min-h-[5.5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}

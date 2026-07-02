@@ -36,6 +36,8 @@ import { sortUserDepartments } from '../utils/departmentAccess'
 
 function useResponsiveZoom() {
   const compute = useCallback(() => {
+    const viewportWidth = window.visualViewport?.width ?? window.innerWidth
+    if (viewportWidth < 1024) return { sidebar: 1, content: 1 }
     const rawFrameWidth = Math.max(window.outerWidth || 0, window.innerWidth)
     const screenWidth = window.screen?.availWidth || window.screen?.width || 0
     // Browser zoom-out inflates CSS pixel width (for example 15.6" screens can look

@@ -330,7 +330,8 @@
   }
 
   .attachment-section--rich-edit .attachment-upload-zone {
-    min-height: 6.25rem;
+    align-self: start;
+    justify-self: start;
   }
 
   .attachment-section--rich-edit .attachment-rich-list {

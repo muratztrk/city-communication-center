@@ -1,4 +1,4 @@
-import { Download, FileImage, FileText } from 'lucide-react'
+import { Download, FileImage, FileText, Paperclip } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
@@ -44,7 +44,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const [validationError, setValidationError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
-  const [dragOver, setDragOver] = useState(false)
 
   const validate = (file: File): string | null => {
     if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
@@ -124,48 +123,34 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
 
   return (
     <div className={sectionClassName}>
-      {/* Upload zone — salt-okunur modda gizli (card 537). */}
+      {/* Upload action — salt-okunur modda gizli (card 537). */}
       {!readOnly && (
-      <div
-        role="button"
-        tabIndex={isDisabled ? -1 : 0}
-        aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
-        className={`attachment-upload-zone flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-6 text-sm transition-colors ${
-          dragOver ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-        } ${isDisabled ? 'pointer-events-none opacity-50' : ''}`}
-        onClick={() => !isDisabled && fileInputRef.current?.click()}
-        onKeyDown={e => e.key === 'Enter' && !isDisabled && fileInputRef.current?.click()}
-        onDragOver={e => { e.preventDefault(); setDragOver(true) }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={e => {
-          e.preventDefault()
-          setDragOver(false)
-          if (!isDisabled) void handleFiles(e.dataTransfer.files)
-        }}
-      >
-        <span className="font-semibold text-slate-700">
-          {uploading
-            ? t('attachments.uploading', 'Yükleniyor...')
-            : t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}
-        </span>
-        <span className="mt-1 text-xs text-slate-400">
-          {t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}
-        </span>
-        {uploading && (
-          <div className="mt-3 w-full max-w-xs overflow-hidden rounded-full bg-slate-200" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
-            <div className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150" style={{ width: `${uploadProgress}%` }} />
-          </div>
-        )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={ACCEPT_ATTR}
-          multiple
-          className="hidden"
-          disabled={isDisabled}
-          onChange={e => void handleFiles(e.target.files)}
-        />
-      </div>
+        <div className="attachment-upload-zone">
+          <button
+            type="button"
+            aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isDisabled}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
+            {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
+          </button>
+          {uploading && (
+            <div className="mt-2 w-36 overflow-hidden rounded-full bg-slate-200" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
+              <div className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150" style={{ width: `${uploadProgress}%` }} />
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPT_ATTR}
+            multiple
+            className="hidden"
+            disabled={isDisabled}
+            onChange={e => void handleFiles(e.target.files)}
+          />
+        </div>
       )}
 
       {validationError && (
@@ -193,7 +178,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >
-                <span className="block truncate text-[11px] font-normal text-emerald-700 underline underline-offset-2 hover:text-emerald-800">
+                <span className="block truncate text-[11px] font-normal text-slate-900 hover:text-slate-700">
                   {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
                 </span>
               </button>
@@ -225,7 +210,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               </span>
               <button
                 type="button"
-                className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-emerald-700 underline underline-offset-2 hover:text-emerald-800 disabled:cursor-wait"
+                className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-slate-900 hover:text-slate-700 disabled:cursor-wait"
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >
@@ -273,7 +258,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 {downloadingId === att.attachmentId
                   ? <Download className={`${compact ? 'size-5' : 'size-7'} animate-pulse`} />
                   : <Icon className={compact ? 'size-5' : 'size-7'} />}
-                <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
+                <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-normal leading-tight text-slate-900`}>{att.fileName}</span>
               </button>
               <button
                 type="button"

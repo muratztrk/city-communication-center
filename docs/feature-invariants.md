@@ -30,6 +30,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   durması gerekenler `createPortal(..., document.body)`. Portal sonrası modal scale 1.0'a
   döner → **`max-h-[min(85dvh,52rem)]`** kullan, sabit `h-[..dvh]` DEĞİL (bkz. lessons.md).
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
+- **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
+  kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
 
 ## 1. Görevler (Görevlerim / Tasks) — `pages/TasksPage.tsx`
 
@@ -114,10 +116,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Ekler / Fotoğraflar ortak bileşendir:** Talepler detay popup'larında düzenlenebilir ek alanı
-  yarı genişlikte yükleme + sağda dosya listesi (`rich-list`) düzenini kullanır; tüm ek listesi
-  modlarında ve geçici seçili dosya listelerinde doküman/görsel dosya ikonu uzantıya göre görünür
-  ama ikonlar küçük, dosya adı normal ağırlıkta/küçük ve boyut bilgisi gizli kalır
-  (cards #1199/#1200/#1201).
+  kompakt ataç ikonlu **Dosya ekle** butonu + sağda dosya listesi (`rich-list`) düzenini
+  kullanır; "Dosyayı buraya sürükleyin" dropzone metni tekrar eklenmez. Tüm ek listesi
+  modlarında ve geçici seçili dosya listelerinde doküman/görsel dosya ikonu uzantıya göre görünür;
+  ikonlar küçük, dosya adı normal ağırlıkta/küçük/siyah/altı çizgisiz ve boyut bilgisi gizli kalır
+  (cards #1199/#1200/#1201/#1204).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)
@@ -204,6 +207,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünmez.
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde.
+- **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
+  açık durumdaki numaralı rutin olmayan görevler listelenir.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
 ## 5b. Bildirimler (Notifications)

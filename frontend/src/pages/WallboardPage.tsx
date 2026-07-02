@@ -90,7 +90,7 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[]
   const jobsById = new Map(jobs.map(job => [job.jobId, job]))
 
   return tasks
-    .filter(task => OPEN_TASK_STATUSES.has(task.currentStatus) && task.taskNumber != null)
+    .filter(task => task.jobSourceType !== 'Routine' && OPEN_TASK_STATUSES.has(task.currentStatus) && task.taskNumber != null)
     .map(task => {
       const job = jobsById.get(task.jobId)
       const source: WallboardSource = isCitizenSource(job?.sourceType)

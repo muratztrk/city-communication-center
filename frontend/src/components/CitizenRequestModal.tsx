@@ -612,7 +612,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                                 </span>
                                 <button
                                   type="button"
-                                  className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-slate-700 underline-offset-2 hover:underline"
+                                  className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-slate-900 hover:text-slate-700"
                                   onClick={() => downloadPendingFile(file)}
                                 >
                                   {file.name}

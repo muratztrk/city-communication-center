@@ -465,27 +465,16 @@ export function CreateRequestPage() {
     <div className={['job-field', className].filter(Boolean).join(' ')}>
       <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
       <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
-        <div
-          role="button"
-          tabIndex={saving ? -1 : 0}
-          className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
-          onClick={() => !saving && fileInputRef.current?.click()}
-          onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
-          onDragOver={event => event.preventDefault()}
-          onDrop={event => {
-            event.preventDefault()
-            if (saving) return
-            setFileError(null)
-            for (const file of Array.from(event.dataTransfer.files)) {
-              const err = validateFile(file)
-              if (err) { setFileError(err); return }
-              setPendingFiles(prev => [...prev, file])
-            }
-          }}
-        >
-          <Paperclip className="mb-1 size-4 text-slate-400" />
-          <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
-          <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, GIF, WebP — maks. 5 MB')}</span>
+        <div className="flex items-start">
+          <button
+            type="button"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={saving}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
+            {t('attachments.addFile', 'Dosya ekle')}
+          </button>
           <input
             ref={fileInputRef}
             type="file"
@@ -516,7 +505,7 @@ export function CreateRequestPage() {
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                     <Icon className="size-3" aria-hidden="true" />
                   </span>
-                  <span className="min-w-0 flex-1 break-words text-[10px] font-normal text-slate-700">{file.name}</span>
+                  <span className="min-w-0 flex-1 break-words text-[10px] font-normal text-slate-900">{file.name}</span>
                   <button
                     type="button"
                     className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"

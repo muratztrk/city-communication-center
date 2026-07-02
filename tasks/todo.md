@@ -802,3 +802,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4558fa` reopened / #1199 — Ek dosya ikonları küçültüldü; dosya adları bold olmaktan çıkarılıp text boyutu düşürüldü; rich-list boyut bilgisi kaldırıldı. Aynı kompakt stil geçici seçili dosya listelerine de uygulandı. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 121 complete — Doing list drained.
+
+## Round 122 (Doing — 2026-07-02, ek yükleme + mobil/wallboard düzeltmeleri)
+- [x] `6a461c87` / #1204 — Tüm ek yükleme yüzeylerinde kesik çizgili "Dosyayı buraya sürükleyin" alanları kaldırılıp ataç ikonlu kompakt `Dosya ekle` butonu kullanıldı.
+- [x] `6a46373e` / #1205 — Mobil genişliklerde AppShell desktop zoom'u kapatıldı; telefonlarda içerik/sidebar native ölçek ve scroll ile çalışır.
+- [x] `6a4558fa` reopened / #1199 — Ek dosya adları tüm ortak/gönderim listelerinde siyah, normal ağırlıkta ve altı çizgisiz hale getirildi.
+- [x] `6a461085` / #1202 — Ekrana Yansıt wallboard listesi rutin görevleri filtreliyor; G-2026-250 gibi rutin kayıtlar görünmez.
+
+## STATUS: Round 122 complete — Doing list drained.

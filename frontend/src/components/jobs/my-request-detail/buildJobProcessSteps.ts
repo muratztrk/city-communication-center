@@ -22,6 +22,7 @@ export interface JobProcessStep {
   label: string
   displayValue: string
   displayMeta?: string
+  dateTimeUtc?: string | null
   state: JobProcessStepState
 }
 
@@ -132,6 +133,7 @@ export function buildJobProcessSteps(
       id: 'requestDate',
       label: t('jobs.detail.requestDate', 'Talep Tarihi'),
       displayValue: formatDateTime(detail.createdAtUtc, locale),
+      dateTimeUtc: detail.createdAtUtc,
     },
   ]
 
@@ -145,6 +147,7 @@ export function buildJobProcessSteps(
       label: ownerApprovalLabel,
       displayValue: formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
       displayMeta: ownerApprovalActor ?? undefined,
+      dateTimeUtc: ownerDepartment?.decidedAtUtc ?? null,
     })
   }
 
@@ -155,6 +158,7 @@ export function buildJobProcessSteps(
       label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
       displayValue: formatDueDateTime(targetDepartment?.decidedAtUtc ?? null, locale),
       displayMeta: targetDepartment?.approvedByDisplayName ?? undefined,
+      dateTimeUtc: targetDepartment?.decidedAtUtc ?? null,
     })
   }
 
@@ -163,6 +167,7 @@ export function buildJobProcessSteps(
       id: 'cancelDate',
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
       displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
+      dateTimeUtc: detail.updatedAtUtc ?? null,
     })
   }
 
@@ -171,12 +176,14 @@ export function buildJobProcessSteps(
       id: 'completionDate',
       label: t('jobs.detail.completedAt', 'Tamamlanma Tarihi'),
       displayValue: formatDateTime(detail.completedAtUtc ?? null, locale),
+      dateTimeUtc: detail.completedAtUtc ?? null,
     })
   } else if (detail.status === 'Cancelled' || detail.status === 'Rejected') {
     steps.push({
       id: 'cancelDate',
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
       displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
+      dateTimeUtc: detail.updatedAtUtc ?? null,
     })
   }
 
@@ -185,6 +192,7 @@ export function buildJobProcessSteps(
       id: 'dueDate',
       label: t('jobs.columns.dueDate', 'Son Tarih'),
       displayValue: formatDueDateTime(detail.dueDateUtc, locale),
+      dateTimeUtc: detail.dueDateUtc ?? null,
     })
   }
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
+import { splitDateTimeParts } from './format'
 
 function getLineClass(
   step: JobProcessStep,
@@ -45,11 +46,60 @@ function getStepLabelClass(state: JobProcessStep['state']): string {
 
 interface JobProcessTimelineProps {
   steps: JobProcessStep[]
+  locale: string
   recoveredFromCancellation?: boolean
   statusContent?: ReactNode
   statusActorName?: string | null
   statusNoteContent?: ReactNode
   dueDateContent?: ReactNode
+}
+
+function ProcessStepDateValue({
+  step,
+  locale,
+  metaTone,
+  metaContent,
+  className,
+}: {
+  step: JobProcessStep
+  locale: string
+  metaTone: string
+  metaContent?: ReactNode
+  className: string
+}) {
+  const parts = step.dateTimeUtc ? splitDateTimeParts(step.dateTimeUtc, locale) : null
+
+  if (!parts) {
+    return (
+      <div className={className}>
+        <span className="inline">
+          {step.displayValue}
+          {step.displayMeta ? (
+            <span className={`ml-1 align-baseline text-xs font-semibold ${metaTone}`}>
+              ({step.displayMeta})
+            </span>
+          ) : null}
+          {metaContent}
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div className={className}>
+      <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+        <span>{parts.date}</span>
+        <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
+        <span>{parts.time}</span>
+        {step.displayMeta ? (
+          <span className={`align-baseline text-xs font-semibold ${metaTone}`}>
+            ({step.displayMeta})
+          </span>
+        ) : null}
+        {metaContent}
+      </span>
+    </div>
+  )
 }
 
 function StepIndicator({ state }: { state: JobProcessStep['state'] }) {
@@ -71,6 +121,7 @@ function StepIndicator({ state }: { state: JobProcessStep['state'] }) {
 
 export function JobProcessTimeline({
   steps,
+  locale,
   recoveredFromCancellation = false,
   statusContent,
   statusActorName,
@@ -123,25 +174,22 @@ export function JobProcessTimeline({
                     {statusContent}
                   </div>
                 ) : showTerminalDateMeta ? (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}>
-                    <span className="inline">
-                      {step.displayValue}
-                      {statusNoteContent ? <> {statusNoteContent}</> : null}
-                    </span>
-                  </div>
+                  <ProcessStepDateValue
+                    step={step}
+                    locale={locale}
+                    metaTone={displayMetaTone}
+                    metaContent={statusNoteContent}
+                    className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}
+                  />
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}>
-                    <span className="inline">
-                      {step.displayValue}
-                      {step.displayMeta ? (
-                        <span className={`ml-1 align-baseline text-xs font-semibold ${displayMetaTone}`}>
-                          ({step.displayMeta})
-                        </span>
-                      ) : null}
-                    </span>
-                  </div>
+                  <ProcessStepDateValue
+                    step={step}
+                    locale={locale}
+                    metaTone={displayMetaTone}
+                    className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}
+                  />
                 )}
               </div>
             </li>

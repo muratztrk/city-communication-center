@@ -174,6 +174,7 @@ export function MyRequestDetailMainCard({
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
           <JobProcessTimeline
             steps={steps}
+            locale={locale}
             recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
             statusContent={(
               <span className={`inline ${detailStatusClass}`}>

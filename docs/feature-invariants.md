@@ -135,7 +135,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   timeline'ında ayrı `Durum` step'i gösterilmez (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen).
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
-  (card #1217).
+  (card #1217). Detay popup üstündeki `Taleplerim` başlığı geniş harf aralıklı açık gri kalır;
+  ana kart `Talep Detayları` başlığı title-case, yeşil ve daha bold görünür; CSS uppercase
+  zorlaması uygulanmaz (card #1218).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

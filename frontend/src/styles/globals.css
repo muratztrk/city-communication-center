@@ -167,6 +167,13 @@
     height: min(88dvh, 54rem);
   }
 
+  .detail-modal-shell--my-request .my-request-detail-header__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    color: rgb(148 163 184);
+  }
+
   .job-detail-section-title {
     display: inline-flex;
     align-items: center;
@@ -265,6 +272,13 @@
     border-bottom: none;
     padding-bottom: 0;
     margin-bottom: 0;
+  }
+
+  .detail-modal-shell--my-request .job-detail-section-title:not(.job-detail-section-title--muted) {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main.page-stack {

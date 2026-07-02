@@ -37,7 +37,7 @@ export function MyRequestDetailHeader({
   return (
     <div className="my-request-detail-header flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5">
       <div className="min-w-0">
-        <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
+        <div className="my-request-detail-header__title uppercase">
           {title}
         </div>
       </div>

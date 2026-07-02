@@ -865,3 +865,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a464d52` reopened / #1215 — Standart kullanıcıda owner approval beklerken ilk `Onay Bekleyen` değeri turuncu gösteriliyor ve yanında parantez içinde talebin birim yöneticisi (`statusActorDisplayName`) yazıyor.
 
 ## STATUS: Round 132 complete — Doing list drained.
+
+## Round 133 (Doing — 2026-07-02, detay başlık tipografisi)
+- [x] `6a4651ff` / #1218 — Taleplerim detay popup üst başlığı görseldeki daha büyük/açık gri/harf aralıklı stile yaklaştırıldı; ana `Talep Detayları` başlığı title-case ve daha bold yeşil görünüme alındı.
+
+## STATUS: Round 133 complete — Doing list drained.

@@ -472,16 +472,17 @@
   }
 
   .job-process-timeline__indicator--completed {
-    background: rgb(209 250 229);
-    color: rgb(5 150 105);
-    box-shadow: 0 0 0 2px rgb(236 253 245);
+    background: rgb(16 185 129);
+    color: white;
+    box-shadow: 0 0 0 2px rgb(209 250 229);
   }
 
   .job-process-timeline__indicator--current {
     width: 1.25rem;
     height: 1.25rem;
-    background: rgb(255 237 213);
-    box-shadow: 0 0 0 2px rgb(255 247 237);
+    background: white;
+    border: 2px solid rgb(249 115 22);
+    box-shadow: 0 0 0 2px rgb(255 237 213);
   }
 
   .job-process-timeline__indicator--current::after {

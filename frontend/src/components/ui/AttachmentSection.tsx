@@ -18,6 +18,10 @@ function isImageFile(name: string): boolean {
   return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name))
 }
 
+function getAttachmentIcon(fileName: string) {
+  return isImageFile(fileName) ? FileImage : FileText
+}
+
 interface AttachmentSectionProps {
   attachments: Attachment[]
   onUpload?: (file: File, onProgress?: (percent: number) => void) => Promise<void>
@@ -178,7 +182,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
       {attachments.length > 0 && displayMode === 'rich-list' && (
         <ul className="attachment-rich-list space-y-2">
           {attachments.map(att => {
-            const Icon = isImageFile(att.fileName) ? FileImage : FileText
+            const Icon = getAttachmentIcon(att.fileName)
             return (
             <li key={att.attachmentId} className="group flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
               <div className="flex size-9 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
@@ -213,9 +217,14 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
       )}
 
       {attachments.length > 0 && displayMode === 'list' && (
-        <ul className="space-y-1 text-[11px] leading-4">
-          {attachments.map(att => (
+        <ul className="space-y-2 text-[11px] leading-4">
+          {attachments.map(att => {
+            const Icon = getAttachmentIcon(att.fileName)
+            return (
             <li key={att.attachmentId} className="flex min-w-0 items-start gap-2">
+              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                <Icon className="size-3.5" aria-hidden="true" />
+              </span>
               <button
                 type="button"
                 className="min-w-0 flex-1 break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800 disabled:cursor-wait"
@@ -236,7 +245,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
                 </button>
               )}
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
 
@@ -244,6 +254,9 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
       {attachments.length > 0 && displayMode === 'gallery' && (
         <div className={galleryClassName}>
           {attachments.map(att => (
+            (() => {
+              const Icon = getAttachmentIcon(att.fileName)
+              return (
             <div
               key={att.attachmentId}
               className="group relative min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
@@ -261,7 +274,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
               >
                 {downloadingId === att.attachmentId
                   ? <Download className={`${compact ? 'size-5' : 'size-7'} animate-pulse`} />
-                  : <FileText className={compact ? 'size-5' : 'size-7'} />}
+                  : <Icon className={compact ? 'size-5' : 'size-7'} />}
                 <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-medium leading-tight`}>{att.fileName}</span>
               </button>
               <button
@@ -292,6 +305,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
               </button>
               )}
             </div>
+              )
+            })()
           ))}
         </div>
       )}

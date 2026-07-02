@@ -784,3 +784,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a45553c` / #1196 — Terminal talep not linkleri `Not` metniyle gösteriliyor; tamamlanan/iptal taleplerde Görev Detayları içindeki duplicate iptal/tamamlama not linkleri gizlendi. FE build/lint PASS. main+master, Done.
 
 ## STATUS: Round 118 complete — Doing list drained.
+
+## Round 119 (Doing — 2026-07-02, ekler/fotoğraflar tekrar düzeltmesi)
+- [x] `6a460240` / #1200 — Talepler detay popup'ındaki Ekler / Fotoğraflar alanları `rich-list` moduna alındı; yükleme dropzone'u yarı genişlikte, dosya adları sağ tarafta listelenir. FE build/lint PASS. main+master, Done.
+- [x] `6a4558fa` reopened / #1199 — `AttachmentSection` ikon ayrımı tüm modlara yayıldı; list/gallery/rich-list görünümlerinde JPG/PNG görsel ikonu, PDF/Office doküman ikonu kullanılır. FE build/lint PASS. main+master, Done.
+
+## STATUS: Round 119 complete — Doing list drained.

@@ -112,6 +112,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Cadde/Sokak/Bulvar ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
   alt adres alanları da temizlenir. Taleplerim terminal talep notu süreç satırında tekil **Not**
   linkidir; Görev Detayları terminal not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
+- **Ekler / Fotoğraflar ortak bileşendir:** Talepler detay popup'larında düzenlenebilir ek alanı
+  yarı genişlikte yükleme + sağda dosya listesi (`rich-list`) düzenini kullanır; tüm ek listesi
+  modlarında doküman/görsel dosya ikonu uzantıya göre görünür (cards #1199/#1200).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

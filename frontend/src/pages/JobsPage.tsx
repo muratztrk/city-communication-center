@@ -2385,7 +2385,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           <AttachmentSection
                             attachments={detail.attachments ?? []}
                             readOnly={!canEditJobAttachments}
-                            displayMode="list"
+                            displayMode="rich-list"
                             emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
                             onUpload={canEditJobAttachments ? async (file, onProgress) => {
                               setAttachmentUploading(true)
@@ -2544,7 +2544,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <AttachmentSection
                       attachments={detail.attachments ?? []}
                       readOnly
-                      displayMode="list"
+                      displayMode="rich-list"
                       emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
                     />
                     {showAttachmentLockNotice && (
@@ -2572,6 +2572,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <AttachmentSection
                     attachments={detail.attachments ?? []}
                     readOnly={readOnlyRequestAttachments}
+                    displayMode="rich-list"
                     emptyText={readOnlyRequestAttachments ? t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.') : undefined}
                     onUpload={!readOnlyRequestAttachments ? async (file, onProgress) => {
                       setAttachmentUploading(true)

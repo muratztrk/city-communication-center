@@ -216,7 +216,7 @@ export function MyRequestDetailModal({
               <AttachmentSection
                 attachments={detail.attachments ?? []}
                 readOnly={!isEditing && !canEditJobAttachments}
-                displayMode="list"
+                displayMode="rich-list"
                 emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
                 onUpload={isEditing || canEditJobAttachments ? onAttachmentUpload : undefined}
                 onDelete={isEditing || canEditJobAttachments ? onAttachmentDelete : undefined}

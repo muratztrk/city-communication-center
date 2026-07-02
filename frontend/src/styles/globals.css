@@ -1469,6 +1469,10 @@
     resize: vertical;
   }
 
+  .address-street-input {
+    font-size: 0.95rem;
+  }
+
   .field-input:focus,
   .field-select:focus,
   .field-textarea:focus {

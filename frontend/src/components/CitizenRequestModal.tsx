@@ -557,7 +557,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
                     <input
-                      className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      className="field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                       value={street}
                       onChange={event => setStreet(event.target.value)}

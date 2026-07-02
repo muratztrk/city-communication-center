@@ -903,3 +903,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a468b0a` / #1246 — Taleplerim detay `Adres Bilgileri` etiketleri (`Mahalle`, `Cadde / Sokak / Bulvar`, `Açık Adres`) büyütüldü; değer fontları korunuyor.
 
 ## STATUS: Round 138 complete — Doing list drained.
+
+## Round 139 (Doing — 2026-07-02, adres street input boyutu)
+- [x] `6a468ba2` / #1247 — Birim içi/dışı/vatandaş talebi oluşturma adres bloklarında `Cadde / Sokak / Bulvar` input yazı boyutu `Açık Adres` textarea yazı boyutuyla eşitlendi.
+
+## STATUS: Round 139 complete — Doing list drained.

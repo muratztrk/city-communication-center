@@ -333,7 +333,8 @@
   }
 
   .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, max-content);
+    justify-content: space-between;
   }
 
   .address-detail-my-request__item {
@@ -351,6 +352,7 @@
     letter-spacing: 0;
     text-transform: none;
     color: rgb(100 116 139);
+    white-space: nowrap;
   }
 
   .address-detail-my-request__value {

@@ -146,10 +146,11 @@ export function MyRequestDetailMainCard({
                       <span className="my-request-detail-title-edit__hint">
                         {t('tasks.newRequest.maxChars', '(max 50 karakter)')} <span className="text-red-500">*</span>
                       </span>
-                      <input
-                        className="field-input my-request-detail-title-edit__input font-semibold"
+                      <textarea
+                        className="field-textarea my-request-detail-title-edit__input my-request-detail-title-edit__textarea font-semibold"
                         value={editDraft.title}
                         maxLength={50}
+                        rows={Math.min(3, Math.max(1, Math.ceil((editDraft.title.length || 1) / 32)))}
                         onChange={e => onEditDraftChange({ title: e.target.value })}
                         required
                       />

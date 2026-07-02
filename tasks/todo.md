@@ -908,3 +908,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a468ba2` / #1247 — Birim içi/dışı/vatandaş talebi oluşturma adres bloklarında `Cadde / Sokak / Bulvar` input yazı boyutu `Açık Adres` textarea yazı boyutuyla eşitlendi.
 
 ## STATUS: Round 139 complete — Doing list drained.
+
+## Round 140 (Doing — 2026-07-02, talep formu kompaktlığı ve detay edit)
+- [x] `6a468a79` reopened / #1245 — WhatsApp konuşmalarındaki `Şablon mesaj ekle` butonunda yalnızca baştaki `+` ikonu yeşil yapıldı; metin rengi korunuyor.
+- [x] `6a468ba2` reopened / #1247 — Talep oluşturma adres bloklarında `Cadde / Sokak / Bulvar` yazı boyutu ana sayfada `Açık Adres` textarea ölçüsüne, vatandaş modalında kompakt textarea ölçüsüne yeniden eşitlendi.
+- [x] `6a466b07` / #1232 — Taleplerim detay düzenleme modunda `Talep Başlığı` alanı çok satırlı textarea oldu; uzun metin sağa kaymadan sarıp aşağı genişler.
+- [x] `6a468d80` / #1248 — Birim içi talep oluşturma formundaki `Bitiş Tarihi` takvimi yukarı yönde açılacak şekilde ayarlandı.
+- [x] `6a468d9b` / #1249 — Birim içi, birim dışı ve vatandaş talebi oluşturma formlarındaki input/dropdown/textarea kontrol yükseklikleri ilgili formlar içinde biraz küçültüldü.
+
+## STATUS: Round 140 complete — build/lint passed; Doing list drain pending.

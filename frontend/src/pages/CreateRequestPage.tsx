@@ -982,7 +982,7 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')}</span>
-                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: v }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} />
+                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: v }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} forceUp />
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>

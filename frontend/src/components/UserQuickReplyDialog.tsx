@@ -212,7 +212,7 @@ export function UserQuickReplyAddButton({ onChanged }: UserQuickReplyAddButtonPr
         onClick={() => setOpen(true)}
         className="inline-flex h-9 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
       >
-        <Plus className="size-3" aria-hidden="true" />
+        <Plus className="size-3 text-emerald-600" aria-hidden="true" />
         {t('whatsapp.addUserTemplate', 'Şablon mesaj ekle')}
       </button>
       <UserQuickReplyDialog

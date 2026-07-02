@@ -1470,7 +1470,8 @@
   }
 
   .address-street-input {
-    font-size: 0.95rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 
   .field-input:focus,
@@ -1856,6 +1857,7 @@
   .my-request-edit-fields .field-textarea,
   .my-request-detail-main--editing .job-detail-field-row__value .field-input,
   .my-request-detail-main--editing .job-detail-field-row__value .field-select,
+  .my-request-detail-main--editing .job-detail-field-row__value .field-textarea,
   .my-request-detail-main--editing .job-process-timeline .field-input {
     min-height: 2rem;
     padding: 0.3rem 0.5rem;
@@ -1880,7 +1882,7 @@
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
     width: 100%;
     max-width: 36rem;
@@ -1893,12 +1895,23 @@
     font-weight: 400;
     color: rgb(148 163 184);
     white-space: nowrap;
+    padding-top: 0.42rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit__input {
     flex: 1;
     min-width: 0;
     text-align: left;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit__textarea {
+    min-height: 2rem;
+    max-height: 4.75rem;
+    resize: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date {
@@ -2088,8 +2101,8 @@
 
   .citizen-request-form .field-input,
   .citizen-request-form .field-select {
-    min-height: 2.1rem;
-    padding: 0.35rem 0.55rem;
+    min-height: 2rem;
+    padding: 0.3rem 0.5rem;
     font-size: 0.82rem;
   }
 
@@ -2141,6 +2154,28 @@
   .routine-task-form--readable .rich-text-editable {
     font-size: 0.98rem;
     line-height: 1.55;
+  }
+
+  .request-form--readable .field-input,
+  .request-form--readable .field-select {
+    min-height: 2.35rem;
+    padding-block: 0.45rem;
+  }
+
+  .request-form--readable .field-textarea {
+    min-height: 5.5rem;
+    padding-block: 0.58rem;
+  }
+
+  .request-form--readable .address-street-input,
+  .citizen-request-form .address-street-input {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .citizen-request-form .address-street-input {
+    font-size: 0.75rem;
+    line-height: 1.35;
   }
 
   .request-form--readable .rich-text-toolbar,

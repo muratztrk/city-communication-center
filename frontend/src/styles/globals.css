@@ -1396,6 +1396,52 @@
     padding: 0.58rem 0.82rem;
   }
 
+  .field-select {
+    cursor: pointer;
+  }
+
+  .dropdown-menu-panel {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226 232 240);
+    background: white;
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  .dropdown-menu-scroll {
+    max-height: 13rem;
+    overflow-y: auto;
+  }
+
+  .dropdown-menu-item {
+    display: flex;
+    width: 100%;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(51 65 85);
+    transition: background-color 160ms ease;
+  }
+
+  .dropdown-menu-item:hover {
+    background: rgb(248 250 252);
+  }
+
+  .dropdown-menu-item--selected {
+    background: color-mix(in srgb, var(--color-primary) 10%, white);
+    color: var(--color-primary);
+  }
+
   .field-textarea {
     min-height: 6.4rem;
     padding: 0.72rem 0.82rem;
@@ -1805,6 +1851,29 @@
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority {
     max-width: 8.25rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 18rem;
+    margin-left: auto;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit__hint {
+    flex-shrink: 0;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    color: rgb(148 163 184);
+    white-space: nowrap;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit__input {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date {

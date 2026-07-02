@@ -10,12 +10,14 @@ import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { RichTextEditor } from './ui/RichTextEditor'
+import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConversationPanel } from './ConversationPanel'
 import type { Department, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
+import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -226,6 +228,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   )
 
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
+  const targetDepartmentSelectOptions = useMemo(
+    () => targetDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name })),
+    [targetDepartmentOptions],
+  )
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
 
   const addPendingFile = (file: File) => {
     const validationError = validateFile(file)
@@ -505,26 +513,22 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <label className="job-field-label" htmlFor="citizen-req-target">
                     {t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    id="citizen-req-target"
-                    className="field-select"
+                  <SingleSelectDropdown
+                    options={targetDepartmentSelectOptions}
                     value={targetDepartmentId}
-                    onChange={event => setTargetDepartmentId(event.target.value)}
-                  >
-                    <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
-                    {targetDepartmentOptions.map(department => (
-                      <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                    ))}
-                  </select>
+                    onChange={setTargetDepartmentId}
+                    placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+                  />
                 </div>
 
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-priority">{t('jobs.form.priority', 'Öncelik')}</label>
-                  <select id="citizen-req-priority" className="field-select" value={priority} onChange={event => setPriority(event.target.value)}>
-                    <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                    <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                    <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                  </select>
+                  <SingleSelectDropdown
+                    options={priorityOptions}
+                    value={priority}
+                    onChange={setPriority}
+                    placeholder={t('jobs.form.priority', 'Öncelik')}
+                  />
                 </div>
               </div>
 
@@ -537,23 +541,18 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <div className="grid gap-2 md:grid-cols-2 md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-                    <select
-                      className="field-select"
+                    <SingleSelectDropdown
+                      options={neighborhoodOptions}
                       value={neighborhood}
-                      onChange={event => {
-                        const nextNeighborhood = event.target.value
+                      onChange={nextNeighborhood => {
                         setNeighborhood(nextNeighborhood)
                         if (!nextNeighborhood) {
                           setStreet('')
                           setOpenAddress('')
                         }
                       }}
-                    >
-                      <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-                      {neighborhoods.map(item => (
-                        <option key={item} value={item}>{item}</option>
-                      ))}
-                    </select>
+                      placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                    />
                   </label>
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>

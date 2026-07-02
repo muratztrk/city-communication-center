@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, FileText } from 'lucide-react'
 import type { UserQuickReplyTemplate } from '../types/platform'
+import { cn } from '../lib/cn'
 import { Button } from './ui/button'
 
 interface WhatsAppTemplatePickerProps {
@@ -139,20 +140,25 @@ export function TemplateDropdownList({
   }
 
   return (
-    <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white divide-y divide-slate-100">
-      {items.map(template => (
-        <button
-          key={template.templateId}
-          type="button"
-          onClick={() => onSelect(template)}
-          className={`w-full text-left px-3 py-2 transition-colors hover:bg-slate-50 ${
-            selectedId === template.templateId ? 'bg-emerald-50/70' : ''
-          }`}
-        >
-          <p className="text-xs font-semibold text-slate-900 truncate">{template.name}</p>
-          <p className="text-[11px] text-slate-500 truncate mt-0.5">{template.content}</p>
-        </button>
-      ))}
+    <div className="dropdown-menu-panel">
+      <div className="dropdown-menu-scroll divide-y divide-slate-100">
+        {items.map(template => (
+          <button
+            key={template.templateId}
+            type="button"
+            onClick={() => onSelect(template)}
+            className={cn(
+              'dropdown-menu-item !items-start !justify-start',
+              selectedId === template.templateId && 'dropdown-menu-item--selected bg-emerald-50/70',
+            )}
+          >
+            <span className="min-w-0">
+              <p className="truncate text-xs font-semibold text-slate-900">{template.name}</p>
+              <p className="mt-0.5 truncate text-[11px] font-normal text-slate-500">{template.content}</p>
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

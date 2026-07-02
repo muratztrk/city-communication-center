@@ -96,13 +96,13 @@ export function MultiSelectDropdown({
 
       {open ? (
         <div className={cn(
-          'absolute left-0 right-0 z-40 flex max-h-72 flex-col rounded-xl border border-slate-200 bg-white p-2 shadow-xl',
+          'dropdown-menu-panel absolute left-0 right-0 z-40 flex max-h-72 flex-col',
           openUp ? 'bottom-full mb-2' : 'mt-2',
         )}>
-          <div className="mb-1 flex items-center justify-between gap-2 px-1">
+          <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-3 py-1.5">
             <span className="text-xs font-semibold text-slate-500">{selectedOptions.length} / {options.length}</span>
             {selectedOptions.length > 0 ? (
-              <button type="button" className="icon-btn size-7 text-slate-400 hover:text-red-600" onClick={clearSelection} aria-label="Clear selection">
+              <button type="button" className="icon-btn size-7 cursor-pointer text-slate-400 hover:text-red-600" onClick={clearSelection} aria-label="Clear selection">
                 <X className="size-3.5" />
               </button>
             ) : null}
@@ -111,17 +111,14 @@ export function MultiSelectDropdown({
           {options.length === 0 ? (
             <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
           ) : (
-            <div className="grid flex-1 gap-1 overflow-y-auto">
+            <div className="dropdown-menu-scroll min-h-0 flex-1 divide-y divide-slate-100">
               {options.map(option => {
                 const checked = selectedSet.has(option.value)
                 return (
                   <button
                     key={option.value}
                     type="button"
-                    className={cn(
-                      'flex min-h-9 w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors',
-                      checked ? 'bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]' : 'text-slate-700 hover:bg-slate-50',
-                    )}
+                    className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
                     onClick={() => toggleOption(option.value)}
                   >
                     <span className="min-w-0 truncate">{option.label}</span>
@@ -132,7 +129,7 @@ export function MultiSelectDropdown({
             </div>
           )}
           {/* Sağ altta sabit: kırmızı "Çıkış" (seçim yapmadan kapat) + yeşil "Seç" butonu. */}
-          <div className="mt-1 flex shrink-0 justify-end gap-2 border-t border-slate-100 pt-2">
+          <div className="flex shrink-0 justify-end gap-2 border-t border-slate-100 px-2 py-2">
             <button
               type="button"
               className="rounded-lg bg-[var(--color-destructive)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-[filter] hover:brightness-95"

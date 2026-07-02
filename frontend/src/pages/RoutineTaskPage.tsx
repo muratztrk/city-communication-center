@@ -9,7 +9,9 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 
 interface FormState {
   title: string
@@ -78,6 +80,8 @@ export function RoutineTaskPage() {
   const [fileError, setFileError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
 
   useEffect(() => {
     if (!taskId) return
@@ -244,16 +248,12 @@ export function RoutineTaskPage() {
               <label className="job-field-label" htmlFor="routine-priority">
                 {t('tasks.newRequest.priority', 'Öncelik')}
               </label>
-              <select
-                id="routine-priority"
-                className="field-select"
+              <SingleSelectDropdown
+                options={priorityOptions}
                 value={form.priority}
-                onChange={e => set('priority', e.target.value)}
-              >
-                <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-              </select>
+                onChange={priority => set('priority', priority)}
+                placeholder={t('tasks.newRequest.priority', 'Öncelik')}
+              />
             </div>
 
             <div className="job-field">
@@ -276,16 +276,12 @@ export function RoutineTaskPage() {
               <div className="grid gap-2 md:grid-cols-2">
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-                  <select
-                    className="field-select"
+                  <SingleSelectDropdown
+                    options={neighborhoodOptions}
                     value={form.neighborhood}
-                    onChange={e => set('neighborhood', e.target.value)}
-                  >
-                    <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-                    {neighborhoods.map(n => (
-                      <option key={n} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    onChange={neighborhood => set('neighborhood', neighborhood)}
+                    placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                  />
                 </div>
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>

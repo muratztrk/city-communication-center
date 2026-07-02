@@ -11,11 +11,13 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import type { Department, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -284,6 +286,22 @@ export function CreateRequestPage() {
     return options
   }, [internalForm.ownerDepartmentId, myDepartmentId, isManagerLike, users, user])
 
+  const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
+  const yesNoOptions = useMemo(() => yesNoSelectOptions(t), [t])
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
+  const targetDepartmentSelectOptions = useMemo(
+    () => targetDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name })),
+    [targetDepartmentOptions],
+  )
+  const citizenTargetDepartmentSelectOptions = useMemo(
+    () => citizenTargetDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name })),
+    [citizenTargetDepartmentOptions],
+  )
+  const internalOwnerUserSelectOptions = useMemo(
+    () => internalOwnerUserOptions.map(option => ({ value: option.userId, label: option.displayName })),
+    [internalOwnerUserOptions],
+  )
+
 
   const requestTypeOptions = useMemo(() => {
     const options: { value: RequestKind; label: string }[] = [
@@ -548,23 +566,18 @@ export function CreateRequestPage() {
         <div className="grid gap-2 md:grid-cols-2">
           <div className="grid gap-1">
             <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-            <select
-              className="field-select"
+            <SingleSelectDropdown
+              options={neighborhoodOptions}
               value={form.neighborhood}
-              onChange={e => {
-                const neighborhood = e.target.value
+              onChange={neighborhood => {
                 setField('neighborhood', neighborhood)
                 if (!neighborhood) {
                   setField('street', '')
                   setField('openAddress', '')
                 }
               }}
-            >
-              <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-              {neighborhoods.map(n => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
+              placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+            />
           </div>
           <div className="grid gap-1">
             <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
@@ -960,11 +973,12 @@ export function CreateRequestPage() {
             <div className="grid gap-3 md:grid-cols-3">
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
-                <select className="field-select" value={internalForm.priority} onChange={e => setInternalForm(current => ({ ...current, priority: e.target.value }))}>
-                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                </select>
+                <SingleSelectDropdown
+                  options={priorityOptions}
+                  value={internalForm.priority}
+                  onChange={priority => setInternalForm(current => ({ ...current, priority }))}
+                  placeholder={t('tasks.newRequest.priority', 'Öncelik')}
+                />
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')}</span>
@@ -972,10 +986,12 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
-                <select className="field-select" value={internalForm.isProject ? 'yes' : 'no'} onChange={e => setInternalForm(current => ({ ...current, isProject: e.target.value === 'yes' }))}>
-                  <option value="no">{t('common.no', 'Hayır')}</option>
-                  <option value="yes">{t('common.yes', 'Evet')}</option>
-                </select>
+                <SingleSelectDropdown
+                  options={yesNoOptions}
+                  value={internalForm.isProject ? 'yes' : 'no'}
+                  onChange={value => setInternalForm(current => ({ ...current, isProject: value === 'yes' }))}
+                  placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
+                />
               </div>
             </div>
             <div className="job-field">
@@ -984,28 +1000,19 @@ export function CreateRequestPage() {
                 {isManagerLike && <span className="text-red-500"> *</span>}
               </span>
               {isManagerLike ? (
-                <select
-                  className="field-select"
+                <SingleSelectDropdown
+                  options={internalOwnerUserSelectOptions}
                   value={internalForm.ownerUserIds[0] ?? ''}
-                  onChange={e => setInternalForm(current => ({ ...current, ownerUserIds: e.target.value ? [e.target.value] : [''] }))}
-                  required
-                >
-                  <option value="">{t('tasks.newRequest.selectStaff', 'Personel seçiniz')}</option>
-                  {internalOwnerUserOptions.map(option => (
-                    <option key={option.userId} value={option.userId}>{option.displayName}</option>
-                  ))}
-                </select>
+                  onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
+                  placeholder={t('tasks.newRequest.selectStaff', 'Personel seçiniz')}
+                />
               ) : (
-                <select
-                  className="field-select"
+                <SingleSelectDropdown
+                  options={internalOwnerUserSelectOptions}
                   value={internalForm.ownerUserIds[0] ?? ''}
-                  onChange={e => setInternalForm(current => ({ ...current, ownerUserIds: e.target.value ? [e.target.value] : [''] }))}
-                >
-                  <option value="">{t('tasks.newRequest.departmentPool', 'Birim Havuzu')}</option>
-                  {internalOwnerUserOptions.map(option => (
-                    <option key={option.userId} value={option.userId}>{option.displayName}</option>
-                  ))}
-                </select>
+                  onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
+                  placeholder={t('tasks.newRequest.departmentPool', 'Birim Havuzu')}
+                />
               )}
             </div>
             {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
@@ -1041,34 +1048,31 @@ export function CreateRequestPage() {
             </div>
             <div className="job-field">
               <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
-              <select
-                id="request-target-dept"
-                className="field-select"
+              <SingleSelectDropdown
+                options={targetDepartmentSelectOptions}
                 value={externalForm.targetDepartmentId}
-                onChange={e => setExternalForm(current => ({ ...current, targetDepartmentId: e.target.value }))}
-                required
-              >
-                <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
-                {targetDepartmentOptions.map(d => (
-                  <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
-                ))}
-              </select>
+                onChange={targetDepartmentId => setExternalForm(current => ({ ...current, targetDepartmentId }))}
+                placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+              />
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-priority">{t('jobs.form.priority')}</label>
-                <select id="request-priority" className="field-select" value={externalForm.priority} onChange={e => setExternalForm(current => ({ ...current, priority: e.target.value }))}>
-                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                </select>
+                <SingleSelectDropdown
+                  options={priorityOptions}
+                  value={externalForm.priority}
+                  onChange={priority => setExternalForm(current => ({ ...current, priority }))}
+                  placeholder={t('jobs.form.priority', 'Öncelik')}
+                />
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
-                <select id="request-is-project" className="field-select" value={externalForm.isProject ? 'yes' : 'no'} onChange={e => setExternalForm(current => ({ ...current, isProject: e.target.value === 'yes' }))}>
-                  <option value="no">{t('common.no', 'Hayır')}</option>
-                  <option value="yes">{t('common.yes', 'Evet')}</option>
-                </select>
+                <SingleSelectDropdown
+                  options={yesNoOptions}
+                  value={externalForm.isProject ? 'yes' : 'no'}
+                  onChange={value => setExternalForm(current => ({ ...current, isProject: value === 'yes' }))}
+                  placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
+                />
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-start-date">{t('jobs.form.startDate')}</label>
@@ -1113,26 +1117,21 @@ export function CreateRequestPage() {
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
                 <label className="job-field-label" htmlFor="citizen-request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
-                <select
-                  id="citizen-request-target-dept"
-                  className="field-select"
+                <SingleSelectDropdown
+                  options={citizenTargetDepartmentSelectOptions}
                   value={citizenForm.targetDepartmentId}
-                  onChange={event => setCitizenForm(current => ({ ...current, targetDepartmentId: event.target.value }))}
-                  required
-                >
-                  <option value="">{t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}</option>
-                  {citizenTargetDepartmentOptions.map(department => (
-                    <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                  ))}
-                </select>
+                  onChange={targetDepartmentId => setCitizenForm(current => ({ ...current, targetDepartmentId }))}
+                  placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+                />
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="citizen-request-priority">{t('jobs.form.priority', 'Öncelik')}</label>
-                <select id="citizen-request-priority" className="field-select" value={citizenForm.priority} onChange={event => setCitizenForm(current => ({ ...current, priority: event.target.value }))}>
-                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                </select>
+                <SingleSelectDropdown
+                  options={priorityOptions}
+                  value={citizenForm.priority}
+                  onChange={priority => setCitizenForm(current => ({ ...current, priority }))}
+                  placeholder={t('jobs.form.priority', 'Öncelik')}
+                />
               </div>
             </div>
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}

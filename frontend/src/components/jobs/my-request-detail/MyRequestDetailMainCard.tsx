@@ -6,6 +6,7 @@ import { DateTimePicker } from '../../ui/date-time-picker'
 import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { RichTextEditor } from '../../ui/RichTextEditor'
+import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
@@ -15,6 +16,7 @@ import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime } from './format'
+import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -70,6 +72,7 @@ export function MyRequestDetailMainCard({
     [detail, t, locale, citizenSourceMessage],
   )
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])
+  const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
     <div className="my-request-detail-edit-due-date">
@@ -139,23 +142,27 @@ export function MyRequestDetailMainCard({
                 <div className="job-detail-field-row__label">{field.label}</div>
                 <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
                   {isEditing && editDraft && onEditDraftChange && field.label === titleLabel ? (
-                    <input
-                      className="field-input my-request-detail-edit-control my-request-detail-edit-control--title text-right font-semibold"
-                      value={editDraft.title}
-                      maxLength={50}
-                      onChange={e => onEditDraftChange({ title: e.target.value })}
-                      required
-                    />
+                    <div className="my-request-detail-title-edit">
+                      <span className="my-request-detail-title-edit__hint">
+                        {t('tasks.newRequest.maxChars', '(max 50 karakter)')} <span className="text-red-500">*</span>
+                      </span>
+                      <input
+                        className="field-input my-request-detail-title-edit__input font-semibold"
+                        value={editDraft.title}
+                        maxLength={50}
+                        onChange={e => onEditDraftChange({ title: e.target.value })}
+                        required
+                      />
+                    </div>
                   ) : isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (
-                    <select
-                      className="field-select my-request-detail-edit-control my-request-detail-edit-control--priority text-right font-semibold"
+                    <SingleSelectDropdown
+                      className="my-request-detail-edit-control my-request-detail-edit-control--priority ml-auto"
+                      triggerClassName="font-semibold"
+                      options={priorityOptions}
                       value={editDraft.priority}
-                      onChange={e => onEditDraftChange({ priority: e.target.value })}
-                    >
-                      <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                    </select>
+                      onChange={priority => onEditDraftChange({ priority })}
+                      placeholder={t('jobs.form.priority', 'Öncelik')}
+                    />
                   ) : (
                     field.value
                   )}

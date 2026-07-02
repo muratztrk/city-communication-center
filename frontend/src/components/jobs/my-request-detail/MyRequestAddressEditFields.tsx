@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../../../data/izmir-locations'
+import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
+import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 
 interface MyRequestAddressEditFieldsProps {
@@ -11,6 +13,7 @@ interface MyRequestAddressEditFieldsProps {
 export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddressEditFieldsProps) {
   const { t } = useTranslation()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
 
   return (
@@ -18,19 +21,14 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
-          <select
-            className="field-select"
+          <SingleSelectDropdown
+            options={neighborhoodOptions}
             value={draft.neighborhood}
-            onChange={e => {
-              const neighborhood = e.target.value
+            onChange={neighborhood => {
               onChange(neighborhood ? { neighborhood } : { neighborhood, street: '', openAddress: '' })
             }}
-          >
-            <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-            {neighborhoods.map(name => (
-              <option key={name} value={name}>{name}</option>
-            ))}
-          </select>
+            placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+          />
         </label>
         <label className="grid gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>

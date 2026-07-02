@@ -244,7 +244,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir (cards #1258/#1263).
   (cards #1257/#1258).
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
-  `Açık Adres`) üçlü yan yana düzende tek satır kalır ve altı çizili görünür (card #1260 reopen).
+  `Açık Adres`) üçlü yan yana düzende tek satır kalır; alt çizgi metin dekorasyonu değil,
+  görseldeki gibi açık gri label alt sınır çizgisidir (card #1260 reopen).
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;
   rich-text (`dangerouslySetInnerHTML`) ve plain-text dalları ayrı işlenir (card 551).
 

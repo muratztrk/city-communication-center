@@ -352,9 +352,8 @@
     letter-spacing: 0;
     text-transform: none;
     color: rgb(100 116 139);
-    text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.18rem;
+    border-bottom: 1px solid rgb(203 213 225);
+    padding-bottom: 0.2rem;
     white-space: nowrap;
   }
 

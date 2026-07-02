@@ -987,3 +987,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46afc9` reopened / #1260 — Taleplerim detay `Adres Bilgileri` etiketleri (`Mahalle`, `Cadde / Sokak / Bulvar`, `Açık Adres`) altı çizili hale getirildi.
 
 ## STATUS: Round 151 complete — Doing list drained.
+
+## Round 152 (Doing — 2026-07-02, adres etiketi çizgi stili)
+- [x] `6a46afc9` reopened / #1260 — Taleplerim detay `Adres Bilgileri` etiketlerindeki alt çizgi, text underline yerine görseldeki gibi açık gri label alt sınır çizgisi yapıldı.

@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { ShieldUser, SquarePen, Trash2, Users } from 'lucide-react'
+import { ShieldUser, PenLine, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -754,7 +754,7 @@ export function UsersPage() {
                       <td className="actions-column">
                         <div className="row-actions">
                           <button className="icon-action" title={t('common.edit')} aria-label={t('common.edit')} type="button" onClick={() => startEditing(user)}>
-                            <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           </button>
                           {user.userId !== currentUser?.userId ? (
                             <button className="icon-action danger" title={t('common.delete')} aria-label={t('common.delete')} type="button" onClick={() => handleDeleteUser(user)}>

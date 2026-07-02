@@ -882,3 +882,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a465593` / #1221 — Taleplerim detay popup header'ında üst boşluk payı artırıldı; başlık satırı modal üst kenarına yapışmıyor.
 
 ## STATUS: Round 135 complete — Doing list drained.
+
+## Round 136 (Doing — 2026-07-02, detay popup görsel düzeltmeleri)
+- [x] `6a46568e` / #1222 — Taleplerim detayında `Süreç` ve `Açıklama` kart içi başlıkları hafifletildi; bold kart başlığı gibi görünmüyor.
+- [x] `6a4654de` reopened / #1220 — `Taleplerim` header başlığı modal gövdesindeki `Talep Detayları` ikon hizasına çekildi.
+- [x] `6a465394` reopened / #1219 — Tüm Düzenle ikonları görseldeki çizgi kalem ikonuna uygun `PenLine` ile güncellendi.
+- [x] `6a4656ef` / #1223 — Süreç timeline yuvarlakları referanstaki açık zeminli/halkalı stile yaklaştırıldı.
+
+## STATUS: Round 136 complete — Doing list drained.

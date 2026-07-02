@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Send, SquarePen } from 'lucide-react'
+import { Loader2, Send, PenLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
@@ -170,7 +170,7 @@ export function ConversationEntryBubble({
               disabled={sendingPending}
               className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
             <button

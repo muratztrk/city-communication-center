@@ -1,4 +1,4 @@
-import { Printer, SquarePen, X as XIcon, XCircle } from 'lucide-react'
+import { PenLine, Printer, X as XIcon, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../ui/button'
 import { DisabledActionButton } from '../../ui/DisabledActionButton'
@@ -35,7 +35,7 @@ export function MyRequestDetailHeader({
   const { t } = useTranslation()
 
   return (
-    <div className="my-request-detail-header flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 pb-3 pt-6">
+    <div className="my-request-detail-header flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-6 pb-3 pt-6">
       <div className="min-w-0">
         <div className="my-request-detail-header__title uppercase">
           {title}
@@ -69,7 +69,7 @@ export function MyRequestDetailHeader({
                 onClick={onEdit}
                 aria-label={t('jobs.actions.edit', 'Düzenle')}
               >
-                <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                 {t('jobs.actions.edit', 'Düzenle')}
               </Button>
             )}
@@ -78,7 +78,7 @@ export function MyRequestDetailHeader({
                 className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
                 hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
               >
-                <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                 {t('jobs.actions.edit', 'Düzenle')}
               </DisabledActionButton>
             )}

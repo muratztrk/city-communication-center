@@ -1,4 +1,4 @@
-import { Search, SquarePen, X } from 'lucide-react'
+import { Search, PenLine, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -301,7 +301,7 @@ export function EDevletActivityPlansListPage() {
                             disabled={isCancelled}
                             onClick={() => navigate(`/edevlet/activity-plan?planId=${plan.planId}`)}
                           >
-                            <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('common.edit', 'Düzenle')}
                           </Button>
                           <Button

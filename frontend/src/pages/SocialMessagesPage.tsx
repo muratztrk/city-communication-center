@@ -1,6 +1,6 @@
 import { DateCell } from '../components/ui/date-cell'
 import { DueDatePill } from '../components/ui/due-date-pill'
-import { MapPin, Search, SquarePen, X } from 'lucide-react'
+import { MapPin, Search, PenLine, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -549,7 +549,7 @@ export function SocialMessagesPage() {
                         ) : null}
                         {message.jobId && isTargetApproved ? (
                           <DisabledActionButton size="sm" variant="success" className="inline-flex items-center gap-1.5" hoverTitle={t('social.editAfterApprovalDisabled', 'Hedef birim yöneticisi onayladıktan sonra talep düzenlenemez')}>
-                            <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('social.editRequest', 'Talep Düzenle')}
                           </DisabledActionButton>
                         ) : (
@@ -560,7 +560,7 @@ export function SocialMessagesPage() {
                             className={message.jobId ? 'inline-flex items-center gap-1.5' : undefined}
                             onClick={() => openRequestModal(message)}
                           >
-                            {message.jobId ? <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" /> : null}
+                            {message.jobId ? <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" /> : null}
                             {message.jobId
                               ? t('social.editRequest', 'Talep Düzenle')
                               : t('nav.createRequest', 'Talep Oluştur')}

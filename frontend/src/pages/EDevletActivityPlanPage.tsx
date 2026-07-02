@@ -1,4 +1,4 @@
-import { Send, SquarePen } from 'lucide-react'
+import { Send, PenLine } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -229,7 +229,7 @@ export function EDevletActivityPlanPage() {
                     setTypeName(selected.name)
                   }}
                 >
-                  <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.edit', 'Düzenle')}
                 </Button>
                 <Button

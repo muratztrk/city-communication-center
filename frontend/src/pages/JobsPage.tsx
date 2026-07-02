@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Search, SquarePen, X as XIcon } from 'lucide-react'
+import { Search, PenLine, X as XIcon } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -2024,12 +2024,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
                       onClick={() => navigate(getRequestEditPath(detail))}
                     >
-                      <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                      <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                       {t('jobs.actions.edit', 'Düzenle')}
                     </Button>
                   ) : isManagerLike || isPresidencyReporter ? (
                     <DisabledActionButton className="inline-flex items-center gap-1.5 bg-teal-700 text-white" hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
-                      <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                      <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                       {t('jobs.actions.edit', 'Düzenle')}
                     </DisabledActionButton>
                   ) : null
@@ -2432,7 +2432,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <div className="mt-4 flex flex-wrap gap-2">
                     {canMutatePreApprovalJob(detail) && (
                       <Button type="button" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => void openEditModal(detail)}>
-                        <SquarePen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {t('jobs.actions.edit', 'Düzenle')}
                       </Button>
                     )}

@@ -15,6 +15,7 @@ interface SingleSelectDropdownProps {
   emptyText?: string
   className?: string
   triggerClassName?: string
+  menuScrollClassName?: string
   /** Open the options panel upward (e.g. when the control sits near the bottom of a modal). */
   openUp?: boolean
   disabled?: boolean
@@ -28,6 +29,7 @@ export function SingleSelectDropdown({
   emptyText = 'Seçenek yok',
   className,
   triggerClassName,
+  menuScrollClassName,
   openUp = false,
   disabled = false,
 }: SingleSelectDropdownProps) {
@@ -72,7 +74,7 @@ export function SingleSelectDropdown({
           {options.length === 0 ? (
             <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
           ) : (
-            <div className="dropdown-menu-scroll divide-y divide-slate-100">
+            <div className={cn('dropdown-menu-scroll divide-y divide-slate-100', menuScrollClassName)}>
               {options.map(option => {
                 const checked = option.value === value
                 return (

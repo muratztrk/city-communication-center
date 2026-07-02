@@ -158,6 +158,7 @@ export function MyRequestDetailMainCard({
                     <SingleSelectDropdown
                       className="my-request-detail-edit-control my-request-detail-edit-control--priority ml-auto"
                       triggerClassName="font-semibold"
+                      menuScrollClassName="dropdown-menu-scroll--compact"
                       options={priorityOptions}
                       value={editDraft.priority}
                       onChange={priority => onEditDraftChange({ priority })}

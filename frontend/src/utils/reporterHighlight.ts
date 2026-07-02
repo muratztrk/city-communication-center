@@ -9,3 +9,11 @@ export function reporterDepartmentTextClass(isReporter: boolean): string {
 export function reporterCreatorTextClass(isReporter: boolean): string {
   return isReporter ? 'text-sm font-semibold text-orange-500' : 'text-xs text-slate-500'
 }
+
+export function reporterGridValueClass(isReporter: boolean): string {
+  return isReporter ? 'font-semibold text-orange-500' : ''
+}
+
+export function hasConcreteNumberDisplay(displayNumber: string): boolean {
+  return Boolean(displayNumber) && !displayNumber.includes('Onay Bekleyen')
+}

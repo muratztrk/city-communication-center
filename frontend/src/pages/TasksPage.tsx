@@ -57,7 +57,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
-import { isReporterCreated } from '../utils/reporterHighlight'
+import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -2496,6 +2496,15 @@ const pageKicker = isMyTasksView
                     && terminalExtraTimeTask
                     && currentMyTaskView === 'all'
                     && showStatusColumn
+                  const isReporterTask = isReporterCreated(task.createdByRoleCode)
+                  const linkedRequestNumber = formatTaskJobDisplayNumber(task, socialByJobId, locale)
+                  const taskDisplayNumber = formatTaskDisplayNumber(task)
+                  const reporterLinkedRequestClass = isReporterTask && hasConcreteNumberDisplay(linkedRequestNumber)
+                    ? reporterGridValueClass(true)
+                    : ''
+                  const reporterTaskNumberClass = isReporterTask && hasConcreteNumberDisplay(taskDisplayNumber)
+                    ? reporterGridValueClass(true)
+                    : ''
 
                   return (
                   <tr key={task.taskId}>
@@ -2512,17 +2521,17 @@ const pageKicker = isMyTasksView
                           ? (
                             <div className="table-number-cell__value font-mono inline-flex items-center gap-1.5">
                               <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-4 shrink-0" />
-                              <span>{formatTaskJobDisplayNumber(task, socialByJobId, locale)}</span>
+                              <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                             </div>
                           )
-                          : <div className="table-number-cell__value font-mono">{formatTaskJobDisplayNumber(task, socialByJobId, locale)}</div>}
+                          : <div className={`table-number-cell__value font-mono ${reporterLinkedRequestClass}`}>{linkedRequestNumber}</div>}
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
-                      <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>
+                      <div className={`table-number-cell__value ${reporterTaskNumberClass}`}>{taskDisplayNumber}</div>
                       <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
                     </td>
                     <td>
-                      <DateCell value={task.createdAtUtc} locale={locale} />
+                      <DateCell value={task.createdAtUtc} locale={locale} highlight={isReporterTask && Boolean(task.createdAtUtc)} />
                       {/* Bugün atanan görevler için yanıp sönen yeşil "Yeni" rozeti (card 589).
                           Tamamlanmış/İptal/İade (kapanmış) görevlerde gösterilmez (card 606). */}
                       {isMyTasksView

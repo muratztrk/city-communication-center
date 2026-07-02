@@ -22,6 +22,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
         <label className="grid gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
           <SingleSelectDropdown
+            openUp
             options={neighborhoodOptions}
             value={draft.neighborhood}
             onChange={neighborhood => {

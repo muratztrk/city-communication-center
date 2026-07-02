@@ -48,7 +48,7 @@ import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequest
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
-import { isReporterCreated } from '../utils/reporterHighlight'
+import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobsPage } from './JobsPage'
@@ -849,19 +849,24 @@ export function IncomingRequestsPage() {
                     message={t('incomingRequests.empty', 'Birime gelen talep bulunmuyor.')}
                   />
                 )}
-                {pagedRows.map((row, index) => (
+                {pagedRows.map((row, index) => {
+                  const isReporterRow = isReporterCreated(row.createdByRoleCode)
+                  const reporterNumberClass = isReporterRow && hasConcreteNumberDisplay(row.displayNumber)
+                    ? reporterGridValueClass(true)
+                    : ''
+                  return (
                   <tr key={`${row.kind}-${row.id}`}>
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value inline-flex items-center gap-1.5">
                         {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
-                        <span>{row.displayNumber}</span>
+                        <span className={reporterNumberClass}>{row.displayNumber}</span>
                       </div>
                       <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td>
-                      <DateCell value={row.createdAtUtc} locale={locale} />
+                      <DateCell value={row.createdAtUtc} locale={locale} highlight={isReporterRow && Boolean(row.createdAtUtc)} />
                       {/* Onay Bekleyen filtresinde bugün gelen talepler için yanıp sönen yeşil "Yeni" rozeti (card 607). */}
                       {currentStatusFilter === 'pending-approval' && isCreatedToday(row.createdAtUtc) && (
                         <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
@@ -955,7 +960,8 @@ export function IncomingRequestsPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>

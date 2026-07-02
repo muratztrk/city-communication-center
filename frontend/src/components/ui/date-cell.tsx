@@ -1,4 +1,5 @@
 import { CalendarClock } from 'lucide-react'
+import { cn } from '../../lib/cn'
 
 function formatDate(value: string | null | undefined, locale: string): string {
   if (!value) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
@@ -16,13 +17,14 @@ function formatDate(value: string | null | undefined, locale: string): string {
 type DateCellProps = {
   value: string | null | undefined
   locale: string
+  highlight?: boolean
 }
 
 // Tüm gridview'larda tarih bilgisinin önünde takvim ikonu göstermek için ortak hücre.
-export function DateCell({ value, locale }: DateCellProps) {
+export function DateCell({ value, locale, highlight = false }: DateCellProps) {
   return (
-    <span className="date-cell">
-      <CalendarClock className="size-3.5 shrink-0 text-slate-400" />
+    <span className={cn('date-cell', highlight && 'font-semibold text-orange-500')}>
+      <CalendarClock className={cn('size-3.5 shrink-0', highlight ? 'text-orange-400' : 'text-slate-400')} />
       {formatDate(value, locale)}
     </span>
   )

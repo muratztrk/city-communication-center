@@ -53,6 +53,7 @@ import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
+import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { richTextToPlainText } from '../utils/richText'
 
 interface ScopeChipFiltersProps {
@@ -1792,16 +1793,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {pagedJobs.map((job, index) => {
                   const isOutgoingTargetApproved = isDepartmentOutgoingView &&
                     job.departments.some(d => d.role === 'Target' && d.approvalStatus === 'Approved')
+                  const isReporterJob = isReporterCreated(job.createdByRoleCode)
+                  const reporterNumberClass = isReporterJob && hasConcreteNumberDisplay(formatJobDisplayNumber(job))
+                    ? reporterGridValueClass(true)
+                    : ''
                   return (
                   <tr key={job.jobId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
                     {(isMyRequestsView || isDepartmentOutgoingView) && (
                     <td className="table-number-cell font-mono text-xs text-slate-500">
-                      <div className="table-number-cell__value">{formatJobDisplayNumber(job)}</div>
+                      <div className={`table-number-cell__value ${reporterNumberClass}`}>{formatJobDisplayNumber(job)}</div>
                       <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>(Öncelik:{getPriorityLabel(t, job.priority)})</div>
                     </td>
                     )}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} highlight={isReporterJob && Boolean(job.createdAtUtc)} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold"><span className="cell-title">{job.title}</span></td>
                     {showTaskOwnerColumn && <td>{job.assignedUserDisplayName ?? '—'}</td>}

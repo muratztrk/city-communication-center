@@ -7,7 +7,7 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
-import { reporterCreatorTextClass } from '../utils/reporterHighlight'
+import { reporterCreatorTextClass, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
@@ -363,18 +363,21 @@ export function WallboardPage() {
               <tbody>
                 {pagedItems.map((item, index) => {
                   const dueTone = getDueTone(item.dueDateUtc)
+                  const reporterNumberClass = item.isReporterRequest && hasConcreteNumberDisplay(item.taskNumber ?? '')
+                    ? reporterGridValueClass(true)
+                    : ''
                   return (
                     <tr key={item.id} className={`wallboard-row ${item.source}`}>
                       <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
                       <td>
-                        <div>{item.taskNumber ?? '—'}</div>
+                        <div className={reporterNumberClass}>{item.taskNumber ?? '—'}</div>
                         {item.priority ? (
                           <div className={`wallboard-priority-text ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
                         ) : null}
                       </td>
                       <td>
-                        <span className="wallboard-cell-icon">
-                          <CalendarClock className="size-4" />
+                        <span className={`wallboard-cell-icon ${item.isReporterRequest && item.createdAtUtc ? 'text-orange-500 font-semibold' : ''}`}>
+                          <CalendarClock className={`size-4 ${item.isReporterRequest && item.createdAtUtc ? 'text-orange-400' : ''}`} />
                           {formatDate(item.createdAtUtc, locale)}
                         </span>
                       </td>

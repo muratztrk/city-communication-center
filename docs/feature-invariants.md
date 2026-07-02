@@ -58,6 +58,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`formatTaskJobDisplayNumber`, ör. `T-2026-328`) de tarar.**
 - **"Görev Detayları" özet kartı, TasksPage (Görevlerim) ile JobsPage (Birime Gelen) arasında
   BİREBİR AYNI tutulur** (card 649/705). Birine alan eklersen diğerine de ekle.
+- **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`
+  olduğunda `Görev Detayları` altındaki Öncelik etiketi ve değeri görünmez; rutin görevlerin
+  öncelik satırı korunur (card #1118).
 - **AMA TasksPage "İlgili Talep Detayları" (üst-talep özeti) ile JobsPage "Talep Detayları"
   arasında "aynı tutulur" kuralı YOKTUR.** İkisi ayrı düşünülür.
 - **İptal/İade buton mantığı:** yalnızca `ExternalUnit` görevlerde İade; internal/routine →

@@ -947,3 +947,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46b083` / #1261 — Detay popup `Talebin Gittiği Birim` etiketi `Talebin Gittiği Birim / Görevi Yapan` oldu; atama yoksa değer `Birim / -` gösteriyor.
 
 ## STATUS: Round 144 complete — build/lint passed; Doing list drain pending.
+
+## Round 145 (Doing — 2026-07-02, görev detay öncelik satırı)
+- [x] `6a4299a1` reopened / #1118 — Görev detay popup'ında `Görev Tipi = Atanmış` olduğunda `Öncelik` satırı gizlendi; rutin görevlerde görünmeye devam ediyor.
+
+## STATUS: Round 145 complete — build/lint passed; Doing list drain pending.

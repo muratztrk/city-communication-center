@@ -90,7 +90,9 @@ export function MyRequestTaskDetailsSection({
                   { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
                   { label: t('tasks.columns.owner', 'Görev Sahibi'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
                   { label: t('tasks.columns.taskType', 'Görev Tipi'), value: taskType },
-                  { label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) },
+                  ...(task.jobSourceType === 'Routine'
+                    ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
+                    : []),
                 ].map(({ label, value }) => (
                   <div key={label} className="flex items-start gap-2 px-3 py-2">
                     <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>

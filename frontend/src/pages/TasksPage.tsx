@@ -1740,8 +1740,9 @@ const pageKicker = isMyTasksView
                                       ? t('tasks.type.routine', 'Rutin')
                                       : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
                                   },
-                                  // Öncelik, Görev Tipi'nin hemen altına (sol kolona) alındı (card #705).
-                                  { label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) },
+                                  ...(taskDetail.jobSourceType === 'Routine'
+                                    ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
+                                    : []),
                                   // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
                                 ].map(({ label, value }, index, rows) => (
                                   <div key={label} className={`flex items-start gap-2 px-3 py-2${index === rows.length - 1 ? ' border-b border-slate-100' : ''}`}>

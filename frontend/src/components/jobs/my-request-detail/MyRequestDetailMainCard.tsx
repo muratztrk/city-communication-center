@@ -72,12 +72,14 @@ export function MyRequestDetailMainCard({
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
-    <DateTimePicker
-      value={editDraft.dueDateUtc}
-      onChange={value => onEditDraftChange({ dueDateUtc: value })}
-      placeholder={t('jobs.form.dueDate', 'Son Tarih')}
-      forceUp
-    />
+    <div className="my-request-detail-edit-due-date">
+      <DateTimePicker
+        value={editDraft.dueDateUtc}
+        onChange={value => onEditDraftChange({ dueDateUtc: value })}
+        placeholder={t('jobs.form.dueDate', 'Son Tarih')}
+        forceUp
+      />
+    </div>
   ) : detailDueDateEdit?.jobId === detail.jobId ? (
     <div className="mt-1 flex flex-col gap-1.5">
       <DateTimePicker
@@ -138,14 +140,15 @@ export function MyRequestDetailMainCard({
                 <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
                   {isEditing && editDraft && onEditDraftChange && field.label === titleLabel ? (
                     <input
-                      className="field-input w-full text-right font-semibold"
+                      className="field-input my-request-detail-edit-control my-request-detail-edit-control--title text-right font-semibold"
                       value={editDraft.title}
+                      maxLength={50}
                       onChange={e => onEditDraftChange({ title: e.target.value })}
                       required
                     />
                   ) : isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (
                     <select
-                      className="field-select w-full text-right font-semibold"
+                      className="field-select my-request-detail-edit-control my-request-detail-edit-control--priority text-right font-semibold"
                       value={editDraft.priority}
                       onChange={e => onEditDraftChange({ priority: e.target.value })}
                     >

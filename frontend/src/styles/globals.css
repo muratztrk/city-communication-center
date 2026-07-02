@@ -1811,6 +1811,26 @@
     min-height: 4.5rem;
   }
 
+  .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 11rem;
+    margin-left: auto;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority {
+    max-width: 8.25rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date {
+    max-width: 10.5rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date .field-input {
+    width: 100%;
+  }
+
   .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button {
     height: 2.25rem;
     padding-inline: 0.875rem;

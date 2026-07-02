@@ -916,4 +916,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a468d80` / #1248 — Birim içi talep oluşturma formundaki `Bitiş Tarihi` takvimi yukarı yönde açılacak şekilde ayarlandı.
 - [x] `6a468d9b` / #1249 — Birim içi, birim dışı ve vatandaş talebi oluşturma formlarındaki input/dropdown/textarea kontrol yükseklikleri ilgili formlar içinde biraz küçültüldü.
 
-## STATUS: Round 140 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 140 complete — Doing list drained.

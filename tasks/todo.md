@@ -849,3 +849,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a464c5a` / #1214 — Manager/SystemAdmin/Reporter rollerinde Süreç altında `Talebin Birim Yöneticisinin Onay Tarihi` satırı gizlendi.
 
 ## STATUS: Round 129 complete — Doing list drained.
+
+## Round 130 (Doing — 2026-07-02, süreç durum satırı)
+- [x] `6a464d52` / #1215 — Taleplerim/Görev detay Süreç timeline'ındaki ayrı `Durum` step'i kaldırıldı; akış talep/onay/tamamlanma-son tarih satırlarıyla kalır.
+
+## STATUS: Round 130 complete — Doing list drained.

@@ -1,11 +1,9 @@
 import type { TFunction } from 'i18next'
 import type { JobDetail } from '../../../types/platform'
 import {
-  getCitizenRequestStatusLabel,
   isCitizenRequestJob,
   shouldShowCitizenTargetApprovalDate,
 } from '../../../utils/citizenRequests'
-import { getExternalUnitOwnerDisplayStatus } from '../../../utils/externalUnitRequests'
 import { formatDateTime, formatDueDateTime } from './format'
 
 export type JobProcessStepState = 'completed' | 'current' | 'upcoming' | 'terminal-success' | 'terminal-danger'
@@ -26,22 +24,6 @@ export interface JobProcessStep {
   state: JobProcessStepState
 }
 
-function getJobStatusLabel(t: TFunction, status: string): string {
-  return t(`enum.jobStatus.${status}`, { defaultValue: status })
-}
-
-function getMyRequestStatusLabel(t: TFunction, detail: JobDetail): string {
-  if (isCitizenRequestJob(detail)) {
-    return getCitizenRequestStatusLabel(t, detail)
-  }
-  return getExternalUnitOwnerDisplayStatus(t, detail)
-    ?? (detail.status === 'Active'
-      ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
-      : detail.status === 'Completed'
-        ? t('jobs.statusLabel.completed', 'Tamamlanmış')
-        : getJobStatusLabel(t, detail.status))
-}
-
 function isTerminalStatus(status: string): boolean {
   return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
 }
@@ -49,10 +31,6 @@ function isTerminalStatus(status: string): boolean {
 function wasRecoveredFromCancellation(detail: JobDetail): boolean {
   return Boolean(detail.cancelReason?.trim())
     && (detail.status === 'Active' || detail.status === 'Completed')
-}
-
-function isTerminalTimelineStatus(status: string): boolean {
-  return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
 }
 
 function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDetail): JobProcessStep[] {
@@ -186,14 +164,6 @@ export function buildJobProcessSteps(
       id: 'cancelDate',
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
       displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
-    })
-  }
-
-  if (!isTerminalTimelineStatus(detail.status)) {
-    steps.push({
-      id: 'status',
-      label: t('jobs.columns.status', 'Durum'),
-      displayValue: getMyRequestStatusLabel(t, detail),
     })
   }
 

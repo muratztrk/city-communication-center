@@ -397,13 +397,15 @@
   .job-process-timeline__track {
     position: relative;
     display: flex;
+    align-self: stretch;
+    align-items: flex-start;
     justify-content: center;
   }
 
   .job-process-timeline__line {
     position: absolute;
-    top: 1.5rem;
-    bottom: -0.7rem;
+    top: calc(0.875rem + 5px);
+    bottom: calc(0.875rem + 5px);
     width: 2px;
     background: rgb(203 213 225);
   }
@@ -416,8 +418,8 @@
     background: linear-gradient(
       to bottom,
       rgb(5 150 105) 0%,
-      rgb(5 150 105) 62%,
-      rgb(249 115 22) 88%,
+      rgb(5 150 105) 44%,
+      rgb(249 115 22) 56%,
       rgb(249 115 22) 100%
     );
   }
@@ -436,8 +438,8 @@
     background: linear-gradient(
       to bottom,
       rgb(220 38 38) 0%,
-      rgb(220 38 38) 62%,
-      rgb(249 115 22) 88%,
+      rgb(220 38 38) 44%,
+      rgb(249 115 22) 56%,
       rgb(249 115 22) 100%
     );
   }
@@ -512,8 +514,8 @@
 
   .job-process-timeline__datetime-bullet {
     display: inline-block;
-    width: 0.15rem;
-    height: 0.15rem;
+    width: 0.1875rem;
+    height: 0.1875rem;
     flex-shrink: 0;
     border-radius: 9999px;
     background: currentColor;
@@ -3473,6 +3475,15 @@
     border: 1px solid rgba(248, 113, 113, 0.45);
     color: #b91c1c;
     font-weight: 700;
+  }
+
+  .due-date-pill--reporter {
+    color: rgb(249 115 22);
+    font-weight: 600;
+  }
+
+  .due-date-pill--reporter svg {
+    color: rgb(251 146 60);
   }
 
   /* Takvim ikonlu tarih hücresi (Son Tarih dışındaki tüm tarih sütunları). */

@@ -33,14 +33,16 @@ type DueDatePillProps = {
   locale: string
   completedAtUtc?: string | null
   emptyLabel?: string
+  highlightReporter?: boolean
 }
 
 // Son Tarih hücresi: bitiş tarihi bugünse sarı, geçmişse kırmızı buton tasarımı.
 // Tüm gridview'larda aynı tasarımı kullanmak için ortak bileşen.
-export function DueDatePill({ value, locale, completedAtUtc, emptyLabel }: DueDatePillProps) {
+export function DueDatePill({ value, locale, completedAtUtc, emptyLabel, highlightReporter = false }: DueDatePillProps) {
   const tone = getDueTone(value, completedAtUtc)
+  const reporterHighlight = highlightReporter && Boolean(value) && tone === 'normal'
   return (
-    <span className={`due-date-pill${tone === 'warning' ? ' warning' : tone === 'danger' ? ' danger' : ''}`}>
+    <span className={`due-date-pill${tone === 'warning' ? ' warning' : tone === 'danger' ? ' danger' : ''}${reporterHighlight ? ' due-date-pill--reporter' : ''}`}>
       <CalendarClock className="size-3.5" />
       {formatDueDate(value, locale, emptyLabel)}
     </span>

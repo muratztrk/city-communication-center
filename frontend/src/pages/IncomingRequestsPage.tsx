@@ -881,7 +881,7 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold"><span className="cell-title">{row.title}</span></td>
                     {showTaskOwnerColumn && <td>{row.taskOwnerDisplayName ?? '—'}</td>}
-                    {currentStatusFilter !== 'cancelled' && <td><DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} /></td>}
+                    {currentStatusFilter !== 'cancelled' && <td><DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} /></td>}
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} /></td>}

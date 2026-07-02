@@ -391,8 +391,8 @@ export function WallboardPage() {
                       <td><div className="wallboard-row-title">{item.title}</div></td>
                       <td>{item.taskOwner ?? '—'}</td>
                       <td>
-                        <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}`}>
-                          <CalendarClock className="size-4" />
+                        <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}${item.isReporterRequest && item.dueDateUtc && dueTone === 'normal' ? ' text-orange-500 font-semibold' : ''}`}>
+                          <CalendarClock className={`size-4${item.isReporterRequest && item.dueDateUtc && dueTone === 'normal' ? ' text-orange-400' : ''}`} />
                           {formatDate(item.dueDateUtc, locale)}
                         </span>
                       </td>

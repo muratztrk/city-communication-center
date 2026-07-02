@@ -2566,7 +2566,7 @@ const pageKicker = isMyTasksView
                     )}
                     {!hideDueDateColumn && (
                       <td>
-                        <DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} />
+                        <DueDatePill value={task.dueDateUtc} completedAtUtc={task.completedAtUtc} locale={locale} highlightReporter={isReporterTask} />
                         {showExtraTimeUnderDue ? extraTimeMarkers : null}
                       </td>
                     )}

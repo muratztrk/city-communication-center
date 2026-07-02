@@ -180,6 +180,10 @@ function formatDueDateTime(value: string | null | undefined, locale: string) {
   return formatDateTime(value, locale)
 }
 
+function formatApprovalDateText(value: string, approverName: string | null | undefined) {
+  return approverName ? `${value} (${approverName})` : value
+}
+
 function stripHtmlTags(value: string | null | undefined) {
   if (!value) return ''
   const parser = new DOMParser()
@@ -242,7 +246,7 @@ function printTaskDetail(
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApproval?.decidedAtUtc)]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), targetApproval?.approvedByDisplayName)]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ] : [
@@ -255,9 +259,9 @@ function printTaskDetail(
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
-    ['Talebin Birim Yöneticisinin Onay Tarihi', fd(ownerApproval?.decidedAtUtc)],
+    ['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(ownerApproval?.decidedAtUtc), ownerApproval?.approvedByDisplayName)],
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApproval?.decidedAtUtc)]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), targetApproval?.approvedByDisplayName)]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ]).map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(String(value))}</td></tr>`).join('') : ''
@@ -2173,20 +2177,29 @@ const pageKicker = isMyTasksView
                     ]
                     const rightFields = [
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
-                      ...(!isCitizenParentJob ? [{
+                      ...(!isCitizenParentJob && !isManagerLike && user?.role !== 'Reporter' ? [{
                         // Hem birim-içi hem birim-dışı talepte aynı etiket kullanılır (card #706).
                         label: 'Talebin Birim Yöneticisinin Onay Tarihi',
-                        value: formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
+                        value: formatApprovalDateText(
+                          formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
+                          ownerJobDepartment?.approvedByDisplayName,
+                        ),
                       }] : []),
                       ...(isCitizenParentJob
                         ? (shouldShowCitizenTargetApprovalDate(parentJobDetail) ? [{
                             label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
-                            value: formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
+                            value: formatApprovalDateText(
+                              formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
+                              fulfillingJobDepartment?.approvedByDisplayName,
+                            ),
                           }] : [])
                         : isCrossDepartmentRequest
                           ? [{
                               label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
-                              value: formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
+                              value: formatApprovalDateText(
+                                formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
+                                fulfillingJobDepartment?.approvedByDisplayName,
+                              ),
                             }]
                           : []),
                       { label: 'Son Tarih', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },

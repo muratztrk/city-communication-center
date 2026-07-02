@@ -146,6 +146,7 @@ export function buildJobProcessSteps(
   t: TFunction,
   detail: JobDetail,
   locale: string,
+  options?: { hideOwnerApproval?: boolean },
 ): JobProcessStep[] {
   const steps: Omit<JobProcessStep, 'state'>[] = [
     {
@@ -155,25 +156,27 @@ export function buildJobProcessSteps(
     },
   ]
 
-  if (!isCitizenRequestJob(detail)) {
+  if (!isCitizenRequestJob(detail) && !options?.hideOwnerApproval) {
     const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
     const ownerApprovalLabel = t('jobs.detail.ownerManagerApprovalDate', 'Talebin Birim Yöneticisinin Onay Tarihi')
     steps.push({
       id: 'ownerApproval',
-      label: ownerDepartment?.approvedByDisplayName
-        ? `${ownerApprovalLabel} (${ownerDepartment.approvedByDisplayName})`
-        : ownerApprovalLabel,
-      displayValue: formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
+      label: ownerApprovalLabel,
+      displayValue: formatApprovalValue(
+        formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
+        ownerDepartment?.approvedByDisplayName,
+      ),
     })
   }
 
   if (shouldShowCitizenTargetApprovalDate(detail)) {
+    const targetDepartment = detail.departments.find(department => department.role === 'Target')
     steps.push({
       id: 'targetApproval',
       label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
-      displayValue: formatDueDateTime(
-        detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
-        locale,
+      displayValue: formatApprovalValue(
+        formatDueDateTime(targetDepartment?.decidedAtUtc ?? null, locale),
+        targetDepartment?.approvedByDisplayName,
       ),
     })
   }
@@ -221,4 +224,8 @@ export function buildJobProcessSteps(
 
 export function isJobRecoveredFromCancellation(detail: JobDetail): boolean {
   return wasRecoveredFromCancellation(detail)
+}
+
+function formatApprovalValue(value: string, approverName: string | null | undefined): string {
+  return approverName ? `${value} (${approverName})` : value
 }

@@ -8,6 +8,7 @@ import { RichTextContent } from '../../ui/RichTextContent'
 import { RichTextEditor } from '../../ui/RichTextEditor'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
+import { useAuth } from '../../../context/AuthContext'
 import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
@@ -60,13 +61,15 @@ export function MyRequestDetailMainCard({
   onEditDraftChange,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
+  const hideOwnerApproval = user?.role === 'Manager' || user?.role === 'SystemAdmin' || user?.role === 'Reporter'
   const titleLabel = t('jobs.form.title', 'Talep Başlığı')
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   const fields = useMemo(
     () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage),
     [detail, t, locale, citizenSourceMessage],
   )
-  const steps = useMemo(() => buildJobProcessSteps(t, detail, locale), [t, detail, locale])
+  const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
     <DateTimePicker

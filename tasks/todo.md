@@ -842,3 +842,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a464a83` / #1211 — Taleplerim detayındaki Ekler / Fotoğraflar bölümünde `Dosya ekle` butonu da `Düzenle` moduna bağlandı; düzenlemeye basmadan ek listesi salt okunur görünür.
 
 ## STATUS: Round 128 complete — Doing list drained.
+
+## Round 129 (Doing — 2026-07-02, süreç onay tarihi formatı)
+- [x] `6a464b72` / #1212 — `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` satırında hedef birim yöneticisi adı etiket yerine tarih değerinin yanında parantez içinde gösteriliyor.
+- [x] `6a464c04` / #1213 — `Talebin Birim Yöneticisinin Onay Tarihi` satırında parantez içindeki yönetici adı tarih değerinin yanına taşındı.
+- [x] `6a464c5a` / #1214 — Manager/SystemAdmin/Reporter rollerinde Süreç altında `Talebin Birim Yöneticisinin Onay Tarihi` satırı gizlendi.
+
+## STATUS: Round 129 complete — Doing list drained.

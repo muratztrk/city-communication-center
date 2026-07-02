@@ -227,6 +227,10 @@ function formatDueDateTime(value: string | null, locale: string) {
   return formatDateTime(value, locale)
 }
 
+function formatApprovalDateText(value: string, approverName: string | null | undefined) {
+  return approverName ? `${value} (${approverName})` : value
+}
+
 function toDateTimePickerValue(value: string | null | undefined): string {
   if (!value) return ''
   const date = new Date(value)
@@ -387,9 +391,7 @@ function printJobDetail(
   const ownerApprovalDate = detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
   const targetApprovalDate = detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null
   const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
-  const ownerApprovalLabel = ownerDepartment?.approvedByDisplayName
-    ? `Talebin Birim Yöneticisinin Onay Tarihi (${ownerDepartment.approvedByDisplayName})`
-    : 'Talebin Birim Yöneticisinin Onay Tarihi'
+  const targetDepartment = detail.departments.find(department => department.role === 'Target')
   const requestDetailRows: Array<[string, string]> = [
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
@@ -402,9 +404,9 @@ function printJobDetail(
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
-    ...(isCitizenRequestJob(detail) ? [] : [[ownerApprovalLabel, fd(ownerApprovalDate)] as [string, string]]),
+    ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(ownerApprovalDate), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', fd(targetApprovalDate)] as [string, string]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApprovalDate), targetDepartment?.approvedByDisplayName)] as [string, string]]
       : []),
     ...(detail.status === 'Completed'
       ? [['Tamamlanma Tarihi', fd(detail.completedAtUtc)] as [string, string]]
@@ -2187,20 +2189,26 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ),
                         },
                         { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
-                        ...(isMyRequestsView && !isCitizenRequestDetail ? [{
+                        ...(isMyRequestsView && !isCitizenRequestDetail && !isManagerLike && !isReporter ? [{
                           // Talebi yapan birimin yöneticisinin onay tarihi (Owner JobDepartment) — card 6a397bf6.
                           label: 'Talebin Birim Yöneticisinin Onay Tarihi',
-                          value: formatDueDateTime(
-                            detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
-                            locale,
+                          value: formatApprovalDateText(
+                            formatDueDateTime(
+                              detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
+                              locale,
+                            ),
+                            detail.departments.find(department => department.role === 'Owner')?.approvedByDisplayName,
                           ),
                         }] : []),
                         ...(shouldShowCitizenTargetApprovalDate(detail) ? [{
                           // Talebi alan (hedef) birimin onay tarihi (Target JobDepartment).
                           label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
-                          value: formatDueDateTime(
-                            detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
-                            locale,
+                          value: formatApprovalDateText(
+                            formatDueDateTime(
+                              detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
+                              locale,
+                            ),
+                            detail.departments.find(department => department.role === 'Target')?.approvedByDisplayName,
                           ),
                         }] : []),
                         // Talep tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #715).

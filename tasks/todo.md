@@ -946,14 +946,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46afc9` / #1260 — Detay popup adres bölümünde `Açık Adres`, `Cadde / Sokak / Bulvar` alanının sağ tarafındaki aynı satır akışına alındı.
 - [x] `6a46b083` / #1261 — Detay popup `Talebin Gittiği Birim` etiketi `Talebin Gittiği Birim / Görevi Yapan` oldu; atama yoksa değer `Birim / -` gösteriyor.
 
-## STATUS: Round 144 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 144 complete — cards moved to Done; follow-up Doing cards picked up.
 
 ## Round 145 (Doing — 2026-07-02, görev detay öncelik satırı)
 - [x] `6a4299a1` reopened / #1118 — Görev detay popup'ında `Görev Tipi = Atanmış` olduğunda `Öncelik` satırı gizlendi; rutin görevlerde görünmeye devam ediyor.
 
-## STATUS: Round 145 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 145 complete — cards moved to Done; follow-up Doing cards picked up.
 
 ## Round 146 (Doing — 2026-07-02, vatandaş breadcrumb)
 - [x] `6a46b2bf` / #1262 — `Vatandaş Talepleri` breadcrumb'ından `Vatandaş İlişkileri` ara katmanı kaldırıldı.
 
-## STATUS: Round 146 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 146 complete — Doing list drained.

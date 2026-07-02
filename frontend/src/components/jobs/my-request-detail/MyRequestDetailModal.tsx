@@ -1,4 +1,4 @@
-import { MapPin, MessageSquare, Paperclip } from 'lucide-react'
+import { MapPin, NotebookPen, Paperclip } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { AttachmentSection } from '../../ui/AttachmentSection'
@@ -199,7 +199,7 @@ export function MyRequestDetailModal({
             </section>
             {showManagerNoteColumn && (
               <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-                <MyRequestSectionHeading icon={MessageSquare}>
+                <MyRequestSectionHeading icon={NotebookPen}>
                   {t('jobs.managerNote.title', 'Yönetici Notu')}
                 </MyRequestSectionHeading>
                 {detail.managerNote ? (

@@ -821,3 +821,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4647a2` / #1208 — Düzenleme/ekleme sırasında `Dosya Ekle` sonrası görünen rich-list dosya satırlarında `Sil` yazısı hover beklemeden görünür hale getirildi.
 
 ## STATUS: Round 124 complete — Doing list drained.
+
+## Round 125 (Doing — 2026-07-02, yönetici notu ikonu + wallboard renk geri alma)
+- [x] `6a4648b8` / #1209 — Taleplerim detayındaki Yönetici Notu başlık ikonu konuşma balonu yerine not alanına daha uygun `NotebookPen` ikonuna çevrildi.
+- [x] `6a46475c` reopened / #1207 — Ekrana Yansıt sticky header düzeltmesinde hücrelere verilen ayrı opak gradient kaldırıldı; eski sürekli header gradient rengi korunarak `thead` sticky yapıldı.
+
+## STATUS: Round 125 complete — Doing list drained.

@@ -3118,17 +3118,19 @@
   }
 
   .wallboard-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
   .wallboard-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    position: relative;
+    z-index: 1;
     padding: 0.68rem 0.8rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background: transparent;
     color: white;
     font-size: clamp(0.64rem, 0.72vw, 0.8rem);
     font-weight: 900;

@@ -209,7 +209,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünmez.
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
-  başlıkları scroll sırasında sticky kalır.
+  başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).

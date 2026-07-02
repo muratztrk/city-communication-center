@@ -898,3 +898,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a467020` / #1238 — Taleplerim detay düzenleme modunda açıklama editörü kompakt min-height aldı; Öncelik/Süreç/Açıklama satırının altı gereksiz genişlemiyor.
 
 ## STATUS: Round 137 complete — Doing list drained.
+
+## Round 138 (Doing — 2026-07-02, adres etiketi boyutu)
+- [x] `6a468b0a` / #1246 — Taleplerim detay `Adres Bilgileri` etiketleri (`Mahalle`, `Cadde / Sokak / Bulvar`, `Açık Adres`) büyütüldü; değer fontları korunuyor.
+
+## STATUS: Round 138 complete — Doing list drained.

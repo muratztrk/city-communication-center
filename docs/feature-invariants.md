@@ -151,6 +151,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   davranışına bu renklendirme uygulanmaz (card #1243).
 - **WhatsApp konuşma aksiyon ikonları:** WhatsApp konuşmaları alt aksiyonlarında `Talep oluştur`
   ve `Şablon mesajlar` ikonları yeşil kalır; buton metinleri yeşile boyanmaz (card #1245).
+- **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,
+  `Cadde / Sokak / Bulvar` ve `Açık Adres` etiketleri değerlerden bağımsız daha büyük okunur;
+  adres değerlerinin font boyutu değiştirilmez (card #1246).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

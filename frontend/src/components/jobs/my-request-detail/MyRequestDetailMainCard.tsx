@@ -125,7 +125,7 @@ export function MyRequestDetailMainCard({
   )
 
   return (
-    <section className="my-request-detail-main form-card page-stack mb-5">
+    <section className={`my-request-detail-main form-card page-stack mb-5${isEditing ? ' my-request-detail-main--editing' : ''}`}>
       <MyRequestSectionHeading icon={ClipboardList} tone="primary">
         {t('jobs.detail.requestInfo', 'Talep Detayları')}
       </MyRequestSectionHeading>
@@ -177,7 +177,7 @@ export function MyRequestDetailMainCard({
         </div>
         <div className="my-request-detail-description-panel min-w-0 p-4">
           <MyRequestSectionHeading icon={FileText}>
-            {t('jobs.form.description', 'AÇIKLAMA')}
+            {t('jobs.form.description', 'Açıklama')}
           </MyRequestSectionHeading>
           {isEditing && editDraft && onEditDraftChange ? (
             <RichTextEditor

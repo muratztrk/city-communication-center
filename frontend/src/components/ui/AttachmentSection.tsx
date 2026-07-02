@@ -132,7 +132,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           <button
             type="button"
             aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isDisabled}
             onClick={() => fileInputRef.current?.click()}
           >

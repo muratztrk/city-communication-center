@@ -14,7 +14,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
   const hasNeighborhood = draft.neighborhood.trim().length > 0
 
   return (
-    <div className="grid gap-3">
+    <div className="my-request-edit-fields grid gap-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>

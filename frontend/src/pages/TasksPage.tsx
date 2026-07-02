@@ -56,6 +56,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
+import { isReporterCreated, reporterDepartmentTextClass } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -2496,8 +2497,7 @@ const pageKicker = isMyTasksView
                     && showStatusColumn
 
                   return (
-                  // Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (dikkat).
-                  <tr key={task.taskId} className={task.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
+                  <tr key={task.taskId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
                     <td className="table-number-cell text-xs text-slate-500">
                       {task.jobSourceType === 'Routine'
@@ -2518,7 +2518,7 @@ const pageKicker = isMyTasksView
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value">{formatTaskDisplayNumber(task)}</div>
-                      <div className={`table-number-cell__priority font-sans font-bold ${task.createdByRoleCode === 'Reporter' ? 'text-black' : getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
                     </td>
                     <td>
                       <DateCell value={task.createdAtUtc} locale={locale} />
@@ -2533,7 +2533,7 @@ const pageKicker = isMyTasksView
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}
                     <td>
                       <div className="mx-auto max-w-[11rem] text-center">
-                        <div className="truncate font-semibold text-slate-700">{task.ownerDepartmentName ?? '—'}</div>
+                        <div className={`truncate font-semibold ${reporterDepartmentTextClass(isReporterCreated(task.createdByRoleCode))}`}>{task.ownerDepartmentName ?? '—'}</div>
                         <div className="truncate text-xs text-slate-500">{task.createdByDisplayName ?? '—'}</div>
                       </div>
                     </td>

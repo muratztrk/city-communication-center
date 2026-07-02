@@ -6,6 +6,7 @@ import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
+import { reporterDepartmentTextClass } from '../utils/reporterHighlight'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
@@ -362,12 +363,12 @@ export function WallboardPage() {
                 {pagedItems.map((item, index) => {
                   const dueTone = getDueTone(item.dueDateUtc)
                   return (
-                    <tr key={item.id} className={`wallboard-row ${item.source}${item.isReporterRequest ? ' reporter-row' : ''}`}>
+                    <tr key={item.id} className={`wallboard-row ${item.source}`}>
                       <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
                       <td>
                         <div>{item.taskNumber ?? '—'}</div>
                         {item.priority ? (
-                          <div className={`wallboard-priority-text ${item.isReporterRequest && item.priority === 'Normal' ? 'text-white' : getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
+                          <div className={`wallboard-priority-text ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
                         ) : null}
                       </td>
                       <td>
@@ -377,7 +378,7 @@ export function WallboardPage() {
                         </span>
                       </td>
                       <td>
-                        <div>{item.requestLocation ?? '—'}</div>
+                        <div className={reporterDepartmentTextClass(item.isReporterRequest)}>{item.requestLocation ?? '—'}</div>
                         <div className="wallboard-secondary-text wallboard-creator-line">
                           {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
                           <span>{item.requestCreator ?? '—'}</span>

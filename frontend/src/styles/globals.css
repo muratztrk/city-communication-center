@@ -263,11 +263,11 @@
   }
 
   .detail-modal-shell--my-request .job-detail-card-title {
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
-    color: rgb(148 163 184);
-    text-transform: uppercase;
+    letter-spacing: normal;
+    color: rgb(15 23 42);
+    text-transform: none;
   }
 
   .detail-modal-shell--my-request .job-detail-section-heading {
@@ -283,10 +283,11 @@
   }
 
   .detail-modal-shell--my-request .job-detail-section-title:not(.job-detail-section-title--muted) {
-    font-size: 1.05rem;
-    font-weight: 800;
-    letter-spacing: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: normal;
     text-transform: none;
+    color: rgb(15 23 42);
   }
 
   .detail-modal-shell--my-request .my-request-detail-main.page-stack {
@@ -480,15 +481,15 @@
   .job-process-timeline__indicator--current {
     width: 1.25rem;
     height: 1.25rem;
-    background: white;
-    border: 2px solid rgb(249 115 22);
-    box-shadow: 0 0 0 2px rgb(255 237 213);
+    background: rgb(255 237 213);
+    border: none;
+    box-shadow: 0 0 0 3px rgb(255 247 237);
   }
 
   .job-process-timeline__indicator--current::after {
     content: '';
-    width: 0.55rem;
-    height: 0.55rem;
+    width: 0.5rem;
+    height: 0.5rem;
     border-radius: 9999px;
     background: rgb(249 115 22);
   }
@@ -1756,31 +1757,29 @@
     background: #f8fafc;
   }
 
-  /* Birime gelen aktif birim dışı talep satırı: turuncuya yakın sarı (zebra çizgisini ezer). */
-  .data-table tbody tr.row-attention td {
-    background: #fbbf24 !important;
+  .my-request-edit-fields .field-input,
+  .my-request-edit-fields .field-select,
+  .my-request-edit-fields .field-textarea,
+  .my-request-detail-main--editing .job-detail-field-row__value .field-input,
+  .my-request-detail-main--editing .job-detail-field-row__value .field-select,
+  .my-request-detail-main--editing .job-process-timeline .field-input {
+    min-height: 2rem;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8125rem;
   }
 
-  .data-table tbody tr.row-attention:hover td {
-    background: #f59e0b !important;
+  .my-request-edit-fields .field-textarea {
+    min-height: 4.5rem;
   }
 
-  /* Sarı dikkat satırlarında öncelik etiketi/değeri siyah kalır; seviye renkleri amber zeminde okunaksızlaşır. */
-  .data-table tbody tr.row-attention .table-number-cell__priority {
-    color: #000000 !important;
+  .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button {
+    height: 2.25rem;
+    padding-inline: 0.875rem;
+    font-size: 0.8125rem;
   }
 
-  /* Art arda gelen sarı satırlarda ayırıcı çizgiyi belirginleştir. */
-  .data-table tbody tr.row-attention + tr.row-attention td {
-    border-top: 1px solid rgba(120, 53, 15, 0.42) !important;
-  }
-
-  /* Sarı satırlı gridlerde tarih alanlarının çerçevesi beyaz görünür. */
-  .data-table tbody tr.row-attention .date-cell,
-  .data-table tbody tr.row-attention .due-date-pill {
-    border: 1px solid rgba(255, 255, 255, 0.92);
-    border-radius: 999px;
-    padding: 0.2rem 0.55rem;
+  .reporter-department-text {
+    color: rgb(249 115 22);
   }
 
   .data-table--zebra tbody tr:nth-child(even):hover td {
@@ -3185,33 +3184,7 @@
     background: #0b2230;
   }
 
-  /* Üst Düzey Yönetici'den gelen talebin görevi: satır sarı (amber), koyu metin. */
-  .wallboard-table tbody tr.reporter-row,
-  .wallboard-table tbody tr.reporter-row:nth-child(odd),
-  .wallboard-table tbody tr.reporter-row:nth-child(even) {
-    background: #fbbf24;
-  }
-
-  .wallboard-table tbody tr.reporter-row td {
-    color: #422006;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-    border-left: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  .wallboard-table tbody tr.reporter-row + tr.reporter-row td {
-    border-top: 1px solid rgba(66, 32, 6, 0.42);
-  }
-
-  .wallboard-table tbody tr.reporter-row .wallboard-cell-icon {
-    color: #000;
-    border-color: rgba(255, 255, 255, 0.9);
-  }
-
-  .wallboard-table tbody tr.reporter-row .wallboard-row-title {
-    color: #000;
-  }
-
-  .wallboard-table tbody td {
+  .wallboard-table tbody tr.wallboard-row td {
     padding: 0.72rem 0.8rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     color: rgba(226, 232, 240, 0.88);

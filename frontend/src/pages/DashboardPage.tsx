@@ -250,7 +250,7 @@ export function DashboardPage() {
       department: taskChartFilters['dashboard.charts.departmentTasks'],
       mine: taskChartFilters['dashboard.charts.myTasks'],
     }),
-    enabled: !!currentUser,
+    enabled: true,
     refetchInterval: 60_000,
   })
   // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
@@ -491,6 +491,14 @@ export function DashboardPage() {
                 </div>
               </div>
             ))
+          : chartCards.length === 0 && !statusChartsQuery.isLoading && !dashboardQuery.isLoading
+            ? (
+              <div className="section-card col-span-full p-4 text-sm text-slate-600 sm:p-5">
+                {statusChartsQuery.isError
+                  ? (statusChartsQuery.error instanceof Error ? statusChartsQuery.error.message : t('common.error'))
+                  : t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
+              </div>
+            )
           : chartCards.map(card => {
             // Standart kullanıcıların erişemediği "Birimdeki Görevler" ile Üst Düzey Yönetici'ye
             // özel birim-dışı dağılım grafikleri (card #835/#763) yalnızca bilgilendirme amaçlıdır;
@@ -551,6 +559,9 @@ export function DashboardPage() {
 
       {dashboardQuery.isError ? (
         <div className="error">{dashboardQuery.error instanceof Error ? dashboardQuery.error.message : t('common.error')}</div>
+      ) : null}
+      {statusChartsQuery.isError ? (
+        <div className="error">{statusChartsQuery.error instanceof Error ? statusChartsQuery.error.message : t('common.error')}</div>
       ) : null}
     </div>
   )

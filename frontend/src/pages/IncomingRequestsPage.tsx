@@ -47,6 +47,7 @@ import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequ
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
+import { isReporterCreated, reporterDepartmentTextClass } from '../utils/reporterHighlight'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobsPage } from './JobsPage'
@@ -848,8 +849,7 @@ export function IncomingRequestsPage() {
                   />
                 )}
                 {pagedRows.map((row, index) => (
-                  // Yalnızca Üst Düzey Yönetici'den gelen aktif birim dışı talepler sarı.
-                  <tr key={`${row.kind}-${row.id}`} className={row.kind === 'external' && row.status === 'Active' && row.createdByRoleCode === 'Reporter' ? 'row-attention' : undefined}>
+                  <tr key={`${row.kind}-${row.id}`}>
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
@@ -857,8 +857,7 @@ export function IncomingRequestsPage() {
                         {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
                         <span>{row.displayNumber}</span>
                       </div>
-                      {/* Sarı (dikkat) satırda Öncelik etiketi ve değeri siyah kalır (card #1084). Diğer satırlarda öncelik rengi. */}
-                      <div className={`table-number-cell__priority font-sans ${row.kind === 'external' && row.status === 'Active' && row.createdByRoleCode === 'Reporter' ? 'font-extrabold text-black' : `font-bold ${getPriorityColorClass(row.priority)}`}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td>
                       <DateCell value={row.createdAtUtc} locale={locale} />
@@ -868,7 +867,7 @@ export function IncomingRequestsPage() {
                       )}
                     </td>
                     <td>
-                      <div className="font-semibold text-slate-700">{row.departmentName ?? '—'}</div>
+                      <div className={`font-semibold ${reporterDepartmentTextClass(isReporterCreated(row.createdByRoleCode))}`}>{row.departmentName ?? '—'}</div>
                       <div className="text-xs text-slate-500">{row.createdBy ?? '—'}</div>
                     </td>
                     <td className="font-semibold"><span className="cell-title">{row.title}</span></td>

@@ -3206,14 +3206,6 @@
     border-bottom: 0;
   }
 
-  .wallboard-row.citizen td:first-child {
-    border-left: 0.42rem solid #f59e0b;
-  }
-
-  .wallboard-row.citizen td {
-    background: rgba(245, 158, 11, 0.08);
-  }
-
   /* Uzun başlık tek satırda kesilmek yerine ~yarı yarıya bölünüp alt satıra kaysın (card 593). */
   .wallboard-row-title {
     /* En fazla 2 satır (card 597). */
@@ -3239,6 +3231,13 @@
   .wallboard-secondary-text {
     font-size: clamp(0.76rem, 0.8vw, 0.9rem);
     opacity: 0.8;
+  }
+
+  .wallboard-creator-line {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
   }
 
   .wallboard-row-subtitle {

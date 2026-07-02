@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import type { JobSummary, Task } from '../types/platform'
+import type { JobSummary, SocialMessage, Task } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 
 type WallboardSource = 'internal' | 'external' | 'citizen'
@@ -24,6 +25,7 @@ interface WallboardItem {
   taskNumber: string | null
   requestLocation: string | null
   requestCreator: string | null
+  sourceChannel: string | null
   taskOwner: string | null
   isReporterRequest: boolean
 }
@@ -36,7 +38,15 @@ const REFRESH_OPTIONS = [
 ]
 
 function isCitizenSource(sourceType?: string | null) {
-  return sourceType === 'SocialMessage' || sourceType === 'CitizenRequest'
+  return sourceType === 'SocialMessage' || sourceType === 'CitizenRequest' || sourceType === 'EDevlet'
+}
+
+function getCitizenChannel(job: JobSummary | undefined, socialByJobId: Map<string, SocialMessage>): string | null {
+  if (!job || !isCitizenSource(job.sourceType)) return null
+  const socialChannel = socialByJobId.get(job.jobId)?.channel
+  if (socialChannel) return socialChannel
+  if (job.sourceType === 'EDevlet') return 'EDevlet'
+  return null
 }
 
 function getDueTone(dueDateUtc: string | null) {
@@ -86,8 +96,9 @@ function formatTaskNumber(num: number | null | undefined, year: number | null | 
   return `G-${year ?? new Date().getFullYear()}-${num}`
 }
 
-function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[] {
+function buildWallboardItems(tasks: Task[], jobs: JobSummary[], socialMessages: SocialMessage[]): WallboardItem[] {
   const jobsById = new Map(jobs.map(job => [job.jobId, job]))
+  const socialByJobId = new Map(socialMessages.flatMap(message => message.jobId ? [[message.jobId, message] as const] : []))
 
   return tasks
     .filter(task => task.jobSourceType !== 'Routine' && OPEN_TASK_STATUSES.has(task.currentStatus) && task.taskNumber != null)
@@ -109,6 +120,7 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[]): WallboardItem[]
         taskNumber: formatTaskNumber(task.taskNumber, task.taskNumberYear),
         requestLocation: job?.ownerDepartmentName ?? null,
         requestCreator: job?.createdByDisplayName ?? null,
+        sourceChannel: getCitizenChannel(job, socialByJobId),
         taskOwner: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,
         isReporterRequest: job?.createdByRoleCode === 'Reporter',
       }
@@ -155,11 +167,12 @@ export function WallboardPage() {
     setError(null)
 
     try {
-      const [tasks, jobs] = await Promise.all([
+      const [tasks, jobs, socialMessages] = await Promise.all([
         api.getTasks('all'),
         api.getJobs('active'),
+        api.getSocialMessages().catch(() => [] as SocialMessage[]),
       ])
-      setItems(buildWallboardItems(tasks, jobs))
+      setItems(buildWallboardItems(tasks, jobs, socialMessages))
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
     } finally {
@@ -365,7 +378,10 @@ export function WallboardPage() {
                       </td>
                       <td>
                         <div>{item.requestLocation ?? '—'}</div>
-                        <div className="wallboard-secondary-text">{item.requestCreator ?? '—'}</div>
+                        <div className="wallboard-secondary-text wallboard-creator-line">
+                          {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
+                          <span>{item.requestCreator ?? '—'}</span>
+                        </div>
                       </td>
                       <td><div className="wallboard-row-title">{item.title}</div></td>
                       <td>{item.taskOwner ?? '—'}</td>

@@ -827,3 +827,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46475c` reopened / #1207 — Ekrana Yansıt sticky header düzeltmesinde hücrelere verilen ayrı opak gradient kaldırıldı; eski sürekli header gradient rengi korunarak `thead` sticky yapıldı.
 
 ## STATUS: Round 125 complete — Doing list drained.
+
+## Round 126 (Doing — 2026-07-02, wallboard vatandaş talebi kanal ikonu)
+- [x] `6a464923` / #1210 — Ekrana Yansıt gridinde vatandaş talepleri için Oluşturan bilgisinin başına sosyal kanal/e-Devlet ikonu eklendi; vatandaş satırına verilen özel renk ve sıra numarası yanındaki sarı şerit kaldırıldı.
+
+## STATUS: Round 126 complete — Doing list drained.

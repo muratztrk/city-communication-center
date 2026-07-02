@@ -963,4 +963,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46afc9` reopened / #1260 — Detay popup adres alanları Mahalle / Cadde-Sokak-Bulvar / Açık Adres olarak üçlü yan yana zorlandı.
 - [x] `6a46b083` reopened / #1261 — `Talebin Gittiği Birim / Görevi Yapan` etiketi tek satırda kalacak şekilde sarma engellendi.
 
-## STATUS: Round 147 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 147 complete — Doing list drained.

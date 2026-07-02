@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { ArrowDownUp, Check, ClipboardPlus, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -24,6 +24,7 @@ import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { formatWhatsAppSummaryTicketLabel, formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
+import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
 
@@ -607,29 +608,33 @@ function ConversationDetail({
               <MoreVertical className="size-4" />
             </button>
             {menuOpen ? (
-              <div className="absolute right-0 top-full z-20 mt-1 min-w-[12rem] overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+              <div className="dropdown-menu-panel absolute right-0 top-full z-20 mt-1 min-w-[13rem] py-1">
                 {primaryTicket ? (
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                    onClick={() => {
-                      setMenuOpen(false)
-                      onOpenCreateRequest(primaryTicket.socialMessageId)
-                    }}
-                  >
-                    <ClipboardPlus className="size-4 shrink-0 text-slate-500" aria-hidden="true" />
-                    {t('nav.createRequest', 'Talep oluştur')}
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      className="dropdown-menu-item !justify-start gap-2.5"
+                      onClick={() => {
+                        setMenuOpen(false)
+                        onOpenCreateRequest(primaryTicket.socialMessageId)
+                      }}
+                    >
+                      <ClipboardPlus {...DETAIL_ICON_PROPS} />
+                      {t('nav.createRequest', 'Talep oluştur')}
+                    </button>
+                    <div className="mx-3 border-t border-slate-200" role="separator" />
+                  </>
                 ) : null}
                 <button
                   type="button"
-                  className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  className="dropdown-menu-item !justify-start gap-2.5"
                   onClick={() => {
                     setMenuOpen(false)
                     if (detail) onOpenViewRequests(detail.citizenPhone)
                   }}
                 >
-                  {t('whatsapp.viewRequestsByNumber', 'Numaranın talepleri')}
+                  <ClipboardList {...DETAIL_ICON_PROPS} />
+                  {t('whatsapp.viewRequestsByNumber', 'Numaranın Talepleri')}
                 </button>
               </div>
             ) : null}

@@ -405,7 +405,7 @@
   .job-process-timeline__line {
     position: absolute;
     top: calc(0.875rem + 5px);
-    bottom: calc(0.875rem + 5px);
+    bottom: 5px;
     width: 2px;
     background: rgb(203 213 225);
   }

@@ -800,7 +800,7 @@
     "blocked": "Blocked",
     "newTicket": "Open New Ticket",
     "viewTicket": "View Ticket",
-    "viewRequestsByNumber": "Requests Created by This Number",
+    "viewRequestsByNumber": "This Number's Requests",
     "mediaLoadFailed": "Media could not be loaded",
     "addAsRequestAttachment": "Add as Request Attachment",
     "tickets": "Linked Tickets",

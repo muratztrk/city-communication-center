@@ -3,5 +3,5 @@ export function isReporterCreated(roleCode: string | null | undefined): boolean 
 }
 
 export function reporterDepartmentTextClass(isReporter: boolean): string {
-  return isReporter ? 'text-orange-500' : 'text-slate-700'
+  return isReporter ? 'font-bold text-slate-900' : 'font-semibold text-slate-700'
 }

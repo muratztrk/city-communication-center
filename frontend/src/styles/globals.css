@@ -256,7 +256,7 @@
   /* Taleplerim detay popup görsel düzeltmeleri (card #1130) */
   .detail-modal-shell--my-request .job-detail-section-title > svg,
   .detail-modal-shell--my-request .job-detail-card-title > svg {
-    background-color: rgb(236 253 245);
+    background-color: rgb(241 245 249);
     border-radius: 0.625rem;
     padding: 0.4rem;
     box-sizing: content-box;
@@ -297,7 +297,31 @@
   .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label {
     text-transform: none;
     letter-spacing: normal;
+    font-size: 0.8125rem;
+  }
+
+  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
+    font-size: 0.9375rem;
+  }
+
+  .detail-modal-shell--my-request .job-process-timeline__content > .text-xs {
+    font-size: 0.8125rem;
+  }
+
+  .detail-modal-shell--my-request .job-process-timeline__content > .text-sm {
+    font-size: 0.9375rem;
+  }
+
+  .detail-modal-shell--my-request .address-detail-my-request__label {
     font-size: 0.75rem;
+  }
+
+  .detail-modal-shell--my-request .address-detail-my-request__value {
+    font-size: 0.9375rem;
+  }
+
+  .detail-modal-shell--my-request .attachment-rich-list button span {
+    font-size: 0.8125rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main {
@@ -465,41 +489,54 @@
     position: relative;
     z-index: 1;
     display: inline-flex;
-    width: 1.25rem;
-    height: 1.25rem;
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
   }
 
   .job-process-timeline__indicator--completed {
+    width: 0.875rem;
+    height: 0.875rem;
     background: rgb(16 185 129);
     color: white;
-    box-shadow: 0 0 0 2px rgb(209 250 229);
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px rgb(209 250 229);
+  }
+
+  .job-process-timeline__indicator--completed svg {
+    width: 0.625rem;
+    height: 0.625rem;
   }
 
   .job-process-timeline__indicator--current {
-    width: 1.25rem;
-    height: 1.25rem;
-    background: rgb(255 237 213);
+    width: 0.875rem;
+    height: 0.875rem;
+    background: transparent;
     border: none;
-    box-shadow: 0 0 0 3px rgb(255 247 237);
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px rgb(255 237 213);
   }
 
   .job-process-timeline__indicator--current::after {
     content: '';
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.45rem;
+    height: 0.45rem;
     border-radius: 9999px;
     background: rgb(249 115 22);
   }
 
   .job-process-timeline__indicator--upcoming {
-    width: 1rem;
-    height: 1rem;
+    width: 0.875rem;
+    height: 0.875rem;
     margin-top: 0.125rem;
-    border: 2px solid rgb(203 213 225);
     background: white;
+    border: none;
+    box-shadow:
+      0 0 0 1.5px rgb(203 213 225),
+      0 0 0 3px white,
+      0 0 0 5px rgb(241 245 249);
   }
 
   .job-process-timeline__indicator--danger {
@@ -507,7 +544,9 @@
     height: 0.875rem;
     margin-top: 0.125rem;
     background: rgb(220 38 38);
-    box-shadow: 0 0 0 4px rgb(254 226 226);
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px rgb(254 226 226);
   }
 
   .notification-modal-shell {

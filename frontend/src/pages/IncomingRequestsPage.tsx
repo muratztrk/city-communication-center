@@ -47,7 +47,8 @@ import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequ
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
-import { isReporterCreated, reporterDepartmentTextClass } from '../utils/reporterHighlight'
+import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
+import { isReporterCreated } from '../utils/reporterHighlight'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobsPage } from './JobsPage'
@@ -867,7 +868,10 @@ export function IncomingRequestsPage() {
                       )}
                     </td>
                     <td>
-                      <div className={`font-semibold ${reporterDepartmentTextClass(isReporterCreated(row.createdByRoleCode))}`}>{row.departmentName ?? '—'}</div>
+                      <ReporterDepartmentName
+                        name={row.departmentName}
+                        isReporter={isReporterCreated(row.createdByRoleCode)}
+                      />
                       <div className="text-xs text-slate-500">{row.createdBy ?? '—'}</div>
                     </td>
                     <td className="font-semibold"><span className="cell-title">{row.title}</span></td>

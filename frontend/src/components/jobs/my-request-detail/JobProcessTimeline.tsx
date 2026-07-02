@@ -56,7 +56,7 @@ function StepIndicator({ state }: { state: JobProcessStep['state'] }) {
   if (state === 'completed' || state === 'terminal-success') {
     return (
       <span className="job-process-timeline__indicator job-process-timeline__indicator--completed">
-        <Check className="size-3" strokeWidth={2.25} aria-hidden="true" />
+        <Check className="size-2.5" strokeWidth={2.75} aria-hidden="true" />
       </span>
     )
   }

@@ -56,7 +56,8 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
-import { isReporterCreated, reporterDepartmentTextClass } from '../utils/reporterHighlight'
+import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
+import { isReporterCreated } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -2533,7 +2534,10 @@ const pageKicker = isMyTasksView
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}
                     <td>
                       <div className="mx-auto max-w-[11rem] text-center">
-                        <div className={`truncate font-semibold ${reporterDepartmentTextClass(isReporterCreated(task.createdByRoleCode))}`}>{task.ownerDepartmentName ?? '—'}</div>
+                        <ReporterDepartmentName
+                          name={task.ownerDepartmentName}
+                          isReporter={isReporterCreated(task.createdByRoleCode)}
+                        />
                         <div className="truncate text-xs text-slate-500">{task.createdByDisplayName ?? '—'}</div>
                       </div>
                     </td>

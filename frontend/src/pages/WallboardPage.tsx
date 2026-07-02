@@ -6,7 +6,7 @@ import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
-import { reporterDepartmentTextClass } from '../utils/reporterHighlight'
+import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
@@ -378,7 +378,7 @@ export function WallboardPage() {
                         </span>
                       </td>
                       <td>
-                        <div className={reporterDepartmentTextClass(item.isReporterRequest)}>{item.requestLocation ?? '—'}</div>
+                        <ReporterDepartmentName name={item.requestLocation} isReporter={item.isReporterRequest} />
                         <div className="wallboard-secondary-text wallboard-creator-line">
                           {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
                           <span>{item.requestCreator ?? '—'}</span>

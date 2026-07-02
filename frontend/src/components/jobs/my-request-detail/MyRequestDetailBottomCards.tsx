@@ -156,11 +156,11 @@ export function MyRequestDetailBottomCards({
         </MyRequestSectionHeading>
         <AttachmentSection
           attachments={detail.attachments ?? []}
-          readOnly={!canEditJobAttachments}
+          readOnly={!isEditing || !canEditJobAttachments}
           displayMode="rich-list"
           emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-          onUpload={canEditJobAttachments ? onAttachmentUpload : undefined}
-          onDelete={canEditJobAttachments ? onAttachmentDelete : undefined}
+          onUpload={isEditing && canEditJobAttachments ? onAttachmentUpload : undefined}
+          onDelete={isEditing && canEditJobAttachments ? onAttachmentDelete : undefined}
           disabled={attachmentUploading}
           showDeleteActions={isEditing}
         />

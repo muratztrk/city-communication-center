@@ -123,8 +123,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   modlarında ve geçici seçili dosya listelerinde doküman/görsel dosya ikonu uzantıya göre görünür;
   ikonlar küçük, dosya adı normal ağırlıkta/küçük/siyah/altı çizgisiz kalır. Sil aksiyonu
   hover beklemeden görünür ama yalnız gerçek düzenleme modu açıksa basılır; düzenlemeye
-  basmadan görüntüleme yüzeyinde görünmez. Boyut bilgisi gizli kalır
-  (cards #1199/#1200/#1201/#1204/#1208).
+  basmadan görüntüleme yüzeyinde görünmez. Taleplerim detayında `Dosya ekle` butonu da
+  yalnız `Düzenle` modu açıkken görünür. Boyut bilgisi gizli kalır
+  (cards #1199/#1200/#1201/#1204/#1208/#1211).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

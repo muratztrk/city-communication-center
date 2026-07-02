@@ -837,3 +837,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4647a2` reopened / #1208 — Ek listelerinde `Sil` yazısı hover beklemeden görünmeye devam eder; ancak Taleplerim detayında `Düzenle` moduna geçmeden görünmez. Yükleme izni açık olsa bile silme aksiyonu gerçek düzenleme moduna bağlandı.
 
 ## STATUS: Round 127 complete — Doing list drained.
+
+## Round 128 (Doing — 2026-07-02, ek dosya ekle düzenleme modu)
+- [x] `6a464a83` / #1211 — Taleplerim detayındaki Ekler / Fotoğraflar bölümünde `Dosya ekle` butonu da `Düzenle` moduna bağlandı; düzenlemeye basmadan ek listesi salt okunur görünür.
+
+## STATUS: Round 128 complete — Doing list drained.

@@ -5,14 +5,16 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 public sealed record CitizenAutoReplyTemplateModel(
     string ProcessingReceived,
     string InProgress,
-    string Completed);
+    string Completed,
+    string Cancelled);
 
 public static class CitizenAutoReplyTemplateJson
 {
     public static CitizenAutoReplyTemplateModel Defaults() => new(
         CitizenAutoReplyTemplateDefaults.ProcessingReceived,
         CitizenAutoReplyTemplateDefaults.InProgress,
-        CitizenAutoReplyTemplateDefaults.Completed);
+        CitizenAutoReplyTemplateDefaults.Completed,
+        CitizenAutoReplyTemplateDefaults.Cancelled);
 
     public static CitizenAutoReplyTemplateModel ParseOrDefault(string? json)
     {
@@ -33,7 +35,8 @@ public static class CitizenAutoReplyTemplateJson
             return new CitizenAutoReplyTemplateModel(
                 string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived,
                 string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress,
-                string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed);
+                string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed,
+                string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled);
         }
         catch (JsonException)
         {

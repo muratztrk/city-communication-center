@@ -58,6 +58,7 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı.",
   inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta.",
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı.",
+  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal.",
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -475,7 +476,7 @@ export function SettingsPage() {
           }))
         }
         setRoutingConfig(routingResponse)
-        setCitizenAutoReplyTemplates(autoReplyResponse)
+        setCitizenAutoReplyTemplates({ ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES, ...autoReplyResponse })
         setDepartments(departmentResponse)
         setWorkingHoursForm(workingHoursResponse)
         setSmsSettings(smsResponse)
@@ -980,6 +981,10 @@ export function SettingsPage() {
         completed: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.completed, t('social.requestStatus.completed', 'Tamamlandı')),
           t('social.requestStatus.completed', 'Tamamlandı'),
+        ),
+        cancelled: buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.cancelled, t('social.requestStatus.cancelled', 'İptal')),
+          t('social.requestStatus.cancelled', 'İptal'),
         ),
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
@@ -2248,11 +2253,12 @@ export function SettingsPage() {
                 {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
               </Button>
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
               {([
                 ['processingReceived', t('social.requestStatus.processingReceived', 'İşleme Alındı')],
                 ['inProgress', t('social.requestStatus.inProgress', 'Yapılmakta')],
                 ['completed', t('social.requestStatus.completed', 'Tamamlandı')],
+                ['cancelled', t('social.requestStatus.cancelled', 'İptal')],
               ] as Array<[CitizenAutoReplyTemplateKey, string]>).map(([key, statusLabel]) => (
                 <CitizenAutoReplyTemplateField
                   key={key}

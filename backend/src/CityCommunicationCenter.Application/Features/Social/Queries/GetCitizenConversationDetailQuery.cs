@@ -67,22 +67,33 @@ public sealed class GetCitizenConversationDetailQueryHandler
             })
             .ToListAsync(cancellationToken);
 
+        var terminalInfoByMessageId = await ResolveTerminalInfoByMessageIdAsync(
+            tenantId,
+            messageIds,
+            cancellationToken);
+
         var timeline = rawTimeline
-            .Select(e => new CitizenConversationTimelineEntryDto(
-                e.EntryId,
-                e.Direction,
-                e.Content,
-                e.MediaId,
-                e.MediaMimeType,
-                e.SentAt,
-                e.SocialMessageId,
-                e.SenderLabel
-                    ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
-                        ? citizenPhoneLabel
-                        : tenantName),
-                e.DeliveryStatus,
-                e.DeliveryError,
-                e.EditedAtUtc))
+            .Select(e =>
+            {
+                terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out var terminalInfo);
+                return new CitizenConversationTimelineEntryDto(
+                    e.EntryId,
+                    e.Direction,
+                    e.Content,
+                    e.MediaId,
+                    e.MediaMimeType,
+                    e.SentAt,
+                    e.SocialMessageId,
+                    e.SenderLabel
+                        ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
+                            ? citizenPhoneLabel
+                            : tenantName),
+                    e.DeliveryStatus,
+                    e.DeliveryError,
+                    e.EditedAtUtc,
+                    e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo?.Status : null,
+                    e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo?.Note : null);
+            })
             .ToList();
 
         var lastInboundAt = timeline
@@ -118,4 +129,62 @@ public sealed class GetCitizenConversationDetailQueryHandler
             timeline,
             tickets);
     }
+
+    private async Task<Dictionary<Guid, TerminalInfo>> ResolveTerminalInfoByMessageIdAsync(
+        Guid tenantId,
+        IReadOnlyCollection<Guid> messageIds,
+        CancellationToken cancellationToken)
+    {
+        var linkedMessages = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => messageIds.Contains(m.SocialMessageId))
+            .Select(m => new { m.SocialMessageId, m.JobId })
+            .ToListAsync(cancellationToken);
+
+        var result = new Dictionary<Guid, TerminalInfo>();
+        foreach (var linkedMessage in linkedMessages)
+        {
+            var job = await _dbContext.Jobs
+                .AsNoTracking()
+                .Where(j => j.TenantId == tenantId
+                    && (linkedMessage.JobId.HasValue
+                        ? j.JobId == linkedMessage.JobId.Value
+                        : j.SourceRefId == linkedMessage.SocialMessageId))
+                .Select(j => new { j.JobId, j.Status, j.CancelReason })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (job is null || job.Status is not (JobStatus.Completed or JobStatus.Cancelled))
+            {
+                continue;
+            }
+
+            if (job.Status == JobStatus.Completed)
+            {
+                var completionNote = await _dbContext.Tasks
+                    .AsNoTracking()
+                    .Where(t => t.TenantId == tenantId && t.JobId == job.JobId && t.CompletedAtUtc != null)
+                    .OrderByDescending(t => t.CompletedAtUtc)
+                    .Select(t => t.Notes)
+                    .FirstOrDefaultAsync(cancellationToken);
+                result[linkedMessage.SocialMessageId] = new TerminalInfo(JobStatus.Completed.ToString(), completionNote);
+                continue;
+            }
+
+            var cancelNote = !string.IsNullOrWhiteSpace(job.CancelReason)
+                ? job.CancelReason
+                : await _dbContext.Tasks
+                    .AsNoTracking()
+                    .Where(t => t.TenantId == tenantId
+                        && t.JobId == job.JobId
+                        && t.CurrentStatus == CityCommunicationCenter.Domain.Enums.TaskStatus.Cancelled)
+                    .OrderByDescending(t => t.UpdatedAtUtc)
+                    .Select(t => t.RevisionReason)
+                    .FirstOrDefaultAsync(cancellationToken);
+            result[linkedMessage.SocialMessageId] = new TerminalInfo(JobStatus.Cancelled.ToString(), cancelNote);
+        }
+
+        return result;
+    }
+
+    private sealed record TerminalInfo(string? Status, string? Note);
 }

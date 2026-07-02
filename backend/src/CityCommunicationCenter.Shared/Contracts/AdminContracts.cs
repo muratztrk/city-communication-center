@@ -23,12 +23,14 @@ public sealed record UpdateRolePageAccessRequest(string? MatrixJson);
 public sealed record CitizenAutoReplyTemplatesResponse(
     string ProcessingReceived,
     string InProgress,
-    string Completed);
+    string Completed,
+    string Cancelled);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
     string InProgress,
-    string Completed);
+    string Completed,
+    string Cancelled);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

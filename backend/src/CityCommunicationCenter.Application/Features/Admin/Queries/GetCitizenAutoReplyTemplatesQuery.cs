@@ -27,6 +27,7 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
         return new CitizenAutoReplyTemplatesResponse(
             templates.ProcessingReceived,
             templates.InProgress,
-            templates.Completed);
+            templates.Completed,
+            templates.Cancelled);
     }
 }

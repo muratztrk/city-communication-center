@@ -540,6 +540,22 @@ function ConversationDetail({
     await refreshDetail()
   }
 
+  const handleShowTerminalNote = (entry: CitizenConversationTimelineEntry) => {
+    const isCancelled = entry.relatedJobTerminalStatus === 'Cancelled'
+    setConfirmDialog({
+      title: isCancelled
+        ? t('tasks.detail.cancelNote', 'İptal Notu')
+        : t('jobs.detail.completionResultNote', 'Tamamlanma Notu'),
+      titleDivider: true,
+      titleTone: isCancelled ? 'danger' : 'success',
+      message: entry.relatedJobTerminalNote ?? '',
+      hideCancel: true,
+      confirmLabel: t('common.close', 'Kapat'),
+      variant: isCancelled ? 'destructive' : 'success',
+      onConfirm: () => {},
+    })
+  }
+
   const openTicket = detail ? pickReplyTicket(detail.tickets) : undefined
   const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
@@ -684,6 +700,7 @@ function ConversationDetail({
                     onSendPending={() => handleSendPending(entry)}
                     sendingPending={sendingPendingId === entry.entryId}
                     onEditPending={(_entryId, content) => handleEditPending(entry, content)}
+                    onShowTerminalNote={() => handleShowTerminalNote(entry)}
                   />
                 </div>
               </Fragment>

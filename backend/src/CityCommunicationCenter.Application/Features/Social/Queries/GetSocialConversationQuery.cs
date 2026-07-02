@@ -28,6 +28,7 @@ public sealed class GetSocialConversationQueryHandler
                 m.Content,
                 m.ReceivedAtUtc,
                 m.CitizenHandle,
+                m.JobId,
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -42,6 +43,12 @@ public sealed class GetSocialConversationQueryHandler
             .Where(t => t.TenantId == tenantId)
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
+
+        var terminalInfo = await ResolveRelatedTerminalInfoAsync(
+            tenantId,
+            request.SocialMessageId,
+            message.JobId,
+            cancellationToken);
 
         var entries = await _dbContext.ConversationEntries
             .AsNoTracking()
@@ -90,6 +97,59 @@ public sealed class GetSocialConversationQueryHandler
                     : tenantName),
             e.DeliveryStatus,
             e.DeliveryError,
-            e.EditedAtUtc)).ToList();
+            e.EditedAtUtc,
+            e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo.Status : null,
+            e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo.Note : null)).ToList();
+    }
+
+    private async Task<TerminalInfo> ResolveRelatedTerminalInfoAsync(
+        Guid tenantId,
+        Guid socialMessageId,
+        Guid? messageJobId,
+        CancellationToken cancellationToken)
+    {
+        var job = await _dbContext.Jobs
+            .AsNoTracking()
+            .Where(j => j.TenantId == tenantId
+                && (messageJobId.HasValue
+                    ? j.JobId == messageJobId.Value
+                    : j.SourceRefId == socialMessageId))
+            .Select(j => new { j.JobId, j.Status, j.CancelReason })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (job is null || job.Status is not (JobStatus.Completed or JobStatus.Cancelled))
+        {
+            return TerminalInfo.Empty;
+        }
+
+        if (job.Status == JobStatus.Completed)
+        {
+            var completionNote = await _dbContext.Tasks
+                .AsNoTracking()
+                .Where(t => t.TenantId == tenantId && t.JobId == job.JobId && t.CompletedAtUtc != null)
+                .OrderByDescending(t => t.CompletedAtUtc)
+                .Select(t => t.Notes)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return new TerminalInfo(JobStatus.Completed.ToString(), completionNote);
+        }
+
+        var cancelNote = !string.IsNullOrWhiteSpace(job.CancelReason)
+            ? job.CancelReason
+            : await _dbContext.Tasks
+                .AsNoTracking()
+                .Where(t => t.TenantId == tenantId
+                    && t.JobId == job.JobId
+                    && t.CurrentStatus == CityCommunicationCenter.Domain.Enums.TaskStatus.Cancelled)
+                .OrderByDescending(t => t.UpdatedAtUtc)
+                .Select(t => t.RevisionReason)
+                .FirstOrDefaultAsync(cancellationToken);
+
+        return new TerminalInfo(JobStatus.Cancelled.ToString(), cancelNote);
+    }
+
+    private sealed record TerminalInfo(string? Status, string? Note)
+    {
+        public static readonly TerminalInfo Empty = new(null, null);
     }
 }

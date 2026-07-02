@@ -20,6 +20,8 @@ export interface ConversationEntryBubbleData {
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | string | null
   deliveryError?: string | null
   editedAtUtc?: string | null
+  relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null
+  relatedJobTerminalNote?: string | null
 }
 
 interface ConversationEntryBubbleProps {
@@ -34,6 +36,7 @@ interface ConversationEntryBubbleProps {
   sendingPending?: boolean
   /** Beklemedeki mesaj metnini düzenler (yalnızca operatör) — card #1094. */
   onEditPending?: (entryId: string, content: string) => void | Promise<void>
+  onShowTerminalNote?: (entry: ConversationEntryBubbleData) => void
 }
 
 export function ConversationEntryBubble({
@@ -46,6 +49,7 @@ export function ConversationEntryBubble({
   onSendPending,
   sendingPending = false,
   onEditPending,
+  onShowTerminalNote,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
@@ -54,6 +58,12 @@ export function ConversationEntryBubble({
   const [savingEdit, setSavingEdit] = useState(false)
   const isInbound = entry.direction === 'Inbound'
   const isPending = !isInbound && entry.deliveryStatus === 'Pending'
+  const terminalNoteKind = entry.relatedJobTerminalStatus === 'Cancelled'
+    ? 'cancelled'
+    : entry.relatedJobTerminalStatus === 'Completed'
+      ? 'completed'
+      : null
+  const showTerminalNote = isPending && canSendPending && terminalNoteKind != null && Boolean(entry.relatedJobTerminalNote?.trim())
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
@@ -173,6 +183,22 @@ export function ConversationEntryBubble({
               <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
+            {showTerminalNote ? (
+              <button
+                type="button"
+                onClick={() => onShowTerminalNote?.(entry)}
+                disabled={sendingPending}
+                className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                  terminalNoteKind === 'cancelled'
+                    ? 'bg-[color:var(--color-destructive)] hover:brightness-95'
+                    : 'bg-[color:var(--color-success)] hover:brightness-95'
+                }`}
+              >
+                {terminalNoteKind === 'cancelled'
+                  ? t('tasks.detail.cancelNote', 'İptal Notu')
+                  : t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => onSendPending?.(entry.entryId)}

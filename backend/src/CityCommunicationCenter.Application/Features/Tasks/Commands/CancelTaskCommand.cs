@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Jobs;
+using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -19,11 +20,16 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ICitizenJobStatusNotifier? _citizenJobStatusNotifier;
 
-    public CancelTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public CancelTaskCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ICitizenJobStatusNotifier? citizenJobStatusNotifier = null)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _citizenJobStatusNotifier = citizenJobStatusNotifier;
     }
 
     public async ValueTask<bool> Handle(CancelTaskCommand request, CancellationToken cancellationToken)
@@ -89,6 +95,12 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
 
         var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
             e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
+        var previousTaskCount = await _dbContext.Tasks
+            .AsNoTracking()
+            .CountAsync(entity => entity.JobId == task.JobId && entity.TenantId == tenantId, cancellationToken);
+        var previousDisplayStatus = parentJob is null
+            ? null
+            : CitizenJobStatusLabelHelper.GetDisplayStatus(parentJob.Status, parentJob.DueDateUtc, previousTaskCount, utcNow);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -98,6 +110,11 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
         {
             var previousStatus = parentJob.Status;
             await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
+            if (parentJob.Status == JobStatus.Cancelled && string.IsNullOrWhiteSpace(parentJob.CancelReason))
+            {
+                parentJob.CancelReason = request.Reason;
+            }
+
             if (parentJob.Status != previousStatus)
             {
                 _dbContext.AuditLogs.Add(new AuditLog
@@ -120,6 +137,14 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
                 });
             }
             await _dbContext.SaveChangesAsync(cancellationToken);
+            if (_citizenJobStatusNotifier is not null && previousDisplayStatus is not null)
+            {
+                await _citizenJobStatusNotifier.NotifyStatusChangedAsync(
+                    tenantId,
+                    parentJob.JobId,
+                    previousDisplayStatus,
+                    cancellationToken);
+            }
         }
 
         return true;

@@ -8,6 +8,7 @@ import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ConversationEntryBubble } from './ConversationEntryBubble'
+import type { ConversationEntryBubbleData } from './ConversationEntryBubble'
 import { UserQuickReplyAddButton } from './UserQuickReplyDialog'
 import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { ModalCloseButton } from './ui/modal-close-button'
@@ -112,6 +113,22 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     invalidateSocialMessages(queryClient, socialMessageId)
   }
 
+  const handleShowTerminalNote = (entry: ConversationEntryBubbleData) => {
+    const isCancelled = entry.relatedJobTerminalStatus === 'Cancelled'
+    setConfirmDialog({
+      title: isCancelled
+        ? t('tasks.detail.cancelNote', 'İptal Notu')
+        : t('jobs.detail.completionResultNote', 'Tamamlanma Notu'),
+      titleDivider: true,
+      titleTone: isCancelled ? 'danger' : 'success',
+      message: entry.relatedJobTerminalNote ?? '',
+      hideCancel: true,
+      confirmLabel: t('common.close', 'Kapat'),
+      variant: isCancelled ? 'destructive' : 'success',
+      onConfirm: () => {},
+    })
+  }
+
   const headerSubtitle = headerMode === 'phone'
     ? (citizenPhone?.replace(/\D/g, '').replace(/^90(?=\d{10}$)/, '') || citizenHandle)
     : citizenHandle
@@ -165,6 +182,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   onSendPending={handleSendPending}
                   sendingPending={sendingPendingId === entry.entryId}
                   onEditPending={handleEditPending}
+                  onShowTerminalNote={handleShowTerminalNote}
                 />
               </Fragment>
             )

@@ -992,3 +992,7 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46afc9` reopened / #1260 — Taleplerim detay `Adres Bilgileri` etiketlerindeki alt çizgi, text underline yerine görseldeki gibi açık gri label alt sınır çizgisi yapıldı.
 
 ## STATUS: Round 152 complete — Doing list drained.
+
+## Round 153 (Doing — 2026-07-02, vatandaş cevap iptal ve operatör onayı)
+- [x] `6a46c200` / #1268 — Vatandaşa Giden Cevaplar ayarına en sonda `İptal` durumu eklendi; İptal şablonu tenant JSON ayarında saklanır ve vatandaş talebi iptale geçince otomatik cevap kuyruğa alınır. WhatsApp durum cevapları doğrudan gönderilmez, vatandaş operatörü `Mesajı Gönder` ile onaylayınca iletilir.
+- [x] `6a46c19c` / #1267 — Vatandaş operatörü bekleyen Tamamlandı/İptal otomatik mesajlarında `Düzenle` yanında yeşil `Tamamlanma Notu` veya kırmızı `İptal Notu` butonu görür; tıklanınca görev/talep sahibinin notu popup'ta açılır.

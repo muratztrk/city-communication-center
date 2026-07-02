@@ -79,7 +79,8 @@ public sealed class AdminController : ApiControllerBase
             tenantId,
             request.ProcessingReceived,
             request.InProgress,
-            request.Completed), cancellationToken);
+            request.Completed,
+            request.Cancelled), cancellationToken);
         return NoContent();
     }
 

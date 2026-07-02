@@ -365,6 +365,8 @@ export interface SocialConversationEntry {
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
   editedAtUtc?: string | null;
+  relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
+  relatedJobTerminalNote?: string | null;
 }
 
 export interface SocialMessage {
@@ -417,6 +419,8 @@ export interface CitizenConversationTimelineEntry {
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
   editedAtUtc?: string | null;
+  relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
+  relatedJobTerminalNote?: string | null;
 }
 
 export interface CitizenConversationTicket {
@@ -683,6 +687,7 @@ export interface CitizenAutoReplyTemplates {
   processingReceived: string;
   inProgress: string;
   completed: string;
+  cancelled: string;
 }
 
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }

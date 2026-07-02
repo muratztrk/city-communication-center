@@ -170,7 +170,9 @@ public sealed record SocialConversationEntryDto(
     string? SenderLabel,
     string? DeliveryStatus,
     string? DeliveryError,
-    DateTimeOffset? EditedAtUtc = null);
+    DateTimeOffset? EditedAtUtc = null,
+    string? RelatedJobTerminalStatus = null,
+    string? RelatedJobTerminalNote = null);
 
 public sealed record SocialReplyRequest(string Content);
 
@@ -213,7 +215,9 @@ public sealed record CitizenConversationTimelineEntryDto(
     string? SenderLabel,
     string? DeliveryStatus,
     string? DeliveryError,
-    DateTimeOffset? EditedAtUtc = null);
+    DateTimeOffset? EditedAtUtc = null,
+    string? RelatedJobTerminalStatus = null,
+    string? RelatedJobTerminalNote = null);
 
 public sealed record CitizenConversationTicketDto(
     Guid SocialMessageId,

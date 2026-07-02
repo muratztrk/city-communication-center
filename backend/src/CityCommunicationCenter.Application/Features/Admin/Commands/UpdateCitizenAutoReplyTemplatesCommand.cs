@@ -4,7 +4,8 @@ public sealed record UpdateCitizenAutoReplyTemplatesCommand(
     Guid TenantId,
     string ProcessingReceived,
     string InProgress,
-    string Completed) : ICommand<Unit>;
+    string Completed,
+    string Cancelled) : ICommand<Unit>;
 
 public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractValidator<UpdateCitizenAutoReplyTemplatesCommand>
 {
@@ -14,6 +15,7 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractVa
         RuleFor(command => command.ProcessingReceived).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.InProgress).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.Completed).NotEmpty().MaximumLength(1000);
+        RuleFor(command => command.Cancelled).NotEmpty().MaximumLength(1000);
     }
 }
 
@@ -53,7 +55,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
         settings.CitizenAutoReplyTemplatesJson = CitizenAutoReplyTemplateJson.Serialize(new CitizenAutoReplyTemplateModel(
             request.ProcessingReceived.Trim(),
             request.InProgress.Trim(),
-            request.Completed.Trim()));
+            request.Completed.Trim(),
+            request.Cancelled.Trim()));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

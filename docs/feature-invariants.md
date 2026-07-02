@@ -188,7 +188,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
-  oluşturur (diğer kanallar eskisi gibi anında gider). Gerçek gönderim `SendPendingConversationEntryCommand`
+  oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından üretilen
+  WhatsApp durum cevapları da aynı kuyruğa girer; tamamlandı/iptal cevapları vatandaş operatörü
+  onaylamadan iletilmez. Gerçek gönderim `SendPendingConversationEntryCommand`
   (`POST /social/messages/{id}/conversation/{entryId}/send`) ile yapılır; yetki = `Operator` veya
   `SystemAdmin` (`ForbiddenAccessException`). Mesaj `Responded`'a yalnızca gerçek gönderimde geçer.
 - **`ConversationPanel.canReply` default `true`; `canSendPending` ile "Mesajı Gönder" butonu.**
@@ -234,11 +236,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
-  (İşleme Alındı / Yapılmakta / Tamamlandı). Varsayılan mesajda VT no'dan sonra talep başlığı
+  (İşleme Alındı / Yapılmakta / Tamamlandı / İptal). Varsayılan mesajda VT no'dan sonra talep başlığı
   yer alır ve metinler tenant `CitizenAutoReplyTemplatesJson` ayarından değiştirilebilir.
   İlk görev eklenince `Yapılmakta`, görev kapatma/tamamlama akışı talebi terminale taşıyınca
-  `Tamamlanmış` şablonu da gönderilir; iptal/red/son tarihi geçmiş etiketleri bu otomatik
-  üçlü şablona düşürülmez (card #1266).
+  `Tamamlanmış`, talep/görev iptali talebi terminale taşıyınca `İptal` şablonu gönderilir;
+  red/son tarihi geçmiş etiketleri bu otomatik şablonlara düşürülmez (cards #1266/#1268).
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
   kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir (cards #1258/#1263).

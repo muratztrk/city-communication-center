@@ -1,5 +1,4 @@
 using CityCommunicationCenter.Application.Abstractions;
-using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
@@ -12,18 +11,15 @@ namespace CityCommunicationCenter.Infrastructure.Services;
 public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 {
     private readonly IApplicationDbContext _dbContext;
-    private readonly ISocialMediaClientFactory _clientFactory;
     private readonly ITenantSmsSettingsService _smsSettingsService;
     private readonly ILogger<CitizenJobStatusNotifier> _logger;
 
     public CitizenJobStatusNotifier(
         IApplicationDbContext dbContext,
-        ISocialMediaClientFactory clientFactory,
         ITenantSmsSettingsService smsSettingsService,
         ILogger<CitizenJobStatusNotifier> logger)
     {
         _dbContext = dbContext;
-        _clientFactory = clientFactory;
         _smsSettingsService = smsSettingsService;
         _logger = logger;
     }
@@ -140,12 +136,13 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             "İşleme Alındı" => templates.ProcessingReceived,
             "Yapılmakta" => templates.InProgress,
             "Tamamlanmış" or "Tamamlandı" => templates.Completed,
+            "İptal" => templates.Cancelled,
             _ => null,
         };
     }
 
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
-        statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı";
+        statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı" or "İptal";
 
     private async Task SendWhatsAppAsync(
         Guid tenantId,
@@ -154,44 +151,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         DateTimeOffset utcNow,
         CancellationToken cancellationToken)
     {
-        var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
-        if (client is null)
-        {
-            _logger.LogWarning(
-                "WhatsApp client unavailable for tenant {TenantId} citizen status notification on SocialMessage {SocialMessageId}",
-                tenantId,
-                message.SocialMessageId);
-            return;
-        }
-
-        var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
-            _dbContext,
-            message,
-            cancellationToken);
-
-        if (string.IsNullOrWhiteSpace(recipientPhone))
-        {
-            _logger.LogWarning(
-                "WhatsApp recipient phone not found for SocialMessage {SocialMessageId}",
-                message.SocialMessageId);
-            return;
-        }
-
-        var sendResult = await client.SendMessageAsync(new SendMessageRequest
-        {
-            RecipientId = recipientPhone,
-            Message = content,
-        }, cancellationToken);
-
-        if (!sendResult.Success)
-        {
-            _logger.LogWarning(
-                "WhatsApp citizen status notification failed for SocialMessage {SocialMessageId}: {Error}",
-                message.SocialMessageId,
-                sendResult.Error);
-            return;
-        }
-
         var tenantName = await _dbContext.Tenants
             .AsNoTracking()
             .Where(t => t.TenantId == tenantId)
@@ -205,18 +164,10 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
-            ExternalEntryId = sendResult.MessageId,
             SenderLabel = tenantName,
-            DeliveryStatus = ConversationDeliveryStatus.Sent,
+            DeliveryStatus = ConversationDeliveryStatus.Pending,
             DeliveryStatusUpdatedAtUtc = utcNow,
         });
-
-        message.ResponseContent = content;
-        message.RespondedAtUtc = utcNow;
-        if (message.Status is SocialMessageStatus.New or SocialMessageStatus.Routed)
-        {
-            message.Status = SocialMessageStatus.Responded;
-        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

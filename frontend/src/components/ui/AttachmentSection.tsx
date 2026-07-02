@@ -187,7 +187,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                   type="button"
                   title={t('attachments.deleteConfirm', 'Sil')}
                   disabled={deletingId === att.attachmentId || isDisabled}
-                  className="shrink-0 text-xs font-medium text-red-500 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100 disabled:cursor-not-allowed"
+                  className="shrink-0 text-xs font-medium text-red-500 hover:text-red-600 disabled:cursor-not-allowed"
                   onClick={() => void handleDelete(att.attachmentId)}
                 >
                   {deletingId === att.attachmentId ? '…' : t('common.delete', 'Sil')}

@@ -816,3 +816,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46475c` / #1207 — Ekrana Yansıt tablosu sticky header için ayrı border modeline ve opak header arka planına alındı; grid başlıkları tablo scroll'unda sabit kalır.
 
 ## STATUS: Round 123 complete — Doing list drained.
+
+## Round 124 (Doing — 2026-07-02, ek sil aksiyonu)
+- [x] `6a4647a2` / #1208 — Düzenleme/ekleme sırasında `Dosya Ekle` sonrası görünen rich-list dosya satırlarında `Sil` yazısı hover beklemeden görünür hale getirildi.
+
+## STATUS: Round 124 complete — Doing list drained.

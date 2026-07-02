@@ -121,8 +121,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep Oluştur (birim içi/birim dışı/vatandaş) formları istisnadır ve eski drag/drop
   yükleme alanını korur. Tüm ek listesi
   modlarında ve geçici seçili dosya listelerinde doküman/görsel dosya ikonu uzantıya göre görünür;
-  ikonlar küçük, dosya adı normal ağırlıkta/küçük/siyah/altı çizgisiz ve boyut bilgisi gizli kalır
-  (cards #1199/#1200/#1201/#1204).
+  ikonlar küçük, dosya adı normal ağırlıkta/küçük/siyah/altı çizgisiz, sil aksiyonu hover
+  beklemeden görünür ve boyut bilgisi gizli kalır (cards #1199/#1200/#1201/#1204/#1208).
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

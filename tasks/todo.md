@@ -979,4 +979,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46b7c7` / #1264 — Talep detayında terminal `Not` popup başlığı iptalde `İptal Notu`, tamamlanmış talepte `Tamamlanma Notu` oldu.
 - [x] `6a46b846` / #1265 — Vatandaşa Giden Cevaplar tamamlanma durum etiketi `Tamamlanmış` yerine `Tamamlandı` gösteriyor.
 
-## STATUS: Round 150 complete — build/lint passed; Doing list drain pending.
+## STATUS: Round 150 complete — Doing list drained.

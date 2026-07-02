@@ -990,3 +990,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 152 (Doing — 2026-07-02, adres etiketi çizgi stili)
 - [x] `6a46afc9` reopened / #1260 — Taleplerim detay `Adres Bilgileri` etiketlerindeki alt çizgi, text underline yerine görseldeki gibi açık gri label alt sınır çizgisi yapıldı.
+
+## STATUS: Round 152 complete — Doing list drained.

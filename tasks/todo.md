@@ -957,3 +957,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46b2bf` / #1262 — `Vatandaş Talepleri` breadcrumb'ından `Vatandaş İlişkileri` ara katmanı kaldırıldı.
 
 ## STATUS: Round 146 complete — Doing list drained.
+
+## Round 147 (Doing — 2026-07-02, detay alt kart reopen düzeltmeleri)
+- [x] `6a46af30` reopened / #1259 — `Ekler / Fotoğraflar` soluk zemin sınıfı yanlışlıkla Adres kartına değil, gerçek Ekler kartına bağlandı.
+- [x] `6a46afc9` reopened / #1260 — Detay popup adres alanları Mahalle / Cadde-Sokak-Bulvar / Açık Adres olarak üçlü yan yana zorlandı.
+- [x] `6a46b083` reopened / #1261 — `Talebin Gittiği Birim / Görevi Yapan` etiketi tek satırda kalacak şekilde sarma engellendi.
+
+## STATUS: Round 147 complete — build/lint passed; Doing list drain pending.

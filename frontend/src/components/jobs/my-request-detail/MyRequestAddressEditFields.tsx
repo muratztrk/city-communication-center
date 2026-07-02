@@ -18,7 +18,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
 
   return (
     <div className="my-request-edit-fields grid gap-3">
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid grid-cols-3 gap-3">
         <label className="grid gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
           <SingleSelectDropdown

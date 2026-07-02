@@ -297,6 +297,9 @@
     text-transform: none;
     letter-spacing: normal;
     font-size: 0.75rem;
+    width: auto;
+    max-width: none;
+    white-space: nowrap;
   }
 
   .detail-modal-shell--my-request .job-process-timeline__step-value {
@@ -330,7 +333,7 @@
   }
 
   .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .address-detail-my-request__item {

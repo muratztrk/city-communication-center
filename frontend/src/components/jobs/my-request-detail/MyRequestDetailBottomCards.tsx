@@ -63,7 +63,7 @@ export function MyRequestDetailBottomCards({
 
   return (
     <div className={`my-request-detail-bottom grid gap-4 ${gridClass}`}>
-      <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+      <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
         <MyRequestSectionHeading icon={MapPin}>
           {t('address.detailSectionTitle', 'Adres Bilgileri')}
         </MyRequestSectionHeading>
@@ -150,7 +150,7 @@ export function MyRequestDetailBottomCards({
         </div>
       )}
 
-      <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+      <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
         <MyRequestSectionHeading icon={Paperclip}>
           {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
         </MyRequestSectionHeading>

@@ -3112,7 +3112,8 @@
   .wallboard-table {
     width: 100%;
     min-width: 980px;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     color: rgba(255, 255, 255, 0.9);
   }
 
@@ -3123,11 +3124,11 @@
   .wallboard-table thead th {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 5;
     padding: 0.68rem 0.8rem;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: transparent;
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     color: white;
     font-size: clamp(0.64rem, 0.72vw, 0.8rem);
     font-weight: 900;

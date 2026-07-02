@@ -810,3 +810,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a461085` / #1202 — Ekrana Yansıt wallboard listesi rutin görevleri filtreliyor; G-2026-250 gibi rutin kayıtlar görünmez.
 
 ## STATUS: Round 122 complete — Doing list drained.
+
+## Round 123 (Doing — 2026-07-02, talep upload istisnası + wallboard sticky header)
+- [x] `6a4646db` / #1206 — Birim içi, birim dışı ve vatandaş talebi oluştur formlarında dosya ekleme alanı eski "Dosyayı buraya sürükleyin" dropzone görünümüne döndürüldü; diğer ek alanları kompakt `Dosya ekle` olarak kaldı.
+- [x] `6a46475c` / #1207 — Ekrana Yansıt tablosu sticky header için ayrı border modeline ve opak header arka planına alındı; grid başlıkları tablo scroll'unda sabit kalır.
+
+## STATUS: Round 123 complete — Doing list drained.

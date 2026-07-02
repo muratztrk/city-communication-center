@@ -117,7 +117,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Ekler / Fotoğraflar ortak bileşendir:** Talepler detay popup'larında düzenlenebilir ek alanı
   kompakt ataç ikonlu **Dosya ekle** butonu + sağda dosya listesi (`rich-list`) düzenini
-  kullanır; "Dosyayı buraya sürükleyin" dropzone metni tekrar eklenmez. Tüm ek listesi
+  kullanır; "Dosyayı buraya sürükleyin" dropzone metni popup/ortak bileşene tekrar eklenmez.
+  Talep Oluştur (birim içi/birim dışı/vatandaş) formları istisnadır ve eski drag/drop
+  yükleme alanını korur. Tüm ek listesi
   modlarında ve geçici seçili dosya listelerinde doküman/görsel dosya ikonu uzantıya göre görünür;
   ikonlar küçük, dosya adı normal ağırlıkta/küçük/siyah/altı çizgisiz ve boyut bilgisi gizli kalır
   (cards #1199/#1200/#1201/#1204).
@@ -206,7 +208,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   grafiklerde tüm dilimler 0 olsa bile nötr donut + sıfır lejant gösterilir; kart boş/çökmüş
   görünmez.
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
-  `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde.
+  `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
+  başlıkları scroll sırasında sticky kalır.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).

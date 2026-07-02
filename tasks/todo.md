@@ -952,3 +952,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4299a1` reopened / #1118 — Görev detay popup'ında `Görev Tipi = Atanmış` olduğunda `Öncelik` satırı gizlendi; rutin görevlerde görünmeye devam ediyor.
 
 ## STATUS: Round 145 complete — build/lint passed; Doing list drain pending.
+
+## Round 146 (Doing — 2026-07-02, vatandaş breadcrumb)
+- [x] `6a46b2bf` / #1262 — `Vatandaş Talepleri` breadcrumb'ından `Vatandaş İlişkileri` ara katmanı kaldırıldı.
+
+## STATUS: Round 146 complete — build/lint passed; Doing list drain pending.

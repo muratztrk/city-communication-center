@@ -26,6 +26,7 @@ interface AttachmentSectionProps {
   attachments: Attachment[]
   onUpload?: (file: File, onProgress?: (percent: number) => void) => Promise<void>
   onDelete?: (attachmentId: string) => Promise<void>
+  onDownload?: (attachmentId: string, fileName: string) => void
   disabled?: boolean
   // Salt-okunur: yükleme alanı ve silme gizlenir; boşken emptyText gösterilir (card 537).
   readOnly?: boolean
@@ -41,7 +42,7 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function AttachmentSection({ attachments, onUpload, onDelete, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery' }: AttachmentSectionProps) {
+export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery' }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -95,6 +96,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, disabled, r
   }
 
   const handleDownload = async (attachment: Attachment) => {
+    if (onDownload) {
+      onDownload(attachment.attachmentId, attachment.fileName)
+      return
+    }
     setValidationError(null)
     setDownloadingId(attachment.attachmentId)
     try {

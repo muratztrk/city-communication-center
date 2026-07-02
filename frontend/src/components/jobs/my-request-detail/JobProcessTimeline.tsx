@@ -113,7 +113,7 @@ export function JobProcessTimeline({
                   {showTerminalDateMeta ? (
                     <span className="inline">
                       {step.label}
-                      {statusActorName ? ` ${statusActorName}` : ''}
+                      {statusActorName ? ` (${statusActorName})` : ''}
                     </span>
                   ) : (
                     step.label

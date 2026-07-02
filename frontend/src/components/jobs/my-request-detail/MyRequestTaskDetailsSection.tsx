@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
+import { AttachmentSection } from '../../ui/AttachmentSection'
 import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
@@ -132,19 +133,13 @@ export function MyRequestTaskDetailsSection({
                         {t('tasks.detail.attachments', 'Görev Ekleri')}
                       </div>
                       {(task.attachments?.length ?? 0) > 0 ? (
-                        <ul className="space-y-1 text-[11px] leading-4">
-                          {task.attachments!.map(att => (
-                            <li key={att.attachmentId}>
-                              <button
-                                type="button"
-                                className="w-full break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                onClick={() => onDownloadTaskAttachment(att.attachmentId, att.fileName)}
-                              >
-                                {att.fileName}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
+                        <AttachmentSection
+                          attachments={task.attachments!}
+                          readOnly
+                          compact
+                          displayMode="list"
+                          onDownload={onDownloadTaskAttachment}
+                        />
                       ) : (
                         <p className="text-sm text-slate-400">{t('attachments.taskEmpty', 'Görev için ek/fotoğraf bulunmamaktadır.')}</p>
                       )}

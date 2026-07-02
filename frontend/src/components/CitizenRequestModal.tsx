@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Paperclip, Send, X } from 'lucide-react'
+import { FileImage, FileText, Paperclip, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -34,6 +34,10 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
+
+function pendingFileIcon(name: string) {
+  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? FileImage : FileText
 }
 
 function validateFile(file: File): string | null {
@@ -599,8 +603,13 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                           <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
                         ) : (
                           <ul className="space-y-1 text-xs">
-                            {pendingFiles.map((file, idx) => (
+                            {pendingFiles.map((file, idx) => {
+                              const Icon = pendingFileIcon(file.name)
+                              return (
                               <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
+                                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                                  <Icon className="size-3.5" aria-hidden="true" />
+                                </span>
                                 <button
                                   type="button"
                                   className="min-w-0 flex-1 break-words text-left font-medium text-slate-700 underline-offset-2 hover:underline"
@@ -616,7 +625,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                                   {t('common.delete', 'Sil')}
                                 </button>
                               </li>
-                            ))}
+                              )
+                            })}
                           </ul>
                         )}
                       </div>

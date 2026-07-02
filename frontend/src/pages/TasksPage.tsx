@@ -1,4 +1,4 @@
-import { Paperclip, Search, X } from 'lucide-react'
+import { FileImage, FileText, Paperclip, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -38,6 +38,10 @@ const COMPLETION_ATTACHMENT_MAX_SIZE = 5 * 1024 * 1024
 function completionAttachmentExtension(name: string): string {
   const dot = name.lastIndexOf('.')
   return dot >= 0 ? name.slice(dot).toLowerCase() : ''
+}
+
+function completionAttachmentIcon(name: string) {
+  return ['.jpg', '.jpeg', '.png'].includes(completionAttachmentExtension(name)) ? FileImage : FileText
 }
 
 function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHistory[] {
@@ -2025,19 +2029,13 @@ const pageKicker = isMyTasksView
                                       </span>
                                     </div>
                                     <div className="px-4 py-3">
-                                      <ul className="space-y-1 text-[11px] leading-4">
-                                        {taskDetail.attachments!.map(att => (
-                                          <li key={att.attachmentId}>
-                                            <button
-                                              type="button"
-                                              className="w-full break-words text-left text-[11px] font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                              onClick={() => void handleDownloadTaskAttachment(att.attachmentId, att.fileName)}
-                                            >
-                                              {att.fileName}
-                                            </button>
-                                          </li>
-                                        ))}
-                                      </ul>
+                                      <AttachmentSection
+                                        attachments={taskDetail.attachments!}
+                                        readOnly
+                                        compact
+                                        displayMode="list"
+                                        onDownload={handleDownloadTaskAttachment}
+                                      />
                                       <p className="mt-2 text-xs font-medium text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
                                     </div>
                                   </div>
@@ -2720,8 +2718,13 @@ const pageKicker = isMyTasksView
             </label>
             {pendingCompletionAttachments.length > 0 ? (
               <ul className="space-y-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
-                {pendingCompletionAttachments.map(item => (
+                {pendingCompletionAttachments.map(item => {
+                  const Icon = completionAttachmentIcon(item.fileName)
+                  return (
                   <li key={item.attachmentId} className="flex min-w-0 items-start gap-2">
+                    <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                      <Icon className="size-3.5" aria-hidden="true" />
+                    </span>
                     <span className="min-w-0 flex-1 break-words text-left font-medium text-slate-700">{item.fileName}</span>
                     <button
                       type="button"
@@ -2738,7 +2741,8 @@ const pageKicker = isMyTasksView
                       {t('common.delete', 'Sil')}
                     </button>
                   </li>
-                ))}
+                  )
+                })}
               </ul>
             ) : null}
             {completionAttachmentError ? (

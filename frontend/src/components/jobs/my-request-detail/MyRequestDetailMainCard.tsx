@@ -175,7 +175,7 @@ export function MyRequestDetailMainCard({
             dueDateContent={dueDateContent}
           />
         </div>
-        <div className="min-w-0 p-4">
+        <div className="my-request-detail-description-panel min-w-0 p-4">
           <MyRequestSectionHeading icon={FileText}>
             {t('jobs.form.description', 'AÇIKLAMA')}
           </MyRequestSectionHeading>

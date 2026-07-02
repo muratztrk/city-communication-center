@@ -859,3 +859,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a464e53` / #1216 — Süreç onay tarihi satırlarında parantez içindeki yönetici adı tarih değerinin yanında küçük ve yeşil metin olarak ayrı render ediliyor.
 
 ## STATUS: Round 131 complete — Doing list drained.
+
+## Round 132 (Doing — 2026-07-02, detay açıklama paneli ve bekleyen onay)
+- [x] `6a4651b5` / #1217 — Taleplerim detay ana kartında `Açıklama` paneli ekran görselindeki soluk nötr arka planla eşitlendi.
+- [x] `6a464d52` reopened / #1215 — Standart kullanıcıda owner approval beklerken ilk `Onay Bekleyen` değeri turuncu gösteriliyor ve yanında parantez içinde talebin birim yöneticisi (`statusActorDisplayName`) yazıyor.
+
+## STATUS: Round 132 complete — Doing list drained.

@@ -137,12 +137,14 @@ export function buildJobProcessSteps(
 
   if (!isCitizenRequestJob(detail) && !options?.hideOwnerApproval) {
     const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
+    const ownerApprovalActor = ownerDepartment?.approvedByDisplayName
+      ?? (ownerDepartment?.decidedAtUtc ? null : detail.statusActorDisplayName)
     const ownerApprovalLabel = t('jobs.detail.ownerManagerApprovalDate', 'Talebin Birim Yöneticisinin Onay Tarihi')
     steps.push({
       id: 'ownerApproval',
       label: ownerApprovalLabel,
       displayValue: formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
-      displayMeta: ownerDepartment?.approvedByDisplayName ?? undefined,
+      displayMeta: ownerApprovalActor ?? undefined,
     })
   }
 

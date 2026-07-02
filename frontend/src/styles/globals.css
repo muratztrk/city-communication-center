@@ -284,6 +284,10 @@
     padding: 0 !important;
   }
 
+  .detail-modal-shell--my-request .my-request-detail-description-panel {
+    background: rgb(248 250 249);
+  }
+
   .address-detail-my-request {
     margin: 0;
   }

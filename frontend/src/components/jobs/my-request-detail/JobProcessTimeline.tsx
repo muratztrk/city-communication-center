@@ -96,11 +96,9 @@ export function JobProcessTimeline({
             ? 'text-emerald-600'
             : step.id === 'cancelDate'
               ? 'text-red-600'
-              : step.id === 'status' && (step.state === 'terminal-success' || step.state === 'current')
-                ? step.state === 'terminal-success' ? 'text-emerald-600' : 'text-[#f97316]'
-                : step.id === 'status' && step.state === 'terminal-danger'
-                  ? 'text-red-600'
-                  : 'text-slate-900'
+              : step.state === 'current'
+                ? 'text-[#f97316]'
+                : 'text-slate-900'
 
           return (
             <li key={step.id} className="job-process-timeline__item">

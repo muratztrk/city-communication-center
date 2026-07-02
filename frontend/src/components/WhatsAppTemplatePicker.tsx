@@ -115,7 +115,7 @@ export function WhatsAppTemplatePicker({
             : 'h-9 gap-1 disabled:opacity-50'
         }
       >
-        <FileText className="size-3.5" />
+        <FileText className="size-3.5 text-emerald-600" />
         Şablon mesajlar
         <ChevronDown className={`size-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </Button>

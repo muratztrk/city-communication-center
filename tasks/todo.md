@@ -890,3 +890,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4656ef` / #1223 — Süreç timeline yuvarlakları referanstaki açık zeminli/halkalı stile yaklaştırıldı.
 
 ## STATUS: Round 136 complete — Doing list drained.
+
+## Round 137 (Doing — 2026-07-02, grid tarihleri ve popup edit kompaktlığı)
+- [x] `6a468841` / #1243 — Gridview terminal tarih değerlerinde `Tamamlanma Tarihi` yeşil, `İptal Tarihi` kırmızı oldu; `Son Tarih` davranışı korunuyor.
+- [x] `6a4689c8` / #1244 — Süreç timeline çizgisinde tamamlanan yeşil adımdan güncel turuncu adıma yumuşak geçiş eklendi; yuvarlak ikon tasarımı korunuyor.
+- [x] `6a468a79` / #1245 — WhatsApp konuşmaları alt aksiyonlarında `Talep oluştur` ve `Şablon mesajlar` ikonları yeşil yapıldı, metin renkleri korunuyor.
+- [x] `6a467020` / #1238 — Taleplerim detay düzenleme modunda açıklama editörü kompakt min-height aldı; Öncelik/Süreç/Açıklama satırının altı gereksiz genişlemiyor.
+
+## STATUS: Round 137 complete — Doing list drained.

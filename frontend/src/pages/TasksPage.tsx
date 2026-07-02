@@ -2572,13 +2572,13 @@ const pageKicker = isMyTasksView
                     )}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && (
                       <td>
-                        <DateCell value={task.completedAtUtc ?? null} locale={locale} />
+                        <DateCell value={task.completedAtUtc ?? null} locale={locale} tone="success" />
                         {showExtraTimeUnderCompleted ? extraTimeMarkers : null}
                       </td>
                     )}
                     {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && (
                       <td>
-                        <DateCell value={task.updatedAtUtc ?? null} locale={locale} />
+                        <DateCell value={task.updatedAtUtc ?? null} locale={locale} tone="danger" />
                         {showExtraTimeUnderCancelled ? extraTimeMarkers : null}
                       </td>
                     )}
@@ -2594,7 +2594,7 @@ const pageKicker = isMyTasksView
                             {statusDate
                               ? <span className="flex flex-col items-center leading-tight">
                                   <span>{getTaskDisplayStatus(t, task)}</span>
-                                  <span className="text-[0.68rem] font-bold text-black">{formatDateTime(statusDate, locale)}</span>
+                                  <span className={`text-[0.68rem] font-bold ${task.currentStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 </span>
                               : getTaskDisplayStatus(t, task)}
                           </StatusPill>

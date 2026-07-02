@@ -18,13 +18,29 @@ type DateCellProps = {
   value: string | null | undefined
   locale: string
   highlight?: boolean
+  tone?: 'default' | 'success' | 'danger'
 }
 
 // Tüm gridview'larda tarih bilgisinin önünde takvim ikonu göstermek için ortak hücre.
-export function DateCell({ value, locale, highlight = false }: DateCellProps) {
+export function DateCell({ value, locale, highlight = false, tone = 'default' }: DateCellProps) {
+  const toneClass = tone === 'success'
+    ? 'font-semibold text-emerald-600'
+    : tone === 'danger'
+      ? 'font-semibold text-red-600'
+      : highlight
+        ? 'font-semibold text-orange-500'
+        : ''
+  const iconClass = tone === 'success'
+    ? 'text-emerald-500'
+    : tone === 'danger'
+      ? 'text-red-500'
+      : highlight
+        ? 'text-orange-400'
+        : 'text-slate-400'
+
   return (
-    <span className={cn('date-cell', highlight && 'font-semibold text-orange-500')}>
-      <CalendarClock className={cn('size-3.5 shrink-0', highlight ? 'text-orange-400' : 'text-slate-400')} />
+    <span className={cn('date-cell', toneClass)}>
+      <CalendarClock className={cn('size-3.5 shrink-0', iconClass)} />
       {formatDate(value, locale)}
     </span>
   )

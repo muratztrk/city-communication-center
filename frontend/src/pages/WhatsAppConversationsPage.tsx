@@ -619,7 +619,7 @@ function ConversationDetail({
                         onOpenCreateRequest(primaryTicket.socialMessageId)
                       }}
                     >
-                      <ClipboardPlus {...DETAIL_ICON_PROPS} />
+                      <ClipboardPlus {...DETAIL_ICON_PROPS} className="size-4 text-emerald-600" />
                       {t('nav.createRequest', 'Talep oluştur')}
                     </button>
                     <div className="mx-3 border-t border-slate-200" role="separator" />
@@ -701,7 +701,7 @@ function ConversationDetail({
               onClick={() => onOpenCreateRequest(primaryTicket!.socialMessageId)}
               className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
-              <ClipboardPlus className="size-3.5 shrink-0 text-slate-500" aria-hidden="true" />
+              <ClipboardPlus className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
               {t('nav.createRequest', 'Talep oluştur')}
             </button>
             <WhatsAppTemplatePicker

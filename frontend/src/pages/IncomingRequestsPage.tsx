@@ -883,8 +883,8 @@ export function IncomingRequestsPage() {
                     {showTaskOwnerColumn && <td>{row.taskOwnerDisplayName ?? '—'}</td>}
                     {currentStatusFilter !== 'cancelled' && <td><DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} /></td>}
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
-                    {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} /></td>}
-                    {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} /></td>}
+                    {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} tone="success" /></td>}
+                    {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} tone="danger" /></td>}
                     {currentStatusFilter === 'all' && (() => {
                       // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
                       const statusDate = row.status === 'Completed' ? row.completedAtUtc
@@ -896,7 +896,7 @@ export function IncomingRequestsPage() {
                             {statusDate
                               ? <span className="flex flex-col items-center leading-tight">
                                   <span>{getIncomingStatusLabel(t, row)}</span>
-                                  <span className="text-[0.68rem] font-bold text-black">{formatDateTime(statusDate, locale)}</span>
+                                  <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 </span>
                               : getIncomingStatusLabel(t, row)}
                           </StatusPill>

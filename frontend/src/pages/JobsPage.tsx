@@ -1822,8 +1822,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <td><DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} highlightReporter={isReporterJob} /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} /></td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} tone="success" /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} tone="danger" /></td>}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && (() => {
                       // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
                       const statusDate = job.status === 'Completed' ? job.completedAtUtc
@@ -1835,7 +1835,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             {statusDate
                               ? <span className="flex flex-col items-center leading-tight">
                                   <span>{getJobDisplayStatus(t, job)}</span>
-                                  <span className="text-[0.68rem] font-bold text-black">{formatDateTime(statusDate, locale)}</span>
+                                  <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 </span>
                               : getJobDisplayStatus(t, job)}
                           </StatusPill>

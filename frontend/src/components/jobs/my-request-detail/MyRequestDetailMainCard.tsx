@@ -196,6 +196,7 @@ export function MyRequestDetailMainCard({
             <RichTextEditor
               value={editDraft.description}
               onChange={value => onEditDraftChange({ description: value })}
+              minHeight="min-h-40"
             />
           ) : (
             <RichTextContent

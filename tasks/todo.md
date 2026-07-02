@@ -1002,3 +1002,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 154 (Doing — 2026-07-02, adres çizgi ve log metinleri)
 - [x] `6a46afc9` reopened / #1260 — Taleplerim detay `Adres Bilgileri` boş değer çizgisi `—` yerine `-` oldu; label çizgisi ve değer font ağırlığı hafifletildi.
 - [x] `6a46c43a` / #1269 — Log ekranında `Şlem` sütun başlığı `İşlem` oldu; audit aksiyonlarında `İş tamamlandı` yerine `Görev tamamlandı` / `Talep tamamlandı` ayrımı yapıldı.
+
+## STATUS: Round 154 complete — Doing list drained.

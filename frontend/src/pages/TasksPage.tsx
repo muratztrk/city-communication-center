@@ -56,7 +56,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
-import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
+import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
@@ -2533,12 +2533,13 @@ const pageKicker = isMyTasksView
                     </td>
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}
                     <td>
-                      <div className="mx-auto max-w-[11rem] text-center">
-                        <ReporterDepartmentName
-                          name={task.ownerDepartmentName}
+                      <div className="mx-auto max-w-[11rem]">
+                        <ReporterDepartmentCell
+                          departmentName={task.ownerDepartmentName}
+                          creatorName={task.createdByDisplayName}
                           isReporter={isReporterCreated(task.createdByRoleCode)}
+                          align="center"
                         />
-                        <div className="truncate text-xs text-slate-500">{task.createdByDisplayName ?? '—'}</div>
                       </div>
                     </td>
                     <td><span className="cell-title">{task.title}</span></td>

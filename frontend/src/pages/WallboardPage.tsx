@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
+import { reporterCreatorTextClass } from '../utils/reporterHighlight'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
@@ -379,7 +380,7 @@ export function WallboardPage() {
                       </td>
                       <td>
                         <ReporterDepartmentName name={item.requestLocation} isReporter={item.isReporterRequest} />
-                        <div className="wallboard-secondary-text wallboard-creator-line">
+                        <div className={`wallboard-creator-line ${item.isReporterRequest ? `${reporterCreatorTextClass(true)} opacity-100` : 'wallboard-secondary-text'}`}>
                           {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
                           <span>{item.requestCreator ?? '—'}</span>
                         </div>

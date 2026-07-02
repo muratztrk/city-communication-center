@@ -47,7 +47,7 @@ import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequ
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
-import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
+import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated } from '../utils/reporterHighlight'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
@@ -868,11 +868,11 @@ export function IncomingRequestsPage() {
                       )}
                     </td>
                     <td>
-                      <ReporterDepartmentName
-                        name={row.departmentName}
+                      <ReporterDepartmentCell
+                        departmentName={row.departmentName}
+                        creatorName={row.createdBy}
                         isReporter={isReporterCreated(row.createdByRoleCode)}
                       />
-                      <div className="text-xs text-slate-500">{row.createdBy ?? '—'}</div>
                     </td>
                     <td className="font-semibold"><span className="cell-title">{row.title}</span></td>
                     {showTaskOwnerColumn && <td>{row.taskOwnerDisplayName ?? '—'}</td>}

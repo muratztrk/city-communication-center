@@ -115,8 +115,9 @@ function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?
 export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false, onSelect }: PieChartProps) {
   const { t } = useTranslation()
   const nonZero = slices.filter(s => s.value > 0)
+  const shouldShowZeroChart = showZeroSlices && slices.length > 0
 
-  if (nonZero.length === 0) {
+  if (nonZero.length === 0 && !shouldShowZeroChart) {
     return (
       <div className="flex items-center justify-center py-10 text-sm text-[color:var(--color-muted-foreground)]">
         {noDataLabel}
@@ -133,7 +134,13 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
 
   const segments: { path: string; color: string; slice: DashboardChartSlice }[] = []
 
-  if (nonZero.length === 1) {
+  if (nonZero.length === 0) {
+    segments.push({
+      path: buildArcPath(cx, cy, outerR, innerR, 0, 359.99),
+      color: '#e2e8f0',
+      slice: slices[0],
+    })
+  } else if (nonZero.length === 1) {
     const color = getColor(nonZero[0].colorHint)
     const p1 = polarToCartesian(cx, cy, outerR, 0)
     const p2 = polarToCartesian(cx, cy, outerR, 180)
@@ -167,26 +174,29 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
     <div className="relative flex min-w-0 flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
       {/* SVG boş alanı komşu kartların lejantına binmesin diye pointer-events kapalı; yalnızca dilimler tıklanır. */}
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="pointer-events-none shrink-0">
-        {segments.map((seg, i) => (
+        {segments.map((seg, i) => {
+          const canSelectSegment = Boolean(onSelect && seg.slice.value > 0)
+          return (
           <path
             key={i}
             d={seg.path}
             fill={seg.color}
             stroke="white"
             strokeWidth="1.5"
-            className={onSelect ? 'pointer-events-auto cursor-pointer transition-opacity hover:opacity-90' : undefined}
-            onClick={onSelect ? () => onSelect(seg.slice) : undefined}
-            onKeyDown={onSelect ? event => {
+            className={canSelectSegment ? 'pointer-events-auto cursor-pointer transition-opacity hover:opacity-90' : undefined}
+            onClick={canSelectSegment ? () => onSelect?.(seg.slice) : undefined}
+            onKeyDown={canSelectSegment ? event => {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault()
-                onSelect(seg.slice)
+                onSelect?.(seg.slice)
               }
             } : undefined}
-            role={onSelect ? 'button' : undefined}
-            tabIndex={onSelect ? 0 : undefined}
-            aria-label={onSelect ? resolveSliceLabel(seg.slice.label, t) : undefined}
+            role={canSelectSegment ? 'button' : undefined}
+            tabIndex={canSelectSegment ? 0 : undefined}
+            aria-label={canSelectSegment ? resolveSliceLabel(seg.slice.label, t) : undefined}
           />
-        ))}
+          )
+        })}
         <text x={cx} y={cy - 6} textAnchor="middle" fontSize="18" fontWeight="700" fill="#0f172a">
           {total}
         </text>

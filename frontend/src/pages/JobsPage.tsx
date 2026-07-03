@@ -1348,6 +1348,30 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         })
         return
       }
+      if (
+        (jobDetail.requestType === 'ExternalUnit' || jobDetail.requestType === 'Citizen')
+        && jobDetail.status === 'Active'
+        && (jobDetail.tasks?.length ?? 0) === 0
+      ) {
+        const departmentId = activeDeptId
+          ?? jobDetail.departments.find(department => department.role === 'Target')?.departmentId
+          ?? jobDetail.ownerDepartmentId
+        const users = await api.getUsers()
+        setStaffAssignModal({
+          jobId,
+          selectedUserIds: [],
+          users: users.filter(u => isAssignableDepartmentUser(u, departmentId, user?.userId)),
+          saving: false,
+          selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
+          approvalRequired: false,
+          targetApprovalRequired: false,
+          targetDepartmentId: null,
+          requiresProjectConfirmation: false,
+          showProjectNotice: jobDetail.isProject === true,
+          projectDecision: null,
+        })
+        return
+      }
 
       setConfirmDialog({
         title: isDepartmentOutgoingView ? 'Birimden Giden Talep' : undefined,

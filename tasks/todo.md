@@ -1026,3 +1026,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46c200` reopened / #1268 — Vatandaşa Giden Cevaplar iptal durum chip'i de artık `İptal Edildi` gösterir; iptal otomatik mesajındaki durum metniyle eşitlendi.
 - [x] `6a474d0b` reopened / #1275 — Süreç timeline'ındaki özel `Durum` adımının durum metni `Talep Tarihi` başlığıyla aynı küçük metin boyutuna indirildi.
 - [x] `6a475dbe` / #1279 — Birime Gelen ve Birimden Giden grid `İşlemler` sütunundaki onay/iptal butonları geri getirildi; Reporter başlık turuncusu korunur.
+
+## STATUS: Round 157 complete — cards moved to Done; follow-up Doing cards picked up.
+
+## Round 158 (Doing — 2026-07-03, popup ve timeline geçiş düzeltmesi)
+- [x] `6a475ad7` reopened / #1278 — Süreç timeline yeşil→turuncu geçiş bandı azaltıldı; yeşil ton korunurken geçiş daha kısa/sakin yapıldı.
+- [x] `6a47607f` / #1280 — Incoming detayında `Active` ve henüz görevi olmayan taleplerde `Onayla` artık confirm yerine `Onayla ve Personel Ata` popup'ını açar.

@@ -1085,3 +1085,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4773b9` reopened / #1287 — Yalnız `Talep Sayısı` metni kaldırılmış halde kalır; konuşma satırı ve detay header'ındaki `İşleme Alınan/Yapılmakta/Tamamlandı/İptal` durum kırılımları geri getirildi.
 
 ## STATUS: Round 164 complete — cards moved to Done.
+
+## Round 165 (Doing — 2026-07-03, WhatsApp liste sayaçları ve timeline reopen)
+- [x] `6a4773b9` reopened / #1287 — Sol konuşma kartındaki `Talep Sayısı: N` satırı kaldırıldı; altındaki durum kırılımları korunur.
+- [x] `6a4791d9` reopened / #1296 — Sağ alt WhatsApp FAB beyaz merkez disk olmadan eski yalın yeşil baloncuk görünümüne döndürüldü.
+- [x] `6a475ad7` reopened / #1278 — Süreç timeline geçişi %50'den başlar; yeşil→turuncu geçişi ara renk bandı olmadan iki renk karışımıyla yapılır, turuncu→gri de %50'den başlar.
+- [x] `6a4795b1` reopened / #1297 — `Konuşmalar` altındaki toplam `İşleme Alınan/Yapılmakta/Tamamlandı/İptal` sayaçları tek satırda kalacak şekilde sıkılaştırıldı.
+
+## STATUS: Round 165 complete — cards moved to Done.

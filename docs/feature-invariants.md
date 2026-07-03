@@ -145,8 +145,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlıkları alt kart başlıklarıyla aynı hafif ağırlıkta kalır; bold yapılmaz. Süreç yuvarlakları
   görsel referanstaki gibi açık zeminli/halkalı görünür; tamamlanan adım ve tamamlanmış çizgi
   `Düzenle` butonundaki emerald-700 yeşiliyle eşleşir; tamamlanan adımdan güncel turuncu adıma
-  giden çizgi hedefin %50 hizasına kadar yeşil kalır, sonra iki renk ailesi içinde yumuşak
-  yeşil→turuncu geçiş yapar; güncel turuncu adımdan gri gelecek adıma giden çizgi de %50
+  giden çizgi hedefin %50 hizasına kadar yeşil kalır, sonra ara renk bandı eklemeden yeşil ile
+  turuncu karışarak geçiş yapar; güncel turuncu adımdan gri gelecek adıma giden çizgi de %50
   hizasından sonra turuncu→gri geçer.
   Ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
@@ -233,17 +233,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WhatsApp ikonu görünür; konuşma detay header'ında telefon altına `WhatsApp Konuşmaları`
   fallback subtitle'ı basılmaz (cards #1253/#1254).
 - **WhatsApp ikon ve liste zamanı:** WhatsApp'a özel nav/breadcrumb/channel/FAB/konuşma fallback ikonları
-  ortak `/icons/whatsapp.webp` asset'ini kullanır. Sağ alt WhatsApp FAB merkezinde bu asset beyaz
-  disk üzerinde görünür; içi boş/çerçeve ikon gibi okunmamalıdır. `/whatsapp` konuşma listesinin
-  sağ üst zaman alanı göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
+  ortak `/icons/whatsapp.webp` asset'ini kullanır. Sağ alt WhatsApp FAB eski yalın yeşil baloncuk
+  görünümünde kalır; merkezde ayrıca beyaz disk kullanılmaz. `/whatsapp` konuşma listesinin sağ üst
+  zaman alanı göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
-  detay header'ı telefon yerine adı öncelikli gösterir. `Talep Sayısı` başlığı/etiketi gösterilmez;
-  ancak konuşma kartı ve detay header'ındaki `İşleme Alınan`, `Yapılmakta`, `Tamamlandı`, `İptal`
-  durum kırılımı başlıksız olarak görünür kalır.
+  detay header'ı telefon yerine adı öncelikli gösterir. Sol konuşma kartındaki `Talep Sayısı: N`
+  satırı gösterilmez; `İşleme Alınan`, `Yapılmakta`, `Tamamlandı`, `İptal` durum kırılımı
+  başlıksız olarak görünür kalır.
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Konuşmalar` başlığı altında
   toplam `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı`, kırmızı `İptal` sayaçları görünür;
-  her sayaç tıklanabilir ve alttaki konuşma listesini ilgili statüde talebi olan konuşmalara filtreler.
+  hepsi tek satırda kalır; her sayaç tıklanabilir ve alttaki konuşma listesini ilgili statüde talebi
+  olan konuşmalara filtreler.
 - **WhatsApp FAB ilgili kullanıcı görünürlüğü:** WhatsApp bildirim FAB'ı yalnız operatör/SistemAdmin için
   aktif/açık konuşmalarda, diğer kullanıcılar için ise kendisine atanmış veya aktif departmanına yönlendirilmiş
   terminal olmayan vatandaş taleplerinde görünür; tamamlandı/iptal/reddedilmiş konuşmalar ilgili kullanıcıdan gizlenir.

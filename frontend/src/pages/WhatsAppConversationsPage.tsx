@@ -22,7 +22,7 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
-import { formatWhatsAppSummaryTicketLabel, formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
+import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
@@ -118,7 +118,7 @@ function ConversationStatusCounts({
   const { t } = useTranslation()
   const baseClass = compact ? 'text-[10px]' : 'text-[11px]'
   return (
-    <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${baseClass} font-semibold`}>
+    <div className={`flex items-center gap-x-1.5 ${baseClass} font-semibold whitespace-nowrap`}>
       <span className="text-slate-600">{t('whatsapp.intakeCountShort', 'İşleme Alınan')}: {intake ?? 0}</span>
       <span className="text-orange-600">{t('whatsapp.inProgressCount', 'Yapılmakta')}: {inProgress ?? 0}</span>
       <span className="text-emerald-700">{t('whatsapp.completedCount', 'Tamamlandı')}: {completed ?? 0}</span>
@@ -154,7 +154,6 @@ function ConversationListItem({
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
   const ticketOpen = isConversationTicketOpen(conv)
-  const ticketLabel = formatWhatsAppSummaryTicketLabel(conv)
   const timeLabel = new Date(conv.lastMessageAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   const recentTime = isRecentConversationTime(conv.lastMessageAt)
   const assigneeName = conv.assigneeDisplayName?.trim() || null
@@ -256,9 +255,6 @@ function ConversationListItem({
             </div>
           </div>
 
-          {ticketLabel ? (
-            <p className="mt-1.5 text-[10px] font-semibold text-slate-600">{ticketLabel}</p>
-          ) : null}
           <div className="mt-1.5">
             <ConversationStatusCounts
               compact
@@ -354,13 +350,13 @@ function ConversationListPanel({
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <div className="flex items-center gap-x-1 overflow-hidden whitespace-nowrap">
           {statusChips.map(chip => (
             <button
               key={chip.value}
               type="button"
               onClick={() => onStatusFilterChange(statusFilter === chip.value ? 'all' : chip.value)}
-              className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
+              className={`shrink-0 rounded-md px-1 py-0.5 text-[9px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
             >
               {chip.label}: {chip.count}
             </button>

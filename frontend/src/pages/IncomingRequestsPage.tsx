@@ -30,21 +30,29 @@ import { StatusPill } from '../components/ui/status-pill'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { invalidateJobs, invalidateTasks } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
+import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
-import type { JobSummary, Task, SocialMessage } from '../types/platform'
+import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
 import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
+import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
+import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
+import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobsPage } from './JobsPage'
-import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
+import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 
 type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
@@ -332,10 +340,13 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
 
 export function IncomingRequestsPage() {
   const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const locale = getLocale(i18n.language)
   const { user } = useAuth()
+  const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
+  const canManageIncomingActions = isManagerLike || isCitizenRequestManager
   const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
@@ -347,6 +358,19 @@ export function IncomingRequestsPage() {
   const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
   const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
   const [searchText, setSearchText] = useState('')
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [cancelModal, setCancelModal] = useState<{ row: IncomingRequestRow; reason: string; saving: boolean } | null>(null)
+  const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
+  const [staffAssignModal, setStaffAssignModal] = useState<{
+    jobId: string
+    approvalType: 'owner' | 'assign' | 'target'
+    targetDepartmentId?: string | null
+    selectedUserIds: string[]
+    selfRequestedOwnerUserId: string | null
+    requiresProjectConfirmation: boolean
+    showProjectNotice: boolean
+    projectDecision: boolean | null
+  } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter()
@@ -374,20 +398,25 @@ export function IncomingRequestsPage() {
     Promise.all([
       api.getTasks('all'),
       api.getJobs('my-department'),
+      api.getUsers(),
       api.getSocialMessages(),
     ])
-      .then(([taskList, jobList, socialList]) => {
+      .then(([taskList, jobList, userList, socialList]) => {
         if (cancelled) return
         setTasks(taskList)
         setJobs(jobList)
         setSocialMessages(socialList)
+        const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
+        // Personel listesi + Vatandaş Talep Operatörü + atamayı yapan yöneticinin kendisi
+        // (görevi kendine atayabilsin). Operator rolü kendi talebini görev olarak alabilmeli (card #1086).
+        setDepartmentUsers(userList.filter(u => isAssignableDepartmentUser(u, currentDeptId ?? '', user?.userId)))
         setError(null)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [t, activeDeptId])
+  }, [t, activeDeptId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reload = useCallback(async () => {
     try {
@@ -411,6 +440,142 @@ export function IncomingRequestsPage() {
     const intervalId = window.setInterval(() => { void reload() }, 30_000)
     return () => window.clearInterval(intervalId)
   }, [reload])
+
+  const handleApproveOwner = (jobId: string) => {
+    const job = jobs.find(item => item.jobId === jobId)
+    setStaffAssignModal({
+      jobId,
+      approvalType: 'owner',
+      selectedUserIds: [],
+      selfRequestedOwnerUserId: job ? getSelfRequestedOwnerUserId(job) : null,
+      requiresProjectConfirmation: job?.isProjectCreatorRequested === true,
+      showProjectNotice: false,
+      projectDecision: null,
+    })
+  }
+
+  // One-step external flow: the job is already Active in this department's pool —
+  // just assign staff (create tasks), no approval call needed.
+  const handleAssignStaff = (jobId: string) => {
+    const job = jobs.find(item => item.jobId === jobId)
+    setStaffAssignModal({
+      jobId,
+      approvalType: 'assign',
+      selectedUserIds: [],
+      selfRequestedOwnerUserId: null,
+      requiresProjectConfirmation: false,
+      showProjectNotice: job?.isProject === true,
+      projectDecision: null,
+    })
+  }
+
+  const handleApproveTarget = (jobId: string, departmentId: string) => {
+    const job = jobs.find(item => item.jobId === jobId)
+    setStaffAssignModal({
+      jobId,
+      approvalType: 'target',
+      targetDepartmentId: departmentId,
+      selectedUserIds: [],
+      selfRequestedOwnerUserId: job ? getSelfRequestedOwnerUserId(job) : null,
+      requiresProjectConfirmation: false,
+      showProjectNotice: job?.isProject === true,
+      projectDecision: null,
+    })
+  }
+
+  const handleStaffAssignConfirm = async () => {
+    if (!staffAssignModal) return
+    const { jobId, approvalType, targetDepartmentId, selectedUserIds, requiresProjectConfirmation, projectDecision } = staffAssignModal
+    if (approvalType === 'owner' && requiresProjectConfirmation && projectDecision === null) {
+      setError(t('jobs.projectConfirmationRequired', 'Proje niteliği onayı zorunludur.'))
+      return
+    }
+    setStaffAssignModal(null)
+    setError(null)
+    try {
+      if (approvalType === 'owner') {
+        await api.approveJobOwner(jobId, null, requiresProjectConfirmation ? projectDecision : null)
+        invalidateJobs(queryClient, jobId)
+      }
+      if (approvalType === 'target' && targetDepartmentId) {
+        await api.approveJobTarget(jobId, targetDepartmentId)
+        invalidateJobs(queryClient, jobId)
+      }
+      if (selectedUserIds.length > 0) {
+        const jobDetail = await api.getJobById(jobId)
+        const taskIds = jobDetail.tasks.map(t => t.taskId)
+        if (taskIds.length === 0) {
+          await Promise.all(
+            selectedUserIds.map(userId =>
+              api.createTask({
+                jobId,
+                title: jobDetail.title,
+                description: jobDetail.description,
+                priority: jobDetail.priority,
+                startDateUtc: jobDetail.startDateUtc,
+                dueDateUtc: null,
+                assignedDepartmentId: getActiveDepartmentId() ?? undefined,
+                assignedUserId: userId,
+              })
+            )
+          )
+        } else {
+          await Promise.all(
+            taskIds.map((taskId, i) =>
+              api.assignTask(taskId, undefined, selectedUserIds[i % selectedUserIds.length])
+            )
+          )
+        }
+        invalidateTasks(queryClient, undefined, jobId)
+      }
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+
+  const handleApproveClose = (taskId: string) => {
+    setConfirmDialog({
+      message: t('tasks.approveCloseConfirm', 'Bu görevi tamamlandı olarak onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveTaskClose(taskId)
+          invalidateTasks(queryClient, taskId)
+          await reload()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
+  }
+
+  const openCancelReturn = (row: IncomingRequestRow) => {
+    setCancelModal({ row, reason: '', saving: false })
+  }
+
+  const handleCancelConfirm = async () => {
+    if (!cancelModal || !cancelModal.reason.trim()) return
+    const { row, reason } = cancelModal
+    const isPending = !(row.status === 'Active' || row.status === 'Waiting' || row.status === 'Assigned' || row.status === 'InProgress' || row.status === 'PendingCloseApproval')
+    setCancelModal(m => m ? { ...m, saving: true } : null)
+    try {
+      setError(null)
+      if (isPending && row.status === 'PendingOwnerApproval') {
+        await api.rejectJobOwner(row.id, reason.trim())
+      } else {
+        await api.cancelJob(row.id, reason.trim())
+      }
+      invalidateJobs(queryClient, row.jobId)
+      setCancelModal(null)
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setCancelModal(m => m ? { ...m, saving: false } : null)
+    }
+  }
 
   const socialByJobId = useMemo(() => {
     const map = new Map<string, SocialMessage>()
@@ -502,6 +667,9 @@ export function IncomingRequestsPage() {
     queueMicrotask(() => {
       setIncomingPage(1)
       clearIncomingFilters()
+      setConfirmDialog(null)
+      setCancelModal(null)
+      setStaffAssignModal(null)
       setError(null)
     })
   }, [activeDeptId, clearIncomingFilters])
@@ -543,6 +711,35 @@ export function IncomingRequestsPage() {
     setSearchParams(nextParams)
     setIncomingPage(1)
   }
+
+  const canApproveRow = (row: IncomingRequestRow) =>
+    canManageIncomingActions
+    && canCitizenRequestManagerActOnRow(user, row)
+    && (
+      (row.statusDomain === 'job' && row.status === 'PendingOwnerApproval')
+      || (row.statusDomain === 'job' && Boolean(row.pendingTargetApprovalDepartmentId))
+      || (row.statusDomain === 'job' && Boolean(row.assignTargetDepartmentId))
+      || (row.statusDomain === 'task' && row.status === 'PendingCloseApproval')
+    )
+
+  const shouldShowDisabledApprove = (row: IncomingRequestRow) =>
+    canManageIncomingActions && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue') && !canApproveRow(row)
+
+  const canCancelRow = (row: IncomingRequestRow) =>
+    canManageIncomingActions
+    && canCitizenRequestManagerActOnRow(user, row)
+    && (
+      row.status === 'PendingOwnerApproval' ||
+      row.status === 'PendingExternalApproval' ||
+      row.status === 'Active' ||
+      row.status === 'Waiting' ||
+      row.status === 'Assigned' ||
+      row.status === 'InProgress' ||
+      row.status === 'PendingCloseApproval'
+    )
+
+  const shouldShowDisabledCancel = (row: IncomingRequestRow) =>
+    canManageIncomingActions && currentStatusFilter === 'all' && !canCancelRow(row)
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -708,10 +905,58 @@ export function IncomingRequestsPage() {
                     })()}
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
+                        {/* Detaylar — her zaman */}
                         <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)} className="gap-1.5">
                           {t('jobs.actions.details', 'Detaylar')}
                           <ArrowRight className="size-3.5" />
                         </Button>
+                        {/* Onayla — onay bekleyen iş satırlarında */}
+                        {canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </Button>
+                        )}
+                        {canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetApprovalDepartmentId!)}>
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </Button>
+                        )}
+                        {/* Birime düşen (Active) birim dışı taleplerde buton "Onayla" (farklı birimden gelen tüm talepler için). */}
+                        {canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
+                          <Button size="sm" variant="success" onClick={() => handleAssignStaff(row.id)}>
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </Button>
+                        )}
+                        {/* Onayla — kapanış onayı bekleyen görevlerde */}
+                        {canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
+                          <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
+                            {t('tasks.actions.approveClose', 'Onayla')}
+                          </Button>
+                        )}
+                        {shouldShowDisabledApprove(row) && (
+                          <DisabledActionButton
+                            size="sm"
+                            variant="success"
+                            hoverTitle={t('jobs.actions.approveUnavailable', 'Bu kayıtta onay işlemi yapılamaz')}
+                          >
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </DisabledActionButton>
+                        )}
+                        {/* İptal/İade — onay bekleyen, onaylanmış ve aktif iş/görev satırlarında */}
+                        {canCancelRow(row) && (
+                          <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
+                            {t('jobs.actions.cancel', 'İptal Et')}
+                          </Button>
+                        )}
+                        {shouldShowDisabledCancel(row) && (
+                          <DisabledActionButton
+                            size="sm"
+                            variant="destructive"
+                            hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıtta iptal işlemi yapılamaz')}
+                          >
+                            {t('jobs.actions.cancel', 'İptal Et')}
+                          </DisabledActionButton>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -729,6 +974,121 @@ export function IncomingRequestsPage() {
           />
         </section>
       )}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+      {cancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
+          <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-incoming-job-dialog-title">
+            <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <X className="size-4" />
+            </button>
+            <h2 id="cancel-incoming-job-dialog-title" className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">
+              {cancelModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
+            </h2>
+            <p className="mt-2 text-base font-medium leading-6 text-slate-700">
+              {cancelModal.row.statusDomain === 'task'
+                ? t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')
+                : t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
+            </p>
+            <label className="job-field mt-5">
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+              <textarea
+                className="field-textarea"
+                rows={3}
+                value={cancelModal.reason}
+                onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value } : null)}
+                placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
+                autoFocus
+              />
+            </label>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
+                {t('common.dismiss', 'Vazgeç')}
+              </Button>
+              <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
+                {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
+              </Button>
+            </div>
+          </section>
+        </div>
+      )}
+      {staffAssignModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          role="presentation"
+        >
+          <div
+            className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <button type="button" onClick={() => setStaffAssignModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <X className="size-4" />
+            </button>
+            <h3 className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
+              {t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
+            </h3>
+            {staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation ? (
+              <JobProjectConfirmationPrompt
+                t={t}
+                name="incoming-project-confirmation"
+                decision={staffAssignModal.projectDecision}
+                onDecisionChange={value => setStaffAssignModal(prev => prev ? { ...prev, projectDecision: value } : prev)}
+              />
+            ) : null}
+            {(staffAssignModal.approvalType === 'assign' || staffAssignModal.approvalType === 'target') && staffAssignModal.showProjectNotice ? (
+              <JobProjectDeclaredNotice t={t} />
+            ) : null}
+            <p className="mb-4 text-sm text-slate-600">
+              {t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}
+            </p>
+            {departmentUsers.length === 0 ? (
+              <p className="mb-4 text-sm text-slate-400">{t('jobs.actions.noStaffFound', 'Birimde personel bulunamadı.')}</p>
+            ) : (
+              <div className="mb-4 flex max-h-48 flex-col gap-1 overflow-y-auto">
+                {departmentUsers.map(u => (
+                  <label key={u.userId} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                    <input
+                      type="checkbox"
+                      className="size-4 rounded"
+                      checked={staffAssignModal.selectedUserIds.includes(u.userId)}
+                      onChange={e => {
+                        setStaffAssignModal(prev => {
+                          if (!prev) return prev
+                          const ids = e.target.checked
+                            ? [...prev.selectedUserIds, u.userId]
+                            : prev.selectedUserIds.filter(id => id !== u.userId)
+                          return { ...prev, selectedUserIds: ids }
+                        })
+                      }}
+                    />
+                    <span className="text-sm text-slate-800">
+                      {u.displayName}
+                      {staffAssignModal.selfRequestedOwnerUserId === u.userId && (
+                        <span className="ml-1 font-semibold text-emerald-700">
+                          {t('jobs.actions.selfRequestedOwner', '(Görevi kendisi yapmak istiyor.)')}
+                        </span>
+                      )}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              <Button
+                type="button"
+                variant="success"
+                disabled={staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null}
+                onClick={handleStaffAssignConfirm}
+              >
+                {t('common.approve', 'Onayla')}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setStaffAssignModal(null)}>
+                {t('common.cancel', 'Vazgeç')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {detailJobId && (
         <JobsPage
           detailOnly

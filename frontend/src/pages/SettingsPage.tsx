@@ -2266,7 +2266,7 @@ export function SettingsPage() {
                 { key: 'processingReceived', label: t('social.requestStatus.processingReceived', 'İşleme Alındı'), tone: 'warning' },
                 { key: 'inProgress', label: t('social.requestStatus.inProgress', 'Yapılmakta'), tone: 'warning' },
                 { key: 'completed', label: t('social.requestStatus.completed', 'Tamamlandı'), tone: 'success' },
-                { key: 'cancelled', label: t('social.requestStatus.cancelled', 'İptal'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger' },
+                { key: 'cancelled', label: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger' },
               ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger' }>).map(({ key, label, templateLabel, tone }) => (
                 <CitizenAutoReplyTemplateField
                   key={key}

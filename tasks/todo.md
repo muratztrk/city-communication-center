@@ -1019,3 +1019,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 156 (Doing — 2026-07-03, süreç timeline yeşil/geçiş tonu)
 - [x] `6a475ad7` / #1278 — Detay Süreç timeline'ında tamamlanmış çizgi/düğüm yeşili `Düzenle` butonu yeşiline eşitlendi; yeşil→turuncu geçişi amber ara tonla daha belirgin ve yumuşak yapıldı.
+
+## STATUS: Round 156 complete — card moved to Done; follow-up Doing cards picked up.
+
+## Round 157 (Doing — 2026-07-03, reopen ince ayarları)
+- [x] `6a46c200` reopened / #1268 — Vatandaşa Giden Cevaplar iptal durum chip'i de artık `İptal Edildi` gösterir; iptal otomatik mesajındaki durum metniyle eşitlendi.
+- [x] `6a474d0b` reopened / #1275 — Süreç timeline'ındaki özel `Durum` adımının durum metni `Talep Tarihi` başlığıyla aynı küçük metin boyutuna indirildi.
+- [x] `6a475dbe` / #1279 — Birime Gelen ve Birimden Giden grid `İşlemler` sütunundaki onay/iptal butonları geri getirildi; Reporter başlık turuncusu korunur.

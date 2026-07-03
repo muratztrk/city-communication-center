@@ -252,7 +252,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
   kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir. İptal alanının görsel
-  chip'i `İptal` ve kırmızı kalır; giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
+  chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
   (cards #1257/#1258).
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,

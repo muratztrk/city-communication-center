@@ -1829,6 +1829,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   />
                 )}
                 {pagedJobs.map((job, index) => {
+                  const isOutgoingTargetApproved = isDepartmentOutgoingView &&
+                    job.departments.some(d => d.role === 'Target' && d.approvalStatus === 'Approved')
                   const isReporterJob = isReporterCreated(job.createdByRoleCode)
                   const reporterNumberClass = isReporterJob && hasConcreteNumberDisplay(formatJobDisplayNumber(job))
                     ? reporterGridValueClass(true)
@@ -1886,6 +1888,32 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         )}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
+                        )}
+                        {/* Birimden Giden → Bekleyen: Yönetici onayı. Onaylanınca hedef birimin havuzuna düşer. */}
+                        {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && isManagerLike && job.status === 'PendingOwnerApproval' && (
+                          <Button size="sm" variant="success" onClick={() => void handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner', 'Onayla')}</Button>
+                        )}
+                        {/* Birimden Giden → Bekleyen: İptal butonu */}
+                        {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && (
+                          isOutgoingTargetApproved ? (
+                            <span
+                              title="Talep onaylandığı için iptal edilemez"
+                              className="inline-block cursor-not-allowed"
+                            >
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled
+                                style={{ pointerEvents: 'none' }}
+                              >
+                                {t('jobs.actions.cancel', 'İptal')}
+                              </Button>
+                            </span>
+                          ) : (
+                            <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>
+                              {t('jobs.actions.cancel', 'İptal')}
+                            </Button>
+                          )
                         )}
                       </div>
                     </td>

@@ -170,7 +170,7 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}`}>
                     {statusContent}
                   </div>
                 ) : showTerminalDateMeta ? (

@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, MessageCircle, Send } from 'lucide-react'
+import { Loader2, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -146,7 +146,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         style={{ backgroundColor: 'var(--color-header-from)' }}
       >
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: 'var(--color-header-from)' }}>
-          {initials ?? <MessageCircle className="size-5" />}
+          {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">{headerKicker}</p>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MessageCircle, MoreVertical, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -16,7 +16,6 @@ import type {
   UserQuickReplyTemplate,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
-import { formatConversationListTime } from '../utils/conversationListTime'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -130,7 +129,7 @@ function ConversationListItem({
   const waitingForResponse = isWaitingForConversationResponse(conv)
   const ticketOpen = isConversationTicketOpen(conv)
   const ticketLabel = formatWhatsAppSummaryTicketLabel(conv)
-  const timeLabel = formatConversationListTime(conv.lastMessageAt, locale, t, { compact: true })
+  const timeLabel = new Date(conv.lastMessageAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   const recentTime = isRecentConversationTime(conv.lastMessageAt)
   const assigneeName = conv.assigneeDisplayName?.trim() || null
   const assigneeInitials = assigneeName ? getInitials(assigneeName) : null
@@ -148,7 +147,7 @@ function ConversationListItem({
       <div className="flex items-start gap-3 min-w-0">
         <div className="relative shrink-0">
           <div className="size-11 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-sm font-bold">
-            {initials ?? <MessageCircle className="size-4.5 opacity-70" />}
+            {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-5" aria-hidden="true" />}
           </div>
           {(isUrgent || waitingForResponse || ticketOpen) && (
             <span
@@ -599,7 +598,7 @@ function ConversationDetail({
           className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
           style={{ backgroundColor: 'var(--color-header-from)' }}
         >
-          {headerInitials ?? <MessageCircle className="size-5" />}
+          {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
@@ -1034,7 +1033,7 @@ export function WhatsAppConversationsPage() {
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">
-              <MessageCircle className="size-12 opacity-20" />
+              <img src="/icons/whatsapp.webp" alt="" className="size-12 opacity-25" aria-hidden="true" />
               <p className="text-sm">{t('whatsapp.emptyDetail')}</p>
             </div>
           )}

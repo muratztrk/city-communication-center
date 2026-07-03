@@ -1032,3 +1032,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 158 (Doing — 2026-07-03, popup ve timeline geçiş düzeltmesi)
 - [x] `6a475ad7` reopened / #1278 — Süreç timeline yeşil→turuncu geçiş bandı azaltıldı; yeşil ton korunurken geçiş daha kısa/sakin yapıldı.
 - [x] `6a47607f` / #1280 — Incoming detayında `Active` ve henüz görevi olmayan taleplerde `Onayla` artık confirm yerine `Onayla ve Personel Ata` popup'ını açar.
+
+## STATUS: Round 158 complete — cards moved to Done; follow-up Doing cards picked up.
+
+## Round 159 (Doing — 2026-07-03, WhatsApp ikon ve liste zamanı)
+- [x] `6a475ad7` reopened / #1278 — Süreç timeline yeşil→turuncu geçişi çizginin orta hizasından başlatıldı.
+- [x] `6a477f9f` / #1291 — WhatsApp konuşma listesindeki sağ üst zaman alanı göreli gün yerine son mesajın saat:dakika değerini gösterir.
+- [x] `6a477e0c` / #1290 — Trello ekindeki yeni WhatsApp ikonu ortak `/icons/whatsapp.webp` asset'i olarak eklendi ve eski svg referansları güncellendi.
+- [x] `6a477d77` / #1289 — WhatsApp konuşmaları bölümündeki konuşma/list/detail fallback ikonları WhatsApp ikonuna çevrildi.

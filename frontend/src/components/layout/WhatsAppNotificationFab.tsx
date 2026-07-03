@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { MessageCircle, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { api } from '../../api/client'
 import type { WhatsAppMessagePayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
@@ -249,7 +249,7 @@ export function WhatsAppNotificationFab() {
                 className="flex w-full items-start gap-3 border-b border-[var(--color-border)]/70 px-4 py-3 text-left transition-colors hover:bg-slate-50"
               >
                 <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/15">
-                  <MessageCircle className="size-5 text-[#25D366]" aria-hidden="true" />
+                  <img src="/icons/whatsapp.webp" alt="" className="size-5" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
@@ -302,7 +302,7 @@ export function WhatsAppNotificationFab() {
           className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isPulsing ? 'whatsapp-fab-pulse' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
         >
           <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
-          <img src="/icons/whatsapp.svg" alt="" className="relative size-7 brightness-0 invert" aria-hidden="true" />
+          <img src="/icons/whatsapp.webp" alt="" className="relative size-7" aria-hidden="true" />
           {unreadTotal > 0 ? (
             <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
               {badgeLabel}

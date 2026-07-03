@@ -206,7 +206,7 @@ export function AppShell() {
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri, "WhatsApp Konuşmaları" alt öğesiyle açılır bir grup olarak gösterilir (card 621).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
-      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.svg', emphasized: true },
+      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true },
     ] },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight },
@@ -426,7 +426,7 @@ export function AppShell() {
   const currentBreadcrumbLabel = currentBreadcrumbSegment ? requestKindBreadcrumbLabel || breadcrumbLabels[currentBreadcrumbSegment] || currentBreadcrumbSegment : null
   const CurrentBreadcrumbParentIcon = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? ClipboardPlus : breadcrumbParentIcon[currentBreadcrumbSegment]) : null
   const CurrentBreadcrumbIcon = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? requestKindIcons[requestKindParam] : breadcrumbIcon[currentBreadcrumbSegment]) : null
-  const currentBreadcrumbIconImageSrc = currentBreadcrumbSegment === 'whatsapp' ? '/icons/whatsapp.svg' : null
+  const currentBreadcrumbIconImageSrc = currentBreadcrumbSegment === 'whatsapp' ? '/icons/whatsapp.webp' : null
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[color:var(--color-sidebar)]">

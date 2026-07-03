@@ -145,7 +145,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlıkları alt kart başlıklarıyla aynı hafif ağırlıkta kalır; bold yapılmaz. Süreç yuvarlakları
   görsel referanstaki gibi açık zeminli/halkalı görünür; tamamlanan adım ve tamamlanmış çizgi
   `Düzenle` butonundaki emerald-700 yeşiliyle eşleşir; tamamlanan adımdan güncel turuncu adıma
-  giden çizgi belirgin ve yumuşak yeşil→amber→turuncu geçişli kalır.
+  giden çizgi orta hizaya kadar yeşil kalır, sonra yumuşak yeşil→amber→turuncu geçiş yapar.
   Ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
   yapışmaz. Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
@@ -227,6 +227,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp breadcrumb ve konuşma başlığı:** Breadcrumb'daki `WhatsApp` pill'inin başında
   WhatsApp ikonu görünür; konuşma detay header'ında telefon altına `WhatsApp Konuşmaları`
   fallback subtitle'ı basılmaz (cards #1253/#1254).
+- **WhatsApp ikon ve liste zamanı:** WhatsApp'a özel nav/breadcrumb/channel/FAB/konuşma fallback ikonları
+  ortak `/icons/whatsapp.webp` asset'ini kullanır. `/whatsapp` konuşma listesinin sağ üst zaman alanı
+  göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının

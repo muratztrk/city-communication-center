@@ -350,13 +350,13 @@ function ConversationListPanel({
           </button>
         </div>
 
-        <div className="flex items-center gap-x-1 overflow-hidden whitespace-nowrap">
+        <div className="flex items-center gap-x-0.5 overflow-hidden whitespace-nowrap">
           {statusChips.map(chip => (
             <button
               key={chip.value}
               type="button"
               onClick={() => onStatusFilterChange(statusFilter === chip.value ? 'all' : chip.value)}
-              className={`shrink-0 rounded-md px-1 py-0.5 text-[9px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
+              className={`shrink-0 rounded-md px-0.5 py-0.5 text-[10px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
             >
               {chip.label}: {chip.count}
             </button>

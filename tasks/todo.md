@@ -1093,3 +1093,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4795b1` reopened / #1297 — `Konuşmalar` altındaki toplam `İşleme Alınan/Yapılmakta/Tamamlandı/İptal` sayaçları tek satırda kalacak şekilde sıkılaştırıldı.
 
 ## STATUS: Round 165 complete — cards moved to Done.
+
+## Round 166 (Doing — 2026-07-03, WhatsApp toplam sayaç fontu)
+- [x] `6a4795b1` reopened / #1297 — `Konuşmalar` altındaki toplam durum sayaçlarının fontu tek satır korunarak büyütüldü.
+
+## STATUS: Round 166 complete — card moved to Done.

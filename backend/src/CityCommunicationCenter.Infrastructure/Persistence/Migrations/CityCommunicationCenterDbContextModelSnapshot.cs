@@ -416,9 +416,25 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("isblocked");
 
+                    b.Property<string>("Label")
+                        .HasColumnType("text")
+                        .HasColumnName("label");
+
                     b.Property<DateTimeOffset>("LastMessageAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmessageat");
+
+                    b.Property<string>("Neighborhood")
+                        .HasColumnType("text")
+                        .HasColumnName("neighborhood");
+
+                    b.Property<string>("OpenAddress")
+                        .HasColumnType("text")
+                        .HasColumnName("openaddress");
+
+                    b.Property<string>("Street")
+                        .HasColumnType("text")
+                        .HasColumnName("street");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")

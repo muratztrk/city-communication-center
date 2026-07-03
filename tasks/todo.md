@@ -1051,3 +1051,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a476e29` / #1282 — WhatsApp footer'a şablon butonunun sağına dosya ekle aksiyonu eklendi; seçilen ek konuşma alanında bekleyen balon olarak görünür ve altında `Düzenle` / `Mesajı Gönder` aksiyonları bulunur.
 - [x] `6a4773b9` / #1287 — WhatsApp konuşma listesi/header talep sayısının yanında `İşleme Alındı`, `Yapılmakta`, `Tamamlandı`, `İptal` durum sayaçlarını gösterir.
 - [x] `6a476fd5` / #1286 — WhatsApp konuşma detay sağ paneline vatandaş adı, numara, etiket, mahalle, cadde/sokak/bulvar ve açık adres düzenleme/kaydetme alanı eklendi; isim kaydı sol liste/header görünümüne yansır.
+
+## STATUS: Round 160 complete — cards moved to Done; follow-up Doing cards picked up.
+
+## Round 161 (Doing — 2026-07-03, Vatandaş Talepleri grid kolonları)
+- [x] `6a476e47` / #1283 — Vatandaş Talepleri gridinde `Durum` sütunu kaldırıldı; yerine operatörün talep etiketi/kategorisini gösteren `Etiket` kolonu eklendi.
+- [x] `6a478c8d` / #1293 — Grid başlıkları `Vatandaş / Talep No` ve `Vatandaş / Talep Tarihi` olarak iki satıra bölündü.
+- [x] `6a478d6d` / #1294 — Gridde `Kanal` sütunu kaldırıldı; WhatsApp kanal ikonu `Vatandaş Talep No` değerinin başına alındı.

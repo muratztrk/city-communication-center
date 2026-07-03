@@ -251,6 +251,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri grid aksiyonları:** Gridde `Son Tarih` sütunu gösterilmez; `İşlemler`
   kolonunda yalnız `Detaylar` kalır. Yazışmaya Git / Düzenle / İptal aksiyonları detay popup
   header'ında görünür (card #1255).
+- **Vatandaş Talepleri grid kolonları:** Gridde `Kanal` ve `Durum` sütunları gösterilmez; WhatsApp
+  kanalı talep numarasının başındaki WhatsApp ikonu ile anlaşılır. `Vatandaş Talep No` ve
+  `Vatandaş Talep Tarihi` başlıklarında `Vatandaş` ilk satır, kalan metin ikinci satırdır; `Etiket`
+  kolonu operatörün talep etiketi/kategorisini gösterir.
 - **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**

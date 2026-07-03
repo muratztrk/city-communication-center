@@ -324,7 +324,10 @@ function ConversationListPanel({
     [conversations],
   )
 
+  const totalStatusCount = totalCounts.intake + totalCounts.inProgress + totalCounts.completed + totalCounts.cancelled
+
   const statusChips: Array<{ value: ConversationStatusFilter; label: string; count: number; className: string }> = [
+    { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü'), count: totalStatusCount, className: 'text-slate-900 hover:bg-slate-100' },
     { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: totalCounts.intake, className: 'text-slate-600 hover:bg-slate-100' },
     { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: totalCounts.inProgress, className: 'text-orange-600 hover:bg-orange-50' },
     { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: totalCounts.completed, className: 'text-emerald-700 hover:bg-emerald-50' },
@@ -355,8 +358,8 @@ function ConversationListPanel({
             <button
               key={chip.value}
               type="button"
-              onClick={() => onStatusFilterChange(statusFilter === chip.value ? 'all' : chip.value)}
-              className={`shrink-0 rounded-md px-0.5 py-0.5 text-[10px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
+              onClick={() => onStatusFilterChange(chip.value === 'all' || statusFilter === chip.value ? 'all' : chip.value)}
+              className={`shrink-0 rounded-md px-0.5 py-0.5 text-[10px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value || (chip.value === 'all' && statusFilter === 'all') ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
             >
               {chip.label}: {chip.count}
             </button>

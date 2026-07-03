@@ -1098,3 +1098,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4795b1` reopened / #1297 — `Konuşmalar` altındaki toplam durum sayaçlarının fontu tek satır korunarak büyütüldü.
 
 ## STATUS: Round 166 complete — card moved to Done.
+
+## Round 167 (Doing — 2026-07-03, WhatsApp toplam Tümü filtresi)
+- [x] `6a47b98e` / #1302 — `Konuşmalar` altındaki toplam sayaç satırına durum sayılarının toplamını gösteren `Tümü` eklendi; tıklanınca status filtresi temizlenip tüm numaralar gösterilir.
+
+## STATUS: Round 167 complete — card moved to Done.

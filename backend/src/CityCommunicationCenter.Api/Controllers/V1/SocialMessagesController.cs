@@ -192,6 +192,21 @@ public sealed class SocialMessagesController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("{messageId:guid}/conversation/internal")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddInternalConversationMessage(
+        Guid messageId,
+        [FromBody] SocialInternalConversationMessageRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new AddInternalConversationMessageCommand(messageId, request.DepartmentId, CurrentContext.UserId, request.Content),
+            cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     /// <summary>Beklemedeki bir yanıtı vatandaşa iletir (yalnızca Vatandaş Operatörü/SystemAdmin) — card #1091.</summary>
     [HttpPost("{messageId:guid}/conversation/{entryId:guid}/send")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

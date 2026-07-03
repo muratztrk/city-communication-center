@@ -20,7 +20,12 @@ public sealed class GetCitizenConversationsQueryHandler
         GetCitizenConversationsQuery request,
         CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
+        var currentUserId = context.UserId;
+        var activeDepartmentId = context.ActiveDepartmentId;
+        var canSeeAllConversations = Enum.TryParse<RoleCode>(context.RoleCode, true, out var roleCode)
+            && roleCode is RoleCode.Operator or RoleCode.SystemAdmin;
 
         var conversations = await _dbContext.CitizenConversations
             .AsNoTracking()
@@ -97,6 +102,7 @@ public sealed class GetCitizenConversationsQueryHandler
             .ToList();
 
         var assigneeByJobId = new Dictionary<Guid, string>();
+        var assigneeUserIdByJobId = new Dictionary<Guid, Guid>();
         if (jobIds.Count > 0)
         {
             var taskAssignees = await _dbContext.Tasks
@@ -129,6 +135,44 @@ public sealed class GetCitizenConversationsQueryHandler
                             ? name
                             : string.Empty;
                     });
+
+            assigneeUserIdByJobId = taskAssignees
+                .GroupBy(t => t.JobId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.OrderByDescending(t => t.AssignedAtUtc).First().AssignedUserId!.Value);
+        }
+
+        var relevantJobIds = new HashSet<Guid>();
+        if (jobIds.Count > 0 && !canSeeAllConversations)
+        {
+            if (currentUserId is Guid userId)
+            {
+                foreach (var pair in assigneeUserIdByJobId)
+                {
+                    if (pair.Value == userId)
+                    {
+                        relevantJobIds.Add(pair.Key);
+                    }
+                }
+            }
+
+            if (activeDepartmentId is Guid departmentId)
+            {
+                var departmentJobIds = await _dbContext.JobDepartments
+                    .AsNoTracking()
+                    .Where(jd => jobIds.Contains(jd.JobId)
+                        && jd.DepartmentId == departmentId
+                        && jd.Role == JobDepartmentRole.Target
+                        && jd.ApprovalStatus == JobApprovalStatus.Approved)
+                    .Select(jd => jd.JobId)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var jobId in departmentJobIds)
+                {
+                    relevantJobIds.Add(jobId);
+                }
+            }
         }
 
         return conversations
@@ -140,6 +184,15 @@ public sealed class GetCitizenConversationsQueryHandler
                 {
                     assigneeDisplayName = name;
                 }
+
+                var conversationMessages = socialMessages
+                    .Where(m => m.ConversationId == c.CitizenConversationId)
+                    .ToList();
+                var hasActiveJob = conversationMessages.Any(m => m.JobStatus is not null and not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected));
+                var isRelevantToCurrentUser = canSeeAllConversations
+                    ? hasActiveJob || c.OpenTicketCount > 0
+                    : conversationMessages.Any(m => m.JobId is Guid messageJobId && relevantJobIds.Contains(messageJobId)
+                        && m.JobStatus is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected));
 
                 return new CitizenConversationSummaryDto(
                     c.CitizenConversationId,
@@ -156,12 +209,11 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.Priority,
                     ticket?.Status.ToString(),
                     assigneeDisplayName,
-                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId
-                        && m.JobStatus is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested),
-                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId && m.JobStatus == JobStatus.Active),
-                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId && m.JobStatus == JobStatus.Completed),
-                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId
-                        && m.JobStatus is JobStatus.Cancelled or JobStatus.Rejected),
+                    isRelevantToCurrentUser,
+                    conversationMessages.Count(m => m.JobStatus is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested),
+                    conversationMessages.Count(m => m.JobStatus == JobStatus.Active),
+                    conversationMessages.Count(m => m.JobStatus == JobStatus.Completed),
+                    conversationMessages.Count(m => m.JobStatus is JobStatus.Cancelled or JobStatus.Rejected),
                     c.Label,
                     c.Neighborhood,
                     c.Street,

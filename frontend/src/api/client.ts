@@ -987,6 +987,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
 
+  async addInternalConversationMessage(socialMessageId: string, departmentId: string, content: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/conversation/internal`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ departmentId, content }),
+    })
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
   // Beklemedeki bir yanıtı vatandaşa iletir (yalnızca Vatandaş Operatörü/SystemAdmin) — card #1091.
   async sendPendingConversationEntry(socialMessageId: string, entryId: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/conversation/${entryId}/send`, {

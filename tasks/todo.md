@@ -1058,3 +1058,19 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a476e47` / #1283 — Vatandaş Talepleri gridinde `Durum` sütunu kaldırıldı; yerine operatörün talep etiketi/kategorisini gösteren `Etiket` kolonu eklendi.
 - [x] `6a478c8d` / #1293 — Grid başlıkları `Vatandaş / Talep No` ve `Vatandaş / Talep Tarihi` olarak iki satıra bölündü.
 - [x] `6a478d6d` / #1294 — Gridde `Kanal` sütunu kaldırıldı; WhatsApp kanal ikonu `Vatandaş Talep No` değerinin başına alındı.
+
+## STATUS: Round 161 complete — cards moved to Done; follow-up Doing cards picked up.
+
+## Round 162 (Doing — 2026-07-03, WhatsApp konuşma sayaçları, FAB ve iç mesajlar)
+- [x] `6a478fe8` / #1295 — WhatsApp FAB artık operatör dışındaki ilgili kullanıcılar için de çalışır; yalnız atanmış kişi/aktif departman ve terminal olmayan vatandaş talepleri bildirim kapsamına girer.
+- [x] `6a479c66` / #1298 — `/whatsapp` detay sağ panelindeki `Talep Sayısı` başlıklı ayrı blok kaldırıldı.
+- [x] `6a479c9f` / #1299 — Durum sayaçları sol panelde `Konuşmalar` başlığı altında görünür hale getirildi.
+- [x] `6a478b47` reopened / #1292 — Konuşma detayı yenilenirken mevcut detail state'i boşaltılmıyor; numara tıklama/refresh görsel çerçeve zıplaması üretmez.
+- [x] `6a4773b9` reopened / #1287 — Konuşma kartı ve detay header'ındaki `Talep Sayısı`/durum sayaç satırları kaldırıldı; sayaçlar tek toplam filtre alanında toplandı.
+- [x] `6a479d1c` / #1300 — WhatsApp footer'da `Dosya ekle` aksiyonu `Şablon mesaj ekle` butonunun soluna alındı.
+- [x] `6a476e29` reopened / #1282 — `Dosya ekle` seçimi konuşma içinde bekleyen ek balonunu açar ve kullanıcıyı yeni eke kaydırır.
+- [x] `6a4795b1` / #1297 — `İşleme Alınan`, `Yapılmakta`, `Tamamlandı`, `İptal` toplam sayaçları tıklanabilir filtreye dönüştürüldü.
+- [x] `6a476deb` / #1281 — Operatör `/whatsapp` konuşmasında birim seçerek aynı konuşmaya vatandaşa gitmeyen iç mesaj ekleyebilir.
+- [x] `6a475ad7` reopened / #1278 — Süreç timeline geçişleri hedefin %50 hizasından başlar; yeşil→turuncu ve turuncu→gri geçişler iki renk ailesinde yumuşatıldı.
+
+## STATUS: Round 162 complete — cards moved to Done.

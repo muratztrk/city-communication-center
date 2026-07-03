@@ -102,35 +102,11 @@ function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversat
     ?? ordered.find(ticket => ticket.status !== 'Closed')
 }
 
-function ConversationStatusCounts({
-  intake,
-  inProgress,
-  completed,
-  cancelled,
-  compact = false,
-}: {
-  intake?: number
-  inProgress?: number
-  completed?: number
-  cancelled?: number
-  compact?: boolean
-}) {
-  const { t } = useTranslation()
-  const baseClass = compact ? 'text-[10px]' : 'text-[11px]'
-  return (
-    <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${baseClass} font-semibold`}>
-      <span className="text-slate-600">{t('whatsapp.intakeCount', 'İşleme Alındı')}: {intake ?? 0}</span>
-      <span className="text-orange-600">{t('whatsapp.inProgressCount', 'Yapılmakta')}: {inProgress ?? 0}</span>
-      <span className="text-emerald-700">{t('whatsapp.completedCount', 'Tamamlandı')}: {completed ?? 0}</span>
-      <span className="text-red-600">{t('whatsapp.cancelledCount', 'İptal')}: {cancelled ?? 0}</span>
-    </div>
-  )
-}
-
 // ─── left panel: conversation list ────────────────────────────────────────────
 
 type ConversationListFilter = 'all' | 'unread'
 type ConversationSortOrder = 'newest' | 'oldest'
+type ConversationStatusFilter = 'all' | 'intake' | 'in-progress' | 'completed' | 'cancelled'
 
 function isRecentConversationTime(dateStr: string): boolean {
   const diffMin = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000)
@@ -258,15 +234,6 @@ function ConversationListItem({
           {ticketLabel ? (
             <p className="mt-1.5 text-[10px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}
-          <div className="mt-1.5">
-            <ConversationStatusCounts
-              compact
-              intake={conv.intakeCount}
-              inProgress={conv.inProgressCount}
-              completed={conv.completedCount}
-              cancelled={conv.cancelledCount}
-            />
-          </div>
         </div>
       </div>
     </button>
@@ -283,6 +250,8 @@ function ConversationListPanel({
   onListFilterChange,
   sortOrder,
   onSortOrderChange,
+  statusFilter,
+  onStatusFilterChange,
   selectedId,
   onSelect,
 }: {
@@ -295,6 +264,8 @@ function ConversationListPanel({
   onListFilterChange: (value: ConversationListFilter) => void
   sortOrder: ConversationSortOrder
   onSortOrderChange: (value: ConversationSortOrder) => void
+  statusFilter: ConversationStatusFilter
+  onStatusFilterChange: (value: ConversationStatusFilter) => void
   selectedId: string | null
   onSelect: (id: string) => void
 }) {
@@ -308,6 +279,26 @@ function ConversationListPanel({
   const filterOptions: { value: ConversationListFilter; label: string; badge?: number }[] = [
     { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü') },
     { value: 'unread', label: t('whatsapp.listFilter.unread', 'Okunmamış'), badge: unreadCount || undefined },
+  ]
+
+  const totalCounts = useMemo(
+    () => conversations.reduce(
+      (acc, conversation) => ({
+        intake: acc.intake + (conversation.intakeCount ?? 0),
+        inProgress: acc.inProgress + (conversation.inProgressCount ?? 0),
+        completed: acc.completed + (conversation.completedCount ?? 0),
+        cancelled: acc.cancelled + (conversation.cancelledCount ?? 0),
+      }),
+      { intake: 0, inProgress: 0, completed: 0, cancelled: 0 },
+    ),
+    [conversations],
+  )
+
+  const statusChips: Array<{ value: ConversationStatusFilter; label: string; count: number; className: string }> = [
+    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: totalCounts.intake, className: 'text-slate-600 hover:bg-slate-100' },
+    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: totalCounts.inProgress, className: 'text-orange-600 hover:bg-orange-50' },
+    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: totalCounts.completed, className: 'text-emerald-700 hover:bg-emerald-50' },
+    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: totalCounts.cancelled, className: 'text-red-600 hover:bg-red-50' },
   ]
 
   return (
@@ -327,6 +318,19 @@ function ConversationListPanel({
             <ArrowDownUp className="size-3.5" aria-hidden="true" />
             {t('whatsapp.sort', 'Sırala')}
           </button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          {statusChips.map(chip => (
+            <button
+              key={chip.value}
+              type="button"
+              onClick={() => onStatusFilterChange(statusFilter === chip.value ? 'all' : chip.value)}
+              className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
+            >
+              {chip.label}: {chip.count}
+            </button>
+          ))}
         </div>
 
         <div className="relative">
@@ -494,15 +498,6 @@ function ConversationProfilePanel({
         </label>
       </div>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
-        <p className="mb-2 text-[11px] font-bold text-slate-700">{t('whatsapp.requestCounts', 'Talep Sayısı')}</p>
-        <ConversationStatusCounts
-          intake={detail?.intakeCount}
-          inProgress={detail?.inProgressCount}
-          completed={detail?.completedCount}
-          cancelled={detail?.cancelledCount}
-        />
-      </div>
     </aside>
   )
 }
@@ -512,6 +507,7 @@ function ConversationDetail({
   citizenName,
   citizenPhone,
   userQuickReplies,
+  departments,
   onUserQuickRepliesChanged,
   anchorAtUtc,
   anchorSocialMessageId,
@@ -524,6 +520,7 @@ function ConversationDetail({
   citizenName?: string | null
   citizenPhone?: string | null
   userQuickReplies: UserQuickReplyTemplate[]
+  departments: Department[]
   onUserQuickRepliesChanged: () => void
   anchorAtUtc?: string | null
   anchorSocialMessageId?: string | null
@@ -551,6 +548,8 @@ function ConversationDetail({
   const [profileSaving, setProfileSaving] = useState(false)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
+  const [internalDepartmentId, setInternalDepartmentId] = useState('')
+  const [sendingInternal, setSendingInternal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [highlightEntryIndex, setHighlightEntryIndex] = useState<number | null>(null)
@@ -573,7 +572,6 @@ function ConversationDetail({
 
   const loadDetail = useCallback(async () => {
     setLoading(true)
-    setDetail(null)
     try {
       const data = await api.getCitizenConversationDetail(conversationId)
       setDetail(data)
@@ -685,6 +683,20 @@ function ConversationDetail({
     }
   }
 
+  const handleSendInternal = async () => {
+    const text = replyText.trim()
+    if (!text || !internalDepartmentId || !primaryTicket || sendingInternal) return
+    setSendingInternal(true)
+    try {
+      await api.addInternalConversationMessage(primaryTicket.socialMessageId, internalDepartmentId, text)
+      setReplyText('')
+      setIsPinnedToBottom(true)
+      await refreshDetail()
+    } finally {
+      setSendingInternal(false)
+    }
+  }
+
   const doSendPending = async (entry: CitizenConversationTimelineEntry) => {
     if (sendingPendingId) return
     setSendingPendingId(entry.entryId)
@@ -778,14 +790,6 @@ function ConversationDetail({
           {ticketLabel ? (
             <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}
-          <div className="mt-1">
-            <ConversationStatusCounts
-              intake={detail?.intakeCount}
-              inProgress={detail?.inProgressCount}
-              completed={detail?.completedCount}
-              cancelled={detail?.cancelledCount}
-            />
-          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <button
@@ -949,10 +953,6 @@ function ConversationDetail({
                   <ClipboardPlus className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('nav.createRequest', 'Talep oluştur')}
                 </button>
-                <WhatsAppTemplatePicker
-                  userQuickReplies={userQuickReplies}
-                  onSelect={content => setReplyText(content)}
-                />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -969,10 +969,40 @@ function ConversationDetail({
                     const file = event.target.files?.[0] ?? null
                     setPendingFile(file)
                     setPendingFileEditing(Boolean(file))
+                    if (file) {
+                      setIsPinnedToBottom(true)
+                      window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+                    }
                     if (event.target) event.target.value = ''
                   }}
                 />
+                <WhatsAppTemplatePicker
+                  userQuickReplies={userQuickReplies}
+                  onSelect={content => setReplyText(content)}
+                />
                 <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={internalDepartmentId}
+                  onChange={event => setInternalDepartmentId(event.target.value)}
+                  className="h-9 min-w-44 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  aria-label={t('departments.selectDepartment', 'Birim seçin')}
+                >
+                  <option value="">{t('departments.selectDepartment', 'Birim seçin')}</option>
+                  {departments.map(department => (
+                    <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => void handleSendInternal()}
+                  disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                  {t('whatsapp.sendInternalMessage', 'Birim İçi İlet')}
+                </button>
               </div>
               <div className="flex items-end gap-2">
                 <textarea
@@ -1040,6 +1070,7 @@ export function WhatsAppConversationsPage() {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [listFilter, setListFilter] = useState<ConversationListFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<ConversationStatusFilter>('all')
   const [sortOrder, setSortOrder] = useState<ConversationSortOrder>('newest')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
@@ -1117,6 +1148,10 @@ export function WhatsAppConversationsPage() {
         if (filterTo && date > filterTo.slice(0, 10)) return false
       }
       if (listFilter === 'unread' && conversation.unreadCount <= 0) return false
+      if (statusFilter === 'intake' && (conversation.intakeCount ?? 0) <= 0) return false
+      if (statusFilter === 'in-progress' && (conversation.inProgressCount ?? 0) <= 0) return false
+      if (statusFilter === 'completed' && (conversation.completedCount ?? 0) <= 0) return false
+      if (statusFilter === 'cancelled' && (conversation.cancelledCount ?? 0) <= 0) return false
       return true
     })
 
@@ -1125,7 +1160,7 @@ export function WhatsAppConversationsPage() {
       const bTime = new Date(b.lastMessageAt).getTime()
       return sortOrder === 'newest' ? bTime - aTime : aTime - bTime
     })
-  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, sortOrder])
+  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, sortOrder, statusFilter])
 
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
 
@@ -1252,6 +1287,8 @@ export function WhatsAppConversationsPage() {
           onListFilterChange={setListFilter}
           sortOrder={sortOrder}
           onSortOrderChange={setSortOrder}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
           selectedId={selectedId}
           onSelect={setSelectedId}
         />
@@ -1265,6 +1302,7 @@ export function WhatsAppConversationsPage() {
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}
               userQuickReplies={userQuickReplies}
+              departments={departments}
               onUserQuickRepliesChanged={() => { void refreshUserQuickReplies() }}
               anchorAtUtc={requestedAt || null}
               anchorSocialMessageId={requestedMessageId || null}

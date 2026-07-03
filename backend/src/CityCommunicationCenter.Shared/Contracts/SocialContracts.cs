@@ -176,6 +176,8 @@ public sealed record SocialConversationEntryDto(
 
 public sealed record SocialReplyRequest(string Content, bool SendImmediately = false);
 
+public sealed record SocialInternalConversationMessageRequest(Guid DepartmentId, string Content);
+
 public sealed record CitizenConversationSummaryDto(
     Guid CitizenConversationId,
     string CitizenPhone,
@@ -191,6 +193,7 @@ public sealed record CitizenConversationSummaryDto(
     string? LatestTicketPriority,
     string? LatestTicketStatus,
     string? AssigneeDisplayName,
+    bool IsRelevantToCurrentUser = false,
     int IntakeCount = 0,
     int InProgressCount = 0,
     int CompletedCount = 0,

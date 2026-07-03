@@ -405,6 +405,7 @@ export interface CitizenConversationSummary {
   latestTicketPriority?: string | null;
   latestTicketStatus?: string | null;
   assigneeDisplayName?: string | null;
+  isRelevantToCurrentUser?: boolean;
   intakeCount?: number;
   inProgressCount?: number;
   completedCount?: number;

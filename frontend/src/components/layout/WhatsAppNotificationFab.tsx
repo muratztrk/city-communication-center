@@ -173,6 +173,7 @@ export function WhatsAppNotificationFab() {
   const unreadConversations = useMemo(
     () => conversations
       .filter(conversation => {
+        if (conversation.isRelevantToCurrentUser === false) return false
         if (conversation.unreadCount <= 0) return false
         if (location.pathname === '/whatsapp' && activeConversation) {
           if (conversation.citizenConversationId === activeConversation.id) return false
@@ -189,6 +190,11 @@ export function WhatsAppNotificationFab() {
   const unreadTotal = useMemo(
     () => unreadConversations.reduce((sum, conversation) => sum + conversation.unreadCount, 0),
     [unreadConversations],
+  )
+
+  const hasRelevantConversation = useMemo(
+    () => conversations.some(conversation => conversation.isRelevantToCurrentUser !== false),
+    [conversations],
   )
 
   useEffect(() => {
@@ -210,6 +216,10 @@ export function WhatsAppNotificationFab() {
   }
 
   const badgeLabel = formatBadgeCount(unreadTotal)
+
+  if (!hasRelevantConversation && unreadTotal === 0) {
+    return null
+  }
 
   return (
     <div className="relative size-14 shrink-0">

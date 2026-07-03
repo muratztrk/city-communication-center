@@ -143,8 +143,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı geniş harf aralıklı açık gri kalır;
   header başlığı, modal gövde içeriğiyle aynı sol hizada başlar. Kart içi `Süreç` ve `Açıklama`
   başlıkları alt kart başlıklarıyla aynı hafif ağırlıkta kalır; bold yapılmaz. Süreç yuvarlakları
-  görsel referanstaki gibi açık zeminli/halkalı görünür; tamamlanan adım katı yeşil disk değildir;
-  tamamlanan adımdan güncel turuncu adıma giden çizgi yumuşak yeşil→turuncu geçişli kalır.
+  görsel referanstaki gibi açık zeminli/halkalı görünür; tamamlanan adım ve tamamlanmış çizgi
+  `Düzenle` butonundaki emerald-700 yeşiliyle eşleşir; tamamlanan adımdan güncel turuncu adıma
+  giden çizgi belirgin ve yumuşak yeşil→amber→turuncu geçişli kalır.
   Ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
   yapışmaz. Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;

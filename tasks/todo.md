@@ -1014,3 +1014,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a474c18` / #1274 — Üst düzey yönetici (Reporter) kaynaklı taleplerde grid başlık metni turuncu gösterilir.
 - [x] `6a4756fe` / #1276 — Yönetici Notu textarea arka planı Ekler / Fotoğraflar alanındaki soluk zeminle eşitlendi.
 - [x] `6a46c4f4` / #1270 — Vatandaşa Giden Cevaplar durum chip renkleri güncellendi: `İptal` kırmızı, `İşleme Alındı` ve `Yapılmakta` turuncu.
+
+## STATUS: Round 155 complete — cards moved to Done; follow-up Doing card picked up.
+
+## Round 156 (Doing — 2026-07-03, süreç timeline yeşil/geçiş tonu)
+- [x] `6a475ad7` / #1278 — Detay Süreç timeline'ında tamamlanmış çizgi/düğüm yeşili `Düzenle` butonu yeşiline eşitlendi; yeşil→turuncu geçişi amber ara tonla daha belirgin ve yumuşak yapıldı.

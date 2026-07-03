@@ -425,15 +425,16 @@
   }
 
   .job-process-timeline__line--completed {
-    background: rgb(5 150 105);
+    background: rgb(4 120 87);
   }
 
   .job-process-timeline__line--to-current {
     background: linear-gradient(
       to bottom,
-      rgb(5 150 105) 0%,
-      rgb(5 150 105) 24%,
-      rgb(249 115 22) 82%,
+      rgb(4 120 87) 0%,
+      rgb(4 120 87) 18%,
+      rgb(16 185 129) 42%,
+      rgb(245 158 11) 72%,
       rgb(249 115 22) 100%
     );
   }
@@ -441,8 +442,8 @@
   .job-process-timeline__line--to-danger {
     background: linear-gradient(
       to bottom,
-      rgb(5 150 105) 0%,
-      rgb(5 150 105) 30%,
+      rgb(4 120 87) 0%,
+      rgb(4 120 87) 30%,
       rgb(220 38 38) 70%,
       rgb(220 38 38) 100%
     );
@@ -463,8 +464,8 @@
       to bottom,
       rgb(220 38 38) 0%,
       rgb(220 38 38) 30%,
-      rgb(5 150 105) 70%,
-      rgb(5 150 105) 100%
+      rgb(4 120 87) 70%,
+      rgb(4 120 87) 100%
     );
   }
 
@@ -496,7 +497,7 @@
   .job-process-timeline__indicator--completed {
     width: 0.875rem;
     height: 0.875rem;
-    background: rgb(16 185 129);
+    background: rgb(4 120 87);
     color: white;
     box-shadow:
       0 0 0 2px white,

@@ -242,10 +242,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   satırı gösterilmez; `İşleme Alınan`, `Yapılmakta`, `Tamamlandı`, `İptal` durum kırılımı
   başlıksız olarak görünür kalır.
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Konuşmalar` başlığı altında
-  `Tümü` toplamı ile `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı`, kırmızı `İptal`
-  sayaçları görünür; hepsi tek satırda ve okunur büyüklükte kalır. `Tümü`, durum sayaçlarının
-  toplamını gösterir ve tıklanınca status filtresini temizleyip tüm numaraları gösterir; diğer
-  sayaçlar alttaki konuşma listesini ilgili statüde talebi olan konuşmalara filtreler.
+  `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı`, kırmızı `İptal` sayaçları görünür;
+  hepsi tek satırda ve okunur büyüklükte kalır. `Tümü` üst başlık satırında, `Konuşmalar` sayısının
+  yanında hizalanır; durum sayaçlarının toplamını gösterir ve tıklanınca status filtresini temizleyip
+  tüm numaraları gösterir. Diğer sayaçlar alttaki konuşma listesini ilgili statüde talebi olan
+  konuşmalara filtreler.
 - **WhatsApp FAB ilgili kullanıcı görünürlüğü:** WhatsApp bildirim FAB'ı yalnız operatör/SistemAdmin için
   aktif/açık konuşmalarda, diğer kullanıcılar için ise kendisine atanmış veya aktif departmanına yönlendirilmiş
   terminal olmayan vatandaş taleplerinde görünür; tamamlandı/iptal/reddedilmiş konuşmalar ilgili kullanıcıdan gizlenir.

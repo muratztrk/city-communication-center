@@ -1108,3 +1108,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a47b98e` reopened / #1302 — `Tümü` butonu toplam sayaç satırından alınıp üst başlık satırında `Konuşmalar` sayısının yanına hizalandı.
 
 ## STATUS: Round 168 complete — card moved to Done.
+
+## Round 169 (Doing — 2026-07-03, WhatsApp Tümü ayrı alt satır)
+- [x] `6a47b98e` reopened / #1302 — `Tümü` butonu `Konuşmalar` başlığının altındaki kendi satırına taşındı; `İşleme Alınan/Yapılmakta/Tamamlandı/İptal` satırı onun altında aynı kaldı.
+
+## STATUS: Round 169 complete — card moved to Done.

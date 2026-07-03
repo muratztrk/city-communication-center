@@ -110,7 +110,7 @@ export function MyRequestDetailBottomCards({
                 <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
               ) : null}
               <textarea
-                className="field-textarea min-h-24 w-full text-xs placeholder:text-xs"
+                className="field-textarea manager-note-textarea min-h-24 w-full text-xs placeholder:text-xs"
                 rows={3}
                 value={managerNoteDraft}
                 onChange={e => onManagerNoteDraftChange(e.target.value)}

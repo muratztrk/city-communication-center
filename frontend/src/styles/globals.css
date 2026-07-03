@@ -345,6 +345,10 @@
     background: rgb(248 250 249) !important;
   }
 
+  .manager-note-textarea {
+    background: rgb(248 250 249) !important;
+  }
+
   .address-detail-my-request__label {
     margin: 0 0 0.35rem;
     font-size: 0.78rem;

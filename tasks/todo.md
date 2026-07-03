@@ -1004,3 +1004,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46c43a` / #1269 — Log ekranında `Şlem` sütun başlığı `İşlem` oldu; audit aksiyonlarında `İş tamamlandı` yerine `Görev tamamlandı` / `Talep tamamlandı` ayrımı yapıldı.
 
 ## STATUS: Round 154 complete — Doing list drained.
+
+## Round 155 (Doing — 2026-07-03, otomatik cevaplar ve talep grid/detail davranışları)
+- [x] `6a46c200` reopened / #1268 — Vatandaşa Giden Cevaplar iptal otomatik mesajı artık giden/kaydedilen metinde `İptal Edildi` durumunu üretir; backend/frontend varsayılanları eşitlendi.
+- [x] `6a474a6e` / #1272 — Vatandaş operatörü bekleyen ara durum (`İşleme Alındı`/`Yapılmakta`) mesajlarında `İptal Notu`/`Tamamlanma Notu` butonları gizlendi; terminal not butonu yalnız terminal durum mesajlarında görünür.
+- [x] `6a474b39` / #1273 — Birime Gelen ve Birimden Giden grid `İşlemler` sütununda yalnız `Detaylar` kaldı; onay/iptal aksiyonları detay üst sağ alanında aktif/pasif mantığıyla kullanılmaya devam eder.
+- [x] `6a474d0b` / #1275 — Birim yöneticisinin oluşturduğu birim içi aktif taleplerde Süreç timeline'ına Son Tarih öncesinde turuncu `Durum / Yapılmakta` adımı eklendi.
+- [x] `6a46cb51` / #1271 — WhatsApp Konuşmaları detayında kullanıcı yukarı scroll yaptıysa refresh/tıklama otomatik dibe indirmez; yalnız dibe yakınken veya mesaj gönderirken otomatik scroll çalışır.
+- [x] `6a474c18` / #1274 — Üst düzey yönetici (Reporter) kaynaklı taleplerde grid başlık metni turuncu gösterilir.
+- [x] `6a4756fe` / #1276 — Yönetici Notu textarea arka planı Ekler / Fotoğraflar alanındaki soluk zeminle eşitlendi.
+- [x] `6a46c4f4` / #1270 — Vatandaşa Giden Cevaplar durum chip renkleri güncellendi: `İptal` kırmızı, `İşleme Alındı` ve `Yapılmakta` turuncu.

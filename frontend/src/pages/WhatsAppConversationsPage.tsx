@@ -412,9 +412,18 @@ function ConversationDetail({
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const [highlightEntryIndex, setHighlightEntryIndex] = useState<number | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [isPinnedToBottom, setIsPinnedToBottom] = useState(true)
   const bottomRef = useRef<HTMLDivElement>(null)
   const entryRefs = useRef<Map<number, HTMLDivElement>>(new Map())
   const anchorAppliedRef = useRef(false)
+
+  const updatePinnedToBottom = useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    setIsPinnedToBottom(distanceFromBottom <= 80)
+  }, [])
 
   const loadDetail = useCallback(async () => {
     setLoading(true)
@@ -460,6 +469,7 @@ function ConversationDetail({
   useEffect(() => {
     anchorAppliedRef.current = false
     entryRefs.current.clear()
+    setIsPinnedToBottom(true)
   }, [conversationId, anchorAtUtc, anchorSocialMessageId])
 
   useEffect(() => {
@@ -479,10 +489,10 @@ function ConversationDetail({
       }
     }
 
-    if (!anchorAtUtc) {
+    if (!anchorAtUtc && isPinnedToBottom) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [anchorAtUtc, anchorSocialMessageId, detail, loading])
+  }, [anchorAtUtc, anchorSocialMessageId, detail, isPinnedToBottom, loading])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -506,6 +516,7 @@ function ConversationDetail({
     try {
       await api.replySocialMessage(openTicket.socialMessageId, text)
       setReplyText('')
+      setIsPinnedToBottom(true)
       await refreshDetail()
     } finally {
       setSending(false)
@@ -517,6 +528,7 @@ function ConversationDetail({
     setSendingPendingId(entry.entryId)
     try {
       await api.sendPendingConversationEntry(entry.socialMessageId, entry.entryId)
+      setIsPinnedToBottom(true)
       await refreshDetail()
     } finally {
       setSendingPendingId(null)
@@ -670,7 +682,11 @@ function ConversationDetail({
         </div>
       ) : null}
 
-      <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
+      <div
+        ref={scrollContainerRef}
+        onScroll={updatePinnedToBottom}
+        className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
+      >
         {loading ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />

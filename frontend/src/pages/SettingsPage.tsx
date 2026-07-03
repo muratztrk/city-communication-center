@@ -58,7 +58,7 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı.",
   inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta.",
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı.",
-  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal.",
+  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal Edildi.",
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -88,11 +88,19 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
 interface CitizenAutoReplyTemplateFieldProps {
   label: string
   statusLabel: string
+  templateStatusLabel?: string
+  tone?: 'success' | 'warning' | 'danger'
   value: string
   onChange: (value: string) => void
 }
 
-function CitizenAutoReplyTemplateField({ label, statusLabel, value, onChange }: CitizenAutoReplyTemplateFieldProps) {
+function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, onChange }: CitizenAutoReplyTemplateFieldProps) {
+  const statusToneClass = tone === 'danger'
+    ? 'border-red-200 bg-red-50 text-red-700'
+    : tone === 'warning'
+      ? 'border-orange-200 bg-orange-50 text-orange-700'
+      : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+
   return (
     <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700">
       <span className="text-slate-800">{label}</span>
@@ -103,11 +111,11 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, value, onChange }: 
       </div>
       <textarea
         className="field-textarea min-h-[4.5rem]"
-        value={extractCitizenAutoReplyBodyText(value, statusLabel)}
-        onChange={event => onChange(buildCitizenAutoReplyTemplate(event.target.value, statusLabel))}
+        value={extractCitizenAutoReplyBodyText(value, templateStatusLabel)}
+        onChange={event => onChange(buildCitizenAutoReplyTemplate(event.target.value, templateStatusLabel))}
       />
       <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
-        <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 font-bold text-emerald-700">{statusLabel}</span>
+        <span className={`rounded-md border px-2 py-1 font-bold ${statusToneClass}`}>{statusLabel}</span>
         <span>.</span>
       </div>
     </div>
@@ -983,8 +991,8 @@ export function SettingsPage() {
           t('social.requestStatus.completed', 'Tamamlandı'),
         ),
         cancelled: buildCitizenAutoReplyTemplate(
-          extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.cancelled, t('social.requestStatus.cancelled', 'İptal')),
-          t('social.requestStatus.cancelled', 'İptal'),
+          extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.cancelled, t('social.requestStatus.cancelledMessage', 'İptal Edildi')),
+          t('social.requestStatus.cancelledMessage', 'İptal Edildi'),
         ),
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
@@ -2255,15 +2263,17 @@ export function SettingsPage() {
             </div>
             <div className="grid gap-4 md:grid-cols-4">
               {([
-                ['processingReceived', t('social.requestStatus.processingReceived', 'İşleme Alındı')],
-                ['inProgress', t('social.requestStatus.inProgress', 'Yapılmakta')],
-                ['completed', t('social.requestStatus.completed', 'Tamamlandı')],
-                ['cancelled', t('social.requestStatus.cancelled', 'İptal')],
-              ] as Array<[CitizenAutoReplyTemplateKey, string]>).map(([key, statusLabel]) => (
+                { key: 'processingReceived', label: t('social.requestStatus.processingReceived', 'İşleme Alındı'), tone: 'warning' },
+                { key: 'inProgress', label: t('social.requestStatus.inProgress', 'Yapılmakta'), tone: 'warning' },
+                { key: 'completed', label: t('social.requestStatus.completed', 'Tamamlandı'), tone: 'success' },
+                { key: 'cancelled', label: t('social.requestStatus.cancelled', 'İptal'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger' },
+              ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger' }>).map(({ key, label, templateLabel, tone }) => (
                 <CitizenAutoReplyTemplateField
                   key={key}
-                  label={statusLabel}
-                  statusLabel={statusLabel}
+                  label={label}
+                  statusLabel={label}
+                  templateStatusLabel={templateLabel}
+                  tone={tone}
                   value={citizenAutoReplyTemplates[key]}
                   onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, [key]: value }))}
                 />

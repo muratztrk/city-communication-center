@@ -719,6 +719,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
+  const incomingPendingCloseTask = isIncomingRequestDetail && isManagerLike
+    ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
+    : null
+  const canApproveIncomingCloseDetail = incomingPendingCloseTask != null
+  const isDepartmentOutgoingTargetApprovedDetail = isDepartmentOutgoingView
+    && detail != null
+    && detail.departments.some(department => department.role === 'Target' && department.approvalStatus === 'Approved')
   // Son tarihi geçmiş kayıtlarda listede gösterilen pasif Onayla düğmesi,
   // detay popup'ında da aynı işleme uygun olmayan durumu açıkça belirtmelidir.
   const shouldShowDisabledIncomingApprove = isIncomingRequestDetail
@@ -732,6 +739,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && !canAssignIncomingDetail
   const canCancelDetail = isRequestDetailContext
     && (isManagerLike || isMyRequestsView)
+    && detail != null
+    && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
+    && !isDepartmentOutgoingTargetApprovedDetail
+  const shouldShowDisabledDepartmentOutgoingCancel = isDepartmentOutgoingTargetApprovedDetail
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
   const showWorkflowSections = !isMyRequestsView
@@ -1436,6 +1447,26 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       setStaffAssignModal(current => current ? { ...current, saving: false } : null)
     }
   }
+
+  const handleApproveIncomingCloseDetail = (taskId: string) => {
+    setConfirmDialog({
+      message: t('tasks.approveCloseConfirm', 'Bu görevi tamamlandı olarak onaylamak istediğinizden emin misiniz?'),
+      variant: 'primary',
+      confirmLabel: t('common.approve', 'Onayla'),
+      onConfirm: async () => {
+        setError(null)
+        try {
+          await api.approveTaskClose(taskId)
+          invalidateTasks(queryClient, taskId, detail?.jobId)
+          if (detail) invalidateJobs(queryClient, detail.jobId)
+          await refreshDetail()
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('common.error'))
+        }
+      },
+    })
+  }
+
   const handleDelete = (jobId: string) => {
     setConfirmDialog({
       message: t('jobs.deleteConfirm', 'Bu iş kaydı kalıcı olarak silinecek. Emin misiniz?'),
@@ -1798,8 +1829,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   />
                 )}
                 {pagedJobs.map((job, index) => {
-                  const isOutgoingTargetApproved = isDepartmentOutgoingView &&
-                    job.departments.some(d => d.role === 'Target' && d.approvalStatus === 'Approved')
                   const isReporterJob = isReporterCreated(job.createdByRoleCode)
                   const reporterNumberClass = isReporterJob && hasConcreteNumberDisplay(formatJobDisplayNumber(job))
                     ? reporterGridValueClass(true)
@@ -1815,7 +1844,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} highlight={isReporterJob && Boolean(job.createdAtUtc)} /></td>}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
-                    <td className="font-semibold"><span className="cell-title">{job.title}</span></td>
+                    <td className="font-semibold"><span className={`cell-title ${isReporterJob ? 'text-[#f97316]' : ''}`}>{job.title}</span></td>
                     {showTaskOwnerColumn && <td>{job.assignedUserDisplayName ?? '—'}</td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
@@ -1857,32 +1886,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         )}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'Active' && (
                           <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
-                        )}
-                        {/* Birimden Giden → Bekleyen: Yönetici onayı. Onaylanınca hedef birimin havuzuna düşer. */}
-                        {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && isManagerLike && job.status === 'PendingOwnerApproval' && (
-                          <Button size="sm" variant="success" onClick={() => void handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner', 'Onayla')}</Button>
-                        )}
-                        {/* Birimden Giden → Bekleyen: İptal butonu */}
-                        {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && (
-                          isOutgoingTargetApproved ? (
-                            <span
-                              title="Talep onaylandığı için iptal edilemez"
-                              className="inline-block cursor-not-allowed"
-                            >
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                disabled
-                                style={{ pointerEvents: 'none' }}
-                              >
-                                {t('jobs.actions.cancel', 'İptal')}
-                              </Button>
-                            </span>
-                          ) : (
-                            <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>
-                              {t('jobs.actions.cancel', 'İptal')}
-                            </Button>
-                          )
                         )}
                       </div>
                     </td>
@@ -2012,6 +2015,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
+                {canApproveIncomingCloseDetail && incomingPendingCloseTask && (
+                  <Button type="button" variant="success" onClick={() => handleApproveIncomingCloseDetail(incomingPendingCloseTask.taskId)}>
+                    {t('tasks.actions.approveClose', 'Onayla')}
+                  </Button>
+                )}
                 {shouldShowDisabledIncomingApprove && (
                   <DisabledActionButton
                     variant="success"
@@ -2057,6 +2065,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   >
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </Button>
+                )}
+                {shouldShowDisabledDepartmentOutgoingCancel && (
+                  <DisabledActionButton
+                    variant="destructive"
+                    hoverTitle={t('jobs.actions.cancelUnavailableApproved', 'Talep onaylandığı için iptal edilemez')}
+                  >
+                    {t('jobs.actions.cancel', 'İptal Et')}
+                  </DisabledActionButton>
                 )}
                 <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
                 <button
@@ -2345,7 +2361,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
                             ) : null}
                             <textarea
-                              className="field-textarea min-h-24 w-full text-xs placeholder:text-xs"
+                              className="field-textarea manager-note-textarea min-h-24 w-full text-xs placeholder:text-xs"
                               rows={3}
                               value={managerNoteDraft}
                               onChange={e => {

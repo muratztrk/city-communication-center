@@ -63,7 +63,13 @@ export function ConversationEntryBubble({
     : entry.relatedJobTerminalStatus === 'Completed'
       ? 'completed'
       : null
-  const showTerminalNote = isPending && canSendPending && terminalNoteKind != null && Boolean(entry.relatedJobTerminalNote?.trim())
+  const normalizedContent = entry.content.toLocaleLowerCase('tr')
+  const entryMatchesTerminalStatus = terminalNoteKind === 'cancelled'
+    ? normalizedContent.includes('iptal')
+    : terminalNoteKind === 'completed'
+      ? normalizedContent.includes('tamamlandı') || normalizedContent.includes('tamamlanmış')
+      : false
+  const showTerminalNote = isPending && canSendPending && terminalNoteKind != null && entryMatchesTerminalStatus && Boolean(entry.relatedJobTerminalNote?.trim())
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)

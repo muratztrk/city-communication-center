@@ -187,6 +187,19 @@ export function buildJobProcessSteps(
     })
   }
 
+  if (
+    !isTerminalStatus(detail.status)
+    && detail.requestType === 'InternalUnit'
+    && detail.createdByRoleCode === 'Manager'
+  ) {
+    steps.push({
+      id: 'status',
+      label: t('jobs.columns.status', 'Durum'),
+      displayValue: t('jobs.statusLabel.inProgress', 'Yapılmakta'),
+      dateTimeUtc: null,
+    })
+  }
+
   if (!isTerminalStatus(detail.status)) {
     steps.push({
       id: 'dueDate',

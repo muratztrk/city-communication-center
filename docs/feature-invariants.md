@@ -135,7 +135,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   rolünde Süreç altında owner approval (`Talebin Birim Yöneticisinin Onay Tarihi`) satırı
   gösterilmez. Standart kullanıcıda owner approval bekliyorsa `Onay Bekleyen` değeri turuncu
   görünür ve yanında parantez içinde `statusActorDisplayName` yönetici adı yine turuncu gösterilir.
-  Süreç timeline'ında ayrı `Durum` step'i gösterilmez (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen).
+  Süreç timeline'ında ayrı `Durum` step'i normalde gösterilmez; istisna olarak birim yöneticisinin
+  oluşturduğu birim içi aktif taleplerde Talep Tarihi ile Son Tarih arasında turuncu `Durum / Yapılmakta`
+  step'i gösterilir (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen/#1275).
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı geniş harf aralıklı açık gri kalır;
@@ -190,7 +192,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `ReplyToSocialMessageCommand` WhatsApp kanalında mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
   oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından üretilen
   WhatsApp durum cevapları da aynı kuyruğa girer; tamamlandı/iptal cevapları vatandaş operatörü
-  onaylamadan iletilmez. Gerçek gönderim `SendPendingConversationEntryCommand`
+  onaylamadan iletilmez. Terminal not butonları yalnız ilgili bekleyen mesaj terminal durumu
+  (`Tamamlandı/Tamamlanmış` veya `İptal/İptal Edildi`) içeriyorsa görünür; ara durum
+  (`İşleme Alındı`, `Yapılmakta`) mesajlarında görünmez. Gerçek gönderim `SendPendingConversationEntryCommand`
   (`POST /social/messages/{id}/conversation/{entryId}/send`) ile yapılır; yetki = `Operator` veya
   `SystemAdmin` (`ForbiddenAccessException`). Mesaj `Responded`'a yalnızca gerçek gönderimde geçer.
 - **`ConversationPanel.canReply` default `true`; `canSendPending` ile "Mesajı Gönder" butonu.**
@@ -200,6 +204,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnızca kuyruğa yazar, iletemez). (Eskiden salt-okunurdu — card #1091 değiştirdi.)
 - **24 saat pencere uyarı metni gösterilmez:** `/whatsapp` konuşma footer'ında
   pencere durumunu anlatan açıklama satırı render edilmez.
+- **WhatsApp konuşma scroll'u kullanıcı niyetini korur:** `/whatsapp` detayında kullanıcı mesaj alanında
+  yukarı scroll yaptıysa 8 saniyelik refresh, sağ/sol tıklama veya pasif güncelleme otomatik dibe indirmez;
+  yalnız kullanıcı tekrar dibe yakınsa veya kendi mesaj gönderiyorsa dibe kayılır.
 - **"Mesajı Gönder" onay pop-up'ı + "Düzenle" (card #1094/#1096):** gönder butonu önce `ConfirmDialog`
   gösterir; başlıkta metin altı çizilmez, modal konvansiyonundaki başlık-altı ayraç çizgisi kullanılır.
   Onaylanınca iletir. Yanında turuncu "Düzenle" → balon metni
@@ -243,7 +250,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   red/son tarihi geçmiş etiketleri bu otomatik şablonlara düşürülmez (cards #1266/#1268).
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
-  kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir (cards #1258/#1263).
+  kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir. İptal alanının görsel
+  chip'i `İptal` ve kırmızı kalır; giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
+  `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
   (cards #1257/#1258).
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
   `Açık Adres`) üçlü yan yana düzende tek satır kalır; alt çizgi metin dekorasyonu değil,

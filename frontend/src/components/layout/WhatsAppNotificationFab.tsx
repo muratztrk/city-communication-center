@@ -312,7 +312,9 @@ export function WhatsAppNotificationFab() {
           className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isPulsing ? 'whatsapp-fab-pulse' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
         >
           <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
-          <img src="/icons/whatsapp.webp" alt="" className="relative size-7" aria-hidden="true" />
+          <span className="relative flex size-10 items-center justify-center rounded-full bg-white shadow-sm" aria-hidden="true">
+            <img src="/icons/whatsapp.webp" alt="" className="size-8" />
+          </span>
           {unreadTotal > 0 ? (
             <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
               {badgeLabel}

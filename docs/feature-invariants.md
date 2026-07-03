@@ -233,8 +233,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WhatsApp ikonu görünür; konuşma detay header'ında telefon altına `WhatsApp Konuşmaları`
   fallback subtitle'ı basılmaz (cards #1253/#1254).
 - **WhatsApp ikon ve liste zamanı:** WhatsApp'a özel nav/breadcrumb/channel/FAB/konuşma fallback ikonları
-  ortak `/icons/whatsapp.webp` asset'ini kullanır. `/whatsapp` konuşma listesinin sağ üst zaman alanı
-  göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
+  ortak `/icons/whatsapp.webp` asset'ini kullanır. Sağ alt WhatsApp FAB merkezinde bu asset beyaz
+  disk üzerinde görünür; içi boş/çerçeve ikon gibi okunmamalıdır. `/whatsapp` konuşma listesinin
+  sağ üst zaman alanı göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
   detay header'ı telefon yerine adı öncelikli gösterir. `Talep Sayısı` başlıklı ayrı sayaç blokları

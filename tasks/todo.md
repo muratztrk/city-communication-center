@@ -1074,3 +1074,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a475ad7` reopened / #1278 — Süreç timeline geçişleri hedefin %50 hizasından başlar; yeşil→turuncu ve turuncu→gri geçişler iki renk ailesinde yumuşatıldı.
 
 ## STATUS: Round 162 complete — cards moved to Done.
+
+## Round 163 (Doing — 2026-07-03, WhatsApp FAB ikon merkezi)
+- [x] `6a4791d9` / #1296 — Sağ alt WhatsApp konuşma FAB'ında mevcut `/icons/whatsapp.webp` asset'i beyaz merkez disk içinde gösterildi; ikon artık içi boş görünmez.
+
+## STATUS: Round 163 complete — cards moved to Done.

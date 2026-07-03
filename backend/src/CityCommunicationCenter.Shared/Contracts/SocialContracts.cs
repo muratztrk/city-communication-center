@@ -174,7 +174,7 @@ public sealed record SocialConversationEntryDto(
     string? RelatedJobTerminalStatus = null,
     string? RelatedJobTerminalNote = null);
 
-public sealed record SocialReplyRequest(string Content);
+public sealed record SocialReplyRequest(string Content, bool SendImmediately = false);
 
 public sealed record CitizenConversationSummaryDto(
     Guid CitizenConversationId,
@@ -190,19 +190,43 @@ public sealed record CitizenConversationSummaryDto(
     int? LatestCitizenRequestNumberYear,
     string? LatestTicketPriority,
     string? LatestTicketStatus,
-    string? AssigneeDisplayName);
+    string? AssigneeDisplayName,
+    int IntakeCount = 0,
+    int InProgressCount = 0,
+    int CompletedCount = 0,
+    int CancelledCount = 0,
+    string? Label = null,
+    string? Neighborhood = null,
+    string? Street = null,
+    string? OpenAddress = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,
     string CitizenPhone,
     string? CitizenName,
+    string? Label,
+    string? Neighborhood,
+    string? Street,
+    string? OpenAddress,
     DateTimeOffset LastMessageAt,
     int UnreadCount,
     bool IsBlocked,
+    int IntakeCount,
+    int InProgressCount,
+    int CompletedCount,
+    int CancelledCount,
     /// <summary>When the last inbound message arrived — used for 24h window check.</summary>
     DateTimeOffset? LastInboundAt,
     IReadOnlyList<CitizenConversationTimelineEntryDto> Timeline,
     IReadOnlyList<CitizenConversationTicketDto> Tickets);
+
+public sealed record UpdateCitizenConversationProfileRequest(
+    string? CitizenName,
+    string? CitizenPhone,
+    string? Label,
+    string? Neighborhood,
+    string? Street,
+    string? OpenAddress);
 
 public sealed record CitizenConversationTimelineEntryDto(
     Guid EntryId,

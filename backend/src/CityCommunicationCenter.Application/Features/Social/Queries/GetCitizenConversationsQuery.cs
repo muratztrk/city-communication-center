@@ -31,6 +31,10 @@ public sealed class GetCitizenConversationsQueryHandler
                 c.CitizenConversationId,
                 c.CitizenPhone,
                 c.CitizenName,
+                c.Label,
+                c.Neighborhood,
+                c.Street,
+                c.OpenAddress,
                 c.LastMessageAt,
                 c.UnreadCount,
                 c.IsBlocked,
@@ -72,6 +76,7 @@ public sealed class GetCitizenConversationsQueryHandler
                 m.CitizenRequestNumberYear,
                 m.ReceivedAtUtc,
                 m.JobId,
+                JobStatus = m.Job != null ? (JobStatus?)m.Job.Status : null,
                 Priority = m.Job != null ? m.Job.Priority : null,
             })
             .ToListAsync(cancellationToken);
@@ -150,7 +155,17 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.CitizenRequestNumberYear,
                     ticket?.Priority,
                     ticket?.Status.ToString(),
-                    assigneeDisplayName);
+                    assigneeDisplayName,
+                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId
+                        && m.JobStatus is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested),
+                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId && m.JobStatus == JobStatus.Active),
+                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId && m.JobStatus == JobStatus.Completed),
+                    socialMessages.Count(m => m.ConversationId == c.CitizenConversationId
+                        && m.JobStatus is JobStatus.Cancelled or JobStatus.Rejected),
+                    c.Label,
+                    c.Neighborhood,
+                    c.Street,
+                    c.OpenAddress);
             })
             .ToList();
     }

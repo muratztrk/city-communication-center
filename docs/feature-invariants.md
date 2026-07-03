@@ -145,7 +145,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlıkları alt kart başlıklarıyla aynı hafif ağırlıkta kalır; bold yapılmaz. Süreç yuvarlakları
   görsel referanstaki gibi açık zeminli/halkalı görünür; tamamlanan adım ve tamamlanmış çizgi
   `Düzenle` butonundaki emerald-700 yeşiliyle eşleşir; tamamlanan adımdan güncel turuncu adıma
-  giden çizgi orta hizaya kadar yeşil kalır, sonra yumuşak yeşil→amber→turuncu geçiş yapar.
+  giden çizgi hedefin %75 hizasına kadar yeşil kalır, sonra yumuşak yeşil→amber→turuncu geçiş
+  yapar; güncel turuncu adımdan gri gelecek adıma giden çizgi de aynı hizada turuncu→gri geçer.
   Ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
   yapışmaz. Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
@@ -190,7 +191,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 
 - **WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
-  `ReplyToSocialMessageCommand` WhatsApp kanalında mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
+  `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
   oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından üretilen
   WhatsApp durum cevapları da aynı kuyruğa girer; tamamlandı/iptal cevapları vatandaş operatörü
   onaylamadan iletilmez. Terminal not butonları yalnız ilgili bekleyen mesaj terminal durumu
@@ -198,6 +199,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`İşleme Alındı`, `Yapılmakta`) mesajlarında görünmez. Gerçek gönderim `SendPendingConversationEntryCommand`
   (`POST /social/messages/{id}/conversation/{entryId}/send`) ile yapılır; yetki = `Operator` veya
   `SystemAdmin` (`ForbiddenAccessException`). Mesaj `Responded`'a yalnızca gerçek gönderimde geçer.
+  İstisna: `/whatsapp` konuşma footer'ından vatandaş operatörünün yazdığı direkt mesaj
+  `sendImmediately=true` ile gider ve balonda `Düzenle`/`Mesajı Gönder` bekleyen aksiyonları üretmez.
 - **`ConversationPanel.canReply` default `true`; `canSendPending` ile "Mesajı Gönder" butonu.**
   Operatör görünümleri (`CitizenRequestModal`, `WhatsAppConversationsPage`) `canSendPending`'i operatör/
   SystemAdmin rolüne göre verir → beklemedeki giden balonun altında buton. Görev/talep bağlamından açılan
@@ -230,6 +233,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp ikon ve liste zamanı:** WhatsApp'a özel nav/breadcrumb/channel/FAB/konuşma fallback ikonları
   ortak `/icons/whatsapp.webp` asset'ini kullanır. `/whatsapp` konuşma listesinin sağ üst zaman alanı
   göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
+- **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
+  mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
+  detay header'ı telefon yerine adı öncelikli gösterir. Konuşma listesi/header talep sayaçlarını
+  `İşleme Alındı`, turuncu `Yapılmakta`, yeşil `Tamamlandı`, kırmızı `İptal` kırılımında gösterir.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının

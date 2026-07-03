@@ -405,6 +405,14 @@ export interface CitizenConversationSummary {
   latestTicketPriority?: string | null;
   latestTicketStatus?: string | null;
   assigneeDisplayName?: string | null;
+  intakeCount?: number;
+  inProgressCount?: number;
+  completedCount?: number;
+  cancelledCount?: number;
+  label?: string | null;
+  neighborhood?: string | null;
+  street?: string | null;
+  openAddress?: string | null;
 }
 
 export interface CitizenConversationTimelineEntry {
@@ -440,9 +448,17 @@ export interface CitizenConversationDetail {
   citizenConversationId: string;
   citizenPhone: string;
   citizenName: string | null;
+  label: string | null;
+  neighborhood: string | null;
+  street: string | null;
+  openAddress: string | null;
   lastMessageAt: string;
   unreadCount: number;
   isBlocked: boolean;
+  intakeCount: number;
+  inProgressCount: number;
+  completedCount: number;
+  cancelledCount: number;
   lastInboundAt: string | null;
   timeline: CitizenConversationTimelineEntry[];
   tickets: CitizenConversationTicket[];

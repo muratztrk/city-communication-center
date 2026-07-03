@@ -1040,3 +1040,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a477f9f` / #1291 — WhatsApp konuşma listesindeki sağ üst zaman alanı göreli gün yerine son mesajın saat:dakika değerini gösterir.
 - [x] `6a477e0c` / #1290 — Trello ekindeki yeni WhatsApp ikonu ortak `/icons/whatsapp.webp` asset'i olarak eklendi ve eski svg referansları güncellendi.
 - [x] `6a477d77` / #1289 — WhatsApp konuşmaları bölümündeki konuşma/list/detail fallback ikonları WhatsApp ikonuna çevrildi.
+
+## STATUS: Round 159 complete — Doing list drained.
+
+## Round 160 (Doing — 2026-07-03, WhatsApp konuşma operatör araçları)
+- [x] `6a476e7c` / #1284 — Vatandaş operatörü `/whatsapp` konuşmasından direkt mesaj gönderebilir; yeni direkt mesajlar bekleyen `Düzenle`/`Mesajı Gönder` aksiyonlarını üretmez.
+- [x] `6a478b47` / #1292 — WhatsApp konuşma detayı varsayılan açılışta son mesaj konumuna gider; sonrasında kullanıcı yukarı scroll yaptıysa otomatik dibe çekilmez.
+- [x] `6a476ea3` / #1285 — Operatörün manuel yazdığı mesajlar `sendImmediately` akışıyla vatandaşa doğrudan gönderilir.
+- [x] `6a475ad7` reopened / #1278 — Süreç timeline geçişleri hedefin %75 hizasında başlar; turuncudan griye geçiş de gradient oldu.
+- [x] `6a476e29` / #1282 — WhatsApp footer'a şablon butonunun sağına dosya ekle aksiyonu eklendi; seçilen ek konuşma alanında bekleyen balon olarak görünür ve altında `Düzenle` / `Mesajı Gönder` aksiyonları bulunur.
+- [x] `6a4773b9` / #1287 — WhatsApp konuşma listesi/header talep sayısının yanında `İşleme Alındı`, `Yapılmakta`, `Tamamlandı`, `İptal` durum sayaçlarını gösterir.
+- [x] `6a476fd5` / #1286 — WhatsApp konuşma detay sağ paneline vatandaş adı, numara, etiket, mahalle, cadde/sokak/bulvar ve açık adres düzenleme/kaydetme alanı eklendi; isim kaydı sol liste/header görünümüne yansır.

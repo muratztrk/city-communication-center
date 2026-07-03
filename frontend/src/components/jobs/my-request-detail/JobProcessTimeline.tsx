@@ -33,7 +33,7 @@ function getLineClass(
     return 'job-process-timeline__line--to-success-from-danger'
   }
   if (step.state === 'terminal-danger') return 'job-process-timeline__line--from-danger'
-  if (step.state === 'current') return 'job-process-timeline__line--upcoming'
+  if (step.state === 'current') return 'job-process-timeline__line--from-current'
   return 'job-process-timeline__line--upcoming'
 }
 

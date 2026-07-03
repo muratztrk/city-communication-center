@@ -978,11 +978,11 @@ export const api = {
     return response.json() as Promise<SocialConversationEntry[]>
   },
 
-  async replySocialMessage(socialMessageId: string, content: string): Promise<void> {
+  async replySocialMessage(socialMessageId: string, content: string, sendImmediately = false): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/reply`, {
       method: 'POST',
       headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, sendImmediately }),
     })
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
@@ -1026,6 +1026,22 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/${conversationId}/mark-read`, {
       method: 'POST',
       headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
+  async updateCitizenConversationProfile(conversationId: string, payload: {
+    citizenName?: string | null
+    citizenPhone?: string | null
+    label?: string | null
+    neighborhood?: string | null
+    street?: string | null
+    openAddress?: string | null
+  }): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/${conversationId}/profile`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     })
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },

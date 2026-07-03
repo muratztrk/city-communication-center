@@ -432,10 +432,10 @@
     background: linear-gradient(
       to bottom,
       rgb(4 120 87) 0%,
-      rgb(4 120 87) 50%,
-      rgb(16 185 129) 58%,
-      rgb(245 158 11) 70%,
-      rgb(249 115 22) 82%,
+      rgb(4 120 87) 75%,
+      rgb(16 185 129) 80%,
+      rgb(245 158 11) 88%,
+      rgb(249 115 22) 96%,
       rgb(249 115 22) 100%
     );
   }
@@ -444,8 +444,9 @@
     background: linear-gradient(
       to bottom,
       rgb(4 120 87) 0%,
-      rgb(4 120 87) 30%,
-      rgb(220 38 38) 70%,
+      rgb(4 120 87) 75%,
+      rgb(249 115 22) 86%,
+      rgb(220 38 38) 96%,
       rgb(220 38 38) 100%
     );
   }
@@ -475,7 +476,14 @@
   }
 
   .job-process-timeline__line--from-current {
-    background: rgb(203 213 225);
+    background: linear-gradient(
+      to bottom,
+      rgb(249 115 22) 0%,
+      rgb(249 115 22) 75%,
+      rgb(251 146 60) 84%,
+      rgb(203 213 225) 96%,
+      rgb(203 213 225) 100%
+    );
   }
 
   .job-process-timeline__line--to-upcoming {

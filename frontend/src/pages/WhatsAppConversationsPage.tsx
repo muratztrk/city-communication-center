@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, FileText, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -102,6 +102,31 @@ function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversat
     ?? ordered.find(ticket => ticket.status !== 'Closed')
 }
 
+function ConversationStatusCounts({
+  intake,
+  inProgress,
+  completed,
+  cancelled,
+  compact = false,
+}: {
+  intake?: number
+  inProgress?: number
+  completed?: number
+  cancelled?: number
+  compact?: boolean
+}) {
+  const { t } = useTranslation()
+  const baseClass = compact ? 'text-[10px]' : 'text-[11px]'
+  return (
+    <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${baseClass} font-semibold`}>
+      <span className="text-slate-600">{t('whatsapp.intakeCount', 'İşleme Alındı')}: {intake ?? 0}</span>
+      <span className="text-orange-600">{t('whatsapp.inProgressCount', 'Yapılmakta')}: {inProgress ?? 0}</span>
+      <span className="text-emerald-700">{t('whatsapp.completedCount', 'Tamamlandı')}: {completed ?? 0}</span>
+      <span className="text-red-600">{t('whatsapp.cancelledCount', 'İptal')}: {cancelled ?? 0}</span>
+    </div>
+  )
+}
+
 // ─── left panel: conversation list ────────────────────────────────────────────
 
 type ConversationListFilter = 'all' | 'unread'
@@ -187,6 +212,10 @@ function ConversationListItem({
             </p>
           )}
 
+          {conv.citizenName ? (
+            <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{conv.citizenName}</p>
+          ) : null}
+
           <div className="mt-2 flex items-center justify-between gap-2 min-w-0">
             <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
               {waitingForResponse && (
@@ -229,6 +258,15 @@ function ConversationListItem({
           {ticketLabel ? (
             <p className="mt-1.5 text-[10px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}
+          <div className="mt-1.5">
+            <ConversationStatusCounts
+              compact
+              intake={conv.intakeCount}
+              inProgress={conv.inProgressCount}
+              completed={conv.completedCount}
+              cancelled={conv.cancelledCount}
+            />
+          </div>
         </div>
       </div>
     </button>
@@ -371,6 +409,104 @@ function is24hWindowOpen(lastInboundAt: string | null): boolean {
 
 // ─── right panel: conversation detail ────────────────────────────────────────
 
+type ConversationProfileDraft = {
+  citizenName: string
+  citizenPhone: string
+  label: string
+  neighborhood: string
+  street: string
+  openAddress: string
+}
+
+function createProfileDraft(detail: CitizenConversationDetail | null, fallbackPhone?: string | null, fallbackName?: string | null): ConversationProfileDraft {
+  return {
+    citizenName: detail?.citizenName ?? fallbackName ?? '',
+    citizenPhone: detail?.citizenPhone ?? fallbackPhone ?? '',
+    label: detail?.label ?? '',
+    neighborhood: detail?.neighborhood ?? '',
+    street: detail?.street ?? '',
+    openAddress: detail?.openAddress ?? '',
+  }
+}
+
+function ConversationProfilePanel({
+  detail,
+  draft,
+  saving,
+  onDraftChange,
+  onSave,
+}: {
+  detail: CitizenConversationDetail | null
+  draft: ConversationProfileDraft
+  saving: boolean
+  onDraftChange: (patch: Partial<ConversationProfileDraft>) => void
+  onSave: () => void
+}) {
+  const { t } = useTranslation()
+
+  const fieldClass = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
+  const labelClass = 'text-[10px] font-bold uppercase tracking-wide text-slate-500'
+
+  return (
+    <aside className="hidden w-72 shrink-0 flex-col border-l border-slate-200 bg-slate-50/80 p-4 lg:flex">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="text-sm font-bold text-slate-900">{t('whatsapp.citizenProfile', 'Vatandaş Bilgileri')}</h3>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving || !detail}
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-700 px-2.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+          {t('common.save', 'Kaydet')}
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        <label className="block space-y-1">
+          <span className={labelClass}>{t('whatsapp.citizenName', 'Vatandaş Adı')}</span>
+          <input className={fieldClass} value={draft.citizenName} onChange={event => onDraftChange({ citizenName: event.target.value })} />
+        </label>
+        <label className="block space-y-1">
+          <span className={labelClass}>{t('whatsapp.phoneNumber', 'Numara')}</span>
+          <input className={fieldClass} value={draft.citizenPhone} onChange={event => onDraftChange({ citizenPhone: event.target.value })} />
+        </label>
+        <label className="block space-y-1">
+          <span className={labelClass}>{t('whatsapp.label', 'Etiket')}</span>
+          <input className={fieldClass} value={draft.label} onChange={event => onDraftChange({ label: event.target.value })} />
+        </label>
+        <label className="block space-y-1">
+          <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>
+          <input className={fieldClass} value={draft.neighborhood} onChange={event => onDraftChange({ neighborhood: event.target.value })} />
+        </label>
+        <label className="block space-y-1">
+          <span className={labelClass}>{t('address.street', 'Cadde / Sokak / Bulvar')}</span>
+          <input className={fieldClass} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} />
+        </label>
+        <label className="block space-y-1">
+          <span className={labelClass}>{t('address.openAddress', 'Açık Adres')}</span>
+          <textarea
+            rows={4}
+            className={`${fieldClass} min-h-[6rem] resize-none`}
+            value={draft.openAddress}
+            onChange={event => onDraftChange({ openAddress: event.target.value })}
+          />
+        </label>
+      </div>
+
+      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
+        <p className="mb-2 text-[11px] font-bold text-slate-700">{t('whatsapp.requestCounts', 'Talep Sayısı')}</p>
+        <ConversationStatusCounts
+          intake={detail?.intakeCount}
+          inProgress={detail?.inProgressCount}
+          completed={detail?.completedCount}
+          cancelled={detail?.cancelledCount}
+        />
+      </div>
+    </aside>
+  )
+}
+
 function ConversationDetail({
   conversationId,
   citizenName,
@@ -382,6 +518,7 @@ function ConversationDetail({
   onReadMarked,
   onOpenCreateRequest,
   onOpenViewRequests,
+  onProfileSaved,
 }: {
   conversationId: string
   citizenName?: string | null
@@ -393,6 +530,7 @@ function ConversationDetail({
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId: string) => void
   onOpenViewRequests: (citizenPhone: string) => void
+  onProfileSaved: () => void
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -409,6 +547,11 @@ function ConversationDetail({
   const [chatSearch, setChatSearch] = useState('')
   const [showChatSearch, setShowChatSearch] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [profileDraft, setProfileDraft] = useState<ConversationProfileDraft>(() => createProfileDraft(null, citizenPhone, citizenName))
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingFileEditing, setPendingFileEditing] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [highlightEntryIndex, setHighlightEntryIndex] = useState<number | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -416,6 +559,10 @@ function ConversationDetail({
   const bottomRef = useRef<HTMLDivElement>(null)
   const entryRefs = useRef<Map<number, HTMLDivElement>>(new Map())
   const anchorAppliedRef = useRef(false)
+
+  useEffect(() => {
+    setProfileDraft(createProfileDraft(detail, citizenPhone, citizenName))
+  }, [citizenName, citizenPhone, detail])
 
   const updatePinnedToBottom = useCallback(() => {
     const container = scrollContainerRef.current
@@ -489,7 +636,8 @@ function ConversationDetail({
     }
 
     if (!anchorAtUtc && isPinnedToBottom) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      bottomRef.current?.scrollIntoView({ behavior: anchorAppliedRef.current ? 'smooth' : 'auto' })
+      anchorAppliedRef.current = true
     }
   }, [anchorAtUtc, anchorSocialMessageId, detail, isPinnedToBottom, loading])
 
@@ -506,19 +654,34 @@ function ConversationDetail({
 
   const handleSend = async () => {
     const text = replyText.trim()
-    if (!text || sending || !detail) return
+    if ((!text && !pendingFile) || sending || !detail) return
 
     const openTicket = pickReplyTicket(detail.tickets)
     if (!openTicket) return
 
     setSending(true)
     try {
-      await api.replySocialMessage(openTicket.socialMessageId, text)
+      const fileNote = pendingFile ? `[Dosya eki: ${pendingFile.name}]` : ''
+      await api.replySocialMessage(openTicket.socialMessageId, [text, fileNote].filter(Boolean).join('\n'), true)
       setReplyText('')
+      setPendingFile(null)
+      setPendingFileEditing(false)
       setIsPinnedToBottom(true)
       await refreshDetail()
     } finally {
       setSending(false)
+    }
+  }
+
+  const handleProfileSave = async () => {
+    if (!detail || profileSaving) return
+    setProfileSaving(true)
+    try {
+      await api.updateCitizenConversationProfile(detail.citizenConversationId, profileDraft)
+      await refreshDetail()
+      onProfileSaved()
+    } finally {
+      setProfileSaving(false)
     }
   }
 
@@ -615,6 +778,14 @@ function ConversationDetail({
           {ticketLabel ? (
             <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}
+          <div className="mt-1">
+            <ConversationStatusCounts
+              intake={detail?.intakeCount}
+              inProgress={detail?.inProgressCount}
+              completed={detail?.completedCount}
+              cancelled={detail?.cancelledCount}
+            />
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <button
@@ -669,111 +840,181 @@ function ConversationDetail({
         </div>
       </header>
 
-      {showChatSearch ? (
-        <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-2">
-          <input
-            type="search"
-            value={chatSearch}
-            onChange={event => setChatSearch(event.target.value)}
-            placeholder={t('whatsapp.searchInConversation', 'Konuşmada ara…')}
-            className="field-input w-full py-2 text-sm"
-          />
-        </div>
-      ) : null}
+      <div className="flex min-h-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
+          {showChatSearch ? (
+            <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-2">
+              <input
+                type="search"
+                value={chatSearch}
+                onChange={event => setChatSearch(event.target.value)}
+                placeholder={t('whatsapp.searchInConversation', 'Konuşmada ara…')}
+                className="field-input w-full py-2 text-sm"
+              />
+            </div>
+          ) : null}
 
-      <div
-        ref={scrollContainerRef}
-        onScroll={updatePinnedToBottom}
-        className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
-      >
-        {loading ? (
-          <div className="flex h-full items-center justify-center">
-            <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
-          </div>
-        ) : !detail || visibleTimeline.length === 0 ? (
-          <p className="mt-8 text-center text-sm text-slate-500">
-            {normalizedChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
-          </p>
-        ) : (
-          visibleTimeline.map((entry, index) => {
-            const previousEntry = index > 0 ? visibleTimeline[index - 1] : null
-            const showDivider = index === 0 || (previousEntry && !conversationSameDay(entry.sentAt, previousEntry.sentAt))
-            return (
-              <Fragment key={entry.entryId || index}>
-                {showDivider ? <DateDivider light label={dayLabel(entry.sentAt)} /> : null}
-                <div
-                  ref={element => {
-                    if (element) entryRefs.current.set(index, element)
-                    else entryRefs.current.delete(index)
-                  }}
-                  className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-[color:var(--color-primary)] ring-offset-2 ring-offset-[var(--wa-chat-bg)] transition-shadow' : undefined}
-                >
-                  <ConversationEntryBubble
-                    entry={entry}
-                    theme="light"
-                    canSendPending={canSendPending}
-                    onSendPending={() => handleSendPending(entry)}
-                    sendingPending={sendingPendingId === entry.entryId}
-                    onEditPending={(_entryId, content) => handleEditPending(entry, content)}
-                    onShowTerminalNote={() => handleShowTerminalNote(entry)}
-                  />
+          <div
+            ref={scrollContainerRef}
+            onScroll={updatePinnedToBottom}
+            className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
+          >
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
+              </div>
+            ) : !detail || visibleTimeline.length === 0 ? (
+              <p className="mt-8 text-center text-sm text-slate-500">
+                {normalizedChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
+              </p>
+            ) : (
+              visibleTimeline.map((entry, index) => {
+                const previousEntry = index > 0 ? visibleTimeline[index - 1] : null
+                const showDivider = index === 0 || (previousEntry && !conversationSameDay(entry.sentAt, previousEntry.sentAt))
+                return (
+                  <Fragment key={entry.entryId || index}>
+                    {showDivider ? <DateDivider light label={dayLabel(entry.sentAt)} /> : null}
+                    <div
+                      ref={element => {
+                        if (element) entryRefs.current.set(index, element)
+                        else entryRefs.current.delete(index)
+                      }}
+                      className={highlightEntryIndex === index ? 'rounded-2xl ring-2 ring-[color:var(--color-primary)] ring-offset-2 ring-offset-[var(--wa-chat-bg)] transition-shadow' : undefined}
+                    >
+                      <ConversationEntryBubble
+                        entry={entry}
+                        theme="light"
+                        canSendPending={canSendPending}
+                        onSendPending={() => handleSendPending(entry)}
+                        sendingPending={sendingPendingId === entry.entryId}
+                        onEditPending={(_entryId, content) => handleEditPending(entry, content)}
+                        onShowTerminalNote={() => handleShowTerminalNote(entry)}
+                      />
+                    </div>
+                  </Fragment>
+                )
+              })
+            )}
+            {pendingFile ? (
+              <div className="flex flex-col items-end">
+                <div className="max-w-[min(72%,28rem)] rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
+                  <div className="flex items-center gap-2">
+                    <FileText className="size-4 shrink-0" aria-hidden="true" />
+                    <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
+                  </div>
+                  {pendingFileEditing ? (
+                    <textarea
+                      rows={2}
+                      value={replyText}
+                      onChange={event => setReplyText(event.target.value)}
+                      className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
+                    />
+                  ) : replyText.trim() ? (
+                    <p className="mt-2 whitespace-pre-wrap break-words text-sm">{replyText.trim()}</p>
+                  ) : null}
                 </div>
-              </Fragment>
-            )
-          })
-        )}
-        <div ref={bottomRef} />
-      </div>
+                <div className="mt-1 flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPendingFileEditing(current => !current)}
+                    disabled={sending}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    {t('common.edit', 'Düzenle')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleSend()}
+                    disabled={sending}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {sending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                    {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <div ref={bottomRef} />
+          </div>
 
-      {openTicket ? (
-        <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onOpenCreateRequest(primaryTicket!.socialMessageId)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-            >
-              <ClipboardPlus className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-              {t('nav.createRequest', 'Talep oluştur')}
-            </button>
-            <WhatsAppTemplatePicker
-              userQuickReplies={userQuickReplies}
-              onSelect={content => setReplyText(content)}
-            />
-            <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
-          </div>
-          <div className="flex items-end gap-2">
-            <textarea
-              rows={2}
-              value={replyText}
-              onChange={e => setReplyText(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  void handleSend()
-                }
-              }}
-              placeholder={windowOpen ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
-              disabled={!windowOpen && !hasSelectableTemplates}
-              className="field-input min-h-[3.25rem] max-h-28 flex-1 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
-            />
-            <button
-              type="button"
-              aria-label={t('common.send', 'Gönder')}
-              onClick={() => void handleSend()}
-              disabled={!replyText.trim() || sending}
-              className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ backgroundColor: 'var(--color-header-from)' }}
-            >
-              {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-            </button>
-          </div>
-        </footer>
-      ) : (
-        <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500">
-          {t('whatsapp.noTickets')}
-        </footer>
-      )}
+          {openTicket ? (
+            <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onOpenCreateRequest(primaryTicket!.socialMessageId)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  <ClipboardPlus className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                  {t('nav.createRequest', 'Talep oluştur')}
+                </button>
+                <WhatsAppTemplatePicker
+                  userQuickReplies={userQuickReplies}
+                  onSelect={content => setReplyText(content)}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                  {t('attachments.addFile', 'Dosya ekle')}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={event => {
+                    const file = event.target.files?.[0] ?? null
+                    setPendingFile(file)
+                    setPendingFileEditing(Boolean(file))
+                    if (event.target) event.target.value = ''
+                  }}
+                />
+                <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
+              </div>
+              <div className="flex items-end gap-2">
+                <textarea
+                  rows={2}
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      void handleSend()
+                    }
+                  }}
+                  placeholder={windowOpen ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
+                  disabled={!windowOpen && !hasSelectableTemplates}
+                  className="field-input min-h-[3.25rem] max-h-28 flex-1 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
+                />
+                <button
+                  type="button"
+                  aria-label={t('common.send', 'Gönder')}
+                  onClick={() => void handleSend()}
+                  disabled={(!replyText.trim() && !pendingFile) || sending}
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--color-header-from)' }}
+                >
+                  {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                </button>
+              </div>
+            </footer>
+          ) : (
+            <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500">
+              {t('whatsapp.noTickets')}
+            </footer>
+          )}
+        </div>
+        <ConversationProfilePanel
+          detail={detail}
+          draft={profileDraft}
+          saving={profileSaving}
+          onDraftChange={patch => setProfileDraft(current => ({ ...current, ...patch }))}
+          onSave={() => { void handleProfileSave() }}
+        />
+      </div>
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
@@ -1030,6 +1271,7 @@ export function WhatsAppConversationsPage() {
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
               onOpenViewRequests={handleOpenViewRequests}
+              onProfileSaved={() => { void loadConversations() }}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">

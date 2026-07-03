@@ -26,7 +26,19 @@ public sealed class GetCitizenConversationDetailQueryHandler
         var conversation = await _dbContext.CitizenConversations
             .AsNoTracking()
             .Where(c => c.CitizenConversationId == request.CitizenConversationId && c.TenantId == tenantId)
-            .Select(c => new { c.CitizenConversationId, c.CitizenPhone, c.CitizenName, c.LastMessageAt, c.UnreadCount, c.IsBlocked })
+            .Select(c => new
+            {
+                c.CitizenConversationId,
+                c.CitizenPhone,
+                c.CitizenName,
+                c.Label,
+                c.Neighborhood,
+                c.Street,
+                c.OpenAddress,
+                c.LastMessageAt,
+                c.UnreadCount,
+                c.IsBlocked
+            })
             .FirstOrDefaultAsync(cancellationToken);
 
         if (conversation is null) return null;
@@ -118,13 +130,35 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 m.Job != null ? m.Job.JobNumberYear : null))
             .ToListAsync(cancellationToken);
 
+        var statusCounts = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => m.CitizenConversationId == request.CitizenConversationId && m.Job != null)
+            .GroupBy(m => m.Job!.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        var intakeCount = statusCounts
+            .Where(s => s.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested)
+            .Sum(s => s.Count);
+        var inProgressCount = statusCounts.Where(s => s.Status == JobStatus.Active).Sum(s => s.Count);
+        var completedCount = statusCounts.Where(s => s.Status == JobStatus.Completed).Sum(s => s.Count);
+        var cancelledCount = statusCounts.Where(s => s.Status is JobStatus.Cancelled or JobStatus.Rejected).Sum(s => s.Count);
+
         return new CitizenConversationDetailDto(
             conversation.CitizenConversationId,
             conversation.CitizenPhone,
             conversation.CitizenName,
+            conversation.Label,
+            conversation.Neighborhood,
+            conversation.Street,
+            conversation.OpenAddress,
             conversation.LastMessageAt,
             conversation.UnreadCount,
             conversation.IsBlocked,
+            intakeCount,
+            inProgressCount,
+            completedCount,
+            cancelledCount,
             lastInboundAt,
             timeline,
             tickets);

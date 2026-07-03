@@ -42,4 +42,26 @@ public sealed class CitizenConversationsController : ApiControllerBase
         if (!ok) return NotFound();
         return NoContent();
     }
+
+    [HttpPut("{conversationId:guid}/profile")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateProfile(
+        Guid conversationId,
+        [FromBody] UpdateCitizenConversationProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new UpdateCitizenConversationProfileCommand(
+                conversationId,
+                request.CitizenName,
+                request.CitizenPhone,
+                request.Label,
+                request.Neighborhood,
+                request.Street,
+                request.OpenAddress),
+            cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
 }

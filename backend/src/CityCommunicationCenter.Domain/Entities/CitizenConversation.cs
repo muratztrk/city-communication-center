@@ -9,6 +9,14 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
 
     public string? CitizenName { get; set; }
 
+    public string? Label { get; set; }
+
+    public string? Neighborhood { get; set; }
+
+    public string? Street { get; set; }
+
+    public string? OpenAddress { get; set; }
+
     public DateTimeOffset LastMessageAt { get; set; }
 
     public int UnreadCount { get; set; }

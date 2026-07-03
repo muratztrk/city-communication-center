@@ -238,8 +238,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sağ üst zaman alanı göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
-  detay header'ı telefon yerine adı öncelikli gösterir. `Talep Sayısı` başlıklı ayrı sayaç blokları
-  sağ profil panelinde, konuşma kartlarında ve detay header'ında gösterilmez.
+  detay header'ı telefon yerine adı öncelikli gösterir. `Talep Sayısı` başlığı/etiketi gösterilmez;
+  ancak konuşma kartı ve detay header'ındaki `İşleme Alınan`, `Yapılmakta`, `Tamamlandı`, `İptal`
+  durum kırılımı başlıksız olarak görünür kalır.
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Konuşmalar` başlığı altında
   toplam `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı`, kırmızı `İptal` sayaçları görünür;
   her sayaç tıklanabilir ve alttaki konuşma listesini ilgili statüde talebi olan konuşmalara filtreler.

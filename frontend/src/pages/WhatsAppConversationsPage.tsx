@@ -102,6 +102,31 @@ function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversat
     ?? ordered.find(ticket => ticket.status !== 'Closed')
 }
 
+function ConversationStatusCounts({
+  intake,
+  inProgress,
+  completed,
+  cancelled,
+  compact = false,
+}: {
+  intake?: number
+  inProgress?: number
+  completed?: number
+  cancelled?: number
+  compact?: boolean
+}) {
+  const { t } = useTranslation()
+  const baseClass = compact ? 'text-[10px]' : 'text-[11px]'
+  return (
+    <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${baseClass} font-semibold`}>
+      <span className="text-slate-600">{t('whatsapp.intakeCountShort', 'İşleme Alınan')}: {intake ?? 0}</span>
+      <span className="text-orange-600">{t('whatsapp.inProgressCount', 'Yapılmakta')}: {inProgress ?? 0}</span>
+      <span className="text-emerald-700">{t('whatsapp.completedCount', 'Tamamlandı')}: {completed ?? 0}</span>
+      <span className="text-red-600">{t('whatsapp.cancelledCount', 'İptal')}: {cancelled ?? 0}</span>
+    </div>
+  )
+}
+
 // ─── left panel: conversation list ────────────────────────────────────────────
 
 type ConversationListFilter = 'all' | 'unread'
@@ -234,6 +259,15 @@ function ConversationListItem({
           {ticketLabel ? (
             <p className="mt-1.5 text-[10px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}
+          <div className="mt-1.5">
+            <ConversationStatusCounts
+              compact
+              intake={conv.intakeCount}
+              inProgress={conv.inProgressCount}
+              completed={conv.completedCount}
+              cancelled={conv.cancelledCount}
+            />
+          </div>
         </div>
       </div>
     </button>
@@ -790,6 +824,14 @@ function ConversationDetail({
           {ticketLabel ? (
             <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}
+          <div className="mt-1">
+            <ConversationStatusCounts
+              intake={detail?.intakeCount}
+              inProgress={detail?.inProgressCount}
+              completed={detail?.completedCount}
+              cancelled={detail?.cancelledCount}
+            />
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <button
@@ -953,14 +995,6 @@ function ConversationDetail({
                   <ClipboardPlus className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('nav.createRequest', 'Talep oluştur')}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                >
-                  <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-                  {t('attachments.addFile', 'Dosya ekle')}
-                </button>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -981,6 +1015,14 @@ function ConversationDetail({
                   onSelect={content => setReplyText(content)}
                 />
                 <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="ml-auto inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                  {t('attachments.addFile', 'Dosya ekle')}
+                </button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <select

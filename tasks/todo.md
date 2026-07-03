@@ -1079,3 +1079,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4791d9` / #1296 — Sağ alt WhatsApp konuşma FAB'ında mevcut `/icons/whatsapp.webp` asset'i beyaz merkez disk içinde gösterildi; ikon artık içi boş görünmez.
 
 ## STATUS: Round 163 complete — cards moved to Done.
+
+## Round 164 (Doing — 2026-07-03, WhatsApp footer ve başlıksız durum sayaçları)
+- [x] `6a479d1c` reopened / #1300 — `/whatsapp` footer'da `Dosya ekle` butonu aksiyon satırının en sağına alındı.
+- [x] `6a4773b9` reopened / #1287 — Yalnız `Talep Sayısı` metni kaldırılmış halde kalır; konuşma satırı ve detay header'ındaki `İşleme Alınan/Yapılmakta/Tamamlandı/İptal` durum kırılımları geri getirildi.
+
+## STATUS: Round 164 complete — cards moved to Done.

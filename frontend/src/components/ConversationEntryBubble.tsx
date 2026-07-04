@@ -7,6 +7,7 @@ import { WhatsAppDeliveryStatusIndicator } from './WhatsAppDeliveryStatusIndicat
 import { getLocale } from '../utils/localization'
 import { formatConversationSenderLabel } from '../utils/formatConversationSenderLabel'
 import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
+import { formatWhatsAppDeliveryError } from '../utils/formatWhatsAppDeliveryError'
 
 export interface ConversationEntryBubbleData {
   entryId: string
@@ -74,6 +75,7 @@ export function ConversationEntryBubble({
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = new Date(entry.sentAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+  const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
 
   return (
     <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
@@ -145,6 +147,11 @@ export function ConversationEntryBubble({
             {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
             <span>{sentTime}</span>
           </p>
+          {!isInbound && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (
+            <p className={`mt-1 text-[10px] leading-snug ${theme === 'light' ? 'text-red-100' : 'text-red-200'}`}>
+              {deliveryErrorMessage}
+            </p>
+          ) : null}
         </div>
       </div>
       {isPending && canSendPending ? (

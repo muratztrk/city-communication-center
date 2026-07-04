@@ -1,5 +1,6 @@
 import { AlertCircle, Check, CheckCheck, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { formatWhatsAppDeliveryError } from '../utils/formatWhatsAppDeliveryError'
 
 export type WhatsAppDeliveryStatusValue = 'Sent' | 'Delivered' | 'Read' | 'Failed'
 
@@ -17,6 +18,8 @@ export function WhatsAppDeliveryStatusIndicator({
   const { t } = useTranslation()
   if (!status) return null
 
+  const formattedError = formatWhatsAppDeliveryError(error)
+
   const baseClass = variant === 'dark' ? 'text-white/70' : 'text-slate-400'
   const readClass = variant === 'dark' ? 'text-sky-200' : 'text-sky-500'
   const failClass = variant === 'dark' ? 'text-red-200' : 'text-red-600'
@@ -24,11 +27,11 @@ export function WhatsAppDeliveryStatusIndicator({
   if (status === 'Failed') {
     return (
       <span
-        className={`inline-flex items-center gap-0.5 ${failClass}`}
-        title={error ?? t('whatsapp.delivery.failed', 'İletilemedi')}
+        className={`inline-flex max-w-full items-center gap-0.5 ${failClass}`}
+        title={formattedError ?? t('whatsapp.delivery.failed', 'İletilemedi')}
       >
         <AlertCircle className="size-3 shrink-0" />
-        <span>{t('whatsapp.delivery.failed', 'İletilemedi')}</span>
+        <span className="truncate">{t('whatsapp.delivery.failed', 'İletilemedi')}</span>
       </span>
     )
   }

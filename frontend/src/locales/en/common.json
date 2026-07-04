@@ -1467,6 +1467,8 @@
     "errorType": "Only image (JPG, PNG), PDF and Office files are allowed.",
     "deleteConfirm": "Are you sure you want to delete this attachment?",
     "download": "Download",
+    "preview": "Preview",
+    "previewUnavailable": "Preview is not available for this file type.",
     "file": "File",
     "downloadFile": "Download {{fileName}}",
     "downloadFailed": "The attachment could not be downloaded.",

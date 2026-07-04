@@ -3,6 +3,7 @@ import { Download, FileText, Loader2, Volume2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from './ui/button'
+import { SocialConversationMediaPreview } from './SocialConversationMediaPreview'
 import { socialMediaFilename } from '../utils/socialConversationContent'
 
 interface SocialConversationMediaBubbleProps {
@@ -28,6 +29,7 @@ export function SocialConversationMediaBubble({
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -99,18 +101,30 @@ export function SocialConversationMediaBubble({
   const mediaLabel = mime.split('/')[1]?.toUpperCase() || t('attachments.file', 'Dosya')
   const showAddAsAttachment = direction === 'Inbound' && Boolean(onAddAsAttachment)
     && !mime.startsWith('text/')
+  const canPreviewInline = mime.startsWith('image/') || mime.startsWith('video/') || mime.startsWith('audio/')
 
   return (
     <div className="space-y-1.5">
       {mime.startsWith('image/') ? (
-        <img
-          src={objectUrl}
-          alt={mediaLabel}
-          className="max-w-[16rem] max-h-48 rounded-xl object-cover border border-white/20 cursor-pointer"
-          onClick={() => void handleDownload()}
-        />
+        <button
+          type="button"
+          onClick={() => setPreviewOpen(true)}
+          className="block overflow-hidden rounded-xl border border-white/20"
+        >
+          <img
+            src={objectUrl}
+            alt={mediaLabel}
+            className="max-w-[16rem] max-h-48 object-cover cursor-zoom-in"
+          />
+        </button>
       ) : mime.startsWith('video/') ? (
-        <video src={objectUrl} controls className="max-w-[16rem] max-h-48 rounded-xl border border-white/20" />
+        <button
+          type="button"
+          onClick={() => setPreviewOpen(true)}
+          className="block overflow-hidden rounded-xl border border-white/20"
+        >
+          <video src={objectUrl} className="max-w-[16rem] max-h-48 pointer-events-none" />
+        </button>
       ) : mime.startsWith('audio/') ? (
         <div className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl">
           <Volume2 className="size-4 shrink-0" />
@@ -128,6 +142,11 @@ export function SocialConversationMediaBubble({
       )}
 
       <div className="flex flex-wrap gap-1.5">
+        {canPreviewInline ? (
+          <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+            {t('attachments.preview', 'Önizle')}
+          </Button>
+        ) : null}
         <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
           <Download className="size-3.5" />
           {t('attachments.download', 'İndir')}
@@ -138,6 +157,15 @@ export function SocialConversationMediaBubble({
           </Button>
         ) : null}
       </div>
+
+      <SocialConversationMediaPreview
+        open={previewOpen}
+        objectUrl={objectUrl}
+        mime={mime}
+        filename={filename}
+        onClose={() => setPreviewOpen(false)}
+        onDownload={() => void handleDownload()}
+      />
     </div>
   )
 }

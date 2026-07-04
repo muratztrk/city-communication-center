@@ -68,30 +68,51 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .Where(task => task.TenantId == tenantId
                 && task.AssignedDepartmentId.HasValue
                 && departmentIds.Contains(task.AssignedDepartmentId.Value)
-                && (MatchesCreatedPeriod(task.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                    || IsOpenOverdueTask(task.CurrentStatus, task.DueDateUtc, now)));
+                && (((!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value))
+                    || (task.CurrentStatus != WorkflowTaskStatus.Completed
+                        && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && task.CurrentStatus != WorkflowTaskStatus.Rejected
+                        && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                        && task.DueDateUtc.HasValue
+                        && task.DueDateUtc.Value < now)));
         var tasks = await ProjectTaskStatusItems(taskQuery, tenantId).ToListAsync(cancellationToken);
 
         var outgoingJobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.RequestType == JobRequestType.ExternalUnit
             && departmentIds.Contains(job.OwnerDepartmentId)
-            && (MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                || IsOpenOverdueJob(job.Status, job.DueDateUtc, now))), cancellationToken);
+            && (((!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                || (job.Status != JobStatus.Completed
+                    && job.Status != JobStatus.Cancelled
+                    && job.Status != JobStatus.Rejected
+                    && job.DueDateUtc.HasValue
+                    && job.DueDateUtc.Value < now))), cancellationToken);
         var incomingJobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && (departmentIds.Contains(job.OwnerDepartmentId)
                 || _dbContext.JobDepartments.Any(department => department.JobId == job.JobId
                     && department.Role == JobDepartmentRole.Target
                     && departmentIds.Contains(department.DepartmentId)))
-            && (MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                || IsOpenOverdueJob(job.Status, job.DueDateUtc, now))), cancellationToken);
+            && (((!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                || (job.Status != JobStatus.Completed
+                    && job.Status != JobStatus.Cancelled
+                    && job.Status != JobStatus.Rejected
+                    && job.DueDateUtc.HasValue
+                    && job.DueDateUtc.Value < now))), cancellationToken);
         var myExternalJobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.RequestType == JobRequestType.ExternalUnit
             && job.CreatedByUserId == context.UserId.Value
-            && (MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                || IsOpenOverdueJob(job.Status, job.DueDateUtc, now))), cancellationToken);
+            && (((!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                || (job.Status != JobStatus.Completed
+                    && job.Status != JobStatus.Cancelled
+                    && job.Status != JobStatus.Rejected
+                    && job.DueDateUtc.HasValue
+                    && job.DueDateUtc.Value < now))), cancellationToken);
 
         var staffUserIds = await UserDepartmentAccess.GetStaffUserIdsForDepartmentsAsync(
             _dbContext,
@@ -218,8 +239,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var taskQuery = _dbContext.Tasks.AsNoTracking()
             .Where(task => task.TenantId == tenantId
                 && task.AssignedUserId == userId
-                && (MatchesCreatedPeriod(task.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                    || IsOpenOverdueTask(task.CurrentStatus, task.DueDateUtc, now)));
+                && (((!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value))
+                    || (task.CurrentStatus != WorkflowTaskStatus.Completed
+                        && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && task.CurrentStatus != WorkflowTaskStatus.Rejected
+                        && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                        && task.DueDateUtc.HasValue
+                        && task.DueDateUtc.Value < now)));
         var tasks = await ProjectTaskStatusItems(taskQuery, tenantId).ToListAsync(cancellationToken);
         var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
             user => user.TenantId == tenantId && user.UserId == userId && user.IsActive,
@@ -260,8 +287,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var jobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.CreatedByUserId == userId
-            && (MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                || IsOpenOverdueJob(job.Status, job.DueDateUtc, now))), cancellationToken);
+            && (((!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                || (job.Status != JobStatus.Completed
+                    && job.Status != JobStatus.Cancelled
+                    && job.Status != JobStatus.Rejected
+                    && job.DueDateUtc.HasValue
+                    && job.DueDateUtc.Value < now))), cancellationToken);
 
         var charts = new List<DashboardChartResponse>
         {
@@ -280,8 +312,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
             var citizenJobs = await ProjectCitizenJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
                 job.TenantId == tenantId
                 && job.RequestType == JobRequestType.Citizen
-                && (MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc)
-                    || IsOpenOverdueJob(job.Status, job.DueDateUtc, now))), cancellationToken);
+                && (((!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                    || (job.Status != JobStatus.Completed
+                        && job.Status != JobStatus.Cancelled
+                        && job.Status != JobStatus.Rejected
+                        && job.DueDateUtc.HasValue
+                        && job.DueDateUtc.Value < now))), cancellationToken);
             charts.Add(BuildCitizenRequestsChart(citizenJobs, now));
         }
 

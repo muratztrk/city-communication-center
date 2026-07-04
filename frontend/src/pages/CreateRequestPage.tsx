@@ -487,7 +487,7 @@ export function CreateRequestPage() {
         <div
           role="button"
           tabIndex={saving ? -1 : 0}
-          className={`request-photo-dropzone flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-3 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+          className={`request-photo-dropzone flex min-h-[4rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-2.5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
           onClick={() => !saving && fileInputRef.current?.click()}
           onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
           onDragOver={event => event.preventDefault()}
@@ -523,7 +523,7 @@ export function CreateRequestPage() {
             }}
           />
         </div>
-        <div className="min-h-[5.5rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
+        <div className="min-h-[4rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
           {pendingFiles.length === 0 ? (
             <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
           ) : (

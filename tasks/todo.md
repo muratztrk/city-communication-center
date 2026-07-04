@@ -1167,3 +1167,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4791d9` reopened / #1296 — Sağ alt WhatsApp FAB merkez ikonu, yeni gönderilen dolu (filled) logo görseliyle (`/icons/whatsapp-fab.png`) değiştirildi; bu değişiklik yalnız bu FAB'a uygulandı, diğer `/icons/whatsapp.webp` kullanımları (nav, breadcrumb, liste) korundu.
 
 ## STATUS: Round 174 complete — cards moved to Done.
+
+## Round 175 (Doing — 2026-07-04, pie chart başlığı + birim dışı dosya alanı yüksekliği)
+- [x] `6a3ae2f4` — Üst Düzey Yönetici dashboard pie chart başlığı `dashboard.charts.externalRequestPending`
+  "Birimde Bekleyen Talepler" → "Birimlerde Bekleyen Talepler" oldu.
+- [x] `6a480cee` — Birim Dışı/İçi/Vatandaş Talebi oluşturma formlarında ortak `Dosya / Fotoğraf Ekle`
+  alanının dropzone + dosya listesi kutularının `min-h` değeri `5.5rem`→`4rem` düşürüldü.
+
+## STATUS: Round 175 complete — cards moved to Done.

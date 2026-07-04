@@ -391,7 +391,7 @@
       "myRequests": "Taleplerim",
       "citizenRequests": "Vatandaş Talepleri",
       "externalRequestCreators": "Talep Oluşturan Birimler",
-      "externalRequestPending": "Birimde Bekleyen Talepler",
+      "externalRequestPending": "Birimlerde Bekleyen Talepler",
       "externalRequestFulfillers": "Talebi Tamamlayan Birimler"
     },
     "taskFilter": {

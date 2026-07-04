@@ -18,6 +18,7 @@ import type { Department, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -725,15 +726,15 @@ export function CreateRequestPage() {
       const targetDepartmentIds = [externalForm.targetDepartmentId]
       if (editJobId) {
         await api.updateJob(editJobId, {
-          title: externalForm.title.trim(),
+          title: normalizeTitleCaseField(externalForm.title) ?? '',
           description: externalForm.description.trim(),
           priority: externalForm.priority,
           startDateUtc: toApiDateTime(externalForm.startDateUtc),
           dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
           isProject: externalForm.isProject,
-          neighborhood: externalForm.neighborhood || '',
-          street: externalForm.street || '',
-          openAddress: externalForm.openAddress || '',
+          neighborhood: normalizeTitleCaseField(externalForm.neighborhood) ?? '',
+          street: normalizeTitleCaseField(externalForm.street) ?? '',
+          openAddress: normalizeTitleCaseField(externalForm.openAddress) ?? '',
           targetDepartmentIds,
         })
         for (const file of pendingFiles) {
@@ -744,7 +745,7 @@ export function CreateRequestPage() {
         return
       }
       const job = await api.createJob({
-        title: externalForm.title.trim(),
+        title: normalizeTitleCaseField(externalForm.title) ?? '',
         description: externalForm.description.trim(),
         ownerDepartmentId: externalForm.ownerDepartmentId,
         ownerUserIds: [],
@@ -755,9 +756,9 @@ export function CreateRequestPage() {
         dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
         targetDepartmentIds,
         sourceType: 'Manual',
-        neighborhood: externalForm.neighborhood || null,
-        street: externalForm.street || null,
-        openAddress: externalForm.openAddress || null,
+        neighborhood: normalizeTitleCaseField(externalForm.neighborhood),
+        street: normalizeTitleCaseField(externalForm.street),
+        openAddress: normalizeTitleCaseField(externalForm.openAddress),
       })
       for (const file of pendingFiles) {
         await api.uploadJobAttachment(job.jobId, file)
@@ -1036,7 +1037,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'external' ? (
-        <form id="external-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateExternal}>
+        <form id="external-request-form" className="section-card request-form request-form--readable grid gap-3 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
             <h2 className="text-xl font-extrabold text-slate-950">{isReporter ? t('requests.create.reporterFormTitle', 'Talep Oluştur') : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}</h2>
             <p className="helper-copy">{isReporter ? t('requests.create.reporterFormDescription', 'Talep kaydını başlatmak için temel bilgileri girin.') : t('requests.create.externalFormDescription', 'Birim dışı talep kaydını başlatmak için temel bilgileri girin.')}</p>
@@ -1092,7 +1093,7 @@ export function CreateRequestPage() {
                 value={externalForm.description}
                 onChange={description => setExternalForm(current => ({ ...current, description }))}
                 required
-                minHeight="min-h-64"
+                minHeight="min-h-48"
               />
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">

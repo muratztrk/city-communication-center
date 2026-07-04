@@ -441,8 +441,11 @@ export interface CitizenConversationTicket {
   citizenRequestNumber?: number | null;
   citizenRequestNumberYear?: number | null;
   priority?: string | null;
+  jobStatus?: string | null;
   jobNumber?: number | null;
   jobNumberYear?: number | null;
+  departmentId?: string | null;
+  departmentName?: string | null;
 }
 
 export interface CitizenConversationDetail {

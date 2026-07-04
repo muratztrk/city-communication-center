@@ -12,6 +12,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface FormState {
   title: string
@@ -141,14 +142,14 @@ export function RoutineTaskPage() {
     setError(null)
     try {
       const payload = {
-        title: form.title.trim(),
+        title: normalizeTitleCaseField(form.title) ?? '',
         description: form.description.trim(),
         priority: form.priority,
         dueDateUtc: form.dueDateUtc ? new Date(form.dueDateUtc).toISOString() : null,
         notes: null,
-        neighborhood: form.neighborhood || null,
-        street: form.street || null,
-        openAddress: form.openAddress || null,
+        neighborhood: normalizeTitleCaseField(form.neighborhood),
+        street: normalizeTitleCaseField(form.street),
+        openAddress: normalizeTitleCaseField(form.openAddress),
       }
 
       const task = isEditMode && taskId
@@ -308,30 +309,7 @@ export function RoutineTaskPage() {
 
                 <div className="job-field min-h-0">
                   <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                  <div className="grid gap-3 lg:grid-cols-2 lg:items-stretch">
-                    <div className="flex items-start">
-                      <button
-                        type="button"
-                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={submitting}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
-                        {t('attachments.addFile', 'Dosya ekle')}
-                      </button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept={ACCEPT_ATTR}
-                        multiple
-                        className="hidden"
-                        disabled={submitting}
-                        onChange={event => {
-                          addFiles(event.target.files)
-                          if (fileInputRef.current) fileInputRef.current.value = ''
-                        }}
-                      />
-                    </div>
+                  <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-stretch">
                     <div className="flex h-full min-h-[5.5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2">
                       {pendingFiles.length === 0 ? (
                         <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
@@ -357,6 +335,29 @@ export function RoutineTaskPage() {
                           })}
                         </ul>
                       )}
+                    </div>
+                    <div className="flex items-end justify-end">
+                      <button
+                        type="button"
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={submitting}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
+                        {t('attachments.addFile', 'Dosya ekle')}
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept={ACCEPT_ATTR}
+                        multiple
+                        className="hidden"
+                        disabled={submitting}
+                        onChange={event => {
+                          addFiles(event.target.files)
+                          if (fileInputRef.current) fileInputRef.current.value = ''
+                        }}
+                      />
                     </div>
                   </div>
                   {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}

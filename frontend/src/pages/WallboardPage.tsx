@@ -382,14 +382,18 @@ export function WallboardPage() {
                         </span>
                       </td>
                       <td>
-                        <ReporterDepartmentName name={item.requestLocation} isReporter={item.isReporterRequest} />
+                        <ReporterDepartmentName
+                          name={item.requestLocation}
+                          isReporter={item.isReporterRequest}
+                          className={item.isReporterRequest ? 'wallboard-request-location--reporter' : 'wallboard-request-location'}
+                        />
                         <div className={`wallboard-creator-line ${item.isReporterRequest ? `${reporterCreatorTextClass(true)} opacity-100` : 'wallboard-secondary-text'}`}>
                           {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
                           <span>{item.requestCreator ?? '—'}</span>
                         </div>
                       </td>
-                      <td><div className="wallboard-row-title">{item.title}</div></td>
-                      <td>{item.taskOwner ?? '—'}</td>
+                      <td><div className={`wallboard-row-title ${item.isReporterRequest ? 'wallboard-row-title--reporter' : ''}`}>{item.title}</div></td>
+                      <td className={item.isReporterRequest ? 'wallboard-task-owner--reporter' : undefined}>{item.taskOwner ?? '—'}</td>
                       <td>
                         <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}${item.isReporterRequest && item.dueDateUtc && dueTone === 'normal' ? ' text-orange-500 font-semibold' : ''}`}>
                           <CalendarClock className={`size-4${item.isReporterRequest && item.dueDateUtc && dueTone === 'normal' ? ' text-orange-400' : ''}`} />

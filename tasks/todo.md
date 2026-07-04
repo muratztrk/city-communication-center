@@ -1113,3 +1113,25 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a47b98e` reopened / #1302 — `Tümü` butonu `Konuşmalar` başlığının altındaki kendi satırına taşındı; `İşleme Alınan/Yapılmakta/Tamamlandı/İptal` satırı onun altında aynı kaldı.
 
 ## STATUS: Round 169 complete — card moved to Done.
+
+## Round 170 (Doing — 2026-07-04, WhatsApp profil/grid/wallboard görsel düzeltmeleri)
+- [x] `6a47c593813c55afb9248370` / #1303 — `/whatsapp` birim seçimi yalnız seçili konuşmadaki aktif taleplerin hedef birimlerini listeler.
+- [x] `6a4816ae567227760b5f03ab` / #1322 — Taleplerim detay popup'ında Talep No/Talep Başlığı satırları kaldırılıp başlık/açıklama/öncelik-proje özeti eklendi.
+- [x] `6a4815d8faffe7618c65c5c6` / #1321 — Süreç timeline yeşil→turuncu geçişi sert orta geçişe alındı.
+- [x] `6a47f59988e0447ada0a781e` / #1308 — WhatsApp arama placeholder'ı `Telefon no, vatandaş adı...` oldu.
+- [x] `6a47fe417b1cc47b2592e95b` / #1313 — Wallboard Reporter satırında başlık/görev sahibi turuncu, oluşturan adı birim altında kaldı.
+- [x] `6a480f483de67643ccecc873` / #1319 — Ortak grid/table dış çerçeveleri kaldırıldı.
+- [x] `6a480eee5b7b3ba71e7be9cd` / #1318 — Grid header uppercase zorlaması kaldırıldı.
+- [x] `6a480c41e9b2065849e78fc5` / #1315 — Rutin görev formunda dosya ekle butonu açık adres hizasına, dosya alanı geniş bölüme alındı.
+- [x] `6a47f7714fdd976e42482047` / #1311 — Filterable grid header label/ikon aralığı dengelendi.
+- [x] `6a47fd767dd6d5aacded1f0e` / #1312 — Frontend ana fontu Plus Jakarta Sans'a geçirildi.
+- [x] `6a480cee27c9ab88d9b0c41d` / #1316 — Birim dışı talep formu 27 inç görünüm için daha kompakt hale getirildi.
+- [x] `6a47f64b05929e46ddf91023` / #1309 — WhatsApp profil kaydında vatandaş adı Türkçe başlık biçimine normalize edilir.
+- [x] `6a47ff974557d32b3594f86f` / #1314 — Wallboard `Görevin Talep Yeri` metni koyu zeminde daha görünür yapıldı.
+- [x] `6a47f4d58bb3579c92aa1089` / #1307 — WhatsApp listesinde kayıtlı ad üstte, telefon altta korunur.
+- [x] `6a47f6c9f42260d6da663afd` / #1310 — Kayıt payload'larında ilgili textbox değerleri Türkçe başlık biçimine normalize edilir.
+- [x] `6a47f3e0f5c469d915943280` / #1306 — WhatsApp profilinde numara salt okunur/ülke kodsuz, etiket adı ve mahalle/adres kapısı güncellendi.
+- [x] `6a4811a9eb9ad16c12020d35` / #1320 — Timeline mevcut turuncu noktasına pulse glow efekti eklendi.
+- [x] `6a47f3829daa5e0566f7e7b9` / #1305 — WhatsApp iç mesaj butonu `Kurum İçi İlet` oldu.
+- [x] `6a47f29711ae004d3550035a` / #1304 — WhatsApp detay header durum sayaçları kaldırıldı, `Talep Sayısı` seçili numaranın talep sayısından hesaplandı.
+- [x] `6a480d44edd728c412cabad4` / #1317 — Wallboard Reporter görev sahibi/tarih değerleri turuncu vurguyla korunur.

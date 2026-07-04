@@ -16,6 +16,7 @@ import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime } from './format'
+import { getPriorityLabel } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 
 export interface DetailDueDateEditState {
@@ -67,12 +68,22 @@ export function MyRequestDetailMainCard({
   const hideOwnerApproval = user?.role === 'Manager' || user?.role === 'SystemAdmin' || user?.role === 'Reporter'
   const titleLabel = t('jobs.form.title', 'Talep Başlığı')
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
+  const requestNoLabel = t('jobs.columns.requestNo', 'Talep No')
+  const citizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
+  const projectLabel = t('jobs.form.isProject', 'Proje mi')
   const fields = useMemo(
     () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage),
     [detail, t, locale, citizenSourceMessage],
   )
+  const visibleFields = isEditing
+    ? fields
+    : fields.filter(field => ![titleLabel, requestNoLabel, citizenRequestNoLabel, priorityLabel, projectLabel].includes(field.label))
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
+  const requestTypeText = detail.requestType === 'ExternalUnit'
+    ? t('jobs.requestType.external', 'Birim Dışı')
+    : t('jobs.requestType.internal', 'Birim İçi')
+  const projectValue = detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
     <div className="my-request-detail-edit-due-date">
@@ -136,8 +147,24 @@ export function MyRequestDetailMainCard({
       </MyRequestSectionHeading>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+          {!isEditing ? (
+            <div className="mb-3 rounded-xl bg-slate-50 px-3 py-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <strong className="min-w-0 text-sm font-extrabold leading-snug text-slate-950">{detail.title}</strong>
+                <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold text-orange-600">{requestTypeText}</span>
+              </div>
+              <RichTextContent
+                value={detail.description}
+                emptyText={t('common.none')}
+                className="rich-text-content mt-1 text-xs leading-5 text-slate-700"
+              />
+              <div className="mt-2 text-xs font-semibold text-slate-600">
+                {getPriorityLabel(t, detail.priority)} <span className="job-process-timeline__datetime-bullet mx-1 align-middle" /> {t('jobs.form.isProject', 'Proje')}: {projectValue}
+              </div>
+            </div>
+          ) : null}
           <div className="divide-y divide-slate-100">
-            {fields.map(field => (
+            {visibleFields.map(field => (
               <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
                 <div className="job-detail-field-row__label">{field.label}</div>
                 <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>

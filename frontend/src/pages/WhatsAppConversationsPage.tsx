@@ -25,6 +25,8 @@ import { formatConversationDisplayContent } from '../utils/socialConversationCon
 import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
+import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -39,6 +41,13 @@ function formatPhone(phone: string): string {
 }
 
 function toLocalPhoneFilterDigits(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1)
+  return digits
+}
+
+function formatLocalProfilePhone(phone: string): string {
   const digits = phone.replace(/\D/g, '')
   if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
   if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1)
@@ -150,6 +159,7 @@ function ConversationListItem({
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
   const displayName = conv.citizenName ?? formatPhone(conv.citizenPhone)
+  const phoneLabel = formatPhone(conv.citizenPhone)
   const initials = conv.citizenName ? getInitials(conv.citizenName) : null
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
@@ -213,7 +223,7 @@ function ConversationListItem({
           )}
 
           {conv.citizenName ? (
-            <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{conv.citizenName}</p>
+            <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
           ) : null}
 
           <div className="mt-2 flex items-center justify-between gap-2 min-w-0">
@@ -381,7 +391,7 @@ function ConversationListPanel({
             type="search"
             value={search}
             onChange={event => onSearchChange(event.target.value)}
-            placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon no, kullanıcı adı…')}
+            placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon no, vatandaş adı…')}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
           />
           {search ? (
@@ -489,8 +499,11 @@ function ConversationProfilePanel({
   onSave: () => void
 }) {
   const { t } = useTranslation()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const hasNeighborhood = draft.neighborhood.trim().length > 0
 
   const fieldClass = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
+  const disabledFieldClass = `${fieldClass} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400`
   const labelClass = 'text-[10px] font-bold uppercase tracking-wide text-slate-500'
 
   return (
@@ -515,27 +528,39 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.phoneNumber', 'Numara')}</span>
-          <input className={fieldClass} value={draft.citizenPhone} onChange={event => onDraftChange({ citizenPhone: event.target.value })} />
+          <input className={disabledFieldClass} value={formatLocalProfilePhone(draft.citizenPhone)} readOnly disabled />
         </label>
         <label className="block space-y-1">
-          <span className={labelClass}>{t('whatsapp.label', 'Etiket')}</span>
+          <span className={labelClass}>{t('whatsapp.label', 'Talep Etiketi')}</span>
           <input className={fieldClass} value={draft.label} onChange={event => onDraftChange({ label: event.target.value })} />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>
-          <input className={fieldClass} value={draft.neighborhood} onChange={event => onDraftChange({ neighborhood: event.target.value })} />
+          <select
+            className={fieldClass}
+            value={draft.neighborhood}
+            onChange={event => onDraftChange(event.target.value
+              ? { neighborhood: event.target.value }
+              : { neighborhood: '', street: '', openAddress: '' })}
+          >
+            <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
+            {neighborhoods.map(neighborhood => (
+              <option key={neighborhood} value={neighborhood}>{neighborhood}</option>
+            ))}
+          </select>
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.street', 'Cadde / Sokak / Bulvar')}</span>
-          <input className={fieldClass} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} />
+          <input className={disabledFieldClass} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} disabled={!hasNeighborhood} />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.openAddress', 'Açık Adres')}</span>
           <textarea
             rows={4}
-            className={`${fieldClass} min-h-[6rem] resize-none`}
+            className={`${disabledFieldClass} min-h-[6rem] resize-none`}
             value={draft.openAddress}
             onChange={event => onDraftChange({ openAddress: event.target.value })}
+            disabled={!hasNeighborhood}
           />
         </label>
       </div>
@@ -549,7 +574,6 @@ function ConversationDetail({
   citizenName,
   citizenPhone,
   userQuickReplies,
-  departments,
   onUserQuickRepliesChanged,
   anchorAtUtc,
   anchorSocialMessageId,
@@ -562,7 +586,6 @@ function ConversationDetail({
   citizenName?: string | null
   citizenPhone?: string | null
   userQuickReplies: UserQuickReplyTemplate[]
-  departments: Department[]
   onUserQuickRepliesChanged: () => void
   anchorAtUtc?: string | null
   anchorSocialMessageId?: string | null
@@ -717,7 +740,14 @@ function ConversationDetail({
     if (!detail || profileSaving) return
     setProfileSaving(true)
     try {
-      await api.updateCitizenConversationProfile(detail.citizenConversationId, profileDraft)
+      await api.updateCitizenConversationProfile(detail.citizenConversationId, {
+        ...profileDraft,
+        citizenName: normalizeTitleCaseField(profileDraft.citizenName) ?? '',
+        label: normalizeTitleCaseField(profileDraft.label) ?? '',
+        neighborhood: normalizeTitleCaseField(profileDraft.neighborhood) ?? '',
+        street: normalizeTitleCaseField(profileDraft.street) ?? '',
+        openAddress: normalizeTitleCaseField(profileDraft.openAddress) ?? '',
+      })
       await refreshDetail()
       onProfileSaved()
     } finally {
@@ -786,13 +816,30 @@ function ConversationDetail({
 
   const openTicket = detail ? pickReplyTicket(detail.tickets) : undefined
   const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
+  const internalDepartmentOptions = useMemo(() => {
+    const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
+    const options = new Map<string, string>()
+    for (const ticket of detail?.tickets ?? []) {
+      if (!ticket.jobStatus || !activeStatuses.has(ticket.jobStatus) || !ticket.departmentId || !ticket.departmentName) continue
+      options.set(ticket.departmentId, ticket.departmentName)
+    }
+    return Array.from(options, ([departmentId, name]) => ({ departmentId, name }))
+  }, [detail?.tickets])
+
+  useEffect(() => {
+    if (!internalDepartmentId) return
+    if (!internalDepartmentOptions.some(department => department.departmentId === internalDepartmentId)) {
+      setInternalDepartmentId('')
+    }
+  }, [internalDepartmentId, internalDepartmentOptions])
+
   const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
   const hasSelectableTemplates = userQuickReplies.length > 0
 
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
   const headerInitials = citizenName ? getInitials(citizenName) : null
-  const ticketLabel = formatWhatsAppTicketLabel(primaryTicket)
+  const ticketLabel = detail ? `Talep Sayısı: ${detail.tickets.length}` : formatWhatsAppTicketLabel(primaryTicket)
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
   const headerSubtitleParts: string[] = []
   if (citizenName?.trim() && phoneForHeader) {
@@ -832,14 +879,6 @@ function ConversationDetail({
           {ticketLabel ? (
             <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">{ticketLabel}</p>
           ) : null}
-          <div className="mt-1">
-            <ConversationStatusCounts
-              intake={detail?.intakeCount}
-              inProgress={detail?.inProgressCount}
-              completed={detail?.completedCount}
-              cancelled={detail?.cancelledCount}
-            />
-          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <button
@@ -1040,7 +1079,7 @@ function ConversationDetail({
                   aria-label={t('departments.selectDepartment', 'Birim seçin')}
                 >
                   <option value="">{t('departments.selectDepartment', 'Birim seçin')}</option>
-                  {departments.map(department => (
+                  {internalDepartmentOptions.map(department => (
                     <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
                   ))}
                 </select>
@@ -1051,7 +1090,7 @@ function ConversationDetail({
                   className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                  {t('whatsapp.sendInternalMessage', 'Birim İçi İlet')}
+                  {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
                 </button>
               </div>
               <div className="flex items-end gap-2">
@@ -1352,7 +1391,6 @@ export function WhatsAppConversationsPage() {
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}
               userQuickReplies={userQuickReplies}
-              departments={departments}
               onUserQuickRepliesChanged={() => { void refreshUserQuickReplies() }}
               anchorAtUtc={requestedAt || null}
               anchorSocialMessageId={requestedMessageId || null}

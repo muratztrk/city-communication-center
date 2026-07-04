@@ -126,8 +126,23 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 m.CitizenRequestNumber,
                 m.CitizenRequestNumberYear,
                 m.Job != null ? m.Job.Priority : null,
+                m.Job != null ? m.Job.Status.ToString() : null,
                 m.Job != null ? m.Job.JobNumber : null,
-                m.Job != null ? m.Job.JobNumberYear : null))
+                m.Job != null ? m.Job.JobNumberYear : null,
+                m.Job != null
+                    ? m.Job.Departments
+                        .Where(d => d.Role == JobDepartmentRole.Target)
+                        .OrderBy(d => d.RequestedAtUtc)
+                        .Select(d => (Guid?)d.DepartmentId)
+                        .FirstOrDefault()
+                    : m.AssignedDepartmentId,
+                m.Job != null
+                    ? m.Job.Departments
+                        .Where(d => d.Role == JobDepartmentRole.Target)
+                        .OrderBy(d => d.RequestedAtUtc)
+                        .Select(d => d.Department.Name)
+                        .FirstOrDefault()
+                    : m.AssignedDepartment != null ? m.AssignedDepartment.Name : null))
             .ToListAsync(cancellationToken);
 
         var statusCounts = await _dbContext.SocialMessages

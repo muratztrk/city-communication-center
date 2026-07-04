@@ -253,6 +253,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp birim içi konuşma notu:** `/whatsapp` footer'ındaki birim seçimi + `Birim İçi İlet` aksiyonu
   aynı konuşmaya iç mesaj kaydı ekler, vatandaşa WhatsApp gönderimi yapmaz; mesaj balonda iç mesaj etiketiyle
   görünür ve konuşma son mesaj zamanını günceller.
+- **WhatsApp detay iç yönlendirme birimleri:** `/whatsapp` footer birim dropdown'u genel departman
+  listesini değil, seçili konuşmadaki işleme alınan/yapılmakta aktif taleplerin hedef departmanlarını gösterir.
+- **WhatsApp profil telefonu salt okunur:** sağ panelde `Numara` başındaki ülke kodu olmadan gösterilir,
+  kayıtta değiştirilemez; kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
+- **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
+  seçili numaraya ait toplam `Talep Sayısı` hesaplanır.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
@@ -328,6 +334,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönü kart istemeden değiştirilmez (card #1248).
 - **Taleplerim detayında düzenleme modundaki `Talep Başlığı` çok satırlı textarea olarak sarar ve
   aşağı doğru büyür; yatay scroll/input kayması geri getirilmez** (card #1232).
+- **Taleplerim detay popup başlığı:** normal görüntüde `Talep No`/`Talep Başlığı` ayrı satırları
+  gösterilmez; talep başlığı güçlü metin, yanında `Birim İçi/Birim Dışı`, altında açıklama ve
+  `Öncelik · Proje: Evet/Hayır` tek satırı görünür.
+- **Grid başlık casing/padding:** ortak grid header'ları uppercase'e zorlanmaz; başlık metni doğal
+  title-case kalır ve `FilterableTh` label/ikon aralığı iki ayırıcı arasında dengeli olmalıdır.
 
 ## 5. Dashboard / Wallboard
 
@@ -346,6 +357,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
+- **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
+  ayrı satırda kalır; başlık, görev sahibi ve ilgili tarih/değer metinleri turuncu vurgulanır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
 ## 5b. Bildirimler (Notifications)

@@ -1138,3 +1138,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 171 (Hotfix — 2026-07-04, WhatsApp dosya eki gönderimi)
 - [x] Kullanıcı raporu — `/whatsapp` Dosya ekle akışı dosyayı gerçek medya olarak göndermiyordu; frontend sadece dosya adını metne ekliyordu. Multipart reply endpoint'i, WhatsApp Cloud medya upload/send akışı ve yerel görsel/dosya önizlemesi eklendi.
+
+## Round 172 (Hotfix — 2026-07-04, WhatsApp bildirim FAB ikonu)
+- [x] Kullanıcı raporu — Sağ alt WhatsApp bildirim FAB'ı yalın yeşil baloncuk olarak kaldı; merkez ikon beyaz çizgisel/içi boş WhatsApp formuna çevrildi.

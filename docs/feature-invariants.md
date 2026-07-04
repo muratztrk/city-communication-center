@@ -236,9 +236,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp breadcrumb ve konuşma başlığı:** Breadcrumb'daki `WhatsApp` pill'inin başında
   WhatsApp ikonu görünür; konuşma detay header'ında telefon altına `WhatsApp Konuşmaları`
   fallback subtitle'ı basılmaz (cards #1253/#1254).
-- **WhatsApp ikon ve liste zamanı:** WhatsApp'a özel nav/breadcrumb/channel/FAB/konuşma fallback ikonları
-  ortak `/icons/whatsapp.webp` asset'ini kullanır. Sağ alt WhatsApp FAB eski yalın yeşil baloncuk
-  görünümünde kalır; merkezde ayrıca beyaz disk kullanılmaz. `/whatsapp` konuşma listesinin sağ üst
+- **WhatsApp ikon ve liste zamanı:** WhatsApp'a özel nav/breadcrumb/channel/konuşma fallback ikonları
+  ortak `/icons/whatsapp.webp` asset'ini kullanır. Sağ alt WhatsApp bildirim FAB'ı eski yalın yeşil
+  baloncuk görünümünde kalır; merkezde ayrıca beyaz disk kullanılmaz ve ikon beyaz çizgisel/içi boş
+  WhatsApp formudur. `/whatsapp` konuşma listesinin sağ üst
   zaman alanı göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve

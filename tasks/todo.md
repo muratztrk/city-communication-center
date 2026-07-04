@@ -1193,3 +1193,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   kaldırıldı; `tokens.css`'te `--font-sans`/`--font-display` `Inter`'e alındı; `main.tsx` import'ları güncellendi.
 
 ## STATUS: Round 177 complete — card moved to Done.
+
+## Round 178 (Doing — 2026-07-04, Taleplerim sola-hizalama geri alındı)
+- [x] `6a48a5e0` reopened / "Beğenmedim geri al" — Round 174'te eklenen
+  `.detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value { text-align: left; }`
+  override'ı kullanıcı tarafından beğenilmedi, kaldırıldı; satır değerleri eski (sağa hizalı) görünümüne döndü.
+
+## STATUS: Round 178 complete — card moved to Done.

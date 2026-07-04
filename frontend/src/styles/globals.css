@@ -302,10 +302,6 @@
     white-space: nowrap;
   }
 
-  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
-    text-align: left;
-  }
-
   .detail-modal-shell--my-request .job-process-timeline__step-value {
     font-size: 0.75rem;
   }

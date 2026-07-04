@@ -19,6 +19,7 @@ import { formatDateTime } from './format'
 import { getPriorityLabel } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
+import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -81,9 +82,6 @@ export function MyRequestDetailMainCard({
     : fields.filter(field => ![titleLabel, requestNoLabel, citizenRequestNoLabel, priorityLabel, projectLabel].includes(field.label))
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
-  const requestTypeText = detail.requestType === 'ExternalUnit'
-    ? t('jobs.requestType.external', 'Birim Dışı')
-    : t('jobs.requestType.internal', 'Birim İçi')
   const requestNumberContent = fields.find(field => field.label === requestNoLabel || field.label === citizenRequestNoLabel)?.value
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
@@ -150,14 +148,11 @@ export function MyRequestDetailMainCard({
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
           {!isEditing ? (
             <div className="mb-3 rounded-xl bg-white px-3 py-2.5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{titleLabel}</span>
-                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-700">
-                  {requestNumberContent}
-                  <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold text-orange-600">{requestTypeText}</span>
-                </div>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{titleLabel}</span>
+              <div className="mt-1 flex flex-wrap items-baseline gap-2">
+                <strong className="min-w-0 text-sm font-extrabold leading-snug text-slate-950">{normalizeTitleCaseField(detail.title)}</strong>
+                <span className="shrink-0 text-xs font-semibold text-slate-500">{requestNumberContent}</span>
               </div>
-              <strong className="mt-1 block min-w-0 text-sm font-extrabold leading-snug text-slate-950">{detail.title}</strong>
               <RichTextContent
                 value={detail.description}
                 emptyText={t('common.none')}
@@ -203,7 +198,7 @@ export function MyRequestDetailMainCard({
             ))}
             {!isEditing && (
               <div className="job-detail-field-row job-detail-field-row--request-info">
-                <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje')}</div>
+                <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje Niteliğinde mi?')}</div>
                 <div className="job-detail-field-row__value">
                   {getPriorityLabel(t, detail.priority)} · {t('jobs.form.isProject', 'Proje')}: <JobProjectValue job={detail} t={t} />
                 </div>

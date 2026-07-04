@@ -1200,3 +1200,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   override'ı kullanıcı tarafından beğenilmedi, kaldırıldı; satır değerleri eski (sağa hizalı) görünümüne döndü.
 
 ## STATUS: Round 178 complete — card moved to Done.
+
+## Round 179 (Doing — 2026-07-04, Taleplerim başlık satırı refine)
+- [x] `6a48a50a` reopened — Taleplerim ana kart üst kutusu yeniden düzenlendi: `TALEP BAŞLIĞI` küçük
+  başlığı artık tek başına kendi satırında; Talep No, başlık metninin YANINA taşındı (caption satırından
+  değil); Birim İçi/Birim Dışı rozeti tamamen kaldırıldı; talep başlığı metni `normalizeTitleCaseField`
+  ile Title Case gösterilir (yalnız görüntüleme, kayıtlı veri değişmez); "Öncelik / Proje" satır etiketi
+  "Öncelik / Proje Niteliğinde mi?" oldu.
+
+## STATUS: Round 179 complete — card moved to Done.

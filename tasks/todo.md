@@ -1145,3 +1145,25 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## Round 173 (Hotfix — 2026-07-04, WhatsApp ek kaydı medya zorunluluğu)
 - [x] Kullanıcı raporu — Canlı log/DB kontrolünde dosya gönderiminin eski `/reply` endpoint'inden gittiği ve `mediaid` boş düz metin balonu ürettiği görüldü. Eski endpoint artık `[Dosya eki: ...]` WhatsApp direkt gönderimini reddeder; frontend sürümü `0.1.2` yapıldı.
+
+## Round 174 (Doing — 2026-07-04, 20 kart reopen — gridview/Taleplerim/WhatsApp/Wallboard/font)
+- [x] `6a4815d8` reopened / #1321 — Süreç timeline yeşil→turuncu geçişi ekteki referans gibi tüm çizgi boyunca yumuşak (düz linear-gradient) geçişe alındı; sert orta bant kaldırıldı.
+- [x] `6a480eee` reopened / #1318 — Gridview header font-size 0.84rem→0.98rem büyütüldü.
+- [x] `6a480f48` reopened / #1319 — Gridview'ları saran `.section-card` dış çerçevesi `:has(.data-table)` ile hedeflenerek kaldırıldı (Round 170'te yalnız `table-wrap` temizlenmişti, dış kart border'ı kalmıştı).
+- [x] `6a47fe41` reopened / #1313 — Wallboard reporter satırında birim adı + oluşturan adı aynı satıra "yapışıyordu" (`ReporterDepartmentName` + `.wallboard-creator-line` ikisi de `inline-flex` olduğu için yan yana diziliyordu); ikisi de `flex`'e çevrilip alt satıra düşürüldü.
+- [x] `6a47f599` — WhatsApp arama placeholder zaten "Telefon no, vatandaş adı..." idi, değişiklik gerekmedi.
+- [x] `6a48a5e0`/`6a48a50a`/`6a4816ae` reopened / #1322 — Taleplerim ana kart: `Talep Başlığı` küçük başlık artık verinin üst satırında, sağında Talep No + Birim İçi/Dışı rozeti; kutu arka planı `bg-white`; Öncelik/Proje satırı kutudan çıkarılıp `Talebin Gittiği Birim / Görevi Yapan`ın altına ayrı satır olarak eklendi; alt alan listesinin üstüne ayraç eklendi; `--request-info` value hizası sola çevrildi (`detail-modal-shell--my-request` scope'unda).
+- [x] `6a48a764` — Rutin Görev Oluştur dosya ekle butonu üstten hizalandı (`items-end`→`items-start`).
+- [x] `6a47fd76` reopened / #1312 — Plus Jakarta Sans token zaten ayarlıydı ama `@fontsource` yalnız 500/600/700 ağırlıklarını yüklüyordu; 400 (gövde metni) ve 800 eklendi — çoğu düz metin hâlâ sistem fontuna düşüyordu.
+- [x] `6a48ac67` — Görevlerim "Görev Tipi / Görevi Yapan" başlık hücresine `pl-3` sol boşluk eklendi.
+- [x] `6a47f771` — WhatsApp konuşma detay header avatarı `var(--color-header-from)` koyu yeşilinden sidebar listesindeki `bg-emerald-100`/`text-emerald-800` stiline çevrildi.
+- [x] `6a48acd2` — WhatsApp detay header `Talep Sayısı` artık `detail.tickets.length` değil, İşleme Alınan+Yapılmakta+Tamamlandı+İptal toplamı.
+- [x] `6a48ab86` — Kök neden: `Kurum İçi İlet` mesajı her zaman `primaryTicket.socialMessageId`'ye yazılıyordu; birden fazla aktif talep farklı birimlere gidiyorsa mesaj YANLIŞ talebin altına düşüyor, o birimin yöneticisi "yazışmaya git"te görmüyordu. Artık seçilen `internalDepartmentId`'ye sahip ticket'ın `socialMessageId`'sine yazılıyor.
+- [x] `6a478fe8` — İnceleme: backend `GetCitizenConversationsQuery` zaten atanan personel/hedef birim + terminal-olmayan durum kuralını doğru uyguluyor; kod değişikliği gerekmedi.
+- [x] `6a47f3e0` — WhatsApp profil panelindeki Mahalle native `<select>` idi; standart `SingleSelectDropdown` + `stringListSelectOptions`'a çevrildi.
+- [x] `6a47ff97` — Wallboard "Görevin Talep Yeri" (`.wallboard-request-location`) rengi `ReporterDepartmentName`'in varsayılan `text-slate-700` utility'siyle eziliyordu (koyu zeminde silik); `!important` eklendi.
+- [x] `6a48a8cf` — WhatsApp konuşma paneli ilk açılışta dibe kayma efekti `useEffect` yerine `useLayoutEffect`'e alındı; paint öncesi konumlanarak yukarıdan aşağı görünür scroll flaşı önlendi.
+- [x] `6a48a825` — WhatsApp konuşma listesinde numara altındaki son mesaj önizleme satırı kaldırıldı.
+- [x] `6a4791d9` reopened / #1296 — Sağ alt WhatsApp FAB merkez ikonu, yeni gönderilen dolu (filled) logo görseliyle (`/icons/whatsapp-fab.png`) değiştirildi; bu değişiklik yalnız bu FAB'a uygulandı, diğer `/icons/whatsapp.webp` kullanımları (nav, breadcrumb, liste) korundu.
+
+## STATUS: Round 174 complete — cards moved to Done.

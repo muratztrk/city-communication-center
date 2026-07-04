@@ -302,6 +302,10 @@
     white-space: nowrap;
   }
 
+  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
+    text-align: left;
+  }
+
   .detail-modal-shell--my-request .job-process-timeline__step-value {
     font-size: 0.75rem;
   }
@@ -432,8 +436,6 @@
     background: linear-gradient(
       to bottom,
       rgb(4 120 87) 0%,
-      rgb(4 120 87) 46%,
-      rgb(249 115 22) 47%,
       rgb(249 115 22) 100%
     );
   }
@@ -1386,6 +1388,11 @@
     padding: 1rem;
   }
 
+  /* Gridview'ları saran section-card'ların en dış çerçevesi kaldırılır (card #1319 reopen) */
+  .section-card:has(.data-table) {
+    border: 0;
+  }
+
   .form-card {
     background: color-mix(in srgb, var(--color-surface) 97%, white);
     border: 1px solid var(--color-border);
@@ -1636,7 +1643,7 @@
     min-height: var(--table-chrome-row-min-height);
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     text-align: center;
-    font-size: 0.84rem;
+    font-size: 0.98rem;
     font-weight: 700;
     letter-spacing: 0;
     text-transform: none;
@@ -3455,7 +3462,7 @@
   }
 
   .wallboard-request-location {
-    color: rgba(248, 250, 252, 0.96);
+    color: rgba(248, 250, 252, 0.96) !important;
     font-weight: 900;
   }
 
@@ -3470,7 +3477,7 @@
   }
 
   .wallboard-creator-line {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.35rem;

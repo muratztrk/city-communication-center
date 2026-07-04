@@ -2449,8 +2449,8 @@ const pageKicker = isMyTasksView
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
-                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="taskTypeCategory" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
-                      <span className="inline-flex flex-col leading-tight">
+                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="taskTypeCategory" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort} className="pl-3">
+                      <span className="inline-flex flex-col gap-0.5 leading-tight">
                         <span>{t('tasks.columns.taskType', 'Görev Tipi')}</span>
                         <span>{t('tasks.columns.owner', 'Görevi Yapan')}</span>
                       </span>

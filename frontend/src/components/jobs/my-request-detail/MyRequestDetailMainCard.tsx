@@ -18,6 +18,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime } from './format'
 import { getPriorityLabel } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
+import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -83,7 +84,7 @@ export function MyRequestDetailMainCard({
   const requestTypeText = detail.requestType === 'ExternalUnit'
     ? t('jobs.requestType.external', 'Birim Dışı')
     : t('jobs.requestType.internal', 'Birim İçi')
-  const projectValue = detail.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')
+  const requestNumberContent = fields.find(field => field.label === requestNoLabel || field.label === citizenRequestNoLabel)?.value
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
     <div className="my-request-detail-edit-due-date">
@@ -148,22 +149,23 @@ export function MyRequestDetailMainCard({
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
           {!isEditing ? (
-            <div className="mb-3 rounded-xl bg-slate-50 px-3 py-2.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <strong className="min-w-0 text-sm font-extrabold leading-snug text-slate-950">{detail.title}</strong>
-                <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold text-orange-600">{requestTypeText}</span>
+            <div className="mb-3 rounded-xl bg-white px-3 py-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{titleLabel}</span>
+                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-700">
+                  {requestNumberContent}
+                  <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold text-orange-600">{requestTypeText}</span>
+                </div>
               </div>
+              <strong className="mt-1 block min-w-0 text-sm font-extrabold leading-snug text-slate-950">{detail.title}</strong>
               <RichTextContent
                 value={detail.description}
                 emptyText={t('common.none')}
                 className="rich-text-content mt-1 text-xs leading-5 text-slate-700"
               />
-              <div className="mt-2 text-xs font-semibold text-slate-600">
-                {getPriorityLabel(t, detail.priority)} <span className="job-process-timeline__datetime-bullet mx-1 align-middle" /> {t('jobs.form.isProject', 'Proje')}: {projectValue}
-              </div>
             </div>
           ) : null}
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 border-t border-slate-100">
             {visibleFields.map(field => (
               <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
                 <div className="job-detail-field-row__label">{field.label}</div>
@@ -199,6 +201,14 @@ export function MyRequestDetailMainCard({
                 </div>
               </div>
             ))}
+            {!isEditing && (
+              <div className="job-detail-field-row job-detail-field-row--request-info">
+                <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje')}</div>
+                <div className="job-detail-field-row__value">
+                  {getPriorityLabel(t, detail.priority)} · {t('jobs.form.isProject', 'Proje')}: <JobProjectValue job={detail} t={t} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">

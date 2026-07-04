@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
 import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, FileText, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -28,6 +28,8 @@ import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { stringListSelectOptions } from '../utils/formDropdownOptions'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -227,12 +229,6 @@ function ConversationListItem({
               )}
             </div>
           </div>
-
-          {conv.lastMessagePreview && (
-            <p className="mt-0.5 text-xs text-slate-500 truncate leading-relaxed">
-              {formatConversationDisplayContent(conv.lastMessagePreview)}
-            </p>
-          )}
 
           {conv.citizenName ? (
             <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
@@ -512,6 +508,7 @@ function ConversationProfilePanel({
 }) {
   const { t } = useTranslation()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
 
   const fieldClass = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
@@ -548,18 +545,14 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>
-          <select
-            className={fieldClass}
+          <SingleSelectDropdown
+            options={neighborhoodOptions}
             value={draft.neighborhood}
-            onChange={event => onDraftChange(event.target.value
-              ? { neighborhood: event.target.value }
+            onChange={neighborhood => onDraftChange(neighborhood
+              ? { neighborhood }
               : { neighborhood: '', street: '', openAddress: '' })}
-          >
-            <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-            {neighborhoods.map(neighborhood => (
-              <option key={neighborhood} value={neighborhood}>{neighborhood}</option>
-            ))}
-          </select>
+            placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+          />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.street', 'Cadde / Sokak / Bulvar')}</span>
@@ -705,7 +698,7 @@ function ConversationDetail({
     setIsPinnedToBottom(true)
   }, [conversationId, anchorAtUtc, anchorSocialMessageId])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (loading || !detail || detail.timeline.length === 0) return
 
     if (anchorAtUtc && !anchorAppliedRef.current) {
@@ -784,10 +777,11 @@ function ConversationDetail({
 
   const handleSendInternal = async () => {
     const text = replyText.trim()
-    if (!text || !internalDepartmentId || !primaryTicket || sendingInternal) return
+    const targetTicket = detail?.tickets.find(ticket => ticket.departmentId === internalDepartmentId) ?? primaryTicket
+    if (!text || !internalDepartmentId || !targetTicket || sendingInternal) return
     setSendingInternal(true)
     try {
-      await api.addInternalConversationMessage(primaryTicket.socialMessageId, internalDepartmentId, text)
+      await api.addInternalConversationMessage(targetTicket.socialMessageId, internalDepartmentId, text)
       setReplyText('')
       setIsPinnedToBottom(true)
       await refreshDetail()
@@ -866,7 +860,9 @@ function ConversationDetail({
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
   const headerInitials = citizenName ? getInitials(citizenName) : null
-  const ticketLabel = detail ? `Talep Sayısı: ${detail.tickets.length}` : formatWhatsAppTicketLabel(primaryTicket)
+  const ticketLabel = detail
+    ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount + detail.cancelledCount}`
+    : formatWhatsAppTicketLabel(primaryTicket)
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
   const headerSubtitleParts: string[] = []
   if (citizenName?.trim() && phoneForHeader) {
@@ -885,10 +881,7 @@ function ConversationDetail({
   return (
     <div className="flex h-full flex-col bg-white text-[color:var(--color-foreground)]">
       <header className="flex shrink-0 items-start gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
-        <div
-          className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-          style={{ backgroundColor: 'var(--color-header-from)' }}
-        >
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
         <div className="min-w-0 flex-1">

@@ -269,8 +269,8 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
-    <div className="flex flex-1 flex-col overflow-hidden lg:my-8 lg:mx-4 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:rounded-3xl lg:shadow-2xl xl:mx-[12.5%] xl:grid-cols-[minmax(0,1fr)_440px]">
+    <div className="flex min-h-dvh flex-col overflow-y-auto">
+    <div className="flex flex-1 flex-col lg:my-8 lg:mx-4 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:overflow-hidden lg:rounded-3xl lg:shadow-2xl xl:mx-[12.5%] xl:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-16 xl:px-8 2xl:px-12 2xl:py-20"
           style={loginHeroBackgroundStyle}
@@ -322,7 +322,7 @@ export function LoginPage() {
         </section>
 
         <section
-          className="flex items-center justify-center bg-[color:var(--color-surface)] px-[25%] py-5 lg:px-10 lg:py-8"
+          className="flex min-h-0 items-center justify-center bg-[color:var(--color-surface)] px-4 py-5 sm:px-8 lg:px-10 lg:py-8"
           style={{
             transition: 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.42s ease',
             transform: loginSuccess ? 'scale(0.78)' : 'scale(1)',
@@ -334,7 +334,7 @@ export function LoginPage() {
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-36 w-36 border-0"
+                className="h-28 w-28 border-0 sm:h-36 sm:w-36"
               />
               <div className="min-w-0 text-center">
                 <div className="text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>

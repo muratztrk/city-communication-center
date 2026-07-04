@@ -1325,3 +1325,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a478b47` reopened — `/whatsapp` sol listeden manuel konuşma seçilince eski `phone/at/messageId`
   deep-link parametreleri temizleniyor; böylece farklı numaraya tıklanınca detay penceresi önceki
   anchor/scroll konumunu takip etmiyor, yeni konuşma doğrudan son mesajda/en altta açılıyor.
+
+## STATUS: Round 185 complete — card moved to Done.
+
+## Round 186 (Doing — 2026-07-04, mobil ölçekleme ve login)
+- [x] `6a46373e` reopened / #1205 — Mobil genel kontrol: Login mobil formunda yüzde padding ve logo
+  yüksekliği küçültüldü; AppShell telefonlarda içerik alanını `overflow-hidden` ile kilitlemiyor ve
+  `main` native dikey scroll yapıyor; `/whatsapp` split panel telefonda liste+detay alt alta akıyor.

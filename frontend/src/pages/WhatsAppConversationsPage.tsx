@@ -352,7 +352,7 @@ function ConversationListPanel({
   ]
 
   return (
-    <div className="w-[21.5rem] shrink-0 flex flex-col border-r border-[color:var(--color-border)] bg-white shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]">
+    <div className="flex max-h-[58dvh] w-full shrink-0 flex-col border-b border-[color:var(--color-border)] bg-white shadow-[inset_0_-1px_0_rgba(15,23,42,0.04)] md:max-h-none md:w-[21.5rem] md:border-b-0 md:border-r md:shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]">
       <div className="shrink-0 px-4 pt-4 pb-3 space-y-3 border-b border-slate-100">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-2 min-w-0">
@@ -1434,7 +1434,7 @@ export function WhatsAppConversationsPage() {
       </header>
 
       {/* Split panel layout */}
-      <div className="flex flex-1 min-h-0 overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-slate-50">
+      <div className="flex flex-1 min-h-0 flex-col overflow-visible rounded-xl border border-[color:var(--color-border)] bg-slate-50 md:flex-row md:overflow-hidden">
         {/* Left: conversation list */}
         <ConversationListPanel
           conversations={conversations}
@@ -1453,7 +1453,7 @@ export function WhatsAppConversationsPage() {
         />
 
         {/* Right: conversation detail */}
-        <div className="flex-1 min-w-0 bg-slate-50">
+        <div className="min-h-[34rem] flex-1 min-w-0 bg-slate-50 md:min-h-0">
           {selectedId ? (
             <ConversationDetail
               key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}`}

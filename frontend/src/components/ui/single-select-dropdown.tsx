@@ -22,6 +22,8 @@ interface SingleSelectDropdownProps {
   /** Shows a "contains" search box as the first row of the options panel. */
   searchable?: boolean
   searchPlaceholder?: string
+  /** Yalnız açılan panelin genişliğini özelleştirir; trigger genişliği değişmez (card #1344). */
+  menuClassName?: string
 }
 
 export function SingleSelectDropdown({
@@ -37,6 +39,7 @@ export function SingleSelectDropdown({
   disabled = false,
   searchable = false,
   searchPlaceholder = 'Ara...',
+  menuClassName,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -84,8 +87,10 @@ export function SingleSelectDropdown({
 
       {open ? (
         <div className={cn(
-          'dropdown-menu-panel absolute left-0 right-0 z-40',
+          'dropdown-menu-panel absolute left-0 z-40',
+          menuClassName ? '' : 'right-0',
           openUp ? 'bottom-full mb-2' : 'mt-2',
+          menuClassName,
         )}>
           {searchable ? (
             <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">

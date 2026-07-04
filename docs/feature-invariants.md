@@ -35,9 +35,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
   `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
   ağırlıklardaki metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür).
-  Global font Plus Jakarta Sans → **Inter**'e değiştirildi (card #1312 reopen → Round 177); `tokens.css`
-  `--font-sans`/`--font-display` ve `main.tsx` 400/500/600/700/800 import'ları birlikte güncellenmeli,
-  eski fontun `@fontsource` paketi de kaldırılmalı (dead weight bırakma).
+  Font tarihçesi: PJS → Inter (Round 177) → geri **Plus Jakarta Sans 500/600/700** (Round 182,
+  "ilk haline getir"). `tokens.css` `--font-sans`/`--font-display` ve `main.tsx` import'ları birlikte
+  güncellenmeli, kullanılmayan fontun `@fontsource` paketi kaldırılmalı (dead weight bırakma).
 - **Koyu zeminde (Wallboard gibi) ortak açık-tema bileşeni (`ReporterDepartmentName` vb.) kullanılıyorsa
   bileşenin varsayılan `text-slate-*` utility'si, sarmalayan sayfanın kendi rengini `!important` olmadan
   ezemez** (Tailwind utility > custom class); wallboard-request-location bu yüzden `!important` gerektirdi.
@@ -363,11 +363,26 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönü kart istemeden değiştirilmez (card #1248).
 - **Taleplerim detayında düzenleme modundaki `Talep Başlığı` çok satırlı textarea olarak sarar ve
   aşağı doğru büyür; yatay scroll/input kayması geri getirilmez** (card #1232).
-- **Taleplerim detay popup başlığı:** normal görüntüde `Talep No`/`Talep Başlığı` ayrı satırları
-  gösterilmez; talep başlığı güçlü metin, yanında `Birim İçi/Birim Dışı`, altında açıklama ve
-  `Öncelik · Proje: Evet/Hayır` tek satırı görünür.
-- **Grid başlık casing/padding:** ortak grid header'ları uppercase'e zorlanmaz; başlık metni doğal
-  title-case kalır ve `FilterableTh` label/ikon aralığı iki ayırıcı arasında dengeli olmalıdır.
+- **Taleplerim detay ana kartı 3 kolonludur (card #1336/#1335 — Round 182):** kolon1 = `Talep Başlığı`
+  bölümü (FileText ikonlu başlık; başlığın YANINDA talep no + turuncu zeminli `Birim İçi/Birim Dışı`
+  rozeti — parantezli tip metni KULLANILMAZ; altında Title Case talep başlığı `font-bold` ve SİYAH
+  açıklama metni); kolon2 = `Talep Bilgileri` (Info ikonlu) alan satırları — satırlar gridview zebra
+  desenlidir ve `Öncelik / Proje Niteliğinde mi?` değeri `Normal · Hayır` biçimindedir ("Proje
+  niteliğinde mi?:" öneki yazılmaz); kolon3 = `Süreç` timeline. Ayrı `Açıklama` paneli YOKTUR.
+- **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337):** hem
+  vatandaş hem birim dışı taleplerde yalnız hedef birim GERÇEKTEN onaylandığında (Approved + gerçek
+  decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF birim yöneticisinin adını gösterir; birim
+  içi taleplerde hiç görünmez. `CreateJobCommand` otomatik hedef onayında ApprovedBy/DecidedAt YAZMAZ;
+  gerçek damga `CitizenJobTargetApproval.TryRecordTargetApprovalAsync` ile ilk personel atamasında
+  vurulur (eski yaratıcı-damgalı satırları da düzeltir).
+- **Timeline `Durum / Yapılmakta` step'i:** yönetici-birim-içi istisnasına ek olarak standart
+  kullanıcının Active (onaylanmış) non-citizen taleplerinde de gösterilir (card #1334); standart
+  kullanıcı Taleplerim chip metni `Onaylanmış/Yapılmakta Taleplerim`dir.
+- **Timeline terminal pulse:** süreç terminal yeşil/kırmızı ile bitiyorsa son nokta turuncu güncel
+  noktadaki pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339).
+- **Grid başlık casing/padding:** TÜM gridview header'ları (`data-table`, `table-container`,
+  `wallboard-table`) `text-transform: uppercase` kullanır (card #1342 — #1318'i tersine çevirdi);
+  `FilterableTh` label/ikon aralığı iki ayırıcı arasında dengeli olmalıdır.
 
 ## 5. Dashboard / Wallboard
 
@@ -383,9 +398,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`PieChart.resolveSliceLabel`** üç formatı ayırt eder: `GUID|isim` (departman/personel — id kırpılıp
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
-  DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok. Üst Düzey Yönetici'ye özel salt-okunur
-  grafikler (`externalRequestCreators/Pending/Fulfillers`, `neighborhoodCompletedRequests`) frontend'te
-  `isReadOnlyDepartmentChart` listesine eklenir (tıklanınca yönlendirme yapılmaz, card #1330).
+  DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
+- **Reporter grafik dilimleri detay popup'ı açar (card #1343):** Üst Düzey Yönetici panosunda
+  Taleplerim HARİÇ 5 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
+  `neighborhoodCompletedRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
+  (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate). Dilim anahtarı backend'e
+  HAM label (GUID|isim veya i18n key) olarak gider; sınıflandırma `BuildCitizenRequestsChart` ile
+  birebir aynı tutulmalıdır. Yönlendirme yapan eski davranış yalnız Taleplerim grafiğinde kalır.
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
   başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur.

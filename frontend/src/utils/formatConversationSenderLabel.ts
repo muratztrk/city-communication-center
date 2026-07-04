@@ -5,4 +5,5 @@ export function formatConversationSenderLabel(label: string | null | undefined):
   return trimmed
     .replace(/\s*\/\s*/g, ' · ')
     .replace(/\bVatandaş\s+O\./g, 'Vatandaş Operatörü')
+    .replace(/^İç mesaj\b/, 'Kurum İçi Mesaj')
 }

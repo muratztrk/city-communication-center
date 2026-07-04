@@ -141,8 +141,13 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const editCitizenRequestNumber = isEditMode ? formatCitizenRequestNumber(message, locale) : null
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
+  // WhatsApp konuşmasından açıldığında telefon değiştirilemez; kayıtlı vatandaş adı varsa
+  // ad alanı dolu gelir ve o da değiştirilemez (card #1348).
+  const savedCitizenName = sanitizeCitizenName(message.citizenName)
+  const citizenNameLocked = Boolean(savedCitizenName)
+  const citizenPhoneLocked = Boolean(resolveInitialCitizenPhone(message))
   const [citizenHandle, setCitizenHandle] = useState(() => (
-    forceNewRequest && !editJobId ? '' : resolveInitialCitizenName(message)
+    forceNewRequest && !editJobId ? savedCitizenName : resolveInitialCitizenName(message)
   ))
   const [citizenPhone, setCitizenPhone] = useState(() => resolveInitialCitizenPhone(message))
   const [title, setTitle] = useState('')
@@ -176,7 +181,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     setPendingFiles([])
     setFileError(null)
     setError(null)
-    setCitizenHandle('')
+    setCitizenHandle(sanitizeCitizenName(message.citizenName))
     setCitizenPhone(resolveInitialCitizenPhone(message))
   }, [forceNewRequest, editJobId, message])
 
@@ -465,10 +470,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="text-red-500">*</span>
                   </span>
                   <input
-                    className="field-input"
+                    className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                     value={citizenHandle}
                     maxLength={50}
                     required
+                    disabled={citizenNameLocked}
                     placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
                     onChange={event => setCitizenHandle(event.target.value)}
                   />
@@ -480,10 +486,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="text-red-500">*</span>
                   </span>
                   <input
-                    className="field-input"
+                    className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                     value={citizenPhone}
                     maxLength={10}
                     required
+                    disabled={citizenPhoneLocked}
                     inputMode="numeric"
                     pattern="[0-9]*"
                     placeholder="5XXXXXXXXX"
@@ -582,7 +589,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
                     <div className="flex min-h-[5.5rem] items-stretch gap-2">
                       <label className={`inline-flex h-[2.0625rem] w-[7.6rem] shrink-0 cursor-pointer items-center justify-center gap-1 self-end rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
-                        <Paperclip className="size-3.5" />
+                        <Paperclip className="size-3.5 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}
                         <input
                           ref={fileInputRef}

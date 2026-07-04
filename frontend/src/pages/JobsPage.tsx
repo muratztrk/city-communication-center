@@ -1855,7 +1855,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {pagedJobs.map((job, index) => {
                   const isOutgoingTargetApproved = isDepartmentOutgoingView &&
                     job.departments.some(d => d.role === 'Target' && d.approvalStatus === 'Approved')
-                  const isReporterJob = isReporterCreated(job.createdByRoleCode)
+                  // Reporter kendi Taleplerim gridinde kendi taleplerini turuncu görmez (card #1346).
+                  const isReporterJob = isReporterCreated(job.createdByRoleCode) && !(isMyRequestsView && isReporter)
                   const reporterNumberClass = isReporterJob && hasConcreteNumberDisplay(formatJobDisplayNumber(job))
                     ? reporterGridValueClass(true)
                     : ''

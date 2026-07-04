@@ -31,6 +31,24 @@ export interface DashboardStatusChartsResponse {
   charts: DashboardChartResponse[];
 }
 
+export interface DashboardChartDrilldownRow {
+  jobId: string;
+  jobNumber: number | null;
+  jobNumberYear: number | null;
+  title: string;
+  createdAtUtc: string;
+  status: string;
+  departmentName: string | null;
+  neighborhood: string | null;
+  dueDateUtc: string | null;
+  citizenRequestNumber: number | null;
+  citizenRequestNumberYear: number | null;
+}
+
+export interface DashboardChartDrilldownResponse {
+  rows: DashboardChartDrilldownRow[];
+}
+
 export interface Department {
   departmentId: string;
   tenantId: string;

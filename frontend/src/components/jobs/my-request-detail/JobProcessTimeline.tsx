@@ -105,13 +105,13 @@ function ProcessStepDateValue({
 function StepIndicator({ state }: { state: JobProcessStep['state'] }) {
   if (state === 'completed' || state === 'terminal-success') {
     return (
-      <span className="job-process-timeline__indicator job-process-timeline__indicator--completed">
+      <span className={`job-process-timeline__indicator job-process-timeline__indicator--completed${state === 'terminal-success' ? ' job-process-timeline__indicator--pulse-success' : ''}`}>
         <Check className="size-2.5" strokeWidth={2.75} aria-hidden="true" />
       </span>
     )
   }
   if (state === 'terminal-danger') {
-    return <span className="job-process-timeline__indicator job-process-timeline__indicator--danger" aria-hidden="true" />
+    return <span className="job-process-timeline__indicator job-process-timeline__indicator--danger job-process-timeline__indicator--pulse-danger" aria-hidden="true" />
   }
   if (state === 'current') {
     return <span className="job-process-timeline__indicator job-process-timeline__indicator--current" aria-hidden="true" />

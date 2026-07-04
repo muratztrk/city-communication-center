@@ -1335,7 +1335,7 @@
       "created": "Requests I Created",
       "pending": "Pending My Requests",
       "externalPending": "My External Pending Approval Requests",
-      "approved": "Approved My Requests",
+      "approved": "Approved/In Progress My Requests",
       "inProgress": "My In-Progress Requests",
       "overdue": "My Overdue Requests",
       "completed": "Completed My Requests",
@@ -1413,6 +1413,7 @@
     "detail": {
       "title": "Job Detail",
       "requestInfo": "Request Details",
+      "requestInfoFields": "Request Info",
       "processTitle": "Process",
       "requestDate": "Request Date",
       "ownerManagerApprovalDate": "Owner Unit Manager Approval Date",

@@ -8,6 +8,7 @@ import { queryKeys } from '../api/queryKeys'
 import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart } from '../components/ui/PieChart'
+import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -43,6 +44,15 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.citizenChannels.title': '/social',
   'dashboard.charts.citizenRequests': '/social',
 }
+
+// Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler (Taleplerim hariç, card #1343).
+const DRILLDOWN_CHART_KEYS = new Set([
+  'dashboard.charts.citizenRequests',
+  'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.neighborhoodCompletedRequests',
+])
 
 // Lejant dilim etiketi → hedef sayfadaki ilgili scope chip (card 797).
 const SLICE_VIEW: Record<string, string> = {
@@ -138,9 +148,9 @@ function getSliceRoute(
     })
   }
 
-  // Standart kullanıcı "Birimdeki Görevler" 2 dilimli grafiği.
+  // Standart kullanıcı "Birimdeki Görevler" 2 dilimli grafiği; "Benim Görevlerim" → Tüm Görevlerim (card #1345).
   if (sliceLabel === 'dashboard.chart.assignedToMe') {
-    return withQueryParams('/my-tasks', { taskType: taskTypeParam, ...dateParams })
+    return withQueryParams('/my-tasks', { view: 'all', taskType: taskTypeParam, ...dateParams })
   }
   if (sliceLabel === 'dashboard.chart.departmentTotal') {
     return withQueryParams('/department-tasks', { flow: 'all', taskType: taskTypeParam, ...dateParams })
@@ -186,6 +196,7 @@ export function DashboardPage() {
     'dashboard.charts.departmentTasks': 'all',
     'dashboard.charts.myTasks': 'all',
   })
+  const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
   const activeDeptId = getActiveDepartmentId()
 
   function getPeriodRange(p: Period): { from: string; to: string } {
@@ -509,6 +520,8 @@ export function DashboardPage() {
               || card.titleKey === 'dashboard.charts.externalRequestPending'
               || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
+            // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343).
+            const isDrilldownChart = isReporter && DRILLDOWN_CHART_KEYS.has(card.titleKey)
             const chartRoute = isReadOnlyDepartmentChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
@@ -523,12 +536,12 @@ export function DashboardPage() {
                       taskType: taskFilter && taskFilter !== 'all' ? taskFilter : undefined,
                       ...periodQueryParams(activeFrom, activeTo),
                     }))}
-                    className="cursor-pointer border-b border-current pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
+                    className="cursor-pointer border-b border-slate-200 pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
                   >
                     {t(card.titleKey)}
                   </button>
                 ) : (
-                  <h2 className="border-b border-current pb-0.5 text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+                  <h2 className="border-b border-slate-200 pb-0.5 text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
                 )}
                 {/* Görev tipi filtre butonları standart kullanıcılarda da görünür (Görevlerim + Birimdeki Görevler) (card 762). */}
                 {TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
@@ -549,7 +562,9 @@ export function DashboardPage() {
                   </div>
                 )}
               </div>
-              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isReadOnlyDepartmentChart ? undefined : slice => {
+              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isDrilldownChart ? slice => {
+                setChartDrilldown({ chartKey: card.titleKey, sliceKey: slice.label })
+              } : isReadOnlyDepartmentChart ? undefined : slice => {
                 const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange)
                 if (route) navigate(route)
               }} />
@@ -563,6 +578,17 @@ export function DashboardPage() {
       ) : null}
       {statusChartsQuery.isError ? (
         <div className="error">{statusChartsQuery.error instanceof Error ? statusChartsQuery.error.message : t('common.error')}</div>
+      ) : null}
+
+      {chartDrilldown ? (
+        <DashboardChartDrilldownModal
+          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}`}
+          chartKey={chartDrilldown.chartKey}
+          sliceKey={chartDrilldown.sliceKey}
+          from={activeFrom || undefined}
+          to={activeTo || undefined}
+          onClose={() => setChartDrilldown(null)}
+        />
       ) : null}
     </div>
   )

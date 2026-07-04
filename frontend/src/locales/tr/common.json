@@ -1369,7 +1369,7 @@
       "created": "Oluşturduğum Talepler",
       "pending": "Bekleyen Taleplerim",
       "externalPending": "Birim Dışı Onay Bekleyen Taleplerim",
-      "approved": "Onaylanmış Taleplerim",
+      "approved": "Onaylanmış/Yapılmakta Taleplerim",
       "inProgress": "Yapılmakta Olan Taleplerim",
       "overdue": "Son Tarihi Geçmiş Taleplerim",
       "completed": "Tamamlanmış Taleplerim",
@@ -1448,6 +1448,7 @@
     "detail": {
       "title": "İş Detayı",
       "requestInfo": "Talep Detayları",
+      "requestInfoFields": "Talep Bilgileri",
       "processTitle": "Süreç",
       "requestDate": "Talep Tarihi",
       "ownerManagerApprovalDate": "Talebin Birim Yöneticisinin Onay Tarihi",

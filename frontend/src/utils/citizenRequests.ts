@@ -73,8 +73,11 @@ export function shouldShowCitizenTargetApprovalDate(job: {
   tasks?: { taskId?: string }[]
   departments?: { role: string; approvalStatus?: string | null; decidedAtUtc?: string | null }[]
 }): boolean {
-  if (!isCitizenRequestJob(job)) {
-    return job.requestType === 'ExternalUnit'
+  // "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" hem vatandaş hem birim dışı taleplerde
+  // yalnız hedef birim yöneticisi GERÇEKTEN onaylayıp personel atadığında görünür; birim içi
+  // taleplerde hiç görünmez (cards #1333/#1337).
+  if (!isCitizenRequestJob(job) && job.requestType !== 'ExternalUnit') {
+    return false
   }
   const target = job.departments?.find(department => department.role === 'Target')
   if (target?.approvalStatus !== 'Approved' || !target.decidedAtUtc) {

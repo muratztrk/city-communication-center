@@ -53,7 +53,7 @@ public sealed class AddInternalConversationMessageCommandHandler
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
-            SenderLabel = $"İç mesaj · {departmentName}{(string.IsNullOrWhiteSpace(actorName) ? string.Empty : $" · {actorName}")}",
+            SenderLabel = $"Kurum İçi Mesaj · {departmentName}{(string.IsNullOrWhiteSpace(actorName) ? string.Empty : $" · {actorName}")}",
             DeliveryStatus = null,
             DeliveryStatusUpdatedAtUtc = null,
         });

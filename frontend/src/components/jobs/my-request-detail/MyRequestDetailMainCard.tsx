@@ -1,4 +1,4 @@
-import { ClipboardList, FileText } from 'lucide-react'
+import { ClipboardList, FileText, Info } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
@@ -20,6 +20,8 @@ import { getPriorityLabel } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
+import { formatJobDisplayNumberText } from '../../../utils/requestNumberText'
+import { formatCitizenRequestNumber, isCitizenRequestJob } from '../../../utils/citizenRequests'
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -82,7 +84,12 @@ export function MyRequestDetailMainCard({
     : fields.filter(field => ![titleLabel, requestNoLabel, citizenRequestNoLabel, priorityLabel, projectLabel].includes(field.label))
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
-  const requestNumberContent = fields.find(field => field.label === requestNoLabel || field.label === citizenRequestNoLabel)?.value
+  const requestTypeText = detail.requestType === 'ExternalUnit'
+    ? t('jobs.requestType.external', 'Birim Dışı')
+    : t('jobs.requestType.internal', 'Birim İçi')
+  const requestNumberText = isCitizenRequestJob(detail)
+    ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
+    : formatJobDisplayNumberText(detail, locale)
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
     <div className="my-request-detail-edit-due-date">
@@ -144,23 +151,37 @@ export function MyRequestDetailMainCard({
       <MyRequestSectionHeading icon={ClipboardList} tone="primary">
         {t('jobs.detail.requestInfo', 'Talep Detayları')}
       </MyRequestSectionHeading>
-      <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
-          {!isEditing ? (
-            <div className="mb-3 rounded-xl bg-white px-3 py-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{titleLabel}</span>
-              <div className="mt-1 flex flex-wrap items-baseline gap-2">
-                <strong className="min-w-0 text-sm font-extrabold leading-snug text-slate-950">{normalizeTitleCaseField(detail.title)}</strong>
-                <span className="shrink-0 text-xs font-semibold text-slate-500">{requestNumberContent}</span>
-              </div>
+          <MyRequestSectionHeading icon={FileText}>
+            <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
+              <span>{titleLabel}</span>
+              <span className="text-xs font-semibold text-slate-500">{requestNumberText}</span>
+              <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold text-orange-600">{requestTypeText}</span>
+            </span>
+          </MyRequestSectionHeading>
+          {isEditing && editDraft && onEditDraftChange ? (
+            <RichTextEditor
+              value={editDraft.description}
+              onChange={value => onEditDraftChange({ description: value })}
+              minHeight="min-h-40"
+            />
+          ) : (
+            <>
+              <strong className="block min-w-0 text-sm font-bold leading-snug text-slate-950">{normalizeTitleCaseField(detail.title)}</strong>
               <RichTextContent
                 value={detail.description}
                 emptyText={t('common.none')}
-                className="rich-text-content mt-1 text-xs leading-5 text-slate-700"
+                className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
               />
-            </div>
-          ) : null}
-          <div className="divide-y divide-slate-100 border-t border-slate-100">
+            </>
+          )}
+        </div>
+        <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+          <MyRequestSectionHeading icon={Info}>
+            {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
+          </MyRequestSectionHeading>
+          <div className="my-request-detail-fields divide-y divide-slate-100">
             {visibleFields.map(field => (
               <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
                 <div className="job-detail-field-row__label">{field.label}</div>
@@ -200,13 +221,13 @@ export function MyRequestDetailMainCard({
               <div className="job-detail-field-row job-detail-field-row--request-info">
                 <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje Niteliğinde mi?')}</div>
                 <div className="job-detail-field-row__value">
-                  {getPriorityLabel(t, detail.priority)} · {t('jobs.form.isProject', 'Proje')}: <JobProjectValue job={detail} t={t} />
+                  {getPriorityLabel(t, detail.priority)} · <JobProjectValue job={detail} t={t} />
                 </div>
               </div>
             )}
           </div>
         </div>
-        <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+        <div className="min-w-0 p-4">
           <JobProcessTimeline
             steps={steps}
             locale={locale}
@@ -220,24 +241,6 @@ export function MyRequestDetailMainCard({
             statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}
           />
-        </div>
-        <div className="my-request-detail-description-panel min-w-0 p-4">
-          <MyRequestSectionHeading icon={FileText}>
-            {t('jobs.form.description', 'Açıklama')}
-          </MyRequestSectionHeading>
-          {isEditing && editDraft && onEditDraftChange ? (
-            <RichTextEditor
-              value={editDraft.description}
-              onChange={value => onEditDraftChange({ description: value })}
-              minHeight="min-h-40"
-            />
-          ) : (
-            <RichTextContent
-              value={detail.description}
-              emptyText={t('common.none')}
-              className="rich-text-content text-sm leading-6 text-slate-900"
-            />
-          )}
         </div>
       </div>
     </section>

@@ -256,8 +256,9 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 : requiresOwnerApproval
                     ? JobApprovalStatus.NotRequired
                     : JobApprovalStatus.Approved;
-            var autoApproveTarget = targetApprovalStatus == JobApprovalStatus.Approved;
 
+            // Oluşturmadaki otomatik onay hedef birim yöneticisinin kararı DEĞİLDİR; karar alanları boş kalır,
+            // hedef birim yöneticisi personel atadığında gerçek onaycı/tarih yazılır (card #1333).
             _dbContext.JobDepartments.Add(new JobDepartment
             {
                 JobDepartmentId = Guid.NewGuid(),
@@ -268,8 +269,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                 ApprovalStatus = targetApprovalStatus,
                 RequestedByUserId = actor.UserId,
                 RequestedAtUtc = utcNow,
-                ApprovedByUserId = autoApproveTarget ? actor.UserId : null,
-                DecidedAtUtc = autoApproveTarget ? utcNow : null,
+                ApprovedByUserId = null,
+                DecidedAtUtc = null,
                 CreatedByUserId = context.UserId
             });
         }

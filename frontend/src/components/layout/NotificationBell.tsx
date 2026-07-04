@@ -76,19 +76,28 @@ interface NotifItemProps {
   largeDetailButton?: boolean
 }
 
+// Başlıkta durum kelimesi varsa TÜM başlık o renge boyanır; "(Vatandaş Talebi)" etiketi ayrı turuncu kalır (card #1341).
+function notificationTitleTone(title: string): string | null {
+  if (/(reddedildi|iptal edildi|İptal Edildi)/i.test(title)) return 'text-red-600'
+  if (/(onaylandı|tamamlandı)/i.test(title)) return 'text-emerald-600'
+  return null
+}
+
 function NotificationTitle({ title, isUnread }: { title: string; isUnread: boolean }) {
   const mainWeight = isUnread ? 'font-bold text-slate-900' : 'font-medium text-slate-700'
+  const tone = notificationTitleTone(title)
   const match = title.match(/^(.+?)\s(\([^)]+\))$/)
-  if (match) {
-    return (
-      <>
-        <NotificationTitleStatusText value={match[1]} plainClassName={mainWeight} />
-        <span className="font-normal text-slate-600"> {match[2]}</span>
-      </>
-    )
-  }
+  const mainText = match ? match[1] : title
+  const suffix = match ? match[2] : null
   return (
-    <NotificationTitleStatusText value={title} plainClassName={mainWeight} />
+    <>
+      {tone ? (
+        <span className={`${isUnread ? 'font-bold' : 'font-medium'} ${tone}`}>{mainText}</span>
+      ) : (
+        <NotificationTitleStatusText value={mainText} plainClassName={mainWeight} />
+      )}
+      {suffix ? <span className="font-normal text-slate-600"> {suffix}</span> : null}
+    </>
   )
 }
 

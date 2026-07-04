@@ -718,8 +718,23 @@ function ConversationDetail({
     }
 
     if (!anchorAtUtc && isPinnedToBottom) {
-      bottomRef.current?.scrollIntoView({ behavior: anchorAppliedRef.current ? 'smooth' : 'auto' })
+      // Görünür kaydırma animasyonu olmadan doğrudan son mesaj konumunda aç (card #1349);
+      // ilk açılışta medya yüklendikçe içerik uzadığı için kısa bir süre dibe sabitlenir.
+      const firstOpen = !anchorAppliedRef.current
       anchorAppliedRef.current = true
+      const pinToBottom = () => {
+        const el = scrollContainerRef.current
+        if (el) el.scrollTop = el.scrollHeight
+      }
+      pinToBottom()
+      if (firstOpen) {
+        const startedAt = performance.now()
+        let raf = window.requestAnimationFrame(function tick() {
+          pinToBottom()
+          if (performance.now() - startedAt < 800) raf = window.requestAnimationFrame(tick)
+        })
+        return () => window.cancelAnimationFrame(raf)
+      }
     }
   }, [anchorAtUtc, anchorSocialMessageId, detail, isPinnedToBottom, loading])
 

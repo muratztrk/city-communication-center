@@ -29,6 +29,22 @@ public sealed record DashboardChartSlice(
     int Value,
     string ColorHint);
 
+public sealed record DashboardChartDrilldownRow(
+    Guid JobId,
+    int? JobNumber,
+    int? JobNumberYear,
+    string Title,
+    DateTimeOffset CreatedAtUtc,
+    string Status,
+    string? DepartmentName,
+    string? Neighborhood,
+    DateTimeOffset? DueDateUtc,
+    int? CitizenRequestNumber,
+    int? CitizenRequestNumberYear);
+
+public sealed record DashboardChartDrilldownResponse(
+    IReadOnlyList<DashboardChartDrilldownRow> Rows);
+
 public sealed record SlaReportResponse(
     int OverdueTaskCount,
     int DueTodayTaskCount);

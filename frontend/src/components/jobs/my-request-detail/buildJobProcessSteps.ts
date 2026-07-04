@@ -187,11 +187,13 @@ export function buildJobProcessSteps(
     })
   }
 
-  if (
-    !isTerminalStatus(detail.status)
-    && detail.requestType === 'InternalUnit'
-    && detail.createdByRoleCode === 'Manager'
-  ) {
+  // Birim yöneticisinin oluşturduğu birim içi aktif talep (card #1275) VE standart kullanıcının
+  // onaylanmış (Active) talebi (card #1334) turuncu "Durum / Yapılmakta" step'i gösterir.
+  const managerInternalActive = detail.requestType === 'InternalUnit' && detail.createdByRoleCode === 'Manager'
+  const standardApprovedActive = !options?.hideOwnerApproval
+    && detail.status === 'Active'
+    && !isCitizenRequestJob(detail)
+  if (!isTerminalStatus(detail.status) && (managerInternalActive || standardApprovedActive)) {
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),

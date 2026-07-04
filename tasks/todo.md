@@ -1233,3 +1233,54 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   padding'i DÜŞÜRMÜŞTÜ. `pl-6` (1.5rem) yapıldı — artık gerçekten sol boşluk var.
 
 ## STATUS: Round 181 complete — cards moved to Done.
+
+## Round 182 (Doing — 2026-07-04, 20 kart: timeline onay mantığı + popup yeniden yapılandırma + drilldown)
+- [x] `6a47fd76` reopened — Font değişiklikleri İLK hale döndürüldü: Inter kaldırıldı,
+  `@fontsource/plus-jakarta-sans` 500/600/700 (Round 174 öncesi durum) geri geldi; tokens.css PJS.
+- [x] `6a48fb51` — Tüm gridview başlıkları (`data-table`, `table-container`, `wallboard-table` thead th)
+  yeniden `text-transform: uppercase` yapıldı (card #1318'in tersine dönüşü).
+- [x] `6a48ce9e` — Standart kullanıcı "Birimdeki Görevler" grafiğinde `Benim Görevlerim` dilimi artık
+  `/my-tasks?view=all` (Tüm Görevlerim) gridine gider.
+- [x] `6a48d22e` — CitizenRequestModal `Dosya ekle` butonunun ataç ikonu `text-emerald-700` yapıldı.
+- [x] `6a48d200` — Rutin görev `Dosya ekle` butonu görseldeki gibi alt hizaya (`items-end`) alındı.
+- [x] `6a47ff97` — Pie chart başlık altı çizgisi `border-current` yerine standart satır ayracı
+  (`border-slate-200`) oldu.
+- [x] `6a48fa87` — Reporter kendi Taleplerim gridinde kendi taleplerini turuncu görmez
+  (`isReporterJob && !(isMyRequestsView && isReporter)`).
+- [x] `6a48e8d4` — Bildirim başlığında durum kelimesi varsa TÜM başlık o renge boyanır (yeşil/kırmızı);
+  `(Vatandaş Talebi)` etiketi turuncu kalır.
+- [x] `6a48d31c` — WhatsApp iç mesaj balonu: `İç mesaj` → `Kurum İçi Mesaj` (kırmızı, ilk satır),
+  birim · kullanıcı ikinci satırda. Backend yeni etiketi yazar, frontend eski kayıtları normalize eder.
+- [x] `6a48d31e` — WhatsApp talep oluştur popup'ında `Vatandaş Telefon No` salt okunur; kayıtlı
+  vatandaş adı varsa `Vatandaş Adı / Gönderen` dolu + salt okunur gelir (forceNewRequest dahil).
+- [x] `6a48a8cf` reopened — Konuşma açılış scroll'u: `scrollIntoView` yerine doğrudan `scrollTop`
+  ataması + ilk açılışta 800ms rAF dibe-sabitleme (medya yüklenince içerik uzasa da animasyonsuz).
+- [x] `6a475999` — `SingleSelectDropdown`'a `menuClassName` prop'u; Taleplerim düzenleme Mahalle
+  menüsü `min-w-full w-max max-w-[20rem]` ile genişledi (trigger genişliği değişmedi).
+- [x] `6a48e32d`/`6a48e214` — Kök neden: `CreateJobCommand` yönetici birim dışı talebinde hedef birime
+  oluşturan+oluşturma-zamanı damgalıyordu ("onaylanmış" görünüyordu). Artık otomatik onayda karar
+  alanları boş; gerçek onaycı/tarih hedef birim yöneticisi personel atadığında yazılır
+  (`CitizenJobTargetApproval` external'a genişletildi, eski yaratıcı-damgalı satırları da düzeltir).
+  Frontend `shouldShowCitizenTargetApprovalDate`: adım yalnız Approved+gerçek karar+görev varsa görünür;
+  birim içi taleplerde hiç görünmez.
+- [x] `6a48e73a` — Standart kullanıcı `Onaylanmış Taleplerim` chip'i `Onaylanmış/Yapılmakta Taleplerim`
+  oldu (chip yalnız standart kullanıcıda görünür); Active statüdeki standart kullanıcı taleplerinde
+  timeline'a turuncu `Durum / Yapılmakta` step'i eklendi (mevcut yönetici-birim-içi istisnasına ek).
+- [x] `6a48dcca` — Terminal (son) yeşil/kırmızı timeline noktasına turuncu-pulse'ın yeşil/kırmızı
+  eşdeğeri eklendi (`--pulse-success`/`--pulse-danger`).
+- [x] `6a48a3f2` — Taleplerim ana kart yeniden düzenlendi: kolon1 = `Talep Başlığı` (FileText ikonlu,
+  diğer başlıklarla aynı stil + alt çizgi) başlık + açıklama; kolon2 = `Talep Bilgileri` (Info ikonlu)
+  alan satırları; kolon3 = Süreç. Sağdaki Açıklama paneli kaldırıldı (içerik kolon1'de).
+- [x] `6a48a50a` reopened — Talep No artık `Talep Başlığı` BAŞLIĞININ yanında; parantezli `(Birim İçi)`
+  metni silinip turuncu zeminli rozet geri geldi; başlık verisi font-bold'a düşürüldü; açıklama siyah;
+  `Öncelik / Proje Niteliğinde mi?` değeri `Normal · Hayır` biçimine sadeleşti.
+- [x] `6a48e5c0` — Talep Bilgileri satırları gridview zebra deseni aldı (`nth-child(even) #f8fafc`).
+- [x] `6a48cf6c` — YENİ ÖZELLİK: Reporter panosunda Taleplerim hariç 5 grafik diliminde tıklama,
+  chart başlıklı popup + gridview detay açar. Backend `GetDashboardChartDrilldownQuery`
+  (5 chartKey: citizenRequests/externalRequestCreators/Pending/Fulfillers/neighborhoodCompleted;
+  Reporter/SystemAdmin gate, 200 satır limit), endpoint `GET /reports/dashboard-chart-drilldown`.
+  Frontend `DashboardChartDrilldownModal` (body portal, zebra grid, VT-/T- numara, StatusPill).
+- [x] Lint refactor — `resolveSliceLabel` → `utils/chartSliceLabel.ts`, `formatJobDisplayNumberText`
+  → `utils/requestNumberText.ts` (react-refresh only-export-components kuralı).
+
+## STATUS: Round 182 complete — cards moved to Done.

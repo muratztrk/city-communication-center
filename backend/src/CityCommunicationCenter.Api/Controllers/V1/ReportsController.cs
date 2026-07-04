@@ -47,6 +47,20 @@ public sealed class ReportsController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("dashboard-chart-drilldown")]
+    public async Task<ActionResult<DashboardChartDrilldownResponse>> GetDashboardChartDrilldown(
+        [FromQuery] string chartKey,
+        [FromQuery] string sliceKey,
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetDashboardChartDrilldownQuery(chartKey ?? string.Empty, sliceKey ?? string.Empty, from, to),
+            cancellationToken);
+        return Ok(response);
+    }
+
     [HttpGet("sla")]
     public async Task<ActionResult<SlaReportResponse>> GetSla(CancellationToken cancellationToken)
     {

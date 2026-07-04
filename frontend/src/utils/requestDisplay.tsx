@@ -1,19 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { JobRequestType } from '../types/platform'
-
-type RequestNumberSource = {
-  jobNumber?: number | null
-  jobNumberYear?: number | null
-  requestType?: JobRequestType | string | null
-}
-
-function formatJobDisplayNumberText(job: RequestNumberSource, locale: string): string {
-  if (job.jobNumber != null && job.jobNumberYear != null) {
-    return `T-${job.jobNumberYear}-${job.jobNumber}`
-  }
-  const year = job.jobNumberYear ?? new Date().getFullYear()
-  return locale.startsWith('tr') ? `T-${year}-Onay Bekleyen` : `T-${year}-Pending Approval`
-}
+import { formatJobDisplayNumberText, type RequestNumberSource } from './requestNumberText'
 
 export function RequestNumberWithTypeLabel({
   job,

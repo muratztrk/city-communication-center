@@ -54,6 +54,18 @@ function formatLocalProfilePhone(phone: string): string {
   return digits
 }
 
+function formatFileSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB'
+  const units = ['B', 'KB', 'MB', 'GB']
+  let value = bytes
+  let unitIndex = 0
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024
+    unitIndex += 1
+  }
+  return `${value >= 10 || unitIndex === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unitIndex]}`
+}
+
 /** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
 function getInitials(value: string): string | null {
   const words = value.trim().split(/\s+/).filter(w => /\p{L}/u.test(w))
@@ -613,6 +625,7 @@ function ConversationDetail({
   const [profileSaving, setProfileSaving] = useState(false)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
+  const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [internalDepartmentId, setInternalDepartmentId] = useState('')
   const [sendingInternal, setSendingInternal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -627,6 +640,17 @@ function ConversationDetail({
   useEffect(() => {
     setProfileDraft(createProfileDraft(detail, citizenPhone, citizenName))
   }, [citizenName, citizenPhone, detail])
+
+  useEffect(() => {
+    if (!pendingFile) {
+      setPendingFilePreviewUrl(null)
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(pendingFile)
+    setPendingFilePreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [pendingFile])
 
   const updatePinnedToBottom = useCallback(() => {
     const container = scrollContainerRef.current
@@ -724,8 +748,11 @@ function ConversationDetail({
 
     setSending(true)
     try {
-      const fileNote = pendingFile ? `[Dosya eki: ${pendingFile.name}]` : ''
-      await api.replySocialMessage(openTicket.socialMessageId, [text, fileNote].filter(Boolean).join('\n'), true)
+      if (pendingFile) {
+        await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, true)
+      } else {
+        await api.replySocialMessage(openTicket.socialMessageId, text, true)
+      }
       setReplyText('')
       setPendingFile(null)
       setPendingFileEditing(false)
@@ -994,12 +1021,38 @@ function ConversationDetail({
                   <div className="flex items-center gap-2">
                     <FileText className="size-4 shrink-0" aria-hidden="true" />
                     <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPendingFile(null)
+                        setPendingFileEditing(false)
+                      }}
+                      disabled={sending}
+                      className="ml-auto inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60"
+                      aria-label={t('common.dismiss', 'Vazgeç')}
+                    >
+                      <X className="size-3.5" aria-hidden="true" />
+                    </button>
                   </div>
+                  {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
+                    <img
+                      src={pendingFilePreviewUrl}
+                      alt={pendingFile.name}
+                      className="mt-2 max-h-56 w-full rounded-xl border border-white/20 object-contain bg-white/95"
+                    />
+                  ) : (
+                    <div className="mt-2 flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-xs font-semibold text-white/90">
+                      <FileText className="size-4 shrink-0" aria-hidden="true" />
+                      <span className="min-w-0 truncate">{pendingFile.type || t('attachments.file', 'Dosya')}</span>
+                      <span className="shrink-0 text-white/65">{formatFileSize(pendingFile.size)}</span>
+                    </div>
+                  )}
                   {pendingFileEditing ? (
                     <textarea
                       rows={2}
                       value={replyText}
                       onChange={event => setReplyText(event.target.value)}
+                      placeholder={t('whatsapp.attachmentCaptionPlaceholder', 'Ek açıklaması yaz...')}
                       className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
                     />
                   ) : replyText.trim() ? (
@@ -1049,7 +1102,7 @@ function ConversationDetail({
                   onChange={event => {
                     const file = event.target.files?.[0] ?? null
                     setPendingFile(file)
-                    setPendingFileEditing(Boolean(file))
+                    setPendingFileEditing(false)
                     if (file) {
                       setIsPinnedToBottom(true)
                       window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)

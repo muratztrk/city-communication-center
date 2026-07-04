@@ -7,7 +7,7 @@ namespace CityCommunicationCenter.Infrastructure.SocialMedia;
 /// Uses Meta's Cloud API for WhatsApp Business.
 /// Documentation: https://developers.facebook.com/docs/whatsapp/cloud-api
 /// </summary>
-public class WhatsAppClient : ISocialMediaClient
+public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient
 {
     private readonly HttpClient _httpClient;
     private readonly WhatsAppSettings _settings;
@@ -41,6 +41,59 @@ public class WhatsAppClient : ISocialMediaClient
             var result = JsonDocument.Parse(json);
             var messageId = result.RootElement.GetProperty("messages")[0].GetProperty("id").GetString();
             return SocialMediaResult.Ok(messageId ?? "sent");
+        }
+
+        var error = await response.Content.ReadAsStringAsync(ct);
+        return SocialMediaResult.Fail(error, response.StatusCode.ToString());
+    }
+
+    public async Task<SocialMediaResult> SendUploadedMediaMessageAsync(SendUploadedMediaMessageRequest request, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(_settings.PhoneNumberId) || string.IsNullOrWhiteSpace(_settings.AccessToken))
+        {
+            return SocialMediaResult.Fail("WhatsApp ayarları eksik. PhoneNumberId veya AccessToken bulunamadı.");
+        }
+
+        var uploadResult = await UploadMediaAsync(request.FileName, request.ContentType, request.Content, ct);
+        if (!uploadResult.Success || string.IsNullOrWhiteSpace(uploadResult.MediaId))
+        {
+            return uploadResult;
+        }
+
+        var mediaType = ResolveWhatsAppMediaType(request.ContentType);
+        var mediaPayload = new Dictionary<string, object>
+        {
+            ["id"] = uploadResult.MediaId
+        };
+
+        if (!string.IsNullOrWhiteSpace(request.Caption) && mediaType != "audio")
+        {
+            mediaPayload["caption"] = request.Caption.Trim();
+        }
+
+        if (mediaType == "document")
+        {
+            mediaPayload["filename"] = request.FileName;
+        }
+
+        var payload = new Dictionary<string, object>
+        {
+            ["messaging_product"] = "whatsapp",
+            ["recipient_type"] = "individual",
+            ["to"] = request.RecipientId,
+            ["type"] = mediaType,
+            [mediaType] = mediaPayload
+        };
+
+        var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
+        var response = await PostJsonAsync(url, payload, ct);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync(ct);
+            using var result = JsonDocument.Parse(json);
+            var messageId = result.RootElement.GetProperty("messages")[0].GetProperty("id").GetString();
+            return SocialMediaResult.Ok(messageId ?? "sent", uploadResult.MediaId);
         }
 
         var error = await response.Content.ReadAsStringAsync(ct);
@@ -384,6 +437,47 @@ public class WhatsAppClient : ISocialMediaClient
         request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {_settings.AccessToken}");
         
         return await _httpClient.SendAsync(request, ct);
+    }
+
+    private async Task<SocialMediaResult> UploadMediaAsync(string fileName, string contentType, byte[] content, CancellationToken ct)
+    {
+        var url = $"{ApiBase}/{_settings.PhoneNumberId}/media";
+        using var form = new MultipartFormDataContent();
+        form.Add(new StringContent("whatsapp"), "messaging_product");
+
+        var fileContent = new ByteArrayContent(content);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType);
+        form.Add(fileContent, "file", fileName);
+
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = form
+        };
+        httpRequest.Headers.TryAddWithoutValidation("Authorization", $"Bearer {_settings.AccessToken}");
+
+        var response = await _httpClient.SendAsync(httpRequest, ct);
+        var json = await response.Content.ReadAsStringAsync(ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            return SocialMediaResult.Fail(json, response.StatusCode.ToString());
+        }
+
+        using var result = JsonDocument.Parse(json);
+        var mediaId = result.RootElement.TryGetProperty("id", out var idProperty)
+            ? idProperty.GetString()
+            : null;
+
+        return string.IsNullOrWhiteSpace(mediaId)
+            ? SocialMediaResult.Fail("WhatsApp medya yükleme cevabında medya ID bulunamadı.")
+            : SocialMediaResult.Ok("uploaded", mediaId);
+    }
+
+    private static string ResolveWhatsAppMediaType(string contentType)
+    {
+        if (contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) return "image";
+        if (contentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase)) return "video";
+        if (contentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase)) return "audio";
+        return "document";
     }
 
     #endregion

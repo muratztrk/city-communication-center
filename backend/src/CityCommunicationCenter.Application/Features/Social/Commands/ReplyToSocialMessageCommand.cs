@@ -130,3 +130,159 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             : ConversationEntrySenderLabelHelper.FormatStaffLabel(actor.DepartmentName, actor.DisplayName);
     }
 }
+
+public sealed record ReplyToSocialMessageAttachmentCommand(
+    Guid SocialMessageId,
+    Guid? ActorUserId,
+    string? Content,
+    string FileName,
+    string ContentType,
+    byte[] FileContent,
+    bool SendImmediately = true) : ICommand<bool>;
+
+public sealed class ReplyToSocialMessageAttachmentCommandHandler
+    : ICommandHandler<ReplyToSocialMessageAttachmentCommand, bool>
+{
+    private readonly IApplicationDbContext _dbContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ISocialMediaClientFactory _clientFactory;
+
+    public ReplyToSocialMessageAttachmentCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ISocialMediaClientFactory clientFactory)
+    {
+        _dbContext = dbContext;
+        _tenantContextAccessor = tenantContextAccessor;
+        _clientFactory = clientFactory;
+    }
+
+    public async ValueTask<bool> Handle(ReplyToSocialMessageAttachmentCommand request, CancellationToken cancellationToken)
+    {
+        if (request.FileContent.Length == 0)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.FileContent), "Gönderilecek dosya boş olamaz.")
+            ]);
+        }
+
+        var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
+        var message = await _dbContext.SocialMessages
+            .FirstOrDefaultAsync(m => m.SocialMessageId == request.SocialMessageId && m.TenantId == tenantId, cancellationToken);
+
+        if (message is null) return false;
+
+        if (message.Channel != SocialChannel.WhatsApp)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(message.Channel), "Dosya eki gönderimi yalnızca WhatsApp konuşmalarında desteklenir.")
+            ]);
+        }
+
+        var senderLabel = await ResolveStaffSenderLabelAsync(tenantId, request.ActorUserId, cancellationToken);
+        var utcNow = DateTimeOffset.UtcNow;
+        var content = string.IsNullOrWhiteSpace(request.Content)
+            ? $"[Dosya eki: {request.FileName}]"
+            : request.Content.Trim();
+
+        var deliveryStatus = ConversationDeliveryStatus.Pending;
+        string? externalEntryId = null;
+        string? mediaId = null;
+        string? deliveryError = null;
+
+        if (request.SendImmediately)
+        {
+            deliveryStatus = ConversationDeliveryStatus.Failed;
+            var client = _clientFactory.GetClient(message.Channel, tenantId);
+            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+                _dbContext,
+                message,
+                cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(recipientPhone))
+            {
+                deliveryError = "WhatsApp alıcı telefonu bulunamadı. Konuşma kaydındaki telefon numarasını kontrol edin.";
+            }
+            else if (client is not IWhatsAppMediaClient mediaClient)
+            {
+                deliveryError = "WhatsApp medya gönderim istemcisi yapılandırılmadı.";
+            }
+            else
+            {
+                var sendResult = await mediaClient.SendUploadedMediaMessageAsync(new SendUploadedMediaMessageRequest
+                {
+                    RecipientId = recipientPhone,
+                    FileName = request.FileName,
+                    ContentType = string.IsNullOrWhiteSpace(request.ContentType) ? "application/octet-stream" : request.ContentType,
+                    Content = request.FileContent,
+                    Caption = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim()
+                }, cancellationToken);
+
+                if (sendResult.Success)
+                {
+                    externalEntryId = sendResult.MessageId;
+                    mediaId = sendResult.MediaId;
+                    deliveryStatus = ConversationDeliveryStatus.Sent;
+                }
+                else
+                {
+                    deliveryError = sendResult.Error;
+                }
+            }
+        }
+
+        _dbContext.ConversationEntries.Add(new SocialConversationEntry
+        {
+            EntryId = Guid.NewGuid(),
+            SocialMessageId = request.SocialMessageId,
+            Direction = ConversationEntryDirection.Outbound,
+            Content = content,
+            SentAt = utcNow,
+            SenderLabel = senderLabel,
+            ExternalEntryId = externalEntryId,
+            MediaId = mediaId,
+            MediaMimeType = string.IsNullOrWhiteSpace(request.ContentType) ? "application/octet-stream" : request.ContentType,
+            DeliveryStatus = deliveryStatus,
+            DeliveryStatusUpdatedAtUtc = utcNow,
+            DeliveryError = deliveryError,
+        });
+
+        if (deliveryStatus != ConversationDeliveryStatus.Failed && request.SendImmediately)
+        {
+            message.ResponseContent = content;
+            message.RespondedAtUtc = utcNow;
+            if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
+            {
+                message.Status = SocialMessageStatus.Responded;
+            }
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    private async Task<string> ResolveStaffSenderLabelAsync(
+        Guid tenantId,
+        Guid? actorUserId,
+        CancellationToken cancellationToken)
+    {
+        if (!actorUserId.HasValue)
+        {
+            return await _dbContext.Tenants
+                .AsNoTracking()
+                .Where(t => t.TenantId == tenantId)
+                .Select(t => t.MunicipalityName)
+                .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
+        }
+
+        var actor = await _dbContext.Users
+            .AsNoTracking()
+            .Where(u => u.UserId == actorUserId.Value && u.TenantId == tenantId)
+            .Select(u => new { u.DisplayName, DepartmentName = u.Department != null ? u.Department.Name : null })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return actor is null
+            ? "Belediye"
+            : ConversationEntrySenderLabelHelper.FormatStaffLabel(actor.DepartmentName, actor.DisplayName);
+    }
+}

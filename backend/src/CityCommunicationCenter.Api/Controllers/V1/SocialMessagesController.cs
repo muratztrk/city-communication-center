@@ -192,6 +192,40 @@ public sealed class SocialMessagesController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("{messageId:guid}/reply/attachment")]
+    [RequestSizeLimit(16_000_000)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReplyWithAttachment(
+        Guid messageId,
+        [FromForm] SocialReplyAttachmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.File is null || request.File.Length <= 0)
+        {
+            return BadRequest("Dosya bulunamadi.");
+        }
+
+        await using var stream = request.File.OpenReadStream();
+        using var memory = new MemoryStream();
+        await stream.CopyToAsync(memory, cancellationToken);
+
+        var ok = await _sender.Send(
+            new ReplyToSocialMessageAttachmentCommand(
+                messageId,
+                CurrentContext.UserId,
+                request.Content,
+                request.File.FileName,
+                request.File.ContentType,
+                memory.ToArray(),
+                request.SendImmediately),
+            cancellationToken);
+
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     [HttpPost("{messageId:guid}/conversation/internal")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -285,4 +319,11 @@ public sealed class SocialMessagesController : ApiControllerBase
         var stream = await fileResp.Content.ReadAsStreamAsync(cancellationToken);
         return File(stream, contentType);
     }
+}
+
+public sealed class SocialReplyAttachmentRequest
+{
+    public IFormFile? File { get; set; }
+    public string? Content { get; set; }
+    public bool SendImmediately { get; set; } = true;
 }

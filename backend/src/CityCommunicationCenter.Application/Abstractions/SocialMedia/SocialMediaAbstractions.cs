@@ -18,6 +18,11 @@ public interface ISocialMediaClientFactory
     bool IsChannelConfigured(SocialChannel channel, Guid tenantId);
 }
 
+public interface IWhatsAppMediaClient
+{
+    Task<SocialMediaResult> SendUploadedMediaMessageAsync(SendUploadedMediaMessageRequest request, CancellationToken ct = default);
+}
+
 public interface ISocialMediaSettingsProvider
 {
     SocialMediaSettings? GetSettings(Guid tenantId);
@@ -105,6 +110,15 @@ public sealed class SendMessageRequest
     public List<string>? MediaUrls { get; init; }
 }
 
+public sealed class SendUploadedMediaMessageRequest
+{
+    public required string RecipientId { get; init; }
+    public required string FileName { get; init; }
+    public required string ContentType { get; init; }
+    public required byte[] Content { get; init; }
+    public string? Caption { get; init; }
+}
+
 public sealed class PostRequest
 {
     public required string Content { get; init; }
@@ -131,10 +145,11 @@ public sealed class SocialMediaResult
 {
     public bool Success { get; init; }
     public string? MessageId { get; init; }
+    public string? MediaId { get; init; }
     public string? Error { get; init; }
     public string? ErrorCode { get; init; }
 
-    public static SocialMediaResult Ok(string messageId) => new() { Success = true, MessageId = messageId };
+    public static SocialMediaResult Ok(string messageId, string? mediaId = null) => new() { Success = true, MessageId = messageId, MediaId = mediaId };
     public static SocialMediaResult Fail(string error, string? code = null) => new() { Success = false, Error = error, ErrorCode = code };
 }
 

@@ -987,6 +987,20 @@ export const api = {
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
 
+  async replySocialMessageAttachment(socialMessageId: string, file: File, content: string, sendImmediately = true): Promise<void> {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('content', content)
+    formData.append('sendImmediately', String(sendImmediately))
+
+    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/reply/attachment`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: formData,
+    })
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
   async addInternalConversationMessage(socialMessageId: string, departmentId: string, content: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/conversation/internal`, {
       method: 'POST',

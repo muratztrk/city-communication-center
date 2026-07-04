@@ -1135,3 +1135,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a47f3829daa5e0566f7e7b9` / #1305 — WhatsApp iç mesaj butonu `Kurum İçi İlet` oldu.
 - [x] `6a47f29711ae004d3550035a` / #1304 — WhatsApp detay header durum sayaçları kaldırıldı, `Talep Sayısı` seçili numaranın talep sayısından hesaplandı.
 - [x] `6a480d44edd728c412cabad4` / #1317 — Wallboard Reporter görev sahibi/tarih değerleri turuncu vurguyla korunur.
+
+## Round 171 (Hotfix — 2026-07-04, WhatsApp dosya eki gönderimi)
+- [x] Kullanıcı raporu — `/whatsapp` Dosya ekle akışı dosyayı gerçek medya olarak göndermiyordu; frontend sadece dosya adını metne ekliyordu. Multipart reply endpoint'i, WhatsApp Cloud medya upload/send akışı ve yerel görsel/dosya önizlemesi eklendi.

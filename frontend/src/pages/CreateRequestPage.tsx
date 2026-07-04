@@ -298,10 +298,15 @@ export function CreateRequestPage() {
     () => citizenTargetDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name })),
     [citizenTargetDepartmentOptions],
   )
-  const internalOwnerUserSelectOptions = useMemo(
-    () => internalOwnerUserOptions.map(option => ({ value: option.userId, label: option.displayName })),
-    [internalOwnerUserOptions],
-  )
+  // Standart kullanıcıda "Birim Havuzu" yalnız placeholder değil, SEÇİLEBİLİR ilk seçenektir;
+  // kendisini seçtikten sonra havuza geri dönebilmelidir (card #1350).
+  const internalOwnerUserSelectOptions = useMemo(() => {
+    const base = internalOwnerUserOptions.map(option => ({ value: option.userId, label: option.displayName }))
+    if (!isManagerLike) {
+      return [{ value: '', label: t('tasks.newRequest.departmentPool', 'Birim Havuzu') }, ...base]
+    }
+    return base
+  }, [internalOwnerUserOptions, isManagerLike, t])
 
 
   const requestTypeOptions = useMemo(() => {

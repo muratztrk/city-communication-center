@@ -1284,3 +1284,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   → `utils/requestNumberText.ts` (react-refresh only-export-components kuralı).
 
 ## STATUS: Round 182 complete — cards moved to Done.
+
+## Round 183 (Doing — 2026-07-04, birim havuzu seçeneği + açıklama 400 karakter)
+- [x] `6a491f07` — KRİTİK: Standart kullanıcı birim içi talepte `Görevi Yapan Kişi/Birim` dropdown'ında
+  `Birim Havuzu` yalnız placeholder'dı, seçilebilir SEÇENEK değildi (kendini seçince havuza dönüş yoktu).
+  Standart kullanıcıda listeye `{value:'', label:'Birim Havuzu'}` ilk seçenek olarak eklendi
+  (yönetici listesi değişmedi — o personel seçmek zorunda).
+- [x] `6a491da8` — `RichTextEditor`'a düz-metin `maxLength` prop'u (varsayılan 400) eklendi: beforeinput
+  ile fazla girişler engellenir, yapıştırmada kalan karaktere kırpılır. Tüm Açıklama alanları bu
+  bileşeni kullandığından sınır otomatik uygulanır.
+
+## STATUS: Round 183 complete — cards moved to Done.

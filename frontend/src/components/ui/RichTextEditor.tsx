@@ -8,6 +8,8 @@ interface RichTextEditorProps {
   required?: boolean
   className?: string
   minHeight?: string
+  /** Düz metin (görünen karakter) sınırı; tüm açıklama alanlarında varsayılan 400 (card #1351). */
+  maxLength?: number
 }
 
 type RichTextCommand = 'bold' | 'italic' | 'underline' | 'insertUnorderedList' | 'insertOrderedList'
@@ -151,6 +153,7 @@ export function RichTextEditor({
   required,
   className,
   minHeight = 'min-h-72',
+  maxLength = 400,
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
   const lastCommittedHtmlRef = useRef<string | null>(null)
@@ -200,10 +203,33 @@ export function RichTextEditor({
     emitChange()
   }
 
+  const getEditorTextLength = () => {
+    const editor = editorRef.current
+    if (!editor) return 0
+    return editor.innerText.replace(/\u00a0/g, ' ').replace(/\n+$/, '').length
+  }
+
+  const getSelectedTextLength = () => {
+    const editor = editorRef.current
+    const selection = window.getSelection()
+    if (!editor || !selection?.anchorNode || !editor.contains(selection.anchorNode)) return 0
+    return selection.toString().length
+  }
+
+  const handleBeforeInput = (event: React.FormEvent<HTMLDivElement>) => {
+    const inputEvent = event.nativeEvent as InputEvent
+    if (!inputEvent.inputType?.startsWith('insert')) return
+    const insertedLength = inputEvent.data?.length ?? 1
+    if (getEditorTextLength() - getSelectedTextLength() + insertedLength > maxLength) {
+      event.preventDefault()
+    }
+  }
+
   const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
     event.preventDefault()
-    const text = event.clipboardData.getData('text/plain')
-    document.execCommand('insertText', false, text)
+    const remaining = Math.max(0, maxLength - (getEditorTextLength() - getSelectedTextLength()))
+    const text = event.clipboardData.getData('text/plain').slice(0, remaining)
+    if (text) document.execCommand('insertText', false, text)
     window.setTimeout(emitChange, 0)
   }
 
@@ -250,6 +276,7 @@ export function RichTextEditor({
         suppressContentEditableWarning
         onInput={emitChange}
         onBlur={emitChange}
+        onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}
       />
     </div>

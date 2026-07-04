@@ -1295,3 +1295,26 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   bileşeni kullandığından sınır otomatik uygulanır.
 
 ## STATUS: Round 183 complete — cards moved to Done.
+
+## Round 184 (Doing — 2026-07-04, 9 kart: reopen düzeltmeleri + WhatsApp konuşma bütünlüğü)
+- [x] `6a48ac67` reopened — Görevlerim/Birimdeki Görevler gridindeki `Görev Tipi / Görevi Yapan`
+  başlık hücresinin sol boşluğu `pl-10` yapıldı; önceki `pl-6` görselde hâlâ sıkışık kalıyordu.
+- [x] `6a478fe8` reopened — WhatsApp FAB görünürlüğü mevcut backend `isRelevantToCurrentUser`
+  kuralıyla terminal olmayan, kullanıcıya atanmış veya aktif birimine yönlendirilmiş vatandaş
+  taleplerine bağlı kalıyor; terminal conversation'lar ilgili kullanıcıdan gizli.
+- [x] `6a48ab86` reopened — Detay popup `Yazışmaya Git` artık tek `SocialMessageId` entry'leriyle
+  sınırlı değil; aynı vatandaş konuşmasındaki tüm ticket timeline'ı döner. Entry bazlı `socialMessageId`
+  ile medya indirme, bekleyen mesaj gönderme ve düzenleme doğru ticket üzerinden çalışır.
+- [x] `6a48cf6c` reopened — Reporter pie chart drilldown davranışı korunurken standart kullanıcı
+  `Birimdeki Görevler > Benim Görevlerim` diliminin `/my-tasks?view=all` yönlendirmesi yeniden aktif edildi.
+- [x] `6a491da8` reopened — Açıklama alanı başlıklarına görsel ibare eklendi:
+  `(max 400 karakter) *` talep, vatandaş talebi, rutin görev ve e-Devlet açıklama girişlerinde görünür.
+- [x] `6a48d31c` reopened — WhatsApp iç mesaj başlığı `Kurum İçi Mesaj` koyu kırmızıya alındı ve
+  altındaki birim/kullanıcı satırıyla arasına ekstra boşluk verildi.
+- [x] `6a48ce9e` reopened — Standart kullanıcı dashboard'unda `Birimdeki Görevler` grafiği başlığı
+  yetki yoksa read-only kalsa bile slice click handler kapatılmıyor; `Benim Görevlerim` dilimi çalışır.
+- [x] `6a48dcca` reopened — Timeline pulse yalnız terminal son noktada değil, turuncu current yoksa
+  son aktif yeşil/kırmızı noktada da yanıp söner.
+- [x] `6a48e214` reopened — Yönetici tarafından oluşturulan birim içi aktif taleplerde timeline
+  `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi / Onay Bekleyen` satırını gri gösterir;
+  ardından `Durum / Yapılmakta` turuncu güncel step olarak kalır.

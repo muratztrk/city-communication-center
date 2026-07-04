@@ -102,16 +102,16 @@ function ProcessStepDateValue({
   )
 }
 
-function StepIndicator({ state }: { state: JobProcessStep['state'] }) {
+function StepIndicator({ state, shouldPulse }: { state: JobProcessStep['state']; shouldPulse: boolean }) {
   if (state === 'completed' || state === 'terminal-success') {
     return (
-      <span className={`job-process-timeline__indicator job-process-timeline__indicator--completed${state === 'terminal-success' ? ' job-process-timeline__indicator--pulse-success' : ''}`}>
+      <span className={`job-process-timeline__indicator job-process-timeline__indicator--completed${shouldPulse ? ' job-process-timeline__indicator--pulse-success' : ''}`}>
         <Check className="size-2.5" strokeWidth={2.75} aria-hidden="true" />
       </span>
     )
   }
   if (state === 'terminal-danger') {
-    return <span className="job-process-timeline__indicator job-process-timeline__indicator--danger job-process-timeline__indicator--pulse-danger" aria-hidden="true" />
+    return <span className={`job-process-timeline__indicator job-process-timeline__indicator--danger${shouldPulse ? ' job-process-timeline__indicator--pulse-danger' : ''}`} aria-hidden="true" />
   }
   if (state === 'current') {
     return <span className="job-process-timeline__indicator job-process-timeline__indicator--current" aria-hidden="true" />
@@ -129,6 +129,16 @@ export function JobProcessTimeline({
   dueDateContent,
 }: JobProcessTimelineProps) {
   const { t } = useTranslation()
+  const pulseIndex = (() => {
+    const currentIndex = steps.findIndex(step => step.state === 'current')
+    if (currentIndex >= 0) return currentIndex
+    const terminalIndex = steps.findIndex(step => step.state === 'terminal-success' || step.state === 'terminal-danger')
+    if (terminalIndex >= 0) return terminalIndex
+    for (let index = steps.length - 1; index >= 0; index -= 1) {
+      if (steps[index].state === 'completed') return index
+    }
+    return -1
+  })()
 
   return (
     <div className="job-process-timeline">
@@ -146,16 +156,18 @@ export function JobProcessTimeline({
           const valueTone = step.id === 'completionDate'
             ? 'text-emerald-600'
             : step.id === 'cancelDate'
-              ? 'text-red-600'
-              : step.state === 'current'
-                ? 'text-[#f97316]'
-                : 'text-slate-900'
+                ? 'text-red-600'
+                : step.state === 'current'
+                  ? 'text-[#f97316]'
+                  : step.state === 'upcoming'
+                    ? 'text-slate-400'
+                    : 'text-slate-900'
           const displayMetaTone = step.state === 'current' ? 'text-[#f97316]' : 'text-emerald-600'
 
           return (
             <li key={step.id} className="job-process-timeline__item">
               <div className="job-process-timeline__track">
-                <StepIndicator state={step.state} />
+                <StepIndicator state={step.state} shouldPulse={index === pulseIndex} />
                 {!isLast && <span className={`job-process-timeline__line ${lineClass}`} aria-hidden="true" />}
               </div>
               <div className="job-process-timeline__content min-w-0 pb-4">

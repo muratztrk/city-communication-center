@@ -385,6 +385,7 @@ export interface SocialConversationEntry {
   editedAtUtc?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
+  socialMessageId?: string | null;
 }
 
 export interface SocialMessage {

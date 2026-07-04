@@ -19,8 +19,8 @@ export function ConversationSenderHeader({
     if (internalMatch) {
       return (
         <div className="mb-1.5 leading-snug">
-          <p className="text-[13px] font-bold text-red-400">Kurum İçi Mesaj</p>
-          <p className={`text-[13px] font-bold ${tone === 'inbound' ? 'text-slate-700' : 'text-white'}`}>
+          <p className="text-[13px] font-bold text-red-700">Kurum İçi Mesaj</p>
+          <p className={`mt-1 text-[13px] font-bold ${tone === 'inbound' ? 'text-slate-700' : 'text-white'}`}>
             {internalMatch[1]}
           </p>
         </div>

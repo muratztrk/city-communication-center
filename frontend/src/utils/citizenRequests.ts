@@ -69,13 +69,17 @@ export function formatCitizenPhoneDisplay(value: string | null | undefined): str
 export function shouldShowCitizenTargetApprovalDate(job: {
   requestType?: string | null
   sourceType?: string | null
+  createdByRoleCode?: string | null
   taskCount?: number
   tasks?: { taskId?: string }[]
   departments?: { role: string; approvalStatus?: string | null; decidedAtUtc?: string | null }[]
 }): boolean {
-  // "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" hem vatandaş hem birim dışı taleplerde
-  // yalnız hedef birim yöneticisi GERÇEKTEN onaylayıp personel atadığında görünür; birim içi
-  // taleplerde hiç görünmez (cards #1333/#1337).
+  // "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" vatandaş ve birim dışı taleplerde
+  // gerçek hedef onayından sonra görünür. Yönetici tarafından oluşturulan birim içi aktif taleplerde
+  // bekleyen gri adım olarak da gösterilir (card #1345).
+  if (job.requestType === 'InternalUnit' && job.createdByRoleCode === 'Manager') {
+    return true
+  }
   if (!isCitizenRequestJob(job) && job.requestType !== 'ExternalUnit') {
     return false
   }

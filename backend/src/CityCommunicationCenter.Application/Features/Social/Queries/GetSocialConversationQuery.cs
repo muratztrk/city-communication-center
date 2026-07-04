@@ -29,6 +29,7 @@ public sealed class GetSocialConversationQueryHandler
                 m.ReceivedAtUtc,
                 m.CitizenHandle,
                 m.JobId,
+                m.CitizenConversationId,
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -44,19 +45,28 @@ public sealed class GetSocialConversationQueryHandler
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
 
-        var terminalInfo = await ResolveRelatedTerminalInfoAsync(
-            tenantId,
-            request.SocialMessageId,
-            message.JobId,
-            cancellationToken);
+        var messageIds = message.CitizenConversationId.HasValue
+            ? await _dbContext.SocialMessages
+                .AsNoTracking()
+                .Where(m => m.TenantId == tenantId && m.CitizenConversationId == message.CitizenConversationId)
+                .OrderBy(m => m.ReceivedAtUtc)
+                .Select(m => m.SocialMessageId)
+                .ToListAsync(cancellationToken)
+            : [request.SocialMessageId];
+        var messageJobIds = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => m.TenantId == tenantId && messageIds.Contains(m.SocialMessageId))
+            .Select(m => new { m.SocialMessageId, m.JobId })
+            .ToDictionaryAsync(m => m.SocialMessageId, m => m.JobId, cancellationToken);
 
         var entries = await _dbContext.ConversationEntries
             .AsNoTracking()
-            .Where(e => e.SocialMessageId == request.SocialMessageId)
+            .Where(e => messageIds.Contains(e.SocialMessageId))
             .OrderBy(e => e.SentAt)
             .Select(e => new
             {
                 e.EntryId,
+                e.SocialMessageId,
                 Direction = e.Direction.ToString(),
                 e.Content,
                 e.MediaId,
@@ -81,25 +91,51 @@ public sealed class GetSocialConversationQueryHandler
                 citizenPhoneLabel,
                 null,
                 null,
-                null)];
+                null,
+                null,
+                null,
+                request.SocialMessageId)];
         }
 
-        return entries.Select(e => new SocialConversationEntryDto(
-            e.EntryId,
-            e.Direction,
-            e.Content,
-            e.MediaId,
-            e.MediaMimeType,
-            e.SentAt,
-            e.SenderLabel
-                ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
-                    ? citizenPhoneLabel
-                    : tenantName),
-            e.DeliveryStatus,
-            e.DeliveryError,
-            e.EditedAtUtc,
-            e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo.Status : null,
-            e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo.Note : null)).ToList();
+        var terminalInfoByMessageId = new Dictionary<Guid, TerminalInfo>();
+        foreach (var entryMessageId in entries
+            .Where(e => e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString())
+            .Select(e => e.SocialMessageId)
+            .Distinct())
+        {
+            terminalInfoByMessageId[entryMessageId] = await ResolveRelatedTerminalInfoAsync(
+                tenantId,
+                entryMessageId,
+                messageJobIds.GetValueOrDefault(entryMessageId),
+                cancellationToken);
+        }
+
+        return entries.Select(e =>
+        {
+            TerminalInfo? terminalInfo = null;
+            var hasTerminalInfo = e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString()
+                && terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out terminalInfo);
+            var terminalStatus = hasTerminalInfo ? terminalInfo?.Status : null;
+            var terminalNote = hasTerminalInfo ? terminalInfo?.Note : null;
+
+            return new SocialConversationEntryDto(
+                e.EntryId,
+                e.Direction,
+                e.Content,
+                e.MediaId,
+                e.MediaMimeType,
+                e.SentAt,
+                e.SenderLabel
+                    ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
+                        ? citizenPhoneLabel
+                        : tenantName),
+                e.DeliveryStatus,
+                e.DeliveryError,
+                e.EditedAtUtc,
+                terminalStatus,
+                terminalNote,
+                e.SocialMessageId);
+        }).ToList();
     }
 
     private async Task<TerminalInfo> ResolveRelatedTerminalInfoAsync(

@@ -86,31 +86,39 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     }
   }
 
-  const doSendPending = async (entryId: string) => {
+  const doSendPending = async (entry: ConversationEntryBubbleData) => {
     if (sendingPendingId) return
-    setSendingPendingId(entryId)
+    const targetSocialMessageId = entry.socialMessageId ?? socialMessageId
+    setSendingPendingId(entry.entryId)
     try {
-      await api.sendPendingConversationEntry(socialMessageId, entryId)
-      invalidateSocialMessages(queryClient, socialMessageId)
+      await api.sendPendingConversationEntry(targetSocialMessageId, entry.entryId)
+      invalidateSocialMessages(queryClient, targetSocialMessageId)
+      if (targetSocialMessageId !== socialMessageId) {
+        invalidateSocialMessages(queryClient, socialMessageId)
+      }
     } finally {
       setSendingPendingId(null)
     }
   }
 
-  const handleSendPending = (entryId: string) => {
+  const handleSendPending = (entry: ConversationEntryBubbleData) => {
     setConfirmDialog({
       title: t('whatsapp.sendPendingConfirmTitle', 'Mesajı Gönder'),
       titleDivider: true,
       message: t('whatsapp.sendPendingConfirmMessage', 'Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?'),
       confirmLabel: t('whatsapp.sendPendingMessage', 'Mesajı Gönder'),
       variant: 'success',
-      onConfirm: () => doSendPending(entryId),
+      onConfirm: () => doSendPending(entry),
     })
   }
 
-  const handleEditPending = async (entryId: string, content: string) => {
-    await api.editPendingConversationEntry(socialMessageId, entryId, content)
-    invalidateSocialMessages(queryClient, socialMessageId)
+  const handleEditPending = async (entry: ConversationEntryBubbleData, content: string) => {
+    const targetSocialMessageId = entry.socialMessageId ?? socialMessageId
+    await api.editPendingConversationEntry(targetSocialMessageId, entry.entryId, content)
+    invalidateSocialMessages(queryClient, targetSocialMessageId)
+    if (targetSocialMessageId !== socialMessageId) {
+      invalidateSocialMessages(queryClient, socialMessageId)
+    }
   }
 
   const handleShowTerminalNote = (entry: ConversationEntryBubbleData) => {
@@ -174,14 +182,14 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 {showDivider && <DateDivider label={dayLabel(entry.sentAt)} />}
                 <ConversationEntryBubble
                   entry={entry}
-                  socialMessageId={socialMessageId}
+                  socialMessageId={entry.socialMessageId ?? socialMessageId}
                   citizenPhone={citizenPhone}
                   theme="light"
                   onAddMediaAsAttachment={onAddMediaAsAttachment}
                   canSendPending={canSendPending}
-                  onSendPending={handleSendPending}
+                  onSendPending={() => handleSendPending(entry)}
                   sendingPending={sendingPendingId === entry.entryId}
-                  onEditPending={handleEditPending}
+                  onEditPending={(_, content) => handleEditPending(entry, content)}
                   onShowTerminalNote={handleShowTerminalNote}
                 />
               </Fragment>

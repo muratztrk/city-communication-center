@@ -16,7 +16,7 @@ export interface ConversationEntryBubbleData {
   mediaId: string | null
   mediaMimeType: string | null
   sentAt: string
-  socialMessageId?: string
+  socialMessageId?: string | null
   senderLabel?: string | null
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | string | null
   deliveryError?: string | null

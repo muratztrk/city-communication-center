@@ -373,7 +373,7 @@ export function RoutineTaskPage() {
         <div className="grid content-start gap-3">
           <div className="job-field min-h-0">
             <label className="job-field-label" htmlFor="routine-desc">
-              {t('tasks.newRequest.description', 'Açıklama')} <span className="text-red-500">*</span>
+              {t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span>
             </label>
             <RichTextEditor
               value={form.description}

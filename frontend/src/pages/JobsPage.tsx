@@ -2910,7 +2910,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">{t('jobs.form.description', 'Açıklama')}</label>
+                <label className="form-label">{t('jobs.form.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></label>
                 <RichTextEditor
                   value={editModal.description}
                   onChange={val => setEditModal(m => m && ({ ...m, description: val }))}

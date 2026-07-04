@@ -1027,7 +1027,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={internalForm.description}
                 onChange={description => setInternalForm(current => ({ ...current, description }))}
@@ -1095,7 +1095,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('jobs.form.description')} <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('jobs.form.description')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={externalForm.description}
                 onChange={description => setExternalForm(current => ({ ...current, description }))}
@@ -1195,7 +1195,7 @@ export function CreateRequestPage() {
               </div>
             </div>
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={citizenForm.content}
                 onChange={content => setCitizenForm(current => ({ ...current, content }))}

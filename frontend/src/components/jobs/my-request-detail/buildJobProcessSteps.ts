@@ -73,6 +73,9 @@ function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDe
   }
 
   let foundCurrent = false
+  const managerInternalActive = detail.requestType === 'InternalUnit'
+    && detail.createdByRoleCode === 'Manager'
+    && detail.status === 'Active'
   return steps.map(step => {
     if (foundCurrent) {
       return { ...step, state: 'upcoming' as const }
@@ -97,6 +100,9 @@ function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDe
       if (detail.status === 'PendingExternalApproval') {
         foundCurrent = true
         return { ...step, state: 'current' as const }
+      }
+      if (!targetDecided && managerInternalActive) {
+        return { ...step, state: 'upcoming' as const }
       }
       if (!ownerDecided && detail.status === 'PendingOwnerApproval') {
         return { ...step, state: 'upcoming' as const }
@@ -156,7 +162,9 @@ export function buildJobProcessSteps(
     steps.push({
       id: 'targetApproval',
       label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
-      displayValue: formatDueDateTime(targetDepartment?.decidedAtUtc ?? null, locale),
+      displayValue: targetDepartment?.decidedAtUtc
+        ? formatDueDateTime(targetDepartment.decidedAtUtc, locale)
+        : t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
       displayMeta: targetDepartment?.approvedByDisplayName ?? undefined,
       dateTimeUtc: targetDepartment?.decidedAtUtc ?? null,
     })
@@ -187,7 +195,7 @@ export function buildJobProcessSteps(
     })
   }
 
-  // Birim yöneticisinin oluşturduğu birim içi aktif talep (card #1275) VE standart kullanıcının
+  // Birim yöneticisinin oluşturduğu birim içi aktif talep (card #1275/#1345) VE standart kullanıcının
   // onaylanmış (Active) talebi (card #1334) turuncu "Durum / Yapılmakta" step'i gösterir.
   const managerInternalActive = detail.requestType === 'InternalUnit' && detail.createdByRoleCode === 'Manager'
   const standardApprovedActive = !options?.hideOwnerApproval

@@ -284,6 +284,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birden fazla aktif talep farklı birimlere gidiyorsa, iç mesaj `internalDepartmentId`'ye eşleşen ticket'ın
   `socialMessageId`'sine kaydedilmeli — yoksa o birimin yöneticisi/personeli kendi görevinden "Yazışmaya Git"
   ile açtığında mesajı göremez (card #1322 reopen, `handleSendInternal`).
+- **Detay popup "Yazışmaya Git" konuşması tek ticket'la sınırlanmaz:** `GetSocialConversationQuery`
+  sosyal mesaj aynı `CitizenConversationId`'ye bağlıysa tüm ticket entry'lerini döndürür ve her entry kendi
+  `socialMessageId`'sini taşır; medya indirme/gönder/düzenle aksiyonları entry'nin gerçek id'siyle çalışır.
 - **WhatsApp profil telefonu salt okunur:** sağ panelde `Numara` başındaki ülke kodu olmadan gösterilir,
   kayıtta değiştirilemez; kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
@@ -369,17 +372,21 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıklama metni); kolon2 = `Talep Bilgileri` (Info ikonlu) alan satırları — satırlar gridview zebra
   desenlidir ve `Öncelik / Proje Niteliğinde mi?` değeri `Normal · Hayır` biçimindedir ("Proje
   niteliğinde mi?:" öneki yazılmaz); kolon3 = `Süreç` timeline. Ayrı `Açıklama` paneli YOKTUR.
-- **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337):** hem
+- **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337/#1345):** hem
   vatandaş hem birim dışı taleplerde yalnız hedef birim GERÇEKTEN onaylandığında (Approved + gerçek
-  decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF birim yöneticisinin adını gösterir; birim
-  içi taleplerde hiç görünmez. `CreateJobCommand` otomatik hedef onayında ApprovedBy/DecidedAt YAZMAZ;
-  gerçek damga `CitizenJobTargetApproval.TryRecordTargetApprovalAsync` ile ilk personel atamasında
-  vurulur (eski yaratıcı-damgalı satırları da düzeltir).
+  decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF birim yöneticisinin adını gösterir.
+  İstisna: yönetici tarafından oluşturulan birim içi aktif taleplerde aynı adım gri `Onay Bekleyen`
+  olarak görünür; ardından turuncu `Durum / Yapılmakta` step'i güncel kalır. `CreateJobCommand`
+  otomatik hedef onayında ApprovedBy/DecidedAt YAZMAZ; gerçek damga
+  `CitizenJobTargetApproval.TryRecordTargetApprovalAsync` ile ilk personel atamasında vurulur
+  (eski yaratıcı-damgalı satırları da düzeltir).
 - **Timeline `Durum / Yapılmakta` step'i:** yönetici-birim-içi istisnasına ek olarak standart
   kullanıcının Active (onaylanmış) non-citizen taleplerinde de gösterilir (card #1334); standart
   kullanıcı Taleplerim chip metni `Onaylanmış/Yapılmakta Taleplerim`dir.
-- **Timeline terminal pulse:** süreç terminal yeşil/kırmızı ile bitiyorsa son nokta turuncu güncel
-  noktadaki pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339).
+- **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif
+  yeşil/kırmızı nokta turuncu pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339/#1343).
+- **Açıklama alanı başlıkları:** talep/rutin/vatandaş/e-Devlet açıklama giriş başlıklarında
+  `(max 400 karakter) *` ibaresi görünür; RichTextEditor zaten 400 düz-metin karakter sınırını uygular.
 - **Grid başlık casing/padding:** TÜM gridview header'ları (`data-table`, `table-container`,
   `wallboard-table`) `text-transform: uppercase` kullanır (card #1342 — #1318'i tersine çevirdi);
   `FilterableTh` label/ikon aralığı iki ayırıcı arasında dengeli olmalıdır.
@@ -405,6 +412,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate). Dilim anahtarı backend'e
   HAM label (GUID|isim veya i18n key) olarak gider; sınıflandırma `BuildCitizenRequestsChart` ile
   birebir aynı tutulmalıdır. Yönlendirme yapan eski davranış yalnız Taleplerim grafiğinde kalır.
+- **Standart kullanıcı dashboard görev dilimi:** `Birimdeki Görevler` grafiği başlığı erişim yoksa
+  tıklanmaz kalabilir ama `Benim Görevlerim` dilimi yine `/my-tasks?view=all` rotasına gitmelidir.
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
   başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur.

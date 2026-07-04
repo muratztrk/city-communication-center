@@ -172,7 +172,8 @@ public sealed record SocialConversationEntryDto(
     string? DeliveryError,
     DateTimeOffset? EditedAtUtc = null,
     string? RelatedJobTerminalStatus = null,
-    string? RelatedJobTerminalNote = null);
+    string? RelatedJobTerminalNote = null,
+    Guid? SocialMessageId = null);
 
 public sealed record SocialReplyRequest(string Content, bool SendImmediately = false);
 

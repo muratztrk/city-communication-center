@@ -278,6 +278,8 @@ export function RoutineTaskPage() {
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                   <SingleSelectDropdown
+                    openUp
+                    searchable
                     options={neighborhoodOptions}
                     value={form.neighborhood}
                     onChange={neighborhood => set('neighborhood', neighborhood)}

@@ -546,6 +546,8 @@ function ConversationProfilePanel({
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>
           <SingleSelectDropdown
+            openUp
+            searchable
             options={neighborhoodOptions}
             value={draft.neighborhood}
             onChange={neighborhood => onDraftChange(neighborhood

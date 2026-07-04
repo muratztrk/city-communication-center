@@ -1209,3 +1209,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   "Öncelik / Proje Niteliğinde mi?" oldu.
 
 ## STATUS: Round 179 complete — card moved to Done.
+
+## Round 180 (Doing — 2026-07-04, Mahalle dropdown arama+yön + WhatsApp FAB beyaz disk kaldırma)
+- [x] `6a48bf6e` — `SingleSelectDropdown`'a genel `searchable`/`searchPlaceholder` prop'u eklendi (paneldeki
+  ilk satırda contains arama kutusu, `toLocaleLowerCase('tr')` ile); tüm Mahalle kullanım noktalarına
+  (`CreateRequestPage`, `RoutineTaskPage`, `CitizenRequestModal`, `WhatsAppConversationsPage` profil paneli,
+  `MyRequestAddressEditFields`) `searchable` + `openUp` eklendi (biri zaten `openUp` idi).
+- [x] `6a4791d9` reopened — WhatsApp bildirim FAB'ındaki ikonu saran beyaz dairesel disk kaldırıldı; ikon
+  artık doğrudan yeşil FAB zemininde görünüyor.
+
+## STATUS: Round 180 complete — cards moved to Done.

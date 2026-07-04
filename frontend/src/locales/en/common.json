@@ -777,7 +777,7 @@
     "sendPendingConfirmTitle": "Send Message",
     "sendPendingConfirmMessage": "This message will be delivered to the citizen via WhatsApp. Do you confirm?",
     "searchPlaceholder": "Find phone no…",
-    "searchPlaceholderExtended": "Phone no, username…",
+    "searchPlaceholderExtended": "Phone no, citizen name…",
     "conversationsTitle": "Conversations",
     "sort": "Sort",
     "urgent": "URGENT",

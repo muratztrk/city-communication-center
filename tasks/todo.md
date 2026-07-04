@@ -1219,3 +1219,17 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   artık doğrudan yeşil FAB zemininde görünüyor.
 
 ## STATUS: Round 180 complete — cards moved to Done.
+
+## Round 181 (Doing — 2026-07-04, 3 reopen: placeholder locale + dosya ekle konumu + header padding)
+- [x] `6a47f599` reopened — Kök neden: Round 174'te kod içi fallback zaten "vatandaş adı" idi ama locale
+  dosyasındaki `whatsapp.searchPlaceholderExtended` anahtarı eski "Telefon no, kullanıcı adı…" metnini
+  taşıyor ve fallback'i eziyordu. TR "vatandaş adı…", EN "citizen name…" olarak düzeltildi.
+  DERS: t() fallback'i düzeltmek yetmez, locale dosyasındaki gerçek değeri kontrol et.
+- [x] `6a48a764` reopened — Round 174'te yalnız dikey hiza değişmişti; asıl istek butonun kutunun
+  SOLUNA taşınmasıydı. Rutin görev formunda grid kolon sırası değiştirildi: `Dosya ekle` butonu solda
+  (`auto`), dosya listesi kutusu sağda (`1fr`).
+- [x] `6a48ac67` reopened — Kök neden: header hücrelerinin varsayılan yatay padding'i
+  `--table-chrome-row-px: 1rem`; Round 174'te eklenen `pl-3` (0.75rem) utility katmanı kazandığı için
+  padding'i DÜŞÜRMÜŞTÜ. `pl-6` (1.5rem) yapıldı — artık gerçekten sol boşluk var.
+
+## STATUS: Round 181 complete — cards moved to Done.

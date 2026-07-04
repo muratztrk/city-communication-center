@@ -782,7 +782,7 @@
     "sendPendingConfirmTitle": "Mesajı Gönder",
     "sendPendingConfirmMessage": "Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?",
     "searchPlaceholder": "Telefon no bul…",
-    "searchPlaceholderExtended": "Telefon no, kullanıcı adı…",
+    "searchPlaceholderExtended": "Telefon no, vatandaş adı…",
     "conversationsTitle": "Konuşmalar",
     "sort": "Sırala",
     "urgent": "ACİL",

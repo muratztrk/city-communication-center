@@ -311,7 +311,30 @@ export function RoutineTaskPage() {
 
                 <div className="job-field min-h-0">
                   <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
-                  <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-stretch">
+                  <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-stretch">
+                    <div className="flex items-start justify-start">
+                      <button
+                        type="button"
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={submitting}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
+                        {t('attachments.addFile', 'Dosya ekle')}
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept={ACCEPT_ATTR}
+                        multiple
+                        className="hidden"
+                        disabled={submitting}
+                        onChange={event => {
+                          addFiles(event.target.files)
+                          if (fileInputRef.current) fileInputRef.current.value = ''
+                        }}
+                      />
+                    </div>
                     <div className="flex h-full min-h-[5.5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2">
                       {pendingFiles.length === 0 ? (
                         <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
@@ -337,29 +360,6 @@ export function RoutineTaskPage() {
                           })}
                         </ul>
                       )}
-                    </div>
-                    <div className="flex items-start justify-end">
-                      <button
-                        type="button"
-                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={submitting}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
-                        {t('attachments.addFile', 'Dosya ekle')}
-                      </button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept={ACCEPT_ATTR}
-                        multiple
-                        className="hidden"
-                        disabled={submitting}
-                        onChange={event => {
-                          addFiles(event.target.files)
-                          if (fileInputRef.current) fileInputRef.current.value = ''
-                        }}
-                      />
                     </div>
                   </div>
                   {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}

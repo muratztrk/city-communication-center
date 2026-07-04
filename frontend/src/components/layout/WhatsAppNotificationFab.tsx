@@ -31,27 +31,6 @@ function formatBadgeCount(count: number) {
   return String(count)
 }
 
-function WhatsAppOutlineIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M12 2.75A9.25 9.25 0 0 0 4.1 16.82L2.95 21.05l4.34-1.13A9.25 9.25 0 1 0 12 2.75Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.45 8.75c.2-.45.44-.47.75-.47h.57c.18 0 .43.07.66.54l.82 1.93c.06.17.1.38-.03.61-.17.3-.35.48-.58.73-.1.1-.2.24-.08.45.37.75 1.05 1.62 1.73 2.09.78.54 1.25.72 1.48.78.22.05.42.02.56-.14l.75-.9c.2-.24.46-.3.74-.19l1.9.89c.35.17.55.38.5.63-.06.39-.34 1.1-.93 1.48-.58.38-1.45.59-2.44.35-1.18-.28-2.6-1.01-4.1-2.5-1.46-1.45-2.32-2.96-2.65-4.12-.27-.94-.08-1.72.37-2.17Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 export function WhatsAppNotificationFab() {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -333,7 +312,9 @@ export function WhatsAppNotificationFab() {
           className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isPulsing ? 'whatsapp-fab-pulse' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
         >
           <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
-          <WhatsAppOutlineIcon className="relative size-8 text-white" />
+          <span className="relative flex size-10 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
+            <img src="/icons/whatsapp.webp" alt="" className="size-7" aria-hidden="true" />
+          </span>
           {unreadTotal > 0 ? (
             <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
               {badgeLabel}

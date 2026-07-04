@@ -326,6 +326,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         if (roleCode is "Reporter")
         {
             charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
+            charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
         }
 
         return new DashboardStatusChartsResponse(charts);
@@ -393,6 +394,35 @@ public sealed class GetDashboardStatusChartsQueryHandler
             BuildDepartmentChart("dashboard.charts.externalRequestPending", pending, departmentNames),
             BuildDepartmentChart("dashboard.charts.externalRequestFulfillers", fulfillers, departmentNames),
         ];
+    }
+
+    /// <summary>
+    /// Üst Düzey Yönetici panosu için "Mahallelerde Tamamlanan Talepler" — tamamlanmış taleplerin
+    /// (mahalle bilgisi girilmiş olanların) mahalleye göre dağılımı, tüm talep tiplerini kapsar.
+    /// </summary>
+    private async Task<DashboardChartResponse> BuildNeighborhoodCompletedRequestsChartAsync(
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var counts = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.Status == JobStatus.Completed
+                && job.Neighborhood != null
+                && job.Neighborhood != ""
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .GroupBy(job => job.Neighborhood)
+            .Select(group => new { Neighborhood = group.Key!, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ToListAsync(cancellationToken);
+
+        return new DashboardChartResponse("dashboard.charts.neighborhoodCompletedRequests",
+            counts.Select((item, index) => new DashboardChartSlice(
+                item.Neighborhood,
+                item.Count,
+                StaffChartColors[index % StaffChartColors.Length]))
+                .ToList());
     }
 
     private static DashboardChartResponse BuildDepartmentChart(

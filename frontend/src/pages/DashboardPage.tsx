@@ -508,6 +508,7 @@ export function DashboardPage() {
               || card.titleKey === 'dashboard.charts.externalRequestCreators'
               || card.titleKey === 'dashboard.charts.externalRequestPending'
               || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
+              || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
             const chartRoute = isReadOnlyDepartmentChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined

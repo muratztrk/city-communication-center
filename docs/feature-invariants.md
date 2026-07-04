@@ -372,6 +372,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard status pie chart query'si görev→talep kaynak tipini navigation property'ye güvenmeden
   üretir:** chart endpoint'i orphan/eksik ilişki veya provider translation yüzünden tüm paneli
   hata banner'ına düşürmemeli (card #1251).
+- **`PieChart.resolveSliceLabel`** üç formatı ayırt eder: `GUID|isim` (departman/personel — id kırpılıp
+  isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
+  Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
+  DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok. Üst Düzey Yönetici'ye özel salt-okunur
+  grafikler (`externalRequestCreators/Pending/Fulfillers`, `neighborhoodCompletedRequests`) frontend'te
+  `isReadOnlyDepartmentChart` listesine eklenir (tıklanınca yönlendirme yapılmaz, card #1330).
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
   başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur.

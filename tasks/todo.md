@@ -1175,3 +1175,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   alanının dropzone + dosya listesi kutularının `min-h` değeri `5.5rem`→`4rem` düşürüldü.
 
 ## STATUS: Round 175 complete — cards moved to Done.
+
+## Round 176 (Doing — 2026-07-04, yeni özellik: Mahallelerde Tamamlanan Talepler grafiği)
+- [x] `6a4775ad` / #1330 — Üst Düzey Yönetici kontrol panelinde yeni pie chart eklendi:
+  "Mahallelerde Tamamlanan Talepler" — `Job.Neighborhood` dolu ve `Status=Completed` olan tüm
+  taleplerin (talep tipinden bağımsız) mahalleye göre dağılımı. Backend: yeni
+  `BuildNeighborhoodCompletedRequestsChartAsync` (`GetDashboardStatusChartsQuery.cs`), Reporter
+  dalına eklendi. Frontend: yeni `dashboard.charts.neighborhoodCompletedRequests` i18n anahtarı +
+  `isReadOnlyDepartmentChart` listesine eklendi (diğer Reporter-özel grafikler gibi tıklanınca
+  yönlendirme yapmaz). `chartCards` backend'den dinamik geldiği için ek frontend wiring gerekmedi.
+
+## STATUS: Round 176 complete — card moved to Done.

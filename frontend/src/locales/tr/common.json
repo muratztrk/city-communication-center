@@ -392,7 +392,8 @@
       "citizenRequests": "Vatandaş Talepleri",
       "externalRequestCreators": "Talep Oluşturan Birimler",
       "externalRequestPending": "Birimlerde Bekleyen Talepler",
-      "externalRequestFulfillers": "Talebi Tamamlayan Birimler"
+      "externalRequestFulfillers": "Talebi Tamamlayan Birimler",
+      "neighborhoodCompletedRequests": "Mahallelerde Tamamlanan Talepler"
     },
     "taskFilter": {
       "assigned": "Atanmış",

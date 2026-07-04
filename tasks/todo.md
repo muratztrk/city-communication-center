@@ -1318,3 +1318,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a48e214` reopened — Yönetici tarafından oluşturulan birim içi aktif taleplerde timeline
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi / Onay Bekleyen` satırını gri gösterir;
   ardından `Durum / Yapılmakta` turuncu güncel step olarak kalır.
+
+## STATUS: Round 184 complete — cards moved to Done.
+
+## Round 185 (Doing — 2026-07-04, WhatsApp konuşma açılış scroll'u)
+- [x] `6a478b47` reopened — `/whatsapp` sol listeden manuel konuşma seçilince eski `phone/at/messageId`
+  deep-link parametreleri temizleniyor; böylece farklı numaraya tıklanınca detay penceresi önceki
+  anchor/scroll konumunu takip etmiyor, yeni konuşma doğrudan son mesajda/en altta açılıyor.

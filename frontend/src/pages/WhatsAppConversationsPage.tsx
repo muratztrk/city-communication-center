@@ -1407,6 +1407,13 @@ export function WhatsAppConversationsPage() {
     navigate(`/social?phone=${encodeURIComponent(digits)}`)
   }, [navigate])
 
+  const handleSelectConversation = useCallback((conversationId: string) => {
+    setSelectedId(conversationId)
+    if (requestedPhone || requestedAt || requestedMessageId) {
+      navigate('/whatsapp', { replace: true })
+    }
+  }, [navigate, requestedAt, requestedMessageId, requestedPhone])
+
   return (
     <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
@@ -1442,7 +1449,7 @@ export function WhatsAppConversationsPage() {
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
           selectedId={selectedId}
-          onSelect={setSelectedId}
+          onSelect={handleSelectConversation}
         />
 
         {/* Right: conversation detail */}

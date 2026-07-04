@@ -1142,3 +1142,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 172 (Hotfix — 2026-07-04, WhatsApp bildirim FAB ikonu)
 - [x] Kullanıcı raporu — Sağ alt WhatsApp bildirim FAB'ı yalın yeşil baloncuk olarak kaldı; merkez ikon beyaz çizgisel/içi boş WhatsApp formuna çevrildi.
 - [x] Rework — Çizgisel ikon uygulamadaki ikonla uyumsuz göründüğü için FAB merkezi beyaz disk içinde ortak `/icons/whatsapp.webp` asset'ine çevrildi.
+
+## Round 173 (Hotfix — 2026-07-04, WhatsApp ek kaydı medya zorunluluğu)
+- [x] Kullanıcı raporu — Canlı log/DB kontrolünde dosya gönderiminin eski `/reply` endpoint'inden gittiği ve `mediaid` boş düz metin balonu ürettiği görüldü. Eski endpoint artık `[Dosya eki: ...]` WhatsApp direkt gönderimini reddeder; frontend sürümü `0.1.2` yapıldı.

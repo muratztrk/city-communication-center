@@ -41,6 +41,15 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         // Varsayılan WhatsApp yanıtları "Beklemede" kuyruğa alınır; /whatsapp direkt operatör
         // yazımı açıkça isterse aynı endpoint üzerinden hemen iletilir.
         var isWhatsApp = message.Channel == SocialChannel.WhatsApp;
+        if (isWhatsApp && request.SendImmediately && LooksLikeAttachmentPlaceholder(request.Content))
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(request.Content),
+                    "Dosya eki eski mesaj endpoint'iyle gönderilemez. Sayfayı yenileyip Dosya ekle ile tekrar gönderin.")
+            ]);
+        }
+
         if (isWhatsApp && !request.SendImmediately)
         {
             deliveryStatus = ConversationDeliveryStatus.Pending;
@@ -128,6 +137,13 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         return actor is null
             ? "Belediye"
             : ConversationEntrySenderLabelHelper.FormatStaffLabel(actor.DepartmentName, actor.DisplayName);
+    }
+
+    private static bool LooksLikeAttachmentPlaceholder(string content)
+    {
+        var trimmed = content.Trim();
+        return trimmed.StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("\n[Dosya eki:", StringComparison.OrdinalIgnoreCase);
     }
 }
 

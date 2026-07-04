@@ -1186,3 +1186,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   yönlendirme yapmaz). `chartCards` backend'den dinamik geldiği için ek frontend wiring gerekmedi.
 
 ## STATUS: Round 176 complete — card moved to Done.
+
+## Round 177 (Doing — 2026-07-04, global font Plus Jakarta Sans → Inter)
+- [x] `6a47fd76` reopened — Kullanıcı Plus Jakarta Sans'tan (Round 174, card #1312) vazgeçip global fontu
+  Inter'e çevirmek istedi. `@fontsource/inter` kuruldu (400/500/600/700/800), `@fontsource/plus-jakarta-sans`
+  kaldırıldı; `tokens.css`'te `--font-sans`/`--font-display` `Inter`'e alındı; `main.tsx` import'ları güncellendi.
+
+## STATUS: Round 177 complete — card moved to Done.

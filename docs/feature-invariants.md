@@ -32,10 +32,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
-- **`@fontsource/plus-jakarta-sans` importları kullanılan TÜM font-weight'leri kapsamalı:**
-  `main.tsx`'te yalnız 500/600/700 yüklüyse `font-normal`/`font-extrabold` gibi 400/800 ağırlıklı
-  metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür). 400 ve 800
-  eklendi (card #1312 reopen).
+- **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
+  `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
+  ağırlıklardaki metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür).
+  Global font Plus Jakarta Sans → **Inter**'e değiştirildi (card #1312 reopen → Round 177); `tokens.css`
+  `--font-sans`/`--font-display` ve `main.tsx` 400/500/600/700/800 import'ları birlikte güncellenmeli,
+  eski fontun `@fontsource` paketi de kaldırılmalı (dead weight bırakma).
 - **Koyu zeminde (Wallboard gibi) ortak açık-tema bileşeni (`ReporterDepartmentName` vb.) kullanılıyorsa
   bileşenin varsayılan `text-slate-*` utility'si, sarmalayan sayfanın kendi rengini `!important` olmadan
   ezemez** (Tailwind utility > custom class); wallboard-request-location bu yüzden `!important` gerektirdi.

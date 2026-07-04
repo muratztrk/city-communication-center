@@ -993,9 +993,15 @@ export const api = {
     formData.append('content', content)
     formData.append('sendImmediately', String(sendImmediately))
 
+    const authHeaders = await getAuthHeaders() as Record<string, string>
+    const headers: Record<string, string> = {}
+    for (const [key, value] of Object.entries(authHeaders)) {
+      if (key.toLowerCase() !== 'content-type') headers[key] = value
+    }
+
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/reply/attachment`, {
       method: 'POST',
-      headers: await getAuthHeaders(),
+      headers,
       body: formData,
     })
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))

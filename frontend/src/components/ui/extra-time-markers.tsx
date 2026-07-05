@@ -3,30 +3,33 @@ import { useTranslation } from 'react-i18next'
 interface GridExtraTimeMarkersProps {
   hasPending?: boolean
   lastDecision?: string | null
+  inline?: boolean
 }
 
 // Grid tarih/durum hücresi altında ek süre talebi işaretleri: bekleyen amber "(Ek süre talebi)",
 // onaylanan yeşil, reddedilen kırmızı. Görev ve talep gridlerinde aynı görünüm kullanılır
 // (cards 628/772/#1385/#1388).
-export function GridExtraTimeMarkers({ hasPending, lastDecision }: GridExtraTimeMarkersProps) {
+export function GridExtraTimeMarkers({ hasPending, lastDecision, inline = false }: GridExtraTimeMarkersProps) {
   const { t } = useTranslation()
   if (!hasPending && !lastDecision) return null
+  const Marker = inline ? 'span' : 'div'
+  const markerClassName = inline ? 'text-xs font-bold' : 'mt-1 text-xs font-bold'
   return (
     <>
       {hasPending && (
-        <div className="mt-1 text-xs font-bold text-amber-500">
+        <Marker className={`${markerClassName} text-amber-500`}>
           {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
-        </div>
+        </Marker>
       )}
       {lastDecision === 'Approved' && (
-        <div className="mt-1 text-xs font-bold text-emerald-600">
+        <Marker className={`${markerClassName} text-emerald-600`}>
           {t('tasks.actions.extraTimeApproved', 'Ek süre talebi onaylandı')}
-        </div>
+        </Marker>
       )}
       {lastDecision === 'Rejected' && (
-        <div className="mt-1 text-xs font-bold text-red-600">
+        <Marker className={`${markerClassName} text-red-600`}>
           {t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi')}
-        </div>
+        </Marker>
       )}
     </>
   )

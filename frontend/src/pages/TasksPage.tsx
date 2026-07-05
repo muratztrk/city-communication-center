@@ -1815,7 +1815,19 @@ const pageKicker = isMyTasksView
                                       : taskDetail.currentStatus === 'Cancelled'
                                         ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(selectedTask.updatedAtUtc ?? null, locale)}</span> }]
                                         : []),
-                                    { label: 'Son Tarih', value: formatDueDateTime(taskDetail.dueDateUtc, locale) },
+                                    {
+                                      label: 'Son Tarih',
+                                      value: (
+                                        <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                          <span>{formatDueDateTime(taskDetail.dueDateUtc, locale)}</span>
+                                          <GridExtraTimeMarkers
+                                            hasPending={taskDetail.hasPendingExtraTimeRequest}
+                                            lastDecision={taskDetail.lastExtraTimeRequestDecision}
+                                            inline
+                                          />
+                                        </span>
+                                      ),
+                                    },
                                   ].map(({ label, value }) => (
                                     // Orta kolon sol kolondan kısa olduğunda son satır "Son Tarih"in
                                     // altına kapanış çizgisi (boşlukta border eksikliği) (card #712/#713).

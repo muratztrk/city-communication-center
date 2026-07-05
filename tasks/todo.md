@@ -1654,3 +1654,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   (`T-2026-363` benzeri kaçan bildirimler için).
 
 ## STATUS: Round 221 complete — backend build passed; card pending Done move.
+
+## Round 222 (Doing — 2026-07-05, detay Son Tarih ek süre marker'ı)
+- [x] `6a4a77b6` / #1395 — Yönetici detay görünümünde görev `Son Tarih` değerinin yanında
+  ek süre bileşenleri görünür oldu: `GridExtraTimeMarkers` inline kullanım destekliyor, TasksPage görev
+  detayı ve JobsPage talep içindeki görev detayında bekleyen/onay/red marker'ları aynı ortak bileşenle basılıyor.
+
+## STATUS: Round 222 complete — frontend build/lint passed; card pending Done move.

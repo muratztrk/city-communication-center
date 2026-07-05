@@ -2854,11 +2854,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               value: (
                                 <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
                                   <span>{formatDateTime(task.dueDateUtc, locale)}</span>
-                                  {task.hasPendingExtraTimeRequest ? (
-                                    <span className="text-xs font-bold text-amber-500">
-                                      {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
-                                    </span>
-                                  ) : null}
+                                  <GridExtraTimeMarkers
+                                    hasPending={task.hasPendingExtraTimeRequest}
+                                    lastDecision={task.lastExtraTimeRequestDecision}
+                                    inline
+                                  />
                                 </span>
                               ),
                             },

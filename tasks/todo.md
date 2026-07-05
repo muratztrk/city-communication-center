@@ -1433,3 +1433,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   sağ border çizgisine göre en sağa yaslanıyor.
 
 ## STATUS: Round 197 complete — frontend build/lint passed; card moved to Done.
+
+## Round 198 (Doing — 2026-07-05, reporter drilldown header size)
+- [x] `6a48cf6c` reopened / #1338 — Reporter pie chart drilldown tablo başlık fontu,
+  genel `.data-table thead th` kuralından sonra daha yüksek specificity ile `0.8rem` olarak
+  override edildi; portal/zoom farkı nedeniyle büyük görünen headerlar Taleplerim gridview
+  görsel ölçeğine yaklaştırıldı.

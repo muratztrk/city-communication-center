@@ -415,7 +415,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **Banner buton sayımları client-side hesaplanır; dashboard'da bu aggregation YOK.**
 - **Reporter dashboard pie drilldown popup:** başlık yeşil ve `Info` ikonludur; tablo başlıkları
-  kompakt kalır. Terminal tarih kolonu yalnız `Tamamlanma Tarihi` veya `İptal Tarihi` başlığı
+  portal/zoom farkını dengeleyecek şekilde `.data-table` genel header fontundan sonra override edilir
+  ve Taleplerim gridview'ın görsel başlık ölçeğine yakın kalır. Terminal tarih kolonu yalnız `Tamamlanma Tarihi` veya `İptal Tarihi` başlığı
   kullanır; `Tamamlanma / İptal Tarihi` fallback ibaresi geri gelmez.
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).

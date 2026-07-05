@@ -1677,10 +1677,6 @@
     font-size: 0.78rem;
   }
 
-  .dashboard-drilldown-table thead th {
-    font-size: 0.62rem;
-  }
-
   .data-table thead {
     position: sticky;
     top: 0;
@@ -2882,6 +2878,10 @@
     font-size: 0.9rem;
     font-weight: 900;
     --tw-ring-color: transparent;
+  }
+
+  .data-table.dashboard-drilldown-table thead th {
+    font-size: 0.8rem;
   }
 
   /* ── Table Pagination ─────────────────────────────────────────── */

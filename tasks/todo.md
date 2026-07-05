@@ -1507,3 +1507,27 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Yapılmakta Olan` durum text'i de turuncu renge alındı.
 
 ## STATUS: Round 207 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 208 (Doing — 2026-07-05, yeni kartlar toplu görsel/davranış)
+- [x] `6a4a1c8e` reopened / #1370 — Talep Oluştur tür seçim başlıkları `font-semibold`,
+  sticky banner 2. satır başlığı `600` ağırlığına alındı.
+- [x] `6a4a288d` / #1376 — Görevlerim detay popup sol üst başlığı, Taleplerim detay popup
+  başlığıyla aynı font/renk/letter-spacing değerlerini kullanıyor.
+- [x] `6a4a294f` / #1377 — Taleplerim detay popup `Talep Bilgileri` değerleri biraz daha
+  küçük text size ile gösteriliyor.
+- [x] `6a4a2989` / #1378 — Taleplerim detay popup genişliği çok az azaltıldı.
+- [x] `6a4a26b2` / #1374 — Ekrana Yansıt sayfasına login sayfasındaki ortak footer eklendi.
+- [x] `6a4a262c` / #1373 — Ekrana Yansıt otomatik yenile aralığı ortak custom dropdown'a taşındı
+  ve seçilen aralıkla interval yeniden kuruluyor.
+- [x] `6a48bbe2` / #1333 — Ekrana Yansıt grid başlık verisi daha düşük font ağırlığında;
+  görev sahibi ve oluşturan alt satırı reporter font ağırlığıyla nötr renkte kalıyor.
+- [x] `6a4a21ba` / #1372 — WhatsApp konuşma header'ında görevi oluşmuş ve atanan personeli
+  olan vatandaş talepleri için `Talep Sayısı | Görev Sahibi: ...` gösteriliyor.
+- [x] `6a4a2791` / #1375 — Üst Düzey Yönetici dashboard'una mahalle bazlı yapılmakta olan
+  talepler pie chart'ı ve drilldown popup'ı eklendi.
+- [x] `6a4a18ec` reopened / #1368 — Mahallelerde Tamamlanan Talepler drilldown satırlarında
+  vatandaş talep numarası (VT) taşınarak Talep No boşluğu düzeltildi.
+- [x] `6a4a2133` / #1371 — Birim içi, birim dışı ve vatandaş talebi oluşturma form başlıklarına
+  uygun ikonlar eklendi.
+
+## STATUS: Round 208 complete — dotnet build, frontend build/lint passed; cards pending Done move.

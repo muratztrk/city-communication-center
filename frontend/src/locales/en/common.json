@@ -391,7 +391,8 @@
       "externalRequestCreators": "Requesting Departments",
       "externalRequestPending": "Requests Pending in Department",
       "externalRequestFulfillers": "Departments Completing Requests",
-      "neighborhoodCompletedRequests": "Completed Requests by Neighborhood"
+      "neighborhoodCompletedRequests": "Completed Requests by Neighborhood",
+      "neighborhoodInProgressRequests": "In-Progress Requests by Neighborhood"
     },
     "taskFilter": {
       "assigned": "Assigned",

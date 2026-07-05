@@ -882,6 +882,10 @@ function ConversationDetail({
   const ticketLabel = detail
     ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount + detail.cancelledCount}`
     : formatWhatsAppTicketLabel(primaryTicket)
+  const taskOwnerLabel = detail?.tickets
+    .filter(ticket => ticket.jobId && ticket.assigneeDisplayName?.trim())
+    .slice(-1)[0]
+    ?.assigneeDisplayName?.trim()
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
   const headerSubtitleParts: string[] = []
   if (citizenName?.trim() && phoneForHeader) {
@@ -916,7 +920,15 @@ function ConversationDetail({
             <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
           ) : null}
           {ticketLabel ? (
-            <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">{ticketLabel}</p>
+            <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">
+              {ticketLabel}
+              {taskOwnerLabel ? (
+                <>
+                  <span className="mx-1 text-slate-400">|</span>
+                  <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
+                </>
+              ) : null}
+            </p>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">

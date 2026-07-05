@@ -45,7 +45,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "externalRequestCreators" => await BuildOwnerDepartmentRowsAsync(tenantId, request, cancellationToken),
             "externalRequestPending" => await BuildTargetDepartmentRowsAsync(tenantId, request, JobStatus.PendingExternalApproval, cancellationToken),
             "externalRequestFulfillers" => await BuildTargetDepartmentRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
-            "neighborhoodCompletedRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, cancellationToken),
+            "neighborhoodCompletedRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
+            "neighborhoodInProgressRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Active, cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
             _ => new DashboardChartDrilldownResponse([]),
         };
@@ -156,6 +157,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
     private async Task<DashboardChartDrilldownResponse> BuildNeighborhoodRowsAsync(
         Guid tenantId,
         GetDashboardChartDrilldownQuery request,
+        JobStatus status,
         CancellationToken cancellationToken)
     {
         var neighborhood = request.SliceKey.Trim();
@@ -166,7 +168,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
 
         var rows = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
-                && job.Status == JobStatus.Completed
+                && job.Status == status
                 && job.Neighborhood == neighborhood
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
@@ -188,6 +190,14 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     .Where(department => department.DepartmentId == job.OwnerDepartmentId)
                     .Select(department => (string?)department.Name)
                     .FirstOrDefault(),
+                CitizenRequestNumber = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumber)
+                    .FirstOrDefault(),
+                CitizenRequestNumberYear = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumberYear)
+                    .FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
 
@@ -195,7 +205,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
                 row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
-                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc, null, null))
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                row.CitizenRequestNumber, row.CitizenRequestNumberYear))
             .ToList());
     }
 

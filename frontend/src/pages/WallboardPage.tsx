@@ -3,11 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import { AppFooter } from '../components/layout/AppFooter'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { ReporterDepartmentName } from '../components/ui/ReporterDepartmentName'
-import { reporterCreatorTextClass, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
@@ -163,6 +165,10 @@ export function WallboardPage() {
   const [statFilter, setStatFilter] = useState<WallboardStatFilter>('total')
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
   const { filters, setFilter, matchesFilters } = useColumnFilters()
+  const refreshOptions = useMemo(() => REFRESH_OPTIONS.map(option => ({
+    value: String(option.value),
+    label: t(option.labelKey, option.fallback),
+  })), [t])
 
   const loadBoard = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -290,19 +296,16 @@ export function WallboardPage() {
             <Clock3 className="size-5" />
             <span>{formatTime(now, locale)}</span>
           </div>
-          <label className="wallboard-refresh-control">
+          <div className="wallboard-refresh-control">
             <span>{t('wallboard.refreshInterval', 'Otomatik yenile')}</span>
-            <select
-              value={refreshIntervalMs}
-              onChange={event => setRefreshIntervalMs(Number(event.target.value))}
-            >
-              {REFRESH_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {t(option.labelKey, option.fallback)}
-                </option>
-              ))}
-            </select>
-          </label>
+            <SingleSelectDropdown
+              className="wallboard-refresh-dropdown"
+              options={refreshOptions}
+              value={String(refreshIntervalMs)}
+              onChange={value => setRefreshIntervalMs(Number(value))}
+              placeholder={t('wallboard.refreshInterval', 'Otomatik yenile')}
+            />
+          </div>
           <Button type="button" onClick={() => void loadBoard()} className="gap-2">
             <RefreshCw className="size-4" />
             {t('common.refresh', 'Yenile')}
@@ -387,13 +390,13 @@ export function WallboardPage() {
                           isReporter={item.isReporterRequest}
                           className={item.isReporterRequest ? 'wallboard-request-location--reporter' : 'wallboard-request-location'}
                         />
-                        <div className={`wallboard-creator-line ${item.isReporterRequest ? `${reporterCreatorTextClass(true)} opacity-100` : 'wallboard-secondary-text'}`}>
+                        <div className="wallboard-creator-line wallboard-creator-line--task-meta">
                           {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
                           <span>{item.requestCreator ?? '—'}</span>
                         </div>
                       </td>
                       <td><div className={`wallboard-row-title ${item.isReporterRequest ? 'wallboard-row-title--reporter' : ''}`}>{item.title}</div></td>
-                      <td className={item.isReporterRequest ? 'wallboard-task-owner--reporter' : undefined}>{item.taskOwner ?? '—'}</td>
+                      <td className="wallboard-task-owner">{item.taskOwner ?? '—'}</td>
                       <td>
                         <span className={`wallboard-cell-icon ${dueTone === 'danger' ? 'danger' : dueTone === 'warning' ? 'warning' : ''}${item.isReporterRequest && item.dueDateUtc && dueTone === 'normal' ? ' text-orange-500 font-semibold' : ''}`}>
                           <CalendarClock className={`size-4${item.isReporterRequest && item.dueDateUtc && dueTone === 'normal' ? ' text-orange-400' : ''}`} />
@@ -415,6 +418,7 @@ export function WallboardPage() {
           />
         </section>
       )}
+      <AppFooter />
     </main>
   )
 }

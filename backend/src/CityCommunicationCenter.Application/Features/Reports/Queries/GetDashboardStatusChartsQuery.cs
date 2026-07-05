@@ -327,6 +327,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         {
             charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
             charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
+            charts.Add(await BuildNeighborhoodInProgressRequestsChartAsync(tenantId, request, cancellationToken));
         }
 
         return new DashboardStatusChartsResponse(charts);
@@ -418,6 +419,35 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken);
 
         return new DashboardChartResponse("dashboard.charts.neighborhoodCompletedRequests",
+            counts.Select((item, index) => new DashboardChartSlice(
+                item.Neighborhood,
+                item.Count,
+                StaffChartColors[index % StaffChartColors.Length]))
+                .ToList());
+    }
+
+    /// <summary>
+    /// Üst Düzey Yönetici panosu için "Mahallelerde Yapılmakta Olan Talepler" — aktif taleplerin
+    /// (mahalle bilgisi girilmiş olanların) mahalleye göre dağılımı, tüm talep tiplerini kapsar.
+    /// </summary>
+    private async Task<DashboardChartResponse> BuildNeighborhoodInProgressRequestsChartAsync(
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var counts = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.Status == JobStatus.Active
+                && job.Neighborhood != null
+                && job.Neighborhood != ""
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .GroupBy(job => job.Neighborhood)
+            .Select(group => new { Neighborhood = group.Key!, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ToListAsync(cancellationToken);
+
+        return new DashboardChartResponse("dashboard.charts.neighborhoodInProgressRequests",
             counts.Select((item, index) => new DashboardChartSlice(
                 item.Neighborhood,
                 item.Count,

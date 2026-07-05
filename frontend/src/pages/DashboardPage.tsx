@@ -52,6 +52,7 @@ const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestFulfillers',
   'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.neighborhoodInProgressRequests',
 ])
 
 // Lejant dilim etiketi → hedef sayfadaki ilgili scope chip (card 797).
@@ -520,6 +521,7 @@ export function DashboardPage() {
               || card.titleKey === 'dashboard.charts.externalRequestPending'
               || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
+              || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
             const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343).
             const isDrilldownChart = isReporter && DRILLDOWN_CHART_KEYS.has(card.titleKey)

@@ -35,8 +35,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
-  `font-weight: 500` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
-  `font-medium` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
+  `font-weight: 600` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
+  `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
   tam satır kaplar, başlangıç/bitiş tarihleri aramanın altındaki aynı satırda iki kolon durur. Mobil gridview
@@ -313,6 +313,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kayıtta değiştirilemez; kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır.
+- **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
+  personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: ...` gösterilir; görev/atanan yoksa alan basılmaz.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
@@ -442,16 +444,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
 - **Reporter grafik dilimleri detay popup'ı açar (card #1343/#1338):** Üst Düzey Yönetici panosunda
-  Taleplerim HARİÇ 5 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
-  `neighborhoodCompletedRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
+  Taleplerim HARİÇ 6 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
+  `neighborhoodCompletedRequests`, `neighborhoodInProgressRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
   (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate); popup Taleplerim detay modalı
   genişliğine yakın `max-w-[96rem]`, küçük grid text'i + ortak `TablePagination` kullanır. Son Tarih'ten
   önce terminal tarih kolonu gelir: tamamlandı diliminde `Tamamlanma Tarihi`, iptal/iade diliminde
   `İptal Tarihi`; terminal olmayan satırlara terminal tarih değeri basılmaz. Son Tarih boşsa bu popup'ta
   `Belirsiz` değil `Onay Bekleyen` yazılır; Durum sütunu rozet/pill değil düz metindir, ama
   `Completed` yeşil, iptal/iade kırmızı, `Active`/`InProgress` turuncu text rengiyle gösterilir. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak gider;
-  sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Yönlendirme yapan eski
-  davranış yalnız Taleplerim grafiğinde kalır.
+  sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Mahalle drilldown satırları
+  vatandaş talepleri için VT numarası taşır. Yönlendirme yapan eski davranış yalnız Taleplerim grafiğinde kalır.
 - **Dashboard legend tıklanabilirliği:** rotası olmayan pie legend/dilimleri tıklanabilir görünmez;
   standart kullanıcı `Birimdeki Görevler` grafiğinde `Birimdeki Görevler` legend'i read-only kalır.
 - **Standart kullanıcı dashboard görev dilimi:** `Birimdeki Görevler` grafiği başlığı erişim yoksa
@@ -463,7 +465,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
-  ayrı satırda kalır; başlık, görev sahibi ve ilgili tarih/değer metinleri turuncu vurgulanır.
+  ayrı satırda kalır; başlık ve ilgili tarih/değer metinleri turuncu vurgulanabilir, ama görev sahibi
+  ve oluşturan alt satırı reporter font ağırlığını kullanıp nötr renkte kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
 ## 5b. Bildirimler (Notifications)

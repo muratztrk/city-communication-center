@@ -163,12 +163,13 @@
   }
 
   .detail-modal-shell--my-request {
-    width: min(70.9vw, 85.1rem);
+    width: min(70.25vw, 84.3rem);
     height: min(80.7dvh, 46.85rem);
     max-height: min(80.7dvh, 46.85rem);
   }
 
-  .detail-modal-shell--my-request .my-request-detail-header__title {
+  .detail-modal-shell--my-request .my-request-detail-header__title,
+  .detail-modal-shell .task-detail-header__title {
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.28em;
@@ -331,6 +332,7 @@
 
   /* Talep Bilgileri değerleri okunaklı ama daha az koyu kalır (card #1361). */
   .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info .job-detail-field-row__value {
+    font-size: 0.8125rem;
     font-weight: 500;
   }
 
@@ -2873,7 +2875,7 @@
   }
 
   .sticky-page-header .page-title {
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .sticky-page-header .page-subtitle {
@@ -3318,6 +3320,21 @@
     font-weight: 900;
   }
 
+  .wallboard-refresh-dropdown {
+    width: 8.75rem;
+  }
+
+  .wallboard-refresh-dropdown .field-select {
+    min-height: 1.85rem;
+    border-radius: 999px;
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.94);
+    padding: 0 0.55rem 0 0.65rem;
+    color: #0f172a;
+    font-size: 0.78rem;
+    font-weight: 900;
+  }
+
   .wallboard-stats {
     display: grid;
     flex-shrink: 0;
@@ -3530,7 +3547,7 @@
     max-width: 32rem;
     color: white;
     font-size: clamp(0.86rem, 1vw, 1.12rem);
-    font-weight: 900;
+    font-weight: 700;
     overflow: hidden;
     overflow-wrap: break-word;
     white-space: normal;
@@ -3546,6 +3563,13 @@
   .wallboard-request-location {
     color: rgba(248, 250, 252, 0.96) !important;
     font-weight: 900;
+  }
+
+  .wallboard-task-owner,
+  .wallboard-creator-line--task-meta {
+    color: rgba(226, 232, 240, 0.9);
+    font-size: clamp(0.76rem, 0.8vw, 0.9rem);
+    font-weight: 600;
   }
 
   .wallboard-priority-text {

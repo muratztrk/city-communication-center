@@ -142,7 +142,17 @@ public sealed class GetCitizenConversationDetailQueryHandler
                         .OrderBy(d => d.RequestedAtUtc)
                         .Select(d => d.Department.Name)
                         .FirstOrDefault()
-                    : m.AssignedDepartment != null ? m.AssignedDepartment.Name : null))
+                    : m.AssignedDepartment != null ? m.AssignedDepartment.Name : null,
+                m.Job != null
+                    ? m.Job.Tasks
+                        .Where(task => task.AssignedUserId != null)
+                        .OrderByDescending(task => task.AssignedAtUtc ?? task.CreatedAtUtc)
+                        .Select(task => _dbContext.Users
+                            .Where(user => user.TenantId == tenantId && user.UserId == task.AssignedUserId)
+                            .Select(user => user.DisplayName)
+                            .FirstOrDefault())
+                        .FirstOrDefault()
+                    : null))
             .ToListAsync(cancellationToken);
 
         var statusCounts = await _dbContext.SocialMessages

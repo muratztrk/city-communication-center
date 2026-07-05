@@ -466,6 +466,7 @@ export interface CitizenConversationTicket {
   jobNumberYear?: number | null;
   departmentId?: string | null;
   departmentName?: string | null;
+  assigneeDisplayName?: string | null;
 }
 
 export interface CitizenConversationDetail {

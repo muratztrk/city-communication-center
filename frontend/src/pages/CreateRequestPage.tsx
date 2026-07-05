@@ -928,7 +928,7 @@ export function CreateRequestPage() {
                 <Building2 className="size-5" />
               </span>
               <div>
-                <h2 className="text-xl font-medium text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
+                <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
                 <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
               </div>
             </div>
@@ -944,7 +944,7 @@ export function CreateRequestPage() {
                 <Workflow className="size-5" />
               </span>
               <div>
-                <h2 className="text-xl font-medium text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
+                <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
                 <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.externalDescription', 'Başka bir birime gidecek talep sürecini oluşturun.')}</p>
               </div>
             </div>
@@ -961,7 +961,7 @@ export function CreateRequestPage() {
                   <MessageSquareMore className="size-5" />
                 </span>
                 <div>
-                  <h2 className="text-xl font-medium text-slate-950">{t('requests.create.citizenTitle', 'Vatandaş Talepleri')}</h2>
+                  <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.citizenTitle', 'Vatandaş Talepleri')}</h2>
                   <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
                 </div>
               </div>
@@ -973,7 +973,10 @@ export function CreateRequestPage() {
       {selectedKind === 'internal' ? (
         <form id="internal-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
           <div className="xl:col-span-2">
-            <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.internalFormTitle', 'Birim İçi Talep Oluştur')}</h2>
+            <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
+              <Building2 className="size-5 text-[color:var(--color-primary)]" />
+              {t('requests.create.internalFormTitle', 'Birim İçi Talep Oluştur')}
+            </h2>
             <p className="helper-copy">{t('tasks.newRequest.sectionDescription', 'Birim içi talep kaydını başlatmak için temel bilgileri giriniz.')}</p>
           </div>
           <div className="grid content-start gap-3">
@@ -1049,7 +1052,10 @@ export function CreateRequestPage() {
       {selectedKind === 'external' ? (
         <form id="external-request-form" className="section-card request-form request-form--readable grid gap-3 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
-            <h2 className="text-xl font-extrabold text-slate-950">{isReporter ? t('requests.create.reporterFormTitle', 'Talep Oluştur') : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}</h2>
+            <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
+              <Workflow className="size-5 text-emerald-700" />
+              {isReporter ? t('requests.create.reporterFormTitle', 'Talep Oluştur') : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}
+            </h2>
             <p className="helper-copy">{isReporter ? t('requests.create.reporterFormDescription', 'Talep kaydını başlatmak için temel bilgileri girin.') : t('requests.create.externalFormDescription', 'Birim dışı talep kaydını başlatmak için temel bilgileri girin.')}</p>
           </div>
           <div className="grid content-start gap-3">
@@ -1117,7 +1123,10 @@ export function CreateRequestPage() {
       {selectedKind === 'citizen' ? (
         <form id="citizen-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
-            <h2 className="text-xl font-extrabold text-slate-950">{t('requests.create.citizenFormTitle', 'Vatandaş Talebi Oluştur')}</h2>
+            <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
+              <MessageSquareMore className="size-5 text-rose-700" />
+              {t('requests.create.citizenFormTitle', 'Vatandaş Talebi Oluştur')}
+            </h2>
             <p className="helper-copy">{t('settings.citizen.sectionDescription', 'Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.')}</p>
           </div>
           <div className="grid content-start gap-3">

@@ -19,6 +19,7 @@ import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -592,6 +593,7 @@ export function CreateRequestPage() {
             <input
               className="field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+              maxLength={ADDRESS_STREET_MAX_LENGTH}
               value={form.street}
               onChange={e => setField('street', e.target.value)}
               disabled={!hasNeighborhood}
@@ -604,6 +606,7 @@ export function CreateRequestPage() {
             <textarea
               className="field-textarea address-open-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+              maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
               value={form.openAddress}
               onChange={e => setField('openAddress', e.target.value)}
               disabled={!hasNeighborhood}

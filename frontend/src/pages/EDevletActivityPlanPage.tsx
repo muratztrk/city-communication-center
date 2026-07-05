@@ -6,6 +6,7 @@ import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 
 interface ActivityType {
   activityTypeId: string
@@ -28,7 +29,6 @@ const INITIAL: FormState = {
 }
 
 const TYPE_NAME_MAX = 50
-const STREET_MAX = 50
 const DESCRIPTION_MAX = 100
 
 export function EDevletActivityPlanPage() {
@@ -284,7 +284,7 @@ export function EDevletActivityPlanPage() {
                 className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                 placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                 value={form.street}
-                maxLength={STREET_MAX}
+                maxLength={ADDRESS_STREET_MAX_LENGTH}
                 onChange={event => setForm(current => ({ ...current, street: event.target.value }))}
                 disabled={!form.neighborhood}
                 required

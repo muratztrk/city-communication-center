@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Common;
+
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record UpdateCitizenConversationProfileCommand(
@@ -8,6 +10,17 @@ public sealed record UpdateCitizenConversationProfileCommand(
     string? Neighborhood,
     string? Street,
     string? OpenAddress) : ICommand<bool>;
+
+public sealed class UpdateCitizenConversationProfileCommandValidator : AbstractValidator<UpdateCitizenConversationProfileCommand>
+{
+    public UpdateCitizenConversationProfileCommandValidator()
+    {
+        RuleFor(c => c.Street).MaximumLength(AddressFieldLimits.StreetMaxLength)
+            .WithMessage("Cadde / Sokak / Bulvar en fazla 50 karakter olabilir.");
+        RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
+            .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
+    }
+}
 
 public sealed class UpdateCitizenConversationProfileCommandHandler
     : ICommandHandler<UpdateCitizenConversationProfileCommand, bool>

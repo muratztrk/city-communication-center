@@ -13,6 +13,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 
 interface FormState {
   title: string
@@ -291,6 +292,7 @@ export function RoutineTaskPage() {
                   <input
                     className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                    maxLength={ADDRESS_STREET_MAX_LENGTH}
                     value={form.street}
                     onChange={e => set('street', e.target.value)}
                     disabled={!hasNeighborhood}
@@ -303,6 +305,7 @@ export function RoutineTaskPage() {
                   <textarea
                     className="field-textarea h-full min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+                    maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                     value={form.openAddress}
                     onChange={e => set('openAddress', e.target.value)}
                     disabled={!hasNeighborhood}

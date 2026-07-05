@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../../../data/izmir-locations'
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../../../utils/addressLimits'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 
 interface MyRequestAddressEditFieldsProps {
@@ -43,6 +44,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
           <textarea
             className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
             placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+            maxLength={ADDRESS_STREET_MAX_LENGTH}
             value={draft.street}
             rows={autoGrowRows(draft.street)}
             onChange={e => onChange({ street: e.target.value })}
@@ -54,6 +56,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
           <textarea
             className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
             placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+            maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
             value={draft.openAddress}
             rows={autoGrowRows(draft.openAddress)}
             onChange={e => onChange({ openAddress: e.target.value })}

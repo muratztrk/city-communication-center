@@ -30,6 +30,7 @@ import { normalizeTitleCaseField } from '../utils/textNormalization'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -558,13 +559,14 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.street', 'Cadde / Sokak / Bulvar')}</span>
-          <input className={disabledFieldClass} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} disabled={!hasNeighborhood} />
+          <input className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} disabled={!hasNeighborhood} />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.openAddress', 'Açık Adres')}</span>
           <textarea
             rows={4}
             className={`${disabledFieldClass} min-h-[6rem] resize-none`}
+            maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
             value={draft.openAddress}
             onChange={event => onDraftChange({ openAddress: event.target.value })}
             disabled={!hasNeighborhood}

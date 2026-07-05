@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -21,6 +22,10 @@ public sealed class CreateRoutineTaskCommandValidator : AbstractValidator<Create
         RuleFor(c => c.Title).NotEmpty().WithMessage("Gorev basligi zorunludur.");
         RuleFor(c => c.Description).NotEmpty().WithMessage("Gorev aciklamasi zorunludur.");
         RuleFor(c => c.Priority).NotEmpty().WithMessage("Oncelik alani zorunludur.");
+        RuleFor(c => c.Street).MaximumLength(AddressFieldLimits.StreetMaxLength)
+            .WithMessage("Cadde / Sokak / Bulvar en fazla 50 karakter olabilir.");
+        RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
+            .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
     }
 }
 

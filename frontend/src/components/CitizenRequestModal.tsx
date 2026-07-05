@@ -18,6 +18,7 @@ import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-l
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -568,6 +569,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <input
                       className="field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                      maxLength={ADDRESS_STREET_MAX_LENGTH}
                       value={street}
                       onChange={event => setStreet(event.target.value)}
                       disabled={!neighborhood}
@@ -580,6 +582,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <textarea
                       className="field-textarea field-textarea--compact address-open-textarea min-h-[5.5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+                      maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}
                       disabled={!neighborhood}

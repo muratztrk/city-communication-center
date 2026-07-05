@@ -138,15 +138,19 @@ export function buildJobProcessSteps(
       dateTimeUtc: detail.createdAtUtc,
     },
   ]
+  const targetDepartment = detail.departments.find(department => department.role === 'Target')
+  const targetDecided = Boolean(targetDepartment?.decidedAtUtc)
 
   // Birim yöneticisinin oluşturduğu birim içi/birim dışı aktif taleplerde turuncu "Durum / Yapılmakta"
-  // adımı Talep Tarihi'nin hemen arkasına gelir; birim dışında gri hedef onay adımı bunu izler
-  // (cards #1275/#1345/#1357). İptalden geri alınan talepte İptal Tarihi adımı Durum'dan önce
-  // kalmalı, o yüzden erken eklenmez.
+  // adımı onay beklerken Talep Tarihi'nin hemen arkasına gelir; hedef onaylandıysa hedef onay
+  // adımından sonra gelir (cards #1275/#1345/#1357). İptalden geri alınan talepte İptal Tarihi
+  // adımı Durum'dan önce kalmalı, o yüzden erken eklenmez.
   const managerCreatedActive = detail.createdByRoleCode === 'Manager'
     && !isCitizenRequestJob(detail)
     && (detail.requestType === 'InternalUnit' || detail.requestType === 'ExternalUnit')
-  const statusStepEarly = managerCreatedActive && !wasRecoveredFromCancellation(detail)
+  const statusStepEarly = managerCreatedActive
+    && !wasRecoveredFromCancellation(detail)
+    && !(detail.requestType === 'ExternalUnit' && targetDecided)
   if (statusStepEarly && !isTerminalStatus(detail.status)) {
     steps.push({
       id: 'status',
@@ -171,7 +175,6 @@ export function buildJobProcessSteps(
   }
 
   if (shouldShowCitizenTargetApprovalDate(detail)) {
-    const targetDepartment = detail.departments.find(department => department.role === 'Target')
     steps.push({
       id: 'targetApproval',
       label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),

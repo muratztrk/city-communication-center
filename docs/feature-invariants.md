@@ -374,8 +374,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aşağı doğru büyür; yatay scroll/input kayması geri getirilmez** (card #1232).
 - **Taleplerim detay ana kartı 3 kolonludur (card #1336/#1335 — Round 182):** kolon1 = `Talep Başlığı`
   bölümü (FileText ikonlu başlık; başlığın YANINDA talep no + turuncu zeminli `Birim İçi/Birim Dışı`
-  rozeti — parantezli tip metni KULLANILMAZ; altında Title Case talep başlığı `font-bold` ve SİYAH
-  açıklama metni); kolon2 = `Talep Bilgileri` (Info ikonlu) alan satırları — satırlar gridview zebra
+  rozeti sağa yaslıdır ve sığmazsa yine sağa yaslı alt satıra sarar — parantezli tip metni KULLANILMAZ;
+  altında Title Case talep başlığı `font-bold` ve SİYAH açıklama metni); kolon2 = `Talep Bilgileri`
+  (Info ikonlu) alan satırları — satırlar gridview zebra
   desenlidir, değer metinleri `font-weight: 500` civarında kalır ve `Öncelik / Proje Niteliğinde mi?`
   değeri `Normal · Hayır` biçimindedir ("Proje niteliğinde mi?:" öneki yazılmaz); kolon3 = `Süreç`
   timeline. Ayrı `Açıklama` paneli YOKTUR.
@@ -384,6 +385,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   onaylandığında (Approved + gerçek decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF
   birim yöneticisinin adını gösterir. Yönetici tarafından oluşturulan birim dışı aktif taleplerde
   hedef onay öncesinde gri `Onay Bekleyen` adımı durur; hedef yönetici onaylayınca yeşile döner.
+  Yönetici birim dışı talebinde hedef onay gerçekleştiyse sıra `Hedef Onay Tarihi` → `Durum / Yapılmakta`
+  olmalıdır; bekleyen durumda `Durum / Yapılmakta` daha erken kalabilir.
   `CreateJobCommand` otomatik hedef onayında ApprovedBy/DecidedAt YAZMAZ; gerçek damga
   `CitizenJobTargetApproval.TryRecordTargetApprovalAsync` ile ilk personel atamasında vurulur
   (eski yaratıcı-damgalı satırları da düzeltir).

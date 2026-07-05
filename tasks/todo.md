@@ -1363,3 +1363,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   kutusu alçaltılıp logo görseli büyütüldü.
 
 ## STATUS: Round 188 complete — build/lint passed; cards moved to Done.
+
+## Round 189 (Doing — 2026-07-05, reopen title meta + timeline order)
+- [x] `6a492c3d` reopened / #1356 — Taleplerim detay başlığında Talep No + Birim İçi/Dışı rozeti
+  sağa yaslı meta blok oldu; sığmazsa sağa yaslı alt satıra sarar.
+- [x] `6a48e214` reopened / #1345 — Yönetici birim dışı talebinde hedef yönetici onayladıysa timeline
+  sırası `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` ardından `Durum / Yapılmakta` olur.
+
+## STATUS: Round 189 complete — build/lint passed; cards moved to Done.

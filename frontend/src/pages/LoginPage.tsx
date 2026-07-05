@@ -334,7 +334,8 @@ export function LoginPage() {
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-28 w-28 border-0 sm:h-36 sm:w-36"
+                className="h-20 w-36 border-0 sm:h-24 sm:w-44"
+                imageClassName="h-[92%] w-[92%]"
               />
               <div className="min-w-0 text-center">
                 <div className="text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>

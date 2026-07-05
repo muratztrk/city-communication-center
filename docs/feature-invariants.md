@@ -34,6 +34,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
+- **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
+  sarılabilir, daha büyük touch target kullanır; detay modal formları tek kolon akar.
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
   `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
   ağırlıklardaki metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür).
@@ -374,8 +376,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bölümü (FileText ikonlu başlık; başlığın YANINDA talep no + turuncu zeminli `Birim İçi/Birim Dışı`
   rozeti — parantezli tip metni KULLANILMAZ; altında Title Case talep başlığı `font-bold` ve SİYAH
   açıklama metni); kolon2 = `Talep Bilgileri` (Info ikonlu) alan satırları — satırlar gridview zebra
-  desenlidir ve `Öncelik / Proje Niteliğinde mi?` değeri `Normal · Hayır` biçimindedir ("Proje
-  niteliğinde mi?:" öneki yazılmaz); kolon3 = `Süreç` timeline. Ayrı `Açıklama` paneli YOKTUR.
+  desenlidir, değer metinleri `font-weight: 500` civarında kalır ve `Öncelik / Proje Niteliğinde mi?`
+  değeri `Normal · Hayır` biçimindedir ("Proje niteliğinde mi?:" öneki yazılmaz); kolon3 = `Süreç`
+  timeline. Ayrı `Açıklama` paneli YOKTUR.
 - **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337/#1345/#1357):**
   birim içi taleplerde hiç görünmez. Vatandaş ve birim dışı taleplerde hedef birim GERÇEKTEN
   onaylandığında (Approved + gerçek decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF

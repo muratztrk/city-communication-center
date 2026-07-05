@@ -1350,7 +1350,16 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   hemen sonra gelir; hedef onay adımı onay öncesi gri, onay sonrası yeşil kalır.
 - [x] `6a49efb3` / #1357 — Yönetici birim içi talep timeline'ında "Talebi Gerçekleştiren Birim
   Yöneticisinin Onay Tarihi" adımı gösterilmez.
-- [ ] `6a49f603` / #1358 — Doing snapshot'ta var, ancak mevcut local diff içinde bu mobil/login kartına
-  denk yeni kod değişikliği bulunamadı; Trello'da açık bırakılmalı.
+- [x] `6a49f603` / #1358 — Doing snapshot'ta var, ancak Round 187 local diff içinde bu mobil/login kartına
+  denk yeni kod değişikliği bulunamadı; Round 188'de ele alındı.
 
 ## STATUS: Round 187 — 9 kart eşleşti; #1358 açık kaldı.
+
+## Round 188 (Doing — 2026-07-05, mobil düzeltme + Talep Bilgileri ağırlığı)
+- [x] `6a4a08a6` / #1361 — Taleplerim detay popup `Talep Bilgileri` değer text'lerinin boldluğu
+  azaltıldı (`font-weight: 500`).
+- [x] `6a49f603` / #1358 — Mobilde içerik shell'i dikey scroll'u kesmiyor; çip/banner filtreleri
+  telefonlarda daha büyük ve sarılabilir; detay modal alanları tek kolona akıyor; mobil login logo
+  kutusu alçaltılıp logo görseli büyütüldü.
+
+## STATUS: Round 188 complete — build/lint passed; cards moved to Done.

@@ -312,6 +312,11 @@
     background: #f8fafc;
   }
 
+  /* Talep Bilgileri değerleri okunaklı ama daha az koyu kalır (card #1361). */
+  .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info .job-detail-field-row__value {
+    font-weight: 500;
+  }
+
   .detail-modal-shell--my-request .job-process-timeline__step-value {
     font-size: 0.75rem;
   }
@@ -3744,6 +3749,85 @@
     .detail-modal-shell,
     .detail-modal-shell--notification {
       width: 100%;
+    }
+
+    .detail-modal-shell {
+      max-height: calc(100dvh - 1rem);
+    }
+
+    .detail-modal-shell > .flex-1 {
+      padding: 1rem;
+    }
+
+    .detail-modal-shell--my-request .my-request-detail-main__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .detail-modal-shell--my-request .job-detail-field-row--request-info {
+      flex-direction: column;
+      gap: 0.25rem;
+      align-items: stretch;
+    }
+
+    .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label,
+    .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
+      width: auto;
+      text-align: left;
+      white-space: normal;
+    }
+
+    .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control {
+      width: 100%;
+      max-width: none;
+    }
+
+    .scope-chips {
+      flex-wrap: wrap;
+      overflow-x: visible;
+      gap: 0.45rem;
+      padding-block: 0.45rem;
+    }
+
+    .scope-chip {
+      min-height: 2.15rem;
+      padding: 0.42rem 0.85rem;
+      font-size: 0.78rem;
+    }
+
+    .scope-chips-filters {
+      width: 100%;
+      flex-wrap: wrap;
+      align-items: stretch;
+      margin-left: 0;
+    }
+
+    .scope-chip-search-wrap,
+    .scope-chip-date {
+      min-width: min(100%, 10rem);
+      flex: 1 1 10rem;
+    }
+
+    .scope-chip-search-input {
+      width: 100%;
+      min-height: 2.05rem;
+      font-size: 0.82rem;
+    }
+
+    .scope-chip-date .field-input {
+      height: 2.2rem;
+      font-size: 0.82rem;
+    }
+
+    .sticky-page-header {
+      gap: 0.65rem;
+      padding: 0.85rem;
+    }
+
+    .sticky-page-header .page-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
     }
   }
 }

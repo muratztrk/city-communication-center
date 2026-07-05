@@ -573,7 +573,7 @@ export function AppShell() {
       </aside>
 
       <div className="flex flex-1 min-w-0 min-h-0 flex-col">
-      <div style={{ zoom: zoom.content }} className="app-content-shell m-0 min-w-0 flex-1 overflow-hidden bg-white shadow-sm sm:my-2 sm:mr-2 sm:rounded-2xl sm:border sm:border-[var(--color-border)] md:flex md:min-h-0 md:flex-col md:overflow-visible">
+      <div style={{ zoom: zoom.content }} className="app-content-shell m-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-white shadow-sm sm:my-2 sm:mr-2 sm:rounded-2xl sm:border sm:border-[var(--color-border)] md:flex md:min-h-0 md:flex-col md:overflow-visible">
         <div className="relative z-40 hidden items-center justify-between border-b border-[var(--color-border)] bg-white/94 px-5 py-2 backdrop-blur lg:flex">
           <nav className="flex min-w-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-1.5 py-1 text-sm text-[color:var(--color-muted-foreground)] shadow-sm" aria-label="Breadcrumb">
             <button type="button" className="inline-flex h-8 min-w-0 items-center gap-1 rounded-full px-2.5 font-semibold text-slate-600 hover:bg-white hover:text-slate-800" onClick={() => navigate('/dashboard')}>

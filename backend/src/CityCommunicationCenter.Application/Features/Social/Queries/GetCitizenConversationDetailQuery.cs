@@ -147,10 +147,24 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     ? m.Job.Tasks
                         .Where(task => task.AssignedUserId != null)
                         .OrderByDescending(task => task.AssignedAtUtc ?? task.CreatedAtUtc)
-                        .Select(task => _dbContext.Users
-                            .Where(user => user.TenantId == tenantId && user.UserId == task.AssignedUserId)
-                            .Select(user => user.DisplayName)
-                            .FirstOrDefault())
+                        .Select(task => new
+                        {
+                            DisplayName = _dbContext.Users
+                                .Where(user => user.TenantId == tenantId && user.UserId == task.AssignedUserId)
+                                .Select(user => user.DisplayName)
+                                .FirstOrDefault(),
+                            DepartmentName = _dbContext.Departments
+                                .Where(department => task.AssignedDepartmentId != null
+                                    && department.TenantId == tenantId
+                                    && department.DepartmentId == task.AssignedDepartmentId)
+                                .Select(department => department.Name)
+                                .FirstOrDefault()
+                        })
+                        .Select(assignee => assignee.DisplayName == null
+                            ? null
+                            : assignee.DepartmentName == null || assignee.DepartmentName == ""
+                                ? assignee.DisplayName
+                                : assignee.DisplayName + " (" + assignee.DepartmentName + ")")
                         .FirstOrDefault()
                     : null))
             .ToListAsync(cancellationToken);

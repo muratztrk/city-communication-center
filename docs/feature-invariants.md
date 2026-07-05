@@ -172,7 +172,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst
-  başlığıyla aynı text özelliklerini kullanır (`0.75rem`, `font-weight:800`,
+  başlığından biraz büyük kalır (`0.8125rem`, `font-weight:800`,
   `letter-spacing:0.18em`, slate-600);
   header başlığı, modal gövde içeriğiyle aynı sol hizada başlar. Kart içi `Süreç` ve `Açıklama`
   başlıkları alt kart başlıklarıyla aynı hafif ağırlıkta kalır; bold yapılmaz. Süreç yuvarlakları
@@ -316,7 +316,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır.
 - **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
-  personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: ...` gösterilir; görev/atanan yoksa alan basılmaz.
+  personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad (Birim)` gösterilir; görev/atanan yoksa alan basılmaz.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
@@ -464,7 +464,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
   başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur. Footer
-  viewport'un en alt kenarına oturur; sayfa padding'i footer'ı yukarıda bırakmaz.
+  viewport'un en alt kenarına tam satır/full-bleed oturur; sayfa padding'i footer'ı yukarıda veya dar bırakmaz.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.

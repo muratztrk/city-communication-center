@@ -1554,3 +1554,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   ve tıklanınca açılan drilldown popup satırlarında rutin görevler dışlandı.
 
 ## STATUS: Round 211 complete — dotnet build passed; card pending Done move.
+
+## Round 212 (Doing — 2026-07-05, Wallboard footer/Taleplerim başlık/WhatsApp görev sahibi)
+- [x] `6a4a26b2` reopened / #1374 — Ekrana Yansıt footer'ı viewport genişliğinde full-bleed
+  çalışacak şekilde sayfa padding'inden bağımsızlaştırıldı.
+- [x] `6a4a288d` reopened / #1376 — Taleplerim detay popup başlık text size'ı küçük bir seviye
+  büyütüldü.
+- [x] `6a4a327e` / #1379 — WhatsApp konuşma header'ındaki görev sahibi bilgisi, atanan personel
+  adından sonra birim adını parantez içinde gösterecek şekilde formatlandı.
+
+## STATUS: Round 212 complete — dotnet build, frontend build/lint passed; cards pending Done move.

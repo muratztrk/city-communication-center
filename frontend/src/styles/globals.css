@@ -169,7 +169,7 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-header__title {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 800;
     letter-spacing: 0.18em;
     line-height: 1.25;
@@ -3156,7 +3156,8 @@
   }
 
   .wallboard-page > footer {
-    margin-inline: calc(var(--wallboard-page-pad) * -1);
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
     margin-top: 0.75rem;
   }
 

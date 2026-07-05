@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { api } from '../api/client'
 import type { DashboardChartDrilldownRow } from '../types/platform'
 import { StatusPill } from './ui/status-pill'
@@ -28,6 +29,20 @@ function formatDrilldownNumber(row: DashboardChartDrilldownRow): string {
   return '—'
 }
 
+function isCancelledLike(status: string): boolean {
+  return status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested'
+}
+
+function resolveTerminalDateHeader(rows: DashboardChartDrilldownRow[], t: TFunction): string {
+  if (rows.length > 0 && rows.every(row => row.status === 'Completed')) {
+    return t('jobs.columns.completedAt', 'Tamamlanma Tarihi')
+  }
+  if (rows.length > 0 && rows.every(row => isCancelledLike(row.status))) {
+    return t('jobs.columns.cancelledAt', 'İptal Tarihi')
+  }
+  return t('jobs.columns.terminalDate', 'Tamamlanma / İptal Tarihi')
+}
+
 /**
  * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
@@ -39,6 +54,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const showTerminalDateColumn = Boolean(rows?.some(row => row.terminalDateUtc || row.status === 'Completed' || isCancelledLike(row.status)))
 
   // Modal her dilim seçiminde `key` ile yeniden mount edilir; state sıfırlama gerekmez.
   useEffect(() => {
@@ -58,7 +74,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
       <div
-        className="flex max-h-[min(85dvh,52rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="flex max-h-[min(85dvh,52rem)] w-full max-w-[96rem] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3.5">
@@ -83,7 +99,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
             <div className="loading">{t('common.loading')}</div>
           ) : (
             <>
-            <table className="data-table data-table--zebra">
+            <table className="data-table data-table--zebra dashboard-drilldown-table">
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -92,13 +108,14 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                   <th>{t('jobs.columns.title', 'Başlık')}</th>
                   <th>{t('departments.name', 'Müdürlük')}</th>
                   <th>{t('jobs.columns.status', 'Durum')}</th>
+                  {showTerminalDateColumn ? <th>{resolveTerminalDateHeader(rows, t)}</th> : null}
                   <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-6 text-center text-sm text-slate-500">
+                    <td colSpan={showTerminalDateColumn ? 8 : 7} className="py-6 text-center text-sm text-slate-500">
                       {t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
                     </td>
                   </tr>
@@ -114,6 +131,15 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                         {getAuditStatusLabel(t, row.status)}
                       </StatusPill>
                     </td>
+                    {showTerminalDateColumn ? (
+                      <td>
+                        <DateCell
+                          value={row.terminalDateUtc}
+                          locale={locale}
+                          tone={row.status === 'Completed' ? 'success' : isCancelledLike(row.status) ? 'danger' : 'default'}
+                        />
+                      </td>
+                    ) : null}
                     <td><DateCell value={row.dueDateUtc} locale={locale} /></td>
                   </tr>
                 ))}

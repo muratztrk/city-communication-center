@@ -85,6 +85,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.CreatedAtUtc,
                 job.Status,
                 job.DueDateUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc,
                 job.Neighborhood,
             })
             .ToListAsync(cancellationToken);
@@ -97,7 +99,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         return new DashboardChartDrilldownResponse(rows
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
-                row.Status.ToString(), departmentName, row.Neighborhood, row.DueDateUtc, null, null))
+                row.Status.ToString(), departmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc, null, null))
             .ToList());
     }
 
@@ -131,6 +134,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 link.Job.CreatedAtUtc,
                 link.Job.Status,
                 link.Job.DueDateUtc,
+                link.Job.CompletedAtUtc,
+                link.Job.UpdatedAtUtc,
                 link.Job.Neighborhood,
             })
             .ToListAsync(cancellationToken);
@@ -143,7 +148,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         return new DashboardChartDrilldownResponse(rows
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
-                row.Status.ToString(), departmentName, row.Neighborhood, row.DueDateUtc, null, null))
+                row.Status.ToString(), departmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc, null, null))
             .ToList());
     }
 
@@ -175,6 +181,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.CreatedAtUtc,
                 job.Status,
                 job.DueDateUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc,
                 job.Neighborhood,
                 OwnerDepartmentName = _dbContext.Departments
                     .Where(department => department.DepartmentId == job.OwnerDepartmentId)
@@ -186,7 +194,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         return new DashboardChartDrilldownResponse(rows
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
-                row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood, row.DueDateUtc, null, null))
+                row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc, null, null))
             .ToList());
     }
 
@@ -216,6 +225,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.CreatedAtUtc,
                 job.Status,
                 job.DueDateUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc,
                 job.Neighborhood,
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
                 TargetDepartmentName = _dbContext.JobDepartments
@@ -254,10 +265,24 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         .Take(MaxRows)
         .Select(row => new DashboardChartDrilldownRow(
             row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
-            row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood, row.DueDateUtc,
+            row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
+            ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
             row.CitizenRequestNumber, row.CitizenRequestNumberYear))
         .ToList();
 
         return new DashboardChartDrilldownResponse(filtered);
+    }
+
+    private static DateTimeOffset? ResolveTerminalDate(
+        JobStatus status,
+        DateTimeOffset? completedAtUtc,
+        DateTimeOffset? updatedAtUtc)
+    {
+        return status switch
+        {
+            JobStatus.Completed => completedAtUtc,
+            JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested => updatedAtUtc,
+            _ => null,
+        };
     }
 }

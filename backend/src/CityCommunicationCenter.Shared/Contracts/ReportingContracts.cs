@@ -38,6 +38,7 @@ public sealed record DashboardChartDrilldownRow(
     string Status,
     string? DepartmentName,
     string? Neighborhood,
+    DateTimeOffset? TerminalDateUtc,
     DateTimeOffset? DueDateUtc,
     int? CitizenRequestNumber,
     int? CitizenRequestNumberYear);

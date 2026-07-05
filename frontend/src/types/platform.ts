@@ -40,6 +40,7 @@ export interface DashboardChartDrilldownRow {
   status: string;
   departmentName: string | null;
   neighborhood: string | null;
+  terminalDateUtc: string | null;
   dueDateUtc: string | null;
   citizenRequestNumber: number | null;
   citizenRequestNumberYear: number | null;

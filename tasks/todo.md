@@ -1371,3 +1371,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   sırası `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` ardından `Durum / Yapılmakta` olur.
 
 ## STATUS: Round 189 complete — build/lint passed; cards moved to Done.
+
+## Round 190 (Doing — 2026-07-05, Reporter drilldown popup polish)
+- [x] `6a48cf6c` reopened / #1338 — Reporter dashboard pie drilldown popup Taleplerim detay modalı
+  genişliğine alındı, grid text size küçültüldü ve Son Tarih öncesine terminal tarih kolonu eklendi:
+  tamamlananlarda `Tamamlanma Tarihi`, iptal/iade satırlarında `İptal Tarihi`.
+
+## STATUS: Round 190 complete — build/lint passed; card moved to Done.

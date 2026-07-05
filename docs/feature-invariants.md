@@ -419,10 +419,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Reporter grafik dilimleri detay popup'ı açar (card #1343/#1338):** Üst Düzey Yönetici panosunda
   Taleplerim HARİÇ 5 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
   `neighborhoodCompletedRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
-  (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate); popup geniş grid + ortak
-  `TablePagination` kullanır. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak
-  gider; sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Yönlendirme yapan
-  eski davranış yalnız Taleplerim grafiğinde kalır.
+  (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate); popup Taleplerim detay modalı
+  genişliğine yakın `max-w-[96rem]`, küçük grid text'i + ortak `TablePagination` kullanır. Son Tarih'ten
+  önce terminal tarih kolonu gelir: tamamlandı diliminde `Tamamlanma Tarihi`, iptal/iade diliminde
+  `İptal Tarihi`. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak gider;
+  sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Yönlendirme yapan eski
+  davranış yalnız Taleplerim grafiğinde kalır.
 - **Dashboard legend tıklanabilirliği:** rotası olmayan pie legend/dilimleri tıklanabilir görünmez;
   standart kullanıcı `Birimdeki Görevler` grafiğinde `Birimdeki Görevler` legend'i read-only kalır.
 - **Standart kullanıcı dashboard görev dilimi:** `Birimdeki Görevler` grafiği başlığı erişim yoksa

@@ -1670,6 +1670,14 @@
     border-spacing: 0;
   }
 
+  .dashboard-drilldown-table {
+    font-size: 0.78rem;
+  }
+
+  .dashboard-drilldown-table thead th {
+    font-size: 0.68rem;
+  }
+
   .data-table thead {
     position: sticky;
     top: 0;
@@ -1899,6 +1907,16 @@
     color: #0f172a;
     /* Kelimeleri ortadan kırma; yalnızca tek başına sığmayan uzun metinler kırılsın (card 534). */
     overflow-wrap: break-word;
+  }
+
+  .dashboard-drilldown-table tbody td {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  .dashboard-drilldown-table .status-pill,
+  .dashboard-drilldown-table .date-cell {
+    font-size: 0.74rem;
   }
 
   .data-table tbody tr:hover td {

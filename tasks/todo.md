@@ -1488,3 +1488,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4a1c8e` / #1370 — Talep Oluştur tür seçim kartlarındaki `Birim İçi`,
   `Birim Dışı`, `Vatandaş Talepleri` başlıkları `font-extrabold` yerine `font-bold` oldu;
   bannerların 2. satırındaki `.page-title` ağırlığı sticky header içinde `600` seviyesine indirildi.
+
+## STATUS: Round 205 complete — frontend build/lint passed; card moved to Done.

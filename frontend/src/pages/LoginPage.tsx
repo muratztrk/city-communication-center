@@ -331,10 +331,12 @@ export function LoginPage() {
         >
           <div className="w-full space-y-4">
             <div className="login-logo-panel-mobile flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-7 py-4 sm:px-9 lg:hidden">
+              {/* Beyaz alan yatayda geniş; logo object-contain ile yükseklik sınırlı kalır,
+                  boyutu değişmez ve kenarlarla arasında boşluk doğar (card #1398). */}
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-20 w-44 border-0 sm:h-24 sm:w-52"
+                className="h-20 w-56 border-0 sm:h-24 sm:w-64"
                 imageClassName="h-[92%] w-[92%]"
               />
               <div className="min-w-0 text-center">

@@ -93,7 +93,8 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
   return (
     <>
       {tone ? (
-        <span className={`${isUnread ? 'font-bold' : 'font-medium'} ${tone}`}>{mainText}</span>
+        // Renkli (onaylandı/tamamlandı/reddedildi) başlıklar okunmuş olsa da bold kalır (cards #1344/#1401).
+        <span className={`font-bold ${tone}`}>{mainText}</span>
       ) : (
         <NotificationTitleStatusText value={mainText} plainClassName={mainWeight} />
       )}
@@ -567,7 +568,9 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                     type="button"
                     onClick={markAllRead}
                     disabled={isMarkingAllRead || unreadCount === 0}
-                    className="notification-dropdown-mark-all flex min-h-7 items-center gap-1 rounded-md border border-[color:var(--color-primary)]/25 bg-white px-1.5 py-1 text-[0.64rem] font-extrabold leading-none text-[color:var(--color-primary)] shadow-sm transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
+                    /* font-extrabold (800) yüklü olmayan ağırlıktı, fallback fonta düşüyordu; modal
+                       butonuyla aynı aile/ağırlık + yeşil çerçeve (cards #1397/#1400). */
+                    className="notification-dropdown-mark-all flex min-h-7 items-center gap-1 rounded-md border border-emerald-500 bg-white px-1.5 py-1 text-[0.64rem] font-semibold leading-none text-[color:var(--color-primary)] shadow-sm transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label={t('notifications.markAllRead', 'Tümünü okundu yap')}
                   >
                     <CheckCheck className="size-3.5 shrink-0" />

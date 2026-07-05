@@ -669,7 +669,7 @@
     font-family: var(--font-sans);
     color: white;
     font-size: 0.82rem;
-    font-weight: 600;
+    font-weight: 500; /* Banner aramasına yazılan metin daha ince (card #1390). */
   }
 
   .notification-modal-search .scope-chip-search-input::placeholder {
@@ -2494,7 +2494,7 @@
     font-family: var(--font-sans);
     color: white;
     font-size: 0.82rem;
-    font-weight: 600;
+    font-weight: 500; /* Banner aramasına yazılan metin daha ince (card #1390). */
   }
 
   .sticky-page-header .scope-chip-search-input::placeholder {
@@ -3697,16 +3697,16 @@
     color: var(--color-text-muted, #475569);
   }
 
-  /* Bugün dolan son tarih: Ekrana Yansıt Son Tarih sütunundaki sarı çerçeve/yazı diliyle aynı (card #1387). */
+  /* Bugün dolan son tarih: açık sarı zeminde takvim ikonu turuncu, metin koyu turuncu (card #1387 reopen). */
   .due-date-pill.warning {
     background: rgba(251, 191, 36, 0.16);
     border: 1px solid #fbbf24;
-    color: #b45309;
+    color: #c2410c;
     font-weight: 700;
   }
 
   .due-date-pill.warning svg {
-    color: #fbbf24;
+    color: #f97316;
   }
 
   .due-date-pill.danger {
@@ -3948,6 +3948,14 @@
 
     .scope-chips-filters > .scope-chip-search-wrap {
       grid-column: 1 / -1;
+    }
+
+    /* Banner içindeki Ara + tarih aralığı bloğu telefonda sola dayalı tam satır olur;
+       ml-auto utility'si sağa itmesin (card #1358, !important: utilities katmanı kazanır). */
+    .sticky-page-header .page-header-row > .ml-auto {
+      margin-left: 0 !important;
+      margin-right: auto;
+      width: 100%;
     }
 
     .scope-chip-divider {

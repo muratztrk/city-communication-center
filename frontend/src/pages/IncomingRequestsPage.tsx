@@ -388,7 +388,8 @@ export function IncomingRequestsPage() {
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
     if (showTaskOwnerColumn) count += 1
-    if (currentStatusFilter !== 'cancelled') count += 1
+    // Son Tarih sütunu Tamamlanmış ve İptal görünümlerinde gizli (card #1384).
+    if (currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed') count += 1
     if (currentStatusFilter === 'approved') count += 1
     if (currentStatusFilter === 'completed') count += 1
     if (currentStatusFilter === 'cancelled') count += 1
@@ -828,7 +829,7 @@ export function IncomingRequestsPage() {
                 <col className="grid-col-location-creator" />
                 <col className="grid-col-title" />
                 {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
-                {currentStatusFilter !== 'cancelled' && <col className="grid-col-due" />}
+                {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <col className="grid-col-due" />}
                 {currentStatusFilter === 'approved' && <col className="grid-col-status-date" />}
                 {currentStatusFilter === 'completed' && <col className="grid-col-status-date" />}
                 {currentStatusFilter === 'cancelled' && <col className="grid-col-status-date" />}
@@ -843,7 +844,8 @@ export function IncomingRequestsPage() {
                   <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdBy" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}><span className="leading-tight">{t('incomingRequests.columns.requestLocation', 'Talep Yeri')}<br />{t('incomingRequests.columns.creator', 'Oluşturan')}</span></FilterableTh>
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
                   {showTaskOwnerColumn && <FilterableTh filterKey="taskOwnerDisplayName" filterValue={incomingFilters['taskOwnerDisplayName'] ?? ''} onFilter={setIncomingFilter} sortKey="taskOwnerDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>}
-                  {currentStatusFilter !== 'cancelled' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
+                  {/* Tamamlanmış görünümünde Son Tarih sütunu gösterilmez (card #1384). */}
+                  {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="updatedAtUtc" filterValue={incomingFilters['updatedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="updatedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
@@ -899,7 +901,7 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold"><span className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`}>{row.title}</span></td>
                     {showTaskOwnerColumn && <td>{row.taskOwnerDisplayName ?? '—'}</td>}
-                    {currentStatusFilter !== 'cancelled' && (
+                    {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && (
                       <td>
                         <DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} />
                         {!isTerminalRow && rowExtraTimeMarkers}

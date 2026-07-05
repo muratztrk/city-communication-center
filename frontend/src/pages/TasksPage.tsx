@@ -1820,9 +1820,9 @@ const pageKicker = isMyTasksView
                                       value: (
                                         <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
                                           <span>{formatDueDateTime(taskDetail.dueDateUtc, locale)}</span>
+                                          {/* Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386). */}
                                           <GridExtraTimeMarkers
                                             hasPending={taskDetail.hasPendingExtraTimeRequest}
-                                            lastDecision={taskDetail.lastExtraTimeRequestDecision}
                                             inline
                                           />
                                         </span>

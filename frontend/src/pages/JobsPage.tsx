@@ -779,7 +779,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     if (showTaskOwnerColumn) count += 1
     count += 1
     if (!(isMyRequestsView || isDepartmentOutgoingView)) count += 3
-    if (!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected')) count += 1
+    if (!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed'))) count += 1
     if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved') count += 1
     if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed') count += 1
     if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') count += 1
@@ -1130,6 +1130,51 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       citizenHandle: citizenSourceMessage?.citizenHandle ?? detail.citizenName ?? detail.citizenPhone ?? '',
       citizenPhone: detail.citizenPhone ?? citizenSourceMessage?.citizenPhone ?? null,
     })
+  }
+
+  // Yönetici, talep detayında görevin bekleyen ek süre isteğini görüp onaylar/reddeder (card #1395).
+  const [jobExtraTimeReview, setJobExtraTimeReview] = useState<{
+    jobId: string
+    taskId: string
+    proposedDueDateUtc: string | null
+    loading: boolean
+    saving: boolean
+  } | null>(null)
+
+  const openJobExtraTimeReview = async () => {
+    if (!detail) return
+    const pendingTask = detail.tasks.find(task => task.hasPendingExtraTimeRequest)
+    if (!pendingTask) return
+    setJobExtraTimeReview({ jobId: detail.jobId, taskId: pendingTask.taskId, proposedDueDateUtc: null, loading: true, saving: false })
+    try {
+      const pendingTaskDetail = await api.getTaskById(pendingTask.taskId)
+      const pendingApproval = pendingTaskDetail.approvals.find(approval => approval.subjectType === 'TaskRevision' && approval.decision === 'Pending')
+      // İstenen yeni tarih onay yorumundaki ISO damgasından okunur ("Ek süre iste: <tarih>").
+      const proposedDueDateUtc = pendingApproval?.comment?.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z/)?.[0] ?? null
+      setJobExtraTimeReview(current => (current && current.taskId === pendingTask.taskId
+        ? { ...current, proposedDueDateUtc, loading: false }
+        : current))
+    } catch (err) {
+      setJobExtraTimeReview(null)
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+
+  const handleJobExtraTimeDecision = async (decision: 'approve' | 'reject') => {
+    if (!jobExtraTimeReview) return
+    setJobExtraTimeReview(current => (current ? { ...current, saving: true } : current))
+    try {
+      if (decision === 'approve') {
+        await api.approveTaskRevision(jobExtraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'), jobExtraTimeReview.proposedDueDateUtc)
+      } else {
+        await api.rejectTaskRevision(jobExtraTimeReview.taskId, t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
+      }
+      setJobExtraTimeReview(null)
+      await refreshDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setJobExtraTimeReview(current => (current ? { ...current, saving: false } : current))
+    }
   }
 
   const openDetailDueDateEdit = () => {
@@ -1808,7 +1853,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <col className="grid-col-title" />
                   {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
                   <col className="grid-col-destination" />
-                  {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <col className="grid-col-due" />}
+                  {!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed')) && <col className="grid-col-due" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <col className="grid-col-status-date" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <col className="grid-col-status-date" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <col className="grid-col-status-date" />}
@@ -1831,7 +1876,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   {!(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
-                  {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <FilterableTh filterKey="dueDateUtc" filterValue={jobFilters['dueDateUtc'] ?? ''} onFilter={setJobFilter} sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</FilterableTh>}
+                  {!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed')) && <FilterableTh filterKey="dueDateUtc" filterValue={jobFilters['dueDateUtc'] ?? ''} onFilter={setJobFilter} sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <FilterableTh filterKey="ownerDecidedAtUtc" filterValue={jobFilters['ownerDecidedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="ownerDecidedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={jobFilters['completedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="completedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={jobFilters['updatedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="updatedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
@@ -1893,7 +1938,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <td><JobProjectValue job={job} t={t} /></td>
                     )}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
-                    {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && (
+                    {!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed')) && (
                       <td>
                         <DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} highlightReporter={isReporterJob} />
                         {!isTerminalJob && jobExtraTimeMarkers}
@@ -2343,6 +2388,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 {t('common.change', 'Değiştir')}
                               </button>
                             )}
+                            {/* Bekleyen ek süre isteği yönetici tarafından talep detayından da karara bağlanır (card #1395). */}
+                            {label === 'Son Tarih' && isManagerLike && detail.tasks.some(task => task.hasPendingExtraTimeRequest) && jobExtraTimeReview?.jobId !== detail.jobId && (
+                              <button
+                                type="button"
+                                className="font-bold text-amber-600 underline underline-offset-2 hover:text-amber-700"
+                                onClick={() => void openJobExtraTimeReview()}
+                              >
+                                {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
+                              </button>
+                            )}
                           </span>
                           {label === 'Son Tarih' && detailDueDateEdit?.jobId === detail.jobId ? (
                             // Takvim yukarı yönde açılır; tetikleyici alan gizli, "Ek Süre İste"deki seç akışıyla
@@ -2375,6 +2430,27 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          ) : label === 'Son Tarih' && jobExtraTimeReview?.jobId === detail.jobId ? (
+                            <div className="mt-1 flex max-w-[20rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+                              <span className="text-xs font-semibold text-slate-900">
+                                {jobExtraTimeReview.loading
+                                  ? t('common.loading')
+                                  : jobExtraTimeReview.proposedDueDateUtc
+                                    ? `${t('tasks.actions.extraTimeRequest', 'Ek süre iste')}: ${formatDateTime(jobExtraTimeReview.proposedDueDateUtc, locale)}`
+                                    : t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                              </span>
+                              <div className="inline-actions justify-start gap-1.5">
+                                <Button type="button" size="sm" variant="success" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => void handleJobExtraTimeDecision('approve')}>
+                                  {jobExtraTimeReview.saving ? t('common.loading') : t('common.approve', 'Onayla')}
+                                </Button>
+                                <Button type="button" size="sm" variant="destructive" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => void handleJobExtraTimeDecision('reject')}>
+                                  {t('common.reject', 'Reddet')}
+                                </Button>
+                                <Button type="button" size="sm" variant="secondary" disabled={jobExtraTimeReview.saving} onClick={() => setJobExtraTimeReview(null)}>
+                                  {t('common.cancel', 'Vazgeç')}
+                                </Button>
+                              </div>
                             </div>
                           ) : (
                             <span className="text-sm text-slate-900">{value}</span>
@@ -2854,9 +2930,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               value: (
                                 <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
                                   <span>{formatDateTime(task.dueDateUtc, locale)}</span>
+                                  {/* Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386). */}
                                   <GridExtraTimeMarkers
                                     hasPending={task.hasPendingExtraTimeRequest}
-                                    lastDecision={task.lastExtraTimeRequestDecision}
                                     inline
                                   />
                                 </span>

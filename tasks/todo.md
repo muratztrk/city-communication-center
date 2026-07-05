@@ -1468,3 +1468,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   satırlarda tarih basmıyor; Son Tarih boşsa `Belirsiz` yerine `Onay Bekleyen` gösteriliyor.
 
 ## STATUS: Round 202 complete — frontend build/lint passed; card moved to Done.
+
+## Round 203 (Doing — 2026-07-05, mobil banner filtreleri ve grid kompaktlığı)
+- [x] `6a49f603` reopened / #1358 — Mobilde banner filtre grubu içinde arama alanı tam satıra
+  yayıldı; başlangıç/bitiş tarihleri aramanın alt satırında iki kolon olarak duruyor. Telefon
+  breakpoint'inde tüm gridview tabloları daha düşük min-width, padding ve font ölçeğiyle kompaktlaştı.

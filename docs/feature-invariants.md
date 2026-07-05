@@ -35,8 +35,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
-  iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtreleri de aynı
-  mobil grid içinde taşmadan ölçeklenir. Detay modal formları tek kolon akar.
+  iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
+  tam satır kaplar, başlangıç/bitiş tarihleri aramanın alt satırına iner. Mobil gridview
+  tablo yazıları/padding'i desktop ölçeğinden daha kompakt kalır. Detay modal formları tek kolon akar.
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
   `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
   ağırlıklardaki metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür).

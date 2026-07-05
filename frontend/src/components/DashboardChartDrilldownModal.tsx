@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { X } from 'lucide-react'
+import { Info, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
@@ -33,14 +33,14 @@ function isCancelledLike(status: string): boolean {
   return status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested'
 }
 
-function resolveTerminalDateHeader(rows: DashboardChartDrilldownRow[], t: TFunction): string {
-  if (rows.length > 0 && rows.every(row => row.status === 'Completed')) {
+function resolveTerminalDateHeader(rows: DashboardChartDrilldownRow[], t: TFunction): string | null {
+  if (rows.some(row => row.status === 'Completed')) {
     return t('jobs.columns.completedAt', 'Tamamlanma Tarihi')
   }
-  if (rows.length > 0 && rows.every(row => isCancelledLike(row.status))) {
+  if (rows.some(row => isCancelledLike(row.status))) {
     return t('jobs.columns.cancelledAt', 'İptal Tarihi')
   }
-  return t('jobs.columns.terminalDate', 'Tamamlanma / İptal Tarihi')
+  return null
 }
 
 /**
@@ -54,7 +54,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const showTerminalDateColumn = Boolean(rows?.some(row => row.terminalDateUtc || row.status === 'Completed' || isCancelledLike(row.status)))
+  const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
+  const showTerminalDateColumn = Boolean(terminalDateHeader)
 
   // Modal her dilim seçiminde `key` ile yeniden mount edilir; state sıfırlama gerekmez.
   useEffect(() => {
@@ -78,9 +79,12 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
         onClick={event => event.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3.5">
-          <h2 className="min-w-0 text-sm font-bold text-slate-900">
-            {t(chartKey)}
-            <span className="ml-2 font-semibold text-slate-500">{resolveSliceLabel(sliceKey, t)}</span>
+          <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-emerald-700">
+            <Info className="size-4 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 truncate">
+              {t(chartKey)}
+              <span className="ml-2 font-semibold text-slate-500">{resolveSliceLabel(sliceKey, t)}</span>
+            </span>
           </h2>
           <button
             type="button"
@@ -108,7 +112,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                   <th>{t('jobs.columns.title', 'Başlık')}</th>
                   <th>{t('departments.name', 'Müdürlük')}</th>
                   <th>{t('jobs.columns.status', 'Durum')}</th>
-                  {showTerminalDateColumn ? <th>{resolveTerminalDateHeader(rows, t)}</th> : null}
+                  {showTerminalDateColumn ? <th>{terminalDateHeader}</th> : null}
                   <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
                 </tr>
               </thead>

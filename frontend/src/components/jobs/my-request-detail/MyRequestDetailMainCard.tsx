@@ -156,9 +156,9 @@ export function MyRequestDetailMainCard({
           <MyRequestSectionHeading icon={FileText}>
             <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
               <span className="min-w-0">{normalizeTitleCaseField(detail.title)}</span>
-              <span className="ml-auto inline-flex max-w-full flex-wrap items-center justify-end gap-2 text-right">
-                <span className="text-xs font-semibold text-slate-500">{requestNumberText}</span>
-                <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold text-orange-600">{requestTypeText}</span>
+              <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{requestNumberText}</span>
+                <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{requestTypeText}</span>
               </span>
             </span>
           </MyRequestSectionHeading>

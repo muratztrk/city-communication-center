@@ -177,8 +177,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
   yapışmaz. Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
-  Talep başlığı yanındaki talep no + birim içi/dışı meta bloğu aynı satırda en sağa yaslanır;
-  sığmazsa alt satıra düşse bile sağ hizasını korur.
+  Talep başlığı yanındaki meta bloğu en sağda iki satırdır: üstte talep no, altında
+  `Birim İçi/Birim Dışı` rozeti; ikisi de sağ hizasını korur.
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
   etiketi tek satır kalır ve atanmış kullanıcı yoksa değer kısmında `Birim / -` gösterir; `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak / Bulvar` ve `Açık Adres` üçlü yan yana durur; adres etiketleri
@@ -409,6 +409,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 ## 5. Dashboard / Wallboard
 
 - **Banner buton sayımları client-side hesaplanır; dashboard'da bu aggregation YOK.**
+- **Reporter dashboard pie drilldown popup:** başlık yeşil ve `Info` ikonludur; tablo başlıkları
+  kompakt kalır. Terminal tarih kolonu yalnız `Tamamlanma Tarihi` veya `İptal Tarihi` başlığı
+  kullanır; `Tamamlanma / İptal Tarihi` fallback ibaresi geri gelmez.
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan

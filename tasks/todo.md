@@ -1397,3 +1397,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   açılacak şekilde güncellendi.
 
 ## STATUS: Round 192 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 193 (Doing — 2026-07-05, reopen başlık hizası + reporter drilldown)
+- [x] `6a492c3d` reopened / #1356 — Taleplerim detay ana kartında talep no ve Birim İçi/Dışı
+  verisi sağ hizalı iki satırlı meta bloğa çevrildi; talep no üstte, rozet altında kalıyor.
+- [x] `6a48cf6c` reopened / #1338 — Reporter pie chart drilldown popup başlığı yeşil ve Info
+  ikonlu oldu; grid başlık fontu daha da küçültüldü, terminal tarih başlığındaki
+  `Tamamlanma / İptal Tarihi` fallback'i kaldırıldı.

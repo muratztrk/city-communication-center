@@ -2904,7 +2904,13 @@
   }
 
   .data-table.dashboard-drilldown-table thead th {
-    font-size: 0.8rem;
+    height: var(--table-chrome-row-min-height);
+    min-height: var(--table-chrome-row-min-height);
+    padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
   }
 
   /* ── Table Pagination ─────────────────────────────────────────── */

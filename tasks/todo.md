@@ -1669,3 +1669,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   halinde yan yana kaldı; tire/ayraç mobilde gizli.
 
 ## STATUS: Round 223 complete — frontend build/lint passed; card pending Done move.
+
+## Round 224 (Doing — 2026-07-05, dashboard drilldown grid başlık ölçüsü)
+- [x] `6a4a79b6` / #1396 — Üst Düzey Yönetici dashboard pie chart drilldown popup'ındaki
+  gridview başlıkları portal içinde de Taleplerim grid başlık font/ölçeğiyle hizalandı; başlık satırı
+  pagination bar yüksekliğiyle aynı chrome değişkenlerini kullanıyor.
+
+## STATUS: Round 224 complete — frontend build/lint passed; card pending Done move.

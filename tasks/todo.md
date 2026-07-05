@@ -1495,3 +1495,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4a18ec` reopened / #1368 — Üst düzey yönetici pie chart drilldown popup'ında
   Durum sütunu rozet/pill olmadan düz text kalıyor; `Tamamlandı` yeşil, iptal/iade kırmızı,
   `Yapılmakta Olan` turuncu renkte gösteriliyor.
+
+## STATUS: Round 206 complete — frontend build/lint passed; card moved to Done.

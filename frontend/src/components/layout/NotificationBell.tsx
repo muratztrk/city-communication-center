@@ -567,11 +567,11 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                     type="button"
                     onClick={markAllRead}
                     disabled={isMarkingAllRead || unreadCount === 0}
-                    className="notification-dropdown-mark-all flex min-h-7 items-center gap-1 rounded-md px-1.5 py-0.5 text-[0.64rem] font-extrabold leading-none text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="notification-dropdown-mark-all flex min-h-7 items-center gap-1 rounded-md border border-[color:var(--color-primary)]/25 bg-white px-1.5 py-1 text-[0.64rem] font-extrabold leading-none text-[color:var(--color-primary)] shadow-sm transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label={t('notifications.markAllRead', 'Tümünü okundu yap')}
                   >
                     <CheckCheck className="size-3.5 shrink-0" />
-                    <span className="flex flex-col items-start leading-[0.95]">
+                    <span className="flex flex-col items-start gap-0.5 leading-[1.05]">
                       <span>{t('notifications.markAllReadTop', 'Tümünü')}</span>
                       <span>{t('notifications.markAllReadBottom', 'Okundu yap')}</span>
                     </span>

@@ -666,6 +666,7 @@
   }
 
   .notification-modal-search .scope-chip-search-input {
+    font-family: var(--font-sans);
     color: white;
     font-size: 0.82rem;
     font-weight: 600;
@@ -2490,6 +2491,7 @@
   }
 
   .sticky-page-header .scope-chip-search-input {
+    font-family: var(--font-sans);
     color: white;
     font-size: 0.82rem;
     font-weight: 600;
@@ -2703,6 +2705,7 @@
   .scope-chip-search-input {
     border: 0;
     outline: none;
+    font-family: var(--font-sans);
     font-size: 0.82rem;
     font-weight: 600;
     color: #0f172a;

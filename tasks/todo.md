@@ -1701,3 +1701,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   hizalı kaldı.
 
 ## STATUS: Round 226 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 227 (Doing — 2026-07-05, bildirim butonu ve banner search font)
+- [x] `6a4a7e1d` / #1400 — Bildirim dropdown `Tümünü / Okundu yap` aksiyonu çerçeveli buton
+  görünümüne alındı; iki satır metin arasına küçük boşluk eklendi.
+- [x] `6a4a628d` / #1390 reopen — Banner/search textbox input font family explicit `var(--font-sans)`
+  yapıldı; gridview `Başlık` sütunu metniyle aynı ailede kalıyor.
+
+## STATUS: Round 227 complete — frontend build/lint passed; cards pending Done move.

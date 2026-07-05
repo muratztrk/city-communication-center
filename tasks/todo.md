@@ -1481,3 +1481,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   bitişine yapışık görünmesin diye genişliği `70.9vw / 85.1rem` oranına çekildi; yükseklik korundu.
 - [x] `6a4a1b11` / #1369 — Taleplerim detay düzenleme modunda `Talep No` / `Vatandaş Talep No`,
   `Talep Bilgileri` altında ayrı satır olarak görünmüyor; numara yalnız başlık yanındaki meta alanda kalıyor.
+
+## STATUS: Round 204 complete — frontend build/lint passed; cards moved to Done.

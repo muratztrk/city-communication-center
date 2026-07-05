@@ -39,13 +39,13 @@ export function MyRequestDetailHeader({
   const { t } = useTranslation()
 
   return (
-    <div className="my-request-detail-header flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-6 pb-3 pt-6">
-      <div className="min-w-0">
+    <div className="my-request-detail-header detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-6 pb-3 pt-6">
+      <div className="detail-modal-header-title min-w-0">
         <div className="my-request-detail-header__title uppercase">
           {title}
         </div>
       </div>
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+      <div className="detail-modal-header-actions flex shrink-0 flex-wrap items-center justify-end gap-2">
         {onGoToConversation && (
           <Button
             type="button"
@@ -123,7 +123,7 @@ export function MyRequestDetailHeader({
         <button
           type="button"
           onClick={onClose}
-          className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+          className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
           aria-label={t('common.close', 'Kapat')}
         >
           <XIcon className="size-4" strokeWidth={1.75} />

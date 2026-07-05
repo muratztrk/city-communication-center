@@ -1578,3 +1578,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   avatar/metni kaldırıldı; görev sahibi bilgisi yalnız detay header'ındaki taşınmış alanda kalıyor.
 
 ## STATUS: Round 214 complete — frontend build/lint passed; card pending Done move.
+
+## Round 215 (Doing — 2026-07-05, mobil popup genişlik ve başlık aksiyonları)
+- [x] `6a4a384e` / #1382 — Mobil üst düzey yönetici dashboard pie chart drilldown popup'ında
+  paging bar gridview ile aynı yatay scroll genişliğine bağlandı.
+- [x] `6a4a38ec` / #1383 — Mobil talep/görev detay popup header'ında başlık ve sağ üst aksiyon
+  butonları çakışmayacak şekilde kompakt/wrap edebilir hale getirildi.
+
+## STATUS: Round 215 complete — frontend build/lint passed; cards pending Done move.

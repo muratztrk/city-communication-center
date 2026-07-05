@@ -1598,13 +1598,13 @@ const pageKicker = isMyTasksView
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2">
-              <div className="min-w-0">
+            <div className="detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2">
+              <div className="detail-modal-header-title min-w-0">
                 <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600 leading-tight">
                   {detailScopeLabel}
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="detail-modal-header-actions flex shrink-0 items-center gap-2">
                 {parentJobDetail
                   && isCitizenRequestJob(parentJobDetail)
                   && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage) && (
@@ -1688,7 +1688,7 @@ const pageKicker = isMyTasksView
                 <button
                   type="button"
                   onClick={closeTaskDetail}
-                  className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
                   aria-label={t('common.close', 'Kapat')}
                 >
                   <X className="size-4" />

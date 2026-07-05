@@ -252,14 +252,16 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
   return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
       <section className="detail-modal-shell flex max-h-[min(85dvh,42rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={event => event.stopPropagation()}>
-        <header className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
-          <div>
+        <header className="detail-modal-header-mobile flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
+          <div className="detail-modal-header-title min-w-0">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{t('notifications.bell', 'Bildirimler')}</p>
             <h2 className="text-base font-extrabold text-slate-900">{isTask ? t('tasks.detail.title', 'Görev Detayları') : t('jobs.detail.title', 'Talep Detayları')}</h2>
           </div>
-          <button type="button" disabled={loading} onClick={onClose} className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 disabled:opacity-50" aria-label={t('common.close', 'Kapat')}>
-            <X className="size-4" />
-          </button>
+          <div className="detail-modal-header-actions flex shrink-0 items-center gap-2">
+            <button type="button" disabled={loading} onClick={onClose} className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 disabled:opacity-50" aria-label={t('common.close', 'Kapat')}>
+              <X className="size-4" />
+            </button>
+          </div>
         </header>
         <div className="flex-1 overflow-y-auto p-5">
           {loading && <p className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</p>}

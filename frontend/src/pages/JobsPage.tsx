@@ -2041,13 +2041,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             onClick={e => e.stopPropagation()}
           >
             {/* Fixed header */}
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2">
-              <div className="min-w-0">
+            <div className="detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2">
+              <div className="detail-modal-header-title min-w-0">
                 <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
                   {detailHeaderTitle}
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="detail-modal-header-actions flex shrink-0 items-center gap-2">
                 {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) && (
                   <Button
                     type="button"
@@ -2130,7 +2130,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 <button
                   type="button"
                   onClick={closeDetail}
-                  className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
                   aria-label={t('common.close', 'Kapat')}
                 >
                   <XIcon className="size-4" />

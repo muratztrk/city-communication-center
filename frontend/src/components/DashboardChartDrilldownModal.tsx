@@ -108,70 +108,70 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
           ) : rows === null ? (
             <div className="loading">{t('common.loading')}</div>
           ) : (
-            <>
-            <table className="data-table data-table--zebra dashboard-drilldown-table">
-              <thead>
-                <tr>
-                  <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                  <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
-                  <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
-                  <th>{t('jobs.columns.title', 'Başlık')}</th>
-                  <th>{t('departments.name', 'Müdürlük')}</th>
-                  <th>{t('jobs.columns.status', 'Durum')}</th>
-                  {showTerminalDateColumn ? <th>{terminalDateHeader}</th> : null}
-                  <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.length === 0 ? (
+            <div className="dashboard-drilldown-grid-shell">
+              <table className="data-table data-table--zebra dashboard-drilldown-table">
+                <thead>
                   <tr>
-                    <td colSpan={showTerminalDateColumn ? 8 : 7} className="py-6 text-center text-sm text-slate-500">
-                      {t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
-                    </td>
+                    <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
+                    <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
+                    <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
+                    <th>{t('jobs.columns.title', 'Başlık')}</th>
+                    <th>{t('departments.name', 'Müdürlük')}</th>
+                    <th>{t('jobs.columns.status', 'Durum')}</th>
+                    {showTerminalDateColumn ? <th>{terminalDateHeader}</th> : null}
+                    <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
                   </tr>
-                ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => (
-                  <tr key={row.jobId}>
-                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
-                    <td className="table-number-cell font-mono text-xs text-slate-600">{formatDrilldownNumber(row)}</td>
-                    <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
-                    <td className="font-semibold">{row.title}</td>
-                    <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
-                    <td>
-                      <span className={getStatusTextClass(row.status)}>{getAuditStatusLabel(t, row.status)}</span>
-                    </td>
-                    {showTerminalDateColumn ? (
-                      <td>
-                        {row.status === 'Completed' || isCancelledLike(row.status) ? (
-                          <DateCell
-                            value={row.terminalDateUtc}
-                            locale={locale}
-                            tone={row.status === 'Completed' ? 'success' : 'danger'}
-                          />
-                        ) : '—'}
+                </thead>
+                <tbody>
+                  {rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={showTerminalDateColumn ? 8 : 7} className="py-6 text-center text-sm text-slate-500">
+                        {t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
                       </td>
-                    ) : null}
-                    <td>
-                      <DateCell
-                        value={row.dueDateUtc}
-                        locale={locale}
-                        emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <TablePagination
-              totalCount={rows.length}
-              pageSize={pageSize}
-              currentPage={page}
-              onPageSizeChange={size => {
-                setPageSize(size)
-                setPage(1)
-              }}
-              onPageChange={setPage}
-            />
-            </>
+                    </tr>
+                  ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => (
+                    <tr key={row.jobId}>
+                      <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
+                      <td className="table-number-cell font-mono text-xs text-slate-600">{formatDrilldownNumber(row)}</td>
+                      <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
+                      <td className="font-semibold">{row.title}</td>
+                      <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
+                      <td>
+                        <span className={getStatusTextClass(row.status)}>{getAuditStatusLabel(t, row.status)}</span>
+                      </td>
+                      {showTerminalDateColumn ? (
+                        <td>
+                          {row.status === 'Completed' || isCancelledLike(row.status) ? (
+                            <DateCell
+                              value={row.terminalDateUtc}
+                              locale={locale}
+                              tone={row.status === 'Completed' ? 'success' : 'danger'}
+                            />
+                          ) : '—'}
+                        </td>
+                      ) : null}
+                      <td>
+                        <DateCell
+                          value={row.dueDateUtc}
+                          locale={locale}
+                          emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <TablePagination
+                totalCount={rows.length}
+                pageSize={pageSize}
+                currentPage={page}
+                onPageSizeChange={size => {
+                  setPageSize(size)
+                  setPage(1)
+                }}
+                onPageChange={setPage}
+              />
+            </div>
           )}
         </div>
       </div>

@@ -42,6 +42,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kutusu dar ilk kolon olarak kalır, başlangıç/bitiş tarihleri yanında aynı satırda durur ve
   aralarında tire/çizgi gösterilmez. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
   daha kompakt kalır. Detay modal formları tek kolon akar.
+- **Mobil detay popup başlıkları aksiyonlarla çakışmaz:** talep/görev detay header'ında başlık alanı
+  esnek kalır; sağ üst aksiyonlar küçük, wrap edebilir butonlar olarak durur. Dashboard pie chart
+  drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
   `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
   ağırlıklardaki metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür).

@@ -3832,6 +3832,46 @@
       padding: 1rem;
     }
 
+    .detail-modal-header-mobile {
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.75rem !important;
+    }
+
+    .detail-modal-header-title {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .detail-modal-header-title > * {
+      overflow-wrap: anywhere;
+    }
+
+    .detail-modal-header-actions {
+      flex: 0 1 auto;
+      max-width: 52%;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.35rem !important;
+    }
+
+    .detail-modal-header-actions button,
+    .detail-modal-header-actions a {
+      min-height: 1.75rem !important;
+      height: auto !important;
+      padding: 0.32rem 0.48rem !important;
+      border-radius: 0.5rem !important;
+      font-size: 0.68rem !important;
+      line-height: 1.05 !important;
+    }
+
+    .detail-modal-header-actions .detail-modal-header-close {
+      width: 1.75rem !important;
+      height: 1.75rem !important;
+      padding: 0 !important;
+      border-radius: 999px !important;
+    }
+
     .detail-modal-shell--my-request .my-request-detail-main__grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -3924,6 +3964,16 @@
     .data-table {
       min-width: 30rem;
       font-size: 0.72rem;
+    }
+
+    .dashboard-drilldown-grid-shell {
+      width: 100%;
+      min-width: 30rem;
+    }
+
+    .dashboard-drilldown-grid-shell .dashboard-drilldown-table {
+      width: 100%;
+      min-width: 0;
     }
 
     .table-container thead th,

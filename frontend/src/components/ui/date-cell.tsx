@@ -1,10 +1,10 @@
 import { CalendarClock } from 'lucide-react'
 import { cn } from '../../lib/cn'
 
-function formatDate(value: string | null | undefined, locale: string): string {
-  if (!value) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
+function formatDate(value: string | null | undefined, locale: string, emptyLabel?: string): string {
+  if (!value) return emptyLabel ?? (locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified')
   const time = new Date(value)
-  if (Number.isNaN(time.getTime())) return locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified'
+  if (Number.isNaN(time.getTime())) return emptyLabel ?? (locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified')
   return time.toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',
@@ -19,10 +19,11 @@ type DateCellProps = {
   locale: string
   highlight?: boolean
   tone?: 'default' | 'success' | 'danger'
+  emptyLabel?: string
 }
 
 // Tüm gridview'larda tarih bilgisinin önünde takvim ikonu göstermek için ortak hücre.
-export function DateCell({ value, locale, highlight = false, tone = 'default' }: DateCellProps) {
+export function DateCell({ value, locale, highlight = false, tone = 'default', emptyLabel }: DateCellProps) {
   const toneClass = tone === 'success'
     ? 'font-semibold text-emerald-600'
     : tone === 'danger'
@@ -41,7 +42,7 @@ export function DateCell({ value, locale, highlight = false, tone = 'default' }:
   return (
     <span className={cn('date-cell', toneClass)}>
       <CalendarClock className={cn('size-3.5 shrink-0', iconClass)} />
-      {formatDate(value, locale)}
+      {formatDate(value, locale, emptyLabel)}
     </span>
   )
 }

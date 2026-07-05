@@ -1461,3 +1461,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Birim Adı`, placeholder da `Birim adı girin` oldu; İngilizce karşılık `Unit Name` olarak güncellendi.
 
 ## STATUS: Round 201 complete — frontend build/lint passed; card moved to Done.
+
+## Round 202 (Doing — 2026-07-05, reporter pie drilldown tablo değerleri)
+- [x] `6a4a18ec` / #1368 — Üst düzey yönetici dashboard pie chart drilldown popup'ında
+  Durum sütunu rozet/pill yerine düz metin oldu; terminal tarih kolonu terminal olmayan
+  satırlarda tarih basmıyor; Son Tarih boşsa `Belirsiz` yerine `Onay Bekleyen` gösteriliyor.

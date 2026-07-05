@@ -439,7 +439,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate); popup Taleplerim detay modalı
   genişliğine yakın `max-w-[96rem]`, küçük grid text'i + ortak `TablePagination` kullanır. Son Tarih'ten
   önce terminal tarih kolonu gelir: tamamlandı diliminde `Tamamlanma Tarihi`, iptal/iade diliminde
-  `İptal Tarihi`. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak gider;
+  `İptal Tarihi`; terminal olmayan satırlara terminal tarih değeri basılmaz. Son Tarih boşsa bu popup'ta
+  `Belirsiz` değil `Onay Bekleyen` yazılır; Durum sütunu rozet/pill değil düz metindir. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak gider;
   sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Yönlendirme yapan eski
   davranış yalnız Taleplerim grafiğinde kalır.
 - **Dashboard legend tıklanabilirliği:** rotası olmayan pie legend/dilimleri tıklanabilir görünmez;

@@ -5,11 +5,10 @@ import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
 import type { DashboardChartDrilldownRow } from '../types/platform'
-import { StatusPill } from './ui/status-pill'
 import { DateCell } from './ui/date-cell'
 import { TablePagination } from './ui/table-pagination'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
-import { getAuditStatusLabel, getJobStatusTone, getLocale, getStatusPillClass } from '../utils/localization'
+import { getAuditStatusLabel, getLocale } from '../utils/localization'
 
 interface DashboardChartDrilldownModalProps {
   chartKey: string
@@ -130,21 +129,25 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                     <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td className="font-semibold">{row.title}</td>
                     <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
-                    <td>
-                      <StatusPill className={getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))}>
-                        {getAuditStatusLabel(t, row.status)}
-                      </StatusPill>
-                    </td>
+                    <td>{getAuditStatusLabel(t, row.status)}</td>
                     {showTerminalDateColumn ? (
                       <td>
-                        <DateCell
-                          value={row.terminalDateUtc}
-                          locale={locale}
-                          tone={row.status === 'Completed' ? 'success' : isCancelledLike(row.status) ? 'danger' : 'default'}
-                        />
+                        {row.status === 'Completed' || isCancelledLike(row.status) ? (
+                          <DateCell
+                            value={row.terminalDateUtc}
+                            locale={locale}
+                            tone={row.status === 'Completed' ? 'success' : 'danger'}
+                          />
+                        ) : '—'}
                       </td>
                     ) : null}
-                    <td><DateCell value={row.dueDateUtc} locale={locale} /></td>
+                    <td>
+                      <DateCell
+                        value={row.dueDateUtc}
+                        locale={locale}
+                        emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

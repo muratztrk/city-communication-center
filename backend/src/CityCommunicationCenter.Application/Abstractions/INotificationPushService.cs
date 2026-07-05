@@ -19,4 +19,7 @@ public sealed record WhatsAppMessagePayload(
     string? CitizenName,
     string? MessagePreview,
     int UnreadCount,
-    DateTimeOffset LastMessageAt);
+    DateTimeOffset LastMessageAt,
+    // Birim içi (Kurum İçi İlet) mesaj bildirimi; istemci aktif konuşmada otomatik
+    // okundu-işaretlemeyi atlar (card #1295).
+    bool IsInternal = false);

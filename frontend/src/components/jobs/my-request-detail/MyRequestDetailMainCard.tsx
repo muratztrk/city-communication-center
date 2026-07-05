@@ -155,7 +155,7 @@ export function MyRequestDetailMainCard({
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
           <MyRequestSectionHeading icon={FileText}>
             <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
-              <span>{titleLabel}</span>
+              <span className="min-w-0">{normalizeTitleCaseField(detail.title)}</span>
               <span className="text-xs font-semibold text-slate-500">{requestNumberText}</span>
               <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold text-orange-600">{requestTypeText}</span>
             </span>
@@ -167,14 +167,11 @@ export function MyRequestDetailMainCard({
               minHeight="min-h-40"
             />
           ) : (
-            <>
-              <strong className="block min-w-0 text-sm font-bold leading-snug text-slate-950">{normalizeTitleCaseField(detail.title)}</strong>
-              <RichTextContent
-                value={detail.description}
-                emptyText={t('common.none')}
-                className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
-              />
-            </>
+            <RichTextContent
+              value={detail.description}
+              emptyText={t('common.none')}
+              className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+            />
           )}
         </div>
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">

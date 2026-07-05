@@ -73,16 +73,16 @@ function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDe
   }
 
   let foundCurrent = false
-  const managerInternalActive = detail.requestType === 'InternalUnit'
-    && detail.createdByRoleCode === 'Manager'
-    && detail.status === 'Active'
+  const ownerDecided = detail.departments.find(d => d.role === 'Owner')?.decidedAtUtc
+  const targetDecided = detail.departments.find(d => d.role === 'Target')?.decidedAtUtc
   return steps.map(step => {
+    // Hedef onay adımı, turuncu Durum adımından sonra da gelse onaylandıysa yeşil kalır (card #1345).
+    if (step.id === 'targetApproval' && targetDecided) {
+      return { ...step, state: 'completed' as const }
+    }
     if (foundCurrent) {
       return { ...step, state: 'upcoming' as const }
     }
-
-    const ownerDecided = detail.departments.find(d => d.role === 'Owner')?.decidedAtUtc
-    const targetDecided = detail.departments.find(d => d.role === 'Target')?.decidedAtUtc
 
     if (step.id === 'requestDate') {
       return { ...step, state: 'completed' as const }
@@ -96,18 +96,14 @@ function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDe
       return { ...step, state: 'completed' as const }
     }
     if (step.id === 'targetApproval') {
-      if (targetDecided) return { ...step, state: 'completed' as const }
       if (detail.status === 'PendingExternalApproval') {
         foundCurrent = true
         return { ...step, state: 'current' as const }
       }
-      if (!targetDecided && managerInternalActive) {
-        return { ...step, state: 'upcoming' as const }
-      }
       if (!ownerDecided && detail.status === 'PendingOwnerApproval') {
         return { ...step, state: 'upcoming' as const }
       }
-      if (!targetDecided && shouldShowCitizenTargetApprovalDate(detail)) {
+      if (shouldShowCitizenTargetApprovalDate(detail)) {
         foundCurrent = true
         return { ...step, state: 'current' as const }
       }
@@ -142,6 +138,23 @@ export function buildJobProcessSteps(
       dateTimeUtc: detail.createdAtUtc,
     },
   ]
+
+  // Birim yöneticisinin oluşturduğu birim içi/birim dışı aktif taleplerde turuncu "Durum / Yapılmakta"
+  // adımı Talep Tarihi'nin hemen arkasına gelir; birim dışında gri hedef onay adımı bunu izler
+  // (cards #1275/#1345/#1357). İptalden geri alınan talepte İptal Tarihi adımı Durum'dan önce
+  // kalmalı, o yüzden erken eklenmez.
+  const managerCreatedActive = detail.createdByRoleCode === 'Manager'
+    && !isCitizenRequestJob(detail)
+    && (detail.requestType === 'InternalUnit' || detail.requestType === 'ExternalUnit')
+  const statusStepEarly = managerCreatedActive && !wasRecoveredFromCancellation(detail)
+  if (statusStepEarly && !isTerminalStatus(detail.status)) {
+    steps.push({
+      id: 'status',
+      label: t('jobs.columns.status', 'Durum'),
+      displayValue: t('jobs.statusLabel.inProgress', 'Yapılmakta'),
+      dateTimeUtc: null,
+    })
+  }
 
   if (!isCitizenRequestJob(detail) && !options?.hideOwnerApproval) {
     const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
@@ -195,13 +208,13 @@ export function buildJobProcessSteps(
     })
   }
 
-  // Birim yöneticisinin oluşturduğu birim içi aktif talep (card #1275/#1345) VE standart kullanıcının
-  // onaylanmış (Active) talebi (card #1334) turuncu "Durum / Yapılmakta" step'i gösterir.
-  const managerInternalActive = detail.requestType === 'InternalUnit' && detail.createdByRoleCode === 'Manager'
+  // Standart kullanıcının onaylanmış (Active) talebi turuncu "Durum / Yapılmakta" step'i
+  // onay adımlarından sonra gösterir (card #1334); iptalden geri alınan yönetici talebi de
+  // Durum adımını İptal Tarihi'nden sonra alır.
   const standardApprovedActive = !options?.hideOwnerApproval
     && detail.status === 'Active'
     && !isCitizenRequestJob(detail)
-  if (!isTerminalStatus(detail.status) && (managerInternalActive || standardApprovedActive)) {
+  if (!isTerminalStatus(detail.status) && !statusStepEarly && (managerCreatedActive || standardApprovedActive)) {
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),

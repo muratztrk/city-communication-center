@@ -11,15 +11,15 @@ export function ConversationSenderHeader({
   variant = 'pill',
   tone = 'outbound',
 }: ConversationSenderHeaderProps) {
-  // "Kurum İçi Mesaj · Birim · Kullanıcı" etiketi iki satır olur: ilk satır kırmızı başlık,
-  // ikinci satır birim + kullanıcı bilgisi (card #1347).
+  // "Kurum İçi Mesaj · Birim · Kullanıcı" etiketi iki satır olur: ilk satır standart turuncu
+  // başlık (card #1341), ikinci satır birim + kullanıcı bilgisi (card #1347).
   const internalMatch = label.match(/^Kurum İçi Mesaj\s*·\s*(.+)$/)
 
   if (variant === 'inline') {
     if (internalMatch) {
       return (
         <div className="mb-1.5 leading-snug">
-          <p className="text-[13px] font-bold text-red-700">Kurum İçi Mesaj</p>
+          <p className="text-[13px] font-bold text-orange-400">Kurum İçi Mesaj</p>
           <p className={`mt-1 text-[13px] font-bold ${tone === 'inbound' ? 'text-slate-700' : 'text-white'}`}>
             {internalMatch[1]}
           </p>

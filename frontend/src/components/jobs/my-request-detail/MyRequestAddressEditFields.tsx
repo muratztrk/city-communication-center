@@ -10,6 +10,11 @@ interface MyRequestAddressEditFieldsProps {
   onChange: (patch: Partial<MyRequestEditDraft>) => void
 }
 
+// Değer kutu genişliğini aşınca alt satıra taşacak kadar satır aç (cards #1359/#1360).
+function autoGrowRows(value: string): number {
+  return Math.min(4, Math.max(1, Math.ceil((value.length || 1) / 24)))
+}
+
 export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddressEditFieldsProps) {
   const { t } = useTranslation()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
@@ -35,10 +40,11 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
         </label>
         <label className="grid gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
-          <input
-            className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+          <textarea
+            className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
             placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
             value={draft.street}
+            rows={autoGrowRows(draft.street)}
             onChange={e => onChange({ street: e.target.value })}
             disabled={!hasNeighborhood}
           />
@@ -49,6 +55,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
             placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
             value={draft.openAddress}
+            rows={autoGrowRows(draft.openAddress)}
             onChange={e => onChange({ openAddress: e.target.value })}
             disabled={!hasNeighborhood}
           />

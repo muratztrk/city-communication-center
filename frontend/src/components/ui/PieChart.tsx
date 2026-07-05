@@ -47,6 +47,8 @@ interface PieChartProps {
   showZeroSlices?: boolean
   /** Sağlanırsa lejant metinleri tıklanabilir olur; tıklanan dilim ile çağrılır (card 759). */
   onSelect?: (slice: DashboardChartSlice) => void
+  /** Dilim bazında tıklanabilirlik; false dönen dilim/lejant düz metin kalır (card #1337). */
+  isSliceSelectable?: (slice: DashboardChartSlice) => boolean
 }
 
 function useResolvedLabel(rawLabel: string): string {
@@ -83,7 +85,7 @@ function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?
   )
 }
 
-export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false, onSelect }: PieChartProps) {
+export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false, onSelect, isSliceSelectable }: PieChartProps) {
   const { t } = useTranslation()
   const nonZero = slices.filter(s => s.value > 0)
   const shouldShowZeroChart = showZeroSlices && slices.length > 0
@@ -146,7 +148,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
       {/* SVG boş alanı komşu kartların lejantına binmesin diye pointer-events kapalı; yalnızca dilimler tıklanır. */}
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="pointer-events-none shrink-0">
         {segments.map((seg, i) => {
-          const canSelectSegment = Boolean(onSelect && seg.slice.value > 0)
+          const canSelectSegment = Boolean(onSelect && seg.slice.value > 0 && (isSliceSelectable?.(seg.slice) ?? true))
           return (
           <path
             key={i}
@@ -178,7 +180,11 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
 
       <ul className="relative z-10 flex min-w-0 w-full flex-col gap-2">
         {(showZeroSlices ? slices : nonZero).map(slice => (
-          <LegendItem key={slice.label} slice={slice} onSelect={onSelect} />
+          <LegendItem
+            key={slice.label}
+            slice={slice}
+            onSelect={(isSliceSelectable?.(slice) ?? true) ? onSelect : undefined}
+          />
         ))}
       </ul>
     </div>

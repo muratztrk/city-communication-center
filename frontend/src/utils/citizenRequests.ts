@@ -75,13 +75,17 @@ export function shouldShowCitizenTargetApprovalDate(job: {
   departments?: { role: string; approvalStatus?: string | null; decidedAtUtc?: string | null }[]
 }): boolean {
   // "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" vatandaş ve birim dışı taleplerde
-  // gerçek hedef onayından sonra görünür. Yönetici tarafından oluşturulan birim içi aktif taleplerde
-  // bekleyen gri adım olarak da gösterilir (card #1345).
-  if (job.requestType === 'InternalUnit' && job.createdByRoleCode === 'Manager') {
-    return true
+  // görünür; birim içi taleplerde hiç gösterilmez (card #1357).
+  if (job.requestType === 'InternalUnit') {
+    return false
   }
   if (!isCitizenRequestJob(job) && job.requestType !== 'ExternalUnit') {
     return false
+  }
+  // Yönetici tarafından oluşturulan birim dışı taleplerde adım onay öncesinde de gri
+  // "Onay Bekleyen" olarak durur; hedef yönetici onaylayınca yeşile döner (card #1345).
+  if (!isCitizenRequestJob(job) && job.createdByRoleCode === 'Manager') {
+    return true
   }
   const target = job.departments?.find(department => department.role === 'Target')
   if (target?.approvalStatus !== 'Approved' || !target.decidedAtUtc) {

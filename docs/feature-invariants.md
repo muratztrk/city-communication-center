@@ -376,12 +376,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıklama metni); kolon2 = `Talep Bilgileri` (Info ikonlu) alan satırları — satırlar gridview zebra
   desenlidir ve `Öncelik / Proje Niteliğinde mi?` değeri `Normal · Hayır` biçimindedir ("Proje
   niteliğinde mi?:" öneki yazılmaz); kolon3 = `Süreç` timeline. Ayrı `Açıklama` paneli YOKTUR.
-- **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337/#1345):** hem
-  vatandaş hem birim dışı taleplerde yalnız hedef birim GERÇEKTEN onaylandığında (Approved + gerçek
-  decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF birim yöneticisinin adını gösterir.
-  İstisna: yönetici tarafından oluşturulan birim içi aktif taleplerde aynı adım gri `Onay Bekleyen`
-  olarak görünür; ardından turuncu `Durum / Yapılmakta` step'i güncel kalır. `CreateJobCommand`
-  otomatik hedef onayında ApprovedBy/DecidedAt YAZMAZ; gerçek damga
+- **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337/#1345/#1357):**
+  birim içi taleplerde hiç görünmez. Vatandaş ve birim dışı taleplerde hedef birim GERÇEKTEN
+  onaylandığında (Approved + gerçek decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF
+  birim yöneticisinin adını gösterir. Yönetici tarafından oluşturulan birim dışı aktif taleplerde
+  hedef onay öncesinde gri `Onay Bekleyen` adımı durur; hedef yönetici onaylayınca yeşile döner.
+  `CreateJobCommand` otomatik hedef onayında ApprovedBy/DecidedAt YAZMAZ; gerçek damga
   `CitizenJobTargetApproval.TryRecordTargetApprovalAsync` ile ilk personel atamasında vurulur
   (eski yaratıcı-damgalı satırları da düzeltir).
 - **Timeline `Durum / Yapılmakta` step'i:** yönetici-birim-içi istisnasına ek olarak standart
@@ -410,12 +410,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
-- **Reporter grafik dilimleri detay popup'ı açar (card #1343):** Üst Düzey Yönetici panosunda
+- **Reporter grafik dilimleri detay popup'ı açar (card #1343/#1338):** Üst Düzey Yönetici panosunda
   Taleplerim HARİÇ 5 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
   `neighborhoodCompletedRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
-  (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate). Dilim anahtarı backend'e
-  HAM label (GUID|isim veya i18n key) olarak gider; sınıflandırma `BuildCitizenRequestsChart` ile
-  birebir aynı tutulmalıdır. Yönlendirme yapan eski davranış yalnız Taleplerim grafiğinde kalır.
+  (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate); popup geniş grid + ortak
+  `TablePagination` kullanır. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak
+  gider; sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Yönlendirme yapan
+  eski davranış yalnız Taleplerim grafiğinde kalır.
+- **Dashboard legend tıklanabilirliği:** rotası olmayan pie legend/dilimleri tıklanabilir görünmez;
+  standart kullanıcı `Birimdeki Görevler` grafiğinde `Birimdeki Görevler` legend'i read-only kalır.
 - **Standart kullanıcı dashboard görev dilimi:** `Birimdeki Görevler` grafiği başlığı erişim yoksa
   tıklanmaz kalabilir ama `Benim Görevlerim` dilimi yine `/my-tasks?view=all` rotasına gitmelidir.
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats

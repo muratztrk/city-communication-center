@@ -1347,9 +1347,13 @@ export function WhatsAppConversationsPage() {
         || (selectedConv?.citizenPhone && matchesPhone(payload.citizenPhone, selectedConv.citizenPhone))
 
       if (matchesSelected) {
-        void api.markConversationRead(selectedId)
-          .then(() => handleReadMarked())
-          .catch(() => {})
+        // Birim içi ileti bildirimi diğer ilgili kullanıcıların rozetini sıfırlamasın
+        // diye açık konuşmada otomatik markRead atlanır (card #1295).
+        if (!payload.isInternal) {
+          void api.markConversationRead(selectedId)
+            .then(() => handleReadMarked())
+            .catch(() => {})
+        }
         setDetailRefreshKey(key => key + 1)
         return
       }

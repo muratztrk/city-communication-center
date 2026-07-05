@@ -11,13 +11,16 @@ public sealed class AddInternalConversationMessageCommandHandler
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INotificationPushService _notificationPushService;
 
     public AddInternalConversationMessageCommandHandler(
         IApplicationDbContext dbContext,
-        ITenantContextAccessor tenantContextAccessor)
+        ITenantContextAccessor tenantContextAccessor,
+        INotificationPushService notificationPushService)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _notificationPushService = notificationPushService;
     }
 
     public async ValueTask<bool> Handle(AddInternalConversationMessageCommand request, CancellationToken cancellationToken)
@@ -58,17 +61,38 @@ public sealed class AddInternalConversationMessageCommandHandler
             DeliveryStatusUpdatedAtUtc = null,
         });
 
+        WhatsAppMessagePayload? pendingPush = null;
         if (message.CitizenConversationId is Guid conversationId)
         {
             var conversation = await _dbContext.CitizenConversations
                 .FirstOrDefaultAsync(c => c.CitizenConversationId == conversationId && c.TenantId == tenantId, cancellationToken);
-            if (conversation is not null && utcNow > conversation.LastMessageAt)
+            if (conversation is not null)
             {
-                conversation.LastMessageAt = utcNow;
+                if (utcNow > conversation.LastMessageAt)
+                {
+                    conversation.LastMessageAt = utcNow;
+                }
+
+                // Birim içi ileti de ilgili kullanıcıların WhatsApp baloncuğuna bildirim düşürür (card #1295).
+                conversation.UnreadCount += 1;
+                pendingPush = new WhatsAppMessagePayload(
+                    conversation.CitizenConversationId,
+                    conversation.CitizenPhone,
+                    conversation.CitizenName,
+                    content,
+                    conversation.UnreadCount,
+                    conversation.LastMessageAt,
+                    IsInternal: true);
             }
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (pendingPush is not null)
+        {
+            await _notificationPushService.SendWhatsAppMessageToTenantAsync(tenantId, pendingPush, cancellationToken);
+        }
+
         return true;
     }
 }

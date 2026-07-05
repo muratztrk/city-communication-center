@@ -1332,3 +1332,25 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a46373e` reopened / #1205 — Mobil genel kontrol: Login mobil formunda yüzde padding ve logo
   yüksekliği küçültüldü; AppShell telefonlarda içerik alanını `overflow-hidden` ile kilitlemiyor ve
   `main` native dikey scroll yapıyor; `/whatsapp` split panel telefonda liste+detay alt alta akıyor.
+
+## Round 187 (Doing — 2026-07-05, local diff check)
+- [x] `6a49fcd3` / #1360 — Taleplerim düzenleme detayında Cadde/Sokak/Bulvar ve Açık Adres alanları
+  uzun değerde alt satıra büyüyor; adres grid'i değeri kart dışına taşırmıyor.
+- [x] `6a49fbe2` / #1359 — Taleplerim düzenleme detayında Cadde/Sokak/Bulvar input'u textarea'ya
+  çevrildi; Açık Adres ile aynı satır-büyüme davranışını kullanıyor.
+- [x] `6a492c3d` / #1356 — Taleplerim ana kartında ayrı "Talep Başlığı" veri satırı kaldırıldı;
+  talep başlığı doğrudan bölüm başlığında görünüyor.
+- [x] `6a48cf6c` / #1338 — Reporter dashboard drilldown popup genişletildi ve ortak pagination eklendi.
+- [x] `6a478fe8` / #1295 — Kurum içi WhatsApp iletileri de FAB bildirimi üretir; aktif konuşmada
+  otomatik okundu işaretleme iç ileti için atlanır.
+- [x] `6a48d31c` / #1341 — WhatsApp konuşmasında "Kurum İçi Mesaj" başlığı standart turuncu renge alındı.
+- [x] `6a48ce9e` / #1337 — Standart kullanıcı dashboard grafiğinde "Benim Görevlerim" label'ına
+  "(iptal olmayan)" eklendi; "Birimdeki Görevler" legend/dilimi tıklanabilir görünmez.
+- [x] `6a48e214` / #1345 — Yönetici birim dışı talep timeline'ında `Durum / Yapılmakta` Talep Tarihi'nden
+  hemen sonra gelir; hedef onay adımı onay öncesi gri, onay sonrası yeşil kalır.
+- [x] `6a49efb3` / #1357 — Yönetici birim içi talep timeline'ında "Talebi Gerçekleştiren Birim
+  Yöneticisinin Onay Tarihi" adımı gösterilmez.
+- [ ] `6a49f603` / #1358 — Doing snapshot'ta var, ancak mevcut local diff içinde bu mobil/login kartına
+  denk yeni kod değişikliği bulunamadı; Trello'da açık bırakılmalı.
+
+## STATUS: Round 187 — 9 kart eşleşti; #1358 açık kaldı.

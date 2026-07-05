@@ -17,6 +17,8 @@ export interface WhatsAppMessagePayload {
   messagePreview: string | null
   unreadCount: number
   lastMessageAt: string
+  /** Birim içi (Kurum İçi İlet) mesaj bildirimi; aktif konuşmada otomatik okundu-işaretleme atlanır (card #1295). */
+  isInternal?: boolean
 }
 
 export interface SignalRHandlers {
@@ -42,6 +44,7 @@ function mapWhatsAppPayload(raw: Record<string, unknown>): WhatsAppMessagePayloa
     messagePreview: (raw.messagePreview ?? raw.MessagePreview) as string | null,
     unreadCount: Number(raw.unreadCount ?? raw.UnreadCount ?? 0),
     lastMessageAt: String(raw.lastMessageAt ?? raw.LastMessageAt ?? ''),
+    isInternal: Boolean(raw.isInternal ?? raw.IsInternal ?? false),
   }
 }
 

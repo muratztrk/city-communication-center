@@ -84,6 +84,12 @@ export function WhatsAppNotificationFab() {
 
   const handleWhatsAppMessage = useCallback((payload: WhatsAppMessagePayload) => {
     if (isPayloadForActiveConversation(payload)) {
+      // Birim içi ileti bildirimi gönderenin açık konuşmasında okundu sayılmaz; diğer
+      // ilgili kullanıcıların rozetini sıfırlamamak için markRead atlanır (card #1295).
+      if (payload.isInternal) {
+        void refreshConversations()
+        return
+      }
       void api.markConversationRead(payload.citizenConversationId)
         .then(() => zeroUnreadForConversation(payload.citizenConversationId))
         .catch(() => zeroUnreadForConversation(payload.citizenConversationId))
@@ -115,6 +121,10 @@ export function WhatsAppNotificationFab() {
     const onWindowEvent = (event: Event) => {
       const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
       if (isPayloadForActiveConversation(payload)) {
+        if (payload.isInternal) {
+          void refreshConversations()
+          return
+        }
         void api.markConversationRead(payload.citizenConversationId)
           .then(() => zeroUnreadForConversation(payload.citizenConversationId))
           .catch(() => zeroUnreadForConversation(payload.citizenConversationId))

@@ -152,8 +152,9 @@ function getSliceRoute(
   if (sliceLabel === 'dashboard.chart.assignedToMe') {
     return withQueryParams('/my-tasks', { view: 'all', taskType: taskTypeParam, ...dateParams })
   }
+  // "Birimdeki Görevler" dilimi/legend metni tıklanabilir değildir (card #1337).
   if (sliceLabel === 'dashboard.chart.departmentTotal') {
-    return withQueryParams('/department-tasks', { flow: 'all', taskType: taskTypeParam, ...dateParams })
+    return undefined
   }
 
   const base = CHART_ROUTES[titleKey]
@@ -567,7 +568,10 @@ export function DashboardPage() {
               } : isExternalDrilldownOnlyChart ? undefined : slice => {
                 const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange)
                 if (route) navigate(route)
-              }} />
+              }} isSliceSelectable={isDrilldownChart || isExternalDrilldownOnlyChart
+                ? undefined
+                // Rotası olmayan dilim (örn. Birimdeki Görevler) tıklanabilir görünmesin (card #1337).
+                : slice => Boolean(getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange))} />
               </section>
             )
           })}

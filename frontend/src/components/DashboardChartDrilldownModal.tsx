@@ -6,6 +6,7 @@ import { api } from '../api/client'
 import type { DashboardChartDrilldownRow } from '../types/platform'
 import { StatusPill } from './ui/status-pill'
 import { DateCell } from './ui/date-cell'
+import { TablePagination } from './ui/table-pagination'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getJobStatusTone, getLocale, getStatusPillClass } from '../utils/localization'
 
@@ -36,6 +37,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   const locale = getLocale(i18n.language)
   const [rows, setRows] = useState<DashboardChartDrilldownRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   // Modal her dilim seçiminde `key` ile yeniden mount edilir; state sıfırlama gerekmez.
   useEffect(() => {
@@ -55,7 +58,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
       <div
-        className="flex max-h-[min(85dvh,52rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="flex max-h-[min(85dvh,52rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3.5">
@@ -79,6 +82,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
           ) : rows === null ? (
             <div className="loading">{t('common.loading')}</div>
           ) : (
+            <>
             <table className="data-table data-table--zebra">
               <thead>
                 <tr>
@@ -98,9 +102,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                       {t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
                     </td>
                   </tr>
-                ) : rows.map((row, index) => (
+                ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => (
                   <tr key={row.jobId}>
-                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-600">{formatDrilldownNumber(row)}</td>
                     <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td className="font-semibold">{row.title}</td>
@@ -115,6 +119,17 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                 ))}
               </tbody>
             </table>
+            <TablePagination
+              totalCount={rows.length}
+              pageSize={pageSize}
+              currentPage={page}
+              onPageSizeChange={size => {
+                setPageSize(size)
+                setPage(1)
+              }}
+              onPageChange={setPage}
+            />
+            </>
           )}
         </div>
       </div>

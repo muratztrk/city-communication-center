@@ -375,7 +375,7 @@
       "inProgress": "In Progress",
       "pendingApproval": "Pending Approval",
       "externalPendingApproval": "External Pending Approval",
-      "assignedToMe": "My Tasks",
+      "assignedToMe": "My Tasks (non-cancelled)",
       "departmentTotal": "Department Tasks",
       "citizenProcessingReceived": "Processing Received",
       "noData": "No data to display yet."

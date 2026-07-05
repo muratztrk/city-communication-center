@@ -377,7 +377,7 @@
       "inProgress": "Yapılmakta Olan",
       "pendingApproval": "Onay Bekleyen",
       "externalPendingApproval": "Birim Dışı Onay Bekleyen",
-      "assignedToMe": "Benim Görevlerim",
+      "assignedToMe": "Benim Görevlerim (iptal olmayan)",
       "departmentTotal": "Birimdeki Görevler",
       "citizenProcessingReceived": "İşleme Alındı",
       "noData": "Henüz gösterilecek veri yok."

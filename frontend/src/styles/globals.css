@@ -687,10 +687,6 @@
     color: #dc2626;
   }
 
-  .notification-modal-mark-all {
-    backdrop-filter: blur(10px);
-  }
-
   /* Bildirim modalı tarih seçicileri — yeşil başlıkta camsı/translucent pill (arama ile aynı dil). */
   .notification-modal-date {
     width: 8rem;
@@ -3383,8 +3379,8 @@
 
   /* Birim Dışı kutusunun alt border çizgisi Başkanlık (reporter) turuncusu (card #1389). */
   .wallboard-stats > button.stat-external {
-    --wallboard-stat-accent: #fb923c;
-    --wallboard-stat-accent-soft: rgba(251, 146, 60, 0.28);
+    --wallboard-stat-accent: #7c2d12;
+    --wallboard-stat-accent-soft: rgba(124, 45, 18, 0.34);
   }
 
   .wallboard-stats > button.stat-overdue {
@@ -3563,7 +3559,7 @@
     line-clamp: 2;
     max-width: 32rem;
     color: white;
-    font-size: clamp(0.86rem, 1vw, 1.12rem);
+    font-size: clamp(0.8rem, 0.92vw, 1rem);
     font-weight: 400;
     overflow: hidden;
     overflow-wrap: break-word;

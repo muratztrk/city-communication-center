@@ -83,6 +83,15 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                     || (entity.SubjectType == ApprovalSubjectType.TaskRevision && entity.SubjectId == request.TaskId)))
             .OrderBy(entity => entity.StepOrder)
             .ToListAsync(cancellationToken);
+        var hasPendingExtraTimeRequest = approvals.Any(entity =>
+            entity.SubjectType == ApprovalSubjectType.TaskRevision
+            && entity.Decision == ApprovalDecision.Pending);
+        var lastExtraTimeRequestDecision = approvals
+            .Where(entity => entity.SubjectType == ApprovalSubjectType.TaskRevision
+                && entity.Decision != ApprovalDecision.Pending)
+            .OrderByDescending(entity => entity.DecisionDateUtc)
+            .Select(entity => (string?)entity.Decision.ToString())
+            .FirstOrDefault();
         var assignmentHistory = await _dbContext.AssignmentHistories
             .Where(entity => entity.TenantId == tenantId && entity.TaskId == request.TaskId)
             .OrderBy(entity => entity.ActionDateUtc)
@@ -206,6 +215,8 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             assignedUserDisplayName,
             task.TaskNumber,
             task.TaskNumberYear,
+            hasPendingExtraTimeRequest,
+            lastExtraTimeRequestDecision,
             statusActorDisplayName,
             statusChangeHistory);
     }

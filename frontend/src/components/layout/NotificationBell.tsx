@@ -1,5 +1,5 @@
 import { Bell, CheckCheck, Search, X } from 'lucide-react'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +14,7 @@ import { useAuth } from '../../context/AuthContext'
 import { TablePagination } from '../ui/table-pagination'
 import { DateTimePicker } from '../ui/date-time-picker'
 import { RichTextContent } from '../ui/RichTextContent'
+import { GridExtraTimeMarkers } from '../ui/extra-time-markers'
 
 type NotifFilter = 'all' | 'unread'
 export type NotificationDetailTarget = { kind: 'task' | 'job'; id: string }
@@ -164,13 +165,13 @@ function NotificationEntityLabelText({ value, plainClassName }: { value: string;
 }
 
 function NotificationTitleStatusText({ value, plainClassName }: { value: string; plainClassName: string }) {
-  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|Yönetici notu atandı)/gi).map((part, index) => {
+  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|Yönetici notu atandı|Ek süre talebi)/gi).map((part, index) => {
     if (!part) return null
     if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     if (/^İptal Edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
-    if (/^(güncellendi|oluşturuldu|atandı|Yönetici notu atandı)$/i.test(part)) {
+    if (/^(güncellendi|oluşturuldu|atandı|Yönetici notu atandı|Ek süre talebi)$/i.test(part)) {
       return <span key={index} className="font-bold">{part}</span>
     }
     return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} />
@@ -184,6 +185,11 @@ function NotificationStatusText({ value }: { value: string }) {
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     return part
   })
+}
+
+function hasExtraTimeMarker(source: Pick<TaskDetail, 'hasPendingExtraTimeRequest' | 'lastExtraTimeRequestDecision'> | Pick<TaskDetail, 'hasPendingExtraTimeRequest' | 'lastExtraTimeRequestDecision'>[]): boolean {
+  const items = Array.isArray(source) ? source : [source]
+  return items.some(item => item.hasPendingExtraTimeRequest || item.lastExtraTimeRequestDecision)
 }
 
 interface NotifListProps {
@@ -233,13 +239,23 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
 
   const isTask = detail?.kind === 'task'
   const data = detail?.data
-  const fields = isTask && data
+  const fields: Array<[string, ReactNode]> = isTask && data
     ? [
         ['Görev Başlığı', (data as TaskDetail).title],
         ['Durum', (data as TaskDetail).currentStatus],
         ['Öncelik', (data as TaskDetail).priority],
         ['Atanan', (data as TaskDetail).assignedUserDisplayName ?? (data as TaskDetail).assignedDepartmentName ?? '—'],
         ['Son Tarih', (data as TaskDetail).dueDateUtc ? formatNotifDate((data as TaskDetail).dueDateUtc, locale) : '—'],
+        ...(hasExtraTimeMarker(data as TaskDetail)
+          ? [[
+              'Ek Süre',
+              <GridExtraTimeMarkers
+                key="task-extra-time"
+                hasPending={(data as TaskDetail).hasPendingExtraTimeRequest}
+                lastDecision={(data as TaskDetail).lastExtraTimeRequestDecision}
+              />,
+            ] as [string, ReactNode]]
+          : []),
       ]
     : data
       ? [
@@ -248,6 +264,16 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
           ['Öncelik', (data as JobDetail).priority],
           ['Talep Sahibi Birim', (data as JobDetail).ownerDepartmentName ?? '—'],
           ['Son Tarih', (data as JobDetail).dueDateUtc ? formatNotifDate((data as JobDetail).dueDateUtc, locale) : '—'],
+          ...(hasExtraTimeMarker((data as JobDetail).tasks)
+            ? [[
+                'Ek Süre',
+                <GridExtraTimeMarkers
+                  key="job-extra-time"
+                  hasPending={(data as JobDetail).tasks.some(task => task.hasPendingExtraTimeRequest)}
+                  lastDecision={(data as JobDetail).tasks.find(task => task.lastExtraTimeRequestDecision)?.lastExtraTimeRequestDecision ?? null}
+                />,
+              ] as [string, ReactNode]]
+            : []),
         ]
       : []
   const description = data ? (data as TaskDetail | JobDetail).description : ''
@@ -529,14 +555,29 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                     {t('notifications.unread', 'Okunmamış')}
                   </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="flex size-6 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow-sm transition-colors hover:bg-red-600 active:scale-95"
-                  aria-label={t('common.close', 'Kapat')}
-                >
-                  <X className="size-3.5" strokeWidth={2.5} />
-                </button>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={markAllRead}
+                    disabled={unreadCount === 0}
+                    className="notification-dropdown-mark-all flex min-h-7 items-center gap-1 rounded-md px-1.5 py-0.5 text-[0.64rem] font-extrabold leading-none text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label={t('notifications.markAllRead', 'Tümünü okundu yap')}
+                  >
+                    <CheckCheck className="size-3.5 shrink-0" />
+                    <span className="flex flex-col items-start leading-[0.95]">
+                      <span>{t('notifications.markAllReadTop', 'Tümünü')}</span>
+                      <span>{t('notifications.markAllReadBottom', 'Okundu yap')}</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow-sm transition-colors hover:bg-red-600 active:scale-95"
+                    aria-label={t('common.close', 'Kapat')}
+                  >
+                    <X className="size-3.5" strokeWidth={2.5} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -617,29 +658,14 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   forceDown
                 />
               </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={markAllRead}
-                  disabled={unreadCount === 0}
-                  className="notification-modal-mark-all flex min-h-8 items-center gap-1 rounded-lg border border-white/30 bg-white/14 px-2.5 py-1 text-[0.68rem] font-bold leading-none text-white shadow-sm transition-colors hover:bg-white/22 disabled:cursor-not-allowed disabled:opacity-45"
-                  aria-label={t('notifications.markAllRead', 'Tümünü okundu yap')}
-                >
-                  <CheckCheck className="size-3.5 shrink-0" />
-                  <span className="flex flex-col items-start leading-[0.95]">
-                    <span>{t('notifications.markAllReadTop', 'Tümünü')}</span>
-                    <span>{t('notifications.markAllReadBottom', 'Okundu yap')}</span>
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-                  aria-label="Kapat"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                aria-label="Kapat"
+              >
+                <X className="size-4" />
+              </button>
             </div>
 
             {/* Modal toolbar */}

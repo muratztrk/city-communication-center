@@ -1623,3 +1623,18 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   şekilde güçlendirildi.
 
 ## STATUS: Round 218 complete — frontend build/lint passed; card pending Done move.
+
+## Round 219 (Doing — 2026-07-05, reopen ince ayarları)
+- [x] `6a4a4bd3` / #1388 reopen — Ek süre isteği/onay/red sonrası görev grid satırındaki marker
+  alanları liste yenilemesini beklemeden optimistik güncelleniyor.
+- [x] `6a48bbe2` / #1333 reopen — Ekrana Yansıt Başlık text size biraz daha azaltıldı; reporter
+  görev sahibi/talep no turuncusu korunuyor.
+- [x] `6a4a63b5` / #1392 reopen — `Tümünü / Okundu yap` butonu küçük bildirim dropdown'unda X'in
+  soluna, yeşil metinle taşındı; tüm bildirim modalındaki kopyası kaldırıldı.
+- [x] `6a4a6387` / #1391 reopen — Bildirim başlığındaki `Ek süre talebi` ifadesi bold vurgulanıyor.
+- [x] `6a4a7372` / #1394 — Bildirimden açılan görev/talep detay popup'ında ek süre marker'ı
+  grid detaylarıyla aynı şekilde görünür oldu.
+- [x] `6a4a54b4` / #1389 reopen — Ekrana Yansıt `Birim Dışı` kutusunun alt accent çizgisi çok koyu
+  turuncuya çekildi.
+
+## STATUS: Round 219 complete — backend build and frontend build/lint passed; cards pending Done move.

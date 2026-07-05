@@ -212,7 +212,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   davranışına bu renklendirme uygulanmaz (card #1243).
 - **Ek süre talebi grid işaretleri:** aktif talep/görevde işaret `Son Tarih` altında, tamamlanmışta
   `Tamamlanma Tarihi` altında, iptal/reddedilmişte `İptal Tarihi` altında görünür; `Tümü` görünümünde
-  terminal satırlarda durum hücresinin altında aynı marker kullanılır.
+  terminal satırlarda durum hücresinin altında aynı marker kullanılır. Ek süre isteği/onay/red sonrası
+  görev grid satırı liste yenilemeyi beklemeden marker alanlarını optimistik günceller.
 - **WhatsApp konuşma aksiyon ikonları:** WhatsApp konuşmaları alt aksiyonlarında `Talep oluştur`
   ve `Şablon mesajlar` ikonları yeşil kalır; buton metinleri yeşile boyanmaz (card #1245).
 - **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,
@@ -484,7 +485,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
   ayrı satırda kalır; "Üst Düzey Yönetici" oluşturan metni ve Görev Sahibi metni turuncu kalır.
   Başlık fontu normal ağırlıkta kalır, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı
-  tondadır; reporter turuncusu `wallboard-task-owner` genel rengini ezmelidir.
+  tondadır; reporter turuncusu `wallboard-task-owner` genel rengini ezmelidir. Başlık font size'ı
+  tablo yoğunluğuna göre düşük kalır.
 - **Grid durum/son tarih uyarı renkleri:** `Yapılmakta` status chip'i turuncu zemin + beyaz metin kullanır;
   bugün dolan `Son Tarih` pill'i Wallboard Son Tarih uyarısı gibi sarı çerçeve/yazı dilinde kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
@@ -495,10 +497,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için kalıcı `Notification` satırı yok; gerçek push bildirimleri ayrı). Yeni bildirim
   davranışı eklemek = audit→`NotificationResponse` projeksiyonunu değiştirmek. Başlık
   `ActionTitle(audit.Action)`'tan; mesaj `messageParts`'tan gelir.
-- **Bildirim modalı okundu aksiyonu:** "Tümünü Okundu yap" butonu modal header'ında kapatma X'inin
-  solundadır ve iki satır metin (`Tümünü` / `Okundu yap`) kullanır; toolbar içinde ikinci bir kopyası olmaz.
+- **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
+  kapatma X'inin solundadır, yeşil metinlidir ve iki satır metin (`Tümünü` / `Okundu yap`) kullanır;
+  "Tüm bildirimleri gör" modalında ikinci bir kopyası olmaz.
 - **Bildirim başlığı vurguları:** başlıkta `güncellendi`, `oluşturuldu`, `atandı`, `Yönetici notu atandı`
-  gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli bold davranışı korunur.
+  ve `Ek süre talebi` gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli
+  bold davranışı korunur.
+- **Bildirim detay popup ek süre marker'ı:** bildirimden açılan görev/talep detay popup'ı, grid detaylarıyla
+  aynı ek süre marker'ını gösterir; görev detayı `TaskDetailResponse` ek süre alanlarını taşır, talep detayı
+  içindeki görevlerden marker türetir.
 - **Aktörün kendi olayları feed'den çıkarılır** (`a.ActorUserId == userId` → skip, card #1063);
   görev-durum değişikliğinin talebe yansıyan yan-etki audit'i de gizlenir
   (`IsJobStatusSideEffectOfTaskChange`, #1068). Yeni audit eklerken bu filtreleri kır(ma).

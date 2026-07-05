@@ -155,6 +155,9 @@ public sealed record TaskDetailResponse(
     string? AssignedUserDisplayName,
     int? TaskNumber,
     int? TaskNumberYear,
+    // Bildirimden açılan görev detay popup'ında da gridview ile aynı ek süre işaretleri gösterilir.
+    bool HasPendingExtraTimeRequest = false,
+    string? LastExtraTimeRequestDecision = null,
     // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) — denetim kaydından (card 642).
     string? StatusActorDisplayName = null,
     // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).

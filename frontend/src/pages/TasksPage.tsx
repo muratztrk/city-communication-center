@@ -1164,13 +1164,24 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       const proposedDueDateUtc = new Date(extraTimeEdit.value).toISOString()
       const reason = `${t('tasks.actions.extraTimeRequest', 'Ek süre iste')}: ${proposedDueDateUtc}`
       await api.requestTaskRevision(extraTimeEdit.taskId, reason, proposedDueDateUtc)
+      setTasks(current => current.map(task =>
+        task.taskId === extraTimeEdit.taskId
+          ? { ...task, hasPendingExtraTimeRequest: true, lastExtraTimeRequestDecision: null, updatedAtUtc: new Date().toISOString() }
+          : task
+      ))
       invalidateTasks(queryClient, extraTimeEdit.taskId, taskDetail.jobId)
       invalidateNotifications(queryClient)
       const updatedDetail = await api.getTaskById(extraTimeEdit.taskId)
       setTaskDetail(updatedDetail)
       setTasks(current => current.map(task =>
         task.taskId === extraTimeEdit.taskId
-          ? { ...task, currentStatus: updatedDetail.currentStatus, updatedAtUtc: new Date().toISOString() }
+          ? {
+              ...task,
+              currentStatus: updatedDetail.currentStatus,
+              hasPendingExtraTimeRequest: updatedDetail.hasPendingExtraTimeRequest,
+              lastExtraTimeRequestDecision: updatedDetail.lastExtraTimeRequestDecision,
+              updatedAtUtc: new Date().toISOString(),
+            }
           : task
       ))
       setExtraTimeEdit(null)
@@ -1204,6 +1215,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
             ...task,
             currentStatus: updatedDetail.currentStatus,
             dueDateUtc: updatedDetail.dueDateUtc,
+            hasPendingExtraTimeRequest: updatedDetail.hasPendingExtraTimeRequest,
+            lastExtraTimeRequestDecision: updatedDetail.lastExtraTimeRequestDecision,
             updatedAtUtc: new Date().toISOString(),
           }
         : task
@@ -1215,6 +1228,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setExtraTimeReview(current => current ? { ...current, saving: true } : null)
     try {
       await api.approveTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'), extraTimeReview.proposedDueDateUtc)
+      setTasks(current => current.map(task =>
+        task.taskId === extraTimeReview.taskId
+          ? { ...task, hasPendingExtraTimeRequest: false, lastExtraTimeRequestDecision: 'Approved', updatedAtUtc: new Date().toISOString() }
+          : task
+      ))
       await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
       invalidateNotifications(queryClient)
       setExtraTimeReview(null)
@@ -1230,6 +1248,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setExtraTimeReview(current => current ? { ...current, saving: true } : null)
     try {
       await api.rejectTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
+      setTasks(current => current.map(task =>
+        task.taskId === extraTimeReview.taskId
+          ? { ...task, hasPendingExtraTimeRequest: false, lastExtraTimeRequestDecision: 'Rejected', updatedAtUtc: new Date().toISOString() }
+          : task
+      ))
       await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
       invalidateNotifications(queryClient)
       setExtraTimeReview(null)

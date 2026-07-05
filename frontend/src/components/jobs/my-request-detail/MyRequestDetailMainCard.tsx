@@ -81,7 +81,8 @@ export function MyRequestDetailMainCard({
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false
-    if (!isEditing && [requestNoLabel, citizenRequestNoLabel, priorityLabel, projectLabel].includes(field.label)) return false
+    if ([requestNoLabel, citizenRequestNoLabel].includes(field.label)) return false
+    if (!isEditing && [priorityLabel, projectLabel].includes(field.label)) return false
     return true
   })
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])

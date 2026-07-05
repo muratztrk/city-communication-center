@@ -1475,3 +1475,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   breakpoint'inde tüm gridview tabloları daha düşük min-width, padding ve font ölçeğiyle kompaktlaştı.
 
 ## STATUS: Round 203 complete — frontend build/lint passed; card moved to Done.
+
+## Round 204 (Doing — 2026-07-05, Taleplerim popup boyutu ve edit Talep No)
+- [x] `6a4a15b0` reopened / #1365 — Taleplerim detay modalı referans görseldeki gibi sol menü
+  bitişine yapışık görünmesin diye genişliği `70.9vw / 85.1rem` oranına çekildi; yükseklik korundu.
+- [x] `6a4a1b11` / #1369 — Taleplerim detay düzenleme modunda `Talep No` / `Vatandaş Talep No`,
+  `Talep Bilgileri` altında ayrı satır olarak görünmüyor; numara yalnız başlık yanındaki meta alanda kalıyor.

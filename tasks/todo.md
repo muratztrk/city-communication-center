@@ -1424,3 +1424,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4a1626` / #1366 — Taleplerim detay popup `Talep Bilgileri` altındaki
   `Öncelik / Proje Niteliğinde mi?` değer ayracı, süreç timeline tarih-saat ayracıyla aynı
   `.job-process-timeline__datetime-bullet` bileşenini kullanacak şekilde değiştirildi.
+
+## STATUS: Round 196 complete — frontend build/lint passed; card moved to Done.

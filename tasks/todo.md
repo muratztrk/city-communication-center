@@ -1683,3 +1683,21 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   diğer stat kutularının accent renkleri korunuyor.
 
 ## STATUS: Round 225 complete — frontend build/lint passed; card pending Done move.
+
+## Round 226 (Doing — 2026-07-05, mobil/header/font/wallboard/bildirim/Son Tarih reopen seti)
+- [x] `6a4a38ec` / #1383 reopen — Mobil talep/görev detay header'larında tüm `Yazdır`
+  butonları `.detail-print-action` ile telefon breakpoint'inde gizlendi; desktop print korunuyor.
+- [x] `6a4a54b4` / #1389 reopen — Ekrana Yansıt `Birim Dışı` stat alt accent çizgisi çok koyu
+  kahveden daha açık turuncuya (`#c2410c`) çekildi; `Son Tarihi Geçmiş` kırmızı kuralı korundu.
+- [x] `6a4a7ddd` / #1399 — Kullanılmayan `source-serif-4` importları kaldırıldı; metinler yeniden
+  Plus Jakarta Sans ailesinde kalıyor.
+- [x] `6a4a7c9f` / #1398 — Mobil login logo paneli yatayda biraz daha genişletildi; logo görsel boyutu
+  sabit bırakıldı, beyaz alanda yatay nefes payı artırıldı.
+- [x] `6a4a7b5b` / #1397 — `Tüm bildirimleri gör` modal toolbar'ına `Tümünü okundu yap` aksiyonu
+  geri eklendi.
+- [x] `6a4a493d` / #1387 reopen — Bugün dolan `Son Tarih` pill'i sarı arka plan + sarı takvim ikonu
+  + sarı çerçeve diline alındı.
+- [x] `6a49f603` / #1358 reopen — Mobil banner arama ve başlangıç/bitiş tarihi filtre grubu sola
+  hizalı kaldı.
+
+## STATUS: Round 226 complete — frontend build/lint passed; cards pending Done move.

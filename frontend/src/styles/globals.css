@@ -3383,10 +3383,10 @@
     --wallboard-stat-accent-soft: rgba(249, 115, 22, 0.28);
   }
 
-  /* Birim Dışı kutusunun alt border çizgisi Başkanlık (reporter) turuncusu (card #1389). */
+  /* Birim Dışı kutusunun alt border çizgisi turuncu kalır; çok koyu kahverengiye dönmez (card #1389). */
   .wallboard-stats > button.stat-external {
-    --wallboard-stat-accent: #7c2d12;
-    --wallboard-stat-accent-soft: rgba(124, 45, 18, 0.34);
+    --wallboard-stat-accent: #c2410c;
+    --wallboard-stat-accent-soft: rgba(194, 65, 12, 0.3);
   }
 
   .wallboard-stats > button.stat-overdue {
@@ -3696,10 +3696,14 @@
 
   /* Bugün dolan son tarih: Ekrana Yansıt Son Tarih sütunundaki sarı çerçeve/yazı diliyle aynı (card #1387). */
   .due-date-pill.warning {
-    background: transparent;
+    background: rgba(251, 191, 36, 0.16);
     border: 1px solid #fbbf24;
     color: #b45309;
     font-weight: 700;
+  }
+
+  .due-date-pill.warning svg {
+    color: #fbbf24;
   }
 
   .due-date-pill.danger {
@@ -3884,6 +3888,10 @@
       border-radius: 999px !important;
     }
 
+    .detail-modal-header-actions .detail-print-action {
+      display: none !important;
+    }
+
     .detail-modal-shell--my-request .my-request-detail-main__grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -3932,6 +3940,7 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: stretch;
       margin-left: 0;
+      justify-self: start;
     }
 
     .scope-chips-filters > .scope-chip-search-wrap {
@@ -3953,6 +3962,7 @@
       min-width: 0;
       width: 100%;
       flex: 1 1 auto;
+      justify-self: start;
     }
 
     .scope-chip-search-input {
@@ -3968,9 +3978,9 @@
     }
 
     .login-logo-panel-mobile {
-      width: min(calc(100% + 1rem), 28rem);
-      margin-inline: -0.5rem;
-      padding-inline: 3rem;
+      width: min(calc(100% + 2rem), 30rem);
+      margin-inline: -1rem;
+      padding-inline: 3.5rem;
     }
 
     .table-container table,

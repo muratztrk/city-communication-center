@@ -1688,7 +1688,7 @@ const pageKicker = isMyTasksView
                     </Button>
                 )}
                 {taskDetail && (
-                  <Button type="button" variant="secondary" onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, citizenSourceMessage, t, locale)}>
+                  <Button type="button" variant="secondary" className="detail-print-action" onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, citizenSourceMessage, t, locale)}>
                     {t('common.print', 'Yazdır')}
                   </Button>
                 )}

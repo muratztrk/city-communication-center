@@ -2153,7 +2153,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </DisabledActionButton>
                 )}
-                <Button type="button" variant="secondary" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
+                <Button type="button" variant="secondary" className="detail-print-action" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
                 <button
                   type="button"
                   onClick={closeDetail}

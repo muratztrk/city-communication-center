@@ -113,7 +113,7 @@ export function MyRequestDetailHeader({
         <Button
           type="button"
           variant="ghost"
-          className="inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
+          className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
           onClick={onPrint}
           aria-label={t('common.print', 'Yazdır')}
         >

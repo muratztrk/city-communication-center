@@ -324,6 +324,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   const [modalPageSize, setModalPageSize] = useState(5)
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
+  const [isMarkingAllRead, setIsMarkingAllRead] = useState(false)
   const [notificationDetail] = useState<{ kind: 'task' | 'job'; data: TaskDetail | JobDetail } | null>(null)
   const [notificationDetailLoading] = useState(false)
   const [notificationDetailError] = useState<string | null>(null)
@@ -472,15 +473,21 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   }
 
   const markAllRead = async () => {
+    if (isMarkingAllRead) return
     const unread = displayNotifications.filter(n => !n.isRead)
     if (unread.length === 0) return
+    setIsMarkingAllRead(true)
     setViewedNotificationIds(prev => {
       const next = new Set(prev)
       unread.forEach(notification => next.add(notification.notificationId))
       return next
     })
-    await api.markAllNotificationsRead()
-    invalidateNotifications(queryClient)
+    try {
+      await api.markAllNotificationsRead()
+      invalidateNotifications(queryClient)
+    } finally {
+      setIsMarkingAllRead(false)
+    }
   }
 
   // Bildirim detayı, mevcut sayfayı değiştirmeden uygulama kabuğunda açılır.
@@ -559,7 +566,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   <button
                     type="button"
                     onClick={markAllRead}
-                    disabled={unreadCount === 0}
+                    disabled={isMarkingAllRead || unreadCount === 0}
                     className="notification-dropdown-mark-all flex min-h-7 items-center gap-1 rounded-md px-1.5 py-0.5 text-[0.64rem] font-extrabold leading-none text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label={t('notifications.markAllRead', 'Tümünü okundu yap')}
                   >
@@ -687,6 +694,14 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   <span className="ml-1 text-amber-400">({unreadCount})</span>
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={markAllRead}
+                disabled={isMarkingAllRead || unreadCount === 0}
+                className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                {isMarkingAllRead ? t('common.loading', 'Yükleniyor...') : t('notifications.markAllRead', 'Tümünü okundu yap')}
+              </button>
             </div>
 
             {/* Modal list */}

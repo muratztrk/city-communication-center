@@ -40,13 +40,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
   kutusu tam satırdır, başlangıç/bitiş tarihleri aramanın altında iki eşit kolon olarak yan yana durur
-  ve aralarında tire/çizgi gösterilmez. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
+  ve filtre grubu banner içinde sola hizalı kalır; aralarında tire/çizgi gösterilmez. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
   daha kompakt kalır. Detay modal formları tek kolon akar.
 - **Banner arama input metni:** banner ve bildirim modalındaki search textbox boyutu büyümez; iç metin
   0.8rem+ ve bold kalır, placeholder/ikon yeşil banner üstünde okunur kalır.
 - **Mobil detay popup başlıkları aksiyonlarla çakışmaz:** talep/görev detay header'ında başlık alanı
   esnek kalır; sağ üst aksiyonlar küçük, wrap edebilir butonlar olarak durur. Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
+- **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
+  tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
   `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
   ağırlıklardaki metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür).
@@ -394,7 +396,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tenant `appearance.logoUrl` ile override edilmez.
 - **Mobil login logo çerçevesi yatayda geniş kalır:** kompakt login logo kartının yatay
   padding'i ve kart genişliği daraltılıp kare karta geri döndürülmez; panel viewport içinde biraz
-  dışa taşarak genişler, logo boyutu sabit kalır.
+  dışa taşarak genişler, logo etrafındaki beyaz alanda yatay nefes payı olur ve logo boyutu sabit kalır.
 - **Sol menüde `/whatsapp` alt linki `SidebarNavLinkItem.emphasized` ile biraz büyük ve sola
   taşınmış kalır**; metin tam sığmalı, tüm sidebar font/zoom ölçeğini değiştirerek diğer
   menüleri büyütme (card #1085).
@@ -491,9 +493,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tablo yoğunluğuna göre düşük kalır.
 - **Wallboard Son Tarihi Geçmiş stat accent'i:** Yalnız `Son Tarihi Geçmiş` kutusunun alt border/accent
   çizgisi `Kapat` butonunun `var(--color-destructive)` kırmızısıyla aynı kalır.
+- **Wallboard Birim Dışı stat accent'i:** `Birim Dışı` kutusunun alt border/accent çizgisi turuncu
+  kalır ama çok koyu kahverengiye dönmez; `Son Tarihi Geçmiş` kırmızı kuralından bağımsızdır.
 - **Grid durum/son tarih uyarı renkleri:** `Yapılmakta` status chip'i turuncu zemin + beyaz metin kullanır;
-  bugün dolan `Son Tarih` pill'i Wallboard Son Tarih uyarısı gibi dolgulu arka plan olmadan sarı
-  çerçeve/yazı dilinde kalır.
+  bugün dolan `Son Tarih` pill'i sarı arka plan, sarı takvim ikonu ve sarı çerçeve/yazı dilinde kalır.
 - **Banner arama input ağırlığı:** Banner/search input metni kompakt alanda iri okunur ama 700-bold
   görünmez; `scope-chip-search-input` yazı ağırlığı yarı-kalın seviyede kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
@@ -508,7 +511,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcısı olmasa bile audit-feed ve okunmamış rozet kapsamına dahildir; kalıcı `Notification` yazılmaz.
 - **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
   kapatma X'inin solundadır, yeşil metinlidir ve iki satır metin (`Tümünü` / `Okundu yap`) kullanır;
-  "Tüm bildirimleri gör" modalında ikinci bir kopyası olmaz.
+  "Tüm bildirimleri gör" modal toolbar'ında da tek satır `Tümünü okundu yap` aksiyonu görünür.
 - **Bildirim başlığı vurguları:** başlıkta `güncellendi`, `oluşturuldu`, `atandı`, `Yönetici notu atandı`
   ve `Ek süre talebi` gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli
   bold davranışı korunur.

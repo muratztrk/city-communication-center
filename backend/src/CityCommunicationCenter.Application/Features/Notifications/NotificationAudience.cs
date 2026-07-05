@@ -28,11 +28,13 @@ internal static class NotificationAudience
         // sayılır; her değişiklik bu yöneticilerin bildirimlerinde görünür (card 541).
         var managerJobIds = await GetManagerInvolvedJobIdsAsync(dbContext, tenantId, userId, cancellationToken);
         var managerTaskIds = await GetManagerDepartmentTaskIdsAsync(dbContext, tenantId, userId, cancellationToken);
+        var approvalTaskIds = await GetTaskRevisionApprovalTaskIdsAsync(dbContext, tenantId, userId, cancellationToken);
 
         return jobIds
             .Concat(taskIds)
             .Concat(managerJobIds.Select(id => id.ToString()))
             .Concat(managerTaskIds.Select(id => id.ToString()))
+            .Concat(approvalTaskIds.Select(id => id.ToString()))
             .Distinct()
             .ToList();
     }
@@ -105,6 +107,24 @@ internal static class NotificationAudience
                 && task.AssignedDepartmentId != null
                 && managedDepartmentIds.Contains(task.AssignedDepartmentId.Value))
             .Select(task => task.TaskId)
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>Ek süre/revizyon onaycısının bildirim feed'inde ilgili görev görünür kalır (card #1386).</summary>
+    public static async Task<IReadOnlyList<Guid>> GetTaskRevisionApprovalTaskIdsAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.Approvals
+            .AsNoTracking()
+            .Where(approval =>
+                approval.TenantId == tenantId
+                && approval.SubjectType == ApprovalSubjectType.TaskRevision
+                && approval.ApproverUserId == userId)
+            .Select(approval => approval.SubjectId)
+            .Distinct()
             .ToListAsync(cancellationToken);
     }
 

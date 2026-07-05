@@ -70,6 +70,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 _dbContext, tenantId, userId, cancellationToken);
             var managerTaskIds = await NotificationAudience.GetManagerDepartmentTaskIdsAsync(
                 _dbContext, tenantId, userId, cancellationToken);
+            var approvalTaskIds = await NotificationAudience.GetTaskRevisionApprovalTaskIdsAsync(
+                _dbContext, tenantId, userId, cancellationToken);
             var jobRecords = await _dbContext.Jobs.AsNoTracking()
                 .Where(j => j.TenantId == tenantId && (
                     j.CreatedByUserId == userId
@@ -79,7 +81,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 .Select(j => new { JobGuid = j.JobId, JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
-                .Where(t => t.TenantId == tenantId && (t.AssignedUserId == userId || t.OwnerUserId == userId || t.CreatedByUserId == userId || managerTaskIds.Contains(t.TaskId)))
+                .Where(t => t.TenantId == tenantId && (
+                    t.AssignedUserId == userId
+                    || t.OwnerUserId == userId
+                    || t.CreatedByUserId == userId
+                    || managerTaskIds.Contains(t.TaskId)
+                    || approvalTaskIds.Contains(t.TaskId)))
                 .Select(t => new { TaskGuid = t.TaskId, TaskId = t.TaskId.ToString(), t.Title, t.TaskNumber, t.TaskNumberYear, JobGuid = t.JobId, JobId = t.JobId.ToString() })
                 .ToListAsync(cancellationToken);
 

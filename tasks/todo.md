@@ -1646,3 +1646,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   etkisinden çıkarılıp Wallboard uyarı diliyle uyumlu sarı çerçeve + amber metin stilinde sabitlendi.
 
 ## STATUS: Round 220 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 221 (Doing — 2026-07-05, ek süre talebi bildirim kapsamı)
+- [x] `6a4a48aa` / #1386 reopen — Ek süre talebi bildirimi kalıcı `Notification` yazmadan
+  tek audit-feed satırı olarak kalıyor; talebin onaycısı görevin atanmış/owner/oluşturan kullanıcısı
+  olmasa bile `TaskRevision` approval üzerinden bildirim listesi ve okunmamış rozet kapsamına alındı
+  (`T-2026-363` benzeri kaçan bildirimler için).
+
+## STATUS: Round 221 complete — backend build passed; card pending Done move.

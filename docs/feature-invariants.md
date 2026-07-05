@@ -500,6 +500,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için kalıcı `Notification` satırı yok; gerçek push bildirimleri ayrı). Yeni bildirim
   davranışı eklemek = audit→`NotificationResponse` projeksiyonunu değiştirmek. Başlık
   `ActionTitle(audit.Action)`'tan; mesaj `messageParts`'tan gelir.
+- **Ek süre/revizyon onaycısı bildirim kapsamı:** `TaskRevision` approval onaycısı, görevin atanmış/owner
+  kullanıcısı olmasa bile audit-feed ve okunmamış rozet kapsamına dahildir; kalıcı `Notification` yazılmaz.
 - **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
   kapatma X'inin solundadır, yeşil metinlidir ve iki satır metin (`Tümünü` / `Okundu yap`) kullanır;
   "Tüm bildirimleri gör" modalında ikinci bir kopyası olmaz.

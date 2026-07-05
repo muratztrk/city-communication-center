@@ -1387,3 +1387,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a492c3d` reopened / #1356 — Taleplerim detay ana kartında başlık yanındaki Talep No +
   Birim İçi/Dışı bloğu grid'in sağ kolonu olarak en sağa yaslandı; başlık sığmadığında meta bloğu
   yine sağ hizasını koruyor.
+
+## STATUS: Round 191 complete — build/lint passed; cards moved to Done.

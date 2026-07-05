@@ -171,7 +171,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   step'i gösterilir (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen/#1275).
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
-  (card #1217). Detay popup üstündeki `Taleplerim` başlığı geniş harf aralıklı açık gri kalır;
+  (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst
+  başlığıyla aynı text özelliklerini kullanır (`0.75rem`, `font-weight:800`,
+  `letter-spacing:0.18em`, slate-600);
   header başlığı, modal gövde içeriğiyle aynı sol hizada başlar. Kart içi `Süreç` ve `Açıklama`
   başlıkları alt kart başlıklarıyla aynı hafif ağırlıkta kalır; bold yapılmaz. Süreç yuvarlakları
   görsel referanstaki gibi açık zeminli/halkalı görünür; tamamlanan adım ve tamamlanmış çizgi

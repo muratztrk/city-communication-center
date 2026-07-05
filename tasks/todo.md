@@ -1531,3 +1531,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   uygun ikonlar eklendi.
 
 ## STATUS: Round 208 complete — dotnet build, frontend build/lint passed; cards pending Done move.
+
+## Round 209 (Doing — 2026-07-05, Görevlerim/Taleplerim başlık yönü düzeltmesi)
+- [x] `6a4a288d` reopened / #1376 — Önceki uygulama ters yöndeydi; Görevlerim detay popup
+  sol üst başlığı eski stilinde kaldı, Taleplerim detay popup üst başlığı Görevlerim başlığının
+  font boyutu/ağırlığı/harf aralığı/rengine eşitlendi.
+
+## STATUS: Round 209 complete — frontend build/lint passed; card pending Done move.

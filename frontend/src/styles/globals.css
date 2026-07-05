@@ -168,12 +168,12 @@
     max-height: min(80.7dvh, 46.85rem);
   }
 
-  .detail-modal-shell--my-request .my-request-detail-header__title,
-  .detail-modal-shell .task-detail-header__title {
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.28em;
-    color: rgb(148 163 184);
+  .detail-modal-shell--my-request .my-request-detail-header__title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    line-height: 1.25;
+    color: rgb(71 85 105);
   }
 
   .job-detail-section-title {

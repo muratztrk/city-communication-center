@@ -928,7 +928,7 @@ export function CreateRequestPage() {
                 <Building2 className="size-5" />
               </span>
               <div>
-                <h2 className="text-xl font-bold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
+                <h2 className="text-xl font-medium text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
                 <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
               </div>
             </div>
@@ -944,7 +944,7 @@ export function CreateRequestPage() {
                 <Workflow className="size-5" />
               </span>
               <div>
-                <h2 className="text-xl font-bold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
+                <h2 className="text-xl font-medium text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
                 <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.externalDescription', 'Başka bir birime gidecek talep sürecini oluşturun.')}</p>
               </div>
             </div>
@@ -961,7 +961,7 @@ export function CreateRequestPage() {
                   <MessageSquareMore className="size-5" />
                 </span>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-950">{t('requests.create.citizenTitle', 'Vatandaş Talepleri')}</h2>
+                  <h2 className="text-xl font-medium text-slate-950">{t('requests.create.citizenTitle', 'Vatandaş Talepleri')}</h2>
                   <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
                 </div>
               </div>

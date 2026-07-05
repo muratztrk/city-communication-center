@@ -1497,3 +1497,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Yapılmakta Olan` turuncu renkte gösteriliyor.
 
 ## STATUS: Round 206 complete — frontend build/lint passed; card moved to Done.
+
+## Round 207 (Doing — 2026-07-05, reopen font/mobil/pie ince ayarlar)
+- [x] `6a4a1c8e` reopened / #1370 — Talep Oluştur tür seçim başlıkları `font-medium` oldu;
+  banner 2. satır `.page-title` ağırlığı `500` seviyesine indirildi.
+- [x] `6a49f603` reopened / #1358 — Mobil login logo alanı yatayda genişletildi; banner
+  tarih filtrelerinde başlangıç/bitiş tarihleri mobilde aynı iki kolonlu satırda kalacak invariant'a işlendi.
+- [x] `6a4a18ec` reopened / #1368 — Pie chart drilldown popup'ta `Active` yani
+  `Yapılmakta Olan` durum text'i de turuncu renge alındı.

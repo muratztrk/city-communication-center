@@ -45,7 +45,7 @@ function resolveTerminalDateHeader(rows: DashboardChartDrilldownRow[], t: TFunct
 function getStatusTextClass(status: string): string {
   if (status === 'Completed') return 'font-semibold text-emerald-600'
   if (isCancelledLike(status)) return 'font-semibold text-red-600'
-  if (status === 'InProgress') return 'font-semibold text-orange-500'
+  if (status === 'Active' || status === 'InProgress') return 'font-semibold text-orange-500'
   return ''
 }
 

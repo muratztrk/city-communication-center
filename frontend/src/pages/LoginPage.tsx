@@ -330,11 +330,11 @@ export function LoginPage() {
           }}
         >
           <div className="w-full space-y-4">
-            <div className="flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-4 py-4 lg:hidden">
+            <div className="flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-7 py-4 sm:px-9 lg:hidden">
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-20 w-36 border-0 sm:h-24 sm:w-44"
+                className="h-20 w-44 border-0 sm:h-24 sm:w-52"
                 imageClassName="h-[92%] w-[92%]"
               />
               <div className="min-w-0 text-center">

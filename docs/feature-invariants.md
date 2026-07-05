@@ -35,11 +35,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
-  `font-weight: 600` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
-  `font-bold` seviyesinde kalır, `font-extrabold`'a geri alınmaz.
+  `font-weight: 500` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
+  `font-medium` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
-  tam satır kaplar, başlangıç/bitiş tarihleri aramanın alt satırına iner. Mobil gridview
+  tam satır kaplar, başlangıç/bitiş tarihleri aramanın altındaki aynı satırda iki kolon durur. Mobil gridview
   tablo yazıları/padding'i desktop ölçeğinden daha kompakt kalır. Detay modal formları tek kolon akar.
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
   `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
@@ -374,6 +374,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilmez; breadcrumb doğrudan `Anasayfa > Vatandaş Talepleri` olur (card #1262).
 - **Login logosu HER ZAMAN `/tire-belediyesi-logo.png`** (LoginPage `LOGIN_LOGO_*_SRC`) —
   tenant `appearance.logoUrl` ile override edilmez.
+- **Mobil login logo çerçevesi yatayda geniş kalır:** kompakt login logo kartının yatay
+  padding'i ve logo genişliği daraltılıp kare karta geri döndürülmez.
 - **Sol menüde `/whatsapp` alt linki `SidebarNavLinkItem.emphasized` ile biraz büyük ve sola
   taşınmış kalır**; metin tam sığmalı, tüm sidebar font/zoom ölçeğini değiştirerek diğer
   menüleri büyütme (card #1085).
@@ -447,7 +449,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   önce terminal tarih kolonu gelir: tamamlandı diliminde `Tamamlanma Tarihi`, iptal/iade diliminde
   `İptal Tarihi`; terminal olmayan satırlara terminal tarih değeri basılmaz. Son Tarih boşsa bu popup'ta
   `Belirsiz` değil `Onay Bekleyen` yazılır; Durum sütunu rozet/pill değil düz metindir, ama
-  `Completed` yeşil, iptal/iade kırmızı, `InProgress` turuncu text rengiyle gösterilir. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak gider;
+  `Completed` yeşil, iptal/iade kırmızı, `Active`/`InProgress` turuncu text rengiyle gösterilir. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak gider;
   sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Yönlendirme yapan eski
   davranış yalnız Taleplerim grafiğinde kalır.
 - **Dashboard legend tıklanabilirliği:** rotası olmayan pie legend/dilimleri tıklanabilir görünmez;

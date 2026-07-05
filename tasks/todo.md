@@ -1406,3 +1406,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Tamamlanma / İptal Tarihi` fallback'i kaldırıldı.
 
 ## STATUS: Round 193 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 194 (Doing — 2026-07-05, mobil banner çip yerleşimi)
+- [x] `6a49f603` reopened / #1358 — Telefon breakpoint'inde banner altı çipler iki eşit kolonlu
+  grid'e alındı; her satırda en az iki buton sığacak şekilde padding/font küçültüldü. Mobilde
+  ayırıcılar gizleniyor, banner arama/tarih filtreleri iki kolon içinde taşmadan ölçekleniyor.

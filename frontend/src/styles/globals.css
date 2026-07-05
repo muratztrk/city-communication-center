@@ -3800,40 +3800,59 @@
     }
 
     .scope-chips {
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       overflow-x: visible;
       gap: 0.45rem;
       padding-block: 0.45rem;
+      align-items: stretch;
     }
 
     .scope-chip {
+      width: 100%;
       min-height: 2.15rem;
-      padding: 0.42rem 0.85rem;
-      font-size: 0.78rem;
+      padding: 0.38rem 0.52rem;
+      font-size: 0.72rem;
+      white-space: normal;
+      text-align: center;
     }
 
     .scope-chips-filters {
+      grid-column: 1 / -1;
       width: 100%;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: stretch;
       margin-left: 0;
     }
 
+    .scope-chip-divider {
+      display: none;
+    }
+
+    .scope-chips > .field-select {
+      grid-column: 1 / -1;
+      width: 100%;
+      min-width: 0;
+    }
+
     .scope-chip-search-wrap,
     .scope-chip-date {
-      min-width: min(100%, 10rem);
-      flex: 1 1 10rem;
+      min-width: 0;
+      width: 100%;
+      flex: 1 1 auto;
     }
 
     .scope-chip-search-input {
       width: 100%;
-      min-height: 2.05rem;
-      font-size: 0.82rem;
+      min-height: 1.9rem;
+      font-size: 0.76rem;
     }
 
     .scope-chip-date .field-input {
-      height: 2.2rem;
-      font-size: 0.82rem;
+      height: 2.05rem;
+      padding-inline: 0.5rem;
+      font-size: 0.76rem;
     }
 
     .sticky-page-header {

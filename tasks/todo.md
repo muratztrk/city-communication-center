@@ -1404,3 +1404,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a48cf6c` reopened / #1338 — Reporter pie chart drilldown popup başlığı yeşil ve Info
   ikonlu oldu; grid başlık fontu daha da küçültüldü, terminal tarih başlığındaki
   `Tamamlanma / İptal Tarihi` fallback'i kaldırıldı.
+
+## STATUS: Round 193 complete — frontend build/lint passed; cards moved to Done.

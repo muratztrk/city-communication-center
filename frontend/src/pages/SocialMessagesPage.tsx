@@ -161,7 +161,6 @@ function SocialMessageScopeFilters({ searchText, filterFrom, filterTo, onSearch,
         )}
       </div>
       <DateTimePicker value={filterFrom} onChange={onFromChange} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-      <span className="text-xs text-slate-400">–</span>
       <DateTimePicker value={filterTo} onChange={onToChange} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
     </div>
   )

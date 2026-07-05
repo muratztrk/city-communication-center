@@ -1444,7 +1444,6 @@ export function WhatsAppConversationsPage() {
           <div className="ml-auto mt-auto shrink-0">
             <div className="scope-chips-filters">
               <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder={t('filters.startDate', 'Başlangıç tarihi')} className="scope-chip-date" forceDown />
-              <span className="text-xs text-white/60">–</span>
               <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder={t('filters.endDate', 'Bitiş tarihi')} className="scope-chip-date" forceDown />
             </div>
           </div>

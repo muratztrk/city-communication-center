@@ -3877,13 +3877,13 @@
       grid-column: 1 / -1;
       width: 100%;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(4.75rem, 0.72fr) repeat(2, minmax(0, 1fr));
       align-items: stretch;
       margin-left: 0;
     }
 
     .scope-chips-filters > .scope-chip-search-wrap {
-      grid-column: 1 / -1;
+      grid-column: 1 / 2;
     }
 
     .scope-chip-divider {
@@ -3913,6 +3913,11 @@
       height: 2.05rem;
       padding-inline: 0.5rem;
       font-size: 0.76rem;
+    }
+
+    .login-logo-panel-mobile {
+      width: min(100%, 24rem);
+      padding-inline: 2.5rem;
     }
 
     .table-container table,

@@ -604,7 +604,6 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   className="notification-modal-date scope-chip-date"
                   forceDown
                 />
-                <span className="text-xs text-white/50">–</span>
                 <DateTimePicker
                   value={modalDateTo}
                   onChange={handleModalDateToChange}

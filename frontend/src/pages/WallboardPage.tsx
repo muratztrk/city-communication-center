@@ -312,7 +312,7 @@ export function WallboardPage() {
           </Button>
           <Button type="button" variant="destructive" onClick={() => navigate('/')} className="gap-2">
             <LogOut className="size-4" />
-            {t('common.exit', 'Çıkış')}
+            {t('common.close', 'Kapat')}
           </Button>
         </div>
       </header>

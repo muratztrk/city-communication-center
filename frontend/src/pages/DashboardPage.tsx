@@ -447,7 +447,6 @@ export function DashboardPage() {
           {period === 'custom' && (
             <>
               <DateTimePicker value={customFrom} onChange={setCustomFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-              <span className="text-xs text-slate-400">–</span>
               <DateTimePicker value={customTo} onChange={setCustomTo} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
             </>
           )}

@@ -1564,3 +1564,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   adından sonra birim adını parantez içinde gösterecek şekilde formatlandı.
 
 ## STATUS: Round 212 complete — dotnet build, frontend build/lint passed; cards pending Done move.
+
+## Round 213 (Doing — 2026-07-05, mobil banner/login ve Wallboard Kapat)
+- [x] `6a49f603` reopened / #1358 — Mobilde login logo çerçevesi yatayda genişletildi,
+  logo boyutu sabit bırakıldı; mobil banner filtrelerinde arama kutusu daraltıldı, başlangıç
+  ve bitiş tarihi aynı satırda çizgisiz gösteriliyor.
+- [x] `6a4a374d` / #1381 — Ekrana Yansıt bölümündeki `Çıkış` buton metni `Kapat` oldu.
+
+## STATUS: Round 213 complete — frontend build/lint passed; cards pending Done move.

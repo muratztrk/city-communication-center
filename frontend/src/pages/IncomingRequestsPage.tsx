@@ -769,7 +769,6 @@ export function IncomingRequestsPage() {
               </div>
               {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
               <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-              <span className="text-xs text-white/60">–</span>
               <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
             </div>
           </div>

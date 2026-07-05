@@ -1459,3 +1459,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 ## Round 201 (Doing — 2026-07-05, Departman Adı metni)
 - [x] `6a4a1882` / #1367 — Locale'deki `departments.name` metni `Departman Adı` yerine
   `Birim Adı`, placeholder da `Birim adı girin` oldu; İngilizce karşılık `Unit Name` olarak güncellendi.
+
+## STATUS: Round 201 complete — frontend build/lint passed; card moved to Done.

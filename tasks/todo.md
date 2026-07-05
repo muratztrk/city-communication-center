@@ -1466,3 +1466,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4a18ec` / #1368 — Üst düzey yönetici dashboard pie chart drilldown popup'ında
   Durum sütunu rozet/pill yerine düz metin oldu; terminal tarih kolonu terminal olmayan
   satırlarda tarih basmıyor; Son Tarih boşsa `Belirsiz` yerine `Onay Bekleyen` gösteriliyor.
+
+## STATUS: Round 202 complete — frontend build/lint passed; card moved to Done.

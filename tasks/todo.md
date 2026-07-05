@@ -1446,3 +1446,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a492c27` / #1355 — Taleplerim detay düzenleme modunda `Talep Başlığı`, `Talep Bilgileri`
   altında ayrı satır olarak görünmüyor; textarea başlığın görüntülendiği sol kart başlık satırında
   açılıyor.
+
+## STATUS: Round 199 complete — frontend build/lint passed; card moved to Done.

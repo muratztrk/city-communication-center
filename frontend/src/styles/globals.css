@@ -456,9 +456,8 @@
     background: linear-gradient(
       to bottom,
       rgb(4 120 87) 0%,
-      rgb(4 120 87) 50%,
-      rgb(249 115 22) 72%,
-      rgb(220 38 38) 92%,
+      rgb(4 120 87) 46%,
+      rgb(220 38 38) 82%,
       rgb(220 38 38) 100%
     );
   }
@@ -490,9 +489,9 @@
   .job-process-timeline__line--from-current {
     background: linear-gradient(
       to bottom,
-      rgb(249 115 22) 0%,
-      rgb(249 115 22) 50%,
-      rgb(203 213 225) 86%,
+      rgb(194 65 12) 0%,
+      rgb(249 115 22) 42%,
+      rgb(203 213 225) 88%,
       rgb(203 213 225) 100%
     );
   }

@@ -1389,3 +1389,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   yine sağ hizasını koruyor.
 
 ## STATUS: Round 191 complete — build/lint passed; cards moved to Done.
+
+## Round 192 (Doing — 2026-07-05, Taleplerim timeline geçişleri)
+- [x] `6a4a1038` / #1364 — Taleplerim süreç timeline'ında yeşil→kırmızı çizgi geçişi daha belirgin
+  yapıldı; ara turuncu stop kaldırıldı, geçiş yalnız yeşil ve kırmızı arasında kaldı.
+- [x] `6a4a0fba` / #1363 — Turuncu→gri çizgi geçişi koyu turuncudan başlayıp griye daha belirgin
+  açılacak şekilde güncellendi.

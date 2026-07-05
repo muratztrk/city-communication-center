@@ -489,6 +489,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık fontu normal ağırlıkta kalır, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı
   tondadır; reporter turuncusu `wallboard-task-owner` genel rengini ezmelidir. Başlık font size'ı
   tablo yoğunluğuna göre düşük kalır.
+- **Wallboard Son Tarihi Geçmiş stat accent'i:** Yalnız `Son Tarihi Geçmiş` kutusunun alt border/accent
+  çizgisi `Kapat` butonunun `var(--color-destructive)` kırmızısıyla aynı kalır.
 - **Grid durum/son tarih uyarı renkleri:** `Yapılmakta` status chip'i turuncu zemin + beyaz metin kullanır;
   bugün dolan `Son Tarih` pill'i Wallboard Son Tarih uyarısı gibi dolgulu arka plan olmadan sarı
   çerçeve/yazı dilinde kalır.

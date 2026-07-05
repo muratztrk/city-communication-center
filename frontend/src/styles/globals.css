@@ -3390,8 +3390,8 @@
   }
 
   .wallboard-stats > button.stat-overdue {
-    --wallboard-stat-accent: #e11d48;
-    --wallboard-stat-accent-soft: rgba(225, 29, 72, 0.3);
+    --wallboard-stat-accent: var(--color-destructive);
+    --wallboard-stat-accent-soft: color-mix(in srgb, var(--color-destructive) 30%, transparent);
   }
 
   .wallboard-stats > button:hover {

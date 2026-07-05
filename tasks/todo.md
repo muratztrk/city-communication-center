@@ -1676,3 +1676,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   pagination bar yüksekliğiyle aynı chrome değişkenlerini kullanıyor.
 
 ## STATUS: Round 224 complete — frontend build/lint passed; card pending Done move.
+
+## Round 225 (Doing — 2026-07-05, Wallboard overdue stat accent)
+- [x] `6a4a54b4` / #1389 reopen — Ekrana Yansıt'ta yalnız `Son Tarihi Geçmiş` kutusunun
+  alt border/accent çizgisi `Kapat` butonunun `var(--color-destructive)` kırmızısıyla eşitlendi;
+  diğer stat kutularının accent renkleri korunuyor.
+
+## STATUS: Round 225 complete — frontend build/lint passed; card pending Done move.

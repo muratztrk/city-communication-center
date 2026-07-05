@@ -182,6 +182,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Birim İçi/Birim Dışı` rozeti; ikisi de sağ hizasını korur.
   Taleplerim detay popup gövdesi desktopta referans görseldeki gibi geniş ama kontrollü kalır:
   yaklaşık `72vw` / `86.5rem` genişlik ve `81dvh` / `47rem` yükseklik.
+  `Öncelik / Proje Niteliğinde mi?` değerindeki ayraç, süreç timeline tarih-saat ayracıyla
+  aynı küçük nokta bileşenini kullanır; düz `·` karakterine dönmez.
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
   etiketi tek satır kalır ve atanmış kullanıcı yoksa değer kısmında `Birim / -` gösterir; `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak / Bulvar` ve `Açık Adres` üçlü yan yana durur; adres etiketleri

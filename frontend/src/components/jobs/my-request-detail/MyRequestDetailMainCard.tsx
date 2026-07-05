@@ -220,7 +220,11 @@ export function MyRequestDetailMainCard({
               <div className="job-detail-field-row job-detail-field-row--request-info">
                 <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje Niteliğinde mi?')}</div>
                 <div className="job-detail-field-row__value">
-                  {getPriorityLabel(t, detail.priority)} · <JobProjectValue job={detail} t={t} />
+                  <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                    <span>{getPriorityLabel(t, detail.priority)}</span>
+                    <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
+                    <JobProjectValue job={detail} t={t} />
+                  </span>
                 </div>
               </div>
             )}

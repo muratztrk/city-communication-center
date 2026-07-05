@@ -1419,3 +1419,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   genişlik `min(72vw, 86.5rem)`, yükseklik `min(81dvh, 47rem)` oldu.
 
 ## STATUS: Round 195 complete — frontend build/lint passed; card moved to Done.
+
+## Round 196 (Doing — 2026-07-05, Talep Bilgileri ayraç boyutu)
+- [x] `6a4a1626` / #1366 — Taleplerim detay popup `Talep Bilgileri` altındaki
+  `Öncelik / Proje Niteliğinde mi?` değer ayracı, süreç timeline tarih-saat ayracıyla aynı
+  `.job-process-timeline__datetime-bullet` bileşenini kullanacak şekilde değiştirildi.

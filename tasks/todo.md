@@ -1439,3 +1439,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   genel `.data-table thead th` kuralından sonra daha yüksek specificity ile `0.8rem` olarak
   override edildi; portal/zoom farkı nedeniyle büyük görünen headerlar Taleplerim gridview
   görsel ölçeğine yaklaştırıldı.
+
+## STATUS: Round 198 complete — frontend build/lint passed; card moved to Done.

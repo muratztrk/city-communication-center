@@ -1453,3 +1453,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4a15b0` reopened / #1365 — Referans görsel piksel oranına göre Taleplerim detay modalı
   `72.05vw / 86.45rem` genişlik ve `80.7dvh / 46.85rem` yükseklik değerlerine çekildi;
   `max-height` da aynı değere sabitlendi.
+
+## STATUS: Round 200 complete — frontend build/lint passed; card moved to Done.

@@ -1473,3 +1473,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a49f603` reopened / #1358 — Mobilde banner filtre grubu içinde arama alanı tam satıra
   yayıldı; başlangıç/bitiş tarihleri aramanın alt satırında iki kolon olarak duruyor. Telefon
   breakpoint'inde tüm gridview tabloları daha düşük min-width, padding ve font ölçeğiyle kompaktlaştı.
+
+## STATUS: Round 203 complete — frontend build/lint passed; card moved to Done.

@@ -178,8 +178,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
   yapışmaz. Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
-  Talep başlığı yanındaki meta bloğu en sağda iki satırdır: üstte talep no, altında
-  `Birim İçi/Birim Dışı` rozeti; ikisi de sağ hizasını korur.
+  Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
+  en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.
   Taleplerim detay popup gövdesi desktopta referans görseldeki gibi geniş ama kontrollü kalır:
   yaklaşık `72vw` / `86.5rem` genişlik ve `81dvh` / `47rem` yükseklik.
   `Öncelik / Proje Niteliğinde mi?` değerindeki ayraç, süreç timeline tarih-saat ayracıyla

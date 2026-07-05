@@ -270,6 +270,10 @@
     text-transform: none;
   }
 
+  .detail-modal-shell--my-request .my-request-title-heading {
+    width: 100%;
+  }
+
   .detail-modal-shell--my-request .job-detail-section-heading {
     margin-bottom: 0.75rem;
     border-bottom: 1px solid rgb(226 232 240);

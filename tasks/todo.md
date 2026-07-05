@@ -1426,3 +1426,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `.job-process-timeline__datetime-bullet` bileşenini kullanacak şekilde değiştirildi.
 
 ## STATUS: Round 196 complete — frontend build/lint passed; card moved to Done.
+
+## Round 197 (Doing — 2026-07-05, Taleplerim başlık meta border hizası)
+- [x] `6a492c3d` reopened / #1356 — Taleplerim detay ana kartında başlık satırı tam kart
+  genişliğine yayıldı; Talep No + Birim İçi/Dışı meta bloğu başlık metnine değil, sol kartın
+  sağ border çizgisine göre en sağa yaslanıyor.

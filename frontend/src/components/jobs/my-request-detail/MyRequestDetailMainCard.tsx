@@ -153,7 +153,7 @@ export function MyRequestDetailMainCard({
       </MyRequestSectionHeading>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
-          <MyRequestSectionHeading icon={FileText}>
+          <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
             <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
               <span className="min-w-0">{normalizeTitleCaseField(detail.title)}</span>
               <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">

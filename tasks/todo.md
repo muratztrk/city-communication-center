@@ -1490,3 +1490,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   bannerların 2. satırındaki `.page-title` ağırlığı sticky header içinde `600` seviyesine indirildi.
 
 ## STATUS: Round 205 complete — frontend build/lint passed; card moved to Done.
+
+## Round 206 (Doing — 2026-07-05, reporter pie drilldown durum text rengi)
+- [x] `6a4a18ec` reopened / #1368 — Üst düzey yönetici pie chart drilldown popup'ında
+  Durum sütunu rozet/pill olmadan düz text kalıyor; `Tamamlandı` yeşil, iptal/iade kırmızı,
+  `Yapılmakta Olan` turuncu renkte gösteriliyor.

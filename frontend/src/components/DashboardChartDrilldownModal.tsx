@@ -42,6 +42,13 @@ function resolveTerminalDateHeader(rows: DashboardChartDrilldownRow[], t: TFunct
   return null
 }
 
+function getStatusTextClass(status: string): string {
+  if (status === 'Completed') return 'font-semibold text-emerald-600'
+  if (isCancelledLike(status)) return 'font-semibold text-red-600'
+  if (status === 'InProgress') return 'font-semibold text-orange-500'
+  return ''
+}
+
 /**
  * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
@@ -129,7 +136,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                     <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                     <td className="font-semibold">{row.title}</td>
                     <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
-                    <td>{getAuditStatusLabel(t, row.status)}</td>
+                    <td>
+                      <span className={getStatusTextClass(row.status)}>{getAuditStatusLabel(t, row.status)}</span>
+                    </td>
                     {showTerminalDateColumn ? (
                       <td>
                         {row.status === 'Completed' || isCancelledLike(row.status) ? (

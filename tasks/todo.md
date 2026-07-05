@@ -1661,3 +1661,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   detayı ve JobsPage talep içindeki görev detayında bekleyen/onay/red marker'ları aynı ortak bileşenle basılıyor.
 
 ## STATUS: Round 222 complete — frontend build/lint passed; card pending Done move.
+
+## Round 223 (Doing — 2026-07-05, mobil login ve banner filtre yerleşimi)
+- [x] `6a49f603` / #1358 reopen — Mobil login logo paneli yatayda biraz daha genişletildi
+  (`calc(100% + 1rem)` + negatif yatay margin); logo görsel boyutu sabit kaldı. Mobil banner
+  filtrelerinde arama tam satıra alındı, başlangıç/bitiş tarihi aramanın altında iki eşit kolon
+  halinde yan yana kaldı; tire/ayraç mobilde gizli.
+
+## STATUS: Round 223 complete — frontend build/lint passed; card pending Done move.

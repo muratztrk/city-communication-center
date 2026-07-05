@@ -39,8 +39,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
-  kutusu dar ilk kolon olarak kalır, başlangıç/bitiş tarihleri yanında aynı satırda durur ve
-  aralarında tire/çizgi gösterilmez. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
+  kutusu tam satırdır, başlangıç/bitiş tarihleri aramanın altında iki eşit kolon olarak yan yana durur
+  ve aralarında tire/çizgi gösterilmez. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
   daha kompakt kalır. Detay modal formları tek kolon akar.
 - **Banner arama input metni:** banner ve bildirim modalındaki search textbox boyutu büyümez; iç metin
   0.8rem+ ve bold kalır, placeholder/ikon yeşil banner üstünde okunur kalır.
@@ -393,7 +393,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Login logosu HER ZAMAN `/tire-belediyesi-logo.png`** (LoginPage `LOGIN_LOGO_*_SRC`) —
   tenant `appearance.logoUrl` ile override edilmez.
 - **Mobil login logo çerçevesi yatayda geniş kalır:** kompakt login logo kartının yatay
-  padding'i ve kart genişliği daraltılıp kare karta geri döndürülmez; logo boyutu sabit kalır.
+  padding'i ve kart genişliği daraltılıp kare karta geri döndürülmez; panel viewport içinde biraz
+  dışa taşarak genişler, logo boyutu sabit kalır.
 - **Sol menüde `/whatsapp` alt linki `SidebarNavLinkItem.emphasized` ile biraz büyük ve sola
   taşınmış kalır**; metin tam sığmalı, tüm sidebar font/zoom ölçeğini değiştirerek diğer
   menüleri büyütme (card #1085).

@@ -181,8 +181,6 @@ function ConversationListItem({
   const ticketOpen = isConversationTicketOpen(conv)
   const timeLabel = new Date(conv.lastMessageAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   const recentTime = isRecentConversationTime(conv.lastMessageAt)
-  const assigneeName = conv.assigneeDisplayName?.trim() || null
-  const assigneeInitials = assigneeName ? getInitials(assigneeName) : null
 
   return (
     <button
@@ -235,8 +233,7 @@ function ConversationListItem({
             <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
           ) : null}
 
-          <div className="mt-2 flex items-center justify-between gap-2 min-w-0">
-            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+          <div className="mt-2 flex items-center gap-1.5 min-w-0 flex-wrap">
               {waitingForResponse && (
                 <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
                   <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
@@ -261,18 +258,6 @@ function ConversationListItem({
                 </span>
               )}
             </div>
-
-            <div className="shrink-0 flex items-center gap-1 max-w-[42%]">
-              {assigneeName ? (
-                <>
-                  <span className="size-5 rounded-full bg-slate-200 text-[9px] font-bold text-slate-600 flex items-center justify-center">
-                    {assigneeInitials}
-                  </span>
-                  <span className="text-[10px] text-slate-500 truncate">{assigneeName}</span>
-                </>
-              ) : null}
-            </div>
-          </div>
 
           <div className="mt-1.5">
             <ConversationStatusCounts

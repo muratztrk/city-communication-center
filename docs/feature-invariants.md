@@ -318,6 +318,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır.
 - **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
   personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad (Birim)` gösterilir; görev/atanan yoksa alan basılmaz.
+- **WhatsApp konuşma listesi görev sahibi:** görev sahibi bilgisi artık detay header'ına taşındı;
+  sol konuşma kartında `GG Ad Soyad` avatar/metni tekrar gösterilmez.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
   veri yine `TaskStatusChanged` audit'inden türer.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının

@@ -1572,3 +1572,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4a374d` / #1381 — Ekrana Yansıt bölümündeki `Çıkış` buton metni `Kapat` oldu.
 
 ## STATUS: Round 213 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 214 (Doing — 2026-07-05, WhatsApp liste görev sahibi kaldırma)
+- [x] `6a4a330d` / #1380 — WhatsApp konuşma listesi kartındaki `GG Ad Soyad` görev sahibi
+  avatar/metni kaldırıldı; görev sahibi bilgisi yalnız detay header'ındaki taşınmış alanda kalıyor.
+
+## STATUS: Round 214 complete — frontend build/lint passed; card pending Done move.

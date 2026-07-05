@@ -1411,3 +1411,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a49f603` reopened / #1358 — Telefon breakpoint'inde banner altı çipler iki eşit kolonlu
   grid'e alındı; her satırda en az iki buton sığacak şekilde padding/font küçültüldü. Mobilde
   ayırıcılar gizleniyor, banner arama/tarih filtreleri iki kolon içinde taşmadan ölçekleniyor.
+
+## STATUS: Round 194 complete — frontend build/lint passed; card moved to Done.

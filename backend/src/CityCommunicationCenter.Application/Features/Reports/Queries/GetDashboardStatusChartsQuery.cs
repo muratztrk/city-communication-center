@@ -409,6 +409,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var counts = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
                 && job.Status == JobStatus.Completed
+                && job.SourceType != JobSourceType.Routine
                 && job.Neighborhood != null
                 && job.Neighborhood != ""
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
@@ -438,6 +439,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var counts = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
                 && job.Status == JobStatus.Active
+                && job.SourceType != JobSourceType.Routine
                 && job.Neighborhood != null
                 && job.Neighborhood != ""
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)

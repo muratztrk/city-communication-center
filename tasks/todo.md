@@ -1547,3 +1547,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   reporter talebindeki Görevi Yapan metni turuncu renge geri alındı.
 
 ## STATUS: Round 210 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 211 (Doing — 2026-07-05, mahalle pie popup rutin filtre)
+- [x] `6a4a18ec` reopened / #1368 — Üst düzey yönetici dashboard'ındaki
+  `Mahallelerde Tamamlanan Talepler` ve `Mahallelerde Yapılmakta Olan Talepler` grafiklerinde
+  ve tıklanınca açılan drilldown popup satırlarında rutin görevler dışlandı.
+
+## STATUS: Round 211 complete — dotnet build passed; card pending Done move.

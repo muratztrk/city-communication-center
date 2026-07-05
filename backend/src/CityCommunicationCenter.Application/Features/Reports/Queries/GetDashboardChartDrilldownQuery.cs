@@ -169,6 +169,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         var rows = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
                 && job.Status == status
+                && job.SourceType != JobSourceType.Routine
                 && job.Neighborhood == neighborhood
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))

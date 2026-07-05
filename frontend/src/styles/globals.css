@@ -163,8 +163,9 @@
   }
 
   .detail-modal-shell--my-request {
-    width: min(72vw, 86.5rem);
-    height: min(81dvh, 47rem);
+    width: min(72.05vw, 86.45rem);
+    height: min(80.7dvh, 46.85rem);
+    max-height: min(80.7dvh, 46.85rem);
   }
 
   .detail-modal-shell--my-request .my-request-detail-header__title {

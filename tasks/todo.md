@@ -1448,3 +1448,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   açılıyor.
 
 ## STATUS: Round 199 complete — frontend build/lint passed; card moved to Done.
+
+## Round 200 (Doing — 2026-07-05, Taleplerim popup boyutu ince ayar)
+- [x] `6a4a15b0` reopened / #1365 — Referans görsel piksel oranına göre Taleplerim detay modalı
+  `72.05vw / 86.45rem` genişlik ve `80.7dvh / 46.85rem` yükseklik değerlerine çekildi;
+  `max-height` da aynı değere sabitlendi.

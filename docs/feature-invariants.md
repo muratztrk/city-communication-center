@@ -181,7 +181,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
   en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.
   Taleplerim detay popup gövdesi desktopta referans görseldeki gibi geniş ama kontrollü kalır:
-  yaklaşık `72vw` / `86.5rem` genişlik ve `81dvh` / `47rem` yükseklik.
+  yaklaşık `72.05vw` / `86.45rem` genişlik ve `80.7dvh` / `46.85rem` yükseklik.
   `Öncelik / Proje Niteliğinde mi?` değerindeki ayraç, süreç timeline tarih-saat ayracıyla
   aynı küçük nokta bileşenini kullanır; düz `·` karakterine dönmez.
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`

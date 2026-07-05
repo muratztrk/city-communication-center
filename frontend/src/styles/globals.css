@@ -3143,15 +3143,21 @@
   }
 
   .wallboard-page {
+    --wallboard-page-pad: clamp(1rem, 2.2vw, 2rem);
     position: relative;
     height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: clamp(1rem, 2.2vw, 2rem);
+    padding: var(--wallboard-page-pad) var(--wallboard-page-pad) 0;
     background:
       linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 22%, #0f172a) 0%, #102033 38%, #132d2b 100%);
     color: white;
+  }
+
+  .wallboard-page > footer {
+    margin-inline: calc(var(--wallboard-page-pad) * -1);
+    margin-top: 0.75rem;
   }
 
   .wallboard-hero {
@@ -3547,7 +3553,7 @@
     max-width: 32rem;
     color: white;
     font-size: clamp(0.86rem, 1vw, 1.12rem);
-    font-weight: 700;
+    font-weight: 600;
     overflow: hidden;
     overflow-wrap: break-word;
     white-space: normal;
@@ -3569,7 +3575,12 @@
   .wallboard-creator-line--task-meta {
     color: rgba(226, 232, 240, 0.9);
     font-size: clamp(0.76rem, 0.8vw, 0.9rem);
-    font-weight: 600;
+    font-weight: 500;
+  }
+
+  .wallboard-task-owner--reporter,
+  .wallboard-creator-line--reporter {
+    color: #fb923c;
   }
 
   .wallboard-priority-text {

@@ -462,13 +462,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tıklanmaz kalabilir ama `Benim Görevlerim` dilimi yine `/my-tasks?view=all` rotasına gitmelidir.
 - **Wallboard layout:** fixed-height flex (`100dvh`, `overflow:hidden`), hero+stats
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
-  başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur.
+  başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur. Footer
+  viewport'un en alt kenarına oturur; sayfa padding'i footer'ı yukarıda bırakmaz.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
-  ayrı satırda kalır; başlık ve ilgili tarih/değer metinleri turuncu vurgulanabilir, ama görev sahibi
-  ve oluşturan alt satırı reporter font ağırlığını kullanıp nötr renkte kalır.
+  ayrı satırda kalır; "Üst Düzey Yönetici" oluşturan metni ve aynı satırın Görev Sahibi metni
+  turuncu kalır, ama Başlık/Görev Sahibi font ağırlığı aşırı bold olmaz.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
 ## 5b. Bildirimler (Notifications)

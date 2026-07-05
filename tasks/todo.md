@@ -1538,3 +1538,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   font boyutu/ağırlığı/harf aralığı/rengine eşitlendi.
 
 ## STATUS: Round 209 complete — frontend build/lint passed; card pending Done move.
+
+## Round 210 (Doing — 2026-07-05, Wallboard footer ve reporter renk reopen)
+- [x] `6a4a26b2` reopened / #1374 — Ekrana Yansıt footer'ı sayfa padding'i içinde yukarıda
+  kalmayacak şekilde viewport'un en alt kenarına oturtuldu.
+- [x] `6a48bbe2` reopened / #1333 — Ekrana Yansıt gridinde Başlık font ağırlığı bir seviye daha
+  düşürüldü; Görevi Yapan font ağırlığı azaltıldı. Üst Düzey Yönetici oluşturan metni ve
+  reporter talebindeki Görevi Yapan metni turuncu renge geri alındı.
+
+## STATUS: Round 210 complete — frontend build/lint passed; cards pending Done move.

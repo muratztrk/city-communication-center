@@ -180,6 +180,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
   Talep başlığı yanındaki meta bloğu en sağda iki satırdır: üstte talep no, altında
   `Birim İçi/Birim Dışı` rozeti; ikisi de sağ hizasını korur.
+  Taleplerim detay popup gövdesi desktopta referans görseldeki gibi geniş ama kontrollü kalır:
+  yaklaşık `72vw` / `86.5rem` genişlik ve `81dvh` / `47rem` yükseklik.
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
   etiketi tek satır kalır ve atanmış kullanıcı yoksa değer kısmında `Birim / -` gösterir; `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak / Bulvar` ve `Açık Adres` üçlü yan yana durur; adres etiketleri

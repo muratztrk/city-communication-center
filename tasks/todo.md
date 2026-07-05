@@ -1413,3 +1413,7 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   ayırıcılar gizleniyor, banner arama/tarih filtreleri iki kolon içinde taşmadan ölçekleniyor.
 
 ## STATUS: Round 194 complete — frontend build/lint passed; card moved to Done.
+
+## Round 195 (Doing — 2026-07-05, Taleplerim popup boyutu)
+- [x] `6a4a15b0` / #1365 — Taleplerim detay popup desktop ölçüsü referans görsele yaklaştırıldı:
+  genişlik `min(72vw, 86.5rem)`, yükseklik `min(81dvh, 47rem)` oldu.

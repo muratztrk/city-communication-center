@@ -274,6 +274,18 @@
     width: 100%;
   }
 
+  .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
+    width: min(100%, 28rem);
+    min-height: 2rem;
+    max-height: 4.75rem;
+    resize: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+    text-align: left;
+  }
+
   .detail-modal-shell--my-request .job-detail-section-heading {
     margin-bottom: 0.75rem;
     border-bottom: 1px solid rgb(226 232 240);

@@ -1441,3 +1441,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   görsel ölçeğine yaklaştırıldı.
 
 ## STATUS: Round 198 complete — frontend build/lint passed; card moved to Done.
+
+## Round 199 (Doing — 2026-07-05, Taleplerim başlık edit konumu)
+- [x] `6a492c27` / #1355 — Taleplerim detay düzenleme modunda `Talep Başlığı`, `Talep Bilgileri`
+  altında ayrı satır olarak görünmüyor; textarea başlığın görüntülendiği sol kart başlık satırında
+  açılıyor.

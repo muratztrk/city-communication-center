@@ -2872,6 +2872,10 @@
     color: white;
   }
 
+  .sticky-page-header .page-title {
+    font-weight: 600;
+  }
+
   .sticky-page-header .page-subtitle {
     color: rgba(255, 255, 255, 0.82);
   }

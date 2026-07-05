@@ -1483,3 +1483,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Talep Bilgileri` altında ayrı satır olarak görünmüyor; numara yalnız başlık yanındaki meta alanda kalıyor.
 
 ## STATUS: Round 204 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 205 (Doing — 2026-07-05, Talep Oluştur ve banner başlık ağırlığı)
+- [x] `6a4a1c8e` / #1370 — Talep Oluştur tür seçim kartlarındaki `Birim İçi`,
+  `Birim Dışı`, `Vatandaş Talepleri` başlıkları `font-extrabold` yerine `font-bold` oldu;
+  bannerların 2. satırındaki `.page-title` ağırlığı sticky header içinde `600` seviyesine indirildi.

@@ -488,7 +488,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tondadır; reporter turuncusu `wallboard-task-owner` genel rengini ezmelidir. Başlık font size'ı
   tablo yoğunluğuna göre düşük kalır.
 - **Grid durum/son tarih uyarı renkleri:** `Yapılmakta` status chip'i turuncu zemin + beyaz metin kullanır;
-  bugün dolan `Son Tarih` pill'i Wallboard Son Tarih uyarısı gibi sarı çerçeve/yazı dilinde kalır.
+  bugün dolan `Son Tarih` pill'i Wallboard Son Tarih uyarısı gibi dolgulu arka plan olmadan sarı
+  çerçeve/yazı dilinde kalır.
+- **Banner arama input ağırlığı:** Banner/search input metni kompakt alanda iri okunur ama 700-bold
+  görünmez; `scope-chip-search-input` yazı ağırlığı yarı-kalın seviyede kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
 ## 5b. Bildirimler (Notifications)

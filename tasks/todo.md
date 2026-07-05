@@ -1638,3 +1638,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   turuncuya çekildi.
 
 ## STATUS: Round 219 complete — backend build and frontend build/lint passed; cards pending Done move.
+
+## Round 220 (Doing — 2026-07-05, banner arama ve Son Tarih uyarı ince ayarı)
+- [x] `6a4a628d` / #1390 reopen — Banner/search textbox input metinleri 700-bold yerine
+  yarı-kalın (`font-weight: 600`) seviyeye indirildi; iri okunurluk korunurken aşırı bold görünüm azaltıldı.
+- [x] `6a4a493d` / #1387 reopen — Bugün dolan gridview `Son Tarih` pill'i dolgulu arka plan
+  etkisinden çıkarılıp Wallboard uyarı diliyle uyumlu sarı çerçeve + amber metin stilinde sabitlendi.
+
+## STATUS: Round 220 complete — frontend build/lint passed; cards pending Done move.

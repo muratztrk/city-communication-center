@@ -668,7 +668,7 @@
   .notification-modal-search .scope-chip-search-input {
     color: white;
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .notification-modal-search .scope-chip-search-input::placeholder {
@@ -2492,7 +2492,7 @@
   .sticky-page-header .scope-chip-search-input {
     color: white;
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .sticky-page-header .scope-chip-search-input::placeholder {
@@ -2704,7 +2704,7 @@
     border: 0;
     outline: none;
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 600;
     color: #0f172a;
     background: transparent;
     width: 6rem;
@@ -3690,8 +3690,8 @@
 
   /* Bugün dolan son tarih: Ekrana Yansıt Son Tarih sütunundaki sarı çerçeve/yazı diliyle aynı (card #1387). */
   .due-date-pill.warning {
-    background: rgba(251, 191, 36, 0.12);
-    border: 1px solid rgba(251, 191, 36, 0.65);
+    background: transparent;
+    border: 1px solid #fbbf24;
     color: #b45309;
     font-weight: 700;
   }

@@ -1505,3 +1505,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   tarih filtrelerinde başlangıç/bitiş tarihleri mobilde aynı iki kolonlu satırda kalacak invariant'a işlendi.
 - [x] `6a4a18ec` reopened / #1368 — Pie chart drilldown popup'ta `Active` yani
   `Yapılmakta Olan` durum text'i de turuncu renge alındı.
+
+## STATUS: Round 207 complete — frontend build/lint passed; cards moved to Done.

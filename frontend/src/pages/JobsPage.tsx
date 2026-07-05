@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Search, PenLine, X as XIcon } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
+import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -1859,6 +1860,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   const reporterNumberClass = isReporterJob && hasConcreteNumberDisplay(formatJobDisplayNumber(job))
                     ? reporterGridValueClass(true)
                     : ''
+                  // Ek süre işaretleri: aktif talepte Son Tarih, tamamlanmışta Tamamlanma Tarihi,
+                  // iptalde İptal Tarihi altında; Tüm görünümünde terminal satırda Durum altında
+                  // (görev gridindeki ile aynı kural — cards #1385/#1388).
+                  const isTerminalJob = job.status === 'Completed' || job.status === 'Cancelled' || job.status === 'Rejected'
+                  const jobExtraTimeMarkers = (
+                    <GridExtraTimeMarkers
+                      hasPending={job.hasPendingExtraTimeRequest}
+                      lastDecision={job.lastExtraTimeRequestDecision}
+                    />
+                  )
                   return (
                   <tr key={job.jobId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(jobsPage - 1) * jobsPageSize + index + 1}</td>
@@ -1882,10 +1893,25 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <td><JobProjectValue job={job} t={t} /></td>
                     )}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
-                    {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && <td><DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} highlightReporter={isReporterJob} /></td>}
+                    {!((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') && (
+                      <td>
+                        <DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} highlightReporter={isReporterJob} />
+                        {!isTerminalJob && jobExtraTimeMarkers}
+                      </td>
+                    )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <td><DateCell value={job.completedAtUtc} locale={locale} tone="success" /></td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <td><DateCell value={job.updatedAtUtc ?? null} locale={locale} tone="danger" /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && (
+                      <td>
+                        <DateCell value={job.completedAtUtc} locale={locale} tone="success" />
+                        {jobExtraTimeMarkers}
+                      </td>
+                    )}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && (
+                      <td>
+                        <DateCell value={job.updatedAtUtc ?? null} locale={locale} tone="danger" />
+                        {jobExtraTimeMarkers}
+                      </td>
+                    )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && (() => {
                       // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
                       const statusDate = job.status === 'Completed' ? job.completedAtUtc
@@ -1901,6 +1927,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 </span>
                               : getJobDisplayStatus(t, job)}
                           </StatusPill>
+                          {isTerminalJob && jobExtraTimeMarkers}
                         </td>
                       )
                     })()}
@@ -2821,7 +2848,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               : task.currentStatus === 'Cancelled'
                                 ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(task.updatedAtUtc ?? null, locale)}</span> }]
                                 : []),
-                            { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc, locale) },
+                            {
+                              label: t('tasks.columns.dueDate', 'Son Tarih'),
+                              // Yöneticide bekleyen ek süre talebi talep detayında da görünür (card #1385).
+                              value: (
+                                <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                  <span>{formatDateTime(task.dueDateUtc, locale)}</span>
+                                  {task.hasPendingExtraTimeRequest ? (
+                                    <span className="text-xs font-bold text-amber-500">
+                                      {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                                    </span>
+                                  ) : null}
+                                </span>
+                              ),
+                            },
                           ].map(({ label, value }) => (
                             // Son satır "Son Tarih"in altına kapanış çizgisi (card #712/#713, card 649 aynası).
                             <div key={label} className={`px-3 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>

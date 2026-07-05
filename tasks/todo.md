@@ -1594,3 +1594,25 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   verisi Görevin Talep Yeri tonuyla eşitlendi ve Üst Düzey Yönetici taleplerinde turuncu kalıyor.
 
 ## STATUS: Round 216 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 217 (Doing — 2026-07-05, bildirimler, ek süre, banner ve wallboard)
+- [x] `6a4a628d` / #1390 — Banner search textbox boyutu büyümeden input metni daha iri/bold yapıldı.
+- [x] `6a4a493d` / #1387 — `Yapılmakta` status chip'i turuncu/beyaz stile, bugün dolan Son Tarih
+  pill'i Wallboard sarı çerçeve/yazı diline alındı.
+- [x] `6a4a54b4` / #1389 — Ekrana Yansıt `Birim Dışı` kutusunun alt border/accent rengi Başkanlık
+  turuncusuna çekildi.
+- [x] `6a4a48aa` / #1386 — Ek süre talebi bildiriminde kalıcı Notification + audit kaynaklı mükerrer
+  kayıt üretimi engellendi; push gerçek zamanlı kaldı.
+- [x] `6a4a21ba` / #1372 — WhatsApp detay header görev sahipleri yalnız Yapılmakta taleplerden
+  toplanıyor; tamamlanmış/iptal taleplerin personel adları düşüyor.
+- [x] `6a4a64fd` / #1393 — Bildirim modalındaki metin `Tümünü okundu yap` diline taşındı.
+- [x] `6a4a63b5` / #1392 — Bildirim modalında `Tümünü / Okundu yap` butonu X'in soluna eklendi
+  ve tüm bildirimleri okundu yapıyor.
+- [x] `6a4a6387` / #1391 — Bildirim başlıklarındaki `güncellendi`, `oluşturuldu`, `atandı`,
+  `Yönetici notu atandı` aksiyon kelimeleri bold gösteriliyor.
+- [x] `6a4a4bd3` / #1388 — Terminal talep/görevlerde ek süre işaretleri Son Tarih yerine
+  Tamamlanma/İptal tarihi veya Tümü görünümünde durum hücresi altında gösteriliyor.
+- [x] `6a4a4885` / #1385 — Yönetici talep gridlerinde ek süre işaretleri kullanıcı gridleriyle
+  aynı şekilde Son Tarih altında gösteriliyor.
+
+## STATUS: Round 217 complete — backend build and frontend build/lint passed; cards pending Done move.

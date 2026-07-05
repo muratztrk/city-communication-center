@@ -105,15 +105,12 @@ public sealed class RequestTaskRevisionCommandHandler : ICommandHandler<RequestT
         {
             var actionUrl = $"/department-tasks?taskId={task.TaskId}";
             await InAppNotificationSender.SendAsync(
-                _dbContext,
                 _notificationPushService,
                 tenantId,
                 managerId,
                 "Ek süre talebi",
                 task.Title,
-                task.TaskId,
                 actionUrl,
-                request.ActorUserId,
                 cancellationToken);
         }
 
@@ -217,15 +214,12 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
             {
                 var actionUrl = $"/my-tasks?taskId={task.TaskId}";
                 await InAppNotificationSender.SendAsync(
-                    _dbContext,
                     _notificationPushService,
                     tenantId,
                     recipient,
                     "Ek süre talebi onaylandı",
                     task.Title,
-                    task.TaskId,
                     actionUrl,
-                    request.ActorUserId,
                     cancellationToken);
             }
         }
@@ -332,15 +326,12 @@ public sealed class RejectTaskRevisionCommandHandler : ICommandHandler<RejectTas
             {
                 var actionUrl = $"/my-tasks?taskId={task.TaskId}";
                 await InAppNotificationSender.SendAsync(
-                    _dbContext,
                     _notificationPushService,
                     tenantId,
                     recipient,
                     "Ek süre talebi reddedildi",
                     task.Title,
-                    task.TaskId,
                     actionUrl,
-                    request.ActorUserId,
                     cancellationToken);
             }
         }

@@ -164,12 +164,15 @@ function NotificationEntityLabelText({ value, plainClassName }: { value: string;
 }
 
 function NotificationTitleStatusText({ value, plainClassName }: { value: string; plainClassName: string }) {
-  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi)/gi).map((part, index) => {
+  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|Yönetici notu atandı)/gi).map((part, index) => {
     if (!part) return null
     if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     if (/^İptal Edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
+    if (/^(güncellendi|oluşturuldu|atandı|Yönetici notu atandı)$/i.test(part)) {
+      return <span key={index} className="font-bold">{part}</span>
+    }
     return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} />
   })
 }
@@ -614,14 +617,29 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   forceDown
                 />
               </div>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-                aria-label="Kapat"
-              >
-                <X className="size-4" />
-              </button>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={markAllRead}
+                  disabled={unreadCount === 0}
+                  className="notification-modal-mark-all flex min-h-8 items-center gap-1 rounded-lg border border-white/30 bg-white/14 px-2.5 py-1 text-[0.68rem] font-bold leading-none text-white shadow-sm transition-colors hover:bg-white/22 disabled:cursor-not-allowed disabled:opacity-45"
+                  aria-label={t('notifications.markAllRead', 'Tümünü okundu yap')}
+                >
+                  <CheckCheck className="size-3.5 shrink-0" />
+                  <span className="flex flex-col items-start leading-[0.95]">
+                    <span>{t('notifications.markAllReadTop', 'Tümünü')}</span>
+                    <span>{t('notifications.markAllReadBottom', 'Okundu yap')}</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  aria-label="Kapat"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
             </div>
 
             {/* Modal toolbar */}
@@ -643,15 +661,6 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   <span className="ml-1 text-amber-400">({unreadCount})</span>
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={markAllRead}
-                disabled={unreadCount === 0}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/40 hover:text-[color:var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <CheckCheck className="size-3.5" />
-                {t('notifications.markAllRead', 'Hepsini okundu yap')}
-              </button>
             </div>
 
             {/* Modal list */}

@@ -1,5 +1,6 @@
 import { ArrowRight, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
+import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 
@@ -98,6 +99,9 @@ type IncomingRequestRow = {
   sourceChannel?: string | null
   isCitizenRequest?: boolean
   taskCount?: number
+  // Ek süre talebi işaretleri — tarih sütunları altında görev gridindeki ile aynı (cards #1385/#1388).
+  hasPendingExtraTimeRequest?: boolean
+  lastExtraTimeRequestDecision?: string | null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -241,6 +245,8 @@ function toInternalRow(task: Task): IncomingRequestRow {
     completedAtUtc: task.completedAtUtc ?? null,
     updatedAtUtc: task.updatedAtUtc ?? null,
     createdByRoleCode: task.createdByRoleCode ?? null,
+    hasPendingExtraTimeRequest: task.hasPendingExtraTimeRequest,
+    lastExtraTimeRequestDecision: task.lastExtraTimeRequestDecision,
   }
 }
 
@@ -293,6 +299,8 @@ function toExternalRow(
     createdByRoleCode: job.createdByRoleCode ?? null,
     isCitizenRequest: isCitizen,
     taskCount: job.taskCount,
+    hasPendingExtraTimeRequest: job.hasPendingExtraTimeRequest,
+    lastExtraTimeRequestDecision: job.lastExtraTimeRequestDecision,
   }
 }
 
@@ -335,6 +343,8 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
     createdByRoleCode: job.createdByRoleCode ?? null,
+    hasPendingExtraTimeRequest: job.hasPendingExtraTimeRequest,
+    lastExtraTimeRequestDecision: job.lastExtraTimeRequestDecision,
   }
 }
 
@@ -853,6 +863,15 @@ export function IncomingRequestsPage() {
                   const reporterNumberClass = isReporterRow && hasConcreteNumberDisplay(row.displayNumber)
                     ? reporterGridValueClass(true)
                     : ''
+                  // Ek süre işaretleri: aktifte Son Tarih, tamamlanmışta Tamamlanma Tarihi, iptalde
+                  // İptal Tarihi, Tümü görünümünde terminal satırda Durum altında (cards #1385/#1388).
+                  const isTerminalRow = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected'
+                  const rowExtraTimeMarkers = (
+                    <GridExtraTimeMarkers
+                      hasPending={row.hasPendingExtraTimeRequest}
+                      lastDecision={row.lastExtraTimeRequestDecision}
+                    />
+                  )
                   return (
                   <tr key={`${row.kind}-${row.id}`}>
 
@@ -880,10 +899,25 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold"><span className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`}>{row.title}</span></td>
                     {showTaskOwnerColumn && <td>{row.taskOwnerDisplayName ?? '—'}</td>}
-                    {currentStatusFilter !== 'cancelled' && <td><DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} /></td>}
+                    {currentStatusFilter !== 'cancelled' && (
+                      <td>
+                        <DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} />
+                        {!isTerminalRow && rowExtraTimeMarkers}
+                      </td>
+                    )}
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
-                    {currentStatusFilter === 'completed' && <td><DateCell value={row.completedAtUtc} locale={locale} tone="success" /></td>}
-                    {currentStatusFilter === 'cancelled' && <td><DateCell value={row.updatedAtUtc} locale={locale} tone="danger" /></td>}
+                    {currentStatusFilter === 'completed' && (
+                      <td>
+                        <DateCell value={row.completedAtUtc} locale={locale} tone="success" />
+                        {rowExtraTimeMarkers}
+                      </td>
+                    )}
+                    {currentStatusFilter === 'cancelled' && (
+                      <td>
+                        <DateCell value={row.updatedAtUtc} locale={locale} tone="danger" />
+                        {rowExtraTimeMarkers}
+                      </td>
+                    )}
                     {currentStatusFilter === 'all' && (() => {
                       // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
                       const statusDate = row.status === 'Completed' ? row.completedAtUtc
@@ -899,6 +933,7 @@ export function IncomingRequestsPage() {
                                 </span>
                               : getIncomingStatusLabel(t, row)}
                           </StatusPill>
+                          {isTerminalRow && rowExtraTimeMarkers}
                         </td>
                       )
                     })()}

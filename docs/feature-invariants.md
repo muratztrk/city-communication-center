@@ -42,6 +42,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kutusu dar ilk kolon olarak kalır, başlangıç/bitiş tarihleri yanında aynı satırda durur ve
   aralarında tire/çizgi gösterilmez. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
   daha kompakt kalır. Detay modal formları tek kolon akar.
+- **Banner arama input metni:** banner ve bildirim modalındaki search textbox boyutu büyümez; iç metin
+  0.8rem+ ve bold kalır, placeholder/ikon yeşil banner üstünde okunur kalır.
 - **Mobil detay popup başlıkları aksiyonlarla çakışmaz:** talep/görev detay header'ında başlık alanı
   esnek kalır; sağ üst aksiyonlar küçük, wrap edebilir butonlar olarak durur. Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
@@ -208,6 +210,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Gridview terminal tarih renkleri:** Gridlerde `Tamamlanma Tarihi` değerleri yeşil,
   `İptal Tarihi` değerleri kırmızı gösterilir; `Son Tarih` ve süresi geçmiş son tarih
   davranışına bu renklendirme uygulanmaz (card #1243).
+- **Ek süre talebi grid işaretleri:** aktif talep/görevde işaret `Son Tarih` altında, tamamlanmışta
+  `Tamamlanma Tarihi` altında, iptal/reddedilmişte `İptal Tarihi` altında görünür; `Tümü` görünümünde
+  terminal satırlarda durum hücresinin altında aynı marker kullanılır.
 - **WhatsApp konuşma aksiyon ikonları:** WhatsApp konuşmaları alt aksiyonlarında `Talep oluştur`
   ve `Şablon mesajlar` ikonları yeşil kalır; buton metinleri yeşile boyanmaz (card #1245).
 - **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,
@@ -321,7 +326,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır.
 - **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
   personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad, Diğer Ad` olarak tüm benzersiz görev
-  sahipleri virgülle gösterilir; görev/atanan yoksa alan basılmaz.
+  sahipleri virgülle gösterilir; yalnız `Active`/Yapılmakta talep görev sahipleri sayılır, tamamlanan/iptal
+  taleplerin personel adları düşer; görev/atanan yoksa alan basılmaz.
 - **WhatsApp konuşma listesi görev sahibi:** görev sahibi bilgisi artık detay header'ına taşındı;
   sol konuşma kartında `GG Ad Soyad` avatar/metni tekrar gösterilmez.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
@@ -478,6 +484,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
   ayrı satırda kalır; "Üst Düzey Yönetici" oluşturan metni ve Görev Sahibi metni turuncu kalır.
   Başlık fontu bir kademe hafif, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı tondadır.
+- **Grid durum/son tarih uyarı renkleri:** `Yapılmakta` status chip'i turuncu zemin + beyaz metin kullanır;
+  bugün dolan `Son Tarih` pill'i Wallboard Son Tarih uyarısı gibi sarı çerçeve/yazı dilinde kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
 ## 5b. Bildirimler (Notifications)
@@ -486,6 +494,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için kalıcı `Notification` satırı yok; gerçek push bildirimleri ayrı). Yeni bildirim
   davranışı eklemek = audit→`NotificationResponse` projeksiyonunu değiştirmek. Başlık
   `ActionTitle(audit.Action)`'tan; mesaj `messageParts`'tan gelir.
+- **Bildirim modalı okundu aksiyonu:** "Tümünü Okundu yap" butonu modal header'ında kapatma X'inin
+  solundadır ve iki satır metin (`Tümünü` / `Okundu yap`) kullanır; toolbar içinde ikinci bir kopyası olmaz.
+- **Bildirim başlığı vurguları:** başlıkta `güncellendi`, `oluşturuldu`, `atandı`, `Yönetici notu atandı`
+  gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli bold davranışı korunur.
 - **Aktörün kendi olayları feed'den çıkarılır** (`a.ActorUserId == userId` → skip, card #1063);
   görev-durum değişikliğinin talebe yansıyan yan-etki audit'i de gizlenir
   (`IsJobStatusSideEffectOfTaskChange`, #1068). Yeni audit eklerken bu filtreleri kır(ma).

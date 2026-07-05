@@ -667,6 +667,8 @@
 
   .notification-modal-search .scope-chip-search-input {
     color: white;
+    font-size: 0.82rem;
+    font-weight: 700;
   }
 
   .notification-modal-search .scope-chip-search-input::placeholder {
@@ -683,6 +685,10 @@
 
   .notification-modal-search .scope-chip-search-clear:hover {
     color: #dc2626;
+  }
+
+  .notification-modal-mark-all {
+    backdrop-filter: blur(10px);
   }
 
   /* Bildirim modalı tarih seçicileri — yeşil başlıkta camsı/translucent pill (arama ile aynı dil). */
@@ -2489,6 +2495,8 @@
 
   .sticky-page-header .scope-chip-search-input {
     color: white;
+    font-size: 0.82rem;
+    font-weight: 700;
   }
 
   .sticky-page-header .scope-chip-search-input::placeholder {
@@ -2699,12 +2707,13 @@
   .scope-chip-search-input {
     border: 0;
     outline: none;
-    font-size: 0.75rem;
+    font-size: 0.82rem;
+    font-weight: 700;
     color: #0f172a;
     background: transparent;
     width: 6rem;
     min-width: 0;
-    line-height: 1.1;
+    line-height: 1;
   }
 
   .scope-chip-search-input::placeholder {
@@ -3372,9 +3381,10 @@
     --wallboard-stat-accent-soft: rgba(249, 115, 22, 0.28);
   }
 
+  /* Birim Dışı kutusunun alt border çizgisi Başkanlık (reporter) turuncusu (card #1389). */
   .wallboard-stats > button.stat-external {
-    --wallboard-stat-accent: #f43f5e;
-    --wallboard-stat-accent-soft: rgba(244, 63, 94, 0.28);
+    --wallboard-stat-accent: #fb923c;
+    --wallboard-stat-accent-soft: rgba(251, 146, 60, 0.28);
   }
 
   .wallboard-stats > button.stat-overdue {
@@ -3682,11 +3692,11 @@
     color: var(--color-text-muted, #475569);
   }
 
-  /* Ekrana Yansıt Son Tarih sütunundaki sarıyla (amber #fbbf24) aynı. */
+  /* Bugün dolan son tarih: Ekrana Yansıt Son Tarih sütunundaki sarı çerçeve/yazı diliyle aynı (card #1387). */
   .due-date-pill.warning {
-    background: #fbbf24;
-    border: 1px solid #f59e0b;
-    color: #422006;
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.65);
+    color: #b45309;
     font-weight: 700;
   }
 
@@ -3946,7 +3956,7 @@
     .scope-chip-search-input {
       width: 100%;
       min-height: 1.9rem;
-      font-size: 0.76rem;
+      font-size: 0.8rem;
     }
 
     .scope-chip-date .field-input {

@@ -300,6 +300,9 @@ export interface JobSummary {
   // Vatandaş talebi VT numarası (linkli sosyal mesajdan) — gridde VT- gösterimi (card #1077).
   citizenRequestNumber?: number | null;
   citizenRequestNumberYear?: number | null;
+  // Talebin görevlerinde bekleyen/sonuçlanmış ek süre talebi — talep gridlerindeki işaretler (cards #1385/#1388).
+  hasPendingExtraTimeRequest?: boolean;
+  lastExtraTimeRequestDecision?: string | null;
 }
 
 export interface JobDepartmentInfo {

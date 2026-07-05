@@ -74,7 +74,8 @@ export function getStatusPillClass(tone: GridStatusTone): string {
     case 'completed': return 'bg-emerald-100 text-emerald-700 ring-emerald-200'
     case 'cancelled':
     case 'rejected': return 'bg-red-100 text-red-700 ring-red-200'
-    case 'inProgress': return 'bg-yellow-100 text-yellow-800 ring-yellow-200'
+    // "Yapılmakta" chip'i turuncu zemin + beyaz metin (card #1387).
+    case 'inProgress': return 'bg-orange-500 text-white ring-orange-400'
     case 'overdue': return 'bg-orange-100 text-orange-700 ring-orange-200'
     default: return ''
   }

@@ -209,6 +209,28 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             .GroupBy(x => x.JobId)
             .ToDictionary(g => g.Key, g => g.First());
 
+        // Talebin görevlerine bağlı ek süre (TaskRevision) onayları — talep gridlerindeki
+        // "(Ek süre talebi)" işaretleri görev gridindeki ile aynı kurala göre üretilir (cards #1385/#1388).
+        var extraTimeApprovals = await _dbContext.Approvals
+            .AsNoTracking()
+            .Where(a => a.SubjectType == ApprovalSubjectType.TaskRevision)
+            .Join(
+                _dbContext.Tasks.AsNoTracking().Where(t => jobIds.Contains(t.JobId)),
+                a => a.SubjectId,
+                t => t.TaskId,
+                (a, t) => new { t.JobId, a.Decision, a.DecisionDateUtc })
+            .ToListAsync(cancellationToken);
+        var pendingExtraTimeJobIds = extraTimeApprovals
+            .Where(x => x.Decision == ApprovalDecision.Pending)
+            .Select(x => x.JobId)
+            .ToHashSet();
+        var lastExtraTimeDecisionMap = extraTimeApprovals
+            .Where(x => x.Decision != ApprovalDecision.Pending)
+            .GroupBy(x => x.JobId)
+            .ToDictionary(
+                g => g.Key,
+                g => (string?)g.OrderByDescending(x => x.DecisionDateUtc).First().Decision.ToString());
+
         return rows.Select(r => new JobSummaryResponse(
             r.Job.JobId,
             r.Job.TenantId,
@@ -239,7 +261,9 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             assignedUsersMap.GetValueOrDefault(r.Job.JobId),
             r.CreatedByRoleCode,
             citizenNumberMap.GetValueOrDefault(r.Job.JobId)?.CitizenRequestNumber,
-            citizenNumberMap.GetValueOrDefault(r.Job.JobId)?.CitizenRequestNumberYear)).ToArray();
+            citizenNumberMap.GetValueOrDefault(r.Job.JobId)?.CitizenRequestNumberYear,
+            pendingExtraTimeJobIds.Contains(r.Job.JobId),
+            lastExtraTimeDecisionMap.GetValueOrDefault(r.Job.JobId))).ToArray();
     }
 }
 
@@ -366,11 +390,24 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 null,
                 t.OwnerUserId,
                 t.AssignedAtUtc,
-                // JobCreatedAtUtc + HasPendingExtraTimeRequest: bu projeksiyondaki önceki varsayılan
-                // davranış korunur (expression tree pozisyon-dışı isimli argümana izin vermiyor).
                 (DateTimeOffset?)null,
-                false,
-                // Görevi atayan yöneticinin adı (card #709) — komşu AssignedUserDisplayName ile aynı desen.
+                // Yöneticide bekleyen ek süre talebi — talep detayı "Görev Detayları" kartındaki
+                // "(Ek süre talebi)" işareti için (card #1385, GetTasksQuery ile aynı desen).
+                _dbContext.Approvals.Any(approval =>
+                    approval.SubjectType == ApprovalSubjectType.TaskRevision
+                    && approval.SubjectId == t.TaskId
+                    && approval.Decision == ApprovalDecision.Pending),
+                // Sonuçlanmış en güncel ek süre talebinin kararı.
+                _dbContext.Approvals
+                    .Where(approval => approval.SubjectType == ApprovalSubjectType.TaskRevision
+                        && approval.SubjectId == t.TaskId
+                        && approval.Decision != ApprovalDecision.Pending)
+                    .OrderByDescending(approval => approval.DecisionDateUtc)
+                    .Select(approval => (string?)approval.Decision.ToString())
+                    .FirstOrDefault(),
+                // Görevi atayan yöneticinin adı (card #709). Dikkat: eski kod bu subquery'yi bir
+                // pozisyon önce (LastExtraTimeRequestDecision slotunda) geçiriyordu — card #1385
+                // incelemesinde düzeltildi.
                 _dbContext.Users
                     .AsNoTracking()
                     .Where(u => u.UserId == t.AssigningManagerId)

@@ -92,7 +92,12 @@ public sealed record JobSummaryResponse(
     string? CreatedByRoleCode = null,
     // Vatandaş talebi (citizen) için linkli sosyal mesajın VT numarası — gridlerde VT- gösterimi (card #1077).
     int? CitizenRequestNumber = null,
-    int? CitizenRequestNumberYear = null);
+    int? CitizenRequestNumberYear = null,
+    // Talebin görevlerinde yöneticide bekleyen ek süre talebi var mı — talep gridlerinde
+    // görev gridindeki ile aynı "(Ek süre talebi)" işareti için (cards #1385/#1388).
+    bool HasPendingExtraTimeRequest = false,
+    // Talebin görevlerindeki sonuçlanmış en güncel ek süre kararı (Approved/Rejected).
+    string? LastExtraTimeRequestDecision = null);
 
 public sealed record JobDetailResponse(
     Guid JobId,

@@ -109,7 +109,20 @@ export function MyRequestTaskDetailsSection({
                     : task.currentStatus === 'Cancelled'
                       ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(task.updatedAtUtc ?? null, locale)}</span> }]
                       : []),
-                  { label: t('tasks.columns.dueDate', 'Son Tarih'), value: formatDateTime(task.dueDateUtc, locale) },
+                  {
+                    label: t('tasks.columns.dueDate', 'Son Tarih'),
+                    // Yöneticide bekleyen ek süre talebi talep detayında da görünür (card #1385).
+                    value: (
+                      <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <span>{formatDateTime(task.dueDateUtc, locale)}</span>
+                        {task.hasPendingExtraTimeRequest ? (
+                          <span className="text-xs font-bold text-amber-500">
+                            {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                          </span>
+                        ) : null}
+                      </span>
+                    ),
+                  },
                 ].map(({ label, value }) => (
                   <div key={label} className={`px-3 py-2${label === t('tasks.columns.dueDate', 'Son Tarih') ? ' border-b border-slate-100' : ''}`}>
                     <div className="text-xs font-semibold text-slate-500">{label}</div>

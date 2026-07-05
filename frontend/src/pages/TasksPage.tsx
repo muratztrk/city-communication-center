@@ -1,5 +1,6 @@
 import { FileImage, FileText, Paperclip, Search, PenLine, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
+import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
@@ -8,7 +9,6 @@ import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useTranslation } from 'react-i18next'
-import type { TFunction } from 'i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -348,30 +348,14 @@ function isTerminalTaskForExtraTimeDisplay(status: string): boolean {
 
 function TaskGridExtraTimeMarkers({
   task,
-  t,
 }: {
   task: Pick<Task, 'hasPendingExtraTimeRequest' | 'lastExtraTimeRequestDecision'>
-  t: TFunction
 }) {
-  if (!task.hasPendingExtraTimeRequest && !task.lastExtraTimeRequestDecision) return null
   return (
-    <>
-      {task.hasPendingExtraTimeRequest && (
-        <div className="mt-1 text-xs font-bold text-amber-500">
-          {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
-        </div>
-      )}
-      {task.lastExtraTimeRequestDecision === 'Approved' && (
-        <div className="mt-1 text-xs font-bold text-emerald-600">
-          {t('tasks.actions.extraTimeApproved', 'Ek süre talebi onaylandı')}
-        </div>
-      )}
-      {task.lastExtraTimeRequestDecision === 'Rejected' && (
-        <div className="mt-1 text-xs font-bold text-red-600">
-          {t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi')}
-        </div>
-      )}
-    </>
+    <GridExtraTimeMarkers
+      hasPending={task.hasPendingExtraTimeRequest}
+      lastDecision={task.lastExtraTimeRequestDecision}
+    />
   )
 }
 
@@ -2481,7 +2465,7 @@ const pageKicker = isMyTasksView
                   const showExtraTimeInGrid = isMyTasksView || isDepartmentTasksView || isStaffTasksView
                   const terminalExtraTimeTask = isTerminalTaskForExtraTimeDisplay(task.currentStatus)
                   const extraTimeMarkers = showExtraTimeInGrid
-                    ? <TaskGridExtraTimeMarkers task={task} t={t} />
+                    ? <TaskGridExtraTimeMarkers task={task} />
                     : null
                   const showExtraTimeUnderDue = showExtraTimeInGrid && !terminalExtraTimeTask
                   const showExtraTimeUnderCompleted = showExtraTimeInGrid

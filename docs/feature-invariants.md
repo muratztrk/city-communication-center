@@ -320,7 +320,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır.
 - **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
-  personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad (Birim)` gösterilir; görev/atanan yoksa alan basılmaz.
+  personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad, Diğer Ad` olarak tüm benzersiz görev
+  sahipleri virgülle gösterilir; görev/atanan yoksa alan basılmaz.
 - **WhatsApp konuşma listesi görev sahibi:** görev sahibi bilgisi artık detay header'ına taşındı;
   sol konuşma kartında `GG Ad Soyad` avatar/metni tekrar gösterilmez.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
@@ -475,8 +476,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
-  ayrı satırda kalır; "Üst Düzey Yönetici" oluşturan metni ve aynı satırın Görev Sahibi metni
-  turuncu kalır, ama Başlık/Görev Sahibi font ağırlığı aşırı bold olmaz.
+  ayrı satırda kalır; "Üst Düzey Yönetici" oluşturan metni ve Görev Sahibi metni turuncu kalır.
+  Başlık fontu bir kademe hafif, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı tondadır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
 
 ## 5b. Bildirimler (Notifications)

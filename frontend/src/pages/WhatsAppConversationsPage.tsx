@@ -867,10 +867,11 @@ function ConversationDetail({
   const ticketLabel = detail
     ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount + detail.cancelledCount}`
     : formatWhatsAppTicketLabel(primaryTicket)
-  const taskOwnerLabel = detail?.tickets
-    .filter(ticket => ticket.jobId && ticket.assigneeDisplayName?.trim())
-    .slice(-1)[0]
-    ?.assigneeDisplayName?.trim()
+  const taskOwnerLabel = detail?.tickets.reduce<string[]>((owners, ticket) => {
+    const assigneeName = ticket.jobId ? ticket.assigneeDisplayName?.trim() : null
+    if (assigneeName && !owners.includes(assigneeName)) owners.push(assigneeName)
+    return owners
+  }, []).join(', ') || null
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
   const headerSubtitleParts: string[] = []
   if (citizenName?.trim() && phoneForHeader) {

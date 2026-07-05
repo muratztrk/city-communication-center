@@ -1586,3 +1586,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   butonları çakışmayacak şekilde kompakt/wrap edebilir hale getirildi.
 
 ## STATUS: Round 215 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 216 (Doing — 2026-07-05, WhatsApp çoklu görev sahibi ve Wallboard tipografi)
+- [x] `6a4a21ba` / #1372 — WhatsApp konuşma detay header'ında birden fazla talebin görevi
+  atanmışsa görev sahipleri virgülle ayrılmış tek listede gösteriliyor.
+- [x] `6a48bbe2` / #1333 — Ekrana Yansıt gridinde başlık font ağırlığı düşürüldü; Görevi yapan
+  verisi Görevin Talep Yeri tonuyla eşitlendi ve Üst Düzey Yönetici taleplerinde turuncu kalıyor.
+
+## STATUS: Round 216 complete — frontend build/lint passed; cards pending Done move.

@@ -3554,7 +3554,7 @@
     max-width: 32rem;
     color: white;
     font-size: clamp(0.86rem, 1vw, 1.12rem);
-    font-weight: 600;
+    font-weight: 500;
     overflow: hidden;
     overflow-wrap: break-word;
     white-space: normal;
@@ -3567,12 +3567,12 @@
     color: #fb923c;
   }
 
-  .wallboard-request-location {
+  .wallboard-request-location,
+  .wallboard-task-owner {
     color: rgba(248, 250, 252, 0.96) !important;
-    font-weight: 900;
+    font-weight: 600;
   }
 
-  .wallboard-task-owner,
   .wallboard-creator-line--task-meta {
     color: rgba(226, 232, 240, 0.9);
     font-size: clamp(0.76rem, 0.8vw, 0.9rem);

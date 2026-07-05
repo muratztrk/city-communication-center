@@ -1616,3 +1616,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   aynı şekilde Son Tarih altında gösteriliyor.
 
 ## STATUS: Round 217 complete — backend build and frontend build/lint passed; cards pending Done move.
+
+## Round 218 (Doing — 2026-07-05, Wallboard başlık ağırlığı ve reporter görev sahibi)
+- [x] `6a48bbe2` / #1333 reopen — Ekrana Yansıt gridinde Başlık verileri normal font ağırlığına
+  düşürüldü; Üst Düzey Yönetici talebindeki Görev Sahibi adı turuncu kuralı genel renge ezilmeyecek
+  şekilde güçlendirildi.
+
+## STATUS: Round 218 complete — frontend build/lint passed; card pending Done move.

@@ -483,7 +483,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
   ayrı satırda kalır; "Üst Düzey Yönetici" oluşturan metni ve Görev Sahibi metni turuncu kalır.
-  Başlık fontu bir kademe hafif, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı tondadır.
+  Başlık fontu normal ağırlıkta kalır, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı
+  tondadır; reporter turuncusu `wallboard-task-owner` genel rengini ezmelidir.
 - **Grid durum/son tarih uyarı renkleri:** `Yapılmakta` status chip'i turuncu zemin + beyaz metin kullanır;
   bugün dolan `Son Tarih` pill'i Wallboard Son Tarih uyarısı gibi sarı çerçeve/yazı dilinde kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).

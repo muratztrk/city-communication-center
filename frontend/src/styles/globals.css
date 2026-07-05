@@ -3564,7 +3564,7 @@
     max-width: 32rem;
     color: white;
     font-size: clamp(0.86rem, 1vw, 1.12rem);
-    font-weight: 500;
+    font-weight: 400;
     overflow: hidden;
     overflow-wrap: break-word;
     white-space: normal;
@@ -3574,7 +3574,7 @@
   .wallboard-row-title--reporter,
   .wallboard-task-owner--reporter,
   .wallboard-request-location--reporter {
-    color: #fb923c;
+    color: #fb923c !important;
   }
 
   .wallboard-request-location,

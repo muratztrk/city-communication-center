@@ -1431,3 +1431,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a492c3d` reopened / #1356 — Taleplerim detay ana kartında başlık satırı tam kart
   genişliğine yayıldı; Talep No + Birim İçi/Dışı meta bloğu başlık metnine değil, sol kartın
   sağ border çizgisine göre en sağa yaslanıyor.
+
+## STATUS: Round 197 complete — frontend build/lint passed; card moved to Done.

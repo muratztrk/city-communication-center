@@ -1394,6 +1394,19 @@ export function WhatsAppConversationsPage() {
     })
   }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, sortOrder, statusFilter])
 
+  // Sayfa açılışında sağ panel boş kalmasın diye ilk (en üstteki) konuşma otomatik seçilir —
+  // tıklandığında açılan görünüm varsayılan olarak gelir. Bir kere tetiklenir; kullanıcının
+  // sonraki seçimini veya ?phone= ile hedeflenen seçimi geçersiz kılmaz (card #1441).
+  const autoSelectedRef = useRef(false)
+  useEffect(() => {
+    if (autoSelectedRef.current) return
+    if (requestedPhone) { autoSelectedRef.current = true; return }
+    if (selectedId) { autoSelectedRef.current = true; return }
+    if (filtered.length === 0) return
+    autoSelectedRef.current = true
+    setSelectedId(filtered[0].citizenConversationId)
+  }, [filtered, requestedPhone, selectedId])
+
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
 
   const handleReadMarked = useCallback(() => {

@@ -2195,11 +2195,16 @@ const pageKicker = isMyTasksView
                       {
                         label: 'Talep No',
                         value: (
-                          <RequestNumberWithTypeLabel
-                            job={parentJobDetail}
-                            t={t}
-                            locale={locale}
-                          />
+                          <span className="inline-flex flex-wrap items-center gap-2">
+                            <RequestNumberWithTypeLabel
+                              job={parentJobDetail}
+                              t={t}
+                              locale={locale}
+                            />
+                            {parentForwardReasonDisplay ? (
+                              <span className="text-xs font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                            ) : null}
+                          </span>
                         ),
                       },
                       { label: 'Talep Başlığı', value: parentJobDetail.title },
@@ -2561,14 +2566,14 @@ const pageKicker = isMyTasksView
                         )
                         : isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })
                           ? (
-                            <div className="table-number-cell__value font-mono inline-flex flex-wrap items-center gap-1.5">
+                            <div className="table-number-cell__value font-mono inline-flex w-full flex-wrap items-center justify-center gap-1.5 text-center">
                               <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-4 shrink-0" />
                               <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                               {task.forwardReason ? <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
                             </div>
                           )
                           : (
-                            <div className="table-number-cell__value font-mono inline-flex flex-wrap items-center gap-1.5">
+                            <div className="table-number-cell__value font-mono inline-flex w-full flex-wrap items-center justify-center gap-1.5 text-center">
                               <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                               {task.forwardReason ? <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
                             </div>

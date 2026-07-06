@@ -256,6 +256,11 @@ Polling every ~5 min this session. Commit + push to main after each card.
 ## Round 34
 - [x] `rUud298x` — Görev detay popup'ındaki `İlgili Talep Detayları > Talebin Yönlenme Sebebi` değeri koyu turkuaz `Talebi Yönlendiren Birim • sebep` formatına alındı.
 
+## Round 35
+- [x] `rUud298x` (reopened) — Yönlendirilmiş görevlerde `Bağlı Olduğu Talep No` hücresi tam genişlikte ortalandı.
+- [x] `DSlHXxSc` — Görev detayındaki `İlgili Talep Detayları > Talep No` satırında `Birim Dışı` etiketinden sonra koyu turkuaz `(Yönlendirilen Talep)` rozeti gösteriliyor.
+- [x] `E3RyXkox` — Bildirim başlıklarında `İşlem gerçekleşti` fallback'i kaldırıldı; eksik audit action mapping'leri ve entity bazlı anlamlı fallback eklendi.
+
 ## Round 30 (manual check)
 - [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.
 - [x] `7RspesWl` — Added "Durum" column after Başlık in the İptal/İade Talepler (cancelled/rejected) views of Incoming/Jobs/Tasks grids, showing İptal (Cancelled) vs İade (Rejected/RevisionRequested). Added cancelReturnStatus i18n key (tr/en). Pushed. Moved to Done.

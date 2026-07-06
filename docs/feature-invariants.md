@@ -65,6 +65,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Metin değişikliği kartlarında önce LOCALE dosyasını düzelt, t() fallback'ini değil:** kod içi
   `t('key', 'fallback')` ikinci argümanı yalnız anahtar locale'de yokken görünür; anahtar
   `locales/tr/common.json`'da varsa oradaki metin kazanır (card #1308 reopen, `searchPlaceholderExtended`).
+- **Bildirim başlıkları generic `İşlem gerçekleşti` göstermez:** audit action mapping eksikse
+  `GetNotificationsQuery.ActionTitle` entity/action tipine göre en az `Talep güncellendi` /
+  `Görev güncellendi` gibi anlamlı bir başlığa düşer.
 - **Departman adı form/grid etiketi public UI'da `Birim Adı`dır:** `departments.name` ve placeholder
   `Birim adı` dilini kullanır; eski `Departman Adı` metni geri gelmez.
 - **Grid header hücrelerine `pl-3` gibi küçük padding utility'si EKLEME:** `.data-table thead th`
@@ -95,9 +98,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim/Birimdeki Görevler banner araması, gridde görünen "Bağlı Olduğu Talep No" değerini
   (`formatTaskJobDisplayNumber`, ör. `T-2026-328`) de tarar.**
 - **Yönlendirilmiş dış birim talebinden oluşturulan görevlerde**, görev gridindeki `Bağlı Olduğu Talep No`
-  yanında koyu turkuaz `(Yönlendirilen Talep)` etiketi görünür; görev detayındaki `İlgili Talep Detayları`
-  sol kartı hedef departman `Notes` değerini `Talebin Yönlenme Sebebi` olarak koyu turkuaz
-  `Talebi Yönlendiren Birim • sebep` formatında gösterir.
+  yanında koyu turkuaz `(Yönlendirilen Talep)` etiketi görünür ve bu hücre ortalı kalır; görev
+  detayındaki `İlgili Talep Detayları > Talep No` satırında `Birim Dışı` etiketinden sonra aynı
+  rozet görünür. Aynı kartta hedef departman `Notes` değeri `Talebin Yönlenme Sebebi` olarak koyu
+  turkuaz `Talebi Yönlendiren Birim • sebep` formatında gösterilir.
 - **"Görev Detayları" özet kartı, TasksPage (Görevlerim) ile JobsPage (Birime Gelen) arasında
   BİREBİR AYNI tutulur** (card 649/705). Birine alan eklersen diğerine de ekle.
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`

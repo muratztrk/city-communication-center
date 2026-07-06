@@ -634,6 +634,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const [jobsPage, setJobsPage] = useState(1)
   const [jobsPageSize, setJobsPageSize] = useState(10)
   const [departments, setDepartments] = useState<Department[]>([])
+  const [users, setUsers] = useState<User[]>([])
 
   const [detail, setDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -722,7 +723,21 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
   // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
-  const forwardReason = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim()))?.notes?.trim() ?? null
+  const forwardTarget = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim())) ?? null
+  const forwardReason = forwardTarget?.notes?.trim() ?? null
+  const forwardSourceUser = forwardTarget?.requestedByUserId
+    ? users.find(item => item.userId === forwardTarget.requestedByUserId)
+    : null
+  const forwardSourceDepartmentName = forwardSourceUser?.departments?.find(department => department.isPrimary)?.name
+    ?? forwardSourceUser?.departments?.[0]?.name
+    ?? null
+  const forwardReasonDisplay = forwardReason ? (
+    <span className="font-bold text-teal-800">
+      {forwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
+      <span aria-hidden="true"> • </span>
+      {forwardReason}
+    </span>
+  ) : null
   // Dış birimden gelen (birime düşen) talep, hedef birim yöneticisi onaylayana (personel atayana) kadar
   // başka birime yönlendirilebilir. Hem onay bekleyen (PendingExternalApproval) hem de otomatik aktifleşmiş
   // ama henüz atanmamış (Active, görev yok) hedefler kapsanır; atama yapılınca buton kaybolur (cards #1405/#1407).
@@ -882,6 +897,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
     return () => { cancelled = true }
   }, [canManageCoordination])
+
+  useEffect(() => {
+    if (!detail?.departments.some(department => department.role === 'Target' && Boolean(department.notes?.trim()))) return
+    if (users.length > 0) return
+
+    let cancelled = false
+    api.getUsers()
+      .then(items => {
+        if (!cancelled) setUsers(items)
+      })
+      .catch(() => {
+        if (!cancelled) setUsers([])
+      })
+
+    return () => { cancelled = true }
+  }, [detail?.jobId, detail?.departments, users.length])
 
   useEffect(() => {
     let cancelled = false
@@ -2347,7 +2378,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                       // Yönlendirilen talebin sebebi, Öncelik/Proje satırının altında (card #1406).
-                      ...(forwardReason ? [{ label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'), value: forwardReason }] : []),
+                      ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (
                       <div key={label} className={`flex items-start gap-2 px-3 py-2${(label === 'Öncelik' && !forwardReason) || label === t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>

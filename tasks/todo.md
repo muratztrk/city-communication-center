@@ -1798,3 +1798,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `actions-cell/request-actions` yapısına alındı.
 
 ## STATUS: Round 232 complete — frontend build/lint passed; card pending Done move.
+
+## Round 233 (Doing — 2026-07-06, WhatsApp konuşma kartı durum sayaçları reopen)
+- [x] `6a4b86dc` / #1422 reopen — Sol WhatsApp konuşma kartlarındaki `İşleme Alınan`,
+  `Yapılmakta`, `Tamamlandı`, `İptal` kırılımları hover'lı butona çevrildi; tıklanınca
+  Vatandaş Talepleri gridine ilgili `requestStatus` filtresiyle gider.
+
+## STATUS: Round 233 complete — frontend build/lint passed; card pending Done move.

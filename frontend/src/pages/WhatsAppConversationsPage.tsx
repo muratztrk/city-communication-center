@@ -133,21 +133,38 @@ function ConversationStatusCounts({
   completed,
   cancelled,
   compact = false,
+  onOpenStatusRequests,
 }: {
   intake?: number
   inProgress?: number
   completed?: number
   cancelled?: number
   compact?: boolean
+  onOpenStatusRequests?: (value: ConversationStatusFilter) => void
 }) {
   const { t } = useTranslation()
   const baseClass = compact ? 'text-[10px]' : 'text-[11px]'
+  const counts: Array<{ value: ConversationStatusFilter; label: string; count: number; className: string }> = [
+    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: intake ?? 0, className: 'text-slate-600 hover:bg-slate-100' },
+    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: inProgress ?? 0, className: 'text-orange-600 hover:bg-orange-50' },
+    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: completed ?? 0, className: 'text-emerald-700 hover:bg-emerald-50' },
+    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: cancelled ?? 0, className: 'text-red-600 hover:bg-red-50' },
+  ]
   return (
-    <div className={`flex items-center gap-x-1.5 ${baseClass} font-semibold whitespace-nowrap`}>
-      <span className="text-slate-600">{t('whatsapp.intakeCountShort', 'İşleme Alınan')}: {intake ?? 0}</span>
-      <span className="text-orange-600">{t('whatsapp.inProgressCount', 'Yapılmakta')}: {inProgress ?? 0}</span>
-      <span className="text-emerald-700">{t('whatsapp.completedCount', 'Tamamlandı')}: {completed ?? 0}</span>
-      <span className="text-red-600">{t('whatsapp.cancelledCount', 'İptal')}: {cancelled ?? 0}</span>
+    <div className={`flex items-center gap-x-0.5 ${baseClass} font-semibold whitespace-nowrap`}>
+      {counts.map(item => (
+        <button
+          key={item.value}
+          type="button"
+          onClick={event => {
+            event.stopPropagation()
+            onOpenStatusRequests?.(item.value)
+          }}
+          className={`shrink-0 rounded-md px-0.5 py-0.5 transition-colors ${item.className}`}
+        >
+          {item.label}: {item.count}
+        </button>
+      ))}
     </div>
   )
 }
@@ -167,10 +184,12 @@ function ConversationListItem({
   conv,
   selected,
   onClick,
+  onOpenStatusRequests,
 }: {
   conv: CitizenConversationSummary
   selected: boolean
   onClick: () => void
+  onOpenStatusRequests: (value: ConversationStatusFilter) => void
 }) {
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -182,11 +201,18 @@ function ConversationListItem({
   const ticketOpen = isConversationTicketOpen(conv)
   const timeLabel = new Date(conv.lastMessageAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   const recentTime = isRecentConversationTime(conv.lastMessageAt)
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    onClick()
+  }
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       className={`group w-full text-left px-3.5 py-3 border-b border-slate-100 transition-colors ${
         selected
           ? 'bg-emerald-50/90'
@@ -267,11 +293,12 @@ function ConversationListItem({
               inProgress={conv.inProgressCount}
               completed={conv.completedCount}
               cancelled={conv.cancelledCount}
+              onOpenStatusRequests={onOpenStatusRequests}
             />
           </div>
         </div>
       </div>
-    </button>
+    </div>
   )
 }
 
@@ -459,6 +486,7 @@ function ConversationListPanel({
               conv={conv}
               selected={conv.citizenConversationId === selectedId}
               onClick={() => onSelect(conv.citizenConversationId)}
+              onOpenStatusRequests={onOpenStatusRequests}
             />
           ))
         )}

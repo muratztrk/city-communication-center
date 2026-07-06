@@ -391,9 +391,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
   (cards #1257/#1258).
-- **Ayarlar > Taslak Mesajlar:** WhatsApp Meta onaylı şablon mesaj akışıdır; en fazla 3 şablon
-  oluşturulur ve formda `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` kontrolleri
-  görünmez.
+- **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; `Yeni Şablon Oluştur` başlığı,
+  `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri
+  görünür kalır; WhatsApp Meta onaylı 3-şablon sınırı burada uygulanmaz.
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
   `Açık Adres`) üçlü yan yana düzende tek satır kalır; alt çizgi metin dekorasyonu değil,
   görseldeki gibi hafif açık gri label alt sınır çizgisidir. Boş değer çizgisi bu görünümde

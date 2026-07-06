@@ -1805,3 +1805,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Vatandaş Talepleri gridine ilgili `requestStatus` filtresiyle gider.
 
 ## STATUS: Round 233 complete — frontend build/lint passed; card pending Done move.
+
+## Round 234 (Doing — 2026-07-06, Taslak Mesajlar eski form restore)
+- [x] `6a4bb3c6` / #1433 — Ayarlar > Taslak Mesajlar formu Meta-onaylı sade tasarımdan
+  eski şablon formuna döndürüldü; `Yeni Şablon Oluştur`, `Şablon Türü`, `Otomatik Cevap`,
+  `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri geri geldi.
+
+## STATUS: Round 234 complete — frontend build/lint passed; card pending Done move.

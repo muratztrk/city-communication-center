@@ -246,7 +246,7 @@ function printTaskDetail(
     ...(shouldShowRequestApproverField(parentJob)
       ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
-    ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(parentJob)],
+    ['Talep Yapılan Birim', formatJobDestinationsWithAssignees(parentJob)],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
@@ -1769,12 +1769,13 @@ const pageKicker = isMyTasksView
                             // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
                             // assignedUser önce, yoksa owner (card #719).
                             { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
-                            {
-                              label: 'Görev Tipi',
-                              value: `${taskDetail.jobSourceType === 'Routine'
-                                ? t('tasks.type.routine', 'Rutin')
-                                : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
-                            },
+                            // Rutin görev atanmadığı için bu satır sadece Atanmış görevlerde gösterilir (card #1445).
+                            ...(taskDetail.jobSourceType !== 'Routine'
+                              ? [{
+                                  label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'),
+                                  value: taskDetail.assigningManagerDisplayName ?? '—',
+                                }]
+                              : []),
                             // Görev durumu değiştiyse Görev Tipi'nin hemen altında (card #1443).
                             ...(taskDetail.jobSourceType !== 'Routine' && (taskDetail.statusChangeHistory?.length ?? 0) > 0
                               ? [{
@@ -2126,8 +2127,10 @@ const pageKicker = isMyTasksView
                   {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388).
                       Rutin görevlerde talep olmadığı için bu bölüm gösterilmez (card 395). */}
                   {parentJobDetail && taskDetail.jobSourceType !== 'Routine' && (() => {
+                    // Yönlenme sebebi yalnızca Target rollü kayıttan okunur; Owner kaydının Notes'u
+                    // farklı bir özelliğe (ccc:owner-task-request JSON) ait olabilir (card #1444).
                     const fulfillingJobDepartment = parentJobDetail.departments.find(
-                      dept => dept.departmentId === taskDetail.assignedDepartmentId,
+                      dept => dept.departmentId === taskDetail.assignedDepartmentId && dept.role === 'Target',
                     )
                     const parentForwardReason = fulfillingJobDepartment?.notes?.trim() || null
                     const parentForwardSourceUser = fulfillingJobDepartment?.requestedByUserId
@@ -2174,6 +2177,7 @@ const pageKicker = isMyTasksView
                           sectionTitle={t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                           requestNumberSuffix={parentRequestNumberSuffix}
                           extraFields={parentExtraFields}
+                          includeAssigneeField={false}
                           canChangeDueDate={false}
                           detailDueDateEdit={null}
                           onOpenDueDateEdit={() => undefined}

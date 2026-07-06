@@ -1460,7 +1460,7 @@
       "citizenRequestNo": "Vatandaş Talep No",
       "citizenNamePhone": "Vatandaş Adı / Telefon No",
       "requestLocationCreator": "Talep Yeri / Oluşturan",
-      "targetDepartment": "Talebin Gittiği Birim",
+      "targetDepartment": "Talep Yapılan Birim",
       "requestApprover": "Talebi Onaylayan",
       "citizenRequest": "Vatandaş Talebi",
       "cancelNote": "İptal Notu",

@@ -3936,6 +3936,17 @@
   }
 }
 
+@layer components {
+  /* Tüm detay popup'larında sağ üstteki aksiyon butonları (Düzenle/Tamamla/İptal Et/Yazdır vb.)
+     biraz küçültülür — kapatma (X) butonu hariç (card #1448). */
+  .detail-modal-header-actions button:not(.detail-modal-header-close),
+  .detail-modal-header-actions a {
+    height: 2rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
 @media (max-width: 767px) {
   @layer components {
     .detail-modal-shell,

@@ -73,12 +73,20 @@ export function shouldShowJobStatusActorName(job: {
   return shouldShowRequestApproverField(job)
 }
 
-export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassignedPlaceholder = false): string {
+export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassignedPlaceholder = false, includeAssignee = true): string {
   const destinations = sortJobDepartments(job.departments)
     .filter(department => department.role === 'Target' || department.role === 'Coordinating')
   const effectiveDestinations = destinations.length > 0
     ? destinations
     : job.departments.filter(department => department.departmentId === job.ownerDepartmentId)
+
+  // Görevlerim popup'ında (İlgili Talep Detayları) sadece birim adı gösterilir, atanan kişi
+  // Görev Bilgileri panelinde zaten var (card #1446).
+  if (!includeAssignee) {
+    return effectiveDestinations
+      .map(department => department.departmentName ?? job.ownerDepartmentName ?? '—')
+      .join(', ') || job.ownerDepartmentName || '—'
+  }
 
   return effectiveDestinations
     .map(department => {

@@ -50,6 +50,9 @@ interface MyRequestDetailMainCardProps {
   statusNoteContent?: ReactNode
   requestNumberSuffix?: ReactNode
   extraFields?: MyRequestDetailField[]
+  // Görevlerim popup'ında (İlgili Talep Detayları) atanan kişi Görev Bilgileri'nde zaten
+  // gösterildiği için tekrar edilmez (card #1446).
+  includeAssigneeField?: boolean
   canChangeDueDate: boolean
   detailDueDateEdit: DetailDueDateEditState | null
   onOpenDueDateEdit: () => void
@@ -77,6 +80,7 @@ export function MyRequestDetailMainCard({
   statusNoteContent,
   requestNumberSuffix,
   extraFields,
+  includeAssigneeField = true,
   canChangeDueDate,
   detailDueDateEdit,
   onOpenDueDateEdit,
@@ -105,8 +109,8 @@ export function MyRequestDetailMainCard({
   const citizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
   const projectLabel = t('jobs.form.isProject', 'Proje mi')
   const fields = useMemo(
-    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields),
-    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields],
+    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField),
+    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField],
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false

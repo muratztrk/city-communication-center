@@ -25,6 +25,9 @@ export function buildMyRequestDetailFields(
   citizenSourceMessage: SocialMessage | null | undefined,
   requestNumberSuffix?: ReactNode,
   extraFields: MyRequestDetailField[] = [],
+  // Görevlerim popup'ında (İlgili Talep Detayları), atanan kişi bilgisi zaten Görev Bilgileri
+  // panelinde gösterildiği için tekrar edilmez (card #1446).
+  includeAssignee = true,
 ): MyRequestDetailField[] {
   if (isCitizenRequestJob(detail)) {
     return [
@@ -51,8 +54,12 @@ export function buildMyRequestDetailFields(
         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
       },
       {
-        label: t('jobs.detail.targetDepartmentAssignee', 'Talebin Gittiği Birim / Görevi Yapan'),
-        value: formatJobDestinationsWithAssignees(detail, true),
+        label: includeAssignee
+          ? t('jobs.detail.targetDepartmentAssignee', 'Talep Yapılan Birim / Görevi Yapan')
+          : t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+        value: includeAssignee
+          ? formatJobDestinationsWithAssignees(detail, true)
+          : formatJobDestinationsWithAssignees(detail, false, false),
       },
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...extraFields,
@@ -75,8 +82,12 @@ export function buildMyRequestDetailFields(
       value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
     },
     {
-      label: t('jobs.detail.targetDepartmentAssignee', 'Talebin Gittiği Birim / Görevi Yapan'),
-      value: formatJobDestinationsWithAssignees(detail, true),
+      label: includeAssignee
+        ? t('jobs.detail.targetDepartmentAssignee', 'Talep Yapılan Birim / Görevi Yapan')
+        : t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+      value: includeAssignee
+        ? formatJobDestinationsWithAssignees(detail, true)
+        : formatJobDestinationsWithAssignees(detail, false, false),
     },
     {
       label: t('jobs.form.isProject', 'Proje mi'),

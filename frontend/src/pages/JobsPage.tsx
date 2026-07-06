@@ -401,7 +401,7 @@ function printJobDetail(
     ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
       ? []
       : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
-    ['Talebin Gittiği Birim', formatJobDestinationsWithAssignees(detail)],
+    ['Talep Yapılan Birim', formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', formatJobProjectLabel(detail, t)],
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
@@ -2340,7 +2340,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: formatRequestApproverDisplay(detail) ?? '—',
                       }] : []),
                       {
-                        label: 'Talebin Gittiği Birim',
+                        label: 'Talep Yapılan Birim',
                         value: formatJobDestinationsWithAssignees(detail),
                       },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
@@ -2371,7 +2371,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: formatRequestApproverDisplay(detail) ?? '—',
                       }] : []),
                       {
-                        label: 'Talebin Gittiği Birim',
+                        label: 'Talep Yapılan Birim',
                         value: formatJobDestinationsWithAssignees(detail),
                       },
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },

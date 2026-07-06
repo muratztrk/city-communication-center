@@ -109,6 +109,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   öncelik satırı korunur (card #1118).
 - **AMA TasksPage "İlgili Talep Detayları" (üst-talep özeti) ile JobsPage "Talep Detayları"
   arasında "aynı tutulur" kuralı YOKTUR.** İkisi ayrı düşünülür.
+- **TasksPage "İlgili Talep Detayları" alanı Taleplerim detay kart düzenini kullanır:**
+  ana kart 3 kolon (`Talep Başlığı` + `Talep Bilgileri` + `Süreç`), altında `Adres Bilgileri` /
+  `Yönetici Notu` / `Ekler` kartları görünür; yönlendirilmiş talep rozeti ve sebep satırı korunur.
 - **İptal/İade buton mantığı:** yalnızca `ExternalUnit` görevlerde İade; internal/routine →
   yalnızca İptal. Label + skipChoose `jobRequestType`'a göre belirlenir, role'e göre DEĞİL.
 - **`createdByDisplayName` = TALEP oluşturan** (`GetTasksQuery`, `job.CreatedByUserId`'den).

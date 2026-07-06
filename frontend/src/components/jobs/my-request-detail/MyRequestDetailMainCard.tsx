@@ -14,6 +14,7 @@ import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
+import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime } from './format'
 import { getPriorityLabel } from '../../../utils/localization'
@@ -44,8 +45,11 @@ interface MyRequestDetailMainCardProps {
   citizenSourceMessage?: SocialMessage | null
   detailStatusClass: string
   statusContent: ReactNode
+  sectionTitle?: ReactNode
   statusLabel?: ReactNode
   statusNoteContent?: ReactNode
+  requestNumberSuffix?: ReactNode
+  extraFields?: MyRequestDetailField[]
   canChangeDueDate: boolean
   detailDueDateEdit: DetailDueDateEditState | null
   onOpenDueDateEdit: () => void
@@ -68,8 +72,11 @@ export function MyRequestDetailMainCard({
   citizenSourceMessage,
   detailStatusClass,
   statusContent,
+  sectionTitle,
   statusLabel,
   statusNoteContent,
+  requestNumberSuffix,
+  extraFields,
   canChangeDueDate,
   detailDueDateEdit,
   onOpenDueDateEdit,
@@ -98,8 +105,8 @@ export function MyRequestDetailMainCard({
   const citizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
   const projectLabel = t('jobs.form.isProject', 'Proje mi')
   const fields = useMemo(
-    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage),
-    [detail, t, locale, citizenSourceMessage],
+    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields),
+    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields],
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false
@@ -205,7 +212,7 @@ export function MyRequestDetailMainCard({
   return (
     <section className={`my-request-detail-main form-card page-stack mb-5${isEditing ? ' my-request-detail-main--editing' : ''}`}>
       <MyRequestSectionHeading icon={ClipboardList} tone="primary">
-        {t('jobs.detail.requestInfo', 'Talep Detayları')}
+        {sectionTitle ?? t('jobs.detail.requestInfo', 'Talep Detayları')}
       </MyRequestSectionHeading>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">

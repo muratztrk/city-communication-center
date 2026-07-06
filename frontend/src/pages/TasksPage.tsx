@@ -1,4 +1,4 @@
-import { ClipboardList, FileImage, FileText, History, Info, MapPin, NotebookPen, Paperclip, Printer, RefreshCw, Search, PenLine, X, XCircle } from 'lucide-react'
+import { ClipboardList, FileImage, FileText, History, Info, MapPin, Paperclip, Printer, RefreshCw, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -25,7 +25,7 @@ import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus, getSocialChannelLabel } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
@@ -60,14 +60,14 @@ import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
-import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
-import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
+import { MyRequestDetailMainCard } from '../components/jobs/my-request-detail/MyRequestDetailMainCard'
+import { MyRequestDetailBottomCards } from '../components/jobs/my-request-detail/MyRequestDetailBottomCards'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
@@ -2130,13 +2130,6 @@ const pageKicker = isMyTasksView
                   {/* İlgili Talep Detayları — Görev Detayları kutusunun hemen altında etiketli özet (card 388).
                       Rutin görevlerde talep olmadığı için bu bölüm gösterilmez (card 395). */}
                   {parentJobDetail && taskDetail.jobSourceType !== 'Routine' && (() => {
-                    const ownerJobDepartment = parentJobDetail.departments.find(
-                      dept => dept.departmentId === parentJobDetail.ownerDepartmentId,
-                    )
-                    const isCrossDepartmentRequest =
-                      taskDetail.assignedDepartmentId != null &&
-                      taskDetail.assignedDepartmentId !== parentJobDetail.ownerDepartmentId
-                    // Talebi gerçekleştiren (görevin atandığı/hedef) birim — onay tarihi için (card #703).
                     const fulfillingJobDepartment = parentJobDetail.departments.find(
                       dept => dept.departmentId === taskDetail.assignedDepartmentId,
                     )
@@ -2155,204 +2148,64 @@ const pageKicker = isMyTasksView
                       </span>
                     ) : null
                     const isCitizenParentJob = isCitizenRequestJob(parentJobDetail)
-                    const leftFields = isCitizenParentJob ? [
-                      {
-                        label: 'Vatandaş Talep No',
-                        value: (
-                          <span className="inline-flex flex-wrap items-center gap-2">
-                            <span>{formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: parentJobDetail.createdAtUtc }, locale)}</span>
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-500">
-                              ({t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
-                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
-                              <span className="text-slate-900">{getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}</span>)
-                            </span>
-                          </span>
-                        ),
-                      },
-                      {
-                        label: 'Vatandaş Adı / Telefon No',
-                        value: [parentJobDetail.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJobDetail.citizenPhone ?? citizenSourceMessage?.citizenPhone)]
-                          .filter(Boolean)
-                          .join(' / ') || '—',
-                      },
-                      { label: 'Talep Başlığı', value: parentJobDetail.title },
-                      {
-                        label: 'Talep Yeri / Oluşturan',
-                        value: [parentJobDetail.ownerDepartmentName, parentJobDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
-                      },
-                      ...(shouldShowRequestApproverField(parentJobDetail) ? [{
-                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: formatRequestApproverDisplay(parentJobDetail) ?? '—',
-                      }] : []),
-                      {
-                        label: 'Talebin Gittiği Birim',
-                        value: formatJobDestinationsWithAssignees(parentJobDetail),
-                      },
-                      { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
-                    ] : [
-                      {
-                        label: 'Talep No',
-                        value: (
-                          <span className="inline-flex flex-wrap items-center gap-2">
-                            <RequestNumberWithTypeLabel
-                              job={parentJobDetail}
-                              t={t}
-                              locale={locale}
-                            />
-                            {parentForwardReasonDisplay ? (
-                              <span className="text-xs font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
-                            ) : null}
-                          </span>
-                        ),
-                      },
-                      { label: 'Talep Başlığı', value: parentJobDetail.title },
-                      {
-                        label: 'Talep Yeri / Oluşturan',
-                        value: [parentJobDetail.ownerDepartmentName, parentJobDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
-                      },
-                      ...(shouldShowRequestApproverField(parentJobDetail) ? [{
-                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: formatRequestApproverDisplay(parentJobDetail) ?? '—',
-                      }] : []),
-                      {
-                        label: 'Proje mi',
-                        value: <JobProjectValue job={parentJobDetail} t={t} />,
-                      },
-                      { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
-                      ...(parentForwardReasonDisplay ? [{
-                        label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'),
-                        value: parentForwardReasonDisplay,
-                      }] : []),
-                    ]
-                    const rightFields = [
-                      { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
-                      ...(!isCitizenParentJob && !isManagerLike && user?.role !== 'Reporter' ? [{
-                        // Hem birim-içi hem birim-dışı talepte aynı etiket kullanılır (card #706).
-                        label: 'Talebin Birim Yöneticisinin Onay Tarihi',
-                        value: formatApprovalDateText(
-                          formatDateTime(ownerJobDepartment?.decidedAtUtc ?? null, locale),
-                          ownerJobDepartment?.approvedByDisplayName,
-                        ),
-                      }] : []),
-                      ...(isCitizenParentJob
-                        ? (shouldShowCitizenTargetApprovalDate(parentJobDetail) ? [{
-                            label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
-                            value: formatApprovalDateText(
-                              formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
-                              fulfillingJobDepartment?.approvedByDisplayName,
-                            ),
-                          }] : [])
-                        : isCrossDepartmentRequest
-                          ? [{
-                              label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
-                              value: formatApprovalDateText(
-                                formatDateTime(fulfillingJobDepartment?.decidedAtUtc ?? null, locale),
-                                fulfillingJobDepartment?.approvedByDisplayName,
-                              ),
-                            }]
-                          : []),
-                      { label: 'Son Tarih', value: formatDueDateTime(parentJobDetail.dueDateUtc, locale) },
-                    ]
-                    const isCompletedTask = taskDetail.currentStatus === 'Completed'
+                    const parentStatusClass = parentJobDetail.status === 'Completed'
+                      ? 'text-emerald-600'
+                      : parentJobDetail.status === 'Cancelled'
+                        ? 'text-rose-600'
+                        : 'text-orange-500'
+                    const parentStatusContent = isCitizenParentJob
+                      ? getCitizenRequestStatusLabel(t, parentJobDetail)
+                      : parentJobDetail.status === 'Completed'
+                        ? t('jobs.status.completed', 'Tamamlandı')
+                        : parentJobDetail.status === 'Cancelled'
+                          ? t('jobs.status.cancelled', 'İptal Edildi')
+                          : t('jobs.status.inProgress', 'Yapılmakta')
+                    const parentRequestNumberSuffix = parentForwardReasonDisplay ? (
+                      <span className="text-xs font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                    ) : null
+                    const parentExtraFields = parentForwardReasonDisplay ? [{
+                      label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'),
+                      value: parentForwardReasonDisplay,
+                    }] : []
                     return (
-                      <section className="form-card page-stack mb-5">
-                        {/* Taleplerim popup'ındaki bölüm başlığı diliyle aynı (job-detail-section-title). */}
-                        <div className="job-detail-section-title mb-1">
-                          {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
-                        </div>
-                        <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${isCompletedTask ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)]' : isCitizenParentJob ? 'lg:grid-cols-[44%_20%_36%]' : 'lg:grid-cols-[44%_20%_18%_18%]'}`}>
-                          <div className="min-w-0 divide-y divide-slate-100">
-                            {leftFields.map(({ label, value }) => (
-                              // Sol kolon orta kolondan kısa olunca son satır "Öncelik"in altına
-                              // kapanış çizgisi (card #694; #712/#713 ile aynı yaklaşım).
-                              <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' || label === t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
-                                <span className="w-28 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                                <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                            <div className="divide-y divide-slate-100">
-                              {rightFields.map(({ label, value }) => (
-                                // Başlık satırın tamamını kaplar, tarih verisi alt satırda (dikey) —
-                                // JobsPage "Talep Detayları" stiliyle aynı (card #707). Son Tarih'te
-                                // kapanış çizgisi (card #712/#713).
-                                <div key={label} className={`flex flex-col gap-0.5 px-4 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
-                                  <span className="text-xs font-semibold text-slate-500">{label}</span>
-                                  <span className="break-words text-sm text-slate-900">{value}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          {!isCompletedTask ? (
-                            <>
-                              {!isCitizenParentJob ? (
-                              <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                  {t('jobs.managerNote.title', 'Yönetici Notu')}
-                                </div>
-                                {parentJobDetail.managerNote ? (
-                                  <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
-                                ) : (
-                                  <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
-                                )}
-                              </div>
-                              ) : null}
-                              {/* 4. sütun: Ekler / Fotoğraflar — talep oluşturulurken eklenen dosyalar, salt-okunur (card 519/527) */}
-                              <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                  {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                                </div>
-                                <AttachmentSection
-                                  attachments={parentJobDetail.attachments}
-                                  readOnly
-                                  compact
-                                  emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-                                />
-                              </div>
-                            </>
-                          ) : null}
-                        </div>
-                        {/* Tamamlanmış görevlerde talep özeti altında Adres / Yönetici Notu / Ekler satırı (JobsPage ile aynı). */}
-                        {isCompletedTask ? (
-                          <div className={`my-request-detail-bottom mt-4 grid gap-4 ${isCitizenParentJob ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
-                            <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-                              <MyRequestSectionHeading icon={MapPin}>
-                                {t('address.detailSectionTitle', 'Adres Bilgileri')}
-                              </MyRequestSectionHeading>
-                              <AddressDetailFields
-                                neighborhood={parentJobDetail.neighborhood}
-                                street={parentJobDetail.street}
-                                openAddress={parentJobDetail.openAddress}
-                              />
-                            </section>
-                            {!isCitizenParentJob ? (
-                            <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-                              <MyRequestSectionHeading icon={NotebookPen}>
-                                {t('jobs.managerNote.title', 'Yönetici Notu')}
-                              </MyRequestSectionHeading>
-                              {parentJobDetail.managerNote ? (
-                                <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
-                              ) : (
-                                <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
-                              )}
-                            </section>
-                            ) : null}
-                            <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
-                              <MyRequestSectionHeading icon={Paperclip}>
-                                {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                              </MyRequestSectionHeading>
-                              <AttachmentSection
-                                attachments={parentJobDetail.attachments ?? []}
-                                readOnly
-                                emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-                              />
-                              <p className="mt-2 text-xs font-medium text-amber-600">
-                                {t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
-                              </p>
-                            </section>
-                          </div>
-                        ) : null}
+                      <section className="page-stack mb-5">
+                        <MyRequestDetailMainCard
+                          detail={parentJobDetail}
+                          locale={locale}
+                          citizenSourceMessage={citizenSourceMessage}
+                          detailStatusClass={parentStatusClass}
+                          statusContent={parentStatusContent}
+                          sectionTitle={t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
+                          requestNumberSuffix={parentRequestNumberSuffix}
+                          extraFields={parentExtraFields}
+                          canChangeDueDate={false}
+                          detailDueDateEdit={null}
+                          onOpenDueDateEdit={() => undefined}
+                          onCloseDueDateEdit={() => undefined}
+                          onDueDateChange={() => undefined}
+                          onDueDateSave={() => undefined}
+                        />
+                        <MyRequestDetailBottomCards
+                          detail={parentJobDetail}
+                          showManagerNoteColumn={!isCitizenParentJob}
+                          canEditManagerNote={false}
+                          canManageCoordination={false}
+                          managerNoteDraft=""
+                          managerNoteEditing={false}
+                          managerNoteSaved={false}
+                          managerNoteSaving={false}
+                          onManagerNoteDraftChange={() => undefined}
+                          onManagerNoteEditStart={() => undefined}
+                          onManagerNoteSave={() => undefined}
+                          onManagerNoteDeleteConfirm={() => undefined}
+                          setConfirmDialog={() => undefined}
+                          canEditJobAttachments={false}
+                          showAttachmentLockNotice={taskDetail.currentStatus === 'Completed'}
+                          attachmentLockText={t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
+                          attachmentUploading={false}
+                          onAttachmentUpload={async () => undefined}
+                          onAttachmentDelete={async () => undefined}
+                        />
                       </section>
                     )
                   })()}

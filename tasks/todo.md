@@ -1744,3 +1744,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   yapıldı; gridview `Başlık` sütunu metniyle aynı ailede kalıyor.
 
 ## STATUS: Round 227 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 228 (Doing — 2026-07-06, Görevlerim ilgili talep detay tasarımı)
+- [x] manual — Görevlerim detay popup'ındaki `İlgili Talep Detayları`, Taleplerim detayındaki
+  3 kolon ana kart + alt kartlar düzenine taşındı; yönlendirilmiş talep rozeti ve sebep satırı korundu.
+
+## STATUS: Round 228 complete — frontend build/lint passed; direct screenshot request, no Trello card to move.

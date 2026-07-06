@@ -23,6 +23,8 @@ export function buildMyRequestDetailFields(
   t: TFunction,
   locale: string,
   citizenSourceMessage: SocialMessage | null | undefined,
+  requestNumberSuffix?: ReactNode,
+  extraFields: MyRequestDetailField[] = [],
 ): MyRequestDetailField[] {
   if (isCitizenRequestJob(detail)) {
     return [
@@ -53,13 +55,19 @@ export function buildMyRequestDetailFields(
         value: formatJobDestinationsWithAssignees(detail, true),
       },
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
+      ...extraFields,
     ]
   }
 
   return [
     {
       label: t('jobs.columns.requestNo', 'Talep No'),
-      value: <RequestNumberWithTypeLabel job={detail} t={t} locale={locale} />,
+      value: (
+        <span className="inline-flex flex-wrap items-center gap-2">
+          <RequestNumberWithTypeLabel job={detail} t={t} locale={locale} />
+          {requestNumberSuffix}
+        </span>
+      ),
     },
     { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
     {
@@ -76,5 +84,6 @@ export function buildMyRequestDetailFields(
       highlight: detail.isProject,
     },
     { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
+    ...extraFields,
   ]
 }

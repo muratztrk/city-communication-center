@@ -225,6 +225,20 @@ export function CreateRequestPage() {
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
+  // "Talep Oluştur"a basmadan mod seçimine (Geri) dönülünce girilen veriler temizlenir; tekrar
+  // girildiğinde alanlar boş başlar. `kind` bir query param olduğundan seçim ekranına dönüşte bileşen
+  // unmount olmaz ve state kalırdı; başka sayfaya gidildiğinde ise zaten unmount olup sıfırlanır.
+  // Düzenleme (editJobId) ve sosyal mesajdan ön-doldurma akışları hariç tutulur (card #1411).
+  useEffect(() => {
+    if (selectedKind === null && !editJobId && !socialMessageIdParam) {
+      setInternalForm(EMPTY_INTERNAL_FORM)
+      setExternalForm(EMPTY_EXTERNAL_FORM)
+      setCitizenForm(EMPTY_CITIZEN_FORM)
+      setPendingFiles([])
+      setFileError(null)
+      setEditPrefilled(false)
+    }
+  }, [selectedKind, editJobId, socialMessageIdParam])
   const canCreateCitizenRequest = user?.role === 'Operator'
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
 

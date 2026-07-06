@@ -1812,3 +1812,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri geri geldi.
 
 ## STATUS: Round 234 complete — frontend build/lint passed; card pending Done move.
+
+## Round 235 (Doing — 2026-07-06, Vatandaş Çağrı Talebi submit metni)
+- [x] `6a4bc850` / #1438 — Vatandaş Çağrı Talebi oluşturma formunda alt submit butonu
+  ve onay popup confirm metni `Talep Oluştur` olarak güncellendi.
+
+## STATUS: Round 235 complete — frontend build/lint passed; card pending Done move.

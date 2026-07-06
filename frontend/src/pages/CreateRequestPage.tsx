@@ -831,7 +831,7 @@ export function CreateRequestPage() {
           : 'Bu talebi oluşturmak istediğinize emin misiniz?',
         titleCompact: true,
         titleDivider: true,
-        confirmLabel: editJobId && linkedSocialMessageId ? 'Güncelle' : 'Vatandaş Çağrı Talebi Oluştur',
+        confirmLabel: editJobId && linkedSocialMessageId ? 'Güncelle' : 'Talep Oluştur',
         cancelLabel: 'İptal',
         variant: 'success',
         onConfirm: () => {
@@ -1232,7 +1232,7 @@ export function CreateRequestPage() {
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('requests.create.citizenCallSubmit', 'Vatandaş Çağrı Talebi Oluştur')}
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('requests.create.citizenCallSubmit', 'Talep Oluştur')}
             </Button>
           </div>
         </form>

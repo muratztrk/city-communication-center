@@ -41,7 +41,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
   kutusu tam satırdır, başlangıç/bitiş tarihleri aramanın altında iki eşit kolon olarak yan yana durur
   ve filtre grubu banner içinde sola hizalı kalır; aralarında tire/çizgi gösterilmez. Desktop banner
-  tarih aralığında başlangıç ve bitiş tarihi arasında `-` ayırıcısı görünür. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
+  tarih aralığında başlangıç ve bitiş tarihi arasında `-` ayırıcısı tam ortada görünür. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
   daha kompakt kalır. Detay modal formları tek kolon akar.
 - **Banner arama input metni:** banner ve bildirim modalındaki search textbox boyutu büyümez; iç metin
   0.8rem+ ve bold kalır, font family gridview Başlık metniyle aynı `var(--font-sans)` olur;
@@ -554,7 +554,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve `Ek süre talebi` gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli
   bold davranışı korunur.
 - **Bildirim alt mesaj metni:** başlığın altındaki mesaj alanında onay/red/tamamlandı kelimeleri
-  kırmızı/yeşil renge boyanmaz; gerekirse yalnız bold, nötr slate metin olarak kalır.
+  kırmızı/yeşil renge boyanmaz ve bold yapılmaz; normal ağırlıkta nötr slate metin olarak kalır.
 - **Bildirim detay popup ek süre marker'ı:** bildirimden açılan görev/talep detay popup'ı, grid detaylarıyla
   aynı ek süre marker'ını gösterir; görev detayı `TaskDetailResponse` ek süre alanlarını taşır, talep detayı
   içindeki görevlerden marker türetir.

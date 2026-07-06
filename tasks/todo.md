@@ -1783,3 +1783,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   altına Taleplerim gridview ile aynı `TablePagination` bağlandı; liste gerçek sayfalama kullanıyor.
 
 ## STATUS: Round 230 complete — frontend build/lint passed; card pending Done move.
+
+## Round 231 (Doing — 2026-07-06, bildirim alt metin ve banner tire reopen)
+- [x] `6a4b96b4` / #1427 reopen — Bildirim dropdown/modal başlık altı mesaj satırı düz metne
+  çevrildi; kırmızı/yeşil renk ve bold vurgular kaldırıldı.
+- [x] `6a4b902c` / #1426 reopen — Desktop banner başlangıç/bitiş tarihi arasındaki `-` ayırıcısı,
+  iki tarih input'unun tam ortasına hizalandı; mobil/tablette gizli kalıyor.
+
+## STATUS: Round 231 complete — frontend build/lint passed; cards pending Done move.

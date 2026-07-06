@@ -132,7 +132,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
           {n.titleTag ? <span className="font-semibold text-orange-500"> ({n.titleTag})</span> : null}
         </p>
         {n.message && (
-          <p className="mt-0.5 text-xs text-slate-500 line-clamp-2"><NotificationStatusText value={n.message} /></p>
+          <p className="mt-0.5 text-xs font-normal text-slate-500 line-clamp-2">{n.message}</p>
         )}
         <div className="mt-1 flex items-center justify-between gap-3">
           <p className="text-[0.68rem] text-slate-400">
@@ -176,13 +176,6 @@ function NotificationTitleStatusText({ value, plainClassName }: { value: string;
       return <span key={index} className="font-bold">{part}</span>
     }
     return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} />
-  })
-}
-
-function NotificationStatusText({ value }: { value: string }) {
-  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı)/gi).map((part, index) => {
-    if (/^(onaylandı|tamamlandı|reddedildi)$/i.test(part)) return <span key={index} className="font-bold text-slate-700">{part}</span>
-    return part
   })
 }
 

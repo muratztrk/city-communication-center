@@ -96,7 +96,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`formatTaskJobDisplayNumber`, ör. `T-2026-328`) de tarar.**
 - **Yönlendirilmiş dış birim talebinden oluşturulan görevlerde**, görev gridindeki `Bağlı Olduğu Talep No`
   yanında koyu turkuaz `(Yönlendirilen Talep)` etiketi görünür; görev detayındaki `İlgili Talep Detayları`
-  sol kartı hedef departman `Notes` değerini `Talebin Yönlenme Sebebi` olarak gösterir.
+  sol kartı hedef departman `Notes` değerini `Talebin Yönlenme Sebebi` olarak koyu turkuaz
+  `Talebi Yönlendiren Birim • sebep` formatında gösterir.
 - **"Görev Detayları" özet kartı, TasksPage (Görevlerim) ile JobsPage (Birime Gelen) arasında
   BİREBİR AYNI tutulur** (card 649/705). Birine alan eklersen diğerine de ekle.
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`

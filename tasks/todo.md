@@ -253,6 +253,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `StfNPmMP` — Detay popup `Talebin Yönlenme Sebebi` değeri koyu turkuaz kalıp bold olmayan metne çekildi.
 - [x] `Ta9QyzXj` — Ortak `.detail-modal-shell` ölçüsü Taleplerim popup ölçüsüne alındı; Birime Gelen/Birimden Giden/Görevlerim/Birimdeki/Personelimin detay popupları aynı boyuta hizalandı.
 
+## Round 34
+- [x] `rUud298x` — Görev detay popup'ındaki `İlgili Talep Detayları > Talebin Yönlenme Sebebi` değeri koyu turkuaz `Talebi Yönlendiren Birim • sebep` formatına alındı.
+
 ## Round 30 (manual check)
 - [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.
 - [x] `7RspesWl` — Added "Durum" column after Başlık in the İptal/İade Talepler (cancelled/rejected) views of Incoming/Jobs/Tasks grids, showing İptal (Cancelled) vs İade (Rejected/RevisionRequested). Added cancelReturnStatus i18n key (tr/en). Pushed. Moved to Done.

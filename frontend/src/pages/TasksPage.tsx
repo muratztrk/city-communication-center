@@ -2143,6 +2143,19 @@ const pageKicker = isMyTasksView
                       dept => dept.departmentId === taskDetail.assignedDepartmentId,
                     )
                     const parentForwardReason = fulfillingJobDepartment?.notes?.trim() || null
+                    const parentForwardSourceUser = fulfillingJobDepartment?.requestedByUserId
+                      ? users.find(item => item.userId === fulfillingJobDepartment.requestedByUserId)
+                      : null
+                    const parentForwardSourceDepartmentName = parentForwardSourceUser?.departments?.find(department => department.isPrimary)?.name
+                      ?? parentForwardSourceUser?.departments?.[0]?.name
+                      ?? null
+                    const parentForwardReasonDisplay = parentForwardReason ? (
+                      <span className="text-teal-800">
+                        {parentForwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
+                        <span aria-hidden="true"> • </span>
+                        {parentForwardReason}
+                      </span>
+                    ) : null
                     const isCitizenParentJob = isCitizenRequestJob(parentJobDetail)
                     const leftFields = isCitizenParentJob ? [
                       {
@@ -2203,9 +2216,9 @@ const pageKicker = isMyTasksView
                         value: <JobProjectValue job={parentJobDetail} t={t} />,
                       },
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
-                      ...(parentForwardReason ? [{
+                      ...(parentForwardReasonDisplay ? [{
                         label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'),
-                        value: parentForwardReason,
+                        value: parentForwardReasonDisplay,
                       }] : []),
                     ]
                     const rightFields = [

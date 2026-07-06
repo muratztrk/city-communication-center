@@ -22,10 +22,12 @@ public sealed class GetWhatsAppTemplatesQueryHandler
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
 
+        // Meta onaylı şablonlar listede ilk sırada gösterilir (card #1433).
         var templates = await _dbContext.WhatsAppTemplates
             .AsNoTracking()
             .Where(t => t.TenantId == tenantId)
-            .OrderBy(t => t.Name)
+            .OrderByDescending(t => t.Channel == "WhatsApp Meta")
+            .ThenBy(t => t.Name)
             .ToListAsync(cancellationToken);
 
         return templates

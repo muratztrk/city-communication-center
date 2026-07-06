@@ -2691,7 +2691,7 @@
     align-self: center;
     color: #64748b;
     font-size: 0.8rem;
-    font-weight: 800;
+    font-weight: 500; /* Masaüstü bannerda tarih aralığı "-" işareti daha ince (card #1426). */
     line-height: 1;
     user-select: none;
   }

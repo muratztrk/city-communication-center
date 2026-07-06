@@ -1,4 +1,4 @@
-import { ClipboardList, FileImage, FileText, History, Info, MapPin, Paperclip, Printer, RefreshCw, Search, PenLine, X, XCircle } from 'lucide-react'
+import { FileImage, FileText, History, Info, ListChecks, MapPin, Paperclip, Printer, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1731,7 +1731,8 @@ const pageKicker = isMyTasksView
                       solda başlık + açıklama, ortada Görev Bilgileri, sağda Süreç timeline'ı
                       (MyRequestDetailMainCard düzeni). */}
                   <section className="my-request-detail-main form-card page-stack mb-5">
-                    <MyRequestSectionHeading icon={ClipboardList} tone="primary">
+                    {/* Sol menüdeki "Görevlerim" ikonuyla aynı (ListChecks) — card #1429. */}
+                    <MyRequestSectionHeading icon={ListChecks} tone="primary">
                       {t('tasks.detail.title', 'Görev Detayları')}
                     </MyRequestSectionHeading>
                     <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
@@ -1774,6 +1775,25 @@ const pageKicker = isMyTasksView
                                 ? t('tasks.type.routine', 'Rutin')
                                 : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
                             },
+                            // Görev durumu değiştiyse Görev Tipi'nin hemen altında (card #1443).
+                            ...(taskDetail.jobSourceType !== 'Routine' && (taskDetail.statusChangeHistory?.length ?? 0) > 0
+                              ? [{
+                                  label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi'),
+                                  value: (
+                                    <ul className="space-y-1.5">
+                                      {taskDetail.statusChangeHistory!.map((item, idx) => (
+                                        <li key={`${item.changedAtUtc}-${idx}`} className="flex gap-1.5">
+                                          <span className="shrink-0 text-slate-400" aria-hidden>•</span>
+                                          <div className="min-w-0">
+                                            <span className="font-bold text-slate-950">{getTaskStatusLabel(t, item.toStatus)}</span>
+                                            <span className="ml-1.5 text-xs font-normal text-slate-500">{new Date(item.changedAtUtc).toLocaleString(locale)}</span>
+                                          </div>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ),
+                                }]
+                              : []),
                             ...(taskDetail.jobSourceType === 'Routine'
                               ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
                               : []),
@@ -2004,18 +2024,17 @@ const pageKicker = isMyTasksView
                     </div>
                   </section>
 
-                  {/* Geçmişler ve tamamlanan görev ekleri — Taleplerim alt kartlarıyla aynı kart dili. */}
+                  {/* Geçmişler ve tamamlanan görev ekleri — Taleplerim alt kartlarıyla aynı kart dili.
+                      Durum Değişikliği Geçmişi artık Görev Bilgileri panelinde (Görev Tipi altında), ayrı kart değil (card #1443). */}
                   {(() => {
-                    const statusChangeHistory = taskDetail.statusChangeHistory ?? []
-                    const showStatusChangeHistory = taskDetail.jobSourceType !== 'Routine' && statusChangeHistory.length > 0
                     const showAssignmentHistory = taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0
                     const showTaskAttachmentsInDetail = taskDetail.currentStatus === 'Completed'
                       && taskDetail.jobSourceType !== 'Routine'
                       && (taskDetail.attachments?.length ?? 0) > 0
-                    const cardCount = [showAssignmentHistory, showStatusChangeHistory, showTaskAttachmentsInDetail].filter(Boolean).length
+                    const cardCount = [showAssignmentHistory, showTaskAttachmentsInDetail].filter(Boolean).length
                     if (cardCount === 0) return null
                     return (
-                      <div className={`my-request-detail-bottom mb-5 grid gap-4 ${cardCount === 3 ? 'lg:grid-cols-3' : cardCount === 2 ? 'lg:grid-cols-2' : ''}`}>
+                      <div className={`my-request-detail-bottom mb-5 grid gap-4 ${cardCount === 2 ? 'lg:grid-cols-2' : ''}`}>
                         {showAssignmentHistory && (
                           <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                             <MyRequestSectionHeading icon={History}>
@@ -2031,29 +2050,6 @@ const pageKicker = isMyTasksView
                                     </div>
                                     <div className="text-xs text-slate-500">
                                       {new Date(item.actionDateUtc).toLocaleString(locale)}
-                                    </div>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          </section>
-                        )}
-                        {showStatusChangeHistory && (
-                          <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-                            <MyRequestSectionHeading icon={RefreshCw}>
-                              {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
-                            </MyRequestSectionHeading>
-                            <ul className="space-y-2 text-sm text-slate-700">
-                              {statusChangeHistory.map((item, idx) => (
-                                <li key={`${item.changedAtUtc}-${idx}`} className="flex gap-2">
-                                  <span className="shrink-0 text-slate-500" aria-hidden>•</span>
-                                  <div className="min-w-0">
-                                    {/* Yalnızca durum ve tarih bilgisi gösterilir (card #1095). */}
-                                    <div className="font-bold text-slate-950">
-                                      {getTaskStatusLabel(t, item.toStatus)}
-                                    </div>
-                                    <div className="text-xs text-slate-500">
-                                      {new Date(item.changedAtUtc).toLocaleString(locale)}
                                     </div>
                                   </div>
                                 </li>

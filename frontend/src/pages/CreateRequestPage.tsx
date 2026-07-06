@@ -1208,10 +1208,10 @@ export function CreateRequestPage() {
                     key={channel}
                     type="button"
                     onClick={() => setCitizenForm(current => ({ ...current, channel }))}
-                    className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                    className={`inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-semibold transition-colors ${
                       citizenForm.channel === channel
-                        ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/8 text-[color:var(--color-primary)]'
-                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100'
+                        ? 'border-[color:var(--color-primary)] text-[color:var(--color-primary)]'
+                        : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
                     <ChannelIcon channel={channel} className="size-4 shrink-0" />

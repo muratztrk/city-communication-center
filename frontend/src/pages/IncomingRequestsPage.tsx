@@ -104,6 +104,7 @@ type IncomingRequestRow = {
   lastExtraTimeRequestDecision?: string | null
   // Yönlendirilen talep: hedef birim kaydının notu (yönlenme sebebi) — Talep No yanında rozet (card #1406).
   forwardReason?: string | null
+  forwardSourceDepartmentName?: string | null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -257,6 +258,7 @@ function toExternalRow(
   activeDeptId: string | null,
   socialByJobId: Map<string, SocialMessage>,
   locale: string,
+  users: User[],
 ): IncomingRequestRow {
   const ownerDept = job.departments?.find(d => d.role === 'Owner')
   const activeTarget = activeDeptId
@@ -277,6 +279,12 @@ function toExternalRow(
     ? formatCitizenRequestNumber(socialByJobId.get(job.jobId) ?? { createdAtUtc: job.createdAtUtc }, locale)
     : formatJobDisplayNumber(job)
   const sourceChannel = isCitizenRequestJob(job) ? (socialByJobId.get(job.jobId)?.channel ?? 'WhatsApp') : null
+  const forwardSourceUser = activeTarget?.requestedByUserId
+    ? users.find(user => user.userId === activeTarget.requestedByUserId)
+    : null
+  const forwardSourceDepartmentName = forwardSourceUser?.departments?.find(department => department.isPrimary)?.name
+    ?? forwardSourceUser?.departments?.[0]?.name
+    ?? null
   return {
     id: job.jobId,
     jobId: job.jobId,
@@ -296,6 +304,7 @@ function toExternalRow(
     assignTargetDepartmentId,
     pendingTargetApprovalDepartmentId,
     forwardReason: activeTarget?.notes?.trim() || null,
+    forwardSourceDepartmentName,
     approvedAtUtc: activeTarget?.decidedAtUtc ?? ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
@@ -363,6 +372,7 @@ export function IncomingRequestsPage() {
   const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [socialMessages, setSocialMessages] = useState<SocialMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -419,6 +429,7 @@ export function IncomingRequestsPage() {
         if (cancelled) return
         setTasks(taskList)
         setJobs(jobList)
+        setUsers(userList)
         setSocialMessages(socialList)
         const currentDeptId = getActiveDepartmentId() ?? user?.departmentId
         // Personel listesi + Vatandaş Talep Operatörü + atamayı yapan yöneticinin kendisi
@@ -609,20 +620,21 @@ export function IncomingRequestsPage() {
       .map(toPendingInternalJobRow)
     const externalRows = jobs
       .filter(job => (job.requestType === 'ExternalUnit' || job.requestType === 'Citizen') && isIncomingExternalForActiveDept(job, activeDeptId))
-      .map(job => toExternalRow(job, activeDeptId, socialByJobId, locale))
+      .map(job => toExternalRow(job, activeDeptId, socialByJobId, locale, users))
 
     return [...internalRows, ...pendingInternalJobRows, ...externalRows].sort((a, b) => {
       const aTime = a.createdAtUtc ? new Date(a.createdAtUtc).getTime() : 0
       const bTime = b.createdAtUtc ? new Date(b.createdAtUtc).getTime() : 0
       return bTime - aTime
     })
-  }, [jobs, tasks, activeDeptId, socialByJobId, locale])
+  }, [jobs, tasks, activeDeptId, socialByJobId, locale, users])
 
   // Bir satırın bir sütunundaki görünen metni döndürür; hem kolon filtreleri hem banner araması kullanır.
   const getColumnValue = useCallback((key: string, r: IncomingRequestRow): string => {
     if (key === 'status') return getIncomingStatusLabel(t, r)
     if (key === 'cancelReturnStatus') return 'İptal'
     if (key === 'displayNumber') return r.displayNumber
+    if (key === 'forwardReason') return [r.forwardSourceDepartmentName, r.forwardReason].filter(Boolean).join(' ')
     if (key === 'priority') return getPriorityLabel(t, r.priority)
     if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
     if (key === 'dueDateUtc') return formatDateTime(r.dueDateUtc, locale)
@@ -633,7 +645,7 @@ export function IncomingRequestsPage() {
   }, [t, locale])
 
   // Banner aramasının tarayacağı tüm sütunlar (sadece Başlık değil).
-  const SEARCH_COLUMN_KEYS = ['displayNumber', 'priority', 'createdAtUtc', 'departmentName', 'createdBy', 'title', 'taskOwnerDisplayName', 'dueDateUtc', 'approvedAtUtc', 'completedAtUtc', 'updatedAtUtc', 'status']
+  const SEARCH_COLUMN_KEYS = ['displayNumber', 'forwardReason', 'priority', 'createdAtUtc', 'departmentName', 'createdBy', 'title', 'taskOwnerDisplayName', 'dueDateUtc', 'approvedAtUtc', 'completedAtUtc', 'updatedAtUtc', 'status']
 
   const visibleRows = useMemo(() => {
     let result = rows
@@ -889,9 +901,13 @@ export function IncomingRequestsPage() {
                       <div className="table-number-cell__value inline-flex flex-wrap items-center gap-1.5">
                         {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
                         <span className={reporterNumberClass}>{row.displayNumber}</span>
-                        {/* Yönlendirilen talepte koyu turkuaz rozet (card #1406). */}
+                        {/* Yönlendirilen talepte yönlendiren birim + sebep koyu turkuaz gösterilir (cards #1406/#1412). */}
                         {row.forwardReason ? (
-                          <span className="font-sans font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                          <span className="font-sans font-bold text-teal-800">
+                            {row.forwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
+                            <span aria-hidden="true"> • </span>
+                            {row.forwardReason}
+                          </span>
                         ) : null}
                       </div>
                       <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>

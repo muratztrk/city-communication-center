@@ -721,11 +721,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
+  // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
+  const forwardReason = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim()))?.notes?.trim() ?? null
   // Dış birimden gelen (birime düşen) talep, hedef birim yöneticisi onaylayana (personel atayana) kadar
   // başka birime yönlendirilebilir. Hem onay bekleyen (PendingExternalApproval) hem de otomatik aktifleşmiş
   // ama henüz atanmamış (Active, görev yok) hedefler kapsanır; atama yapılınca buton kaybolur (cards #1405/#1407).
+  // Bir kez yönlendirilmiş talep yeniden yönlendirilemez (card #1413).
   const canForwardTargetDetail = detail?.requestType === 'ExternalUnit'
     && (canApproveTargetDetail || canAssignIncomingDetail)
+    && !forwardReason
   // Yönlendirme dropdown'ı: mevcut hedef ve talep sahibi birim hariç tüm birimler ("Talebin Gideceği Birim").
   // Başkanlık seviyesi birimler (Başkanlık / Daire) hiçbir zaman listelenmez (card #1410).
   const forwardDepartmentOptions = departments
@@ -734,8 +738,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       && department.departmentId !== detail?.ownerDepartmentId
       && !isPresidencyLevelDepartment(department))
     .map(department => ({ value: department.departmentId, label: department.name }))
-  // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
-  const forwardReason = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim()))?.notes?.trim() ?? null
   const incomingPendingCloseTask = isIncomingRequestDetail && isManagerLike
     ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
     : null
@@ -2345,9 +2347,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                       // Yönlendirilen talebin sebebi, Öncelik/Proje satırının altında (card #1406).
-                      ...(forwardReason ? [{ label: 'Talebin Yönlenme Sebebi', value: forwardReason }] : []),
+                      ...(forwardReason ? [{ label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'), value: forwardReason }] : []),
                     ]).map(({ label, value }) => (
-                      <div key={label} className={`flex items-start gap-2 px-3 py-2${(label === 'Öncelik' && !forwardReason) || label === 'Talebin Yönlenme Sebebi' ? ' border-b border-slate-100' : ''}`}>
+                      <div key={label} className={`flex items-start gap-2 px-3 py-2${(label === 'Öncelik' && !forwardReason) || label === t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                         <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
                       </div>

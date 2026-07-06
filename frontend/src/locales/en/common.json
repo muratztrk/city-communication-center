@@ -1451,6 +1451,11 @@
       "Rejected": "Rejected",
       "NotRequired": "Not Required"
     },
+    "forward": {
+      "badge": "Forwarded Request",
+      "sourceFallback": "Forwarding Department",
+      "reasonLabel": "Forwarding Reason"
+    },
     "directions": {
       "internalOutgoing": "Internal Outgoing",
       "externalOutgoing": "External Outgoing",

@@ -1486,6 +1486,11 @@
       "Rejected": "Reddedildi",
       "NotRequired": "Gerekmiyor"
     },
+    "forward": {
+      "badge": "Yönlendirilen Talep",
+      "sourceFallback": "Talebi Yönlendiren Birim",
+      "reasonLabel": "Talebin Yönlenme Sebebi"
+    },
     "directions": {
       "internalOutgoing": "Birim İçi Giden",
       "externalOutgoing": "Birim Dışı Giden",

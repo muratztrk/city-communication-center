@@ -901,13 +901,9 @@ export function IncomingRequestsPage() {
                       <div className="table-number-cell__value inline-flex flex-wrap items-center gap-1.5">
                         {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
                         <span className={reporterNumberClass}>{row.displayNumber}</span>
-                        {/* Yönlendirilen talepte yönlendiren birim + sebep koyu turkuaz gösterilir (cards #1406/#1412). */}
+                        {/* Yönlendirilen talepte Talep No yanında koyu turkuaz rozet görünür (cards #1406/#1412). */}
                         {row.forwardReason ? (
-                          <span className="font-sans font-bold text-teal-800">
-                            {row.forwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
-                            <span aria-hidden="true"> • </span>
-                            {row.forwardReason}
-                          </span>
+                          <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                         ) : null}
                       </div>
                       <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>

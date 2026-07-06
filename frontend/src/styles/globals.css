@@ -153,9 +153,10 @@
   }
 
   .detail-modal-shell {
-    width: min(76vw, 90rem);
-    height: min(85dvh, 52rem);
+    width: min(70.25vw, 84.3rem);
+    height: min(80.7dvh, 46.85rem);
     max-width: calc(100vw - 2rem);
+    max-height: min(80.7dvh, 46.85rem);
   }
 
   .detail-modal-shell--notification {

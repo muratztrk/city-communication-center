@@ -201,7 +201,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
   en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.
   Taleplerim detay popup gövdesi desktopta referans görseldeki gibi geniş ama kontrollü kalır:
-  yaklaşık `72.05vw` / `86.45rem` genişlik ve `80.7dvh` / `46.85rem` yükseklik.
+  yaklaşık `70.25vw` / `84.3rem` genişlik ve `80.7dvh` / `46.85rem` yükseklik.
+  JobsPage/TasksPage detay popupları da aynı ortak `.detail-modal-shell` ölçüsünü kullanır;
+  detay modal boyutlarını sayfa bazında yeniden ayrıştırma.
   `Öncelik / Proje Niteliğinde mi?` değerindeki ayraç, süreç timeline tarih-saat ayracıyla
   aynı küçük nokta bileşenini kullanır; düz `·` karakterine dönmez.
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
@@ -240,8 +242,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görevi iptal edip talebi `Cancelled/Rejected`'a düşürdüğünde `job.CancelReason = reason` yazar
   (tamamlama notu zaten `JobQueries` tarafından tamamlanan görevin `Notes`'undan türetilir).
 - **Yönlendirilmiş dış birim talebi tekrar yönlendirilemez:** hedef `JobDepartment.Notes`
-  doluysa Birime Gelen detayında `Talebi Yönlendir` butonu çıkmaz; grid Talep No yanında ve
-  detay `Talebin Yönlenme Sebebi` değerinde yönlendiren birim + yönlenme sebebi koyu turkuaz gösterilir.
+  doluysa Birime Gelen detayında `Talebi Yönlendir` butonu çıkmaz; grid Talep No yanında koyu
+  turkuaz `(Yönlendirilen Talep)` rozeti görünür. Detay `Talebin Yönlenme Sebebi` değerinde
+  yönlendiren birim + yönlenme sebebi koyu turkuaz ama bold olmayan metinle gösterilir.
 - **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
   iptal edildiğinde `Cancelled`'a düşürür (card #1044). Karışık terminal durumda (tamamlanmış +
   iptal görev bir arada) talep `Active`'e geri alınır. Bir görevi terminal'den non-terminal'e

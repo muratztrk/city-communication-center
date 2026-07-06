@@ -732,7 +732,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ?? forwardSourceUser?.departments?.[0]?.name
     ?? null
   const forwardReasonDisplay = forwardReason ? (
-    <span className="font-bold text-teal-800">
+    <span className="text-teal-800">
       {forwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
       <span aria-hidden="true"> • </span>
       {forwardReason}

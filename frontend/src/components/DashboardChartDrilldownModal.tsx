@@ -6,6 +6,7 @@ import type { TFunction } from 'i18next'
 import { api } from '../api/client'
 import type { DashboardChartDrilldownRow, JobDetail, SocialMessage } from '../types/platform'
 import { DateCell } from './ui/date-cell'
+import { Button } from './ui/button'
 import { TablePagination } from './ui/table-pagination'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getLocale } from '../utils/localization'
@@ -224,15 +225,18 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                             emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
                           />
                         </td>
-                        <td className="text-center">
-                          <button
-                            type="button"
-                            className="rounded-md bg-emerald-700 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
-                            disabled={detailLoading}
-                            onClick={() => void openJobDetail(row.jobId)}
-                          >
-                            {t('jobs.actions.details', 'Detaylar')}
-                          </button>
+                        <td className="actions-cell">
+                          <div className="request-actions justify-center">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              disabled={detailLoading}
+                              onClick={() => void openJobDetail(row.jobId)}
+                            >
+                              {t('jobs.actions.details', 'Detaylar')}
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -242,10 +246,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                   totalCount={rows.length}
                   pageSize={pageSize}
                   currentPage={page}
-                  onPageSizeChange={size => {
-                    setPageSize(size)
-                    setPage(1)
-                  }}
+                  onPageSizeChange={setPageSize}
                   onPageChange={setPage}
                 />
               </div>
@@ -253,6 +254,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
           </div>
         </div>
       </div>
+
       {(detail || detailLoading || detailError) ? (
         <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/40 p-4" role="presentation" onClick={closeJobDetail}>
           {detail ? (

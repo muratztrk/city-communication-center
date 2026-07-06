@@ -1791,3 +1791,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   iki tarih input'unun tam ortasına hizalandı; mobil/tablette gizli kalıyor.
 
 ## STATUS: Round 231 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 232 (Doing — 2026-07-06, dashboard drilldown Detaylar butonu reopen)
+- [x] `6a4b8894` / #1424 reopen — Dashboard pie drilldown popup gridindeki `İşlemler > Detaylar`
+  butonu Taleplerim grid aksiyon tasarımındaki `Button size="sm" variant="secondary"` ve
+  `actions-cell/request-actions` yapısına alındı.
+
+## STATUS: Round 232 complete — frontend build/lint passed; card pending Done move.

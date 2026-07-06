@@ -44,13 +44,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tarih aralığında başlangıç ve bitiş tarihi arasında `-` ayırıcısı tam ortada görünür. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
   daha kompakt kalır. Detay modal formları tek kolon akar.
 - **Banner arama input metni:** banner ve bildirim modalındaki search textbox boyutu büyümez; iç metin
-  0.8rem+ ve bold kalır, font family gridview Başlık metniyle aynı `var(--font-sans)` olur;
-  placeholder/ikon yeşil banner üstünde okunur kalır.
+  0.8rem+ ve yarı-kalın (`font-weight:600`) kalır, font family gridview Başlık metniyle aynı
+  `var(--font-sans)` olur; `letter-spacing:0` ve kontrollü line-height korunur, placeholder/ikon
+  yeşil banner üstünde okunur kalır.
 - **Mobil detay popup başlıkları aksiyonlarla çakışmaz:** talep/görev detay header'ında başlık alanı
   esnek kalır; sağ üst aksiyonlar küçük, wrap edebilir butonlar olarak durur. Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
   tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.
+- **Yazdır popup'ı ağ erişimi açmaz:** `printHtmlDocument` yazdırma penceresine CSP enjekte eder
+  (`default-src 'none'`) ve `opener` bağlantısını keser; print HTML'i app/API/local network
+  kaynaklarına istek atamaz.
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
   `main.tsx`'te yalnız birkaç ağırlık yüklenirse `font-normal`/`font-extrabold` gibi eksik
   ağırlıklardaki metinler tarayıcı fallback fontuna düşer (görünüşte "font değişmemiş" gibi görünür).
@@ -231,6 +235,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Gridview terminal tarih renkleri:** Gridlerde `Tamamlanma Tarihi` değerleri yeşil,
   `İptal Tarihi` değerleri kırmızı gösterilir; `Son Tarih` ve süresi geçmiş son tarih
   davranışına bu renklendirme uygulanmaz (card #1243).
+- **Birime Gelen > Tamamlanmış grid başlığı:** yalnız bu görünümdeki `Tamamlanma Tarihi`
+  `FilterableTh` başlığında küçük sol boşluk bulunur; genel grid header padding'i değiştirilmez.
 - **Ek süre talebi grid işaretleri:** aktif talep/görevde işaret `Son Tarih` altında, tamamlanmışta
   `Tamamlanma Tarihi` altında, iptal/reddedilmişte `İptal Tarihi` altında görünür; `Tümü` görünümünde
   terminal satırlarda durum hücresinin altında aynı marker kullanılır. Ek süre isteği/onay/red sonrası
@@ -501,7 +507,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`Reporter`) dashboard'larında görünür; `Reporter`/`SystemAdmin` tenant genelini, `Manager` ise
   aktif/kapsamındaki birime gelen VT taleplerini (`OwnerDepartmentId` veya `JobDepartment.Target`) sayar.
   Kanal kırılımında kanonik bağ `SocialMessage.JobId + CitizenRequestNumber`'dır; `Job.SourceRefId`
-  boş/uyumsuz olsa bile VT kanalı kaybolmamalıdır.
+  boş/uyumsuz olsa bile VT kanalı kaybolmamalıdır. VT job adaylığı yalnız `RequestType=Citizen`
+  ile sınırlanmaz; `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}` veya linkli VT numaralı
+  `SocialMessage.JobId` de grafiğe dahil olur.
 - **Dashboard status pie chart query'si görev→talep kaynak tipini navigation property'ye güvenmeden
   üretir:** chart endpoint'i orphan/eksik ilişki veya provider translation yüzünden tüm paneli
   hata banner'ına düşürmemeli (card #1251).

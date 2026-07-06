@@ -16,6 +16,13 @@ function getVisibleDetailModalHeight(fallback = 832): number {
   return Math.round(activeRect?.height ?? fallback)
 }
 
+function hardenPrintHtml(html: string): string {
+  if (html.includes('http-equiv="Content-Security-Policy"')) return html
+
+  const cspMeta = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">`
+  return html.replace(/<head([^>]*)>/i, `<head$1>${cspMeta}`)
+}
+
 /** Open a centered preview window and print once (HTML should include its own onload print hook). */
 export function printHtmlDocument(html: string, options?: { width?: number; height?: number }): void {
   const width = options?.width ?? 820
@@ -23,8 +30,14 @@ export function printHtmlDocument(html: string, options?: { width?: number; heig
   const printWindow = window.open('', '_blank', getCenteredPopupFeatures(width, height))
   if (!printWindow) return
 
+  try {
+    printWindow.opener = null
+  } catch {
+    // Some browsers expose opener as read-only; the CSP below still isolates the print document's network surface.
+  }
+
   printWindow.document.open()
-  printWindow.document.write(html)
+  printWindow.document.write(hardenPrintHtml(html))
   printWindow.document.close()
 
   const script = printWindow.document.createElement('script')

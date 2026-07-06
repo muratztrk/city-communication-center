@@ -37,10 +37,22 @@ public sealed class GetCitizenChannelChartQueryHandler
             return new DashboardChartResponse("dashboard.citizenChannels.title", []);
         }
 
+        var linkedCitizenMessages = _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(sm => sm.TenantId == tenantId
+                && sm.JobId.HasValue
+                && sm.CitizenRequestNumber != null);
+
+        var linkedCitizenJobIds = linkedCitizenMessages.Select(sm => sm.JobId!.Value);
+
         var citizenJobs = _dbContext.Jobs
             .AsNoTracking()
             .Where(j => j.TenantId == tenantId
-                && j.RequestType == JobRequestType.Citizen
+                && (j.RequestType == JobRequestType.Citizen
+                    || j.SourceType == JobSourceType.SocialMessage
+                    || j.SourceType == JobSourceType.CitizenRequest
+                    || j.SourceType == JobSourceType.EDevlet
+                    || linkedCitizenJobIds.Contains(j.JobId))
                 && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value));
 
@@ -73,12 +85,6 @@ public sealed class GetCitizenChannelChartQueryHandler
                     && jd.Role == JobDepartmentRole.Target
                     && scopedDepartmentIds.Contains(jd.DepartmentId)));
         }
-
-        var linkedCitizenMessages = _dbContext.SocialMessages
-            .AsNoTracking()
-            .Where(sm => sm.TenantId == tenantId
-                && sm.JobId.HasValue
-                && sm.CitizenRequestNumber != null);
 
         // VT numbers live on SocialMessage; use the JobId link as the canonical channel source.
         var socialCounts = await linkedCitizenMessages

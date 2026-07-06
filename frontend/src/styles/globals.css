@@ -670,7 +670,9 @@
     font-family: var(--font-sans);
     color: white;
     font-size: 0.82rem;
-    font-weight: 500; /* Banner aramasına yazılan metin daha ince (card #1390). */
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.2;
   }
 
   .notification-modal-search .scope-chip-search-input::placeholder {
@@ -1813,6 +1815,10 @@
     cursor: inherit;
   }
 
+  .incoming-completed-at-th .filterable-th-content {
+    padding-left: 0.45rem;
+  }
+
   /* ⋮ button — active filter: bold red + larger icon (all gridviews) */
   .col-filter-btn {
     flex-shrink: 0;
@@ -2495,7 +2501,9 @@
     font-family: var(--font-sans);
     color: white;
     font-size: 0.82rem;
-    font-weight: 500; /* Banner aramasına yazılan metin daha ince (card #1390). */
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.2;
   }
 
   .sticky-page-header .scope-chip-search-input::placeholder {
@@ -3251,6 +3259,7 @@
   .wallboard-page {
     --wallboard-page-pad: clamp(1rem, 2.2vw, 2rem);
     position: relative;
+    box-sizing: border-box;
     height: 100dvh;
     display: flex;
     flex-direction: column;
@@ -3262,9 +3271,9 @@
   }
 
   .wallboard-page > footer {
-    width: 100vw;
-    margin-inline: calc(50% - 50vw);
-    margin-top: 0.75rem;
+    width: calc(100% + (var(--wallboard-page-pad) * 2));
+    margin-inline: calc(-1 * var(--wallboard-page-pad));
+    margin-top: auto;
   }
 
   .wallboard-hero {
@@ -3660,7 +3669,7 @@
     line-clamp: 2;
     max-width: 32rem;
     color: white;
-    font-size: clamp(0.8rem, 0.92vw, 1rem);
+    font-size: clamp(0.72rem, 0.82vw, 0.9rem);
     font-weight: 400;
     overflow: hidden;
     overflow-wrap: break-word;
@@ -3688,7 +3697,7 @@
 
   .wallboard-task-owner--reporter,
   .wallboard-creator-line--reporter {
-    color: #fb923c;
+    color: #fb923c !important;
   }
 
   .wallboard-priority-text {

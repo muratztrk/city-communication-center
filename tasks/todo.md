@@ -1840,3 +1840,22 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   telefon ikonuyla eşleştirildi.
 
 ## STATUS: Round 237 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 238 (Doing — 2026-07-07, dashboard kanal grafiği ve wallboard yeni kartları)
+- [x] `6a4a26b2` / #1374 — Ekrana Yansıt footer'ı sayfa padding'ini aşan tam satır/full-bleed
+  genişliğe ve flex footer olarak viewport en altına alındı.
+- [x] `6a48bbe2` / #1333 — Ekrana Yansıt Başlık hücre yazısı küçültüldü; Üst Düzey Yönetici
+  talebindeki Görev Sahibi turuncu override'ı genel owner rengini ezecek şekilde güçlendirildi.
+- [x] `6a4a628d` / #1390 reopen — Banner ve bildirim search input yazı ağırlığı yarı-kalın
+  `600`, `letter-spacing:0` ve kontrollü line-height ile grid Başlık font ailesinde sabitlendi.
+- [x] `6a4a47b1` / #1384 — Birime Gelen Talepler > Tamamlanmış Talepler gridinde yalnız
+  `Tamamlanma Tarihi` başlığına küçük sol boşluk eklendi.
+- [x] `6a4b7f35` / #1421 — Kontrol paneli Vatandaş Talep Kanalları grafiği Reporter/SystemAdmin
+  için tenant genelinde, Manager için scoped birimde VT numaralı talepleri kanalına göre sayacak
+  şekilde `RequestType` dar filtresinden çıkarıldı.
+- [x] `6a4bebbb` / #1442 — Yazdır popup'ı CSP ile ağ erişimine kapatıldı ve opener bağlantısı
+  kesildi; print dokümanı app/API/local network kaynaklarına istek atamaz.
+- [x] `6a4b8814` / #1423 — Birim yöneticisi Vatandaş Talep Kanalları grafiği, kendi birimine
+  gelen VT numaralı sosyal/e-Devlet/vatandaş kaynaklı talepleri kanal sayımı içine alır.
+
+## STATUS: Round 238 complete — backend build and frontend build/lint passed; cards pending Done move.

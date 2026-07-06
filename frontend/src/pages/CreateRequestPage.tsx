@@ -83,7 +83,7 @@ const EMPTY_EXTERNAL_FORM: ExternalFormState = {
 }
 
 const EMPTY_CITIZEN_FORM: CitizenFormState = {
-  channel: 'WhatsApp',
+  channel: 'Phone',
   citizenHandle: '',
   citizenPhone: '',
   content: '',
@@ -101,7 +101,7 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   openAddress: '',
 }
 
-const CITIZEN_CHANNELS = ['WhatsApp', 'Phone', 'Instagram', 'Facebook', 'X', 'Email', 'WebForm', 'EDevlet'] as const
+const CITIZEN_CHANNELS = ['Phone'] as const
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
 function getRequestedOwnerUserIds(
@@ -331,7 +331,7 @@ export function CreateRequestPage() {
     ]
 
     if (canCreateCitizenRequest) {
-      options.push({ value: 'citizen' as const, label: t('requests.create.citizenTitle', 'Vatandaş Talepleri') })
+      options.push({ value: 'citizen' as const, label: t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi') })
     }
 
     return options
@@ -825,13 +825,13 @@ export function CreateRequestPage() {
     if (confirmedKind !== 'citizen') {
       const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
       setConfirmDialog({
-        title: editJobId && linkedSocialMessageId ? 'Vatandaş Talebi Güncelle' : 'Vatandaş Talebi Oluştur',
+        title: editJobId && linkedSocialMessageId ? 'Vatandaş Çağrı Talebi Güncelle' : 'Vatandaş Çağrı Talebi Oluştur',
         message: editJobId && linkedSocialMessageId
           ? 'Bu talebi güncellemek istediğinize emin misiniz?'
           : 'Bu talebi oluşturmak istediğinize emin misiniz?',
         titleCompact: true,
         titleDivider: true,
-        confirmLabel: editJobId && linkedSocialMessageId ? 'Güncelle' : 'Talep Oluştur',
+        confirmLabel: editJobId && linkedSocialMessageId ? 'Güncelle' : 'Vatandaş Çağrı Talebi Oluştur',
         cancelLabel: 'İptal',
         variant: 'success',
         onConfirm: () => {
@@ -975,7 +975,7 @@ export function CreateRequestPage() {
                   <MessageSquareMore className="size-5" />
                 </span>
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.citizenTitle', 'Vatandaş Talepleri')}</h2>
+                  <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi')}</h2>
                   <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
                 </div>
               </div>
@@ -1139,7 +1139,7 @@ export function CreateRequestPage() {
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
               <MessageSquareMore className="size-5 text-rose-700" />
-              {t('requests.create.citizenFormTitle', 'Vatandaş Talebi Oluştur')}
+              {t('requests.create.citizenCallFormTitle', 'Vatandaş Çağrı Talebi Oluştur')}
             </h2>
             <p className="helper-copy">{t('settings.citizen.sectionDescription', 'Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.')}</p>
           </div>
@@ -1232,7 +1232,7 @@ export function CreateRequestPage() {
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">
               <Send className="size-4" />
-              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('tasks.newRequest.submit', 'Talep Oluştur')}
+              {saving ? t('common.saving', 'Kaydediliyor...') : editJobId ? t('common.update', 'Güncelle') : t('requests.create.citizenCallSubmit', 'Vatandaş Çağrı Talebi Oluştur')}
             </Button>
           </div>
         </form>

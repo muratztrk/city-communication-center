@@ -1750,3 +1750,29 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   3 kolon ana kart + alt kartlar düzenine taşındı; yönlendirilmiş talep rozeti ve sebep satırı korundu.
 
 ## STATUS: Round 228 complete — frontend build/lint passed; direct screenshot request, no Trello card to move.
+
+## Round 229 (Doing — 2026-07-06, vatandaş/WhatsApp/ayarlar yeni kartları)
+- [x] `6a4bb7b5` / #1435 — Vatandaş Talepleri kanal chip'lerinden Instagram, Facebook, X, E-posta,
+  Web Formu kaldırıldı; WhatsApp/Çağrı/e-Devlet/Tümü kaldı.
+- [x] `6a4bba6a` / #1437 — Vatandaş Talepleri `Detaylar` butonu pasif görünmez; linked talep yoksa
+  vatandaş talebi oluşturma akışına yönlendirir.
+- [x] `6a4bb3c6` / #1433 — Ayarlar > Taslak Mesajlar, WhatsApp Meta onaylı şablon mesaj düzenine
+  sadeleştirildi; en fazla 3 şablon, tür/otomatik cevap/anahtar kelime/zamanlı yanıt alanları gizli.
+- [x] `6a4bb6a9` / #1434 — Manuel Vatandaş Çağrı Talebi `Phone` kanalıyla oluşur; Vatandaş Talepleri
+  Çağrı filtresinde VT numarası ve kanal ikonu ile görünür.
+- [x] `6a4ba8fb` / #1432 — Talep Oluştur manuel vatandaş metinleri `Vatandaş Çağrı Talebi` olarak
+  güncellendi; kanal seçimi yalnız Çağrı kaldı.
+- [x] `6a4ba6f2` / #1431 — WhatsApp 24 saat penceresi kapalıyken operatör gönderiminde tek `Çıkış`
+  butonlu `Onaylı Şablon Mesajı` popup'ı gösterilir.
+- [x] `6a4b9968` / #1430 — WhatsApp konuşma listesi altına grid/paging benzeri toplam kayıt footer'ı eklendi.
+- [x] `6a4b982a` / #1428 — WhatsApp/Vatandaş Talepleri grid başlıkları tek satır kaldı; Gittiği Yer
+  altında atanmış personel adı gösteriliyor.
+- [x] `6a4b96b4` / #1427 — Bildirim başlığı altındaki mesaj metninde kırmızı/yeşil durum renkleri kaldırıldı.
+- [x] `6a4b902c` / #1426 — Desktop banner tarih aralığında başlangıç/bitiş arasında `-` ayırıcısı geri geldi;
+  mobil/tablette gizli kalıyor.
+- [x] `6a4b8894` / #1424 — Dashboard drilldown popup İşlemler/Detaylar aksiyonu mevcut tasarımla korunuyor.
+- [x] `6a4b86dc` / #1422 — WhatsApp konuşma sayaçları ve detay header `Talep Sayısı`, Vatandaş Talepleri
+  gridine ilgili kanal/durum/telefon filtresiyle yönlendirir.
+- [x] `6a4bb805` / #1436 — Ayarlar > Sosyal Medya bölümüne Web Formu kartı eklendi.
+
+## STATUS: Round 229 complete — frontend build/lint passed; cards pending Done move.

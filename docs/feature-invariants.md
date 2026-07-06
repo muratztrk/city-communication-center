@@ -40,7 +40,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
   kutusu tam satırdır, başlangıç/bitiş tarihleri aramanın altında iki eşit kolon olarak yan yana durur
-  ve filtre grubu banner içinde sola hizalı kalır; aralarında tire/çizgi gösterilmez. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
+  ve filtre grubu banner içinde sola hizalı kalır; aralarında tire/çizgi gösterilmez. Desktop banner
+  tarih aralığında başlangıç ve bitiş tarihi arasında `-` ayırıcısı görünür. Mobil gridview tablo yazıları/padding'i desktop ölçeğinden
   daha kompakt kalır. Detay modal formları tek kolon akar.
 - **Banner arama input metni:** banner ve bildirim modalındaki search textbox boyutu büyümez; iç metin
   0.8rem+ ve bold kalır, font family gridview Başlık metniyle aynı `var(--font-sans)` olur;
@@ -323,9 +324,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Konuşmalar` başlığı altında
   `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı`, kırmızı `İptal` sayaçları görünür;
   hepsi tek satırda ve okunur büyüklükte kalır. `Tümü`, `Konuşmalar` başlığının altındaki kendi
-  satırında tek başına durur; durum sayaçlarının toplamını gösterir ve tıklanınca status filtresini
-  temizleyip tüm numaraları gösterir. Diğer sayaçlar `Tümü` satırının altındaki satırda kalır ve
-  alttaki konuşma listesini ilgili statüde talebi olan konuşmalara filtreler.
+  satırında tek başına durur; durum sayaçlarının toplamını gösterir ve tıklanınca Vatandaş Talepleri
+  gridine WhatsApp kanalında gider. Diğer sayaçlar `Tümü` satırının altındaki satırda kalır ve
+  tıklanınca Vatandaş Talepleri gridini ilgili talep durumuyla (`requestStatus`) filtreler.
 - **WhatsApp FAB ilgili kullanıcı görünürlüğü:** WhatsApp bildirim FAB'ı yalnız operatör/SistemAdmin için
   aktif/açık konuşmalarda, diğer kullanıcılar için ise kendisine atanmış veya aktif departmanına yönlendirilmiş
   terminal olmayan vatandaş taleplerinde görünür; tamamlandı/iptal/reddedilmiş konuşmalar ilgili kullanıcıdan gizlenir.
@@ -344,7 +345,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp profil telefonu salt okunur:** sağ panelde `Numara` başındaki ülke kodu olmadan gösterilir,
   kayıtta değiştirilemez; kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
-  seçili numaraya ait toplam `Talep Sayısı` hesaplanır.
+  seçili numaraya ait toplam `Talep Sayısı` hesaplanır ve tıklanınca Vatandaş Talepleri gridine telefon
+  filtresiyle gider.
 - **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
   personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad, Diğer Ad` olarak tüm benzersiz görev
   sahipleri virgülle gösterilir; yalnız `Active`/Yapılmakta talep görev sahipleri sayılır, tamamlanan/iptal
@@ -365,10 +367,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri grid aksiyonları:** Gridde `Son Tarih` sütunu gösterilmez; `İşlemler`
   kolonunda yalnız `Detaylar` kalır. Yazışmaya Git / Düzenle / İptal aksiyonları detay popup
   header'ında görünür (card #1255).
-- **Vatandaş Talepleri grid kolonları:** Gridde `Kanal` ve `Durum` sütunları gösterilmez; WhatsApp
-  kanalı talep numarasının başındaki WhatsApp ikonu ile anlaşılır. `Vatandaş Talep No` ve
-  `Vatandaş Talep Tarihi` başlıklarında `Vatandaş` ilk satır, kalan metin ikinci satırdır; `Etiket`
-  kolonu operatörün talep etiketi/kategorisini gösterir.
+- **Vatandaş Talepleri grid kolonları:** Gridde `Kanal` ve `Durum` sütunları gösterilmez; kanal
+  talep numarasının başındaki kanal ikonu ile anlaşılır. `Vatandaş Talep No` ve
+  `Vatandaş Talep Tarihi` başlıkları tek satır kalır; `Etiket` kolonu operatörün talep
+  etiketi/kategorisini gösterir.
+- **Talep Oluştur manuel vatandaş akışı:** `Vatandaş Çağrı Talebi` olarak adlandırılır; kanal seçimi
+  yalnız `Çağrı`dır ve oluşturulan kayıt Vatandaş Talepleri `Çağrı` filtresinde VT numarasıyla görünür.
 - **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
@@ -383,6 +387,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
   (cards #1257/#1258).
+- **Ayarlar > Taslak Mesajlar:** WhatsApp Meta onaylı şablon mesaj akışıdır; en fazla 3 şablon
+  oluşturulur ve formda `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` kontrolleri
+  görünmez.
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
   `Açık Adres`) üçlü yan yana düzende tek satır kalır; alt çizgi metin dekorasyonu değil,
   görseldeki gibi hafif açık gri label alt sınır çizgisidir. Boş değer çizgisi bu görünümde
@@ -543,6 +550,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Bildirim başlığı vurguları:** başlıkta `güncellendi`, `oluşturuldu`, `atandı`, `yönlendirildi`, `Yönetici notu atandı`
   ve `Ek süre talebi` gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli
   bold davranışı korunur.
+- **Bildirim alt mesaj metni:** başlığın altındaki mesaj alanında onay/red/tamamlandı kelimeleri
+  kırmızı/yeşil renge boyanmaz; gerekirse yalnız bold, nötr slate metin olarak kalır.
 - **Bildirim detay popup ek süre marker'ı:** bildirimden açılan görev/talep detay popup'ı, grid detaylarıyla
   aynı ek süre marker'ını gösterir; görev detayı `TaskDetailResponse` ek süre alanlarını taşır, talep detayı
   içindeki görevlerden marker türetir.

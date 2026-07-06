@@ -14,7 +14,6 @@ import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidati
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateTimePicker } from '../components/ui/date-time-picker'
-import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { JobSummary, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -373,11 +372,6 @@ export function SocialMessagesPage() {
   const channelQuickFilters: { value: string; label: string }[] = [
     { value: 'WhatsApp', label: 'WhatsApp' },
     { value: 'Phone', label: t('nav.socialPhone', 'Çağrı') },
-    { value: 'Instagram', label: 'Instagram' },
-    { value: 'Facebook', label: 'Facebook' },
-    { value: 'X', label: 'X' },
-    { value: 'Email', label: t('nav.socialEmail', 'E-posta') },
-    { value: 'WebForm', label: t('nav.socialWebForm', 'Web Formu') },
     { value: 'EDevlet', label: t('settings.citizen.channels.EDevlet', 'e-Devlet') },
     { value: '', label: t('nav.socialAll', 'Tümü') },
   ]
@@ -431,7 +425,14 @@ export function SocialMessagesPage() {
         <select
           className="scope-chip-year-select"
           value={requestStatusFilter}
-          onChange={event => setRequestStatusFilter(event.target.value as SocialRequestStatusFilter)}
+          onChange={event => {
+            const value = event.target.value as SocialRequestStatusFilter
+            setRequestStatusFilter(value)
+            const nextParams = new URLSearchParams(searchParams)
+            if (value === 'all') nextParams.delete('requestStatus')
+            else nextParams.set('requestStatus', value)
+            setSearchParams(nextParams)
+          }}
           aria-label={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
         >
           {REQUEST_STATUS_FILTERS.map(filter => (
@@ -451,15 +452,13 @@ export function SocialMessagesPage() {
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh filterKey="jobNumber" filterValue={socialFilters['jobNumber'] ?? ''} onFilter={setSocialFilter} sortKey="jobNumber" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>
-                  <span className="inline-flex flex-col leading-tight">
-                    <span>{t('social.citizenHeader', 'Vatandaş')}</span>
-                    <span>{t('social.requestNoHeader', 'Talep No')}</span>
+                  <span className="inline-flex whitespace-nowrap leading-tight">
+                    <span>{t('social.citizenRequestNoHeader', 'Vatandaş Talep No')}</span>
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>
-                  <span className="inline-flex flex-col leading-tight">
-                    <span>{t('social.citizenHeader', 'Vatandaş')}</span>
-                    <span>{t('social.requestDateHeader', 'Talep Tarihi')}</span>
+                  <span className="inline-flex whitespace-nowrap leading-tight">
+                    <span>{t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</span>
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
@@ -480,6 +479,7 @@ export function SocialMessagesPage() {
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value inline-flex items-center gap-1.5">
                         {message.channel === 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-4 shrink-0" /> : null}
+                        {message.channel !== 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-4 shrink-0" /> : null}
                         <span>{formatCitizenRequestNumber(message, locale)}</span>
                       </div>
                       {linkedJob ? (
@@ -491,24 +491,26 @@ export function SocialMessagesPage() {
                     <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
                     <td className="font-semibold">{message.citizenPhone}</td>
                     <td className="font-semibold">{message.citizenName}</td>
-                    <td>{message.assignedDepartmentName ?? t('common.none')}</td>
+                    <td>
+                      <span className="font-semibold text-slate-700">{message.assignedDepartmentName ?? t('common.none')}</span>
+                      {linkedJob?.assignedUserDisplayName ? (
+                        <span className="mt-0.5 block text-xs font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
+                      ) : null}
+                    </td>
                     <td className="font-semibold text-slate-600">{message.category?.trim() || '—'}</td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
-                        {message.jobId ? (
-                          <Button
-                            size="sm"
-                            type="button"
-                            variant="secondary"
-                            onClick={() => setDetailJobId(message.jobId!)}
-                          >
-                            {t('jobs.actions.details', 'Detaylar')}
-                          </Button>
-                        ) : (
-                          <DisabledActionButton size="sm" variant="secondary" hoverTitle={t('social.detailsUnavailable', 'Henüz talep oluşturulmadı')}>
-                            {t('jobs.actions.details', 'Detaylar')}
-                          </DisabledActionButton>
-                        )}
+                        <Button
+                          size="sm"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => {
+                            if (message.jobId) setDetailJobId(message.jobId)
+                            else navigate(`/requests/new?kind=citizen&socialMessageId=${encodeURIComponent(message.socialMessageId)}`)
+                          }}
+                        >
+                          {t('jobs.actions.details', 'Detaylar')}
+                        </Button>
                       </div>
                     </td>
                   </tr>

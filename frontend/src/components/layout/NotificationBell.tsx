@@ -181,9 +181,7 @@ function NotificationTitleStatusText({ value, plainClassName }: { value: string;
 
 function NotificationStatusText({ value }: { value: string }) {
   return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı)/gi).map((part, index) => {
-    if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
-    if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
-    if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
+    if (/^(onaylandı|tamamlandı|reddedildi)$/i.test(part)) return <span key={index} className="font-bold text-slate-700">{part}</span>
     return part
   })
 }

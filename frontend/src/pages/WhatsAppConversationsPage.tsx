@@ -285,7 +285,7 @@ function ConversationListPanel({
   sortOrder,
   onSortOrderChange,
   statusFilter,
-  onStatusFilterChange,
+  onOpenStatusRequests,
   selectedId,
   onSelect,
 }: {
@@ -299,7 +299,7 @@ function ConversationListPanel({
   sortOrder: ConversationSortOrder
   onSortOrderChange: (value: ConversationSortOrder) => void
   statusFilter: ConversationStatusFilter
-  onStatusFilterChange: (value: ConversationStatusFilter) => void
+  onOpenStatusRequests: (value: ConversationStatusFilter) => void
   selectedId: string | null
   onSelect: (id: string) => void
 }) {
@@ -359,7 +359,7 @@ function ConversationListPanel({
         <div className="flex items-center">
           <button
             type="button"
-            onClick={() => onStatusFilterChange('all')}
+            onClick={() => onOpenStatusRequests('all')}
             className={`shrink-0 rounded-md px-1 py-0.5 text-[10px] font-bold text-slate-900 transition-colors hover:bg-slate-100 ${statusFilter === 'all' ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
           >
             {t('whatsapp.listFilter.all', 'Tümü')}: {totalStatusCount}
@@ -371,7 +371,7 @@ function ConversationListPanel({
             <button
               key={chip.value}
               type="button"
-              onClick={() => onStatusFilterChange(statusFilter === chip.value ? 'all' : chip.value)}
+              onClick={() => onOpenStatusRequests(chip.value)}
               className={`shrink-0 rounded-md px-0.5 py-0.5 text-[10px] font-bold transition-colors ${chip.className} ${statusFilter === chip.value ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
             >
               {chip.label}: {chip.count}
@@ -444,6 +444,10 @@ function ConversationListPanel({
             />
           ))
         )}
+      </div>
+      <div className="flex shrink-0 items-center justify-between border-t border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-500">
+        <span>{t('common.totalRecords', 'Toplam kayıt')}</span>
+        <span className="tabular-nums">{filtered.length}</span>
       </div>
     </div>
   )
@@ -740,6 +744,18 @@ function ConversationDetail({
     const text = replyText.trim()
     if ((!text && !pendingFile) || sending || !detail) return
 
+    if (!is24hWindowOpen(detail.lastInboundAt ?? null)) {
+      setConfirmDialog({
+        title: 'Onaylı Şablon Mesajı',
+        titleDivider: true,
+        message: '24 saat geçtikten sonra vatandaş yeniden mesaj atmadıysa, sadece onaylanmış mesaj şablonu kullanarak konuşmayı yeniden başlatabilirsiniz.',
+        hideCancel: true,
+        confirmLabel: 'Çıkış',
+        onConfirm: () => {},
+      })
+      return
+    }
+
     const openTicket = pickReplyTicket(detail.tickets)
     if (!openTicket) return
 
@@ -910,7 +926,13 @@ function ConversationDetail({
           ) : null}
           {ticketLabel ? (
             <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">
-              {ticketLabel}
+              <button
+                type="button"
+                className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
+                onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
+              >
+                {ticketLabel}
+              </button>
               {taskOwnerLabel ? (
                 <>
                   <span className="mx-1 text-slate-400">|</span>
@@ -1225,7 +1247,7 @@ export function WhatsAppConversationsPage() {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [listFilter, setListFilter] = useState<ConversationListFilter>('all')
-  const [statusFilter, setStatusFilter] = useState<ConversationStatusFilter>('all')
+  const [statusFilter] = useState<ConversationStatusFilter>('all')
   const [sortOrder, setSortOrder] = useState<ConversationSortOrder>('newest')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
@@ -1414,6 +1436,15 @@ export function WhatsAppConversationsPage() {
     navigate(`/social?phone=${encodeURIComponent(digits)}`)
   }, [navigate])
 
+  const handleOpenStatusRequests = useCallback((status: ConversationStatusFilter) => {
+    const params = new URLSearchParams()
+    params.set('channel', 'WhatsApp')
+    if (status !== 'all') {
+      params.set('requestStatus', status === 'intake' ? 'processing-received' : status)
+    }
+    navigate(`/social?${params.toString()}`)
+  }, [navigate])
+
   const handleSelectConversation = useCallback((conversationId: string) => {
     setSelectedId(conversationId)
     if (requestedPhone || requestedAt || requestedMessageId) {
@@ -1453,7 +1484,7 @@ export function WhatsAppConversationsPage() {
           sortOrder={sortOrder}
           onSortOrderChange={setSortOrder}
           statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
+          onOpenStatusRequests={handleOpenStatusRequests}
           selectedId={selectedId}
           onSelect={handleSelectConversation}
         />

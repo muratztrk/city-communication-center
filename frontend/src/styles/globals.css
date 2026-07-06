@@ -2678,6 +2678,22 @@
     flex: 0 0 auto;
   }
 
+  .scope-chip-date + .scope-chip-date {
+    position: relative;
+    margin-left: 0.85rem;
+  }
+
+  .scope-chip-date + .scope-chip-date::before {
+    content: "-";
+    position: absolute;
+    left: -0.72rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
   .scope-chip-date .field-input {
     height: 1.875rem;
     min-height: 0;
@@ -3975,6 +3991,14 @@
       width: 100%;
       flex: 1 1 auto;
       justify-self: start;
+    }
+
+    .scope-chip-date + .scope-chip-date {
+      margin-left: 0;
+    }
+
+    .scope-chip-date + .scope-chip-date::before {
+      display: none;
     }
 
     .scope-chip-search-input {

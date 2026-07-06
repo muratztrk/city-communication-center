@@ -1,4 +1,4 @@
-import { FileImage, FileText, Paperclip, Search, PenLine, X } from 'lucide-react'
+import { ClipboardList, FileImage, FileText, History, Info, MapPin, NotebookPen, Paperclip, Printer, RefreshCw, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -67,6 +67,10 @@ import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDe
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
+import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
+import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
+import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -1606,17 +1610,17 @@ const pageKicker = isMyTasksView
           role="presentation"
         >
           <section
-            className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className="detail-modal-shell detail-modal-shell--my-request flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            {/* Sabit başlık — scroll edilse bile yerinde kalır (card 1) */}
-            <div className="detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2">
+            {/* Sabit başlık — Taleplerim detay popup'ı ile birebir aynı tasarım dili (my-request-detail-header). */}
+            <div className="my-request-detail-header detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-6 pb-3 pt-6">
               <div className="detail-modal-header-title min-w-0">
-                <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600 leading-tight">
+                <div className="my-request-detail-header__title uppercase">
                   {detailScopeLabel}
                 </div>
               </div>
-              <div className="detail-modal-header-actions flex shrink-0 items-center gap-2">
+              <div className="detail-modal-header-actions flex shrink-0 flex-wrap items-center justify-end gap-2">
                 {parentJobDetail
                   && isCitizenRequestJob(parentJobDetail)
                   && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage) && (
@@ -1658,7 +1662,7 @@ const pageKicker = isMyTasksView
                   && (canEditRoutineTask(selectedTask) ? (
                   <Button
                     type="button"
-                    className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
+                    className="inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800"
                     onClick={() => openRoutineTaskEdit(selectedTask.taskId)}
                   >
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -1666,7 +1670,7 @@ const pageKicker = isMyTasksView
                   </Button>
                 ) : (
                   <DisabledActionButton
-                    className="inline-flex items-center gap-1.5 bg-teal-700 text-white"
+                    className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
                     hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
                   >
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -1679,7 +1683,8 @@ const pageKicker = isMyTasksView
                   </Button>
                 )}
                 {isMyTasksView && canCompleteTask && (
-                  <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>
+                  <Button type="button" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
+                    <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                   </Button>
                 )}
@@ -1688,12 +1693,20 @@ const pageKicker = isMyTasksView
                   && currentMyTaskView !== 'all'
                   && canManageDepartmentTaskActions(taskDetail)
                   && isActionableTaskStatus(taskDetail.currentStatus) && (
-                    <Button type="button" variant="destructive" onClick={() => openReturnModal(taskDetail.taskId)}>
+                    <Button type="button" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
+                      <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                       {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                     </Button>
                 )}
                 {taskDetail && (
-                  <Button type="button" variant="secondary" className="detail-print-action" onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, citizenSourceMessage, t, locale)}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
+                    onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, citizenSourceMessage, t, locale)}
+                    aria-label={t('common.print', 'Yazdır')}
+                  >
+                    <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.print', 'Yazdır')}
                   </Button>
                 )}
@@ -1703,7 +1716,7 @@ const pageKicker = isMyTasksView
                   className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
                   aria-label={t('common.close', 'Kapat')}
                 >
-                  <X className="size-4" />
+                  <X className="size-4" strokeWidth={1.75} />
                 </button>
               </div>
             </div>
@@ -1714,393 +1727,378 @@ const pageKicker = isMyTasksView
                 <div className="loading">{t('common.loading')}</div>
               ) : taskDetail ? (
                 <>
-                  {/* Görev bilgi kutusu — birleşik detay alanı, tüm satır genişliğinde (card #1092).
-                      Tamamlama aksiyonu üstteki başlık butonlarında; eskiden sağda boş kalan
-                      0.75fr sütun kaldırıldı, böylece detay sütunları sıkışmaz. */}
-                  <section className="mb-5">
-                    <div className="grid gap-4 lg:items-stretch">
-                      <div className="form-card page-stack min-w-0">
-                        <div className="space-y-4">
-                          <div className="space-y-3">
-                            <div className="text-sm font-semibold text-emerald-600">
-                              {t('tasks.detail.title', 'Görev Detayları')}
+                  {/* Görev bilgi kutusu — Taleplerim detay popup'ı ile birebir aynı tasarım dili:
+                      solda başlık + açıklama, ortada Görev Bilgileri, sağda Süreç timeline'ı
+                      (MyRequestDetailMainCard düzeni). */}
+                  <section className="my-request-detail-main form-card page-stack mb-5">
+                    <MyRequestSectionHeading icon={ClipboardList} tone="primary">
+                      {t('tasks.detail.title', 'Görev Detayları')}
+                    </MyRequestSectionHeading>
+                    <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
+                      <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+                        <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
+                          <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                            <span className="min-w-0">{normalizeTitleCaseField(taskDetail.title)}</span>
+                            <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                              <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{formatTaskDisplayNumber(selectedTask)}</span>
+                              <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
+                                {taskDetail.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
+                              </span>
+                            </span>
+                          </span>
+                        </MyRequestSectionHeading>
+                        <RichTextContent
+                          value={resolveTaskDescription(taskDetail, parentJobDetail)}
+                          emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                          className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+                        />
+                      </div>
+                      <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+                        <MyRequestSectionHeading icon={Info}>
+                          {t('tasks.detail.infoFields', 'Görev Bilgileri')}
+                        </MyRequestSectionHeading>
+                        <div className="my-request-detail-fields divide-y divide-slate-100">
+                          {[
+                            ...(taskDetail.jobSourceType !== 'Routine'
+                              ? [{
+                                  label: 'Talep Yeri / Oluşturan',
+                                  value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                                }]
+                              : []),
+                            // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
+                            // assignedUser önce, yoksa owner (card #719).
+                            { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
+                            {
+                              label: 'Görev Tipi',
+                              value: `${taskDetail.jobSourceType === 'Routine'
+                                ? t('tasks.type.routine', 'Rutin')
+                                : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
+                            },
+                            ...(taskDetail.jobSourceType === 'Routine'
+                              ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
+                              : []),
+                          ].map(({ label, value }) => (
+                            <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
+                              <div className="job-detail-field-row__label">{label}</div>
+                              <div className="job-detail-field-row__value">{value}</div>
                             </div>
-                            <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:items-stretch ${
-                              parentJobDetail && taskDetail.jobSourceType !== 'Routine'
-                                ? (taskDetail.currentStatus === 'Completed'
-                                  ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)_minmax(0,1fr)]'
-                                  : 'lg:grid-cols-[44%_20%_36%]')
-                                : 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.6fr)_minmax(0,1.6fr)]'
-                            }`}>
-                              <div className="min-w-0 divide-y divide-slate-100">
-                                {[
-                                  { label: 'Görev No', value: formatTaskDisplayNumber(selectedTask) },
-                                  { label: 'Görev Başlığı', value: taskDetail.title },
-                                  ...(taskDetail.jobSourceType !== 'Routine'
-                                    ? [{
-                                        label: 'Talep Yeri / Oluşturan',
-                                        value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
-                                      }]
-                                    : []),
-                                  // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
-                                  // assignedUser önce, yoksa owner (JobsPage Görev Detayları ile aynı) (card #719).
-                                  { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
-                                  {
-                                    label: 'Görev Tipi',
-                                    value: `${taskDetail.jobSourceType === 'Routine'
-                                      ? t('tasks.type.routine', 'Rutin')
-                                      : t('tasks.type.assigned', 'Atanmış')}${taskDetail.assigningManagerDisplayName ? ` (${taskDetail.assigningManagerDisplayName})` : ''}`,
-                                  },
-                                  ...(taskDetail.jobSourceType === 'Routine'
-                                    ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
-                                    : []),
-                                  // "Proje mi" yalnızca talebe özgüdür; görev detayından kaldırıldı (card 543).
-                                ].map(({ label, value }, index, rows) => (
-                                  <div key={label} className={`flex items-start gap-2 px-3 py-2${index === rows.length - 1 ? ' border-b border-slate-100' : ''}`}>
-                                    <span className={`${parentJobDetail && taskDetail.jobSourceType !== 'Routine' ? 'w-28' : 'w-36'} shrink-0 pt-0.5 text-xs font-semibold text-slate-500`}>{label}</span>
-                                    <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
-                                  </div>
-                                ))}
-                              </div>
-                              <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                                <div className="divide-y divide-slate-100">
-                                  {[
-                                    // Öncelik, sol kolona Görev Tipi'nin altına taşındı (card #705).
-                                    {
-                                      label: 'Durum',
-                                      // Durum + (durumu belirleyen kullanıcı) + tıklanabilir İptal/Tamamlama Notu (card 642).
-                                      value: (
-                                        <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                          <span className={taskDetail.currentStatus === 'Completed'
-                                            ? 'text-emerald-600'
-                                            : (taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected')
-                                              ? 'text-red-600'
-                                              // "Yapılmakta" (Assigned/InProgress) turuncu — Talep Detayları ile aynı (card #725).
-                                              : (taskDetail.currentStatus === 'Assigned' || taskDetail.currentStatus === 'InProgress')
-                                                ? 'text-[#f97316]'
-                                                : 'text-slate-900'}
-                                          >
-                                            {getTaskDisplayStatus(t, taskDetail)}
-                                            {taskDetail.statusActorDisplayName ? ` (${taskDetail.statusActorDisplayName})` : ''}
-                                          </span>
-                                          {taskDetail.currentStatus === 'Cancelled' && taskDetail.revisionReason ? (
-                                            <span className="inline-flex items-center text-red-600">
-                                              <span>(</span>
-                                              <button
-                                                type="button"
-                                                className="font-semibold hover:text-red-700"
-                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, titleTone: 'danger', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                              >
-                                                <span className="underline underline-offset-2">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>
-                                              </button>
-                                              <span>)</span>
-                                            </span>
-                                          ) : null}
-                                          {taskDetail.currentStatus === 'Completed' && taskDetail.notes ? (
-                                            <span className="inline-flex items-center text-emerald-600">
-                                              <span>(</span>
-                                              <button
-                                                type="button"
-                                                className="font-semibold hover:text-emerald-700"
-                                                onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                              >
-                                                <span className="underline underline-offset-2">{t('tasks.detail.completionNote', 'Tamamlama Notu')}</span>
-                                              </button>
-                                              <span>)</span>
-                                            </span>
-                                          ) : null}
-                                        </span>
-                                      ),
-                                    },
-                                    { label: 'Görev Tarihi', value: formatDateTime(taskDetail.createdAtUtc, locale) },
-                                    // Görev tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #710).
-                                    // İptal tarihi için özet satırın updatedAtUtc'si kullanılır (TaskDetail'da yok).
-                                    ...(taskDetail.currentStatus === 'Completed'
-                                      ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: <span className="text-emerald-600">{formatDateTime(taskDetail.completedAtUtc, locale)}</span> }]
-                                      : taskDetail.currentStatus === 'Cancelled'
-                                        ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(selectedTask.updatedAtUtc ?? null, locale)}</span> }]
-                                        : []),
-                                    {
-                                      label: 'Son Tarih',
-                                      value: (
-                                        <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                          <span>{formatDueDateTime(taskDetail.dueDateUtc, locale)}</span>
-                                          {/* Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386). */}
-                                          <GridExtraTimeMarkers
-                                            hasPending={taskDetail.hasPendingExtraTimeRequest}
-                                            inline
-                                          />
-                                        </span>
-                                      ),
-                                    },
-                                  ].map(({ label, value }) => (
-                                    // Orta kolon sol kolondan kısa olduğunda son satır "Son Tarih"in
-                                    // altına kapanış çizgisi (boşlukta border eksikliği) (card #712/#713).
-                                    <div key={label} className={`flex flex-col gap-0.5 px-4 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
-                                      <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                                        {label}
-                                        {label === 'Son Tarih' && canChangeTaskDueDate && dueDateEdit?.taskId !== taskDetail.taskId && (
-                                          <button
-                                            type="button"
-                                            className="font-bold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                            onClick={openDueDateEdit}
-                                          >
-                                            {t('common.change', 'Değiştir')}
-                                          </button>
-                                        )}
-                                        {label === 'Son Tarih' && canRequestExtraTime && extraTimeEdit?.mode !== 'confirm' && (
-                                          <button
-                                            type="button"
-                                            className="font-bold text-amber-500 underline underline-offset-2 hover:text-amber-600"
-                                            onClick={openExtraTimeEdit}
-                                          >
-                                            {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
-                                          </button>
-                                        )}
-                                        {label === 'Son Tarih' && showExtraTimeDecisionBadge && latestExtraTimeApproval && (
-                                          <span className="inline-flex items-center gap-1 font-bold">
-                                            <span className="text-slate-400">{t('tasks.actions.extraTimeRequest', 'Ek süre iste')}</span>
-                                            {latestExtraTimeApproval.decision === 'Approved' && (
-                                              <span className="text-emerald-600">({t('tasks.actions.extraTimeApprovedShort', 'onay')})</span>
-                                            )}
-                                            {latestExtraTimeApproval.decision === 'Rejected' && (
-                                              <span className="text-red-600">({t('tasks.actions.extraTimeRejectedShort', 'red')})</span>
-                                            )}
-                                          </span>
-                                        )}
-                                        {label === 'Son Tarih' && canReviewExtraTime && extraTimeReview?.taskId !== taskDetail.taskId && (
-                                          <button
-                                            type="button"
-                                            className="font-bold text-amber-500 underline-offset-2 hover:text-amber-600 hover:underline"
-                                            onClick={openExtraTimeReview}
-                                          >
-                                            {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
-                                          </button>
-                                        )}
-                                      </span>
-                                      {label === 'Son Tarih' && dueDateEdit?.taskId === taskDetail.taskId ? (
-                                        // Takvim yukarı yönde açılır; tetikleyici alan gizli, "Ek Süre İste"deki seç
-                                        // akışıyla aynı: tarih seçilince (Seç) onay kutusu çıkar, Kaydet ile uygulanır (card 611).
-                                        <div className="mt-1 flex flex-col gap-1.5">
-                                          <DateTimePicker
-                                            value={dueDateEdit.value}
-                                            onChange={value => setDueDateEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
-                                            placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                                            className={dueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
-                                            forceUp
-                                            autoOpen
-                                            // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Değiştir" yeniden tıklanabilir kalsın (card 615).
-                                            onClose={dueDateEdit.mode === 'picking' ? closeDueDateEdit : undefined}
-                                          />
-                                          {dueDateEdit.mode === 'confirm' && (
-                                            <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
-                                              <span className="text-xs font-semibold text-slate-900">
-                                                {dueDateEdit.value
-                                                  ? formatDateTime(new Date(dueDateEdit.value).toISOString(), locale)
-                                                  : t('common.none')}
-                                              </span>
-                                              <div className="inline-actions justify-start gap-1.5">
-                                                <Button type="button" size="sm" variant="success" disabled={dueDateEdit.saving} onClick={() => void handleDueDateSave()}>
-                                                  {dueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
-                                                </Button>
-                                                <Button type="button" size="sm" variant="secondary" disabled={dueDateEdit.saving} onClick={closeDueDateEdit}>
-                                                  {t('common.cancel', 'Vazgeç')}
-                                                </Button>
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-                                      ) : label === 'Son Tarih' && extraTimeEdit?.taskId === taskDetail.taskId ? (
-                                        <div className="mt-1 flex flex-col gap-1.5">
-                                          <DateTimePicker
-                                            value={extraTimeEdit.value}
-                                            onChange={value => setExtraTimeEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
-                                            placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                                            className={extraTimeEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
-                                            forceUp
-                                            autoOpen
-                                            // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Ek süre iste" yeniden tıklanabilir kalsın (card 615).
-                                            onClose={extraTimeEdit.mode === 'picking' ? closeExtraTimeEdit : undefined}
-                                          />
-                                          {extraTimeEdit.mode === 'confirm' && (
-                                            <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
-                                              <span className="text-xs font-semibold text-slate-900">
-                                                {formatDateTime(new Date(extraTimeEdit.value).toISOString(), locale)}
-                                              </span>
-                                              <div className="inline-actions justify-start gap-1.5">
-                                                <Button type="button" size="sm" variant="success" disabled={extraTimeEdit.saving || !extraTimeEdit.value} onClick={() => void handleExtraTimeRequest()}>
-                                                  {extraTimeEdit.saving ? t('common.loading') : t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
-                                                </Button>
-                                                <Button type="button" size="sm" variant="secondary" disabled={extraTimeEdit.saving} onClick={closeExtraTimeEdit}>
-                                                  {t('common.cancel', 'Vazgeç')}
-                                                </Button>
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-                                      ) : label === 'Son Tarih' && extraTimeReview?.taskId === taskDetail.taskId ? (
-                                        <div className="mt-1 flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2">
-                                          <span className="text-sm font-semibold text-slate-900">
-                                            {extraTimeReview.proposedDueDateUtc
-                                              ? formatDateTime(extraTimeReview.proposedDueDateUtc, locale)
-                                              : t('tasks.actions.extraTimeDateUnavailable', 'Talep edilen tarih okunamadı.')}
-                                          </span>
-                                          <div className="inline-actions justify-start gap-2">
-                                            <Button type="button" size="sm" variant="success" disabled={extraTimeReview.saving || !extraTimeReview.proposedDueDateUtc} onClick={() => void handleExtraTimeApprove()}>
-                                              {extraTimeReview.saving ? t('common.loading') : t('common.approve', 'Onayla')}
-                                            </Button>
-                                            <Button type="button" size="sm" variant="destructive" disabled={extraTimeReview.saving} onClick={() => void handleExtraTimeReject()}>
-                                              {t('common.reject', 'Reddet')}
-                                            </Button>
-                                            <Button type="button" size="sm" variant="secondary" disabled={extraTimeReview.saving} onClick={closeExtraTimeReview}>
-                                              {t('common.cancel', 'Vazgeç')}
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <span className="text-sm text-slate-900">
-                                          {value}
-                                        </span>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              {(() => {
-                                const isCompletedTaskDetail = taskDetail.currentStatus === 'Completed'
-                                const showTaskAttachmentsInDetail = isCompletedTaskDetail
-                                  && taskDetail.jobSourceType !== 'Routine'
-                                  && (taskDetail.attachments?.length ?? 0) > 0
-                                // Durum Değişikliği Geçmişi: "Durum Değiştir" ile değiştirilmiş görevlerde Açıklama'nın sağında sütun (card #2).
-                                const statusChangeHistory = taskDetail.statusChangeHistory ?? []
-                                const showStatusChangeHistory = taskDetail.jobSourceType !== 'Routine' && statusChangeHistory.length > 0
-                                const showAssignmentHistory = taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0
-                                const rightPanelColumnCount = 1
-                                  + (showAssignmentHistory ? 1 : 0)
-                                  + (showStatusChangeHistory ? 1 : 0)
-                                  + (showTaskAttachmentsInDetail ? 1 : 0)
-                                const renderAssignmentHistoryColumn = (className = '') => (
-                                  <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
-                                    <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-slate-500 xl:text-xs">
-                                        {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
-                                      </span>
-                                    </div>
-                                    <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
-                                      {visibleAssignmentHistory.map(item => (
-                                        <li key={item.assignmentId} className="flex gap-2">
-                                          <span className="shrink-0 text-slate-500" aria-hidden>•</span>
-                                          <div className="min-w-0">
-                                            <div className="font-bold text-slate-950">
-                                              {getUserName(item.toUserId)}
-                                            </div>
-                                            <div className="text-xs text-slate-500">
-                                              {new Date(item.actionDateUtc).toLocaleString(locale)}
-                                            </div>
-                                          </div>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )
-                                const renderStatusChangeHistoryColumn = (className = '') => (
-                                  <div className={`flex min-w-0 flex-col border-t border-slate-200 lg:border-l lg:border-t-0${className}`}>
-                                    <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-slate-500 xl:text-xs">
-                                        {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
-                                      </span>
-                                    </div>
-                                    <ul className="flex-1 space-y-2 px-4 py-3 text-sm text-slate-700">
-                                      {statusChangeHistory.map((item, idx) => (
-                                        <li key={`${item.changedAtUtc}-${idx}`} className="flex gap-2">
-                                          <span className="shrink-0 text-slate-500" aria-hidden>•</span>
-                                          <div className="min-w-0">
-                                            {/* Yalnızca durum ve tarih bilgisi gösterilir (card #1095). */}
-                                            <div className="font-bold text-slate-950">
-                                              {getTaskStatusLabel(t, item.toStatus)}
-                                            </div>
-                                            <div className="text-xs text-slate-500">
-                                              {new Date(item.changedAtUtc).toLocaleString(locale)}
-                                            </div>
-                                          </div>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )
-                                const rightPanelGridClass = rightPanelColumnCount === 4
-                                  ? ' grid lg:grid-cols-[minmax(7.5rem,0.8fr)_minmax(10.5rem,1fr)_minmax(13.25rem,1.25fr)_minmax(7rem,0.75fr)] lg:items-stretch'
-                                  : rightPanelColumnCount === 3
-                                    ? ' grid lg:grid-cols-[minmax(8.5rem,0.85fr)_minmax(11.5rem,1.05fr)_minmax(14.5rem,1.3fr)] lg:items-stretch'
-                                    : rightPanelColumnCount === 2
-                                      ? ' grid lg:grid-cols-2 lg:items-stretch'
-                                      : ''
-                                return (
-                              <div className={`border-t border-slate-200 bg-white lg:border-l lg:border-t-0${rightPanelGridClass}`}>
-                                <div className="min-w-0">
-                                  <div className="border-b border-slate-200 px-4 py-2">
-                                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                      {t('tasks.detail.description', 'Açıklama')}
-                                    </span>
-                                  </div>
-                                  <div className="px-4 py-3">
-                                    <RichTextContent
-                                      value={resolveTaskDescription(taskDetail, parentJobDetail)}
-                                      emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                                      className="rich-text-content text-sm leading-6 text-slate-900"
-                                    />
-                                  </div>
-                                </div>
-                                {showAssignmentHistory ? renderAssignmentHistoryColumn() : null}
-                                {showStatusChangeHistory ? renderStatusChangeHistoryColumn() : null}
-                                {showTaskAttachmentsInDetail ? (
-                                  <div className="min-w-0 border-t border-slate-200 lg:border-l lg:border-t-0">
-                                    <div className="border-b border-slate-200 px-4 py-2">
-                                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        {t('tasks.detail.attachments', 'Görev Ekleri')}
-                                      </span>
-                                    </div>
-                                    <div className="px-4 py-3">
-                                      <AttachmentSection
-                                        attachments={taskDetail.attachments!}
-                                        readOnly
-                                        compact
-                                        displayMode="list"
-                                        onDownload={handleDownloadTaskAttachment}
-                                      />
-                                      <p className="mt-2 text-xs font-medium text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
-                                    </div>
-                                  </div>
-                                ) : null}
-                              </div>
-                                )
-                              })()}
-                            </div>
-                          </div>
+                          ))}
                         </div>
+                      </div>
+                      <div className="min-w-0 p-4">
+                        {(() => {
+                          // Süreç timeline'ı — Taleplerim popup'ındaki JobProcessTimeline birebir yeniden
+                          // kullanılır; Durum/Son Tarih ve ek süre akışları timeline adımlarına taşındı.
+                          const isCompletedTimelineTask = taskDetail.currentStatus === 'Completed'
+                          const isCancelledTimelineTask = taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
+                          const dueDateStep: JobProcessStep = {
+                            id: 'dueDate',
+                            label: t('tasks.columns.dueDate', 'Son Tarih'),
+                            displayValue: formatDueDateTime(taskDetail.dueDateUtc, locale),
+                            dateTimeUtc: taskDetail.dueDateUtc ?? null,
+                            state: isCompletedTimelineTask || isCancelledTimelineTask ? 'completed' : 'upcoming',
+                          }
+                          const steps: JobProcessStep[] = [
+                            {
+                              id: 'requestDate',
+                              label: t('tasks.columns.taskDate', 'Görev Tarihi'),
+                              displayValue: formatDateTime(taskDetail.createdAtUtc, locale),
+                              dateTimeUtc: taskDetail.createdAtUtc,
+                              state: 'completed',
+                            },
+                            ...(isCompletedTimelineTask
+                              ? [dueDateStep, {
+                                  id: 'completionDate' as const,
+                                  label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'),
+                                  displayValue: formatDateTime(taskDetail.completedAtUtc, locale),
+                                  dateTimeUtc: taskDetail.completedAtUtc ?? null,
+                                  state: 'terminal-success' as const,
+                                }]
+                              : isCancelledTimelineTask
+                                ? [dueDateStep, {
+                                    id: 'cancelDate' as const,
+                                    label: t('tasks.columns.cancelledAt', 'İptal Tarihi'),
+                                    displayValue: formatDateTime(selectedTask.updatedAtUtc ?? null, locale),
+                                    dateTimeUtc: selectedTask.updatedAtUtc ?? null,
+                                    state: 'terminal-danger' as const,
+                                  }]
+                                : [
+                                    {
+                                      id: 'status' as const,
+                                      label: t('tasks.columns.status', 'Durum'),
+                                      displayValue: getTaskDisplayStatus(t, taskDetail),
+                                      dateTimeUtc: null,
+                                      state: 'current' as const,
+                                    },
+                                    dueDateStep,
+                                  ]),
+                          ]
+                          const statusContent = (
+                            <span className="inline">
+                              {getTaskDisplayStatus(t, taskDetail)}
+                              {taskDetail.statusActorDisplayName ? ` (${taskDetail.statusActorDisplayName})` : ''}
+                            </span>
+                          )
+                          // Durum + tıklanabilir İptal/Tamamlama Notu (card 642) — terminal adım yanında görünür.
+                          const statusNoteContent = taskDetail.currentStatus === 'Cancelled' && taskDetail.revisionReason ? (
+                            <span className="inline-flex items-center text-red-600">
+                              <span>(</span>
+                              <button
+                                type="button"
+                                className="font-semibold hover:text-red-700"
+                                onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, titleTone: 'danger', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                              >
+                                <span className="underline underline-offset-2">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>
+                              </button>
+                              <span>)</span>
+                            </span>
+                          ) : taskDetail.currentStatus === 'Completed' && taskDetail.notes ? (
+                            <span className="inline-flex items-center text-emerald-600">
+                              <span>(</span>
+                              <button
+                                type="button"
+                                className="font-semibold hover:text-emerald-700"
+                                onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
+                              >
+                                <span className="underline underline-offset-2">{t('tasks.detail.completionNote', 'Tamamlama Notu')}</span>
+                              </button>
+                              <span>)</span>
+                            </span>
+                          ) : undefined
+                          const dueDateContent = dueDateEdit?.taskId === taskDetail.taskId ? (
+                            // Takvim yukarı yönde açılır; tetikleyici alan gizli, "Ek Süre İste"deki seç
+                            // akışıyla aynı: tarih seçilince (Seç) onay kutusu çıkar, Kaydet ile uygulanır (card 611).
+                            <div className="mt-1 flex flex-col gap-1.5">
+                              <DateTimePicker
+                                value={dueDateEdit.value}
+                                onChange={value => setDueDateEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
+                                placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                                className={dueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
+                                forceUp
+                                autoOpen
+                                // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Değiştir" yeniden tıklanabilir kalsın (card 615).
+                                onClose={dueDateEdit.mode === 'picking' ? closeDueDateEdit : undefined}
+                              />
+                              {dueDateEdit.mode === 'confirm' && (
+                                <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
+                                  <span className="text-xs font-semibold text-slate-900">
+                                    {dueDateEdit.value
+                                      ? formatDateTime(new Date(dueDateEdit.value).toISOString(), locale)
+                                      : t('common.none')}
+                                  </span>
+                                  <div className="inline-actions justify-start gap-1.5">
+                                    <Button type="button" size="sm" variant="success" disabled={dueDateEdit.saving} onClick={() => void handleDueDateSave()}>
+                                      {dueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
+                                    </Button>
+                                    <Button type="button" size="sm" variant="secondary" disabled={dueDateEdit.saving} onClick={closeDueDateEdit}>
+                                      {t('common.cancel', 'Vazgeç')}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : extraTimeEdit?.taskId === taskDetail.taskId ? (
+                            <div className="mt-1 flex flex-col gap-1.5">
+                              <DateTimePicker
+                                value={extraTimeEdit.value}
+                                onChange={value => setExtraTimeEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
+                                placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                                className={extraTimeEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
+                                forceUp
+                                autoOpen
+                                // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Ek süre iste" yeniden tıklanabilir kalsın (card 615).
+                                onClose={extraTimeEdit.mode === 'picking' ? closeExtraTimeEdit : undefined}
+                              />
+                              {extraTimeEdit.mode === 'confirm' && (
+                                <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+                                  <span className="text-xs font-semibold text-slate-900">
+                                    {formatDateTime(new Date(extraTimeEdit.value).toISOString(), locale)}
+                                  </span>
+                                  <div className="inline-actions justify-start gap-1.5">
+                                    <Button type="button" size="sm" variant="success" disabled={extraTimeEdit.saving || !extraTimeEdit.value} onClick={() => void handleExtraTimeRequest()}>
+                                      {extraTimeEdit.saving ? t('common.loading') : t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
+                                    </Button>
+                                    <Button type="button" size="sm" variant="secondary" disabled={extraTimeEdit.saving} onClick={closeExtraTimeEdit}>
+                                      {t('common.cancel', 'Vazgeç')}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : extraTimeReview?.taskId === taskDetail.taskId ? (
+                            <div className="mt-1 flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2">
+                              <span className="text-sm font-semibold text-slate-900">
+                                {extraTimeReview.proposedDueDateUtc
+                                  ? formatDateTime(extraTimeReview.proposedDueDateUtc, locale)
+                                  : t('tasks.actions.extraTimeDateUnavailable', 'Talep edilen tarih okunamadı.')}
+                              </span>
+                              <div className="inline-actions justify-start gap-2">
+                                <Button type="button" size="sm" variant="success" disabled={extraTimeReview.saving || !extraTimeReview.proposedDueDateUtc} onClick={() => void handleExtraTimeApprove()}>
+                                  {extraTimeReview.saving ? t('common.loading') : t('common.approve', 'Onayla')}
+                                </Button>
+                                <Button type="button" size="sm" variant="destructive" disabled={extraTimeReview.saving} onClick={() => void handleExtraTimeReject()}>
+                                  {t('common.reject', 'Reddet')}
+                                </Button>
+                                <Button type="button" size="sm" variant="secondary" disabled={extraTimeReview.saving} onClick={closeExtraTimeReview}>
+                                  {t('common.cancel', 'Vazgeç')}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-slate-900">{formatDueDateTime(taskDetail.dueDateUtc, locale)}</span>
+                              {/* Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386). */}
+                              <GridExtraTimeMarkers hasPending={taskDetail.hasPendingExtraTimeRequest} inline />
+                              {canChangeTaskDueDate && (
+                                <button
+                                  type="button"
+                                  className="text-xs font-bold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
+                                  onClick={openDueDateEdit}
+                                >
+                                  {t('common.change', 'Değiştir')}
+                                </button>
+                              )}
+                              {canRequestExtraTime && (
+                                <button
+                                  type="button"
+                                  className="text-xs font-bold text-amber-600 underline underline-offset-2 hover:text-amber-700"
+                                  onClick={openExtraTimeEdit}
+                                >
+                                  {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
+                                </button>
+                              )}
+                              {showExtraTimeDecisionBadge && latestExtraTimeApproval && (
+                                <span className="inline-flex items-center gap-1 text-xs font-bold">
+                                  <span className="text-slate-400">{t('tasks.actions.extraTimeRequest', 'Ek süre iste')}</span>
+                                  {latestExtraTimeApproval.decision === 'Approved' && (
+                                    <span className="text-emerald-600">({t('tasks.actions.extraTimeApprovedShort', 'onay')})</span>
+                                  )}
+                                  {latestExtraTimeApproval.decision === 'Rejected' && (
+                                    <span className="text-red-600">({t('tasks.actions.extraTimeRejectedShort', 'red')})</span>
+                                  )}
+                                </span>
+                              )}
+                              {canReviewExtraTime && (
+                                <button
+                                  type="button"
+                                  className="text-xs font-bold text-amber-600 underline-offset-2 hover:text-amber-700 hover:underline"
+                                  onClick={openExtraTimeReview}
+                                >
+                                  {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
+                                </button>
+                              )}
+                            </div>
+                          )
+                          return (
+                            <JobProcessTimeline
+                              steps={steps}
+                              locale={locale}
+                              statusContent={statusContent}
+                              statusActorName={taskDetail.statusActorDisplayName ?? null}
+                              statusNoteContent={statusNoteContent}
+                              dueDateContent={dueDateContent}
+                            />
+                          )
+                        })()}
                       </div>
                     </div>
                   </section>
+
+                  {/* Geçmişler ve tamamlanan görev ekleri — Taleplerim alt kartlarıyla aynı kart dili. */}
+                  {(() => {
+                    const statusChangeHistory = taskDetail.statusChangeHistory ?? []
+                    const showStatusChangeHistory = taskDetail.jobSourceType !== 'Routine' && statusChangeHistory.length > 0
+                    const showAssignmentHistory = taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0
+                    const showTaskAttachmentsInDetail = taskDetail.currentStatus === 'Completed'
+                      && taskDetail.jobSourceType !== 'Routine'
+                      && (taskDetail.attachments?.length ?? 0) > 0
+                    const cardCount = [showAssignmentHistory, showStatusChangeHistory, showTaskAttachmentsInDetail].filter(Boolean).length
+                    if (cardCount === 0) return null
+                    return (
+                      <div className={`my-request-detail-bottom mb-5 grid gap-4 ${cardCount === 3 ? 'lg:grid-cols-3' : cardCount === 2 ? 'lg:grid-cols-2' : ''}`}>
+                        {showAssignmentHistory && (
+                          <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                            <MyRequestSectionHeading icon={History}>
+                              {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
+                            </MyRequestSectionHeading>
+                            <ul className="space-y-2 text-sm text-slate-700">
+                              {visibleAssignmentHistory.map(item => (
+                                <li key={item.assignmentId} className="flex gap-2">
+                                  <span className="shrink-0 text-slate-500" aria-hidden>•</span>
+                                  <div className="min-w-0">
+                                    <div className="font-bold text-slate-950">
+                                      {getUserName(item.toUserId)}
+                                    </div>
+                                    <div className="text-xs text-slate-500">
+                                      {new Date(item.actionDateUtc).toLocaleString(locale)}
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+                        {showStatusChangeHistory && (
+                          <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                            <MyRequestSectionHeading icon={RefreshCw}>
+                              {t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi')}
+                            </MyRequestSectionHeading>
+                            <ul className="space-y-2 text-sm text-slate-700">
+                              {statusChangeHistory.map((item, idx) => (
+                                <li key={`${item.changedAtUtc}-${idx}`} className="flex gap-2">
+                                  <span className="shrink-0 text-slate-500" aria-hidden>•</span>
+                                  <div className="min-w-0">
+                                    {/* Yalnızca durum ve tarih bilgisi gösterilir (card #1095). */}
+                                    <div className="font-bold text-slate-950">
+                                      {getTaskStatusLabel(t, item.toStatus)}
+                                    </div>
+                                    <div className="text-xs text-slate-500">
+                                      {new Date(item.changedAtUtc).toLocaleString(locale)}
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+                        {showTaskAttachmentsInDetail && (
+                          <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+                            <MyRequestSectionHeading icon={Paperclip}>
+                              {t('tasks.detail.attachments', 'Görev Ekleri')}
+                            </MyRequestSectionHeading>
+                            <AttachmentSection
+                              attachments={taskDetail.attachments!}
+                              readOnly
+                              compact
+                              displayMode="list"
+                              onDownload={handleDownloadTaskAttachment}
+                            />
+                            <p className="mt-2 text-xs font-medium text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
+                          </section>
+                        )}
+                      </div>
+                    )
+                  })()}
 
                   {/* Rutin görevlerde 2. satır: Adres Bilgileri + Ekler / Fotoğraflar (card 575) */}
                   {taskDetail.jobSourceType === 'Routine' && (() => {
                     const isCompleted = taskDetail.currentStatus === 'Completed'
                     return (
-                      <section className="mb-5 grid gap-4 lg:grid-cols-3">
-                        <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                      <section className="my-request-detail-bottom mb-5 grid gap-4 lg:grid-cols-3">
+                        <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                          <MyRequestSectionHeading icon={MapPin}>
                             {t('address.detailSectionTitle', 'Adres Bilgileri')}
-                          </h3>
+                          </MyRequestSectionHeading>
                           <AddressDetailFields
                             neighborhood={parentJobDetail?.neighborhood}
                             street={parentJobDetail?.street}
                             openAddress={parentJobDetail?.openAddress}
                           />
                         </div>
-                        <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                        <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+                          <MyRequestSectionHeading icon={Paperclip}>
                             {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                          </h3>
+                          </MyRequestSectionHeading>
                           <AttachmentSection
                             attachments={taskDetail.attachments ?? []}
                             readOnly
@@ -2113,10 +2111,10 @@ const pageKicker = isMyTasksView
                             </p>
                           )}
                         </div>
-                        <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                        <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                          <MyRequestSectionHeading icon={History}>
                             {t('tasks.detail.routineEditHistoryTitle', 'Rutin Görev Düzenleme Geçmişi')}
-                          </h3>
+                          </MyRequestSectionHeading>
                           {routineEditHistory.length === 0 ? (
                             <p className="text-sm text-slate-400">{t('tasks.detail.routineEditHistoryEmpty', 'Düzenleme geçmişi bulunmuyor.')}</p>
                           ) : (
@@ -2258,7 +2256,8 @@ const pageKicker = isMyTasksView
                     const isCompletedTask = taskDetail.currentStatus === 'Completed'
                     return (
                       <section className="form-card page-stack mb-5">
-                        <div className="text-sm font-semibold text-emerald-600">
+                        {/* Taleplerim popup'ındaki bölüm başlığı diliyle aynı (job-detail-section-title). */}
+                        <div className="job-detail-section-title mb-1">
                           {t('tasks.detail.parentJobTitle', 'İlgili Talep Detayları')}
                         </div>
                         <div className={`grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${isCompletedTask ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)]' : isCitizenParentJob ? 'lg:grid-cols-[44%_20%_36%]' : 'lg:grid-cols-[44%_20%_18%_18%]'}`}>
@@ -2316,11 +2315,11 @@ const pageKicker = isMyTasksView
                         </div>
                         {/* Tamamlanmış görevlerde talep özeti altında Adres / Yönetici Notu / Ekler satırı (JobsPage ile aynı). */}
                         {isCompletedTask ? (
-                          <div className={`mt-4 grid gap-4 ${isCitizenParentJob ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
-                            <section className="rounded-xl border border-slate-200 bg-white p-4">
-                              <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                          <div className={`my-request-detail-bottom mt-4 grid gap-4 ${isCitizenParentJob ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
+                            <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                              <MyRequestSectionHeading icon={MapPin}>
                                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
-                              </h3>
+                              </MyRequestSectionHeading>
                               <AddressDetailFields
                                 neighborhood={parentJobDetail.neighborhood}
                                 street={parentJobDetail.street}
@@ -2328,10 +2327,10 @@ const pageKicker = isMyTasksView
                               />
                             </section>
                             {!isCitizenParentJob ? (
-                            <section className="rounded-xl border border-slate-200 bg-white p-4">
-                              <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                            <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                              <MyRequestSectionHeading icon={NotebookPen}>
                                 {t('jobs.managerNote.title', 'Yönetici Notu')}
-                              </h3>
+                              </MyRequestSectionHeading>
                               {parentJobDetail.managerNote ? (
                                 <p className="whitespace-pre-wrap text-sm text-slate-800">{parentJobDetail.managerNote}</p>
                               ) : (
@@ -2339,10 +2338,10 @@ const pageKicker = isMyTasksView
                               )}
                             </section>
                             ) : null}
-                            <section className="rounded-xl border border-slate-200 bg-white p-4">
-                              <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                            <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+                              <MyRequestSectionHeading icon={Paperclip}>
                                 {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                              </h3>
+                              </MyRequestSectionHeading>
                               <AttachmentSection
                                 attachments={parentJobDetail.attachments ?? []}
                                 readOnly

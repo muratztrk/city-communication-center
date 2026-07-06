@@ -45,6 +45,8 @@ public sealed record RejectJobRequest(string Reason);
 
 public sealed record AddCoordinatingDepartmentsRequest(IReadOnlyCollection<Guid> DepartmentIds);
 
+public sealed record ForwardJobTargetRequest(Guid TargetDepartmentId, string Note);
+
 public sealed record SetJobManagerNoteRequest(string? Note);
 
 public sealed record JobDepartmentResponse(

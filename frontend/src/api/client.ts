@@ -834,6 +834,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobRejectFailed', 'Failed to reject job'))
   },
 
+  async forwardJobTarget(jobId: string, targetDepartmentId: string, note: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/forward-target`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ targetDepartmentId, note }),
+    })
+    await ensureOk(response, i18n.t('errors.jobForwardFailed', 'Talep yönlendirilemedi'))
+  },
+
   async addJobCoordinatingDepartments(jobId: string, departmentIds: string[]): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/coordinating-departments`, {
       method: 'POST',

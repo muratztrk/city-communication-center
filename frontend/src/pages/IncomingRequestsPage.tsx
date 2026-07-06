@@ -102,6 +102,8 @@ type IncomingRequestRow = {
   // Ek süre talebi işaretleri — tarih sütunları altında görev gridindeki ile aynı (cards #1385/#1388).
   hasPendingExtraTimeRequest?: boolean
   lastExtraTimeRequestDecision?: string | null
+  // Yönlendirilen talep: hedef birim kaydının notu (yönlenme sebebi) — Talep No yanında rozet (card #1406).
+  forwardReason?: string | null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string) {
@@ -293,6 +295,7 @@ function toExternalRow(
     detailsPath: `/request-details?context=incoming&jobId=${job.jobId}`,
     assignTargetDepartmentId,
     pendingTargetApprovalDepartmentId,
+    forwardReason: activeTarget?.notes?.trim() || null,
     approvedAtUtc: activeTarget?.decidedAtUtc ?? ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
@@ -883,9 +886,13 @@ export function IncomingRequestsPage() {
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
-                      <div className="table-number-cell__value inline-flex items-center gap-1.5">
+                      <div className="table-number-cell__value inline-flex flex-wrap items-center gap-1.5">
                         {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
                         <span className={reporterNumberClass}>{row.displayNumber}</span>
+                        {/* Yönlendirilen talepte koyu turkuaz rozet (card #1406). */}
+                        {row.forwardReason ? (
+                          <span className="font-sans font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                        ) : null}
                       </div>
                       <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>

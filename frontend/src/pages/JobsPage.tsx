@@ -20,6 +20,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { Button } from '../components/ui/button'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -719,6 +720,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
+  // Dış birimden gelen (birime düşen) talep, hedef birim yöneticisi onaylayana (personel atayana) kadar
+  // başka birime yönlendirilebilir. Hem onay bekleyen (PendingExternalApproval) hem de otomatik aktifleşmiş
+  // ama henüz atanmamış (Active, görev yok) hedefler kapsanır; atama yapılınca buton kaybolur (cards #1405/#1407).
+  const canForwardTargetDetail = detail?.requestType === 'ExternalUnit'
+    && (canApproveTargetDetail || canAssignIncomingDetail)
+  // Yönlendirme dropdown'ı: mevcut hedef ve talep sahibi birim hariç tüm birimler ("Talebin Gideceği Birim").
+  const forwardDepartmentOptions = departments
+    .filter(department => department.departmentId !== activeDeptId && department.departmentId !== detail?.ownerDepartmentId)
+    .map(department => ({ value: department.departmentId, label: department.name }))
+  // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
+  const forwardReason = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim()))?.notes?.trim() ?? null
   const incomingPendingCloseTask = isIncomingRequestDetail && isManagerLike
     ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
     : null
@@ -1141,6 +1153,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     saving: boolean
   } | null>(null)
 
+  // Dış birimden gelen talebi başka birime yönlendirme penceresi (cards #1405-#1408).
+  const [forwardModal, setForwardModal] = useState<{
+    jobId: string
+    departmentId: string
+    note: string
+    saving: boolean
+  } | null>(null)
+
   const openJobExtraTimeReview = async () => {
     if (!detail) return
     const pendingTask = detail.tasks.find(task => task.hasPendingExtraTimeRequest)
@@ -1462,6 +1482,27 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+
+  const openForwardModal = () => {
+    if (!detail) return
+    setError(null)
+    setForwardModal({ jobId: detail.jobId, departmentId: '', note: '', saving: false })
+  }
+
+  const handleForwardConfirm = async () => {
+    if (!forwardModal || !forwardModal.departmentId || !forwardModal.note.trim()) return
+    setForwardModal(current => (current ? { ...current, saving: true } : current))
+    try {
+      await api.forwardJobTarget(forwardModal.jobId, forwardModal.departmentId, forwardModal.note.trim())
+      invalidateJobs(queryClient, forwardModal.jobId)
+      setForwardModal(null)
+      // Yönlendirildikten sonra Birime Gelen Talepler sayfasına dön (card #1408).
+      closeDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setForwardModal(current => (current ? { ...current, saving: false } : current))
     }
   }
 
@@ -2185,6 +2226,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     </DisabledActionButton>
                   ) : null
                 })()}
+                {canForwardTargetDetail && (
+                  <Button
+                    type="button"
+                    className="bg-teal-700 text-white hover:bg-teal-800"
+                    onClick={openForwardModal}
+                  >
+                    {t('jobs.actions.forward', 'Talebi Yönlendir')}
+                  </Button>
+                )}
                 {canCancelDetail && (
                   <Button
                     type="button"
@@ -2261,11 +2311,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {
                         label: 'Talep No',
                         value: (
-                          <RequestNumberWithTypeLabel
-                            job={detail}
-                            t={t}
-                            locale={locale}
-                          />
+                          <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                            <RequestNumberWithTypeLabel
+                              job={detail}
+                              t={t}
+                              locale={locale}
+                            />
+                            {/* Yönlendirilen talepte koyu turkuaz rozet (card #1406). */}
+                            {forwardReason && (
+                              <span className="text-xs font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                            )}
+                          </span>
                         ),
                       },
                       { label: 'Talep Başlığı', value: detail.title },
@@ -2283,8 +2339,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       },
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
+                      // Yönlendirilen talebin sebebi, Öncelik/Proje satırının altında (card #1406).
+                      ...(forwardReason ? [{ label: 'Talebin Yönlenme Sebebi', value: forwardReason }] : []),
                     ]).map(({ label, value }) => (
-                      <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
+                      <div key={label} className={`flex items-start gap-2 px-3 py-2${(label === 'Öncelik' && !forwardReason) || label === 'Talebin Yönlenme Sebebi' ? ' border-b border-slate-100' : ''}`}>
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                         <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
                       </div>
@@ -3158,6 +3216,61 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         document.body
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+      {forwardModal && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
+          <section className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="forward-job-dialog-title">
+            <button type="button" onClick={() => !forwardModal.saving && setForwardModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <XIcon className="size-4" />
+            </button>
+            <h3 id="forward-job-dialog-title" className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
+              {t('jobs.forward.title', 'Talebi Yönlendir')}
+            </h3>
+            <p className="mb-4 text-sm text-slate-600">
+              {t('jobs.forward.selectDepartment', 'Talebi yönlendirmek istediğiniz birimi seçin.')}
+            </p>
+            <div className="mb-4">
+              <label className="job-field-label" htmlFor="forward-target-dept">
+                {t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span>
+              </label>
+              <SingleSelectDropdown
+                options={forwardDepartmentOptions}
+                value={forwardModal.departmentId}
+                onChange={departmentId => setForwardModal(current => (current ? { ...current, departmentId } : current))}
+                placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="job-field-label" htmlFor="forward-note">
+                {t('jobs.forward.noteLabel', 'Talebi Yönlendirme Notu')} <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="forward-note"
+                className="field-textarea"
+                rows={3}
+                maxLength={100}
+                value={forwardModal.note}
+                onChange={event => setForwardModal(current => (current ? { ...current, note: event.target.value } : current))}
+                placeholder={t('jobs.forward.notePlaceholder', 'Yönlendirme sebebini yazın')}
+              />
+              <div className="mt-0.5 text-right text-[0.7rem] text-slate-400">{forwardModal.note.length}/100</div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button
+                type="button"
+                className="bg-teal-700 text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={forwardModal.saving || !forwardModal.departmentId || !forwardModal.note.trim()}
+                onClick={() => void handleForwardConfirm()}
+              >
+                {forwardModal.saving ? t('common.loading') : t('jobs.actions.forwardConfirm', 'Yönlendir')}
+              </Button>
+              <Button type="button" variant="secondary" disabled={forwardModal.saving} onClick={() => setForwardModal(null)}>
+                {t('common.cancel', 'İptal')}
+              </Button>
+            </div>
+          </section>
+        </div>,
+        document.body
+      )}
       {cancelModal && createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
           <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-job-dialog-title">

@@ -81,7 +81,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
       <div
-        className="flex max-h-[min(85dvh,52rem)] w-full max-w-[96rem] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="detail-modal-shell flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3.5">

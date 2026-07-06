@@ -270,6 +270,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `gMRPRmkO` (reopened) — `Vatandaş Talep Kanalları` sayımı rol kapsamına alındı: Üst Düzey Yönetici tüm tenant VT taleplerini, Birim Yöneticisi yalnız kendi aktif/kapsam birimine gelen VT taleplerini kanal kırılımıyla görür.
 - [x] `6DfZU3kf` — Reporter `Birimlerde Bekleyen Talepler` grafiği dış birim hedef linklerini `PendingOwnerApproval` + `PendingExternalApproval` statülerinde hedef birim adına göre sayıyor; drilldown aynı kapsamı kullanıyor.
 - [x] `nDHm4SMs` — Manager `Vatandaş Talep Kanalları` grafiği VT kanalını `SocialMessage.JobId + CitizenRequestNumber` üzerinden buluyor; `SourceRefId` eksik/uyumsuz olduğunda grafik boş kalmıyor.
+- [x] `gzrWNfu4` — Reporter dashboard pie chart drilldown popup'ı Taleplerim detay popup'ıyla aynı `.detail-modal-shell` ölçüsünü kullanıyor.
 
 ## Round 30 (manual check)
 - [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.

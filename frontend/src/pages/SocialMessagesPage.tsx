@@ -13,7 +13,7 @@ import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
-import { DateTimePicker } from '../components/ui/date-time-picker'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import type { JobSummary, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -159,8 +159,7 @@ function SocialMessageScopeFilters({ searchText, filterFrom, filterTo, onSearch,
           </button>
         )}
       </div>
-      <DateTimePicker value={filterFrom} onChange={onFromChange} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-      <DateTimePicker value={filterTo} onChange={onToChange} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
+      <ScopeChipDateRange from={filterFrom} to={filterTo} onFromChange={onFromChange} onToChange={onToChange} forceDown />
     </div>
   )
 }

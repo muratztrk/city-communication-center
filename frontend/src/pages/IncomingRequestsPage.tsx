@@ -2,7 +2,7 @@ import { ArrowRight, Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
-import { DateTimePicker } from '../components/ui/date-time-picker'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
@@ -798,8 +798,7 @@ export function IncomingRequestsPage() {
                 )}
               </div>
               {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
-              <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-              <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
+              <ScopeChipDateRange from={filterFrom} to={filterTo} onFromChange={setFilterFrom} onToChange={setFilterTo} forceDown />
             </div>
           </div>
         </div>

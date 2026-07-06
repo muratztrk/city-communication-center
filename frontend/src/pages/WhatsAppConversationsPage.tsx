@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import { DateTimePicker } from '../components/ui/date-time-picker'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { TablePagination } from '../components/ui/table-pagination'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
@@ -145,10 +145,10 @@ function ConversationStatusCounts({
   const { t } = useTranslation()
   const baseClass = compact ? 'text-[10px]' : 'text-[11px]'
   const counts: Array<{ value: ConversationStatusFilter; label: string; count: number; className: string }> = [
-    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: intake ?? 0, className: 'text-slate-600 hover:bg-slate-100' },
-    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: inProgress ?? 0, className: 'text-orange-600 hover:bg-orange-50' },
-    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: completed ?? 0, className: 'text-emerald-700 hover:bg-emerald-50' },
-    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: cancelled ?? 0, className: 'text-red-600 hover:bg-red-50' },
+    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: intake ?? 0, className: 'text-slate-600 hover:bg-slate-200' },
+    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: inProgress ?? 0, className: 'text-orange-600 hover:bg-orange-100' },
+    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: completed ?? 0, className: 'text-emerald-700 hover:bg-emerald-100' },
+    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: cancelled ?? 0, className: 'text-red-600 hover:bg-red-100' },
   ]
   return (
     <div className={`flex items-center gap-x-0.5 ${baseClass} font-semibold whitespace-nowrap`}>
@@ -201,6 +201,26 @@ function ConversationListItem({
   const ticketOpen = isConversationTicketOpen(conv)
   const timeLabel = new Date(conv.lastMessageAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   const recentTime = isRecentConversationTime(conv.lastMessageAt)
+  const responseStatus = waitingForResponse ? (
+    <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
+      <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+      {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
+    </span>
+  ) : !waitingForResponse && ticketOpen ? (
+    <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+      <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+      {t('whatsapp.ticketOpen', 'Yanıt verildi')}
+    </span>
+  ) : !ticketOpen && conv.openTicketCount === 0 && conv.latestTicketStatus ? (
+    <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+      <Check className="size-3" aria-hidden="true" />
+      {t('whatsapp.ticketResolved', 'Çözüldü')}
+    </span>
+  ) : conv.isBlocked ? (
+    <span className="inline-flex items-center rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
+      {t('whatsapp.blocked')}
+    </span>
+  ) : null
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
@@ -244,47 +264,28 @@ function ConversationListItem({
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className={`text-[11px] font-medium ${recentTime ? 'text-emerald-700' : 'text-slate-400'}`}>
-                {timeLabel}
-              </span>
-              {conv.unreadCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full bg-emerald-700 text-white text-[10px] font-bold leading-none">
-                  {conv.unreadCount}
+            <div className="flex flex-col items-end gap-0.5 shrink-0">
+              <div className="flex items-center gap-1.5">
+                <span className={`text-[11px] font-medium ${recentTime ? 'text-emerald-700' : 'text-slate-400'}`}>
+                  {timeLabel}
                 </span>
-              )}
+                {conv.unreadCount > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full bg-emerald-700 text-white text-[10px] font-bold leading-none">
+                    {conv.unreadCount}
+                  </span>
+                )}
+              </div>
+              {responseStatus ? (
+                <div className="flex justify-end">
+                  {responseStatus}
+                </div>
+              ) : null}
             </div>
           </div>
 
           {conv.citizenName ? (
             <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
           ) : null}
-
-          <div className="mt-2 flex items-center gap-1.5 min-w-0 flex-wrap">
-              {waitingForResponse && (
-                <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
-                  <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
-                  {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
-                </span>
-              )}
-              {!waitingForResponse && ticketOpen && (
-                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-                  <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                  {t('whatsapp.ticketOpen', 'Yanıt verildi')}
-                </span>
-              )}
-              {!ticketOpen && conv.openTicketCount === 0 && conv.latestTicketStatus && (
-                <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
-                  <Check className="size-3" aria-hidden="true" />
-                  {t('whatsapp.ticketResolved', 'Çözüldü')}
-                </span>
-              )}
-              {conv.isBlocked && (
-                <span className="inline-flex items-center rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
-                  {t('whatsapp.blocked')}
-                </span>
-              )}
-            </div>
 
           <div className="mt-1.5">
             <ConversationStatusCounts
@@ -361,10 +362,10 @@ function ConversationListPanel({
   const totalStatusCount = totalCounts.intake + totalCounts.inProgress + totalCounts.completed + totalCounts.cancelled
 
   const statusChips: Array<{ value: ConversationStatusFilter; label: string; count: number; className: string }> = [
-    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: totalCounts.intake, className: 'text-slate-600 hover:bg-slate-100' },
-    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: totalCounts.inProgress, className: 'text-orange-600 hover:bg-orange-50' },
-    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: totalCounts.completed, className: 'text-emerald-700 hover:bg-emerald-50' },
-    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: totalCounts.cancelled, className: 'text-red-600 hover:bg-red-50' },
+    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: totalCounts.intake, className: 'text-slate-600 hover:bg-slate-200' },
+    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: totalCounts.inProgress, className: 'text-orange-600 hover:bg-orange-100' },
+    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: totalCounts.completed, className: 'text-emerald-700 hover:bg-emerald-100' },
+    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: totalCounts.cancelled, className: 'text-red-600 hover:bg-red-100' },
   ]
   const totalConversationPages = Math.max(1, Math.ceil(filtered.length / conversationPageSize))
   const currentConversationPage = Math.min(conversationPage, totalConversationPages)
@@ -374,7 +375,7 @@ function ConversationListPanel({
   )
 
   return (
-    <div className="flex max-h-[58dvh] w-full shrink-0 flex-col border-b border-[color:var(--color-border)] bg-white shadow-[inset_0_-1px_0_rgba(15,23,42,0.04)] md:max-h-none md:w-[21.5rem] md:border-b-0 md:border-r md:shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]">
+    <div className="flex max-h-[58dvh] w-full shrink-0 flex-col border-b border-[color:var(--color-border)] bg-white shadow-[inset_0_-1px_0_rgba(15,23,42,0.04)] md:max-h-none md:h-full md:min-h-0 md:w-[21.5rem] md:border-b-0 md:border-r md:shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]">
       <div className="shrink-0 px-4 pt-4 pb-3 space-y-3 border-b border-slate-100">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-2 min-w-0">
@@ -470,7 +471,7 @@ function ConversationListPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {loading ? (
           <div className="flex items-center justify-center h-32">
             <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
@@ -495,7 +496,10 @@ function ConversationListPanel({
         totalCount={filtered.length}
         pageSize={conversationPageSize}
         currentPage={currentConversationPage}
-        onPageSizeChange={setConversationPageSize}
+        onPageSizeChange={size => {
+          setConversationPageSize(size)
+          setConversationPage(1)
+        }}
         onPageChange={setConversationPage}
         pageSizeOptions={[10, 25, 50]}
         className="whatsapp-conversation-pagination"
@@ -1514,15 +1518,22 @@ export function WhatsAppConversationsPage() {
           </div>
           <div className="ml-auto mt-auto shrink-0">
             <div className="scope-chips-filters">
-              <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder={t('filters.startDate', 'Başlangıç tarihi')} className="scope-chip-date" forceDown />
-              <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder={t('filters.endDate', 'Bitiş tarihi')} className="scope-chip-date" forceDown />
+              <ScopeChipDateRange
+                from={filterFrom}
+                to={filterTo}
+                onFromChange={setFilterFrom}
+                onToChange={setFilterTo}
+                fromPlaceholder={t('filters.startDate', 'Başlangıç tarihi')}
+                toPlaceholder={t('filters.endDate', 'Bitiş tarihi')}
+                forceDown
+              />
             </div>
           </div>
         </div>
       </header>
 
       {/* Split panel layout */}
-      <div className="flex flex-1 min-h-0 flex-col overflow-visible rounded-xl border border-[color:var(--color-border)] bg-slate-50 md:flex-row md:overflow-hidden">
+      <div className="flex flex-1 min-h-0 flex-col overflow-visible rounded-xl border border-[color:var(--color-border)] bg-slate-50 md:min-h-[calc(100dvh-12rem)] md:flex-row md:overflow-hidden">
         {/* Left: conversation list */}
         <ConversationListPanel
           conversations={conversations}

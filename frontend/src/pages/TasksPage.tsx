@@ -3,6 +3,7 @@ import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -99,8 +100,7 @@ function TaskScopeFilters({ searchText, filterFrom, filterTo, onSearch, onFromCh
         )}
       </div>
       {/* Talep Oluştur'daki ile aynı takvim tasarımı (DateTimePicker), tarih aralığı için iki seçici. */}
-      <DateTimePicker value={filterFrom} onChange={onFromChange} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-      <DateTimePicker value={filterTo} onChange={onToChange} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
+      <ScopeChipDateRange from={filterFrom} to={filterTo} onFromChange={onFromChange} onToChange={onToChange} forceDown />
     </div>
   )
 }

@@ -11,7 +11,7 @@ import { PieChart } from '../components/ui/PieChart'
 import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
-import { DateTimePicker } from '../components/ui/date-time-picker'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 
 interface MetricCard {
   label: string
@@ -446,8 +446,7 @@ export function DashboardPage() {
           </button>
           {period === 'custom' && (
             <>
-              <DateTimePicker value={customFrom} onChange={setCustomFrom} placeholder="Başlangıç tarihi" className="scope-chip-date" forceDown />
-              <DateTimePicker value={customTo} onChange={setCustomTo} placeholder="Bitiş tarihi" className="scope-chip-date" forceDown />
+              <ScopeChipDateRange from={customFrom} to={customTo} onFromChange={setCustomFrom} onToChange={setCustomTo} forceDown />
             </>
           )}
         </div>

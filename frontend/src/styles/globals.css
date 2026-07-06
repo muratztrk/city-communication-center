@@ -2678,6 +2678,45 @@
     flex: 0 0 auto;
   }
 
+  .scope-chip-date-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex: 0 0 auto;
+  }
+
+  .scope-chip-date-separator {
+    display: none;
+    flex: 0 0 auto;
+    align-self: center;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .sticky-page-header .scope-chip-date-separator {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .scope-chip-date-range .scope-chip-date + .scope-chip-date {
+    margin-left: 0;
+  }
+
+  .scope-chip-date-range .scope-chip-date + .scope-chip-date::before {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .scope-chip-date-separator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.875rem;
+    }
+  }
+
   .scope-chip-date + .scope-chip-date {
     position: relative;
     margin-left: 1.15rem;
@@ -3885,6 +3924,14 @@
     .table-container table,
     .data-table {
       min-width: 36rem;
+    }
+  }
+}
+
+@media (max-width: 1023px) {
+  @layer components {
+    .scope-chip-date-range {
+      display: contents;
     }
   }
 }

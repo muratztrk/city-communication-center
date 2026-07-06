@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { invalidateJobs } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
-import { DateTimePicker } from '../components/ui/date-time-picker'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -255,8 +255,15 @@ export function EDevletBasvurularPage() {
                   </button>
                 ) : null}
               </div>
-              <DateTimePicker value={filterFrom} onChange={setFilterFrom} placeholder={t('filters.startDate', 'Başlangıç tarihi')} className="scope-chip-date" forceDown />
-              <DateTimePicker value={filterTo} onChange={setFilterTo} placeholder={t('filters.endDate', 'Bitiş tarihi')} className="scope-chip-date" forceDown />
+              <ScopeChipDateRange
+                from={filterFrom}
+                to={filterTo}
+                onFromChange={setFilterFrom}
+                onToChange={setFilterTo}
+                fromPlaceholder={t('filters.startDate', 'Başlangıç tarihi')}
+                toPlaceholder={t('filters.endDate', 'Bitiş tarihi')}
+                forceDown
+              />
             </div>
           </div>
         </div>

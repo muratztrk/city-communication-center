@@ -281,6 +281,8 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
 }
 
 const TEMPLATE_CHANNEL_OPTIONS = ['Genel', 'WhatsApp', 'Facebook', 'Instagram', 'X', 'Phone', 'Other']
+const WHATSAPP_META_TEMPLATE_CHANNEL = 'WhatsApp Meta'
+const MAX_WHATSAPP_META_TEMPLATES = 3
 const TEMPLATE_REPLY_DELAY_OPTIONS = [10, 30, 60, 120, 300]
 const TEMPLATE_WEEKDAY_OPTIONS = [
   { id: 'monday', label: 'Pazartesi', group: 'weekday' as const },
@@ -316,6 +318,10 @@ const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
 
 function readTab(tab: string | null): SettingsTab {
   return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'citizen' || tab === 'templates' ? tab : 'tenant'
+}
+
+function isMetaWhatsAppTemplate(template: Pick<WhatsAppMessageTemplate, 'channel'>) {
+  return template.channel === WHATSAPP_META_TEMPLATE_CHANNEL
 }
 
 function splitLines(value: string): string[] {
@@ -410,6 +416,7 @@ export function SettingsPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
   const [templateForm, setTemplateForm] = useState<Omit<WhatsAppMessageTemplate, 'templateId'>>(EMPTY_TEMPLATE_FORM)
   const [isNewTemplate, setIsNewTemplate] = useState(false)
+  const [templateEditorMode, setTemplateEditorMode] = useState<'classic' | 'meta'>('classic')
   const [keywordInput, setKeywordInput] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
@@ -1089,6 +1096,7 @@ export function SettingsPage() {
     })
     setKeywordInput('')
     setIsNewTemplate(false)
+    setTemplateEditorMode(isMetaWhatsAppTemplate(tpl) ? 'meta' : 'classic')
   }
 
   const startNewTemplate = () => {
@@ -1096,6 +1104,20 @@ export function SettingsPage() {
     setTemplateForm(EMPTY_TEMPLATE_FORM)
     setKeywordInput('')
     setIsNewTemplate(true)
+    setTemplateEditorMode('classic')
+  }
+
+  const startNewMetaTemplate = () => {
+    const metaCount = templates.filter(isMetaWhatsAppTemplate).length
+    if (metaCount >= MAX_WHATSAPP_META_TEMPLATES) {
+      setMessage({ type: 'error', text: 'En fazla 3 WhatsApp Meta onaylı şablon mesaj oluşturabilirsiniz.' })
+      return
+    }
+    setSelectedTemplateId(null)
+    setTemplateForm({ ...EMPTY_TEMPLATE_FORM, channel: WHATSAPP_META_TEMPLATE_CHANNEL })
+    setKeywordInput('')
+    setIsNewTemplate(true)
+    setTemplateEditorMode('meta')
   }
 
   const addKeyword = () => {
@@ -1133,12 +1155,30 @@ export function SettingsPage() {
 
   const persistTemplate = async (successMessage = 'Şablon kaydedildi.') => {
     if (!templateForm.name.trim() || !templateForm.content.trim()) return false
-    const data = {
-      ...templateForm,
-      name: templateForm.name.trim(),
-      content: templateForm.content.trim(),
-      activeDays: templateForm.activeDays.length > 0 ? templateForm.activeDays : [...ALL_TEMPLATE_WEEKDAYS],
+    const metaCount = templates.filter(isMetaWhatsAppTemplate).length
+    const editingMeta = templateEditorMode === 'meta'
+    if (editingMeta && isNewTemplate && metaCount >= MAX_WHATSAPP_META_TEMPLATES) {
+      setMessage({ type: 'error', text: 'En fazla 3 WhatsApp Meta onaylı şablon mesaj oluşturabilirsiniz.' })
+      return false
     }
+    const data = editingMeta
+      ? {
+          ...templateForm,
+          name: templateForm.name.trim(),
+          content: templateForm.content.trim(),
+          channel: WHATSAPP_META_TEMPLATE_CHANNEL,
+          autoReply: false,
+          hasKeyword: false,
+          keywords: [],
+          timedReplyEnabled: false,
+          activeDays: templateForm.activeDays.length > 0 ? templateForm.activeDays : [...ALL_TEMPLATE_WEEKDAYS],
+        }
+      : {
+          ...templateForm,
+          name: templateForm.name.trim(),
+          content: templateForm.content.trim(),
+          activeDays: templateForm.activeDays.length > 0 ? templateForm.activeDays : [...ALL_TEMPLATE_WEEKDAYS],
+        }
     if (isNewTemplate) {
       await api.createWhatsAppTemplate(data)
     } else if (selectedTemplateId) {
@@ -1190,6 +1230,7 @@ export function SettingsPage() {
             setSelectedTemplateId(null)
             setTemplateForm(EMPTY_TEMPLATE_FORM)
             setIsNewTemplate(false)
+            setTemplateEditorMode('classic')
           }
           setMessage({ type: 'success', text: 'Şablon silindi.' })
         } catch (deleteError) {
@@ -2460,13 +2501,23 @@ export function SettingsPage() {
       {activeTab === 'templates' ? (
         <div className="flex gap-4 min-h-[520px]">
           <div className="flex w-64 shrink-0 flex-col gap-2">
-            <button
-              type="button"
-              onClick={startNewTemplate}
-              className="flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-primary)] px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:opacity-90"
-            >
-              + Yeni Şablon Oluştur
-            </button>
+            <div className="grid gap-2">
+              <button
+                type="button"
+                onClick={startNewTemplate}
+                className="flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-primary)] px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:opacity-90"
+              >
+                + Yeni Şablon Oluştur
+              </button>
+              <button
+                type="button"
+                onClick={startNewMetaTemplate}
+                disabled={templates.filter(isMetaWhatsAppTemplate).length >= MAX_WHATSAPP_META_TEMPLATES}
+                className="flex items-center justify-center gap-2 rounded-xl border border-emerald-700 bg-white px-4 py-2.5 text-center text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Whatsapp Meta Onaylı Şablon Mesaj
+              </button>
+            </div>
             <div className="flex flex-col gap-0.5 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
               {templates.map(tpl => (
                 <button
@@ -2476,6 +2527,11 @@ export function SettingsPage() {
                   className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${selectedTemplateId === tpl.templateId ? 'bg-[color:var(--color-primary)]/10 font-bold text-[color:var(--color-primary)]' : 'font-medium text-slate-700 hover:bg-slate-50'}`}
                 >
                   <span className="min-w-0 truncate">{tpl.name}</span>
+                  {isMetaWhatsAppTemplate(tpl) ? (
+                    <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide bg-emerald-100 text-emerald-700">
+                      Meta
+                    </span>
+                  ) : null}
                 </button>
               ))}
               {templates.length === 0 ? (
@@ -2489,7 +2545,9 @@ export function SettingsPage() {
               <form onSubmit={saveTemplate} className="section-card page-stack">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-extrabold text-slate-900">
-                    {isNewTemplate ? 'Yeni Şablon' : 'Şablonu Düzenle'}
+                    {templateEditorMode === 'meta'
+                      ? (isNewTemplate ? 'Whatsapp Meta Onaylı Yeni Şablon Mesaj' : 'Whatsapp Meta Onaylı Şablon Mesaj')
+                      : (isNewTemplate ? 'Yeni Şablon' : 'Şablonu Düzenle')}
                   </h2>
                   {selectedTemplateId && !isNewTemplate ? (
                     <button
@@ -2502,6 +2560,7 @@ export function SettingsPage() {
                   ) : null}
                 </div>
 
+                {templateEditorMode === 'classic' ? (
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,0.8fr)]">
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                     <div className="flex items-center gap-3">
@@ -2534,8 +2593,24 @@ export function SettingsPage() {
                     </select>
                   </label>
                 </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-slate-700">Aktif</span>
+                    <button
+                      type="button"
+                      onClick={() => setTemplateForm(cur => ({ ...cur, isActive: !cur.isActive }))}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${templateForm.isActive ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                      role="switch" aria-checked={templateForm.isActive}
+                    >
+                      <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.isActive ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </button>
+                    <span className="text-xs font-semibold text-slate-500">
+                      {templates.filter(isMetaWhatsAppTemplate).length}/{MAX_WHATSAPP_META_TEMPLATES} Meta şablon
+                    </span>
+                  </div>
+                )}
 
-                {templateForm.timedReplyEnabled ? (
+                {templateEditorMode === 'classic' && templateForm.timedReplyEnabled ? (
                   <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 page-stack">
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                       <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
@@ -2654,6 +2729,8 @@ export function SettingsPage() {
                   />
                 </label>
 
+                {templateEditorMode === 'classic' ? (
+                  <>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-slate-700">Genel cevap</span>
                   <button
@@ -2727,11 +2804,13 @@ export function SettingsPage() {
                     </div>
                   ) : null}
                 </div>
+                  </>
+                ) : null}
 
                 <div className="inline-actions">
                   <button
                     type="button"
-                    onClick={() => { setSelectedTemplateId(null); setIsNewTemplate(false) }}
+                    onClick={() => { setSelectedTemplateId(null); setIsNewTemplate(false); setTemplateEditorMode('classic') }}
                     className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
                   >
                     İptal

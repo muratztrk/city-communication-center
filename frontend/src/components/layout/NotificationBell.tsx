@@ -166,13 +166,13 @@ function NotificationEntityLabelText({ value, plainClassName }: { value: string;
 }
 
 function NotificationTitleStatusText({ value, plainClassName }: { value: string; plainClassName: string }) {
-  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|Yönetici notu atandı|Ek süre talebi)/gi).map((part, index) => {
+  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|yönlendirildi|Yönetici notu atandı|Ek süre talebi)/gi).map((part, index) => {
     if (!part) return null
     if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
     if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
     if (/^İptal Edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
-    if (/^(güncellendi|oluşturuldu|atandı|Yönetici notu atandı|Ek süre talebi)$/i.test(part)) {
+    if (/^(güncellendi|oluşturuldu|atandı|yönlendirildi|Yönetici notu atandı|Ek süre talebi)$/i.test(part)) {
       return <span key={index} className="font-bold">{part}</span>
     }
     return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} />

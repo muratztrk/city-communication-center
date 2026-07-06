@@ -98,7 +98,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim/Birimdeki Görevler banner araması, gridde görünen "Bağlı Olduğu Talep No" değerini
   (`formatTaskJobDisplayNumber`, ör. `T-2026-328`) de tarar.**
 - **Yönlendirilmiş dış birim talebinden oluşturulan görevlerde**, görev gridindeki `Bağlı Olduğu Talep No`
-  yanında koyu turkuaz `(Yönlendirilen Talep)` etiketi görünür ve bu hücre ortalı kalır; görev
+  değerinin alt satırında koyu turkuaz `(Yönlendirilen Talep)` etiketi görünür ve bu hücre ortalı kalır; görev
   detayındaki `İlgili Talep Detayları > Talep No` satırında `Birim Dışı` etiketinden sonra aynı
   rozet görünür. Aynı kartta hedef departman `Notes` değeri `Talebin Yönlenme Sebebi` olarak koyu
   turkuaz `Talebi Yönlendiren Birim • sebep` formatında gösterilir.
@@ -528,7 +528,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür ve iki satır metin
   (`Tümünü` / `Okundu yap`) arasında okunabilir boşluk kullanır;
   "Tüm bildirimleri gör" modal toolbar'ında da tek satır `Tümünü okundu yap` aksiyonu görünür.
-- **Bildirim başlığı vurguları:** başlıkta `güncellendi`, `oluşturuldu`, `atandı`, `Yönetici notu atandı`
+- **Bildirim başlığı vurguları:** başlıkta `güncellendi`, `oluşturuldu`, `atandı`, `yönlendirildi`, `Yönetici notu atandı`
   ve `Ek süre talebi` gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli
   bold davranışı korunur.
 - **Bildirim detay popup ek süre marker'ı:** bildirimden açılan görev/talep detay popup'ı, grid detaylarıyla

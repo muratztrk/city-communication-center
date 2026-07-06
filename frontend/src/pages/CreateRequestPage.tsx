@@ -1,4 +1,4 @@
-import { Building2, FileImage, FileText, MessageSquareMore, Paperclip, Send, Workflow } from 'lucide-react'
+import { Building2, FileImage, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -971,8 +971,8 @@ export function CreateRequestPage() {
               onClick={() => selectRequestKind('citizen')}
             >
               <div className="flex items-start gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
-                  <MessageSquareMore className="size-5" />
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                  <Phone className="size-5" />
                 </span>
                 <div>
                   <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi')}</h2>
@@ -1138,7 +1138,7 @@ export function CreateRequestPage() {
         <form id="citizen-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
-              <MessageSquareMore className="size-5 text-rose-700" />
+              <Phone className="size-5 text-sky-700" />
               {t('requests.create.citizenCallFormTitle', 'Vatandaş Çağrı Talebi Oluştur')}
             </h2>
             <p className="helper-copy">{t('settings.citizen.sectionDescription', 'Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.')}</p>
@@ -1210,7 +1210,7 @@ export function CreateRequestPage() {
                     onClick={() => setCitizenForm(current => ({ ...current, channel }))}
                     className={`inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-semibold transition-colors ${
                       citizenForm.channel === channel
-                        ? 'border-[color:var(--color-primary)] text-[color:var(--color-primary)]'
+                        ? 'border-sky-500 text-sky-600'
                         : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >

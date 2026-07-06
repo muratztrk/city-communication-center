@@ -3941,9 +3941,12 @@
      biraz küçültülür — kapatma (X) butonu hariç (card #1448). */
   .detail-modal-header-actions button:not(.detail-modal-header-close),
   .detail-modal-header-actions a {
-    height: 2rem;
-    padding: 0 0.75rem;
-    font-size: 0.75rem;
+    /* Button bileşeninin kendi boyut utility'leri (h-10/px-4/text-sm) Tailwind v4'te
+       utilities katmanında olduğu için @layer components burada !important olmadan
+       hiçbir zaman kazanamıyor (card #1448 tekrarı). */
+    height: 2rem !important;
+    padding: 0 0.75rem !important;
+    font-size: 0.75rem !important;
   }
 }
 

@@ -2513,9 +2513,9 @@ export function SettingsPage() {
                 type="button"
                 onClick={startNewMetaTemplate}
                 disabled={templates.filter(isMetaWhatsAppTemplate).length >= MAX_WHATSAPP_META_TEMPLATES}
-                className="flex items-center justify-center gap-2 rounded-xl border border-emerald-700 bg-white px-4 py-2.5 text-center text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center justify-center gap-2 rounded-xl border border-orange-600 bg-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Yeni Meta Onaylı Şablon Mesaj Oluştur
+                Yeni Meta Onaylı Şablon Oluştur
               </button>
             </div>
             <div className="flex flex-col gap-0.5 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
@@ -2561,7 +2561,7 @@ export function SettingsPage() {
                 </div>
                 {templateEditorMode === 'meta' ? (
                   <p className="-mt-2 text-sm text-slate-500">
-                    WhatsApp Business&apos;taki 24 saat sınırı, özellikle WhatsApp Business Platform (API) kullanan kurumlar için geçerlidir.
+                    WhatsApp Business&apos;taki 24 saat sınırı, WhatsApp Business Platform (API) kullanan kurumlar için geçerlidir.
                   </p>
                 ) : null}
 

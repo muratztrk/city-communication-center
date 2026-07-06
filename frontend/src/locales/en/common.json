@@ -710,7 +710,7 @@
       "completionNote": "Completion Note",
       "assignmentHistory": "Assignment History",
       "taskAssignmentHistory": "Task Assignment History",
-      "statusChangeHistory": "Status Change History",
+      "statusChangeHistory": "Status Change",
       "noAssignmentHistory": "No assignment history",
       "routineEditHistoryTitle": "Routine Task Edit History",
       "routineEditHistoryEmpty": "No edit history found.",

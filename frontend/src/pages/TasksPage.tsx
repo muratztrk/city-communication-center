@@ -1,4 +1,4 @@
-import { FileImage, FileText, History, Info, ListChecks, MapPin, Paperclip, Printer, Search, PenLine, X, XCircle } from 'lucide-react'
+import { ArrowRight, CheckCheck, FileImage, FileText, History, Info, ListChecks, MapPin, Paperclip, Printer, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1679,7 +1679,8 @@ const pageKicker = isMyTasksView
                   </DisabledActionButton>
                 ))}
                 {isMyTasksView && canCompleteTask && (
-                  <Button type="button" variant="success" onClick={() => selectedTask && handleComplete(selectedTask)}>
+                  <Button type="button" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
+                    <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.complete', 'Tamamla')}
                   </Button>
                 )}
@@ -1777,23 +1778,29 @@ const pageKicker = isMyTasksView
                                   value: taskDetail.assigningManagerDisplayName ?? '—',
                                 }]
                               : []),
-                            // Görev durumu değiştiyse Görev Tipi'nin hemen altında (card #1443).
+                            // Görev durumu değiştiyse Görev Tipi'nin hemen altında; geçmiş listesi yerine
+                            // ilk/son durum tek satırda özetlenir (card #1443 tekrarı).
                             ...(taskDetail.jobSourceType !== 'Routine' && (taskDetail.statusChangeHistory?.length ?? 0) > 0
                               ? [{
-                                  label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği Geçmişi'),
-                                  value: (
-                                    <ul className="space-y-1.5">
-                                      {taskDetail.statusChangeHistory!.map((item, idx) => (
-                                        <li key={`${item.changedAtUtc}-${idx}`} className="flex gap-1.5">
-                                          <span className="shrink-0 text-slate-400" aria-hidden>•</span>
-                                          <div className="min-w-0">
-                                            <span className="font-bold text-slate-950">{getTaskStatusLabel(t, item.toStatus)}</span>
-                                            <span className="ml-1.5 text-xs font-normal text-slate-500">{new Date(item.changedAtUtc).toLocaleString(locale)}</span>
-                                          </div>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  ),
+                                  label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği'),
+                                  value: (() => {
+                                    const history = taskDetail.statusChangeHistory!
+                                    const firstChange = history[history.length - 1]
+                                    const lastChange = history[0]
+                                    return (
+                                      <div className="flex items-center gap-2">
+                                        <div className="min-w-0">
+                                          <div className="font-bold text-slate-950">{getTaskStatusLabel(t, firstChange.toStatus)}</div>
+                                          <div className="text-[10px] font-normal text-slate-500">{new Date(firstChange.changedAtUtc).toLocaleString(locale)}</div>
+                                        </div>
+                                        <ArrowRight className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                                        <div className="min-w-0">
+                                          <div className="font-bold text-slate-950">{getTaskStatusLabel(t, lastChange.toStatus)}</div>
+                                          <div className="text-[10px] font-normal text-slate-500">{new Date(lastChange.changedAtUtc).toLocaleString(locale)}</div>
+                                        </div>
+                                      </div>
+                                    )
+                                  })(),
                                 }]
                               : []),
                             ...(taskDetail.jobSourceType === 'Routine'
@@ -2608,10 +2615,20 @@ const pageKicker = isMyTasksView
                           if (showOnlyDetailsInTaskGridActions) return null
                           const canComplete = isMyTasksView && isAssignee(task) && isActionableTaskStatus(task.currentStatus)
                           if (canComplete) {
-                            return <Button size="sm" variant="success" onClick={() => handleComplete(task)}>{t('tasks.actions.complete', 'Tamamla')}</Button>
+                            return (
+                              <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleComplete(task)}>
+                                <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                                {t('tasks.actions.complete', 'Tamamla')}
+                              </Button>
+                            )
                           }
                           if (isMyTasksView && currentMyTaskView === 'all') {
-                            return <DisabledActionButton size="sm" variant="success" hoverTitle={t('tasks.actions.completeUnavailable', 'Bu görev şu an tamamlanamaz')}>{t('tasks.actions.complete', 'Tamamla')}</DisabledActionButton>
+                            return (
+                              <DisabledActionButton size="sm" variant="success" className="inline-flex items-center gap-1.5" hoverTitle={t('tasks.actions.completeUnavailable', 'Bu görev şu an tamamlanamaz')}>
+                                <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                                {t('tasks.actions.complete', 'Tamamla')}
+                              </DisabledActionButton>
+                            )
                           }
                           return null
                         })()}
@@ -2745,8 +2762,19 @@ const pageKicker = isMyTasksView
                 <Button type="button" variant="secondary" onClick={closeCompleteModal} disabled={completeSaving || completionAttachmentUploading}>
                   {t('common.dismiss', 'Vazgeç')}
                 </Button>
-                <Button type="button" variant="success" disabled={completeSaving || completionAttachmentUploading || !completionNote.trim()} onClick={() => void handleCompleteConfirm()}>
-                  {completeSaving ? t('common.loading') : t('tasks.actions.complete', 'Tamamla')}
+                <Button
+                  type="button"
+                  variant="success"
+                  className="inline-flex items-center gap-1.5"
+                  disabled={completeSaving || completionAttachmentUploading || !completionNote.trim()}
+                  onClick={() => void handleCompleteConfirm()}
+                >
+                  {completeSaving ? t('common.loading') : (
+                    <>
+                      <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                      {t('tasks.actions.complete', 'Tamamla')}
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

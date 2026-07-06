@@ -716,7 +716,7 @@
       "completionNote": "Tamamlama Notu",
       "assignmentHistory": "Atama Geçmişi",
       "taskAssignmentHistory": "Görev Atama Geçmişi",
-      "statusChangeHistory": "Durum Değişikliği Geçmişi",
+      "statusChangeHistory": "Durum Değişikliği",
       "noAssignmentHistory": "Atama geçmişi yok",
       "routineEditHistoryTitle": "Rutin Görev Düzenleme Geçmişi",
       "routineEditHistoryEmpty": "Düzenleme geçmişi bulunmuyor.",

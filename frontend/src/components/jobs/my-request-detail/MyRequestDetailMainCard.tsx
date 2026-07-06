@@ -2,6 +2,7 @@ import { ClipboardList, FileText, Info } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
+import type { TFunction } from 'i18next'
 import { DateTimePicker } from '../../ui/date-time-picker'
 import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
@@ -39,6 +40,65 @@ export interface JobExtraTimeReviewState {
   saving: boolean
 }
 
+interface MyRequestInfoFieldsListProps {
+  fields: MyRequestDetailField[]
+  detail: JobDetail
+  t: TFunction
+  isEditing?: boolean
+  editDraft?: MyRequestEditDraft
+  onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
+  priorityOptions?: { value: string; label: string }[]
+}
+
+export function MyRequestInfoFieldsList({
+  fields,
+  detail,
+  t,
+  isEditing = false,
+  editDraft,
+  onEditDraftChange,
+  priorityOptions,
+}: MyRequestInfoFieldsListProps) {
+  const priorityLabel = t('jobs.columns.priority', 'Öncelik')
+  return (
+    <div className="my-request-detail-fields divide-y divide-slate-100">
+      {fields.map(field => (
+        <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
+          <div className="job-detail-field-row__label">{field.label}</div>
+          <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
+            {isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (
+              <SingleSelectDropdown
+                openUp
+                className="my-request-detail-edit-control my-request-detail-edit-control--priority ml-auto"
+                triggerClassName="font-semibold"
+                menuScrollClassName="dropdown-menu-scroll--compact"
+                options={priorityOptions ?? []}
+                value={editDraft.priority}
+                onChange={priority => onEditDraftChange({ priority })}
+                placeholder={t('jobs.form.priority', 'Öncelik')}
+              />
+            ) : (
+              field.value
+            )}
+          </div>
+        </div>
+      ))}
+      {!isEditing && (
+        <div className="job-detail-field-row job-detail-field-row--request-info">
+          <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje Niteliğinde mi?')}</div>
+          <div className="job-detail-field-row__value">
+            <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+              <span>{getPriorityLabel(t, detail.priority)}</span>
+              <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
+              <JobProjectValue job={detail} t={t} />
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface MyRequestDetailMainCardProps {
   detail: JobDetail
   locale: string
@@ -53,6 +113,12 @@ interface MyRequestDetailMainCardProps {
   // Görevlerim popup'ında (İlgili Talep Detayları) atanan kişi Görev Bilgileri'nde zaten
   // gösterildiği için tekrar edilmez (card #1446).
   includeAssigneeField?: boolean
+  // Görevlerim popup'ında (İlgili Talep Detayları) talep başlığı metni başlık alanından
+  // kaldırılıp Talep Bilgileri listesine taşınır (card #1444).
+  hideTitleText?: boolean
+  // Görevlerim popup'ında (İlgili Talep Detayları) orta sütuna Talep Bilgileri yerine
+  // Adres Bilgileri gösterilir (card #1449).
+  middleColumnOverride?: ReactNode
   canChangeDueDate: boolean
   detailDueDateEdit: DetailDueDateEditState | null
   onOpenDueDateEdit: () => void
@@ -81,6 +147,8 @@ export function MyRequestDetailMainCard({
   requestNumberSuffix,
   extraFields,
   includeAssigneeField = true,
+  hideTitleText = false,
+  middleColumnOverride,
   canChangeDueDate,
   detailDueDateEdit,
   onOpenDueDateEdit,
@@ -223,7 +291,7 @@ export function MyRequestDetailMainCard({
           <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
             <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
               <span className="min-w-0">
-                {isEditing && editDraft && onEditDraftChange ? (
+                {hideTitleText ? null : isEditing && editDraft && onEditDraftChange ? (
                   <textarea
                     className="field-textarea my-request-title-heading-edit__textarea font-semibold"
                     value={editDraft.title}
@@ -257,44 +325,22 @@ export function MyRequestDetailMainCard({
           )}
         </div>
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
-          <MyRequestSectionHeading icon={Info}>
-            {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
-          </MyRequestSectionHeading>
-          <div className="my-request-detail-fields divide-y divide-slate-100">
-            {visibleFields.map(field => (
-              <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
-                <div className="job-detail-field-row__label">{field.label}</div>
-                <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
-                  {isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (
-                    <SingleSelectDropdown
-                      openUp
-                      className="my-request-detail-edit-control my-request-detail-edit-control--priority ml-auto"
-                      triggerClassName="font-semibold"
-                      menuScrollClassName="dropdown-menu-scroll--compact"
-                      options={priorityOptions}
-                      value={editDraft.priority}
-                      onChange={priority => onEditDraftChange({ priority })}
-                      placeholder={t('jobs.form.priority', 'Öncelik')}
-                    />
-                  ) : (
-                    field.value
-                  )}
-                </div>
-              </div>
-            ))}
-            {!isEditing && (
-              <div className="job-detail-field-row job-detail-field-row--request-info">
-                <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje Niteliğinde mi?')}</div>
-                <div className="job-detail-field-row__value">
-                  <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                    <span>{getPriorityLabel(t, detail.priority)}</span>
-                    <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
-                    <JobProjectValue job={detail} t={t} />
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
+          {middleColumnOverride ?? (
+            <>
+              <MyRequestSectionHeading icon={Info}>
+                {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
+              </MyRequestSectionHeading>
+              <MyRequestInfoFieldsList
+                fields={visibleFields}
+                detail={detail}
+                t={t}
+                isEditing={isEditing}
+                editDraft={editDraft}
+                onEditDraftChange={onEditDraftChange}
+                priorityOptions={priorityOptions}
+              />
+            </>
+          )}
         </div>
         <div className="min-w-0 p-4">
           <JobProcessTimeline

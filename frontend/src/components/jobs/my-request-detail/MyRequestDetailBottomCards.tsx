@@ -1,5 +1,6 @@
 import { MapPin, NotebookPen, Paperclip } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { ReactNode } from 'react'
 import { AddressDetailFields } from '../../ui/AddressDetailFields'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import { Button } from '../../ui/button'
@@ -32,6 +33,9 @@ interface MyRequestDetailBottomCardsProps {
   isEditing?: boolean
   editDraft?: MyRequestEditDraft
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
+  // Görevlerim popup'ında (İlgili Talep Detayları) ilk kartta Adres Bilgileri yerine
+  // Talep Bilgileri gösterilir (card #1449).
+  addressCardOverride?: ReactNode
 }
 
 export function MyRequestDetailBottomCards({
@@ -56,6 +60,7 @@ export function MyRequestDetailBottomCards({
   isEditing = false,
   editDraft,
   onEditDraftChange,
+  addressCardOverride,
 }: MyRequestDetailBottomCardsProps) {
   const { t } = useTranslation()
 
@@ -64,18 +69,22 @@ export function MyRequestDetailBottomCards({
   return (
     <div className={`my-request-detail-bottom grid gap-4 ${gridClass}`}>
       <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-        <MyRequestSectionHeading icon={MapPin}>
-          {t('address.detailSectionTitle', 'Adres Bilgileri')}
-        </MyRequestSectionHeading>
-        {isEditing && editDraft && onEditDraftChange ? (
-          <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
-        ) : (
-          <AddressDetailFields
-            variant="my-request"
-            neighborhood={detail.neighborhood}
-            street={detail.street}
-            openAddress={detail.openAddress}
-          />
+        {addressCardOverride ?? (
+          <>
+            <MyRequestSectionHeading icon={MapPin}>
+              {t('address.detailSectionTitle', 'Adres Bilgileri')}
+            </MyRequestSectionHeading>
+            {isEditing && editDraft && onEditDraftChange ? (
+              <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
+            ) : (
+              <AddressDetailFields
+                variant="my-request"
+                neighborhood={detail.neighborhood}
+                street={detail.street}
+                openAddress={detail.openAddress}
+              />
+            )}
+          </>
         )}
       </div>
 

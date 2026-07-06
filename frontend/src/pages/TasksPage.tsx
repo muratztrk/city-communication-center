@@ -67,8 +67,9 @@ import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDe
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
-import { MyRequestDetailMainCard } from '../components/jobs/my-request-detail/MyRequestDetailMainCard'
+import { MyRequestDetailMainCard, MyRequestInfoFieldsList } from '../components/jobs/my-request-detail/MyRequestDetailMainCard'
 import { MyRequestDetailBottomCards } from '../components/jobs/my-request-detail/MyRequestDetailBottomCards'
+import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail/myRequestDetailFields'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
@@ -2166,6 +2167,41 @@ const pageKicker = isMyTasksView
                       label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'),
                       value: parentForwardReasonDisplay,
                     }] : []
+                    // Talep Bilgileri, Adres Bilgileri ile yer değiştirip alt satıra taşındığı için
+                    // (card #1449) burada bağımsız olarak yeniden kurulur; başlık verisi de artık
+                    // burada normal bir alan olarak gösterilir (card #1444).
+                    const parentRequestNoLabel = t('jobs.columns.requestNo', 'Talep No')
+                    const parentCitizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
+                    const parentPriorityLabel = t('jobs.columns.priority', 'Öncelik')
+                    const parentProjectLabel = t('jobs.form.isProject', 'Proje mi')
+                    const parentInfoFields = buildMyRequestDetailFields(
+                      parentJobDetail, t, locale, citizenSourceMessage, parentRequestNumberSuffix, parentExtraFields, false,
+                    ).filter(field => {
+                      if ([parentRequestNoLabel, parentCitizenRequestNoLabel].includes(field.label)) return false
+                      if ([parentPriorityLabel, parentProjectLabel].includes(field.label)) return false
+                      return true
+                    })
+                    const parentAddressColumnContent = (
+                      <>
+                        <MyRequestSectionHeading icon={MapPin}>
+                          {t('address.detailSectionTitle', 'Adres Bilgileri')}
+                        </MyRequestSectionHeading>
+                        <AddressDetailFields
+                          variant="my-request"
+                          neighborhood={parentJobDetail.neighborhood}
+                          street={parentJobDetail.street}
+                          openAddress={parentJobDetail.openAddress}
+                        />
+                      </>
+                    )
+                    const parentInfoCardContent = (
+                      <>
+                        <MyRequestSectionHeading icon={Info}>
+                          {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
+                        </MyRequestSectionHeading>
+                        <MyRequestInfoFieldsList fields={parentInfoFields} detail={parentJobDetail} t={t} />
+                      </>
+                    )
                     return (
                       <section className="page-stack mb-5">
                         <MyRequestDetailMainCard
@@ -2178,6 +2214,8 @@ const pageKicker = isMyTasksView
                           requestNumberSuffix={parentRequestNumberSuffix}
                           extraFields={parentExtraFields}
                           includeAssigneeField={false}
+                          hideTitleText
+                          middleColumnOverride={parentAddressColumnContent}
                           canChangeDueDate={false}
                           detailDueDateEdit={null}
                           onOpenDueDateEdit={() => undefined}
@@ -2205,6 +2243,7 @@ const pageKicker = isMyTasksView
                           attachmentUploading={false}
                           onAttachmentUpload={async () => undefined}
                           onAttachmentDelete={async () => undefined}
+                          addressCardOverride={parentInfoCardContent}
                         />
                       </section>
                     )

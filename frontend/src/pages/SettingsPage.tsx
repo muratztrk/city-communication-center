@@ -2507,7 +2507,8 @@ export function SettingsPage() {
                 onClick={startNewTemplate}
                 className="flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-primary)] px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:opacity-90"
               >
-                + Yeni Şablon Oluştur
+              <span className="text-white" aria-hidden="true">+</span>
+              Yeni Meta Onaylı Şablon Oluştur
               </button>
               <button
                 type="button"

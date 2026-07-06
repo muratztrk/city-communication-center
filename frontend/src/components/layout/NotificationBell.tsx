@@ -279,8 +279,8 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
             <h2 className="text-base font-extrabold text-slate-900">{isTask ? t('tasks.detail.title', 'Görev Detayları') : t('jobs.detail.title', 'Talep Detayları')}</h2>
           </div>
           <div className="detail-modal-header-actions flex shrink-0 items-center gap-2">
-            <button type="button" disabled={loading} onClick={onClose} className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 disabled:opacity-50" aria-label={t('common.close', 'Kapat')}>
-              <X className="size-4" />
+            <button type="button" disabled={loading} onClick={onClose} className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 disabled:opacity-50" aria-label={t('common.close', 'Kapat')}>
+              <X className="size-5" />
             </button>
           </div>
         </header>

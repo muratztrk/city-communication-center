@@ -186,6 +186,13 @@ function formatDueDateTime(value: string | null | undefined, locale: string) {
   return formatDateTime(value, locale)
 }
 
+function getStatusChangeTextClass(status: string) {
+  if (status === 'Cancelled' || status === 'Rejected') return 'text-red-600'
+  if (status === 'Completed') return 'text-emerald-600'
+  if (status === 'InProgress' || status === 'Active') return 'text-orange-600'
+  return 'text-slate-900'
+}
+
 function formatApprovalDateText(value: string, approverName: string | null | undefined) {
   return approverName ? `${value} (${approverName})` : value
 }
@@ -1627,6 +1634,7 @@ const pageKicker = isMyTasksView
                   && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage) && (
                   <Button
                     type="button"
+                    size="lg"
                     className="!bg-sky-400 !text-white hover:!bg-sky-500"
                     onClick={openCitizenConversationModal}
                   >
@@ -1636,6 +1644,7 @@ const pageKicker = isMyTasksView
                 {showRouteTaskDetailAction && selectedTask && (canRouteTaskDetail ? (
                   <Button
                     type="button"
+                    size="lg"
                     className="bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
                     onClick={() => openRouteModal(selectedTask.taskId)}
                   >
@@ -1643,6 +1652,7 @@ const pageKicker = isMyTasksView
                   </Button>
                 ) : (
                   <DisabledActionButton
+                    size="lg"
                     className="bg-[#007985] text-white"
                     hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}
                   >
@@ -1652,6 +1662,7 @@ const pageKicker = isMyTasksView
                 {isMyTasksView && selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
                   <Button
                     type="button"
+                    size="lg"
                     className="bg-orange-500 text-white hover:bg-orange-600"
                     onClick={() => openStatusChangeModal(selectedTask)}
                   >
@@ -1663,6 +1674,7 @@ const pageKicker = isMyTasksView
                   && (canEditRoutineTask(selectedTask) ? (
                   <Button
                     type="button"
+                    size="lg"
                     className="inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800"
                     onClick={() => openRoutineTaskEdit(selectedTask.taskId)}
                   >
@@ -1671,6 +1683,7 @@ const pageKicker = isMyTasksView
                   </Button>
                 ) : (
                   <DisabledActionButton
+                    size="lg"
                     className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
                     hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
                   >
@@ -1679,13 +1692,13 @@ const pageKicker = isMyTasksView
                   </DisabledActionButton>
                 ))}
                 {isMyTasksView && canCompleteTask && (
-                  <Button type="button" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
+                  <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
                     <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.complete', 'Tamamla')}
                   </Button>
                 )}
                 {isMyTasksView && canCompleteTask && (
-                  <Button type="button" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
+                  <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
                     <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                   </Button>
@@ -1695,7 +1708,7 @@ const pageKicker = isMyTasksView
                   && currentMyTaskView !== 'all'
                   && canManageDepartmentTaskActions(taskDetail)
                   && isActionableTaskStatus(taskDetail.currentStatus) && (
-                    <Button type="button" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
+                    <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
                       <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                       {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
                     </Button>
@@ -1703,6 +1716,7 @@ const pageKicker = isMyTasksView
                 {taskDetail && (
                   <Button
                     type="button"
+                    size="lg"
                     variant="ghost"
                     className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
                     onClick={() => printTaskDetail(taskDetail, selectedTask, parentJobDetail, citizenSourceMessage, t, locale)}
@@ -1715,10 +1729,10 @@ const pageKicker = isMyTasksView
                 <button
                   type="button"
                   onClick={closeTaskDetail}
-                  className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
                   aria-label={t('common.close', 'Kapat')}
                 >
-                  <X className="size-4" strokeWidth={1.75} />
+                  <X className="size-5" strokeWidth={1.75} />
                 </button>
               </div>
             </div>
@@ -1788,15 +1802,15 @@ const pageKicker = isMyTasksView
                                     const firstChange = history[history.length - 1]
                                     const lastChange = history[0]
                                     return (
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-start justify-center gap-2 text-center">
                                         <div className="min-w-0">
-                                          <div className="font-bold text-slate-950">{getTaskStatusLabel(t, firstChange.toStatus)}</div>
-                                          <div className="text-[10px] font-normal text-slate-500">{new Date(firstChange.changedAtUtc).toLocaleString(locale)}</div>
+                                          <div className={`font-normal ${getStatusChangeTextClass(firstChange.toStatus)}`}>{getTaskStatusLabel(t, firstChange.toStatus)}</div>
+                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstChange.changedAtUtc, locale)}</div>
                                         </div>
-                                        <ArrowRight className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                                        <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
                                         <div className="min-w-0">
-                                          <div className="font-bold text-slate-950">{getTaskStatusLabel(t, lastChange.toStatus)}</div>
-                                          <div className="text-[10px] font-normal text-slate-500">{new Date(lastChange.changedAtUtc).toLocaleString(locale)}</div>
+                                          <div className={`font-normal ${getStatusChangeTextClass(lastChange.toStatus)}`}>{getTaskStatusLabel(t, lastChange.toStatus)}</div>
+                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(lastChange.changedAtUtc, locale)}</div>
                                         </div>
                                       </div>
                                     )
@@ -2223,6 +2237,7 @@ const pageKicker = isMyTasksView
                           includeAssigneeField={false}
                           hideTitleText
                           middleColumnOverride={parentAddressColumnContent}
+                          leftColumnBelowHeading={parentInfoCardContent}
                           canChangeDueDate={false}
                           detailDueDateEdit={null}
                           onOpenDueDateEdit={() => undefined}
@@ -2250,7 +2265,7 @@ const pageKicker = isMyTasksView
                           attachmentUploading={false}
                           onAttachmentUpload={async () => undefined}
                           onAttachmentDelete={async () => undefined}
-                          addressCardOverride={parentInfoCardContent}
+                          hideAddressCard
                         />
                       </section>
                     )

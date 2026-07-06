@@ -1138,7 +1138,9 @@ export function CreateRequestPage() {
         <form id="citizen-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
-              <Phone className="size-5 text-sky-700" />
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                <Phone className="size-4" />
+              </span>
               {t('requests.create.citizenCallFormTitle', 'Vatandaş Çağrı Talebi Oluştur')}
             </h2>
             <p className="helper-copy">{t('settings.citizen.sectionDescription', 'Sosyal medya entegrasyonu dışından gelen talepler için manuel kayıt oluşturun.')}</p>

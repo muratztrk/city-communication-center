@@ -119,6 +119,9 @@ interface MyRequestDetailMainCardProps {
   // Görevlerim popup'ında (İlgili Talep Detayları) orta sütuna Talep Bilgileri yerine
   // Adres Bilgileri gösterilir (card #1449).
   middleColumnOverride?: ReactNode
+  // Görevlerim popup'ında (İlgili Talep Detayları) sol sütunda açıklama yerine Talep Bilgileri
+  // gösterilir (card #1444 tekrarı).
+  leftColumnBelowHeading?: ReactNode
   canChangeDueDate: boolean
   detailDueDateEdit: DetailDueDateEditState | null
   onOpenDueDateEdit: () => void
@@ -149,6 +152,7 @@ export function MyRequestDetailMainCard({
   includeAssigneeField = true,
   hideTitleText = false,
   middleColumnOverride,
+  leftColumnBelowHeading,
   canChangeDueDate,
   detailDueDateEdit,
   onOpenDueDateEdit,
@@ -310,18 +314,20 @@ export function MyRequestDetailMainCard({
               </span>
             </span>
           </MyRequestSectionHeading>
-          {isEditing && editDraft && onEditDraftChange ? (
-            <RichTextEditor
-              value={editDraft.description}
-              onChange={value => onEditDraftChange({ description: value })}
-              minHeight="min-h-40"
-            />
-          ) : (
-            <RichTextContent
-              value={detail.description}
-              emptyText={t('common.none')}
-              className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
-            />
+          {leftColumnBelowHeading ?? (
+            isEditing && editDraft && onEditDraftChange ? (
+              <RichTextEditor
+                value={editDraft.description}
+                onChange={value => onEditDraftChange({ description: value })}
+                minHeight="min-h-40"
+              />
+            ) : (
+              <RichTextContent
+                value={detail.description}
+                emptyText={t('common.none')}
+                className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+              />
+            )
           )}
         </div>
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">

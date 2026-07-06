@@ -1,6 +1,5 @@
 import { MapPin, NotebookPen, Paperclip } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ReactNode } from 'react'
 import { AddressDetailFields } from '../../ui/AddressDetailFields'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import { Button } from '../../ui/button'
@@ -33,9 +32,9 @@ interface MyRequestDetailBottomCardsProps {
   isEditing?: boolean
   editDraft?: MyRequestEditDraft
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
-  // Görevlerim popup'ında (İlgili Talep Detayları) ilk kartta Adres Bilgileri yerine
-  // Talep Bilgileri gösterilir (card #1449).
-  addressCardOverride?: ReactNode
+  // Görevlerim popup'ında (İlgili Talep Detayları) Adres Bilgileri üst satıra taşındığı ve
+  // Talep Bilgileri sol sütuna taşındığı için ilk kart tamamen gizlenir (card #1444/#1449 tekrarı).
+  hideAddressCard?: boolean
 }
 
 export function MyRequestDetailBottomCards({
@@ -60,33 +59,32 @@ export function MyRequestDetailBottomCards({
   isEditing = false,
   editDraft,
   onEditDraftChange,
-  addressCardOverride,
+  hideAddressCard = false,
 }: MyRequestDetailBottomCardsProps) {
   const { t } = useTranslation()
 
-  const gridClass = showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
+  const visibleCardCount = (hideAddressCard ? 0 : 1) + 1 + (showManagerNoteColumn ? 1 : 0)
+  const gridClass = visibleCardCount >= 3 ? 'lg:grid-cols-3' : visibleCardCount === 2 ? 'lg:grid-cols-2' : ''
 
   return (
     <div className={`my-request-detail-bottom grid gap-4 ${gridClass}`}>
-      <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-        {addressCardOverride ?? (
-          <>
-            <MyRequestSectionHeading icon={MapPin}>
-              {t('address.detailSectionTitle', 'Adres Bilgileri')}
-            </MyRequestSectionHeading>
-            {isEditing && editDraft && onEditDraftChange ? (
-              <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
-            ) : (
-              <AddressDetailFields
-                variant="my-request"
-                neighborhood={detail.neighborhood}
-                street={detail.street}
-                openAddress={detail.openAddress}
-              />
-            )}
-          </>
-        )}
-      </div>
+      {!hideAddressCard && (
+        <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+          <MyRequestSectionHeading icon={MapPin}>
+            {t('address.detailSectionTitle', 'Adres Bilgileri')}
+          </MyRequestSectionHeading>
+          {isEditing && editDraft && onEditDraftChange ? (
+            <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
+          ) : (
+            <AddressDetailFields
+              variant="my-request"
+              neighborhood={detail.neighborhood}
+              street={detail.street}
+              openAddress={detail.openAddress}
+            />
+          )}
+        </div>
+      )}
 
       {showManagerNoteColumn && (
         <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">

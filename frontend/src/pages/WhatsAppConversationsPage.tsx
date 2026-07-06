@@ -260,9 +260,6 @@ function ConversationListItem({
             <div className="flex items-center gap-1.5 min-w-0">
               <p className="min-w-0 truncate text-[13px] font-semibold text-slate-900">
                 {displayName}
-                {conv.citizenName ? (
-                  <span className="ml-1.5 font-medium text-slate-400">{phoneLabel}</span>
-                ) : null}
               </p>
               {isUrgent && (
                 <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide uppercase bg-orange-100 text-orange-700">
@@ -281,13 +278,19 @@ function ConversationListItem({
                   </span>
                 )}
               </div>
-              {responseStatus ? (
-                <div className="flex justify-end">
-                  {responseStatus}
-                </div>
-              ) : null}
             </div>
           </div>
+
+          {(conv.citizenName || responseStatus) ? (
+            <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
+              {conv.citizenName ? (
+                <p className="min-w-0 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
+              ) : <span aria-hidden="true" />}
+              {responseStatus ? (
+                <div className="shrink-0">{responseStatus}</div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="mt-1.5">
             <ConversationStatusCounts

@@ -2205,6 +2205,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) && (
                   <Button
                     type="button"
+                    size="lg"
                     className="!bg-sky-400 !text-white hover:!bg-sky-500"
                     onClick={openCitizenConversationModal}
                   >
@@ -2212,22 +2213,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   </Button>
                 )}
                 {(canApproveDetail || canAssignIncomingDetail) && (
-                  <Button type="button" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
+                  <Button type="button" size="lg" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
                 {canApproveTargetDetail && activeDeptId && (
-                  <Button type="button" variant="success" onClick={() => handleApproveTarget(detail.jobId, activeDeptId)}>
+                  <Button type="button" size="lg" variant="success" onClick={() => handleApproveTarget(detail.jobId, activeDeptId)}>
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
                 {canApproveIncomingCloseDetail && incomingPendingCloseTask && (
-                  <Button type="button" variant="success" onClick={() => handleApproveIncomingCloseDetail(incomingPendingCloseTask.taskId)}>
+                  <Button type="button" size="lg" variant="success" onClick={() => handleApproveIncomingCloseDetail(incomingPendingCloseTask.taskId)}>
                     {t('tasks.actions.approveClose', 'Onayla')}
                   </Button>
                 )}
                 {shouldShowDisabledIncomingApprove && (
                   <DisabledActionButton
+                    size="lg"
                     variant="success"
                     hoverTitle={t('jobs.actions.approveUnavailable', 'Bu kayıtta onay işlemi yapılamaz')}
                   >
@@ -2250,6 +2252,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   return canEditDetailJob ? (
                     <Button
                       type="button"
+                      size="lg"
                       className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
                       onClick={() => navigate(getRequestEditPath(detail))}
                     >
@@ -2257,7 +2260,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {t('jobs.actions.edit', 'Düzenle')}
                     </Button>
                   ) : isManagerLike || isPresidencyReporter ? (
-                    <DisabledActionButton className="inline-flex items-center gap-1.5 bg-teal-700 text-white" hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
+                    <DisabledActionButton size="lg" className="inline-flex items-center gap-1.5 bg-teal-700 text-white" hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
                       <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                       {t('jobs.actions.edit', 'Düzenle')}
                     </DisabledActionButton>
@@ -2266,6 +2269,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {canForwardTargetDetail && (
                   <Button
                     type="button"
+                    size="lg"
                     className="bg-teal-700 text-white hover:bg-teal-800"
                     onClick={openForwardModal}
                   >
@@ -2275,6 +2279,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {canCancelDetail && (
                   <Button
                     type="button"
+                    size="lg"
                     variant="destructive"
                     onClick={() => handleCancel(detail.jobId)}
                   >
@@ -2283,20 +2288,21 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 )}
                 {shouldShowDisabledDepartmentOutgoingCancel && (
                   <DisabledActionButton
+                    size="lg"
                     variant="destructive"
                     hoverTitle={t('jobs.actions.cancelUnavailableApproved', 'Talep onaylandığı için iptal edilemez')}
                   >
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </DisabledActionButton>
                 )}
-                <Button type="button" variant="secondary" className="detail-print-action" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
+                <Button type="button" size="lg" variant="secondary" className="detail-print-action" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
                 <button
                   type="button"
                   onClick={closeDetail}
-                  className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
                   aria-label={t('common.close', 'Kapat')}
                 >
-                  <XIcon className="size-4" />
+                  <XIcon className="size-5" />
                 </button>
               </div>
             </div>

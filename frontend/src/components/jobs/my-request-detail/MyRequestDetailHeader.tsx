@@ -49,6 +49,7 @@ export function MyRequestDetailHeader({
         {onGoToConversation && (
           <Button
             type="button"
+            size="lg"
             className="!bg-sky-400 !text-white hover:!bg-sky-500"
             onClick={onGoToConversation}
           >
@@ -57,10 +58,10 @@ export function MyRequestDetailHeader({
         )}
         {isEditing ? (
           <>
-            <Button type="button" variant="success" disabled={editSaving} onClick={onSaveEdit}>
+            <Button type="button" size="lg" variant="success" disabled={editSaving} onClick={onSaveEdit}>
               {editSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
             </Button>
-            <Button type="button" variant="secondary" disabled={editSaving} onClick={onCancelEdit}>
+            <Button type="button" size="lg" variant="secondary" disabled={editSaving} onClick={onCancelEdit}>
               {t('common.cancel', 'Vazgeç')}
             </Button>
           </>
@@ -69,6 +70,7 @@ export function MyRequestDetailHeader({
             {onEdit && (
               <Button
                 type="button"
+                size="lg"
                 className="inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800"
                 onClick={onEdit}
                 aria-label={t('jobs.actions.edit', 'Düzenle')}
@@ -79,6 +81,7 @@ export function MyRequestDetailHeader({
             )}
             {showEditDisabled && (
               <DisabledActionButton
+                size="lg"
                 className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
                 hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
               >
@@ -89,6 +92,7 @@ export function MyRequestDetailHeader({
             {onCancel && (
               <Button
                 type="button"
+                size="lg"
                 variant="destructive"
                 className="inline-flex items-center gap-1.5"
                 onClick={onCancel}
@@ -100,6 +104,7 @@ export function MyRequestDetailHeader({
             )}
             {showCancelDisabled && !onCancel && (
               <DisabledActionButton
+                size="lg"
                 variant="destructive"
                 className="inline-flex items-center gap-1.5"
                 hoverTitle={cancelDisabledTitle ?? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')}
@@ -112,6 +117,7 @@ export function MyRequestDetailHeader({
         )}
         <Button
           type="button"
+          size="lg"
           variant="ghost"
           className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
           onClick={onPrint}
@@ -123,10 +129,10 @@ export function MyRequestDetailHeader({
         <button
           type="button"
           onClick={onClose}
-          className="detail-modal-header-close flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+          className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
           aria-label={t('common.close', 'Kapat')}
         >
-          <XIcon className="size-4" strokeWidth={1.75} />
+          <XIcon className="size-5" strokeWidth={1.75} />
         </button>
       </div>
     </div>

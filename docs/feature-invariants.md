@@ -111,8 +111,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **AMA TasksPage "İlgili Talep Detayları" (üst-talep özeti) ile JobsPage "Talep Detayları"
   arasında "aynı tutulur" kuralı YOKTUR.** İkisi ayrı düşünülür.
 - **TasksPage "İlgili Talep Detayları" alanı Taleplerim detay kart düzenini kullanır:**
-  ana kart 3 kolon (`Talep Başlığı` + `Talep Bilgileri` + `Süreç`), altında `Adres Bilgileri` /
-  `Yönetici Notu` / `Ekler` kartları görünür; yönlendirilmiş talep rozeti ve sebep satırı korunur.
+  ana kart 3 kolon (`Talep Başlığı` + `Talep Bilgileri` + `Adres Bilgileri`) olarak görünür;
+  talep açıklaması bu görev popup'ındaki ilgili talep özetinde basılmaz, süreç/manager note/ekler alt kartlarda kalır
+  ve yönlendirilmiş talep rozeti + sebep satırı korunur.
 - **İptal/İade buton mantığı:** yalnızca `ExternalUnit` görevlerde İade; internal/routine →
   yalnızca İptal. Label + skipChoose `jobRequestType`'a göre belirlenir, role'e göre DEĞİL.
 - **`createdByDisplayName` = TALEP oluşturan** (`GetTasksQuery`, `job.CreatedByUserId`'den).
@@ -121,9 +122,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonrası güncel atanan). `AssignTask` `OwnerUserId`'i değiştirmez, sadece `AssignedUserId`.
 - **Görev Atama Geçmişi:** ilk atanan kullanıcıdan farklı bir kullanıcıya yönlendirme yoksa
   gösterilmez; varsa Tasks detayındaki Görev Detayları kartında Açıklama'nın sağında sütun olarak görünür.
-- **Görev Detayları geçmiş kolonları:** Açıklama + Görev Atama Geçmişi + Durum Değişikliği
-  Geçmişi birlikte görünürken sol "Görev No/Talep No" bilgi kolonları dar tutulur; geçmiş başlıkları
-  tek satır kalacak kadar sağ panel alanı bırakılır.
+- **Görev Detayları durum değişikliği özeti:** Durum değiştiyse `Görev Bilgileri` altında
+  `Durum Değişikliği` satırı ilk durum → son durum şeklinde görünür; durum metinleri normal ağırlıkta,
+  tarihleri saniyesiz ve durumların altında ortalıdır. `İptal`/iade kırmızı, `Yapılmakta` turuncu,
+  `Tamamlanmış` yeşil metindir.
+- **Görev Detayları geçmiş kolonları:** Açıklama + Görev Atama Geçmişi birlikte görünürken sol
+  "Görev No/Talep No" bilgi kolonları dar tutulur; geçmiş başlıkları tek satır kalacak kadar sağ panel alanı bırakılır.
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
   birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
   gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).
@@ -318,7 +322,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   zaman alanı göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
-  detay header'ı telefon yerine adı öncelikli gösterir. Sol konuşma kartındaki `Talep Sayısı: N`
+  detay header'ı telefon yerine adı öncelikli gösterir. Sol konuşma kartında isim varsa telefon
+  numarası ismin alt satırında, yanıt durumu (`Yanıt verildi` vb.) ile aynı yatay satırda görünür.
+  Sol konuşma kartındaki `Talep Sayısı: N`
   satırı gösterilmez; `İşleme Alınan`, `Yapılmakta`, `Tamamlandı`, `İptal` durum kırılımı
   başlıksız olarak görünür kalır.
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Konuşmalar` başlığı altında
@@ -375,10 +381,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   talep numarasının başındaki kanal ikonu ile anlaşılır. `Vatandaş Talep No` ve
   `Vatandaş Talep Tarihi` başlıkları tek satır kalır; `Etiket` kolonu operatörün talep
   etiketi/kategorisini gösterir.
+- **Detay popup header aksiyonları:** Detaylar butonundan açılan iş/talep/görev detay popup'larında
+  sağ üst aksiyon butonları `Button size="lg"` ölçeğinde, kapatma butonu `size-9` yuvarlak kırmızı
+  buton olarak kalır.
 - **Talep Oluştur manuel vatandaş akışı:** `Vatandaş Çağrı Talebi` olarak adlandırılır; kanal seçimi
   yalnız `Çağrı`dır, form ve onay aksiyon metni `Talep Oluştur` kalır ve oluşturulan kayıt Vatandaş
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Tek `Çağrı` kanal butonu satırı dolduran
-  yatay buton görünümünde kalır.
+  yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
 - **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
@@ -393,7 +402,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
   (cards #1257/#1258).
-- **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; `Yeni Şablon Oluştur` başlığı,
+- **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; sol üst aksiyon butonu beyaz `+`
+  ile `Yeni Meta Onaylı Şablon Oluştur` metnini gösterir; form içinde
   `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri
   görünür kalır; WhatsApp Meta onaylı 3-şablon sınırı burada uygulanmaz.
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,

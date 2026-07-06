@@ -1824,3 +1824,19 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   seçimi tek satırı dolduran yatay buton görünümüne alındı.
 
 ## STATUS: Round 236 complete — frontend build/lint passed; card pending Done move.
+
+## Round 237 (Doing — 2026-07-07, detay popup ve yeni kartlar)
+- [x] `6a4bf94d` / #1448 — Detay popup sağ üst aksiyon butonları bir kademe büyütüldü;
+  kapatma butonu da daha büyük yuvarlak butona alındı.
+- [x] `6a4bf0c7` / #1443 — Görev Detayları `Durum Değişikliği` özeti saniyesiz, ortalı tarihli,
+  normal ağırlıklı ve durum rengine göre renklendirilen metne çevrildi.
+- [x] `6a4bb3c6` / #1433 reopen — Taslak Mesajlar aksiyon metni beyaz `+` ile
+  `Yeni Meta Onaylı Şablon Oluştur` yapıldı; 3-şablon sınırı uygulanmıyor.
+- [x] `6a4bcef4` / #1440 — WhatsApp konuşma kartında isim varsa telefon numarası adın altına,
+  yanıt durumu satırıyla aynı hizaya taşındı.
+- [x] `6a4bf3b3` / #1444 — Görevlerim detay popup ilgili talep özetinde `Talep Bilgileri`
+  üst ana karta taşındı; talep açıklaması bu alandan kaldırıldı.
+- [x] `6a4c012e` / #1451 — Vatandaş Çağrı Talebi form başlığı ikonu seçim kartındaki mavi
+  telefon ikonuyla eşleştirildi.
+
+## STATUS: Round 237 complete — frontend build/lint passed; cards pending Done move.

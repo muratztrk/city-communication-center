@@ -472,8 +472,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   grafiklerde tüm dilimler 0 olsa bile nötr donut + sıfır lejant gösterilir; kart boş/çökmüş
   görünmez.
 - **Vatandaş Talep Kanalları pie chart'ı**, `SystemAdmin`, `Manager`, `Operator` ve Üst Düzey Yönetici
-  (`Reporter`) dashboard'larında görünür; backend `GetCitizenChannelChartQuery` rol kapısı da aynı
-  listeyi boş grafik dönmeden kabul eder.
+  (`Reporter`) dashboard'larında görünür; `Reporter`/`SystemAdmin` tenant genelini, `Manager` ise
+  aktif/kapsamındaki birime gelen VT taleplerini (`OwnerDepartmentId` veya `JobDepartment.Target`) sayar.
 - **Dashboard status pie chart query'si görev→talep kaynak tipini navigation property'ye güvenmeden
   üretir:** chart endpoint'i orphan/eksik ilişki veya provider translation yüzünden tüm paneli
   hata banner'ına düşürmemeli (card #1251).

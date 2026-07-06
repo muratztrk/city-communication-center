@@ -267,6 +267,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 
 ## Round 37
 - [x] `gMRPRmkO` — Üst Düzey Yönetici (`Reporter`) dashboard'ında `Vatandaş Talep Kanalları` pie chart'ı açıldı; backend `citizen-channels` rol kapısı Reporter'ı da kabul ediyor. Birim yöneticisi (`Manager`) görünümü mevcut chart ile korunuyor.
+- [x] `gMRPRmkO` (reopened) — `Vatandaş Talep Kanalları` sayımı rol kapsamına alındı: Üst Düzey Yönetici tüm tenant VT taleplerini, Birim Yöneticisi yalnız kendi aktif/kapsam birimine gelen VT taleplerini kanal kırılımıyla görür.
 
 ## Round 30 (manual check)
 - [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.

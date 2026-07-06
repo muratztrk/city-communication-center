@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 using CityCommunicationCenter.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -36,17 +37,49 @@ public sealed class GetCitizenChannelChartQueryHandler
             return new DashboardChartResponse("dashboard.citizenChannels.title", []);
         }
 
-        // Social-media-sourced citizen jobs — group by SocialChannel
-        var socialCounts = await _dbContext.Jobs
+        var citizenJobs = _dbContext.Jobs
             .AsNoTracking()
             .Where(j => j.TenantId == tenantId
                 && j.RequestType == JobRequestType.Citizen
-                && j.SourceType == JobSourceType.SocialMessage
-                && j.SourceRefId != null
                 && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value))
+                && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value));
+
+        if (roleCode == "Manager")
+        {
+            if (!context.UserId.HasValue)
+            {
+                return new DashboardChartResponse("dashboard.citizenChannels.title", []);
+            }
+
+            var actor = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == context.UserId.Value && u.TenantId == tenantId && u.IsActive, cancellationToken);
+            var scopedDepartmentIds = actor is null
+                ? []
+                : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                    _dbContext,
+                    tenantId,
+                    actor,
+                    context.ActiveDepartmentId,
+                    cancellationToken);
+
+            if (scopedDepartmentIds.Length == 0)
+            {
+                return new DashboardChartResponse("dashboard.citizenChannels.title", []);
+            }
+
+            citizenJobs = citizenJobs.Where(j => scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
+                    && jd.Role == JobDepartmentRole.Target
+                    && scopedDepartmentIds.Contains(jd.DepartmentId)));
+        }
+
+        // Social-media-sourced citizen jobs — group by SocialChannel
+        var socialCounts = await citizenJobs
+            .Where(j => j.SourceType == JobSourceType.SocialMessage
+                && j.SourceRefId != null)
             .Join(
-                _dbContext.SocialMessages.AsNoTracking(),
+                _dbContext.SocialMessages.AsNoTracking().Where(sm => sm.TenantId == tenantId),
                 j => j.SourceRefId,
                 sm => (Guid?)sm.SocialMessageId,
                 (_, sm) => sm.Channel)
@@ -55,13 +88,8 @@ public sealed class GetCitizenChannelChartQueryHandler
             .ToListAsync(cancellationToken);
 
         // Other citizen jobs — group by SourceType (Manual / CitizenRequest / Integration)
-        var otherCounts = await _dbContext.Jobs
-            .AsNoTracking()
-            .Where(j => j.TenantId == tenantId
-                && j.RequestType == JobRequestType.Citizen
-                && j.SourceType != JobSourceType.SocialMessage
-                && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value))
+        var otherCounts = await citizenJobs
+            .Where(j => j.SourceType != JobSourceType.SocialMessage)
             .GroupBy(j => j.SourceType)
             .Select(g => new { SourceType = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);

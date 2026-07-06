@@ -3697,11 +3697,11 @@
     color: var(--color-text-muted, #475569);
   }
 
-  /* Bugün dolan son tarih: açık sarı zeminde takvim ikonu turuncu, metin koyu turuncu (card #1387 reopen). */
+  /* Bugün dolan son tarih: açık sarı zeminde takvim ikonu ve metin aynı turuncu (#f97316) (card #1387). */
   .due-date-pill.warning {
     background: rgba(251, 191, 36, 0.16);
     border: 1px solid #fbbf24;
-    color: #c2410c;
+    color: #f97316;
     font-weight: 700;
   }
 

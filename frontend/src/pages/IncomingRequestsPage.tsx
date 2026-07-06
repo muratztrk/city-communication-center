@@ -733,8 +733,12 @@ export function IncomingRequestsPage() {
       || (row.statusDomain === 'task' && row.status === 'PendingCloseApproval')
     )
 
+  // Onay Bekleyen Talepler görünümünde onaylanamayan satırlarda da (ör. dış onay bekleyen) İşlemler
+  // sütunu tutarlı kalsın diye pasif "Onayla" gösterilir (card #1409).
   const shouldShowDisabledApprove = (row: IncomingRequestRow) =>
-    canManageIncomingActions && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue') && !canApproveRow(row)
+    canManageIncomingActions
+    && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue' || currentStatusFilter === 'pending-approval')
+    && !canApproveRow(row)
 
   const canCancelRow = (row: IncomingRequestRow) =>
     canManageIncomingActions

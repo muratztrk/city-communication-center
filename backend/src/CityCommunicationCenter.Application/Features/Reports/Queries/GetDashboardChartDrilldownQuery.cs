@@ -43,8 +43,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         return chartKey switch
         {
             "externalRequestCreators" => await BuildOwnerDepartmentRowsAsync(tenantId, request, cancellationToken),
-            "externalRequestPending" => await BuildTargetDepartmentRowsAsync(tenantId, request, JobStatus.PendingExternalApproval, cancellationToken),
-            "externalRequestFulfillers" => await BuildTargetDepartmentRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
+            "externalRequestPending" => await BuildTargetDepartmentRowsAsync(
+                tenantId,
+                request,
+                [JobStatus.PendingOwnerApproval, JobStatus.PendingExternalApproval],
+                cancellationToken),
+            "externalRequestFulfillers" => await BuildTargetDepartmentRowsAsync(tenantId, request, [JobStatus.Completed], cancellationToken),
             "neighborhoodCompletedRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
             "neighborhoodInProgressRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Active, cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
@@ -108,7 +112,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
     private async Task<DashboardChartDrilldownResponse> BuildTargetDepartmentRowsAsync(
         Guid tenantId,
         GetDashboardChartDrilldownQuery request,
-        JobStatus status,
+        IReadOnlyCollection<JobStatus> statuses,
         CancellationToken cancellationToken)
     {
         if (ParseSliceDepartmentId(request.SliceKey) is not Guid departmentId)
@@ -121,7 +125,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 && link.DepartmentId == departmentId
                 && link.Job.TenantId == tenantId
                 && link.Job.RequestType == JobRequestType.ExternalUnit
-                && link.Job.Status == status
+                && statuses.Contains(link.Job.Status)
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
             .OrderByDescending(link => link.Job.CreatedAtUtc)

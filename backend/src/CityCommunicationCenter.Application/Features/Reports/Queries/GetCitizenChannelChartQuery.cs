@@ -74,22 +74,26 @@ public sealed class GetCitizenChannelChartQueryHandler
                     && scopedDepartmentIds.Contains(jd.DepartmentId)));
         }
 
-        // Social-media-sourced citizen jobs — group by SocialChannel
-        var socialCounts = await citizenJobs
-            .Where(j => j.SourceType == JobSourceType.SocialMessage
-                && j.SourceRefId != null)
+        var linkedCitizenMessages = _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(sm => sm.TenantId == tenantId
+                && sm.JobId.HasValue
+                && sm.CitizenRequestNumber != null);
+
+        // VT numbers live on SocialMessage; use the JobId link as the canonical channel source.
+        var socialCounts = await linkedCitizenMessages
             .Join(
-                _dbContext.SocialMessages.AsNoTracking().Where(sm => sm.TenantId == tenantId),
-                j => j.SourceRefId,
-                sm => (Guid?)sm.SocialMessageId,
-                (_, sm) => sm.Channel)
+                citizenJobs,
+                sm => sm.JobId!.Value,
+                j => j.JobId,
+                (sm, _) => sm.Channel)
             .GroupBy(ch => ch)
             .Select(g => new { Channel = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
-        // Other citizen jobs — group by SourceType (Manual / CitizenRequest / Integration)
+        // Other VT jobs without a SocialMessage channel — group by SourceType (Manual / CitizenRequest / Integration / EDevlet)
         var otherCounts = await citizenJobs
-            .Where(j => j.SourceType != JobSourceType.SocialMessage)
+            .Where(j => !linkedCitizenMessages.Any(sm => sm.JobId == j.JobId))
             .GroupBy(j => j.SourceType)
             .Select(g => new { SourceType = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
@@ -132,6 +136,7 @@ public sealed class GetCitizenChannelChartQueryHandler
         JobSourceType.Manual => "neutral",
         JobSourceType.CitizenRequest => "info",
         JobSourceType.Integration => "primary",
+        JobSourceType.EDevlet => "success",
         _ => "neutral",
     };
 }

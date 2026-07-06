@@ -358,7 +358,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.Job.TenantId == tenantId
                 && link.Job.RequestType == JobRequestType.ExternalUnit
-                && link.Job.Status == JobStatus.PendingExternalApproval
+                && (link.Job.Status == JobStatus.PendingOwnerApproval
+                    || link.Job.Status == JobStatus.PendingExternalApproval)
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
             .GroupBy(link => link.DepartmentId)

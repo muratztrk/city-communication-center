@@ -564,8 +564,16 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   </button>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
-                  {/* "Tümünü Okundu yap" butonu dropdown'da sıkışık görünüyordu; kaldırıldı —
-                      işlev tam bildirim penceresinde (modal) mevcut (card #1403). */}
+                  {/* Kompakt tek satır "Tümünü Oku" butonu (card #1403). */}
+                  <button
+                    type="button"
+                    onClick={markAllRead}
+                    disabled={isMarkingAllRead || unreadCount === 0}
+                    className="inline-flex items-center gap-1 rounded-md border border-emerald-500 bg-white px-2 py-1 text-[0.68rem] font-semibold leading-none text-[color:var(--color-primary)] shadow-sm transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <CheckCheck className="size-3.5 shrink-0" />
+                    {t('notifications.markAllReadShort', 'Tümünü Oku')}
+                  </button>
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}

@@ -46,6 +46,7 @@ import {
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
+import { isPresidencyLevelDepartment } from '../utils/departments'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -726,8 +727,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const canForwardTargetDetail = detail?.requestType === 'ExternalUnit'
     && (canApproveTargetDetail || canAssignIncomingDetail)
   // Yönlendirme dropdown'ı: mevcut hedef ve talep sahibi birim hariç tüm birimler ("Talebin Gideceği Birim").
+  // Başkanlık seviyesi birimler (Başkanlık / Daire) hiçbir zaman listelenmez (card #1410).
   const forwardDepartmentOptions = departments
-    .filter(department => department.departmentId !== activeDeptId && department.departmentId !== detail?.ownerDepartmentId)
+    .filter(department =>
+      department.departmentId !== activeDeptId
+      && department.departmentId !== detail?.ownerDepartmentId
+      && !isPresidencyLevelDepartment(department))
     .map(department => ({ value: department.departmentId, label: department.name }))
   // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
   const forwardReason = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim()))?.notes?.trim() ?? null

@@ -3160,6 +3160,42 @@
     font-weight: 800;
   }
 
+  .whatsapp-conversation-pagination {
+    width: 100%;
+    border-radius: 0;
+    border-top-color: rgba(255, 255, 255, 0.24);
+    justify-content: center;
+    gap: 0.35rem 0.45rem;
+    padding: 0.55rem 0.6rem;
+  }
+
+  .whatsapp-conversation-pagination .table-pagination-info {
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .whatsapp-conversation-pagination .table-pagination-label {
+    white-space: nowrap;
+  }
+
+  .whatsapp-conversation-pagination .table-pagination-divider {
+    display: none;
+  }
+
+  .whatsapp-conversation-pagination .table-pagination-select {
+    height: 1.65rem;
+    min-width: 3.35rem;
+  }
+
+  .whatsapp-conversation-pagination .table-pagination-control {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .whatsapp-conversation-pagination .table-pagination-pages {
+    gap: 0.1rem;
+  }
+
   /* ────────────────────────────────────────────────────────────── */
 
   .sticky-form-footer {

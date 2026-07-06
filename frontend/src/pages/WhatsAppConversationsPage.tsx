@@ -5,6 +5,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { DateTimePicker } from '../components/ui/date-time-picker'
+import { TablePagination } from '../components/ui/table-pagination'
 import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
   CitizenConversationSummary,
@@ -304,6 +305,8 @@ function ConversationListPanel({
   onSelect: (id: string) => void
 }) {
   const { t } = useTranslation()
+  const [conversationPage, setConversationPage] = useState(1)
+  const [conversationPageSize, setConversationPageSize] = useState(10)
 
   const unreadCount = useMemo(
     () => conversations.filter(c => c.unreadCount > 0).length,
@@ -336,6 +339,12 @@ function ConversationListPanel({
     { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: totalCounts.completed, className: 'text-emerald-700 hover:bg-emerald-50' },
     { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: totalCounts.cancelled, className: 'text-red-600 hover:bg-red-50' },
   ]
+  const totalConversationPages = Math.max(1, Math.ceil(filtered.length / conversationPageSize))
+  const currentConversationPage = Math.min(conversationPage, totalConversationPages)
+  const pagedFiltered = useMemo(
+    () => filtered.slice((currentConversationPage - 1) * conversationPageSize, currentConversationPage * conversationPageSize),
+    [currentConversationPage, conversationPageSize, filtered],
+  )
 
   return (
     <div className="flex max-h-[58dvh] w-full shrink-0 flex-col border-b border-[color:var(--color-border)] bg-white shadow-[inset_0_-1px_0_rgba(15,23,42,0.04)] md:max-h-none md:w-[21.5rem] md:border-b-0 md:border-r md:shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]">
@@ -384,14 +393,20 @@ function ConversationListPanel({
           <input
             type="search"
             value={search}
-            onChange={event => onSearchChange(event.target.value)}
+            onChange={event => {
+              setConversationPage(1)
+              onSearchChange(event.target.value)
+            }}
             placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon no, vatandaş adı…')}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
           />
           {search ? (
             <button
               type="button"
-              onClick={() => onSearchChange('')}
+              onClick={() => {
+                setConversationPage(1)
+                onSearchChange('')
+              }}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-slate-400 hover:text-slate-600"
               aria-label={t('common.clear', 'Temizle')}
             >
@@ -405,7 +420,10 @@ function ConversationListPanel({
             <button
               key={option.value}
               type="button"
-              onClick={() => onListFilterChange(option.value)}
+              onClick={() => {
+                setConversationPage(1)
+                onListFilterChange(option.value)
+              }}
               className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                 listFilter === option.value
                   ? 'bg-emerald-800 text-white'
@@ -435,7 +453,7 @@ function ConversationListPanel({
             {t('whatsapp.empty')}
           </p>
         ) : (
-          filtered.map(conv => (
+          pagedFiltered.map(conv => (
             <ConversationListItem
               key={conv.citizenConversationId}
               conv={conv}
@@ -445,10 +463,15 @@ function ConversationListPanel({
           ))
         )}
       </div>
-      <div className="flex shrink-0 items-center justify-between border-t border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-500">
-        <span>{t('common.totalRecords', 'Toplam kayıt')}</span>
-        <span className="tabular-nums">{filtered.length}</span>
-      </div>
+      <TablePagination
+        totalCount={filtered.length}
+        pageSize={conversationPageSize}
+        currentPage={currentConversationPage}
+        onPageSizeChange={setConversationPageSize}
+        onPageChange={setConversationPage}
+        pageSizeOptions={[10, 25, 50]}
+        className="whatsapp-conversation-pagination"
+      />
     </div>
   )
 }

@@ -1764,7 +1764,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   güncellendi; kanal seçimi yalnız Çağrı kaldı.
 - [x] `6a4ba6f2` / #1431 — WhatsApp 24 saat penceresi kapalıyken operatör gönderiminde tek `Çıkış`
   butonlu `Onaylı Şablon Mesajı` popup'ı gösterilir.
-- [x] `6a4b9968` / #1430 — WhatsApp konuşma listesi altına grid/paging benzeri toplam kayıt footer'ı eklendi.
+- [x] `6a4b9968` / #1430 — WhatsApp konuşma listesi altına Taleplerim gridindeki ortak
+  `TablePagination` paging barı eklendi.
 - [x] `6a4b982a` / #1428 — WhatsApp/Vatandaş Talepleri grid başlıkları tek satır kaldı; Gittiği Yer
   altında atanmış personel adı gösteriliyor.
 - [x] `6a4b96b4` / #1427 — Bildirim başlığı altındaki mesaj metninde kırmızı/yeşil durum renkleri kaldırıldı.
@@ -1776,3 +1777,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a4bb805` / #1436 — Ayarlar > Sosyal Medya bölümüne Web Formu kartı eklendi.
 
 ## STATUS: Round 229 complete — frontend build/lint passed; cards pending Done move.
+
+## Round 230 (Doing — 2026-07-06, WhatsApp konuşma listesi paging reopen)
+- [x] `6a4b9968` / #1430 reopen — Basit toplam kayıt footer'ı kaldırılıp sol Konuşmalar panelinin
+  altına Taleplerim gridview ile aynı `TablePagination` bağlandı; liste gerçek sayfalama kullanıyor.
+
+## STATUS: Round 230 complete — frontend build/lint passed; card pending Done move.

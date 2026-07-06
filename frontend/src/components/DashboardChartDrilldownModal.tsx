@@ -4,11 +4,13 @@ import { Info, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
-import type { DashboardChartDrilldownRow } from '../types/platform'
+import type { DashboardChartDrilldownRow, JobDetail, SocialMessage } from '../types/platform'
 import { DateCell } from './ui/date-cell'
 import { TablePagination } from './ui/table-pagination'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getLocale } from '../utils/localization'
+import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 
 interface DashboardChartDrilldownModalProps {
   chartKey: string
@@ -49,6 +51,25 @@ function getStatusTextClass(status: string): string {
   return ''
 }
 
+function getDetailStatusClass(status: string): string {
+  if (status === 'Completed') return 'text-emerald-600'
+  if (status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested') return 'text-red-600'
+  if (status === 'Active' || status === 'PendingOwnerApproval' || status === 'PendingExternalApproval') return 'text-[#f97316]'
+  return 'text-slate-900'
+}
+
+function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
+  if (isCitizenRequestJob(detail)) {
+    return getCitizenRequestStatusLabel(t, detail)
+  }
+  if (detail.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (detail.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
+  if (detail.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
+  if (detail.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  return t(`enum.jobStatus.${detail.status}`, { defaultValue: detail.status })
+}
+
 /**
  * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
@@ -60,8 +81,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [detail, setDetail] = useState<JobDetail | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState<string | null>(null)
+  const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
   const showTerminalDateColumn = Boolean(terminalDateHeader)
+  const drilldownColumnCount = showTerminalDateColumn ? 9 : 8
 
   // Modal her dilim seçiminde `key` ile yeniden mount edilir; state sıfırlama gerekmez.
   useEffect(() => {
@@ -78,104 +104,203 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
     }
   }, [chartKey, sliceKey, from, to, t])
 
-  return createPortal(
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
-      <div
-        className="detail-modal-shell flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
-        onClick={event => event.stopPropagation()}
-      >
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3.5">
-          <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-emerald-700">
-            <Info className="size-4 shrink-0" aria-hidden="true" />
-            <span className="min-w-0 truncate">
-              {t(chartKey)}
-              <span className="ml-2 font-semibold text-slate-500">{resolveSliceLabel(sliceKey, t)}</span>
-            </span>
-          </h2>
-          <button
-            type="button"
-            className="rounded-full p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-            aria-label={t('common.close', 'Kapat')}
-            onClick={onClose}
-          >
-            <X className="size-4" />
-          </button>
-        </div>
+  const loadCitizenSourceMessage = async (jobDetail: JobDetail): Promise<SocialMessage | null> => {
+    if (!isCitizenRequestJob(jobDetail)) return null
+    if (jobDetail.sourceType === 'SocialMessage' && jobDetail.sourceRefId) {
+      try {
+        return await api.getSocialMessageById(jobDetail.sourceRefId)
+      } catch {
+        // Some historical VT jobs only have the reverse SocialMessage.JobId link.
+      }
+    }
+    try {
+      const messages = await api.getSocialMessages()
+      return messages.find(message => message.jobId === jobDetail.jobId) ?? null
+    } catch {
+      return null
+    }
+  }
 
-        <div className="min-h-0 flex-1 overflow-auto p-4">
-          {error ? (
-            <div className="error">{error}</div>
-          ) : rows === null ? (
-            <div className="loading">{t('common.loading')}</div>
-          ) : (
-            <div className="dashboard-drilldown-grid-shell">
-              <table className="data-table data-table--zebra dashboard-drilldown-table">
-                <thead>
-                  <tr>
-                    <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                    <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
-                    <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
-                    <th>{t('jobs.columns.title', 'Başlık')}</th>
-                    <th>{t('departments.name', 'Müdürlük')}</th>
-                    <th>{t('jobs.columns.status', 'Durum')}</th>
-                    {showTerminalDateColumn ? <th>{terminalDateHeader}</th> : null}
-                    <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.length === 0 ? (
+  const openJobDetail = async (jobId: string) => {
+    setDetail(null)
+    setDetailLoading(true)
+    setDetailError(null)
+    setCitizenSourceMessage(null)
+    try {
+      const jobDetail = await api.getJobById(jobId)
+      setDetail(jobDetail)
+      setCitizenSourceMessage(await loadCitizenSourceMessage(jobDetail))
+    } catch (loadError) {
+      setDetailError(loadError instanceof Error ? loadError.message : t('common.error'))
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
+  const closeJobDetail = () => {
+    setDetail(null)
+    setDetailError(null)
+    setCitizenSourceMessage(null)
+  }
+
+  return createPortal(
+    <>
+      <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
+        <div
+          className="detail-modal-shell flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+          onClick={event => event.stopPropagation()}
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3.5">
+            <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-emerald-700">
+              <Info className="size-4 shrink-0" aria-hidden="true" />
+              <span className="min-w-0 truncate">
+                {t(chartKey)}
+                <span className="ml-2 font-semibold text-slate-500">{resolveSliceLabel(sliceKey, t)}</span>
+              </span>
+            </h2>
+            <button
+              type="button"
+              className="rounded-full p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              aria-label={t('common.close', 'Kapat')}
+              onClick={onClose}
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-auto p-4">
+            {error ? (
+              <div className="error">{error}</div>
+            ) : rows === null ? (
+              <div className="loading">{t('common.loading')}</div>
+            ) : (
+              <div className="dashboard-drilldown-grid-shell">
+                <table className="data-table data-table--zebra dashboard-drilldown-table">
+                  <thead>
                     <tr>
-                      <td colSpan={showTerminalDateColumn ? 8 : 7} className="py-6 text-center text-sm text-slate-500">
-                        {t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
-                      </td>
+                      <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
+                      <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
+                      <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
+                      <th>{t('jobs.columns.title', 'Başlık')}</th>
+                      <th>{t('departments.name', 'Müdürlük')}</th>
+                      <th>{t('jobs.columns.status', 'Durum')}</th>
+                      {showTerminalDateColumn ? <th>{terminalDateHeader}</th> : null}
+                      <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
+                      <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                     </tr>
-                  ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => (
-                    <tr key={row.jobId}>
-                      <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
-                      <td className="table-number-cell font-mono text-xs text-slate-600">{formatDrilldownNumber(row)}</td>
-                      <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
-                      <td className="font-semibold">{row.title}</td>
-                      <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
-                      <td>
-                        <span className={getStatusTextClass(row.status)}>{getAuditStatusLabel(t, row.status)}</span>
-                      </td>
-                      {showTerminalDateColumn ? (
-                        <td>
-                          {row.status === 'Completed' || isCancelledLike(row.status) ? (
-                            <DateCell
-                              value={row.terminalDateUtc}
-                              locale={locale}
-                              tone={row.status === 'Completed' ? 'success' : 'danger'}
-                            />
-                          ) : '—'}
+                  </thead>
+                  <tbody>
+                    {rows.length === 0 ? (
+                      <tr>
+                        <td colSpan={drilldownColumnCount} className="py-6 text-center text-sm text-slate-500">
+                          {t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
                         </td>
-                      ) : null}
-                      <td>
-                        <DateCell
-                          value={row.dueDateUtc}
-                          locale={locale}
-                          emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <TablePagination
-                totalCount={rows.length}
-                pageSize={pageSize}
-                currentPage={page}
-                onPageSizeChange={size => {
-                  setPageSize(size)
-                  setPage(1)
-                }}
-                onPageChange={setPage}
-              />
+                      </tr>
+                    ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => (
+                      <tr key={row.jobId}>
+                        <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
+                        <td className="table-number-cell font-mono text-xs text-slate-600">{formatDrilldownNumber(row)}</td>
+                        <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
+                        <td className="font-semibold">{row.title}</td>
+                        <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
+                        <td>
+                          <span className={getStatusTextClass(row.status)}>{getAuditStatusLabel(t, row.status)}</span>
+                        </td>
+                        {showTerminalDateColumn ? (
+                          <td>
+                            {row.status === 'Completed' || isCancelledLike(row.status) ? (
+                              <DateCell
+                                value={row.terminalDateUtc}
+                                locale={locale}
+                                tone={row.status === 'Completed' ? 'success' : 'danger'}
+                              />
+                            ) : '—'}
+                          </td>
+                        ) : null}
+                        <td>
+                          <DateCell
+                            value={row.dueDateUtc}
+                            locale={locale}
+                            emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
+                          />
+                        </td>
+                        <td className="text-center">
+                          <button
+                            type="button"
+                            className="rounded-md bg-emerald-700 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            disabled={detailLoading}
+                            onClick={() => void openJobDetail(row.jobId)}
+                          >
+                            {t('jobs.actions.details', 'Detaylar')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <TablePagination
+                  totalCount={rows.length}
+                  pageSize={pageSize}
+                  currentPage={page}
+                  onPageSizeChange={size => {
+                    setPageSize(size)
+                    setPage(1)
+                  }}
+                  onPageChange={setPage}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      {(detail || detailLoading || detailError) ? (
+        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/40 p-4" role="presentation" onClick={closeJobDetail}>
+          {detail ? (
+            <MyRequestDetailModal
+              detail={detail}
+              title={t('nav.myRequests', 'Taleplerim')}
+              locale={locale}
+              detailLoading={detailLoading}
+              citizenSourceMessage={citizenSourceMessage}
+              detailStatusClass={getDetailStatusClass(detail.status)}
+              statusContent={getDetailStatusLabel(t, detail)}
+              canChangeDueDate={false}
+              detailDueDateEdit={null}
+              onOpenDueDateEdit={() => undefined}
+              onCloseDueDateEdit={() => undefined}
+              onDueDateChange={() => undefined}
+              onDueDateSave={() => undefined}
+              onClose={closeJobDetail}
+              onPrint={() => window.print()}
+              showManagerNoteColumn={false}
+              canEditManagerNote={false}
+              canManageCoordination={false}
+              managerNoteDraft=""
+              managerNoteEditing={false}
+              managerNoteSaved={false}
+              managerNoteSaving={false}
+              onManagerNoteDraftChange={() => undefined}
+              onManagerNoteEditStart={() => undefined}
+              onManagerNoteSave={() => undefined}
+              onManagerNoteDeleteConfirm={() => undefined}
+              setConfirmDialog={() => undefined}
+              canEditJobAttachments={false}
+              showAttachmentLockNotice={false}
+              attachmentLockText=""
+              attachmentUploading={false}
+              onAttachmentUpload={async () => undefined}
+              onAttachmentDelete={async () => undefined}
+              onDownloadTaskAttachment={() => undefined}
+            />
+          ) : (
+            <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl" onClick={event => event.stopPropagation()}>
+              {detailLoading ? <div className="loading">{t('common.loading')}</div> : null}
+              {detailError ? <div className="error">{detailError}</div> : null}
             </div>
           )}
         </div>
-      </div>
-    </div>,
+      ) : null}
+    </>,
     document.body,
   )
 }

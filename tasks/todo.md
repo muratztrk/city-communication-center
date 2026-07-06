@@ -271,6 +271,7 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `6DfZU3kf` — Reporter `Birimlerde Bekleyen Talepler` grafiği dış birim hedef linklerini `PendingOwnerApproval` + `PendingExternalApproval` statülerinde hedef birim adına göre sayıyor; drilldown aynı kapsamı kullanıyor.
 - [x] `nDHm4SMs` — Manager `Vatandaş Talep Kanalları` grafiği VT kanalını `SocialMessage.JobId + CitizenRequestNumber` üzerinden buluyor; `SourceRefId` eksik/uyumsuz olduğunda grafik boş kalmıyor.
 - [x] `gzrWNfu4` — Reporter dashboard pie chart drilldown popup'ı Taleplerim detay popup'ıyla aynı `.detail-modal-shell` ölçüsünü kullanıyor.
+- [x] `oVHYh7ew` — Reporter dashboard pie chart drilldown gridine `İşlemler` sütunu ve `Detaylar` butonu eklendi; buton ilgili talebi salt-okunur `MyRequestDetailModal` popup'ında açıyor.
 
 ## Round 30 (manual check)
 - [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.

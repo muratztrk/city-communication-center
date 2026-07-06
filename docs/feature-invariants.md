@@ -494,7 +494,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Completed` yeşil, iptal/iade kırmızı, `Active`/`InProgress` turuncu text rengiyle gösterilir. Dilim anahtarı backend'e HAM label (GUID|isim veya i18n key) olarak gider;
   sınıflandırma `BuildCitizenRequestsChart` ile birebir aynı tutulmalıdır. Mahalle completed/in-progress
   grafikleri ve drilldown satırları rutin görevleri dışlar; vatandaş talepleri için VT numarası taşır.
-  Yönlendirme yapan eski davranış yalnız Taleplerim grafiğinde kalır.
+  Gridin son sütununda `İşlemler > Detaylar` butonu bulunur ve ilgili talebi salt-okunur
+  `MyRequestDetailModal` ile popup olarak açar. Yönlendirme yapan eski davranış yalnız Taleplerim grafiğinde kalır.
 - **Reporter `Birimlerde Bekleyen Talepler` pie chart'ı**, dış birim hedef linklerini
   `PendingOwnerApproval` ve `PendingExternalApproval` statülerinde hedef birim adına göre sayar; drilldown
   aynı statü kapsamını kullanır.

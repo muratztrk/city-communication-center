@@ -1818,3 +1818,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   ve onay popup confirm metni `Talep Oluştur` olarak güncellendi.
 
 ## STATUS: Round 235 complete — frontend build/lint passed; card pending Done move.
+
+## Round 236 (Doing — 2026-07-06, Vatandaş Çağrı Talebi kanal butonu)
+- [x] `6a4ba8fb` / #1432 — Vatandaş Çağrı Talebi formunda `Talep Kanalı > Çağrı`
+  seçimi tek satırı dolduran yatay buton görünümüne alındı.
+
+## STATUS: Round 236 complete — frontend build/lint passed; card pending Done move.

@@ -30,6 +30,14 @@ export interface DetailDueDateEditState {
   mode: 'picking' | 'confirm'
 }
 
+export interface JobExtraTimeReviewState {
+  jobId: string
+  taskId: string
+  proposedDueDateUtc: string | null
+  loading: boolean
+  saving: boolean
+}
+
 interface MyRequestDetailMainCardProps {
   detail: JobDetail
   locale: string
@@ -44,6 +52,11 @@ interface MyRequestDetailMainCardProps {
   onCloseDueDateEdit: () => void
   onDueDateChange: (value: string) => void
   onDueDateSave: () => void
+  // Talep detayında ek süre talebini yöneticinin karara bağlaması için (card #1404).
+  jobExtraTimeReview?: JobExtraTimeReviewState | null
+  onOpenExtraTimeReview?: () => void
+  onExtraTimeDecision?: (decision: 'approve' | 'reject') => void
+  onCancelExtraTimeReview?: () => void
   isEditing?: boolean
   editDraft?: MyRequestEditDraft
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
@@ -63,13 +76,22 @@ export function MyRequestDetailMainCard({
   onCloseDueDateEdit,
   onDueDateChange,
   onDueDateSave,
+  jobExtraTimeReview,
+  onOpenExtraTimeReview,
+  onExtraTimeDecision,
+  onCancelExtraTimeReview,
   isEditing = false,
   editDraft,
   onEditDraftChange,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const hideOwnerApproval = user?.role === 'Manager' || user?.role === 'SystemAdmin' || user?.role === 'Reporter'
+  const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const hideOwnerApproval = isManagerLike || user?.role === 'Reporter'
+  // Talep detayında bekleyen ek süre isteği yönetici tarafından karara bağlanabilir (card #1404).
+  const hasPendingExtraTime = detail.tasks.some(task => task.hasPendingExtraTimeRequest)
+  const canReviewExtraTime = isManagerLike && hasPendingExtraTime && Boolean(onOpenExtraTimeReview)
+  const isExtraTimeReviewOpen = jobExtraTimeReview?.jobId === detail.jobId
   const titleLabel = t('jobs.form.title', 'Talep Başlığı')
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   const requestNoLabel = t('jobs.columns.requestNo', 'Talep No')
@@ -132,6 +154,28 @@ export function MyRequestDetailMainCard({
         </div>
       )}
     </div>
+  ) : isExtraTimeReviewOpen && jobExtraTimeReview && onExtraTimeDecision ? (
+    // Ek süre talebini gör → Onayla/Reddet/Vazgeç (Görevler ve Birime Gelen detayıyla aynı akış, card #1404).
+    <div className="mt-1 flex max-w-[20rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+      <span className="text-xs font-semibold text-slate-900">
+        {jobExtraTimeReview.loading
+          ? t('common.loading')
+          : jobExtraTimeReview.proposedDueDateUtc
+            ? `${t('tasks.actions.extraTimeRequest', 'Ek süre iste')}: ${formatDateTime(jobExtraTimeReview.proposedDueDateUtc, locale)}`
+            : t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+      </span>
+      <div className="inline-actions justify-start gap-1.5">
+        <Button type="button" size="sm" variant="success" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => onExtraTimeDecision('approve')}>
+          {jobExtraTimeReview.saving ? t('common.loading') : t('common.approve', 'Onayla')}
+        </Button>
+        <Button type="button" size="sm" variant="destructive" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => onExtraTimeDecision('reject')}>
+          {t('common.reject', 'Reddet')}
+        </Button>
+        <Button type="button" size="sm" variant="secondary" disabled={jobExtraTimeReview.saving} onClick={() => onCancelExtraTimeReview?.()}>
+          {t('common.cancel', 'Vazgeç')}
+        </Button>
+      </div>
+    </div>
   ) : (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-sm font-semibold text-slate-900">
@@ -144,6 +188,15 @@ export function MyRequestDetailMainCard({
           onClick={onOpenDueDateEdit}
         >
           {t('common.change', 'Değiştir')}
+        </button>
+      )}
+      {canReviewExtraTime && (
+        <button
+          type="button"
+          className="text-xs font-bold text-amber-600 underline underline-offset-2 hover:text-amber-700"
+          onClick={() => onOpenExtraTimeReview?.()}
+        >
+          {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
         </button>
       )}
     </div>

@@ -2052,6 +2052,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onCloseDueDateEdit={closeDetailDueDateEdit}
               onDueDateChange={value => setDetailDueDateEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
               onDueDateSave={() => void handleDetailDueDateSave()}
+              jobExtraTimeReview={jobExtraTimeReview}
+              onOpenExtraTimeReview={() => void openJobExtraTimeReview()}
+              onExtraTimeDecision={decision => void handleJobExtraTimeDecision(decision)}
+              onCancelExtraTimeReview={() => setJobExtraTimeReview(null)}
               onClose={closeDetail}
               onPrint={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, myRequestView: isMyRequestsView })}
               onCancel={socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined)}

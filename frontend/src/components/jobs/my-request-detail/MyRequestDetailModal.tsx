@@ -7,7 +7,7 @@ import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { MyRequestDetailBottomCards } from './MyRequestDetailBottomCards'
 import { MyRequestDetailHeader } from './MyRequestDetailHeader'
-import type { DetailDueDateEditState } from './MyRequestDetailMainCard'
+import type { DetailDueDateEditState, JobExtraTimeReviewState } from './MyRequestDetailMainCard'
 import { MyRequestDetailMainCard } from './MyRequestDetailMainCard'
 import { MyRequestTaskDetailsSection } from './MyRequestTaskDetailsSection'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
@@ -30,6 +30,10 @@ export interface MyRequestDetailModalProps {
   onCloseDueDateEdit: () => void
   onDueDateChange: (value: string) => void
   onDueDateSave: () => void
+  jobExtraTimeReview?: JobExtraTimeReviewState | null
+  onOpenExtraTimeReview?: () => void
+  onExtraTimeDecision?: (decision: 'approve' | 'reject') => void
+  onCancelExtraTimeReview?: () => void
   onClose: () => void
   onPrint: () => void
   onCancel?: () => void
@@ -82,6 +86,10 @@ export function MyRequestDetailModal({
   onCloseDueDateEdit,
   onDueDateChange,
   onDueDateSave,
+  jobExtraTimeReview,
+  onOpenExtraTimeReview,
+  onExtraTimeDecision,
+  onCancelExtraTimeReview,
   onClose,
   onPrint,
   onCancel,
@@ -156,6 +164,10 @@ export function MyRequestDetailModal({
           onCloseDueDateEdit={onCloseDueDateEdit}
           onDueDateChange={value => onDueDateChange(value)}
           onDueDateSave={onDueDateSave}
+          jobExtraTimeReview={jobExtraTimeReview}
+          onOpenExtraTimeReview={onOpenExtraTimeReview}
+          onExtraTimeDecision={onExtraTimeDecision}
+          onCancelExtraTimeReview={onCancelExtraTimeReview}
           isEditing={isEditing}
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}

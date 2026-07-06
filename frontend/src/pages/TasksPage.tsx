@@ -656,6 +656,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && canManageDepartmentTaskActions(taskDetail)
     && (isDepartmentTasksView || isStaffTasksView)
     && pendingExtraTimeApproval != null
+  // (onay)/(red) göstergesi: talep sahibinde her zaman; yöneticinin Birimdeki Görevler görünümünde
+  // karar (onay/red) verildikten sonra da gösterilir (card #1400).
+  const extraTimeDecided = latestExtraTimeApproval?.decision === 'Approved' || latestExtraTimeApproval?.decision === 'Rejected'
+  const showExtraTimeDecisionBadge = !!latestExtraTimeApproval
+    && ((isMyTasksView && !isManagerLike) || (isDepartmentTasksView && extraTimeDecided))
 
   const getTaskColumnValue = useCallback((key: string, row: Task & { taskOwnerDisplayName?: string; cancelReturnStatus?: string }): string => {
     if (key === 'currentStatus') return getTaskDisplayStatus(t, row)
@@ -1852,7 +1857,7 @@ const pageKicker = isMyTasksView
                                             {t('tasks.actions.extraTimeRequest', 'Ek süre iste')}
                                           </button>
                                         )}
-                                        {label === 'Son Tarih' && isMyTasksView && !isManagerLike && latestExtraTimeApproval && (
+                                        {label === 'Son Tarih' && showExtraTimeDecisionBadge && latestExtraTimeApproval && (
                                           <span className="inline-flex items-center gap-1 font-bold">
                                             <span className="text-slate-400">{t('tasks.actions.extraTimeRequest', 'Ek süre iste')}</span>
                                             {latestExtraTimeApproval.decision === 'Approved' && (

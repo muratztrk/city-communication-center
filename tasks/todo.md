@@ -242,6 +242,9 @@ Polling every ~5 min this session. Commit + push to main after each card.
 - [x] `4jiu9dpb` — Birime Gelen yönlendirilmiş talep satırında Talep No yanında koyu turkuaz yönlendiren birim + bullet + yönlenme sebebi gösterildi; banner araması bu metni de tarıyor.
 - [x] `bAumvBgX` — Yönlendirilmiş dış birim talebi detayında `Talebi Yönlendir` butonu gizlendi; yeniden yönlendirme UI’dan kapanıyor.
 
+## Round 31
+- [x] `phqjfjcn` — Yönlendirilmiş talepten atanan görevlerde TaskSummary `forwardReason` taşınıyor; personel/görev gridindeki Bağlı Talep No yanında koyu turkuaz `(Yönlendirilen Talep)` etiketi, görev detayındaki İlgili Talep Detayları içinde `Talebin Yönlenme Sebebi` satırı gösteriliyor.
+
 ## Round 30 (manual check)
 - [x] `QGCJLtWm` (reopened) — Görevi Yönlendir button now a real blue (#0ea5e9 bg / #0284c7 border / white text, hover #0284c7) — previous light blue too light. Pushed. Moved to Done.
 - [x] `7RspesWl` — Added "Durum" column after Başlık in the İptal/İade Talepler (cancelled/rejected) views of Incoming/Jobs/Tasks grids, showing İptal (Cancelled) vs İade (Rejected/RevisionRequested). Added cancelReturnStatus i18n key (tr/en). Pushed. Moved to Done.

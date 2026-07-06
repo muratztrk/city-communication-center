@@ -94,7 +94,9 @@ public sealed record TaskSummaryResponse(
     string? AssigningManagerDisplayName = null,
     // Talep detayı görev kartında açıklama + ekler (card #853).
     string? Description = null,
-    IReadOnlyCollection<AttachmentResponse>? Attachments = null);
+    IReadOnlyCollection<AttachmentResponse>? Attachments = null,
+    // Yönlendirilmiş dış birim talebinin hedef departman notu (Talebin Yönlenme Sebebi).
+    string? ForwardReason = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

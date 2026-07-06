@@ -203,6 +203,18 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                         && approval.Decision != ApprovalDecision.Pending)
                     .OrderByDescending(approval => approval.DecisionDateUtc)
                     .Select(approval => (string?)approval.Decision.ToString())
+                    .FirstOrDefault(),
+                null,
+                null,
+                null,
+                _dbContext.JobDepartments
+                    .AsNoTracking()
+                    .Where(department => department.JobId == task.JobId
+                        && department.Role == JobDepartmentRole.Target
+                        && department.DepartmentId == task.AssignedDepartmentId
+                        && department.Notes != null
+                        && department.Notes != "")
+                    .Select(department => department.Notes)
                     .FirstOrDefault()))
             .ToListAsync(cancellationToken);
     }

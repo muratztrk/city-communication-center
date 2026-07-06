@@ -2142,6 +2142,7 @@ const pageKicker = isMyTasksView
                     const fulfillingJobDepartment = parentJobDetail.departments.find(
                       dept => dept.departmentId === taskDetail.assignedDepartmentId,
                     )
+                    const parentForwardReason = fulfillingJobDepartment?.notes?.trim() || null
                     const isCitizenParentJob = isCitizenRequestJob(parentJobDetail)
                     const leftFields = isCitizenParentJob ? [
                       {
@@ -2202,6 +2203,10 @@ const pageKicker = isMyTasksView
                         value: <JobProjectValue job={parentJobDetail} t={t} />,
                       },
                       { label: 'Öncelik', value: getPriorityLabel(t, parentJobDetail.priority) },
+                      ...(parentForwardReason ? [{
+                        label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'),
+                        value: parentForwardReason,
+                      }] : []),
                     ]
                     const rightFields = [
                       { label: 'Talep Tarihi', value: formatDateTime(parentJobDetail.createdAtUtc, locale) },
@@ -2243,7 +2248,7 @@ const pageKicker = isMyTasksView
                             {leftFields.map(({ label, value }) => (
                               // Sol kolon orta kolondan kısa olunca son satır "Öncelik"in altına
                               // kapanış çizgisi (card #694; #712/#713 ile aynı yaklaşım).
-                              <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' ? ' border-b border-slate-100' : ''}`}>
+                              <div key={label} className={`flex items-start gap-2 px-3 py-2${label === 'Öncelik' || label === t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
                                 <span className="w-28 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                                 <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
                               </div>
@@ -2543,12 +2548,18 @@ const pageKicker = isMyTasksView
                         )
                         : isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })
                           ? (
-                            <div className="table-number-cell__value font-mono inline-flex items-center gap-1.5">
+                            <div className="table-number-cell__value font-mono inline-flex flex-wrap items-center gap-1.5">
                               <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-4 shrink-0" />
                               <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
+                              {task.forwardReason ? <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
                             </div>
                           )
-                          : <div className={`table-number-cell__value font-mono ${reporterLinkedRequestClass}`}>{linkedRequestNumber}</div>}
+                          : (
+                            <div className="table-number-cell__value font-mono inline-flex flex-wrap items-center gap-1.5">
+                              <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
+                              {task.forwardReason ? <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
+                            </div>
+                          )}
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className={`table-number-cell__value ${reporterTaskNumberClass}`}>{taskDisplayNumber}</div>

@@ -160,6 +160,8 @@ export interface Task {
   lastExtraTimeRequestDecision?: 'Approved' | 'Rejected' | null;
   // Görevi atayan yöneticinin adı — talep detayı "Görev Detayları"nda "Atanmış (Yönetici)" (card #709).
   assigningManagerDisplayName?: string | null;
+  // Yönlendirilmiş dış birim talebinin hedef departman notu.
+  forwardReason?: string | null;
 }
 
 export interface TaskDetail {

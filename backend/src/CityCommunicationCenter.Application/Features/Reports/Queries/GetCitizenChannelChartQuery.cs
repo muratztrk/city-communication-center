@@ -30,8 +30,8 @@ public sealed class GetCitizenChannelChartQueryHandler
         var tenantId = context.RequireTenantId();
         var roleCode = context.RoleCode;
 
-        // Only SystemAdmin, Manager and Operator may access this chart
-        if (roleCode is not ("SystemAdmin" or "Manager" or "Operator"))
+        // Only dashboard roles that handle/report citizen requests may access this chart.
+        if (roleCode is not ("SystemAdmin" or "Manager" or "Operator" or "Reporter"))
         {
             return new DashboardChartResponse("dashboard.citizenChannels.title", []);
         }

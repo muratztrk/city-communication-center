@@ -239,7 +239,7 @@ export function DashboardPage() {
     queryFn: () => api.getDashboard(activeFrom || undefined, activeTo || undefined),
     refetchInterval: 60_000,
   })
-  const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator'
+  const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter'
   const citizenChannelQuery = useQuery({
     queryKey: queryKeys.dashboard.citizenChannels({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
     queryFn: () => api.getCitizenChannelChart(activeFrom || undefined, activeTo || undefined),

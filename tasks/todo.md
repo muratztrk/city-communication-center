@@ -1920,3 +1920,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Talep oluştur` butonu kaldırıldı; `Dosya ekle`, `Şablon mesaj ekle` butonunun hemen sağına hizalandı.
 
 ## STATUS: Round 243 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 244 (Doing — 2026-07-07, yeni kartlar devam)
+- [x] `NNt7S70j` / `6a4bb3c6093d1dc30fb054bc` reopen — Ayarlar > Taslak Mesajlar
+  şablon editöründeki `Sil` aksiyonu kırmızı arka planlı butona çevrildi.
+- [x] `5NJEd5kD` / `6a4ca6f87c3b6b8b79e8964d` / #1467 — Ayarlar > Taslak Mesajlar
+  boş editör placeholder'ındaki büyük `WA` ifadesi kaldırıldı.
+
+## STATUS: Round 244 complete — frontend build/lint passed; cards pending Done move.

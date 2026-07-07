@@ -2554,7 +2554,7 @@ export function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => deleteTemplate(selectedTemplateId)}
-                      className="rounded-lg px-4 py-2 text-sm font-extrabold text-rose-600 hover:bg-rose-50"
+                      className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-rose-700"
                     >
                       Sil
                     </button>
@@ -2827,7 +2827,6 @@ export function SettingsPage() {
             ) : (
               <div className="section-card flex h-full items-center justify-center text-slate-400">
                 <div className="text-center">
-                  <div className="mb-2 text-2xl font-black text-emerald-600">WA</div>
                   <p className="text-sm font-semibold">Düzenlemek için soldaki listeden bir şablon seçin</p>
                   <p className="text-xs">veya yeni şablon oluşturun</p>
                 </div>

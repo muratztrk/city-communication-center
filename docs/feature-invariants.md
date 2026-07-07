@@ -429,7 +429,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; sol üst aksiyon butonu beyaz `+`
   ile `Yeni Meta Onaylı Şablon Oluştur` metnini gösterir; form içinde
   `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri
-  görünür kalır; WhatsApp Meta onaylı 3-şablon sınırı burada uygulanmaz.
+  görünür kalır; WhatsApp Meta onaylı 3-şablon sınırı burada uygulanmaz. Şablon editöründeki
+  `Sil` aksiyonu kırmızı arka planlı buton olarak görünür; boş edit panelinde büyük `WA` placeholder'ı basılmaz.
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
   `Açık Adres`) üçlü yan yana düzende tek satır kalır; alt çizgi metin dekorasyonu değil,
   görseldeki gibi hafif açık gri label alt sınır çizgisidir. Boş değer çizgisi bu görünümde

@@ -1898,4 +1898,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `7dK5c7rP` / `6a4ca27a9a68cf290abaf89f` / #1464 — Otomatik vatandaş
   durum mesajları `Pending` entry üretirken WhatsApp konuşma listesi metadata/push güncellemesini de yapar.
 
-## STATUS: Round 240 complete — backend build and frontend build/lint passed; cards pending Done move.
+## STATUS: Round 240 complete — backend build and frontend build/lint passed; cards moved to Done.
+
+## Round 241 (Doing — 2026-07-07, yeni kartlar devam)
+- [x] `XLtxgHkW` / `6a4bf3b3e208c82094de2c4d` reopen — Görevlerim detay popup
+  `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
+  meta bloğu geri getirildi.
+- [x] `3jl4WA0l` / `6a4ca38d7e336fa948d7cc3d` / #1465 — WhatsApp Konuşmaları sol panel
+  üst sayaçlarında ve konuşma kartı alt sayaçlarında `İptal` kalemi gizlendi.
+
+## STATUS: Round 241 complete — frontend build/lint passed; cards pending Done move.

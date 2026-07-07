@@ -31,6 +31,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
+import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 
 const COMPLETION_ATTACHMENT_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const COMPLETION_ATTACHMENT_ACCEPT = COMPLETION_ATTACHMENT_EXTENSIONS.join(',')
@@ -2187,6 +2188,12 @@ const pageKicker = isMyTasksView
                     const parentRequestNumberSuffix = parentForwardReasonDisplay ? (
                       <span className="text-xs font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                     ) : null
+                    const parentRequestNumberText = isCitizenParentJob
+                      ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: parentJobDetail.createdAtUtc }, locale)
+                      : formatJobDisplayNumberText(parentJobDetail, locale)
+                    const parentRequestTypeText = parentJobDetail.requestType === 'ExternalUnit'
+                      ? t('jobs.requestType.external', 'Birim Dışı')
+                      : t('jobs.requestType.internal', 'Birim İçi')
                     const parentExtraFields = parentForwardReasonDisplay ? [{
                       label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'),
                       value: parentForwardReasonDisplay,
@@ -2221,7 +2228,16 @@ const pageKicker = isMyTasksView
                     const parentInfoCardContent = (
                       <>
                         <MyRequestSectionHeading icon={Info}>
-                          {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
+                          <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                            <span className="min-w-0">{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
+                            <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                              <span className="flex max-w-full flex-wrap items-center justify-end gap-1 text-xs font-semibold leading-tight text-slate-500">
+                                <span>{parentRequestNumberText}</span>
+                                {parentRequestNumberSuffix}
+                              </span>
+                              <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{parentRequestTypeText}</span>
+                            </span>
+                          </span>
                         </MyRequestSectionHeading>
                         <MyRequestInfoFieldsList fields={parentInfoFields} detail={parentJobDetail} t={t} />
                       </>

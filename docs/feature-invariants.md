@@ -334,12 +334,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   satırı gösterilmez; `İşleme Alınan`, `Yapılmakta`, `Tamamlandı`, `İptal` durum kırılımı
   başlıksız olarak görünür kalır.
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Konuşmalar` başlığı altında
-  `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı`, kırmızı `İptal` sayaçları görünür;
-  hepsi tek satırda ve okunur büyüklükte kalır. `Tümü`, `Konuşmalar` başlığının altındaki kendi
+  `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı` sayaçları görünür; `İptal` kalemi burada
+  ve konuşma kartı alt sayaçlarında gösterilmez. Görünen sayaçlar tek satırda ve okunur büyüklükte kalır. `Tümü`, `Konuşmalar` başlığının altındaki kendi
   satırında tek başına durur; durum sayaçlarının toplamını gösterir ve tıklanınca Vatandaş Talepleri
   gridine WhatsApp kanalında gider. Diğer sayaçlar `Tümü` satırının altındaki satırda kalır ve
   tıklanınca Vatandaş Talepleri gridini ilgili talep durumuyla (`requestStatus`) filtreler. Sol
-  konuşma kartlarındaki aynı durum kırılımı da hover'lı/tıklanabilir buton kalır ve aynı filtre rotasını kullanır.
+  konuşma kartlarındaki aynı görünür durum kırılımı salt metin kalır.
 - **WhatsApp FAB ilgili kullanıcı görünürlüğü:** WhatsApp bildirim FAB'ı yalnız operatör/SistemAdmin için
   aktif/açık konuşmalarda, diğer kullanıcılar için ise kendisine atanmış veya aktif departmanına yönlendirilmiş
   terminal olmayan vatandaş taleplerinde görünür; tamamlandı/iptal/reddedilmiş konuşmalar ilgili kullanıcıdan gizlenir.
@@ -370,7 +370,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   footer değil, Taleplerim gridleriyle aynı ortak `TablePagination` barı kullanılır; liste gerçek
   sayfalama yapar ve bar panelin iki alt sınır çizgisini kaplayan koyu paging yüzeyi olarak görünür.
 - **WhatsApp konuşma satırı durum sayaçları salt metindir:** konuşma kartındaki `İşleme Alınan /
-  Yapılmakta / Tamamlandı / İptal` değerleri tıklanabilir buton gibi davranmaz; yalnız sol panel
+  Yapılmakta / Tamamlandı` değerleri tıklanabilir buton gibi davranmaz; `İptal` bu satırda basılmaz ve yalnız sol panel
   üstündeki özet sayaçları Vatandaş Talepleri filtrelerine götürür.
 - **WhatsApp teslim durumu status-only webhook ile de canlı yenilenir:** `sent/delivered/read`
   güncellemesi açık konuşmaya `isStatusUpdate` payload'ı yollar; istemci konuşmayı yeniler ama
@@ -421,6 +421,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Detay popup'tan açılan WhatsApp konuşması son mesajda açılır:** Jobs/Tasks
   `Yazışmaya Git` aksiyonlarının kullandığı `WhatsAppConversationModal`/`ConversationPanel`
   ilk yüklemede ve yeni entry geldiğinde konuşmayı en alta hizalar; eski üstten açılma geri gelmez.
+- **Görevlerim ilgili talep özetinde Talep Bilgileri başlığı meta taşır:** `İlgili Talep Detayları`
+  sol kart başlığında sağda talep numarası ve `Birim İçi/Birim Dışı` rozeti kalır; başlığı alt
+  alanlara taşırken bu meta tekrar silinmez.
 - **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; sol üst aksiyon butonu beyaz `+`
   ile `Yeni Meta Onaylı Şablon Oluştur` metnini gösterir; form içinde
   `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri

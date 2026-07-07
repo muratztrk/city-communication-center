@@ -133,13 +133,11 @@ function ConversationStatusCounts({
   intake,
   inProgress,
   completed,
-  cancelled,
   compact = false,
 }: {
   intake?: number
   inProgress?: number
   completed?: number
-  cancelled?: number
   compact?: boolean
 }) {
   const { t } = useTranslation()
@@ -148,7 +146,6 @@ function ConversationStatusCounts({
     { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: intake ?? 0, className: 'text-slate-600' },
     { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: inProgress ?? 0, className: 'text-orange-600' },
     { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: completed ?? 0, className: 'text-emerald-700' },
-    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: cancelled ?? 0, className: 'text-red-600' },
   ]
   return (
     <div className={`flex items-center gap-x-0.5 ${baseClass} font-semibold whitespace-nowrap`}>
@@ -291,7 +288,6 @@ function ConversationListItem({
               intake={conv.intakeCount}
               inProgress={conv.inProgressCount}
               completed={conv.completedCount}
-              cancelled={conv.cancelledCount}
             />
           </div>
         </div>
@@ -362,7 +358,6 @@ function ConversationListPanel({
     { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: totalCounts.intake, className: 'text-slate-600 hover:bg-slate-200' },
     { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: totalCounts.inProgress, className: 'text-orange-600 hover:bg-orange-100' },
     { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: totalCounts.completed, className: 'text-emerald-700 hover:bg-emerald-100' },
-    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: totalCounts.cancelled, className: 'text-red-600 hover:bg-red-100' },
   ]
   const totalConversationPages = Math.max(1, Math.ceil(filtered.length / conversationPageSize))
   const currentConversationPage = Math.min(conversationPage, totalConversationPages)

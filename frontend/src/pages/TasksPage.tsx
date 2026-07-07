@@ -1674,14 +1674,24 @@ const pageKicker = isMyTasksView
                   </DisabledActionButton>
                 ))}
                 {isMyTasksView && selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
-                  <Button
-                    type="button"
-                    size="lg"
-                    className="bg-orange-500 text-white hover:bg-orange-600"
-                    onClick={() => openStatusChangeModal(selectedTask)}
-                  >
-                    {t('tasks.actions.changeStatus', 'Durum Değiştir')}
-                  </Button>
+                  (taskDetail?.statusChangeHistory?.length ?? 0) > 0 ? (
+                    <DisabledActionButton
+                      size="lg"
+                      className="bg-orange-500 text-white"
+                      hoverTitle={t('tasks.actions.changeStatusUsed', 'Görevin durumu yalnızca bir kez değiştirilebilir')}
+                    >
+                      {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                    </DisabledActionButton>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="bg-orange-500 text-white hover:bg-orange-600"
+                      onClick={() => openStatusChangeModal(selectedTask)}
+                    >
+                      {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                    </Button>
+                  )
                 )}
                 {isMyTasksView && selectedTask
                   && (!canChangeTaskStatusFromDetail(selectedTask) || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
@@ -1695,7 +1705,7 @@ const pageKicker = isMyTasksView
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.edit', 'Düzenle')}
                   </Button>
-                ) : canEditSelfAssignedManagerTask(selectedTask) && parentJobDetail ? (
+                ) : taskDetail && canEditSelfAssignedManagerTask(taskDetail) && parentJobDetail ? (
                   <Button
                     type="button"
                     size="lg"
@@ -1851,10 +1861,14 @@ const pageKicker = isMyTasksView
                                     const history = taskDetail.statusChangeHistory!
                                     const firstChange = history[history.length - 1]
                                     const lastChange = history[0]
+                                    // "Durum Değiştir" öncesindeki durum (fromStatus) ilk durum olarak, butonla
+                                    // seçilen yeni durum (toStatus) son durum olarak gösterilir — ikisi aynı
+                                    // anda "Yapılmakta" gibi görünmemeli (card #1474).
+                                    const firstStatus = firstChange.fromStatus ?? firstChange.toStatus
                                     return (
                                       <div className="flex w-full items-start justify-end gap-2 text-right">
                                         <div className="min-w-0">
-                                          <div className={`font-normal ${getStatusChangeTextClass(firstChange.toStatus)}`}>{getTaskStatusLabel(t, firstChange.toStatus)}</div>
+                                          <div className={`font-normal ${getStatusChangeTextClass(firstStatus)}`}>{getTaskStatusLabel(t, firstStatus)}</div>
                                           <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstChange.changedAtUtc, locale)}</div>
                                         </div>
                                         <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
@@ -2793,7 +2807,7 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-xs font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
@@ -2892,7 +2906,7 @@ const pageKicker = isMyTasksView
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelTask', 'Görevi İptal Et')}</h2>
                 <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
                 <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-xs font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
+                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea
                     className="field-textarea"
                     rows={3}
@@ -2977,7 +2991,7 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-xs font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}

@@ -204,7 +204,9 @@ public sealed record CitizenConversationSummaryDto(
     string? Street = null,
     string? OpenAddress = null,
     // "BEKLEMEDE" durumundaki (gönderilmemiş) giden mesaj bildirim baloncuğunda görünsün (card #1472).
-    bool HasPendingOutboundMessage = false);
+    bool HasPendingOutboundMessage = false,
+    // Standart kullanıcı için bildirim çanından doğrudan "Yazışmaya Git" modalını açabilmek amacıyla (card #1477).
+    Guid? LatestSocialMessageId = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

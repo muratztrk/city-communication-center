@@ -444,6 +444,8 @@ export interface CitizenConversationSummary {
   openAddress?: string | null;
   // "BEKLEMEDE" durumunda (gönderilmemiş) giden mesajı var mı — bildirim baloncuğu (card #1472).
   hasPendingOutboundMessage?: boolean;
+  // Standart kullanıcı için bildirim çanından "Yazışmaya Git" modalını açabilmek için (card #1477).
+  latestSocialMessageId?: string | null;
 }
 
 export interface CitizenConversationTimelineEntry {

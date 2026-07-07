@@ -204,7 +204,13 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                     .OrderByDescending(approval => approval.DecisionDateUtc)
                     .Select(approval => (string?)approval.Decision.ToString())
                     .FirstOrDefault(),
-                null,
+                // Görevi atayan yöneticinin adı — Görevlerim'de "kendine atayan yönetici düzenleyebilir"
+                // istisnasının grid'de de çalışması için (card #1476).
+                _dbContext.Users
+                    .AsNoTracking()
+                    .Where(assigningManager => assigningManager.UserId == task.AssigningManagerId)
+                    .Select(assigningManager => (string?)assigningManager.DisplayName)
+                    .FirstOrDefault(),
                 null,
                 null,
                 _dbContext.JobDepartments

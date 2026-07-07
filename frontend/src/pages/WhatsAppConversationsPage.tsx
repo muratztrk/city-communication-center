@@ -554,7 +554,7 @@ function ConversationProfilePanel({
 
   return (
     <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-y-auto border-l border-slate-200 bg-slate-50/80 lg:flex">
-      <div className="flex justify-center border-b border-slate-200 bg-emerald-50/90 p-4">
+      <div className="flex justify-center border-b border-slate-200 bg-emerald-100 p-4">
         <button
           type="button"
           onClick={onCreateRequest}

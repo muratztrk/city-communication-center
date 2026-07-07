@@ -47,6 +47,15 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
         if (task.CurrentStatus is not (WorkflowTaskStatus.Completed or WorkflowTaskStatus.Cancelled))
             throw Validation(nameof(request.TaskId), "Yalnızca tamamlanmış veya iptal edilmiş görevin durumu değiştirilebilir.");
 
+        // Durum Değiştir yalnızca bir kez kullanılabilir (card #1475).
+        var alreadyChanged = await _dbContext.AuditLogs.AsNoTracking()
+            .AnyAsync(a => a.TenantId == tenantId
+                && a.EntityType == nameof(WorkTask)
+                && a.EntityId == task.TaskId.ToString()
+                && a.Action == "TaskStatusChanged", cancellationToken);
+        if (alreadyChanged)
+            throw Validation(nameof(request.TaskId), "Görevin durumu yalnızca bir kez değiştirilebilir.");
+
         if (!Enum.TryParse<WorkflowTaskStatus>(request.NewStatus, true, out var newStatus) || !AllowedTargets.Contains(newStatus))
             throw Validation(nameof(request.NewStatus), $"Geçersiz görev durumu: {request.NewStatus}");
 

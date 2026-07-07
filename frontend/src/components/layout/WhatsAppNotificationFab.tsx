@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { api } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
 import type { WhatsAppMessagePayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import type { CitizenConversationSummary } from '../../types/platform'
@@ -10,6 +11,7 @@ import { formatConversationDisplayContent } from '../../utils/socialConversation
 import { formatConversationListTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 import { matchesPhone } from '../../utils/phoneNormalization'
+import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 
 const POLL_INTERVAL_MS = 12_000
 
@@ -17,14 +19,6 @@ type ActiveWhatsAppConversation = {
   id: string
   phone: string
 } | null
-
-function formatPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.length === 12 && digits.startsWith('90')) {
-    return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
-  }
-  return `+${digits}`
-}
 
 function formatBadgeCount(count: number) {
   if (count > 99) return '99+'
@@ -36,11 +30,24 @@ export function WhatsAppNotificationFab() {
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const location = useLocation()
+  const { user } = useAuth()
   const pulseTimerRef = useRef<number | null>(null)
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [activeConversation, setActiveConversation] = useState<ActiveWhatsAppConversation>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isPulsing, setIsPulsing] = useState(false)
+  const [conversationModal, setConversationModal] = useState<{
+    socialMessageId: string
+    citizenHandle: string
+    citizenPhone: string | null
+  } | null>(null)
+
+  // WhatsApp Konuşmaları sayfasını yalnızca Operatör/SistemYöneticisi yönetir; standart
+  // kullanıcı bildirime bastığında sayfaya değil "Yazışmaya Git" modalına yönlenir (card #1477).
+  const canManageConversations = useMemo(() => {
+    const roles = [user?.role, ...(user?.additionalRoles ?? [])]
+    return roles.includes('Operator') || roles.includes('SystemAdmin')
+  }, [user])
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -235,6 +242,24 @@ export function WhatsAppNotificationFab() {
 
   const openConversation = (conversation: CitizenConversationSummary) => {
     setIsOpen(false)
+    // Tıklanan konuşmanın bildirimi anında kaybolsun; arka plandaki yenilemeyi beklemez (card #1477).
+    zeroUnreadForConversation(conversation.citizenConversationId)
+    void api.markConversationRead(conversation.citizenConversationId).catch(() => {})
+
+    if (canManageConversations) {
+      navigate(`/whatsapp?phone=${encodeURIComponent(conversation.citizenPhone)}`)
+      return
+    }
+
+    if (conversation.latestSocialMessageId) {
+      setConversationModal({
+        socialMessageId: conversation.latestSocialMessageId,
+        citizenHandle: conversation.citizenName ?? conversation.citizenPhone,
+        citizenPhone: conversation.citizenPhone,
+      })
+      return
+    }
+
     navigate(`/whatsapp?phone=${encodeURIComponent(conversation.citizenPhone)}`)
   }
 
@@ -287,15 +312,15 @@ export function WhatsAppNotificationFab() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">
-                      {conversation.citizenName ?? formatPhone(conversation.citizenPhone)}
+                      {t('whatsapp.notificationPanelOperator', 'Operatör')}
                     </p>
                     <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
                       {formatConversationListTime(conversation.lastMessageAt, locale, t)}
                     </span>
                   </div>
-                  {conversation.citizenName ? (
+                  {conversation.assigneeDisplayName ? (
                     <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
-                      {formatPhone(conversation.citizenPhone)}
+                      {conversation.assigneeDisplayName}
                     </p>
                   ) : null}
                   {conversation.lastMessagePreview ? (
@@ -342,6 +367,15 @@ export function WhatsAppNotificationFab() {
             </span>
           ) : null}
         </button>
+
+        {conversationModal && (
+          <WhatsAppConversationModal
+            socialMessageId={conversationModal.socialMessageId}
+            citizenHandle={conversationModal.citizenHandle}
+            citizenPhone={conversationModal.citizenPhone}
+            onClose={() => setConversationModal(null)}
+          />
+        )}
     </div>
   )
 }

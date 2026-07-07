@@ -91,6 +91,7 @@ public sealed class GetCitizenConversationsQueryHandler
             .Select(m => new
             {
                 ConversationId = m.CitizenConversationId!.Value,
+                m.SocialMessageId,
                 m.Status,
                 m.CitizenRequestNumber,
                 m.CitizenRequestNumberYear,
@@ -245,7 +246,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.Neighborhood,
                     c.Street,
                     c.OpenAddress,
-                    pendingOutboundConversationIds.Contains(c.CitizenConversationId));
+                    pendingOutboundConversationIds.Contains(c.CitizenConversationId),
+                    ticket?.SocialMessageId);
             })
             .ToList();
     }

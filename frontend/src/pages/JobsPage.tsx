@@ -3331,9 +3331,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <XIcon className="size-4" />
             </button>
-            <h2 id="cancel-job-dialog-title" className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
-            <p className="mt-2 text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
-            <label className="job-field mt-5">
+            <h2 id="cancel-job-dialog-title" className="border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
+            <p className="text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
+            <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
@@ -3345,7 +3345,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 autoFocus
               />
             </label>
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="inline-actions justify-end">
               <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>

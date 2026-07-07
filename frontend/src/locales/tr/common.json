@@ -794,7 +794,8 @@
     "unassigned": "Atanmadı",
     "listFilter": {
       "all": "Tümü",
-      "unread": "Okunmamış",
+      "unread": "Yanıt bekliyor",
+      "replied": "Yanıt verildi",
       "pending": "Bekleyen",
       "assigned": "Atanmış"
     },

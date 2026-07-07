@@ -97,6 +97,16 @@ export function WhatsAppNotificationFab() {
     )))
   }, [])
 
+  // Bildirim çanından bir konuşmaya tıklandığında, sebebi ne olursa olsun (okunmamış mesaj
+  // veya "BEKLEMEDE" giden mesaj) o konuşma bildirim listesinden hemen kaybolsun (card #1498).
+  const dismissConversationNotification = useCallback((conversationId: string) => {
+    setConversations(prev => prev.map(conversation => (
+      conversation.citizenConversationId === conversationId
+        ? { ...conversation, unreadCount: 0, hasPendingOutboundMessage: false }
+        : conversation
+    )))
+  }, [])
+
   const isSelfSentPayload = useCallback((payload: WhatsAppMessagePayload) =>
     Boolean(payload.senderUserId) && payload.senderUserId === user?.userId, [user])
 
@@ -257,8 +267,8 @@ export function WhatsAppNotificationFab() {
 
   const openConversation = (conversation: CitizenConversationSummary) => {
     setIsOpen(false)
-    // Tıklanan konuşmanın bildirimi anında kaybolsun; arka plandaki yenilemeyi beklemez (card #1477).
-    zeroUnreadForConversation(conversation.citizenConversationId)
+    // Tıklanan konuşmanın bildirimi anında kaybolsun; arka plandaki yenilemeyi beklemez (card #1477/#1498).
+    dismissConversationNotification(conversation.citizenConversationId)
     void api.markConversationRead(conversation.citizenConversationId).catch(() => {})
 
     if (canManageConversations) {

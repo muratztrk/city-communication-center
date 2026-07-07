@@ -219,6 +219,10 @@ export function WhatsAppNotificationFab() {
     () => conversations
       .filter(conversation => {
         if (conversation.isRelevantToCurrentUser === false) return false
+        // Son mesaj kendi gönderdiğimiz kurum içi ileti ise bildirimde görünmesin (card #1495/#1499).
+        if (conversation.lastMessageIsInternal
+          && conversation.lastInternalSenderDisplayName
+          && conversation.lastInternalSenderDisplayName === user?.displayName) return false
         // "BEKLEMEDE" durumunda gönderilmemiş giden mesaj varsa, okunmamış mesaj olmasa
         // bile bildirimde görünsün (card #1472).
         if (conversation.unreadCount <= 0 && !conversation.hasPendingOutboundMessage) return false
@@ -231,7 +235,7 @@ export function WhatsAppNotificationFab() {
         return true
       })
       .sort((left, right) => new Date(right.lastMessageAt).getTime() - new Date(left.lastMessageAt).getTime()),
-    [activeConversation, conversations, location.pathname],
+    [activeConversation, conversations, location.pathname, user?.displayName],
   )
 
   const unreadTotal = useMemo(

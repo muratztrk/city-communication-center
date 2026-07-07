@@ -15,21 +15,21 @@ export function ConversationSenderHeader({
   // başlık (card #1341), ikinci satır birim + kullanıcı bilgisi (card #1347).
   const internalMatch = label.match(/^Kurum İçi Mesaj\s*·\s*(.+)$/)
 
-  const inlineLabelClass = tone === 'inbound' ? 'text-slate-700' : 'text-slate-900'
+  const inlineLabelClass = tone === 'inbound' ? 'text-slate-700 font-semibold' : 'text-white/90 font-semibold'
 
   if (variant === 'inline') {
     if (internalMatch) {
       return (
         <div className="mb-1.5 leading-snug">
-          <p className="text-[13px] font-bold text-orange-400">Kurum İçi Mesaj</p>
-          <p className={`mt-1 text-[13px] font-bold ${inlineLabelClass}`}>
+          <p className="text-[13px] font-semibold text-orange-400">Kurum İçi Mesaj</p>
+          <p className={`mt-1 text-[13px] ${inlineLabelClass}`}>
             {internalMatch[1]}
           </p>
         </div>
       )
     }
     return (
-      <p className={`mb-1.5 text-[13px] font-bold leading-snug ${inlineLabelClass}`}>
+      <p className={`mb-1.5 text-[13px] leading-snug ${inlineLabelClass}`}>
         {label}
       </p>
     )

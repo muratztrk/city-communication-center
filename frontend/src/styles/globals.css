@@ -373,6 +373,11 @@
     justify-content: space-between;
   }
 
+  .address-detail-my-request__grid--stacked {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+  }
+
   .address-detail-my-request__item {
     min-width: 0;
   }

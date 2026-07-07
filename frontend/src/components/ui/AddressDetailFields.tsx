@@ -4,7 +4,7 @@ type AddressDetailFieldsProps = {
   neighborhood?: string | null
   street?: string | null
   openAddress?: string | null
-  variant?: 'default' | 'detail-card' | 'my-request'
+  variant?: 'default' | 'detail-card' | 'my-request' | 'stacked'
 }
 
 function displayAddressValue(value: string | null | undefined, emptyValue = '—'): string {
@@ -20,10 +20,10 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
     { label: t('address.openAddressLabel', 'Açık Adres'), value: openAddress },
   ]
 
-  if (variant === 'my-request') {
+  if (variant === 'my-request' || variant === 'stacked') {
     return (
       <dl className="address-detail-my-request">
-        <div className="address-detail-my-request__grid address-detail-my-request__grid--three">
+        <div className={`address-detail-my-request__grid ${variant === 'stacked' ? 'address-detail-my-request__grid--stacked' : 'address-detail-my-request__grid--three'}`}>
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.neighborhoodLabel', 'Mahalle')}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(neighborhood, '-')}</dd>

@@ -36,6 +36,7 @@ import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
+import { getRequestEditPath } from '../utils/requestEditPath'
 import {
   isCitizenRequestJob,
   canShowCitizenWhatsAppConversation,
@@ -152,17 +153,6 @@ function canOperatorEditPendingExternalJob(
   const taskCount = job.taskCount ?? job.tasks?.length ?? 0
   return job.status === 'PendingExternalApproval'
     || (job.status === 'Active' && taskCount === 0)
-}
-
-function getRequestEditPath(
-  job: { jobId: string; requestType: string; sourceType: string },
-): string {
-  // Vatandaş talepleri (her rol için) citizen formunda düzenlenir; kaydedince Vatandaş Talepleri
-  // ekranına döner (returnTo=social) ve VT- numarası korunur — Taleplerim'e düşmez (card #1077).
-  if (isCitizenRequestJob({ requestType: job.requestType, sourceType: job.sourceType })) {
-    return `/requests/new?kind=citizen&editJobId=${job.jobId}&returnTo=social`
-  }
-  return `/requests/new?kind=${job.requestType === 'ExternalUnit' ? 'external' : 'internal'}&editJobId=${job.jobId}`
 }
 
 function isClosedJobStatus(status: string): boolean {

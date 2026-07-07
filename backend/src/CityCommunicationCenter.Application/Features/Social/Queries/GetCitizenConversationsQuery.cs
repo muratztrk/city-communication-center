@@ -71,6 +71,20 @@ public sealed class GetCitizenConversationsQueryHandler
 
         var conversationIds = conversations.Select(c => c.CitizenConversationId).ToList();
 
+        // "BEKLEMEDE" (gönderilmemiş) giden mesajı olan konuşmalar — bildirim baloncuğunda
+        // görünsün diye özetle birlikte döner (card #1472).
+        var pendingOutboundConversationIds = (await _dbContext.ConversationEntries
+            .AsNoTracking()
+            .Where(e => e.Direction == ConversationEntryDirection.Outbound && e.DeliveryStatus == ConversationDeliveryStatus.Pending)
+            .Join(
+                _dbContext.SocialMessages.Where(m => m.CitizenConversationId != null && conversationIds.Contains(m.CitizenConversationId.Value)),
+                e => e.SocialMessageId,
+                m => m.SocialMessageId,
+                (e, m) => m.CitizenConversationId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken))
+            .ToHashSet();
+
         var socialMessages = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.CitizenConversationId != null && conversationIds.Contains(m.CitizenConversationId.Value))
@@ -230,7 +244,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.Label,
                     c.Neighborhood,
                     c.Street,
-                    c.OpenAddress);
+                    c.OpenAddress,
+                    pendingOutboundConversationIds.Contains(c.CitizenConversationId));
             })
             .ToList();
     }

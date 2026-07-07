@@ -442,6 +442,8 @@ export interface CitizenConversationSummary {
   neighborhood?: string | null;
   street?: string | null;
   openAddress?: string | null;
+  // "BEKLEMEDE" durumunda (gönderilmemiş) giden mesajı var mı — bildirim baloncuğu (card #1472).
+  hasPendingOutboundMessage?: boolean;
 }
 
 export interface CitizenConversationTimelineEntry {

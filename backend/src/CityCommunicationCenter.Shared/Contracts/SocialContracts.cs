@@ -202,7 +202,9 @@ public sealed record CitizenConversationSummaryDto(
     string? Label = null,
     string? Neighborhood = null,
     string? Street = null,
-    string? OpenAddress = null);
+    string? OpenAddress = null,
+    // "BEKLEMEDE" durumundaki (gönderilmemiş) giden mesaj bildirim baloncuğunda görünsün (card #1472).
+    bool HasPendingOutboundMessage = false);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

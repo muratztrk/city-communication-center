@@ -554,7 +554,7 @@ function ConversationProfilePanel({
 
   return (
     <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-y-auto border-l border-slate-200 bg-slate-50/80 lg:flex">
-      <div className="flex justify-center border-b border-slate-200 bg-white p-4">
+      <div className="flex justify-center border-b border-slate-200 bg-emerald-50/90 p-4">
         <button
           type="button"
           onClick={onCreateRequest}
@@ -573,7 +573,7 @@ function ConversationProfilePanel({
             type="button"
             onClick={onSave}
             disabled={saving || !detail}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-700 px-2.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#007985] px-2.5 text-xs font-semibold text-white transition-colors hover:bg-[#006570] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
             {t('common.save', 'Kaydet')}

@@ -187,7 +187,9 @@ export function WhatsAppNotificationFab() {
     () => conversations
       .filter(conversation => {
         if (conversation.isRelevantToCurrentUser === false) return false
-        if (conversation.unreadCount <= 0) return false
+        // "BEKLEMEDE" durumunda gönderilmemiş giden mesaj varsa, okunmamış mesaj olmasa
+        // bile bildirimde görünsün (card #1472).
+        if (conversation.unreadCount <= 0 && !conversation.hasPendingOutboundMessage) return false
         if (location.pathname === '/whatsapp' && activeConversation) {
           if (conversation.citizenConversationId === activeConversation.id) return false
           if (activeConversation.phone && matchesPhone(conversation.citizenPhone, activeConversation.phone)) {
@@ -201,7 +203,10 @@ export function WhatsAppNotificationFab() {
   )
 
   const unreadTotal = useMemo(
-    () => unreadConversations.reduce((sum, conversation) => sum + conversation.unreadCount, 0),
+    () => unreadConversations.reduce(
+      (sum, conversation) => sum + Math.max(conversation.unreadCount, conversation.hasPendingOutboundMessage ? 1 : 0),
+      0,
+    ),
     [unreadConversations],
   )
 
@@ -300,7 +305,7 @@ export function WhatsAppNotificationFab() {
                   ) : null}
                 </div>
                 <span className={`whatsapp-fab-badge mt-1 ${conversation.unreadCount > 9 ? 'whatsapp-fab-badge--wide' : ''}`}>
-                  {formatBadgeCount(conversation.unreadCount)}
+                  {formatBadgeCount(Math.max(conversation.unreadCount, conversation.hasPendingOutboundMessage ? 1 : 0))}
                 </span>
               </button>
             ))}

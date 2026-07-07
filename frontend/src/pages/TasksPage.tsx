@@ -74,6 +74,7 @@ import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
+import { getRequestEditPath } from '../utils/requestEditPath'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -1286,6 +1287,15 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     task.jobSourceType === 'Routine'
     && task.assignedUserId === user?.userId
     && isActionableTaskStatus(task.currentStatus)
+  // Atanmış görevler normalde düzenlenemez; birim yöneticisi talebi oluşturup görevi kendine
+  // atadıysa (AssigningManagerId == kendisi) kendi talebini düzenleyebilir (card #1471).
+  const canEditSelfAssignedManagerTask = (task: Pick<Task, 'jobSourceType' | 'assignedUserId' | 'currentStatus' | 'assigningManagerDisplayName'>) =>
+    task.jobSourceType !== 'Routine'
+    && task.assignedUserId === user?.userId
+    && isActionableTaskStatus(task.currentStatus)
+    && isManagerLike
+    && Boolean(task.assigningManagerDisplayName)
+    && task.assigningManagerDisplayName === user?.displayName
   const canChangeCompletedTaskStatus = (task: Pick<Task, 'currentStatus' | 'assignedUserId'>) =>
     isMyTasksView
     && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
@@ -1685,7 +1695,17 @@ const pageKicker = isMyTasksView
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.edit', 'Düzenle')}
                   </Button>
-                ) : (
+                ) : canEditSelfAssignedManagerTask(selectedTask) && parentJobDetail ? (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
+                    onClick={() => navigate(getRequestEditPath(parentJobDetail))}
+                  >
+                    <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    {t('common.edit', 'Düzenle')}
+                  </Button>
+                ) : selectedTask.jobSourceType === 'Routine' ? (
                   <DisabledActionButton
                     size="lg"
                     className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
@@ -1694,7 +1714,7 @@ const pageKicker = isMyTasksView
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.edit', 'Düzenle')}
                   </DisabledActionButton>
-                ))}
+                ) : null)}
                 {isMyTasksView && canCompleteTask && (
                   <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
                     <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -1792,7 +1812,33 @@ const pageKicker = isMyTasksView
                             // Rutin görev atanmadığı için bu satır sadece Atanmış görevlerde gösterilir (card #1445).
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
-                                  label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'),
+                                  label: (
+                                    <>
+                                      {t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici')}
+                                      {parentJobDetail?.managerNote?.trim() ? (
+                                        <span className="ml-1 whitespace-nowrap font-semibold text-emerald-600">
+                                          (
+                                          <button
+                                            type="button"
+                                            className="underline underline-offset-2 hover:text-emerald-700"
+                                            onClick={() => setConfirmDialog({
+                                              title: t('jobs.managerNote.title', 'Yönetici Notu'),
+                                              titleDivider: true,
+                                              titleTone: 'success',
+                                              message: parentJobDetail.managerNote!,
+                                              hideCancel: true,
+                                              variant: 'success',
+                                              confirmLabel: t('common.close', 'Kapat'),
+                                              onConfirm: () => {},
+                                            })}
+                                          >
+                                            {t('jobs.managerNote.title', 'Yönetici Notu')}
+                                          </button>
+                                          )
+                                        </span>
+                                      ) : null}
+                                    </>
+                                  ),
                                   value: taskDetail.assigningManagerDisplayName ?? '—',
                                 }]
                               : []),
@@ -1824,8 +1870,8 @@ const pageKicker = isMyTasksView
                             ...(taskDetail.jobSourceType === 'Routine'
                               ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
                               : []),
-                          ].map(({ label, value }) => (
-                            <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
+                          ].map(({ label, value }, fieldIndex) => (
+                            <div key={fieldIndex} className="job-detail-field-row job-detail-field-row--request-info">
                               <div className="job-detail-field-row__label">{label}</div>
                               <div className="job-detail-field-row__value">{value}</div>
                             </div>
@@ -2634,7 +2680,16 @@ const pageKicker = isMyTasksView
                             <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('common.edit', 'Düzenle')}
                           </Button>
-                        ) : (
+                        ) : canEditSelfAssignedManagerTask(task) ? (
+                          <Button
+                            size="sm"
+                            className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
+                            onClick={() => navigate(getRequestEditPath({ jobId: task.jobId, requestType: task.jobRequestType ?? 'InternalUnit', sourceType: task.jobSourceType ?? 'Manual' }))}
+                          >
+                            <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            {t('common.edit', 'Düzenle')}
+                          </Button>
+                        ) : task.jobSourceType === 'Routine' ? (
                           <DisabledActionButton
                             size="sm"
                             className="button-placeholder inline-flex items-center gap-1.5 bg-teal-700 text-white"
@@ -2643,7 +2698,7 @@ const pageKicker = isMyTasksView
                             <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('common.edit', 'Düzenle')}
                           </DisabledActionButton>
-                        ))}
+                        ) : null)}
                         {!showOnlyDetailsInTaskGridActions && currentScope === 'department-pool' && !task.assignedUserId && (
                           <Button size="sm" onClick={() => handleClaim(task.taskId)}>{t('tasks.actions.claim', 'Claim')}</Button>
                         )}
@@ -2738,10 +2793,11 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-xs font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
+                maxLength={200}
                 value={completionNote}
                 onChange={e => setCompletionNote(e.target.value)}
                 placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
@@ -2836,10 +2892,11 @@ const pageKicker = isMyTasksView
                 <h2 className="text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelTask', 'Görevi İptal Et')}</h2>
                 <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
                 <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-xs font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea
                     className="field-textarea"
                     rows={3}
+                    maxLength={200}
                     value={cancelReason}
                     onChange={e => setCancelReason(e.target.value)}
                     placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
@@ -2920,10 +2977,11 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-xs font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
+                maxLength={200}
                 value={statusChangeReason}
                 onChange={e => setStatusChangeReason(e.target.value)}
                 placeholder={t('tasks.actions.changeStatusReasonPlaceholder', 'Durum değişikliği nedenini açıklayınız...')}

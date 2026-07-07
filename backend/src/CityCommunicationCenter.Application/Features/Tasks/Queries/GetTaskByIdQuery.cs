@@ -1,5 +1,3 @@
-using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
-
 namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record GetTaskByIdQuery(Guid TaskId) : IQuery<TaskDetailResponse?>;
@@ -117,48 +115,29 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        // Görevin durum değişiklikleri geçmişi: yalnızca "Durum Değiştir" değil, TÜM durum geçişleri
-        // (Atandı→Yapılmakta vb.) görev audit'lerindeki StatusAtEvent'ten türetilir (card #1097).
+        // Görevin durum değişiklikleri geçmişi: yalnızca "Durum Değiştir" (ChangeTaskStatusCommand) ile
+        // yapılan değişiklikler — normal görev akışı (Atandı→Yapılmakta vb.) burada gösterilmez (card #1097
+        // tersine çevrildi).
         var taskStatusAudits = await _dbContext.AuditLogs.AsNoTracking()
             .Where(a => a.TenantId == tenantId
                 && a.EntityType == nameof(WorkTask)
                 && a.EntityId == request.TaskId.ToString()
+                && a.Action == "TaskStatusChanged"
                 && a.StatusAtEvent != null)
             .OrderBy(a => a.EventTimeUtc)
-            .Select(a => new { a.StatusAtEvent, a.EventTimeUtc })
+            .Select(a => new { a.StatusAtEvent, a.Details, a.EventTimeUtc })
             .ToListAsync(cancellationToken);
-        var statusTransitions = new List<TaskStatusChangeHistoryResponse>();
-        string? previousStatus = null;
-        foreach (var audit in taskStatusAudits)
-        {
-            var status = audit.StatusAtEvent;
-            if (string.IsNullOrWhiteSpace(status)) continue;
-            if (previousStatus is null)
+        // Her "Durum Değiştir" denetim kaydı zaten kendi geçişini taşır (Details = "Önceki->Yeni",
+        // ChangeTaskStatusCommand'da yazılır) — önceki kayda bakmaya gerek yok, tek kullanımda bile
+        // doğru geçiş üretilir.
+        var statusTransitions = taskStatusAudits
+            .Select(audit =>
             {
-                // Eski audit zincirlerinde ilk kayıt bazen "Assigned" yerine doğrudan yeni durumu
-                // taşır; bu durumda normal görev akışı için Atandı -> ilk durum geçişini görünür kıl.
-                if (task.AssignedAtUtc.HasValue
-                    && !string.Equals(status, WorkflowTaskStatus.Assigned.ToString(), StringComparison.Ordinal)
-                    && !string.Equals(status, WorkflowTaskStatus.Waiting.ToString(), StringComparison.Ordinal))
-                {
-                    statusTransitions.Add(new TaskStatusChangeHistoryResponse(
-                        WorkflowTaskStatus.Assigned.ToString(),
-                        status,
-                        null,
-                        null,
-                        audit.EventTimeUtc));
-                }
-
-                // İlk durum = başlangıç, tekrar değişiklik olarak sayılmaz.
-                previousStatus = status;
-                continue;
-            }
-            if (!string.Equals(status, previousStatus, StringComparison.Ordinal))
-            {
-                statusTransitions.Add(new TaskStatusChangeHistoryResponse(previousStatus, status, null, null, audit.EventTimeUtc));
-                previousStatus = status;
-            }
-        }
+                var parts = audit.Details?.Split("->", 2);
+                var fromStatus = parts?.Length == 2 ? parts[0] : null;
+                return new TaskStatusChangeHistoryResponse(fromStatus, audit.StatusAtEvent!, null, null, audit.EventTimeUtc);
+            })
+            .ToList();
         statusTransitions.Reverse(); // en yeni üstte
         var statusChangeHistory = statusTransitions.ToArray();
 

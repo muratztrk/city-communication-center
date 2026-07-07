@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
+import { ConfirmDialog } from './confirm-dialog'
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
@@ -46,6 +47,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const [validationError, setValidationError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   const validate = (file: File): string | null => {
     if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
@@ -80,8 +82,13 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const handleDelete = async (attachmentId: string) => {
-    if (!window.confirm(t('attachments.deleteConfirm', 'Bu eki silmek istediğinize emin misiniz?'))) return
+  const handleDelete = (attachmentId: string) => {
+    setPendingDeleteId(attachmentId)
+  }
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return
+    const attachmentId = pendingDeleteId
     setDeletingId(attachmentId)
     try {
       await onDelete?.(attachmentId)
@@ -296,6 +303,16 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           ))}
         </div>
       )}
+      <ConfirmDialog
+        state={pendingDeleteId ? {
+          message: t('attachments.deleteConfirm', 'Bu eki silmek istediğinize emin misiniz?'),
+          variant: 'destructive',
+          confirmLabel: t('common.delete', 'Sil'),
+          cancelLabel: t('common.cancel', 'İptal'),
+          onConfirm: () => void confirmDelete(),
+        } : null}
+        onClose={() => setPendingDeleteId(null)}
+      />
     </div>
   )
 }

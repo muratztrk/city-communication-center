@@ -392,6 +392,7 @@
 
   .address-detail-my-request__label {
     margin: 0 0 0.35rem;
+    width: fit-content;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0;

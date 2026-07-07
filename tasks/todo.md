@@ -1928,3 +1928,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   boş editör placeholder'ındaki büyük `WA` ifadesi kaldırıldı.
 
 ## STATUS: Round 244 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 245 (Doing — 2026-07-07, yeni kartlar devam)
+- [x] `UWyHtsOb` / `6a4ca772288cc565c6b96c28` / #1468 — Ayarlar > Taslak Mesajlar
+  yeşil classic oluşturma butonu eski `+ Yeni Şablon Oluştur` metnine döndürüldü.
+
+## STATUS: Round 245 complete — frontend build/lint passed; cards pending Done move.

@@ -426,8 +426,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim ilgili talep özetinde Talep Bilgileri başlığı meta taşır:** `İlgili Talep Detayları`
   sol kart başlığında sağda talep numarası ve `Birim İçi/Birim Dışı` rozeti kalır; başlığı alt
   alanlara taşırken bu meta tekrar silinmez.
-- **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; sol üst aksiyon butonu beyaz `+`
-  ile `Yeni Meta Onaylı Şablon Oluştur` metnini gösterir; form içinde
+- **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; sol üst aksiyon butonu
+  `+ Yeni Şablon Oluştur` metnini gösterir; form içinde
   `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri
   görünür kalır; WhatsApp Meta onaylı 3-şablon sınırı burada uygulanmaz. Şablon editöründeki
   `Sil` aksiyonu kırmızı arka planlı buton olarak görünür; boş edit panelinde büyük `WA` placeholder'ı basılmaz.

@@ -1914,3 +1914,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   panelindeki `Talep Oluştur` butonu satır ortasına hizalandı ve daha büyük `h-10` buton yapıldı.
 
 ## STATUS: Round 242 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 243 (Doing — 2026-07-07, yeni kartlar devam)
+- [x] `P2q5ViXg` / `6a4ca619dcbf36c36efe1318` / #1466 — WhatsApp Konuşmaları footer
+  `Talep oluştur` butonu kaldırıldı; `Dosya ekle`, `Şablon mesaj ekle` butonunun hemen sağına hizalandı.
+
+## STATUS: Round 243 complete — frontend build/lint passed; cards pending Done move.

@@ -1182,14 +1182,6 @@ function ConversationDetail({
           {openTicket ? (
             <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onOpenCreateRequest(primaryTicket!.socialMessageId)}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                >
-                  <ClipboardPlus className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-                  {t('nav.createRequest', 'Talep oluştur')}
-                </button>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1213,7 +1205,7 @@ function ConversationDetail({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="ml-auto inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                 >
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}

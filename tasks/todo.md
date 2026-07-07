@@ -1934,3 +1934,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   yeşil classic oluşturma butonu eski `+ Yeni Şablon Oluştur` metnine döndürüldü.
 
 ## STATUS: Round 245 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 246 (Doing — 2026-07-07, yeni kartlar devam)
+- [x] `3jl4WA0l` / `6a4ca38d7e336fa948d7cc3d` reopen — WhatsApp Konuşmaları
+  üst durum sayaçlarındaki küçük `Tümü` butonuna belirgin yeşil hover state'i eklendi.
+
+## STATUS: Round 246 complete — frontend build/lint passed; cards pending Done move.

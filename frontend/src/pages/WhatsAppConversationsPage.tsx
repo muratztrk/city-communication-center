@@ -389,7 +389,7 @@ function ConversationListPanel({
           <button
             type="button"
             onClick={() => onOpenStatusRequests('all')}
-            className={`shrink-0 rounded-md px-1 py-0.5 text-[10px] font-bold text-slate-900 transition-colors hover:bg-slate-100 ${statusFilter === 'all' ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
+            className={`shrink-0 rounded-md px-1 py-0.5 text-[10px] font-bold text-slate-900 transition-colors hover:bg-emerald-50 hover:text-emerald-700 hover:ring-1 hover:ring-emerald-200 ${statusFilter === 'all' ? 'bg-slate-100 ring-1 ring-slate-200' : ''}`}
           >
             {t('whatsapp.listFilter.all', 'Tümü')}: {totalStatusCount}
           </button>

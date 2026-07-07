@@ -1927,4 +1927,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `5NJEd5kD` / `6a4ca6f87c3b6b8b79e8964d` / #1467 — Ayarlar > Taslak Mesajlar
   boş editör placeholder'ındaki büyük `WA` ifadesi kaldırıldı.
 
-## STATUS: Round 244 complete — frontend build/lint passed; cards pending Done move.
+## STATUS: Round 244 complete — frontend build/lint passed; cards moved to Done.

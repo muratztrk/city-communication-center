@@ -1884,4 +1884,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `TfwvHuHY` / `6a4bf94d` reopen — Detay popup sağ üst aksiyon butonları genel olarak bir
   kademe daha yüksek yapıldı.
 
-## STATUS: Round 239 complete — backend build and frontend build/lint passed; cards pending Done move.
+## STATUS: Round 239 complete — backend build and frontend build/lint passed; cards moved to Done.

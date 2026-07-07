@@ -1907,4 +1907,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `3jl4WA0l` / `6a4ca38d7e336fa948d7cc3d` / #1465 — WhatsApp Konuşmaları sol panel
   üst sayaçlarında ve konuşma kartı alt sayaçlarında `İptal` kalemi gizlendi.
 
-## STATUS: Round 241 complete — frontend build/lint passed; cards pending Done move.
+## STATUS: Round 241 complete — frontend build/lint passed; cards moved to Done.

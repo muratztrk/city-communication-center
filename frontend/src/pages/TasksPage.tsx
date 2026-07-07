@@ -1802,7 +1802,7 @@ const pageKicker = isMyTasksView
                                     const firstChange = history[history.length - 1]
                                     const lastChange = history[0]
                                     return (
-                                      <div className="flex items-start justify-center gap-2 text-center">
+                                      <div className="flex w-full items-start justify-end gap-2 text-right">
                                         <div className="min-w-0">
                                           <div className={`font-normal ${getStatusChangeTextClass(firstChange.toStatus)}`}>{getTaskStatusLabel(t, firstChange.toStatus)}</div>
                                           <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstChange.changedAtUtc, locale)}</div>

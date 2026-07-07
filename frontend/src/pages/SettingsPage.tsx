@@ -2554,7 +2554,7 @@ export function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => deleteTemplate(selectedTemplateId)}
-                      className="rounded-lg px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50"
+                      className="rounded-lg px-4 py-2 text-sm font-extrabold text-rose-600 hover:bg-rose-50"
                     >
                       Sil
                     </button>

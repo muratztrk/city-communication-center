@@ -1859,3 +1859,29 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   gelen VT numaralı sosyal/e-Devlet/vatandaş kaynaklı talepleri kanal sayımı içine alır.
 
 ## STATUS: Round 238 complete — backend build and frontend build/lint passed; cards pending Done move.
+
+## Round 239 (Doing — 2026-07-07, yeni kartlar)
+- [x] `gMRPRmkO` / `6a4b7f35` reopen — Dashboard Vatandaş Talep Kanalları grafiğinde
+  SocialMessage kaynaklı ama sosyal mesaj kanalına bağlı olmayan VT kayıtları `Telefon/Çağrı`
+  olarak sınıflandırıldı; `Sosyal Medya Mesajı` dilimi bu çağrı kayıtları için kullanılmıyor.
+- [x] `BUh0gEYr` / `6a4bf0c7` reopen — Görev Detayları `Durum Değişikliği` özeti sağ border
+  tarafına hizalı hale getirildi.
+- [x] `NNt7S70j` / `6a4bb3c6` reopen — Ayarlar > Taslak Mesajlar `Sil` aksiyon metni daha
+  büyük ve kalın yapıldı.
+- [x] `gms8raES` / `6a4c936d` — WhatsApp Konuşmaları sağ vatandaş panelinin üst çizgisi üzerine
+  `Talep Oluştur` butonu eklendi.
+- [x] `9HIOVDBR` / `6a4c9b50` — WhatsApp konuşma kartlarındaki `İşleme Alınan / Yapılmakta /
+  Tamamlandı / İptal` sayaç metinleri tıklanamaz salt metne çevrildi.
+- [x] `jk4cPBUu` / `6a4c9cdd` — Vatandaş operatörü WhatsApp şablon seçicisinde aktif Meta
+  onaylı şablonlar kullanıcı şablonlarının üstünde listeleniyor.
+- [x] `5WKUDYfu` / `6a4c9d8a` — WhatsApp status-only webhook güncellemeleri açık konuşmayı
+  yenileyecek `isStatusUpdate` SignalR payload'ı gönderiyor; çift tik sonrası teslim metni eski
+  `Gönderildi` durumunda kalmıyor.
+- [x] `Sb3SBh8o` / `6a4c931c` — WhatsApp sol panelde `Tümü` sayaç butonu, alt satırdaki `İptal`
+  sayaç metniyle aynı satıra hizalandı.
+- [x] `XLtxgHkW` / `6a4bf3b3` reopen — Görevlerim detay popup ilgili talep özetinde boş ikon
+  satırı kaldırıldı; `Talep Bilgileri` başlığı üst satıra taşındı.
+- [x] `TfwvHuHY` / `6a4bf94d` reopen — Detay popup sağ üst aksiyon butonları genel olarak bir
+  kademe daha yüksek yapıldı.
+
+## STATUS: Round 239 complete — backend build and frontend build/lint passed; cards pending Done move.

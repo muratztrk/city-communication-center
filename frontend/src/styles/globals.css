@@ -3947,15 +3947,15 @@
 
 @layer components {
   /* Tüm detay popup'larında sağ üstteki aksiyon butonları (Düzenle/Tamamla/İptal Et/Yazdır vb.)
-     biraz küçültülür — kapatma (X) butonu hariç (card #1448). */
+     kapatma (X) butonu hariç biraz daha yüksek görünür. */
   .detail-modal-header-actions button:not(.detail-modal-header-close),
   .detail-modal-header-actions a {
     /* Button bileşeninin kendi boyut utility'leri (h-10/px-4/text-sm) Tailwind v4'te
        utilities katmanında olduğu için @layer components burada !important olmadan
        hiçbir zaman kazanamıyor (card #1448 tekrarı). */
-    height: 2rem !important;
-    padding: 0 0.75rem !important;
-    font-size: 0.75rem !important;
+    height: 2.25rem !important;
+    padding: 0 0.85rem !important;
+    font-size: 0.8rem !important;
   }
 }
 

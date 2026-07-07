@@ -86,7 +86,7 @@ export function WhatsAppNotificationFab() {
     if (isPayloadForActiveConversation(payload)) {
       // Birim içi ileti bildirimi gönderenin açık konuşmasında okundu sayılmaz; diğer
       // ilgili kullanıcıların rozetini sıfırlamamak için markRead atlanır (card #1295).
-      if (payload.isInternal) {
+      if (payload.isInternal || payload.isStatusUpdate) {
         void refreshConversations()
         return
       }

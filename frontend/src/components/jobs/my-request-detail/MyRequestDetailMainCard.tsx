@@ -292,28 +292,30 @@ export function MyRequestDetailMainCard({
       </MyRequestSectionHeading>
       <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
-          <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
-            <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
-              <span className="min-w-0">
-                {hideTitleText ? null : isEditing && editDraft && onEditDraftChange ? (
-                  <textarea
-                    className="field-textarea my-request-title-heading-edit__textarea font-semibold"
-                    value={editDraft.title}
-                    maxLength={50}
-                    rows={Math.min(3, Math.max(1, Math.ceil((editDraft.title.length || 1) / 32)))}
-                    onChange={e => onEditDraftChange({ title: e.target.value })}
-                    required
-                  />
-                ) : (
-                  normalizeTitleCaseField(detail.title)
-                )}
+          {!hideTitleText ? (
+            <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
+              <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                <span className="min-w-0">
+                  {isEditing && editDraft && onEditDraftChange ? (
+                    <textarea
+                      className="field-textarea my-request-title-heading-edit__textarea font-semibold"
+                      value={editDraft.title}
+                      maxLength={50}
+                      rows={Math.min(3, Math.max(1, Math.ceil((editDraft.title.length || 1) / 32)))}
+                      onChange={e => onEditDraftChange({ title: e.target.value })}
+                      required
+                    />
+                  ) : (
+                    normalizeTitleCaseField(detail.title)
+                  )}
+                </span>
+                <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                  <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{requestNumberText}</span>
+                  <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{requestTypeText}</span>
+                </span>
               </span>
-              <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
-                <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{requestNumberText}</span>
-                <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{requestTypeText}</span>
-              </span>
-            </span>
-          </MyRequestSectionHeading>
+            </MyRequestSectionHeading>
+          ) : null}
           {leftColumnBelowHeading ?? (
             isEditing && editDraft && onEditDraftChange ? (
               <RichTextEditor

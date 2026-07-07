@@ -522,6 +522,7 @@ export interface UserQuickReplyTemplate {
   templateId: string;
   name: string;
   content: string;
+  source?: 'user' | 'meta';
 }
 
 export interface AuditLog {

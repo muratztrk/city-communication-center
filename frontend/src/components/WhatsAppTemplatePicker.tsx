@@ -41,8 +41,12 @@ export function WhatsAppTemplatePicker({
 
   const active = useMemo(() => {
     return userQuickReplies
-      .map(t => ({ id: t.templateId, name: t.name, content: t.content }))
-      .sort((left, right) => left.name.localeCompare(right.name, 'tr'))
+      .map(t => ({ id: t.templateId, name: t.name, content: t.content, source: t.source }))
+      .sort((left, right) => {
+        if (left.source === 'meta' && right.source !== 'meta') return -1
+        if (left.source !== 'meta' && right.source === 'meta') return 1
+        return left.name.localeCompare(right.name, 'tr')
+      })
   }, [userQuickReplies])
 
   useLayoutEffect(() => {
@@ -91,7 +95,14 @@ export function WhatsAppTemplatePicker({
           onClick={() => { onSelect(tpl.content); setOpen(false); setMenuStyle(null) }}
           className="w-full text-left px-3 py-2 hover:bg-[color:var(--color-surface-raised)] transition-colors"
         >
-          <p className="text-xs font-semibold text-[color:var(--color-foreground)] truncate">{tpl.name}</p>
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-[color:var(--color-foreground)]">
+            <span className="min-w-0 truncate">{tpl.name}</span>
+            {tpl.source === 'meta' ? (
+              <span className="shrink-0 rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700">
+                Meta
+              </span>
+            ) : null}
+          </p>
           <p className="text-[11px] text-[color:var(--color-muted-foreground)] truncate mt-0.5">{tpl.content}</p>
         </button>
       ))}

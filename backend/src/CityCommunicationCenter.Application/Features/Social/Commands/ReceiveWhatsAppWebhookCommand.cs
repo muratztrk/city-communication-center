@@ -31,7 +31,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
     {
         // Echoes must be persisted before status updates when both arrive in one payload.
         var echoCount = await ProcessMessageEchoesAsync(request.TenantId, request.Payload, cancellationToken);
-        var statusCount = await ProcessStatusUpdatesAsync(request.Payload, cancellationToken);
+        var statusCount = await ProcessStatusUpdatesAsync(request.TenantId, request.Payload, cancellationToken);
 
         var incoming = ParseMessages(request.Payload);
         if (incoming.Count == 0)
@@ -348,7 +348,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         return savedCount;
     }
 
-    private async Task<int> ProcessStatusUpdatesAsync(JsonElement payload, CancellationToken cancellationToken)
+    private async Task<int> ProcessStatusUpdatesAsync(Guid tenantId, JsonElement payload, CancellationToken cancellationToken)
     {
         var statuses = ParseStatuses(payload);
         if (statuses.Count == 0)
@@ -358,7 +358,17 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
         var externalIds = statuses.Select(status => status.ExternalMessageId).Distinct().ToArray();
         var entries = await _dbContext.ConversationEntries
-            .Where(entry => entry.ExternalEntryId != null && externalIds.Contains(entry.ExternalEntryId))
+            .IgnoreQueryFilters()
+            .Join(
+                _dbContext.SocialMessages.IgnoreQueryFilters().Where(message => message.TenantId == tenantId),
+                entry => entry.SocialMessageId,
+                message => message.SocialMessageId,
+                (entry, message) => new
+                {
+                    Entry = entry,
+                    message.CitizenConversationId,
+                })
+            .Where(row => row.Entry.ExternalEntryId != null && externalIds.Contains(row.Entry.ExternalEntryId))
             .ToListAsync(cancellationToken);
 
         if (entries.Count == 0)
@@ -367,13 +377,14 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         }
 
         var entriesByExternalId = entries
-            .Where(entry => !string.IsNullOrWhiteSpace(entry.ExternalEntryId))
-            .ToDictionary(entry => entry.ExternalEntryId!, StringComparer.Ordinal);
+            .Where(row => !string.IsNullOrWhiteSpace(row.Entry.ExternalEntryId))
+            .ToDictionary(row => row.Entry.ExternalEntryId!, StringComparer.Ordinal);
 
         var updatedCount = 0;
+        var changedConversationIds = new HashSet<Guid>();
         foreach (var status in statuses)
         {
-            if (!entriesByExternalId.TryGetValue(status.ExternalMessageId, out var entry))
+            if (!entriesByExternalId.TryGetValue(status.ExternalMessageId, out var row))
             {
                 continue;
             }
@@ -383,15 +394,52 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 continue;
             }
 
-            if (ConversationDeliveryStatusHelper.TryApply(entry, parsedStatus, status.StatusAtUtc, status.ErrorMessage))
+            if (ConversationDeliveryStatusHelper.TryApply(row.Entry, parsedStatus, status.StatusAtUtc, status.ErrorMessage))
             {
                 updatedCount++;
+                if (row.CitizenConversationId.HasValue)
+                {
+                    changedConversationIds.Add(row.CitizenConversationId.Value);
+                }
             }
         }
 
         if (updatedCount > 0)
         {
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            if (changedConversationIds.Count > 0)
+            {
+                var conversations = await _dbContext.CitizenConversations
+                    .IgnoreQueryFilters()
+                    .Where(conversation => conversation.TenantId == tenantId
+                        && changedConversationIds.Contains(conversation.CitizenConversationId))
+                    .Select(conversation => new
+                    {
+                        conversation.CitizenConversationId,
+                        conversation.CitizenPhone,
+                        conversation.CitizenName,
+                        conversation.UnreadCount,
+                        conversation.LastMessageAt,
+                    })
+                    .ToListAsync(cancellationToken);
+
+                foreach (var conversation in conversations)
+                {
+                    await _notificationPushService.SendWhatsAppMessageToTenantAsync(
+                        tenantId,
+                        new WhatsAppMessagePayload(
+                            conversation.CitizenConversationId,
+                            conversation.CitizenPhone,
+                            conversation.CitizenName,
+                            null,
+                            conversation.UnreadCount,
+                            conversation.LastMessageAt,
+                            IsInternal: false,
+                            IsStatusUpdate: true),
+                        cancellationToken);
+                }
+            }
         }
 
         return updatedCount;

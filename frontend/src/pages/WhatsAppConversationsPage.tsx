@@ -35,6 +35,8 @@ import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../u
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
+const WHATSAPP_META_TEMPLATE_CHANNEL = 'WhatsApp Meta'
+
 function formatPhone(phone: string): string {
   // Display E.164 as a readable number (e.g. 905301234567 → +90 530 123 45 67)
   const digits = phone.replace(/\D/g, '')
@@ -133,37 +135,30 @@ function ConversationStatusCounts({
   completed,
   cancelled,
   compact = false,
-  onOpenStatusRequests,
 }: {
   intake?: number
   inProgress?: number
   completed?: number
   cancelled?: number
   compact?: boolean
-  onOpenStatusRequests?: (value: ConversationStatusFilter) => void
 }) {
   const { t } = useTranslation()
   const baseClass = compact ? 'text-[10px]' : 'text-[11px]'
   const counts: Array<{ value: ConversationStatusFilter; label: string; count: number; className: string }> = [
-    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: intake ?? 0, className: 'text-slate-600 hover:bg-slate-200' },
-    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: inProgress ?? 0, className: 'text-orange-600 hover:bg-orange-100' },
-    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: completed ?? 0, className: 'text-emerald-700 hover:bg-emerald-100' },
-    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: cancelled ?? 0, className: 'text-red-600 hover:bg-red-100' },
+    { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: intake ?? 0, className: 'text-slate-600' },
+    { value: 'in-progress', label: t('whatsapp.inProgressCount', 'Yapılmakta'), count: inProgress ?? 0, className: 'text-orange-600' },
+    { value: 'completed', label: t('whatsapp.completedCount', 'Tamamlandı'), count: completed ?? 0, className: 'text-emerald-700' },
+    { value: 'cancelled', label: t('whatsapp.cancelledCount', 'İptal'), count: cancelled ?? 0, className: 'text-red-600' },
   ]
   return (
     <div className={`flex items-center gap-x-0.5 ${baseClass} font-semibold whitespace-nowrap`}>
       {counts.map(item => (
-        <button
+        <span
           key={item.value}
-          type="button"
-          onClick={event => {
-            event.stopPropagation()
-            onOpenStatusRequests?.(item.value)
-          }}
-          className={`shrink-0 rounded-md px-0.5 py-0.5 transition-colors ${item.className}`}
+          className={`shrink-0 px-0.5 py-0.5 ${item.className}`}
         >
           {item.label}: {item.count}
-        </button>
+        </span>
       ))}
     </div>
   )
@@ -184,12 +179,10 @@ function ConversationListItem({
   conv,
   selected,
   onClick,
-  onOpenStatusRequests,
 }: {
   conv: CitizenConversationSummary
   selected: boolean
   onClick: () => void
-  onOpenStatusRequests: (value: ConversationStatusFilter) => void
 }) {
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -299,7 +292,6 @@ function ConversationListItem({
               inProgress={conv.inProgressCount}
               completed={conv.completedCount}
               cancelled={conv.cancelledCount}
-              onOpenStatusRequests={onOpenStatusRequests}
             />
           </div>
         </div>
@@ -398,7 +390,7 @@ function ConversationListPanel({
           </button>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-x-0.5 overflow-hidden whitespace-nowrap">
           <button
             type="button"
             onClick={() => onOpenStatusRequests('all')}
@@ -406,9 +398,6 @@ function ConversationListPanel({
           >
             {t('whatsapp.listFilter.all', 'Tümü')}: {totalStatusCount}
           </button>
-        </div>
-
-        <div className="flex items-center gap-x-0.5 overflow-hidden whitespace-nowrap">
           {statusChips.map(chip => (
             <button
               key={chip.value}
@@ -492,7 +481,6 @@ function ConversationListPanel({
               conv={conv}
               selected={conv.citizenConversationId === selectedId}
               onClick={() => onSelect(conv.citizenConversationId)}
-              onOpenStatusRequests={onOpenStatusRequests}
             />
           ))
         )}
@@ -549,12 +537,16 @@ function ConversationProfilePanel({
   saving,
   onDraftChange,
   onSave,
+  onCreateRequest,
+  canCreateRequest,
 }: {
   detail: CitizenConversationDetail | null
   draft: ConversationProfileDraft
   saving: boolean
   onDraftChange: (patch: Partial<ConversationProfileDraft>) => void
   onSave: () => void
+  onCreateRequest?: () => void
+  canCreateRequest?: boolean
 }) {
   const { t } = useTranslation()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
@@ -567,17 +559,30 @@ function ConversationProfilePanel({
 
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-l border-slate-200 bg-slate-50/80 p-4 lg:flex">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="text-sm font-bold text-slate-900">{t('whatsapp.citizenProfile', 'Vatandaş Bilgileri')}</h3>
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={saving || !detail}
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-700 px-2.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
-          {t('common.save', 'Kaydet')}
-        </button>
+      <div className="mb-3 space-y-2">
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onCreateRequest}
+            disabled={!detail || !canCreateRequest}
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-emerald-200 bg-white px-2.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ClipboardPlus className="size-3.5" aria-hidden="true" />
+            {t('nav.createRequest', 'Talep Oluştur')}
+          </button>
+        </div>
+        <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
+          <h3 className="text-sm font-bold text-slate-900">{t('whatsapp.citizenProfile', 'Vatandaş Bilgileri')}</h3>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving || !detail}
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-700 px-2.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+            {t('common.save', 'Kaydet')}
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -1280,6 +1285,8 @@ function ConversationDetail({
           saving={profileSaving}
           onDraftChange={patch => setProfileDraft(current => ({ ...current, ...patch }))}
           onSave={() => { void handleProfileSave() }}
+          canCreateRequest={Boolean(primaryTicket)}
+          onCreateRequest={primaryTicket ? () => onOpenCreateRequest(primaryTicket.socialMessageId) : undefined}
         />
       </div>
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
@@ -1315,16 +1322,30 @@ export function WhatsAppConversationsPage() {
   const loadConversations = useCallback(async () => {
     setLoading(true)
     try {
-      const [convResult, quickReplyResult, departmentResult] = await Promise.allSettled([
+      const [convResult, quickReplyResult, metaTemplateResult, departmentResult] = await Promise.allSettled([
         api.getCitizenConversations(),
         api.getUserQuickReplies(),
+        api.getWhatsAppTemplates(),
         api.getDepartments(),
       ])
       if (convResult.status === 'fulfilled') {
         setConversations(convResult.value)
       }
       if (quickReplyResult.status === 'fulfilled') {
-        setUserQuickReplies(quickReplyResult.value)
+        const metaTemplates = metaTemplateResult.status === 'fulfilled'
+          ? metaTemplateResult.value
+              .filter(template => template.isActive && template.channel === WHATSAPP_META_TEMPLATE_CHANNEL)
+              .map(template => ({
+                templateId: `meta-${template.templateId}`,
+                name: template.name,
+                content: template.content,
+                source: 'meta' as const,
+              }))
+          : []
+        setUserQuickReplies([
+          ...metaTemplates,
+          ...quickReplyResult.value.map(template => ({ ...template, source: 'user' as const })),
+        ])
       }
       if (departmentResult.status === 'fulfilled') {
         setDepartments(departmentResult.value)
@@ -1345,7 +1366,21 @@ export function WhatsAppConversationsPage() {
 
   const refreshUserQuickReplies = useCallback(async () => {
     try {
-      setUserQuickReplies(await api.getUserQuickReplies())
+      const [quickReplies, metaTemplates] = await Promise.all([
+        api.getUserQuickReplies(),
+        api.getWhatsAppTemplates(),
+      ])
+      setUserQuickReplies([
+        ...metaTemplates
+          .filter(template => template.isActive && template.channel === WHATSAPP_META_TEMPLATE_CHANNEL)
+          .map(template => ({
+            templateId: `meta-${template.templateId}`,
+            name: template.name,
+            content: template.content,
+            source: 'meta' as const,
+          })),
+        ...quickReplies.map(template => ({ ...template, source: 'user' as const })),
+      ])
     } catch {
       // Ignore background refresh failures.
     }
@@ -1445,9 +1480,9 @@ export function WhatsAppConversationsPage() {
         || (selectedConv?.citizenPhone && matchesPhone(payload.citizenPhone, selectedConv.citizenPhone))
 
       if (matchesSelected) {
-        // Birim içi ileti bildirimi diğer ilgili kullanıcıların rozetini sıfırlamasın
-        // diye açık konuşmada otomatik markRead atlanır (card #1295).
-        if (!payload.isInternal) {
+        // Birim içi ileti ve teslim durumu güncellemeleri diğer ilgili kullanıcıların rozetini
+        // sıfırlamasın diye açık konuşmada otomatik markRead atlanır.
+        if (!payload.isInternal && !payload.isStatusUpdate) {
           void api.markConversationRead(selectedId)
             .then(() => handleReadMarked())
             .catch(() => {})

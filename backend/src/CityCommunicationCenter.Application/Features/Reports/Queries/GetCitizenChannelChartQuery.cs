@@ -97,7 +97,8 @@ public sealed class GetCitizenChannelChartQueryHandler
             .Select(g => new { Channel = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
-        // Other VT jobs without a SocialMessage channel — group by SourceType (Manual / CitizenRequest / Integration / EDevlet)
+        // Other VT jobs without a SocialMessage channel — group by SourceType, but legacy
+        // SocialMessage-sourced call records are displayed as Phone, not "Sosyal Medya Mesajı".
         var otherCounts = await citizenJobs
             .Where(j => !linkedCitizenMessages.Any(sm => sm.JobId == j.JobId))
             .GroupBy(j => j.SourceType)
@@ -116,10 +117,16 @@ public sealed class GetCitizenChannelChartQueryHandler
 
         foreach (var item in otherCounts.OrderByDescending(x => x.Count))
         {
-            slices.Add(new DashboardChartSlice(
-                $"sourceType.{item.SourceType}",
-                item.Count,
-                GetSourceTypeColor(item.SourceType)));
+            var channel = MapUnlinkedCitizenSourceToChannel(item.SourceType);
+            slices.Add(channel.HasValue
+                ? new DashboardChartSlice(
+                    $"channel.{channel.Value}",
+                    item.Count,
+                    GetSocialChannelColor(channel.Value))
+                : new DashboardChartSlice(
+                    $"sourceType.{item.SourceType}",
+                    item.Count,
+                    GetSourceTypeColor(item.SourceType)));
         }
 
         return new DashboardChartResponse("dashboard.citizenChannels.title", slices);
@@ -144,5 +151,11 @@ public sealed class GetCitizenChannelChartQueryHandler
         JobSourceType.Integration => "primary",
         JobSourceType.EDevlet => "success",
         _ => "neutral",
+    };
+
+    private static SocialChannel? MapUnlinkedCitizenSourceToChannel(JobSourceType sourceType) => sourceType switch
+    {
+        JobSourceType.SocialMessage => SocialChannel.Phone,
+        _ => null,
     };
 }

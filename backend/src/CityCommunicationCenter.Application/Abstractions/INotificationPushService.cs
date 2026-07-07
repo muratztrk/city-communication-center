@@ -22,4 +22,7 @@ public sealed record WhatsAppMessagePayload(
     DateTimeOffset LastMessageAt,
     // Birim içi (Kurum İçi İlet) mesaj bildirimi; istemci aktif konuşmada otomatik
     // okundu-işaretlemeyi atlar (card #1295).
-    bool IsInternal = false);
+    bool IsInternal = false,
+    // İçerik değil teslim durumu (sent/delivered/read) güncellendi; istemci açık konuşmayı yeniler
+    // ama okundu yazmaz.
+    bool IsStatusUpdate = false);

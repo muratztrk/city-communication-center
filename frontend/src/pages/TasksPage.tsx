@@ -22,6 +22,7 @@ import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { RichTextContent } from '../components/ui/RichTextContent'
+import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
@@ -74,7 +75,6 @@ import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { getRequestEditPath } from '../utils/requestEditPath'
 
 interface TaskScopeFiltersProps {
   searchText: string
@@ -327,10 +327,6 @@ function isActionableTaskStatus(status: string): boolean {
   return status === 'Assigned' || status === 'InProgress' || status === 'RevisionRequested'
 }
 
-function getRoutineTaskEditPath(taskId: string): string {
-  return `/routine-tasks/${taskId}/edit`
-}
-
 // Görevin atanma günü = bugün mü? (Görevlerim "Yeni" rozeti, card 589)
 function isAssignedToday(value: string | null | undefined): boolean {
   if (!value) return false
@@ -487,6 +483,28 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null)
   const [parentJobDetail, setParentJobDetail] = useState<JobDetail | null>(null)
+  // Kendine atayan yönetici, talebi ayrı sayfaya yönlenmeden aynı popup içinde düzenler (card #1476 reopen).
+  const [editJobModal, setEditJobModal] = useState<{
+    jobId: string
+    title: string
+    description: string
+    priority: string
+    startDateUtc: string
+    dueDateUtc: string
+  } | null>(null)
+  const [editJobSaving, setEditJobSaving] = useState(false)
+  // Rutin görev de ayrı sayfaya (Rutin Görev Düzenle) gitmeden aynı popup içinde düzenlenir (card #1494 reopen).
+  const [editRoutineTaskModal, setEditRoutineTaskModal] = useState<{
+    taskId: string
+    title: string
+    description: string
+    priority: string
+    dueDateUtc: string
+    neighborhood: string | null
+    street: string | null
+    openAddress: string | null
+  } | null>(null)
+  const [editRoutineTaskSaving, setEditRoutineTaskSaving] = useState(false)
   const [routineEditHistory, setRoutineEditHistory] = useState<RoutineTaskEditHistoryEntry[]>([])
   const [routineEditHistoryModalOpen, setRoutineEditHistoryModalOpen] = useState(false)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
@@ -1307,9 +1325,84 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
     && isAssignee(task as Task)
   const showOnlyDetailsInTaskGridActions = isMyTasksView || isDepartmentTasksView
-  const openRoutineTaskEdit = (taskId: string) => {
-    closeTaskDetail()
-    navigate(getRoutineTaskEditPath(taskId))
+  const openRoutineTaskEdit = async (taskId: string) => {
+    const detail = await api.getTaskById(taskId).catch(() => null)
+    if (!detail) return
+    const job = await api.getJobById(detail.jobId).catch(() => null)
+    setEditRoutineTaskModal({
+      taskId,
+      title: detail.title,
+      description: detail.description,
+      priority: detail.priority,
+      dueDateUtc: toDateTimePickerValue(detail.dueDateUtc),
+      neighborhood: job?.neighborhood ?? null,
+      street: job?.street ?? null,
+      openAddress: job?.openAddress ?? null,
+    })
+  }
+  const handleSaveEditRoutineTask = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editRoutineTaskModal) return
+    setEditRoutineTaskSaving(true)
+    try {
+      const updated = await api.updateRoutineTask(editRoutineTaskModal.taskId, {
+        title: editRoutineTaskModal.title,
+        description: editRoutineTaskModal.description,
+        priority: editRoutineTaskModal.priority,
+        dueDateUtc: editRoutineTaskModal.dueDateUtc ? new Date(editRoutineTaskModal.dueDateUtc).toISOString() : null,
+        notes: null,
+        neighborhood: editRoutineTaskModal.neighborhood,
+        street: editRoutineTaskModal.street,
+        openAddress: editRoutineTaskModal.openAddress,
+      })
+      invalidateTasks(queryClient, updated.taskId, updated.jobId)
+      if (selectedTask?.taskId === editRoutineTaskModal.taskId) {
+        const refreshedDetail = await api.getTaskById(editRoutineTaskModal.taskId).catch(() => null)
+        if (refreshedDetail) setTaskDetail(refreshedDetail)
+      }
+      setEditRoutineTaskModal(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setEditRoutineTaskSaving(false)
+    }
+  }
+  // Kendine atayan yönetici talebi ayrı sayfaya gitmeden aynı popup içinde düzenler (card #1476 reopen).
+  const openEditJobModal = (job: JobDetail) => {
+    setEditJobModal({
+      jobId: job.jobId,
+      title: job.title,
+      description: job.description ?? '',
+      priority: job.priority,
+      startDateUtc: toDateTimePickerValue(job.startDateUtc),
+      dueDateUtc: toDateTimePickerValue(job.dueDateUtc),
+    })
+  }
+  const openEditJobModalById = async (jobId: string) => {
+    const job = await api.getJobById(jobId).catch(() => null)
+    if (job) openEditJobModal(job)
+  }
+  const handleSaveEditJob = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editJobModal) return
+    setEditJobSaving(true)
+    try {
+      await api.updateJob(editJobModal.jobId, {
+        title: editJobModal.title,
+        description: editJobModal.description,
+        priority: editJobModal.priority,
+        startDateUtc: editJobModal.startDateUtc ? new Date(editJobModal.startDateUtc).toISOString() : null,
+        dueDateUtc: editJobModal.dueDateUtc ? new Date(editJobModal.dueDateUtc).toISOString() : null,
+      })
+      invalidateTasks(queryClient, selectedTask?.taskId, editJobModal.jobId)
+      const refreshedJob = await api.getJobById(editJobModal.jobId).catch(() => null)
+      if (refreshedJob) setParentJobDetail(refreshedJob)
+      setEditJobModal(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setEditJobSaving(false)
+    }
   }
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
 const pageKicker = isMyTasksView
@@ -1700,7 +1793,7 @@ const pageKicker = isMyTasksView
                     type="button"
                     size="lg"
                     className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
-                    onClick={() => openRoutineTaskEdit(selectedTask.taskId)}
+                    onClick={() => void openRoutineTaskEdit(selectedTask.taskId)}
                   >
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.edit', 'Düzenle')}
@@ -1710,7 +1803,7 @@ const pageKicker = isMyTasksView
                     type="button"
                     size="lg"
                     className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
-                    onClick={() => navigate(getRequestEditPath(parentJobDetail))}
+                    onClick={() => openEditJobModal(parentJobDetail)}
                   >
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('common.edit', 'Düzenle')}
@@ -2689,7 +2782,7 @@ const pageKicker = isMyTasksView
                           <Button
                             size="sm"
                             className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
-                            onClick={() => navigate(getRoutineTaskEditPath(task.taskId))}
+                            onClick={() => void openRoutineTaskEdit(task.taskId)}
                           >
                             <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('common.edit', 'Düzenle')}
@@ -2698,7 +2791,7 @@ const pageKicker = isMyTasksView
                           <Button
                             size="sm"
                             className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
-                            onClick={() => navigate(getRequestEditPath({ jobId: task.jobId, requestType: task.jobRequestType ?? 'InternalUnit', sourceType: task.jobSourceType ?? 'Manual' }))}
+                            onClick={() => void openEditJobModalById(task.jobId)}
                           >
                             <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('common.edit', 'Düzenle')}
@@ -3034,6 +3127,144 @@ const pageKicker = isMyTasksView
           citizenPhone={conversationModal.citizenPhone}
           onClose={() => setConversationModal(null)}
         />
+      )}
+      {editJobModal && (
+        <ModalBackdrop>
+          <form className="form-card page-stack relative w-full max-w-lg" onSubmit={e => void handleSaveEditJob(e)}>
+            <button
+              type="button"
+              onClick={() => setEditJobModal(null)}
+              aria-label={t('common.close', 'Kapat')}
+              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="size-4" />
+            </button>
+            <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
+              {t('jobs.editModal.title', 'Talebi Düzenle')}
+            </h2>
+            <label className="job-field">
+              <span className="job-field-label">{t('jobs.form.title', 'Başlık')}</span>
+              <input
+                className="field-input"
+                value={editJobModal.title}
+                onChange={e => setEditJobModal(m => m && ({ ...m, title: e.target.value }))}
+                required
+              />
+            </label>
+            <label className="job-field">
+              <span className="job-field-label">{t('jobs.form.description', 'Açıklama')}</span>
+              <RichTextEditor
+                value={editJobModal.description}
+                onChange={val => setEditJobModal(m => m && ({ ...m, description: val }))}
+              />
+            </label>
+            <label className="job-field">
+              <span className="job-field-label">{t('jobs.form.priority', 'Öncelik')}</span>
+              <select
+                className="field-select"
+                value={editJobModal.priority}
+                onChange={e => setEditJobModal(m => m && ({ ...m, priority: e.target.value }))}
+              >
+                <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
+                <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+              </select>
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="job-field">
+                <span className="job-field-label">{t('jobs.form.startDate', 'Başlangıç Tarihi')}</span>
+                <DateTimePicker
+                  value={editJobModal.startDateUtc}
+                  onChange={v => setEditJobModal(m => m && ({ ...m, startDateUtc: v }))}
+                  placeholder={t('jobs.form.startDate', 'Başlangıç Tarihi')}
+                />
+              </label>
+              <label className="job-field">
+                <span className="job-field-label">{t('jobs.form.dueDate', 'Bitiş Tarihi')}</span>
+                <DateTimePicker
+                  value={editJobModal.dueDateUtc}
+                  onChange={v => setEditJobModal(m => m && ({ ...m, dueDateUtc: v }))}
+                  placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                />
+              </label>
+            </div>
+            <div className="inline-actions justify-end">
+              <Button type="button" variant="secondary" onClick={() => setEditJobModal(null)}>
+                {t('common.cancel', 'İptal')}
+              </Button>
+              <Button type="submit" disabled={editJobSaving}>
+                {editJobSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+          </form>
+        </ModalBackdrop>
+      )}
+      {editRoutineTaskModal && (
+        <ModalBackdrop>
+          <form className="form-card page-stack relative w-full max-w-lg" onSubmit={e => void handleSaveEditRoutineTask(e)}>
+            <button
+              type="button"
+              onClick={() => setEditRoutineTaskModal(null)}
+              aria-label={t('common.close', 'Kapat')}
+              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="size-4" />
+            </button>
+            <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
+              {t('routineTask.editTitle', 'Rutin Görev Düzenle')}
+            </h2>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.newRequest.title', 'Başlık')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span></span>
+              <input
+                className="field-input"
+                maxLength={50}
+                value={editRoutineTaskModal.title}
+                onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, title: e.target.value }))}
+                required
+              />
+            </label>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span></span>
+              <RichTextEditor
+                value={editRoutineTaskModal.description}
+                onChange={val => setEditRoutineTaskModal(m => m && ({ ...m, description: val }))}
+              />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="job-field">
+                <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
+                <select
+                  className="field-select"
+                  value={editRoutineTaskModal.priority}
+                  onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, priority: e.target.value }))}
+                >
+                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                  <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+                </select>
+              </label>
+              <label className="job-field">
+                <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}</span>
+                <DateTimePicker
+                  value={editRoutineTaskModal.dueDateUtc}
+                  onChange={v => setEditRoutineTaskModal(m => m && ({ ...m, dueDateUtc: v }))}
+                  placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}
+                />
+              </label>
+            </div>
+            <div className="inline-actions justify-end">
+              <Button type="button" variant="secondary" onClick={() => setEditRoutineTaskModal(null)}>
+                {t('common.cancel', 'İptal')}
+              </Button>
+              <Button type="submit" disabled={editRoutineTaskSaving}>
+                {editRoutineTaskSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+          </form>
+        </ModalBackdrop>
       )}
     </div>
   )

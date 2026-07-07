@@ -2227,8 +2227,8 @@ const pageKicker = isMyTasksView
                     )
                     const parentInfoCardContent = (
                       <>
-                        <MyRequestSectionHeading icon={Info}>
-                          <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                        <MyRequestSectionHeading icon={Info} className="w-full">
+                          <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
                             <span className="min-w-0">{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
                             <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
                               <span className="flex max-w-full flex-wrap items-center justify-end gap-1 text-xs font-semibold leading-tight text-slate-500">

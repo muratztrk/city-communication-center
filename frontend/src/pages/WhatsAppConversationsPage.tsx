@@ -1435,6 +1435,7 @@ export function WhatsAppConversationsPage() {
   }, [filtered, requestedPhone, selectedId])
 
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
+  const phoneOpenKey = requestedPhone && !requestedAt && !requestedMessageId ? normalizePhone(requestedPhone) : ''
 
   const handleReadMarked = useCallback(() => {
     setConversations(prev =>
@@ -1595,7 +1596,7 @@ export function WhatsAppConversationsPage() {
         <div className="min-h-[34rem] flex-1 min-w-0 bg-slate-50 md:min-h-0">
           {selectedId ? (
             <ConversationDetail
-              key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}`}
+              key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}-${phoneOpenKey}`}
               conversationId={selectedId}
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}

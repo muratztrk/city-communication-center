@@ -1908,3 +1908,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   üst sayaçlarında ve konuşma kartı alt sayaçlarında `İptal` kalemi gizlendi.
 
 ## STATUS: Round 241 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 242 (Doing — 2026-07-07, yeni kartlar devam)
+- [x] `gms8raES` / `6a4c936dab5e7280fecca32a` reopen — WhatsApp Konuşmaları sağ profil
+  panelindeki `Talep Oluştur` butonu satır ortasına hizalandı ve daha büyük `h-10` buton yapıldı.
+
+## STATUS: Round 242 complete — frontend build/lint passed; cards pending Done move.

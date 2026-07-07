@@ -555,14 +555,14 @@ function ConversationProfilePanel({
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-l border-slate-200 bg-slate-50/80 p-4 lg:flex">
       <div className="mb-3 space-y-2">
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           <button
             type="button"
             onClick={onCreateRequest}
             disabled={!detail || !canCreateRequest}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-emerald-200 bg-white px-2.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-emerald-200 bg-white px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <ClipboardPlus className="size-3.5" aria-hidden="true" />
+            <ClipboardPlus className="size-4" aria-hidden="true" />
             {t('nav.createRequest', 'Talep Oluştur')}
           </button>
         </div>

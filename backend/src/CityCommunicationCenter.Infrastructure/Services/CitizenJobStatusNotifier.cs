@@ -12,15 +12,18 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantSmsSettingsService _smsSettingsService;
+    private readonly INotificationPushService? _notificationPushService;
     private readonly ILogger<CitizenJobStatusNotifier> _logger;
 
     public CitizenJobStatusNotifier(
         IApplicationDbContext dbContext,
         ITenantSmsSettingsService smsSettingsService,
-        ILogger<CitizenJobStatusNotifier> logger)
+        ILogger<CitizenJobStatusNotifier> logger,
+        INotificationPushService? notificationPushService = null)
     {
         _dbContext = dbContext;
         _smsSettingsService = smsSettingsService;
+        _notificationPushService = notificationPushService;
         _logger = logger;
     }
 
@@ -169,7 +172,40 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             DeliveryStatusUpdatedAtUtc = utcNow,
         });
 
+        WhatsAppMessagePayload? pendingPush = null;
+        if (message.CitizenConversationId is Guid conversationId)
+        {
+            var conversation = await _dbContext.CitizenConversations
+                .FirstOrDefaultAsync(
+                    entity => entity.CitizenConversationId == conversationId && entity.TenantId == tenantId,
+                    cancellationToken);
+            if (conversation is not null)
+            {
+                if (utcNow > conversation.LastMessageAt)
+                {
+                    conversation.LastMessageAt = utcNow;
+                }
+
+                conversation.UnreadCount += 1;
+                pendingPush = new WhatsAppMessagePayload(
+                    conversation.CitizenConversationId,
+                    conversation.CitizenPhone,
+                    conversation.CitizenName,
+                    content,
+                    conversation.UnreadCount,
+                    conversation.LastMessageAt);
+            }
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (_notificationPushService is not null && pendingPush is not null)
+        {
+            await _notificationPushService.SendWhatsAppMessageToTenantAsync(
+                tenantId,
+                pendingPush,
+                cancellationToken);
+        }
     }
 
     private async Task SendSmsAsync(

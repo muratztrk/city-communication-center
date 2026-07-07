@@ -1885,3 +1885,17 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   kademe daha yüksek yapıldı.
 
 ## STATUS: Round 239 complete — backend build and frontend build/lint passed; cards moved to Done.
+
+## Round 240 (Doing — 2026-07-07, yeni kartlar)
+- [x] `LiZgmmie` / `6a4ca0d05602c970ac3b9688` / #1463 — Jobs/Tasks detay popup
+  `Yazışmaya Git` butonlarına konuşma ikonu eklendi.
+- [x] `OmHrm6tu` / `6a4ca031fdbe566c84a02480` / #1461 — Tasks detay popup
+  `Görevi Yönlendir` butonuna yönlendirme ikonu eklendi.
+- [x] `XXIk2pBf` / `6a4ca0abda4e10ea911edbb5` / #1462 — Detay popup
+  `Yazışmaya Git` ile açılan konuşma paneli ilk yüklemede ve yeni entry geldiğinde son mesaja hizalanır.
+- [x] `Ko0AM1fX` / `6a4bf6d8764098d76879a3c6` / #1447 — Görevlerim detay popup
+  `Düzenle` butonu koyu turkuaz yapılarak `Tamamla` butonundan ayrıştırıldı.
+- [x] `7dK5c7rP` / `6a4ca27a9a68cf290abaf89f` / #1464 — Otomatik vatandaş
+  durum mesajları `Pending` entry üretirken WhatsApp konuşma listesi metadata/push güncellemesini de yapar.
+
+## STATUS: Round 240 complete — backend build and frontend build/lint passed; cards pending Done move.

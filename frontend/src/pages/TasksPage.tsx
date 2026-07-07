@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCheck, FileImage, FileText, History, Info, ListChecks, MapPin, Paperclip, Printer, Search, PenLine, X, XCircle } from 'lucide-react'
+import { ArrowRight, CheckCheck, FileImage, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1635,9 +1635,10 @@ const pageKicker = isMyTasksView
                   <Button
                     type="button"
                     size="lg"
-                    className="!bg-sky-400 !text-white hover:!bg-sky-500"
+                    className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
                     onClick={openCitizenConversationModal}
                   >
+                    <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('social.goToConversation', 'Yazışmaya Git')}
                   </Button>
                 )}
@@ -1645,17 +1646,19 @@ const pageKicker = isMyTasksView
                   <Button
                     type="button"
                     size="lg"
-                    className="bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
+                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
                     onClick={() => openRouteModal(selectedTask.taskId)}
                   >
+                    <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.route', 'Görevi Yönlendir')}
                   </Button>
                 ) : (
                   <DisabledActionButton
                     size="lg"
-                    className="bg-[#007985] text-white"
+                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
                     hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}
                   >
+                    <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.route', 'Görevi Yönlendir')}
                   </DisabledActionButton>
                 ))}
@@ -1675,7 +1678,7 @@ const pageKicker = isMyTasksView
                   <Button
                     type="button"
                     size="lg"
-                    className="inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800"
+                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
                     onClick={() => openRoutineTaskEdit(selectedTask.taskId)}
                   >
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -1684,7 +1687,7 @@ const pageKicker = isMyTasksView
                 ) : (
                   <DisabledActionButton
                     size="lg"
-                    className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
+                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
                     hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
                   >
                     <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

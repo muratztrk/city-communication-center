@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Search, PenLine, X as XIcon } from 'lucide-react'
+import { MessageSquareText, Search, PenLine, X as XIcon } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -2206,9 +2206,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button
                     type="button"
                     size="lg"
-                    className="!bg-sky-400 !text-white hover:!bg-sky-500"
+                    className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
                     onClick={openCitizenConversationModal}
                   >
+                    <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('social.goToConversation', 'Yazışmaya Git')}
                   </Button>
                 )}

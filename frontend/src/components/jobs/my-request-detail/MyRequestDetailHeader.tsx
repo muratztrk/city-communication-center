@@ -1,4 +1,4 @@
-import { PenLine, Printer, X as XIcon, XCircle } from 'lucide-react'
+import { MessageSquareText, PenLine, Printer, X as XIcon, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../ui/button'
 import { DisabledActionButton } from '../../ui/DisabledActionButton'
@@ -50,9 +50,10 @@ export function MyRequestDetailHeader({
           <Button
             type="button"
             size="lg"
-            className="!bg-sky-400 !text-white hover:!bg-sky-500"
+            className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
             onClick={onGoToConversation}
           >
+            <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
             {t('social.goToConversation', 'Yazışmaya Git')}
           </Button>
         )}

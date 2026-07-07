@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -67,10 +67,24 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   })
   const entries = useMemo(() => conversationQuery.data ?? [], [conversationQuery.data])
   const userQuickReplies = userQuickRepliesQuery.data ?? []
+  const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null
+  const lastEntryKey = lastEntry
+    ? `${lastEntry.entryId}-${lastEntry.sentAt}-${lastEntry.deliveryStatus ?? ''}`
+    : 'empty'
+
+  const scrollConversationToBottom = useCallback(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' })
+  }, [])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [entries])
+    const frameId = window.requestAnimationFrame(scrollConversationToBottom)
+    const timeoutId = window.setTimeout(scrollConversationToBottom, 50)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      window.clearTimeout(timeoutId)
+    }
+  }, [lastEntryKey, scrollConversationToBottom, socialMessageId])
 
   const handleSend = async () => {
     const text = replyText.trim()

@@ -72,16 +72,31 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                     }
                 }
 
-                await client.SendMessageAsync(new SendMessageRequest
+                var sendResult = await client.SendMessageAsync(new SendMessageRequest
                 {
                     RecipientId = recipientId,
                     Message = request.Content
                 }, cancellationToken);
-            }
 
-            if (isWhatsApp)
+                if (isWhatsApp)
+                {
+                    if (sendResult.Success)
+                    {
+                        externalEntryId = sendResult.MessageId;
+                        deliveryStatus = ConversationDeliveryStatus.Sent;
+                        deliveryError = null;
+                    }
+                    else
+                    {
+                        deliveryStatus = ConversationDeliveryStatus.Failed;
+                        deliveryError = sendResult.Error;
+                    }
+                }
+            }
+            else if (isWhatsApp)
             {
-                deliveryStatus = ConversationDeliveryStatus.Sent;
+                deliveryStatus = ConversationDeliveryStatus.Failed;
+                deliveryError = "WhatsApp istemcisi yapılandırılmadı.";
             }
         }
 

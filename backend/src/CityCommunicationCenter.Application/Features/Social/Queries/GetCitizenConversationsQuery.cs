@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Features.Users;
+
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record GetCitizenConversationsQuery : IQuery<IReadOnlyList<CitizenConversationSummaryDto>>;
@@ -23,7 +25,6 @@ public sealed class GetCitizenConversationsQueryHandler
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
         var currentUserId = context.UserId;
-        var activeDepartmentId = context.ActiveDepartmentId;
         var canSeeAllConversations = Enum.TryParse<RoleCode>(context.RoleCode, true, out var roleCode)
             && roleCode is RoleCode.Operator or RoleCode.SystemAdmin;
 
@@ -144,9 +145,13 @@ public sealed class GetCitizenConversationsQueryHandler
         }
 
         var relevantJobIds = new HashSet<Guid>();
-        if (jobIds.Count > 0 && !canSeeAllConversations)
+        if (jobIds.Count > 0 && !canSeeAllConversations && currentUserId is Guid userId)
         {
-            if (currentUserId is Guid userId)
+            var user = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId && u.TenantId == tenantId, cancellationToken);
+
+            if (user is not null)
             {
                 foreach (var pair in assigneeUserIdByJobId)
                 {
@@ -155,22 +160,30 @@ public sealed class GetCitizenConversationsQueryHandler
                         relevantJobIds.Add(pair.Key);
                     }
                 }
-            }
 
-            if (activeDepartmentId is Guid departmentId)
-            {
-                var departmentJobIds = await _dbContext.JobDepartments
-                    .AsNoTracking()
-                    .Where(jd => jobIds.Contains(jd.JobId)
-                        && jd.DepartmentId == departmentId
-                        && jd.Role == JobDepartmentRole.Target
-                        && jd.ApprovalStatus == JobApprovalStatus.Approved)
-                    .Select(jd => jd.JobId)
-                    .ToListAsync(cancellationToken);
+                // Aktif birim seçimi yerine kullanıcının erişebildiği tüm birimler (card #1295 reopen).
+                var accessibleDepartmentIds = await UserDepartmentAccess.GetAccessibleDepartmentIdsAsync(
+                    _dbContext,
+                    tenantId,
+                    user,
+                    cancellationToken,
+                    includeManagedDepartments: true);
 
-                foreach (var jobId in departmentJobIds)
+                if (accessibleDepartmentIds.Length > 0)
                 {
-                    relevantJobIds.Add(jobId);
+                    var departmentJobIds = await _dbContext.JobDepartments
+                        .AsNoTracking()
+                        .Where(jd => jobIds.Contains(jd.JobId)
+                            && accessibleDepartmentIds.Contains(jd.DepartmentId)
+                            && jd.Role == JobDepartmentRole.Target
+                            && jd.ApprovalStatus == JobApprovalStatus.Approved)
+                        .Select(jd => jd.JobId)
+                        .ToListAsync(cancellationToken);
+
+                    foreach (var jobId in departmentJobIds)
+                    {
+                        relevantJobIds.Add(jobId);
+                    }
                 }
             }
         }

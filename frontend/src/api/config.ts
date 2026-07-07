@@ -1,12 +1,50 @@
-const configuredApiOrigin = (import.meta.env.VITE_API_ORIGIN ?? '').trim()
+function isPrivateNetworkHost(hostname: string): boolean {
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.local')) {
+    return true
+  }
 
-const runtimeOrigin = typeof window !== 'undefined'
-  && window.location.hostname !== 'localhost'
-  && window.location.hostname !== '127.0.0.1'
-  ? window.location.origin
-  : 'http://localhost:15000'
+  const parts = hostname.split('.').map(part => Number.parseInt(part, 10))
+  if (parts.length === 4 && parts.every(part => Number.isFinite(part))) {
+    if (parts[0] === 10) return true
+    if (parts[0] === 192 && parts[1] === 168) return true
+    if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true
+  }
 
-export const API_ORIGIN = configuredApiOrigin || runtimeOrigin
+  return false
+}
+
+function resolveApiOrigin(): string {
+  const configuredApiOrigin = (import.meta.env.VITE_API_ORIGIN ?? '').trim()
+
+  if (typeof window === 'undefined') {
+    return configuredApiOrigin || 'http://localhost:15000'
+  }
+
+  const pageOrigin = window.location.origin
+  const pageHost = window.location.hostname
+  const pageIsPublicHttps = window.location.protocol === 'https:' && !isPrivateNetworkHost(pageHost)
+
+  if (configuredApiOrigin) {
+    try {
+      const configuredHost = new URL(configuredApiOrigin).hostname
+      // VPN/public domain üzerinden erişimde build-time LAN API adresi tarayıcı yerel ağ izni istemesin (card #1442 reopen).
+      if (pageIsPublicHttps && isPrivateNetworkHost(configuredHost)) {
+        return pageOrigin
+      }
+    } catch {
+      // ignore malformed configured origin
+    }
+    return configuredApiOrigin
+  }
+
+  if (pageHost !== 'localhost' && pageHost !== '127.0.0.1') {
+    return pageOrigin
+  }
+
+  return 'http://localhost:15000'
+}
+
+export const API_ORIGIN = resolveApiOrigin()
 export const API_BASE = `${API_ORIGIN}/api/v1`
 
 // Ekler /uploads/... şeklinde göreli URL ile döner; API ile frontend farklı origin'de

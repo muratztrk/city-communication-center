@@ -131,10 +131,13 @@ export function WhatsAppNotificationFab() {
         return
       }
       void refreshConversations()
+      if (payload.isInternal || payload.unreadCount > 0) {
+        triggerPulse()
+      }
     }
     window.addEventListener('ccc:whatsapp-message', onWindowEvent)
     return () => window.removeEventListener('ccc:whatsapp-message', onWindowEvent)
-  }, [isPayloadForActiveConversation, refreshConversations, zeroUnreadForConversation])
+  }, [isPayloadForActiveConversation, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useEffect(() => {
     const onActiveConversationChange = (event: Event) => {
@@ -207,6 +210,11 @@ export function WhatsAppNotificationFab() {
     [conversations],
   )
 
+  const shouldShowFab = useMemo(
+    () => hasRelevantConversation || unreadTotal > 0,
+    [hasRelevantConversation, unreadTotal],
+  )
+
   useEffect(() => {
     if (!isOpen) return
     let cancelled = false
@@ -227,7 +235,7 @@ export function WhatsAppNotificationFab() {
 
   const badgeLabel = formatBadgeCount(unreadTotal)
 
-  if (!hasRelevantConversation && unreadTotal === 0) {
+  if (!shouldShowFab) {
     return null
   }
 

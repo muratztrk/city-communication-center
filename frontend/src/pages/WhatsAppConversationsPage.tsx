@@ -967,7 +967,7 @@ function ConversationDetail({
   }, [detail, normalizedChatSearch])
 
   return (
-    <div className="flex h-full flex-col bg-white text-[color:var(--color-foreground)]">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
       <header className="flex shrink-0 items-start gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
         <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
@@ -1055,8 +1055,8 @@ function ConversationDetail({
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1">
-        <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           {showChatSearch ? (
             <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-2">
               <input
@@ -1479,16 +1479,7 @@ export function WhatsAppConversationsPage() {
         return
       }
 
-      setConversations(prev => prev.map(conversation => (
-        conversation.citizenConversationId === payload.citizenConversationId
-          ? {
-              ...conversation,
-              unreadCount: payload.unreadCount,
-              lastMessageAt: payload.lastMessageAt,
-              lastMessagePreview: payload.messagePreview ?? conversation.lastMessagePreview,
-            }
-          : conversation
-      )))
+      void silentRefreshConversations()
     }
 
     window.addEventListener('ccc:whatsapp-message', handleIncomingWhatsAppMessage)
@@ -1574,7 +1565,7 @@ export function WhatsAppConversationsPage() {
       </header>
 
       {/* Split panel layout */}
-      <div className="flex flex-1 min-h-0 flex-col overflow-visible rounded-xl border border-[color:var(--color-border)] bg-slate-50 md:min-h-[calc(100dvh-12rem)] md:flex-row md:overflow-hidden">
+      <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-slate-50 md:min-h-[calc(100dvh-12rem)] md:flex-row">
         {/* Left: conversation list */}
         <ConversationListPanel
           conversations={conversations}
@@ -1593,7 +1584,7 @@ export function WhatsAppConversationsPage() {
         />
 
         {/* Right: conversation detail */}
-        <div className="min-h-[34rem] flex-1 min-w-0 bg-slate-50 md:min-h-0">
+        <div className="min-h-[34rem] flex-1 min-w-0 overflow-hidden bg-slate-50 md:min-h-0">
           {selectedId ? (
             <ConversationDetail
               key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}-${phoneOpenKey}`}

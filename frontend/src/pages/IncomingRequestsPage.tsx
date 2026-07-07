@@ -931,7 +931,7 @@ export function IncomingRequestsPage() {
                     )}
                     {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
                     {currentStatusFilter === 'completed' && (
-                      <td>
+                      <td className="incoming-completed-at-cell">
                         <DateCell value={row.completedAtUtc} locale={locale} tone="success" />
                         {rowExtraTimeMarkers}
                       </td>

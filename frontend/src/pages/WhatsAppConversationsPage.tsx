@@ -553,20 +553,21 @@ function ConversationProfilePanel({
   const labelClass = 'text-[10px] font-bold uppercase tracking-wide text-slate-500'
 
   return (
-    <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-y-auto border-l border-slate-200 bg-slate-50/80 p-4 lg:flex">
-      <div className="mb-3 space-y-2">
-        <div className="flex justify-center rounded-lg bg-white p-2">
-          <button
-            type="button"
-            onClick={onCreateRequest}
-            disabled={!detail || !canCreateRequest}
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-emerald-200 bg-white px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <ClipboardPlus className="size-4" aria-hidden="true" />
-            {t('nav.createRequest', 'Talep Oluştur')}
-          </button>
-        </div>
-        <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
+    <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-y-auto border-l border-slate-200 bg-slate-50/80 lg:flex">
+      <div className="flex justify-center border-b border-slate-200 bg-white p-4">
+        <button
+          type="button"
+          onClick={onCreateRequest}
+          disabled={!detail || !canCreateRequest}
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ClipboardPlus className="size-4" aria-hidden="true" />
+          {t('nav.createRequest', 'Talep Oluştur')}
+        </button>
+      </div>
+
+      <div className="p-4">
+        <div className="mb-3 flex items-center justify-between gap-2">
           <h3 className="text-sm font-bold text-slate-900">{t('whatsapp.citizenProfile', 'Vatandaş Bilgileri')}</h3>
           <button
             type="button"
@@ -578,9 +579,8 @@ function ConversationProfilePanel({
             {t('common.save', 'Kaydet')}
           </button>
         </div>
-      </div>
 
-      <div className="space-y-3">
+        <div className="space-y-3">
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.citizenName', 'Vatandaş Adı')}</span>
           <input className={fieldClass} value={draft.citizenName} onChange={event => onDraftChange({ citizenName: event.target.value })} />
@@ -621,8 +621,8 @@ function ConversationProfilePanel({
             disabled={!hasNeighborhood}
           />
         </label>
+        </div>
       </div>
-
     </aside>
   )
 }

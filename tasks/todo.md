@@ -1933,4 +1933,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `UWyHtsOb` / `6a4ca772288cc565c6b96c28` / #1468 — Ayarlar > Taslak Mesajlar
   yeşil classic oluşturma butonu eski `+ Yeni Şablon Oluştur` metnine döndürüldü.
 
-## STATUS: Round 245 complete — frontend build/lint passed; cards pending Done move.
+## STATUS: Round 245 complete — frontend build/lint passed; cards moved to Done.

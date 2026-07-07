@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { MessageSquareText, Search, PenLine, X as XIcon } from 'lucide-react'
+import { Check, MessageSquareText, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -2214,17 +2214,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   </Button>
                 )}
                 {(canApproveDetail || canAssignIncomingDetail) && (
-                  <Button type="button" size="lg" variant="success" onClick={() => void handleApproveOwner(detail.jobId)}>
+                  <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => void handleApproveOwner(detail.jobId)}>
+                    <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
                 {canApproveTargetDetail && activeDeptId && (
-                  <Button type="button" size="lg" variant="success" onClick={() => handleApproveTarget(detail.jobId, activeDeptId)}>
+                  <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveTarget(detail.jobId, activeDeptId)}>
+                    <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
                 {canApproveIncomingCloseDetail && incomingPendingCloseTask && (
-                  <Button type="button" size="lg" variant="success" onClick={() => handleApproveIncomingCloseDetail(incomingPendingCloseTask.taskId)}>
+                  <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveIncomingCloseDetail(incomingPendingCloseTask.taskId)}>
+                    <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.approveClose', 'Onayla')}
                   </Button>
                 )}
@@ -2232,8 +2235,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <DisabledActionButton
                     size="lg"
                     variant="success"
+                    className="inline-flex items-center gap-1.5"
                     hoverTitle={t('jobs.actions.approveUnavailable', 'Bu kayıtta onay işlemi yapılamaz')}
                   >
+                    <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </DisabledActionButton>
                 )}
@@ -2271,9 +2276,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button
                     type="button"
                     size="lg"
-                    className="bg-teal-700 text-white hover:bg-teal-800"
+                    className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
                     onClick={openForwardModal}
                   >
+                    <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.forward', 'Talebi Yönlendir')}
                   </Button>
                 )}
@@ -2282,8 +2288,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     type="button"
                     size="lg"
                     variant="destructive"
+                    className="inline-flex items-center gap-1.5"
                     onClick={() => handleCancel(detail.jobId)}
                   >
+                    <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </Button>
                 )}
@@ -2291,12 +2299,24 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <DisabledActionButton
                     size="lg"
                     variant="destructive"
+                    className="inline-flex items-center gap-1.5"
                     hoverTitle={t('jobs.actions.cancelUnavailableApproved', 'Talep onaylandığı için iptal edilemez')}
                   >
+                    <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </DisabledActionButton>
                 )}
-                <Button type="button" size="lg" variant="secondary" className="detail-print-action" onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}>{t('common.print', 'Yazdır')}</Button>
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="ghost"
+                  className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
+                  onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}
+                  aria-label={t('common.print', 'Yazdır')}
+                >
+                  <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  {t('common.print', 'Yazdır')}
+                </Button>
                 <button
                   type="button"
                   onClick={closeDetail}

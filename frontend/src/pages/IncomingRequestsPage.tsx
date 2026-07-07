@@ -1,4 +1,4 @@
-import { ArrowRight, Search, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -964,9 +964,8 @@ export function IncomingRequestsPage() {
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}
-                        <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)} className="gap-1.5">
+                        <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)}>
                           {t('jobs.actions.details', 'Detaylar')}
-                          <ArrowRight className="size-3.5" />
                         </Button>
                         {/* Onayla — onay bekleyen iş satırlarında */}
                         {canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (

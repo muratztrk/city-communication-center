@@ -1919,4 +1919,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `P2q5ViXg` / `6a4ca619dcbf36c36efe1318` / #1466 — WhatsApp Konuşmaları footer
   `Talep oluştur` butonu kaldırıldı; `Dosya ekle`, `Şablon mesaj ekle` butonunun hemen sağına hizalandı.
 
-## STATUS: Round 243 complete — frontend build/lint passed; cards pending Done move.
+## STATUS: Round 243 complete — frontend build/lint passed; cards moved to Done.

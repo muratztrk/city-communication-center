@@ -446,9 +446,10 @@ export interface CitizenConversationSummary {
   hasPendingOutboundMessage?: boolean;
   // Standart kullanıcı için bildirim çanından "Yazışmaya Git" modalını açabilmek için (card #1477).
   latestSocialMessageId?: string | null;
-  // Son mesaj kurum içi ileti ise, bildirim çanında vatandaş yerine göndereni gösterebilmek için (card #1497).
-  lastMessageIsInternal?: boolean;
-  lastInternalSenderDisplayName?: string | null;
+  // Son mesaj vatandaş değil personel tarafından yazıldıysa (kurum içi ileti veya henüz
+  // gönderilmemiş yanıt), bildirim çanında vatandaş yerine gönderenin birimi/adı gösterilir (card #1497/#1500).
+  lastStaffSenderDepartment?: string | null;
+  lastStaffSenderDisplayName?: string | null;
 }
 
 export interface CitizenConversationTimelineEntry {

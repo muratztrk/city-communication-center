@@ -207,9 +207,10 @@ public sealed record CitizenConversationSummaryDto(
     bool HasPendingOutboundMessage = false,
     // Standart kullanıcı için bildirim çanından doğrudan "Yazışmaya Git" modalını açabilmek amacıyla (card #1477).
     Guid? LatestSocialMessageId = null,
-    // Son mesaj kurum içi ileti ise, bildirim çanında vatandaş yerine göndereni gösterebilmek için (card #1497).
-    bool LastMessageIsInternal = false,
-    string? LastInternalSenderDisplayName = null);
+    // Son mesaj vatandaş değil personel tarafından yazıldıysa (kurum içi ileti veya henüz
+    // gönderilmemiş yanıt), bildirim çanında vatandaş yerine gönderenin birimi/adı gösterilir (card #1497/#1500).
+    string? LastStaffSenderDepartment = null,
+    string? LastStaffSenderDisplayName = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

@@ -219,10 +219,9 @@ export function WhatsAppNotificationFab() {
     () => conversations
       .filter(conversation => {
         if (conversation.isRelevantToCurrentUser === false) return false
-        // Son mesaj kendi gönderdiğimiz kurum içi ileti ise bildirimde görünmesin (card #1495/#1499).
-        if (conversation.lastMessageIsInternal
-          && conversation.lastInternalSenderDisplayName
-          && conversation.lastInternalSenderDisplayName === user?.displayName) return false
+        // Son mesajı kendimiz yazdıysak (kurum içi ileti veya Beklemede yanıt) bildirimde görünmesin (card #1495/#1499).
+        if (conversation.lastStaffSenderDisplayName
+          && conversation.lastStaffSenderDisplayName === user?.displayName) return false
         // "BEKLEMEDE" durumunda gönderilmemiş giden mesaj varsa, okunmamış mesaj olmasa
         // bile bildirimde görünsün (card #1472).
         if (conversation.unreadCount <= 0 && !conversation.hasPendingOutboundMessage) return false
@@ -341,18 +340,18 @@ export function WhatsAppNotificationFab() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">
-                      {conversation.lastMessageIsInternal
-                        ? t('whatsapp.notificationPanelOperator', 'Operatör')
-                        : conversation.citizenName ?? formatPhone(conversation.citizenPhone)}
+                      {conversation.lastStaffSenderDepartment
+                        ?? conversation.citizenName
+                        ?? formatPhone(conversation.citizenPhone)}
                     </p>
                     <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
                       {formatConversationListTime(conversation.lastMessageAt, locale, t)}
                     </span>
                   </div>
-                  {conversation.lastMessageIsInternal ? (
-                    conversation.lastInternalSenderDisplayName ? (
+                  {conversation.lastStaffSenderDepartment ? (
+                    conversation.lastStaffSenderDisplayName ? (
                       <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
-                        {conversation.lastInternalSenderDisplayName}
+                        {conversation.lastStaffSenderDisplayName}
                       </p>
                     ) : null
                   ) : conversation.citizenName ? (

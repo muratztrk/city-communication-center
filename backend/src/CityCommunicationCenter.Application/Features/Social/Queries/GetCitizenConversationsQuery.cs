@@ -221,16 +221,25 @@ public sealed class GetCitizenConversationsQueryHandler
                     assigneeDisplayName = name;
                 }
 
-                // Son mesaj kurum içi ileti ise ("Kurum İçi Mesaj · {birim} · {ad}"), bildirim
-                // çanında gönderenin adı gösterilsin diye etiketten ayrıştırılır (card #1497).
-                var lastMessageIsInternal = c.LastMessageSenderLabel?.StartsWith("Kurum İçi Mesaj") == true;
-                string? lastInternalSenderDisplayName = null;
-                if (lastMessageIsInternal)
+                // Son mesaj vatandaşa değil, personel tarafından yazıldıysa (kurum içi ileti:
+                // "Kurum İçi Mesaj · {birim} · {ad}", veya henüz gönderilmemiş/Beklemede yanıt:
+                // "{birim} · {ad}"), bildirim çanında birim + gönderen adı gösterilsin diye
+                // etiketten ayrıştırılır (card #1497/#1500).
+                string? lastStaffSenderDepartment = null;
+                string? lastStaffSenderDisplayName = null;
+                if (c.LastMessageSenderLabel is not null)
                 {
-                    var labelParts = c.LastMessageSenderLabel!.Split(" · ");
-                    if (labelParts.Length >= 3)
+                    var isInternalNote = c.LastMessageSenderLabel.StartsWith("Kurum İçi Mesaj");
+                    var labelParts = c.LastMessageSenderLabel.Split(" · ");
+                    if (isInternalNote && labelParts.Length >= 3)
                     {
-                        lastInternalSenderDisplayName = labelParts[^1];
+                        lastStaffSenderDepartment = labelParts[1];
+                        lastStaffSenderDisplayName = labelParts[^1];
+                    }
+                    else if (!isInternalNote && labelParts.Length == 2)
+                    {
+                        lastStaffSenderDepartment = labelParts[0];
+                        lastStaffSenderDisplayName = labelParts[1];
                     }
                 }
 
@@ -269,8 +278,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.OpenAddress,
                     pendingOutboundConversationIds.Contains(c.CitizenConversationId),
                     ticket?.SocialMessageId,
-                    lastMessageIsInternal,
-                    lastInternalSenderDisplayName);
+                    lastStaffSenderDepartment,
+                    lastStaffSenderDisplayName);
             })
             .ToList();
     }

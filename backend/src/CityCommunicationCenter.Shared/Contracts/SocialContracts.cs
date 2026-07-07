@@ -206,7 +206,10 @@ public sealed record CitizenConversationSummaryDto(
     // "BEKLEMEDE" durumundaki (gönderilmemiş) giden mesaj bildirim baloncuğunda görünsün (card #1472).
     bool HasPendingOutboundMessage = false,
     // Standart kullanıcı için bildirim çanından doğrudan "Yazışmaya Git" modalını açabilmek amacıyla (card #1477).
-    Guid? LatestSocialMessageId = null);
+    Guid? LatestSocialMessageId = null,
+    // Son mesaj kurum içi ileti ise, bildirim çanında vatandaş yerine göndereni gösterebilmek için (card #1497).
+    bool LastMessageIsInternal = false,
+    string? LastInternalSenderDisplayName = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

@@ -20,6 +20,14 @@ type ActiveWhatsAppConversation = {
   phone: string
 } | null
 
+function formatPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length === 12 && digits.startsWith('90')) {
+    return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
+  }
+  return `+${digits}`
+}
+
 function formatBadgeCount(count: number) {
   if (count > 99) return '99+'
   return String(count)
@@ -319,15 +327,23 @@ export function WhatsAppNotificationFab() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">
-                      {t('whatsapp.notificationPanelOperator', 'Operatör')}
+                      {conversation.lastMessageIsInternal
+                        ? t('whatsapp.notificationPanelOperator', 'Operatör')
+                        : conversation.citizenName ?? formatPhone(conversation.citizenPhone)}
                     </p>
                     <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
                       {formatConversationListTime(conversation.lastMessageAt, locale, t)}
                     </span>
                   </div>
-                  {conversation.assigneeDisplayName ? (
+                  {conversation.lastMessageIsInternal ? (
+                    conversation.lastInternalSenderDisplayName ? (
+                      <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
+                        {conversation.lastInternalSenderDisplayName}
+                      </p>
+                    ) : null
+                  ) : conversation.citizenName ? (
                     <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
-                      {conversation.assigneeDisplayName}
+                      {formatPhone(conversation.citizenPhone)}
                     </p>
                   ) : null}
                   {conversation.lastMessagePreview ? (

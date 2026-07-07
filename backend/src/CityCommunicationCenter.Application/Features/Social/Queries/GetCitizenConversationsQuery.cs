@@ -61,6 +61,14 @@ public sealed class GetCitizenConversationsQueryHandler
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.Direction.ToString())
                     .FirstOrDefault(),
+                // Son mesaj kurum içi ileti ise, bildirim çanında kimin gönderdiğini göstermek için (card #1497).
+                LastMessageSenderLabel = _dbContext.ConversationEntries
+                    .Where(e => _dbContext.SocialMessages
+                        .Any(m => m.CitizenConversationId == c.CitizenConversationId
+                                  && m.SocialMessageId == e.SocialMessageId))
+                    .OrderByDescending(e => e.SentAt)
+                    .Select(e => e.SenderLabel)
+                    .FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
 
@@ -213,6 +221,19 @@ public sealed class GetCitizenConversationsQueryHandler
                     assigneeDisplayName = name;
                 }
 
+                // Son mesaj kurum içi ileti ise ("Kurum İçi Mesaj · {birim} · {ad}"), bildirim
+                // çanında gönderenin adı gösterilsin diye etiketten ayrıştırılır (card #1497).
+                var lastMessageIsInternal = c.LastMessageSenderLabel?.StartsWith("Kurum İçi Mesaj") == true;
+                string? lastInternalSenderDisplayName = null;
+                if (lastMessageIsInternal)
+                {
+                    var labelParts = c.LastMessageSenderLabel!.Split(" · ");
+                    if (labelParts.Length >= 3)
+                    {
+                        lastInternalSenderDisplayName = labelParts[^1];
+                    }
+                }
+
                 var conversationMessages = socialMessages
                     .Where(m => m.ConversationId == c.CitizenConversationId)
                     .ToList();
@@ -247,7 +268,9 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.Street,
                     c.OpenAddress,
                     pendingOutboundConversationIds.Contains(c.CitizenConversationId),
-                    ticket?.SocialMessageId);
+                    ticket?.SocialMessageId,
+                    lastMessageIsInternal,
+                    lastInternalSenderDisplayName);
             })
             .ToList();
     }

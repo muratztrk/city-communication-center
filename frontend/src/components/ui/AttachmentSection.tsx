@@ -305,6 +305,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       )}
       <ConfirmDialog
         state={pendingDeleteId ? {
+          title: t('attachments.deleteConfirmTitle', 'Ekler / Fotoğraflar Sil'),
+          titleDivider: true,
           message: t('attachments.deleteConfirm', 'Bu eki silmek istediğinize emin misiniz?'),
           variant: 'destructive',
           confirmLabel: t('common.delete', 'Sil'),

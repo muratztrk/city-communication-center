@@ -21,6 +21,8 @@ export interface WhatsAppMessagePayload {
   isInternal?: boolean
   /** Teslim durumu güncellemesi; açık konuşma yenilenir ama okundu yazılmaz. */
   isStatusUpdate?: boolean
+  /** Birim içi mesajı gönderen kullanıcı — kendi gönderdiği mesaj bildirim/pulse tetiklemesin (card #1495). */
+  senderUserId?: string | null
 }
 
 export interface SignalRHandlers {
@@ -48,6 +50,7 @@ function mapWhatsAppPayload(raw: Record<string, unknown>): WhatsAppMessagePayloa
     lastMessageAt: String(raw.lastMessageAt ?? raw.LastMessageAt ?? ''),
     isInternal: Boolean(raw.isInternal ?? raw.IsInternal ?? false),
     isStatusUpdate: Boolean(raw.isStatusUpdate ?? raw.IsStatusUpdate ?? false),
+    senderUserId: (raw.senderUserId ?? raw.SenderUserId) as string | null | undefined,
   }
 }
 

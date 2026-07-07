@@ -25,4 +25,7 @@ public sealed record WhatsAppMessagePayload(
     bool IsInternal = false,
     // İçerik değil teslim durumu (sent/delivered/read) güncellendi; istemci açık konuşmayı yeniler
     // ama okundu yazmaz.
-    bool IsStatusUpdate = false);
+    bool IsStatusUpdate = false,
+    // Birim içi mesajı gönderen kullanıcı — istemci kendi gönderdiği mesaj için bildirim/pulse
+    // göstermesin diye (card #1495).
+    Guid? SenderUserId = null);

@@ -82,7 +82,8 @@ public sealed class AddInternalConversationMessageCommandHandler
                     content,
                     conversation.UnreadCount,
                     conversation.LastMessageAt,
-                    IsInternal: true);
+                    IsInternal: true,
+                    SenderUserId: request.ActorUserId);
             }
         }
 

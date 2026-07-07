@@ -89,6 +89,9 @@ export function WhatsAppNotificationFab() {
     )))
   }, [])
 
+  const isSelfSentPayload = useCallback((payload: WhatsAppMessagePayload) =>
+    Boolean(payload.senderUserId) && payload.senderUserId === user?.userId, [user])
+
   const handleWhatsAppMessage = useCallback((payload: WhatsAppMessagePayload) => {
     if (isPayloadForActiveConversation(payload)) {
       // Birim içi ileti bildirimi gönderenin açık konuşmasında okundu sayılmaz; diğer
@@ -104,8 +107,12 @@ export function WhatsAppNotificationFab() {
     }
 
     void refreshConversations()
-    triggerPulse()
-  }, [isPayloadForActiveConversation, refreshConversations, triggerPulse, zeroUnreadForConversation])
+    // Teslim durumu güncellemesi (operatörün kendi gönderdiği mesajın iletildi/okundu bilgisi)
+    // ve kendi gönderdiğimiz birim içi mesaj bildirim/pulse tetiklemesin (card #1495).
+    if (!payload.isStatusUpdate && !isSelfSentPayload(payload)) {
+      triggerPulse()
+    }
+  }, [isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useSignalR({
     onWhatsAppMessage: handleWhatsAppMessage,
@@ -138,13 +145,13 @@ export function WhatsAppNotificationFab() {
         return
       }
       void refreshConversations()
-      if (payload.isInternal || payload.unreadCount > 0) {
+      if (!payload.isStatusUpdate && !isSelfSentPayload(payload) && (payload.isInternal || payload.unreadCount > 0)) {
         triggerPulse()
       }
     }
     window.addEventListener('ccc:whatsapp-message', onWindowEvent)
     return () => window.removeEventListener('ccc:whatsapp-message', onWindowEvent)
-  }, [isPayloadForActiveConversation, refreshConversations, triggerPulse, zeroUnreadForConversation])
+  }, [isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useEffect(() => {
     const onActiveConversationChange = (event: Event) => {

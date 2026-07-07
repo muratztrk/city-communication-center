@@ -28,7 +28,7 @@ import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIc
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
+import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
@@ -163,7 +163,7 @@ function ConversationStatusCounts({
 
 // ─── left panel: conversation list ────────────────────────────────────────────
 
-type ConversationListFilter = 'all' | 'unread'
+type ConversationListFilter = 'all' | 'unread' | 'replied'
 type ConversationSortOrder = 'newest' | 'oldest'
 type ConversationStatusFilter = 'all' | 'intake' | 'in-progress' | 'completed' | 'cancelled'
 
@@ -330,13 +330,18 @@ function ConversationListPanel({
   const [conversationPageSize, setConversationPageSize] = useState(10)
 
   const unreadCount = useMemo(
-    () => conversations.filter(c => c.unreadCount > 0).length,
+    () => conversations.filter(c => isWaitingForConversationResponse(c)).length,
+    [conversations],
+  )
+  const repliedCount = useMemo(
+    () => conversations.filter(c => isConversationTicketOpen(c) && !isWaitingForConversationResponse(c)).length,
     [conversations],
   )
 
   const filterOptions: { value: ConversationListFilter; label: string; badge?: number }[] = [
     { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü') },
-    { value: 'unread', label: t('whatsapp.listFilter.unread', 'Okunmamış'), badge: unreadCount || undefined },
+    { value: 'unread', label: t('whatsapp.listFilter.unread', 'Yanıt bekliyor'), badge: unreadCount || undefined },
+    { value: 'replied', label: t('whatsapp.listFilter.replied', 'Yanıt verildi'), badge: repliedCount || undefined },
   ]
 
   const totalCounts = useMemo(
@@ -1297,7 +1302,7 @@ export function WhatsAppConversationsPage() {
   const [requestModalEditJobId, setRequestModalEditJobId] = useState<string | null>(null)
   const [requestModalForceNew, setRequestModalForceNew] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState(searchParams.get('phone') ?? '')
+  const [search, setSearch] = useState('')
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [listFilter, setListFilter] = useState<ConversationListFilter>('all')
@@ -1351,6 +1356,15 @@ export function WhatsAppConversationsPage() {
     }
   }, [])
 
+  // SignalR bağlantısı kopup yeniden kurulursa (VPN/ağ kesintisi), kopukluk sırasında
+  // kaçırılan mesajlar sayfa yenilenmeden görünsün diye liste ve açık konuşma tazelenir (card #1493).
+  useSignalR({
+    onReconnected: useCallback(() => {
+      void silentRefreshConversations()
+      setDetailRefreshKey(key => key + 1)
+    }, [silentRefreshConversations]),
+  })
+
   const refreshUserQuickReplies = useCallback(async () => {
     try {
       const [quickReplies, metaTemplates] = await Promise.all([
@@ -1377,10 +1391,7 @@ export function WhatsAppConversationsPage() {
     void loadConversations()
   }, [loadConversations])
 
-  useEffect(() => {
-    setSearch(requestedPhone)
-  }, [requestedPhone])
-
+  // ?phone= ile gelindiğinde arama kutusu doldurulmadan, doğrudan ilgili konuşma açılır (card #1494).
   useEffect(() => {
     if (!requestedPhone) return
     const requestedDigits = normalizePhone(requestedPhone)
@@ -1406,7 +1417,8 @@ export function WhatsAppConversationsPage() {
         if (filterFrom && date < filterFrom.slice(0, 10)) return false
         if (filterTo && date > filterTo.slice(0, 10)) return false
       }
-      if (listFilter === 'unread' && conversation.unreadCount <= 0) return false
+      if (listFilter === 'unread' && !isWaitingForConversationResponse(conversation)) return false
+      if (listFilter === 'replied' && !(isConversationTicketOpen(conversation) && !isWaitingForConversationResponse(conversation))) return false
       if (statusFilter === 'intake' && (conversation.intakeCount ?? 0) <= 0) return false
       if (statusFilter === 'in-progress' && (conversation.inProgressCount ?? 0) <= 0) return false
       if (statusFilter === 'completed' && (conversation.completedCount ?? 0) <= 0) return false

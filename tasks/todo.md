@@ -1947,3 +1947,5 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   meta bloğu sağ border çizgisine hizalandı.
 - [x] `XXIk2pBf` / `6a4ca0abda4e10ea911edbb5` reopen — `/whatsapp?phone=...`
   ile numaradan açılan konuşma, detay popup `Yazışmaya Git` gibi son mesajda/en altta açılır.
+
+## STATUS: Round 247 complete — frontend build/lint passed; cards moved to Done.

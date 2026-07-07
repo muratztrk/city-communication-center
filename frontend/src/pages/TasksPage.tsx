@@ -1431,6 +1431,8 @@ const pageKicker = isMyTasksView
     setSelectedTask(task)
     setTaskDetail(null)
     setParentJobDetail(null)
+    setEditJobModal(null)
+    setEditRoutineTaskModal(null)
     setRoutineEditHistory([])
     setDetailLoading(true)
     try {
@@ -1456,6 +1458,8 @@ const pageKicker = isMyTasksView
   const openTaskDetailById = async (taskId: string) => {
     setTaskDetail(null)
     setParentJobDetail(null)
+    setEditJobModal(null)
+    setEditRoutineTaskModal(null)
     setRoutineEditHistory([])
     setDetailLoading(true)
     try {
@@ -1553,6 +1557,8 @@ const pageKicker = isMyTasksView
     setSelectedTask(null)
     setTaskDetail(null)
     setParentJobDetail(null)
+    setEditJobModal(null)
+    setEditRoutineTaskModal(null)
     setRoutineEditHistory([])
     setRoutineEditHistoryModalOpen(false)
     setDueDateEdit(null)
@@ -1868,6 +1874,120 @@ const pageKicker = isMyTasksView
             <div className="flex-1 overflow-y-auto p-6">
               {detailLoading ? (
                 <div className="loading">{t('common.loading')}</div>
+              ) : editJobModal ? (
+                // Kendine atayan yönetici talebi, ayrı bir sayfaya/pop up'a gitmeden AYNI pop up
+                // içinde düzenler (card #1476 reopen ×2).
+                <form className="page-stack" onSubmit={e => void handleSaveEditJob(e)}>
+                  <label className="job-field">
+                    <span className="job-field-label">{t('jobs.form.title', 'Başlık')}</span>
+                    <input
+                      className="field-input"
+                      value={editJobModal.title}
+                      onChange={e => setEditJobModal(m => m && ({ ...m, title: e.target.value }))}
+                      required
+                    />
+                  </label>
+                  <label className="job-field">
+                    <span className="job-field-label">{t('jobs.form.description', 'Açıklama')}</span>
+                    <RichTextEditor
+                      value={editJobModal.description}
+                      onChange={val => setEditJobModal(m => m && ({ ...m, description: val }))}
+                    />
+                  </label>
+                  <label className="job-field">
+                    <span className="job-field-label">{t('jobs.form.priority', 'Öncelik')}</span>
+                    <select
+                      className="field-select"
+                      value={editJobModal.priority}
+                      onChange={e => setEditJobModal(m => m && ({ ...m, priority: e.target.value }))}
+                    >
+                      <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
+                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                      <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                      <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+                    </select>
+                  </label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="job-field">
+                      <span className="job-field-label">{t('jobs.form.startDate', 'Başlangıç Tarihi')}</span>
+                      <DateTimePicker
+                        value={editJobModal.startDateUtc}
+                        onChange={v => setEditJobModal(m => m && ({ ...m, startDateUtc: v }))}
+                        placeholder={t('jobs.form.startDate', 'Başlangıç Tarihi')}
+                      />
+                    </label>
+                    <label className="job-field">
+                      <span className="job-field-label">{t('jobs.form.dueDate', 'Bitiş Tarihi')}</span>
+                      <DateTimePicker
+                        value={editJobModal.dueDateUtc}
+                        onChange={v => setEditJobModal(m => m && ({ ...m, dueDateUtc: v }))}
+                        placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                      />
+                    </label>
+                  </div>
+                  <div className="inline-actions justify-end">
+                    <Button type="button" variant="secondary" onClick={() => setEditJobModal(null)}>
+                      {t('common.cancel', 'İptal')}
+                    </Button>
+                    <Button type="submit" disabled={editJobSaving}>
+                      {editJobSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+                    </Button>
+                  </div>
+                </form>
+              ) : editRoutineTaskModal ? (
+                // Rutin görev de ayrı sayfaya (Rutin Görev Düzenle) gitmeden AYNI pop up içinde
+                // düzenlenir (card #1494 reopen ×2).
+                <form className="page-stack" onSubmit={e => void handleSaveEditRoutineTask(e)}>
+                  <label className="job-field">
+                    <span className="job-field-label">{t('tasks.newRequest.title', 'Başlık')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span></span>
+                    <input
+                      className="field-input"
+                      maxLength={50}
+                      value={editRoutineTaskModal.title}
+                      onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, title: e.target.value }))}
+                      required
+                    />
+                  </label>
+                  <label className="job-field">
+                    <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span></span>
+                    <RichTextEditor
+                      value={editRoutineTaskModal.description}
+                      onChange={val => setEditRoutineTaskModal(m => m && ({ ...m, description: val }))}
+                    />
+                  </label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="job-field">
+                      <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
+                      <select
+                        className="field-select"
+                        value={editRoutineTaskModal.priority}
+                        onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, priority: e.target.value }))}
+                      >
+                        <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                        <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                        <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                        <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+                      </select>
+                    </label>
+                    <label className="job-field">
+                      <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}</span>
+                      <DateTimePicker
+                        value={editRoutineTaskModal.dueDateUtc}
+                        onChange={v => setEditRoutineTaskModal(m => m && ({ ...m, dueDateUtc: v }))}
+                        placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}
+                      />
+                    </label>
+                  </div>
+                  <div className="inline-actions justify-end">
+                    <Button type="button" variant="secondary" onClick={() => setEditRoutineTaskModal(null)}>
+                      {t('common.cancel', 'İptal')}
+                    </Button>
+                    <Button type="submit" disabled={editRoutineTaskSaving}>
+                      {editRoutineTaskSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+                    </Button>
+                  </div>
+                </form>
               ) : taskDetail ? (
                 <>
                   {/* Görev bilgi kutusu — Taleplerim detay popup'ı ile birebir aynı tasarım dili:
@@ -3127,144 +3247,6 @@ const pageKicker = isMyTasksView
           citizenPhone={conversationModal.citizenPhone}
           onClose={() => setConversationModal(null)}
         />
-      )}
-      {editJobModal && (
-        <ModalBackdrop>
-          <form className="form-card page-stack relative w-full max-w-lg" onSubmit={e => void handleSaveEditJob(e)}>
-            <button
-              type="button"
-              onClick={() => setEditJobModal(null)}
-              aria-label={t('common.close', 'Kapat')}
-              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
-            >
-              <X className="size-4" />
-            </button>
-            <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
-              {t('jobs.editModal.title', 'Talebi Düzenle')}
-            </h2>
-            <label className="job-field">
-              <span className="job-field-label">{t('jobs.form.title', 'Başlık')}</span>
-              <input
-                className="field-input"
-                value={editJobModal.title}
-                onChange={e => setEditJobModal(m => m && ({ ...m, title: e.target.value }))}
-                required
-              />
-            </label>
-            <label className="job-field">
-              <span className="job-field-label">{t('jobs.form.description', 'Açıklama')}</span>
-              <RichTextEditor
-                value={editJobModal.description}
-                onChange={val => setEditJobModal(m => m && ({ ...m, description: val }))}
-              />
-            </label>
-            <label className="job-field">
-              <span className="job-field-label">{t('jobs.form.priority', 'Öncelik')}</span>
-              <select
-                className="field-select"
-                value={editJobModal.priority}
-                onChange={e => setEditJobModal(m => m && ({ ...m, priority: e.target.value }))}
-              >
-                <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
-                <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
-              </select>
-            </label>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="job-field">
-                <span className="job-field-label">{t('jobs.form.startDate', 'Başlangıç Tarihi')}</span>
-                <DateTimePicker
-                  value={editJobModal.startDateUtc}
-                  onChange={v => setEditJobModal(m => m && ({ ...m, startDateUtc: v }))}
-                  placeholder={t('jobs.form.startDate', 'Başlangıç Tarihi')}
-                />
-              </label>
-              <label className="job-field">
-                <span className="job-field-label">{t('jobs.form.dueDate', 'Bitiş Tarihi')}</span>
-                <DateTimePicker
-                  value={editJobModal.dueDateUtc}
-                  onChange={v => setEditJobModal(m => m && ({ ...m, dueDateUtc: v }))}
-                  placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                />
-              </label>
-            </div>
-            <div className="inline-actions justify-end">
-              <Button type="button" variant="secondary" onClick={() => setEditJobModal(null)}>
-                {t('common.cancel', 'İptal')}
-              </Button>
-              <Button type="submit" disabled={editJobSaving}>
-                {editJobSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-              </Button>
-            </div>
-          </form>
-        </ModalBackdrop>
-      )}
-      {editRoutineTaskModal && (
-        <ModalBackdrop>
-          <form className="form-card page-stack relative w-full max-w-lg" onSubmit={e => void handleSaveEditRoutineTask(e)}>
-            <button
-              type="button"
-              onClick={() => setEditRoutineTaskModal(null)}
-              aria-label={t('common.close', 'Kapat')}
-              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
-            >
-              <X className="size-4" />
-            </button>
-            <h2 className="mb-3 border-b border-slate-200 pb-2 text-base font-semibold text-slate-950">
-              {t('routineTask.editTitle', 'Rutin Görev Düzenle')}
-            </h2>
-            <label className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.title', 'Başlık')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span></span>
-              <input
-                className="field-input"
-                maxLength={50}
-                value={editRoutineTaskModal.title}
-                onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, title: e.target.value }))}
-                required
-              />
-            </label>
-            <label className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span></span>
-              <RichTextEditor
-                value={editRoutineTaskModal.description}
-                onChange={val => setEditRoutineTaskModal(m => m && ({ ...m, description: val }))}
-              />
-            </label>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="job-field">
-                <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
-                <select
-                  className="field-select"
-                  value={editRoutineTaskModal.priority}
-                  onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, priority: e.target.value }))}
-                >
-                  <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                  <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                  <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                  <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
-                </select>
-              </label>
-              <label className="job-field">
-                <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}</span>
-                <DateTimePicker
-                  value={editRoutineTaskModal.dueDateUtc}
-                  onChange={v => setEditRoutineTaskModal(m => m && ({ ...m, dueDateUtc: v }))}
-                  placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}
-                />
-              </label>
-            </div>
-            <div className="inline-actions justify-end">
-              <Button type="button" variant="secondary" onClick={() => setEditRoutineTaskModal(null)}>
-                {t('common.cancel', 'İptal')}
-              </Button>
-              <Button type="submit" disabled={editRoutineTaskSaving}>
-                {editRoutineTaskSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-              </Button>
-            </div>
-          </form>
-        </ModalBackdrop>
       )}
     </div>
   )

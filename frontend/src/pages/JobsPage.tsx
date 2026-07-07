@@ -733,7 +733,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const forwardReasonDisplay = forwardReason ? (
     <span className="text-teal-800">
       {forwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
-      <span aria-hidden="true"> • </span>
+      <span aria-hidden="true"> / </span>
       {forwardReason}
     </span>
   ) : null
@@ -2384,9 +2384,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                       // Yönlendirilen talebin sebebi, Öncelik/Proje satırının altında (card #1406).
-                      ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
+                      ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (
-                      <div key={label} className={`flex items-start gap-2 px-3 py-2${(label === 'Öncelik' && !forwardReason) || label === t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
+                      <div key={label} className={`flex items-start gap-2 px-3 py-2${(label === 'Öncelik' && !forwardReason) || label === t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                         <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
                       </div>

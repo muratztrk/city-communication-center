@@ -156,7 +156,7 @@ export function ConversationEntryBubble({
       </div>
       {isPending && canSendPending ? (
         isEditing ? (
-          <div className="mt-1 flex items-center gap-1.5">
+          <div className="mt-1 flex items-center gap-1.5 rounded-lg bg-white px-2 py-1.5">
             <button
               type="button"
               onClick={() => { setIsEditing(false); setDraft(entry.content) }}
@@ -186,7 +186,7 @@ export function ConversationEntryBubble({
             </button>
           </div>
         ) : (
-          <div className="mt-1 flex items-center gap-1.5">
+          <div className="mt-1 flex items-center gap-1.5 rounded-lg bg-white px-2 py-1.5">
             <button
               type="button"
               onClick={() => { setDraft(entry.content); setIsEditing(true) }}

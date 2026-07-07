@@ -2168,7 +2168,7 @@ const pageKicker = isMyTasksView
                     const parentForwardReasonDisplay = parentForwardReason ? (
                       <span className="text-teal-800">
                         {parentForwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
-                        <span aria-hidden="true"> • </span>
+                        <span aria-hidden="true"> / </span>
                         {parentForwardReason}
                       </span>
                     ) : null
@@ -2195,12 +2195,12 @@ const pageKicker = isMyTasksView
                       ? t('jobs.requestType.external', 'Birim Dışı')
                       : t('jobs.requestType.internal', 'Birim İçi')
                     const parentExtraFields = parentForwardReasonDisplay ? [{
-                      label: t('jobs.forward.reasonLabel', 'Talebin Yönlenme Sebebi'),
+                      label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'),
                       value: parentForwardReasonDisplay,
                     }] : []
                     // Talep Bilgileri, Adres Bilgileri ile yer değiştirip alt satıra taşındığı için
-                    // (card #1449) burada bağımsız olarak yeniden kurulur; başlık verisi de artık
-                    // burada normal bir alan olarak gösterilir (card #1444).
+                    // (card #1449) burada bağımsız olarak yeniden kurulur.
+                    const parentTitleLabel = t('jobs.form.title', 'Talep Başlığı')
                     const parentRequestNoLabel = t('jobs.columns.requestNo', 'Talep No')
                     const parentCitizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
                     const parentPriorityLabel = t('jobs.columns.priority', 'Öncelik')
@@ -2208,6 +2208,8 @@ const pageKicker = isMyTasksView
                     const parentInfoFields = buildMyRequestDetailFields(
                       parentJobDetail, t, locale, citizenSourceMessage, parentRequestNumberSuffix, parentExtraFields, false,
                     ).filter(field => {
+                      // Talep Başlığı verisi İlgili Talep Detayları'ndan tamamen kaldırıldı (card #1464).
+                      if (field.label === parentTitleLabel) return false
                       if ([parentRequestNoLabel, parentCitizenRequestNoLabel].includes(field.label)) return false
                       if ([parentPriorityLabel, parentProjectLabel].includes(field.label)) return false
                       return true

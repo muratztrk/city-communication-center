@@ -85,7 +85,7 @@ export function MyRequestInfoFieldsList({
       ))}
       {!isEditing && (
         <div className="job-detail-field-row job-detail-field-row--request-info">
-          <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje Niteliğinde mi?')}</div>
+          <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje mi?')}</div>
           <div className="job-detail-field-row__value">
             <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
               <span>{getPriorityLabel(t, detail.priority)}</span>

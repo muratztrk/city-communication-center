@@ -553,7 +553,7 @@ function ConversationProfilePanel({
   const labelClass = 'text-[10px] font-bold uppercase tracking-wide text-slate-500'
 
   return (
-    <aside className="hidden w-72 shrink-0 flex-col border-l border-slate-200 bg-slate-50/80 p-4 lg:flex">
+    <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-y-auto border-l border-slate-200 bg-slate-50/80 p-4 lg:flex">
       <div className="mb-3 space-y-2">
         <div className="flex justify-center">
           <button

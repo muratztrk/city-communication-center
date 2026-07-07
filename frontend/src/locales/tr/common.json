@@ -1490,7 +1490,7 @@
     "forward": {
       "badge": "Yönlendirilen Talep",
       "sourceFallback": "Talebi Yönlendiren Birim",
-      "reasonLabel": "Talebin Yönlenme Sebebi"
+      "reasonLabel": "Talep Yönlenme Sebebi"
     },
     "directions": {
       "internalOutgoing": "Birim İçi Giden",

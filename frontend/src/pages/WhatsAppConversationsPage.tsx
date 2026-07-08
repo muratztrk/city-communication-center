@@ -1454,7 +1454,9 @@ export function WhatsAppConversationsPage() {
 
   const handleReadMarked = useCallback(() => {
     setConversations(prev =>
-      prev.map(c => c.citizenConversationId === selectedId ? { ...c, unreadCount: 0 } : c),
+      prev.map(c => c.citizenConversationId === selectedId
+        ? { ...c, unreadCount: 0, hasPendingOutboundMessage: false }
+        : c),
     )
   }, [selectedId])
 

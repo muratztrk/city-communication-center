@@ -1949,3 +1949,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   ile numaradan açılan konuşma, detay popup `Yazışmaya Git` gibi son mesajda/en altta açılır.
 
 ## STATUS: Round 247 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 248 (Doing — 2026-07-08, yeni kartlar)
+- [x] `ayDVgBMU` / `6a4cf84e5e525fc616d41822` / #1493 — WhatsApp FAB kendi gönderdiği
+  kurum içi iletiyi bildirim saymasın diye self-sent SignalR payload'ı ve kullanıcı bazlı
+  `conversationId + lastMessageAt` dismissal ile bastırıldı; gönderen adı karşılaştırması
+  trim/Türkçe normalize edildi.
+- [x] `ShaqXH8Y` / `6a4d026eb4e9152552422a17` / #1499 — FAB panelinde konuşma satırına
+  tıklanınca aynı son mesaj için bildirim localStorage'da söndürülüyor; polling pending/outbound
+  veya unread state'i aynı `lastMessageAt` ile geri getiremiyor.
+
+## STATUS: Round 248 complete — frontend build/lint passed; cards moved to Done.

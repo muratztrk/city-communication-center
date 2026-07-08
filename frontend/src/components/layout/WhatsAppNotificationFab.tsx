@@ -14,6 +14,8 @@ import { matchesPhone } from '../../utils/phoneNormalization'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 
 const POLL_INTERVAL_MS = 12_000
+const DISMISSED_STORAGE_PREFIX = 'ccc:whatsapp-notification-dismissed:'
+const MAX_DISMISSED_NOTIFICATIONS = 200
 
 type ActiveWhatsAppConversation = {
   id: string
@@ -33,6 +35,46 @@ function formatBadgeCount(count: number) {
   return String(count)
 }
 
+function normalizeDisplayName(value?: string | null): string {
+  return (value ?? '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('tr')
+}
+
+function sameMessageTime(left?: string | null, right?: string | null): boolean {
+  if (!left || !right) return false
+  const leftTime = Date.parse(left)
+  const rightTime = Date.parse(right)
+  if (!Number.isNaN(leftTime) && !Number.isNaN(rightTime)) return leftTime === rightTime
+  return left === right
+}
+
+function getDismissedStorageKey(userId?: string | null): string {
+  return `${DISMISSED_STORAGE_PREFIX}${userId ?? 'anonymous'}`
+}
+
+function readDismissedNotifications(storageKey: string): Record<string, string> {
+  try {
+    const raw = window.localStorage.getItem(storageKey)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw) as unknown
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+    )
+  } catch {
+    return {}
+  }
+}
+
+function persistDismissedNotifications(storageKey: string, next: Record<string, string>) {
+  try {
+    const compact = Object.fromEntries(Object.entries(next).slice(-MAX_DISMISSED_NOTIFICATIONS))
+    window.localStorage.setItem(storageKey, JSON.stringify(compact))
+    return compact
+  } catch {
+    return next
+  }
+}
+
 export function WhatsAppNotificationFab() {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -44,6 +86,9 @@ export function WhatsAppNotificationFab() {
   const [activeConversation, setActiveConversation] = useState<ActiveWhatsAppConversation>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isPulsing, setIsPulsing] = useState(false)
+  const dismissedStorageKey = useMemo(() => getDismissedStorageKey(user?.userId), [user?.userId])
+  const currentUserDisplayName = useMemo(() => normalizeDisplayName(user?.displayName), [user?.displayName])
+  const [dismissedNotifications, setDismissedNotifications] = useState<Record<string, string>>({})
   const [conversationModal, setConversationModal] = useState<{
     socialMessageId: string
     citizenHandle: string
@@ -97,20 +142,34 @@ export function WhatsAppNotificationFab() {
     )))
   }, [])
 
+  const rememberDismissedNotification = useCallback((conversationId: string, lastMessageAt?: string | null) => {
+    if (!lastMessageAt) return
+    setDismissedNotifications(prev => {
+      const next = { ...prev, [conversationId]: lastMessageAt }
+      return persistDismissedNotifications(dismissedStorageKey, next)
+    })
+  }, [dismissedStorageKey])
+
   // Bildirim çanından bir konuşmaya tıklandığında, sebebi ne olursa olsun (okunmamış mesaj
   // veya "BEKLEMEDE" giden mesaj) o konuşma bildirim listesinden hemen kaybolsun (card #1498).
-  const dismissConversationNotification = useCallback((conversationId: string) => {
+  const dismissConversationNotification = useCallback((conversationId: string, lastMessageAt?: string | null) => {
+    rememberDismissedNotification(conversationId, lastMessageAt)
     setConversations(prev => prev.map(conversation => (
       conversation.citizenConversationId === conversationId
         ? { ...conversation, unreadCount: 0, hasPendingOutboundMessage: false }
         : conversation
     )))
-  }, [])
+  }, [rememberDismissedNotification])
 
   const isSelfSentPayload = useCallback((payload: WhatsAppMessagePayload) =>
     Boolean(payload.senderUserId) && payload.senderUserId === user?.userId, [user])
 
   const handleWhatsAppMessage = useCallback((payload: WhatsAppMessagePayload) => {
+    const selfSent = isSelfSentPayload(payload)
+    if (selfSent) {
+      dismissConversationNotification(payload.citizenConversationId, payload.lastMessageAt)
+    }
+
     if (isPayloadForActiveConversation(payload)) {
       // Birim içi ileti bildirimi gönderenin açık konuşmasında okundu sayılmaz; diğer
       // ilgili kullanıcıların rozetini sıfırlamamak için markRead atlanır (card #1295).
@@ -127,10 +186,10 @@ export function WhatsAppNotificationFab() {
     void refreshConversations()
     // Teslim durumu güncellemesi (operatörün kendi gönderdiği mesajın iletildi/okundu bilgisi)
     // ve kendi gönderdiğimiz birim içi mesaj bildirim/pulse tetiklemesin (card #1495).
-    if (!payload.isStatusUpdate && !isSelfSentPayload(payload)) {
+    if (!payload.isStatusUpdate && !selfSent) {
       triggerPulse()
     }
-  }, [isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
+  }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useSignalR({
     onWhatsAppMessage: handleWhatsAppMessage,
@@ -150,8 +209,17 @@ export function WhatsAppNotificationFab() {
   }, [fetchConversations, location.pathname])
 
   useEffect(() => {
+    setDismissedNotifications(readDismissedNotifications(dismissedStorageKey))
+  }, [dismissedStorageKey])
+
+  useEffect(() => {
     const onWindowEvent = (event: Event) => {
       const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
+      const selfSent = isSelfSentPayload(payload)
+      if (selfSent) {
+        dismissConversationNotification(payload.citizenConversationId, payload.lastMessageAt)
+      }
+
       if (isPayloadForActiveConversation(payload)) {
         if (payload.isInternal) {
           void refreshConversations()
@@ -163,13 +231,13 @@ export function WhatsAppNotificationFab() {
         return
       }
       void refreshConversations()
-      if (!payload.isStatusUpdate && !isSelfSentPayload(payload) && (payload.isInternal || payload.unreadCount > 0)) {
+      if (!payload.isStatusUpdate && !selfSent && (payload.isInternal || payload.unreadCount > 0)) {
         triggerPulse()
       }
     }
     window.addEventListener('ccc:whatsapp-message', onWindowEvent)
     return () => window.removeEventListener('ccc:whatsapp-message', onWindowEvent)
-  }, [isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
+  }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useEffect(() => {
     const onActiveConversationChange = (event: Event) => {
@@ -219,9 +287,12 @@ export function WhatsAppNotificationFab() {
     () => conversations
       .filter(conversation => {
         if (conversation.isRelevantToCurrentUser === false) return false
+        const dismissedAt = dismissedNotifications[conversation.citizenConversationId]
+        if (sameMessageTime(dismissedAt, conversation.lastMessageAt)) return false
         // Son mesajı kendimiz yazdıysak (kurum içi ileti veya Beklemede yanıt) bildirimde görünmesin (card #1495/#1499).
-        if (conversation.lastStaffSenderDisplayName
-          && conversation.lastStaffSenderDisplayName === user?.displayName) return false
+        if (currentUserDisplayName
+          && conversation.lastStaffSenderDisplayName
+          && normalizeDisplayName(conversation.lastStaffSenderDisplayName) === currentUserDisplayName) return false
         // "BEKLEMEDE" durumunda gönderilmemiş giden mesaj varsa, okunmamış mesaj olmasa
         // bile bildirimde görünsün (card #1472).
         if (conversation.unreadCount <= 0 && !conversation.hasPendingOutboundMessage) return false
@@ -234,7 +305,7 @@ export function WhatsAppNotificationFab() {
         return true
       })
       .sort((left, right) => new Date(right.lastMessageAt).getTime() - new Date(left.lastMessageAt).getTime()),
-    [activeConversation, conversations, location.pathname, user?.displayName],
+    [activeConversation, conversations, currentUserDisplayName, dismissedNotifications, location.pathname],
   )
 
   const unreadTotal = useMemo(
@@ -271,7 +342,7 @@ export function WhatsAppNotificationFab() {
   const openConversation = (conversation: CitizenConversationSummary) => {
     setIsOpen(false)
     // Tıklanan konuşmanın bildirimi anında kaybolsun; arka plandaki yenilemeyi beklemez (card #1477/#1498).
-    dismissConversationNotification(conversation.citizenConversationId)
+    dismissConversationNotification(conversation.citizenConversationId, conversation.lastMessageAt)
     void api.markConversationRead(conversation.citizenConversationId).catch(() => {})
 
     if (canManageConversations) {

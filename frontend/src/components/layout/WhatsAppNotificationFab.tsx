@@ -110,9 +110,14 @@ export function WhatsAppNotificationFab() {
     }
   }, [])
 
+  // Poll, SignalR ve reconnect tetikleyicileri aynı anda birden fazla fetch başlatabiliyor;
+  // sıra numarası olmadan geç dönen eski bir yanıt, konuşma okunduktan sonra gelip
+  // unreadCount'u yanlışlıkla eski (okunmamış) haline geri döndürebiliyordu.
+  const conversationsFetchSeqRef = useRef(0)
   const refreshConversations = useCallback(async () => {
+    const seq = ++conversationsFetchSeqRef.current
     const data = await fetchConversations()
-    if (data) {
+    if (data && conversationsFetchSeqRef.current === seq) {
       setConversations(data)
     }
   }, [fetchConversations])
@@ -197,16 +202,8 @@ export function WhatsAppNotificationFab() {
   })
 
   useEffect(() => {
-    let cancelled = false
-    void fetchConversations().then(data => {
-      if (!cancelled && data) {
-        setConversations(data)
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [fetchConversations, location.pathname])
+    void refreshConversations()
+  }, [refreshConversations, location.pathname])
 
   useEffect(() => {
     setDismissedNotifications(readDismissedNotifications(dismissedStorageKey))

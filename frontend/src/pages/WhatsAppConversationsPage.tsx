@@ -1368,6 +1368,36 @@ export function WhatsAppConversationsPage() {
     }, [silentRefreshConversations]),
   })
 
+  // Konuşma listesi yalnızca SignalR olayına bağlıysa, kaçırılan tek bir mesaj yayınında
+  // (ör. sekme arka plandayken bağlantı kısa süreliğine kopması) liste sayfa yenilenmeden
+  // güncellenmiyordu. WhatsAppNotificationFab'daki yedek polling ile aynı desen.
+  useEffect(() => {
+    if (document.visibilityState !== 'visible') return
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void silentRefreshConversations()
+      }
+    }, 12_000)
+    return () => window.clearInterval(timer)
+  }, [silentRefreshConversations])
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void silentRefreshConversations()
+      }
+    }
+    const onFocus = () => {
+      void silentRefreshConversations()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [silentRefreshConversations])
+
   const refreshUserQuickReplies = useCallback(async () => {
     try {
       const [quickReplies, metaTemplates] = await Promise.all([

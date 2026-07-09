@@ -176,6 +176,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
               <div className="loading">{t('common.loading')}</div>
             ) : (
               <div className="dashboard-drilldown-grid-shell">
+                <div className="dashboard-drilldown-table-wrap">
                 <table className="data-table data-table--zebra dashboard-drilldown-table">
                   <thead>
                     <tr>
@@ -242,6 +243,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                     ))}
                   </tbody>
                 </table>
+                </div>
                 <TablePagination
                   totalCount={rows.length}
                   pageSize={pageSize}

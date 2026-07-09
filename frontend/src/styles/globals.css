@@ -4155,14 +4155,18 @@
       font-size: 0.72rem;
     }
 
+    /* Tablo kendi scroll kapsayıcısında (dashboard-drilldown-table-wrap) yatay taşıyor;
+       grid-shell'in kendisi zorla genişletilmezse altındaki TablePagination aynı (dar)
+       genişlikte kalır — önceden grid-shell min-width:30rem ile zorlanınca paging modal'ın
+       gerçek genişliğinde kalıp tablodan daha dar görünüyordu. */
     .dashboard-drilldown-grid-shell {
       width: 100%;
-      min-width: 30rem;
     }
 
-    .dashboard-drilldown-grid-shell .dashboard-drilldown-table {
+    .dashboard-drilldown-table-wrap {
       width: 100%;
-      min-width: 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .table-container thead th,

@@ -1329,6 +1329,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const detail = await api.getTaskById(taskId).catch(() => null)
     if (!detail) return
     const job = await api.getJobById(detail.jobId).catch(() => null)
+    // Düzenleme modu Son Tarih alanını devralır; yarım kalmış "Değiştir"/"Ek süre" mini
+    // akışları temizlenmezse Vazgeç sonrası eski onay kutusu yanlışlıkla yeniden görünür.
+    setDueDateEdit(null)
+    setExtraTimeEdit(null)
+    setExtraTimeReview(null)
     setEditRoutineTaskModal({
       taskId,
       title: detail.title,
@@ -1340,8 +1345,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       openAddress: job?.openAddress ?? null,
     })
   }
-  const handleSaveEditRoutineTask = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSaveEditRoutineTask = async () => {
     if (!editRoutineTaskModal) return
     setEditRoutineTaskSaving(true)
     try {
@@ -1369,6 +1373,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   }
   // Kendine atayan yönetici talebi ayrı sayfaya gitmeden aynı popup içinde düzenler (card #1476 reopen).
   const openEditJobModal = (job: JobDetail) => {
+    setDueDateEdit(null)
+    setExtraTimeEdit(null)
+    setExtraTimeReview(null)
     setEditJobModal({
       jobId: job.jobId,
       title: job.title,
@@ -1382,8 +1389,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const job = await api.getJobById(jobId).catch(() => null)
     if (job) openEditJobModal(job)
   }
-  const handleSaveEditJob = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSaveEditJob = async () => {
     if (!editJobModal) return
     setEditJobSaving(true)
     try {
@@ -1405,6 +1411,26 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
   }
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
+  // Görev/Rutin görev düzenleme artık ayrı bir forma geçmeden, Taleplerim detay popup'ındaki
+  // gibi AYNI Görev Detayları düzeni içinde satır satır editable hale geliyor (card #1500).
+  const activeTaskEditDraft = editJobModal ?? editRoutineTaskModal
+  const isEditingTaskDetail = Boolean(activeTaskEditDraft)
+  const isSavingTaskEdit = editJobSaving || editRoutineTaskSaving
+  const updateActiveTaskEditDraft = (patch: Partial<{ title: string; description: string; priority: string; dueDateUtc: string }>) => {
+    if (editJobModal) setEditJobModal(m => m && ({ ...m, ...patch }))
+    else if (editRoutineTaskModal) setEditRoutineTaskModal(m => m && ({ ...m, ...patch }))
+  }
+  const handleSaveActiveTaskEdit = () => {
+    if (editJobModal) void handleSaveEditJob()
+    else if (editRoutineTaskModal) void handleSaveEditRoutineTask()
+  }
+  const handleCancelActiveTaskEdit = () => {
+    setEditJobModal(null)
+    setEditRoutineTaskModal(null)
+    setDueDateEdit(null)
+    setExtraTimeEdit(null)
+    setExtraTimeReview(null)
+  }
 const pageKicker = isMyTasksView
     ? currentMyTaskViewLabel
     : isDepartmentTasksView
@@ -1752,99 +1778,112 @@ const pageKicker = isMyTasksView
                     {t('social.goToConversation', 'Yazışmaya Git')}
                   </Button>
                 )}
-                {showRouteTaskDetailAction && selectedTask && (canRouteTaskDetail ? (
-                  <Button
-                    type="button"
-                    size="lg"
-                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
-                    onClick={() => openRouteModal(selectedTask.taskId)}
-                  >
-                    <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('tasks.actions.route', 'Görevi Yönlendir')}
-                  </Button>
+                {isEditingTaskDetail ? (
+                  <>
+                    <Button type="button" size="lg" variant="success" disabled={isSavingTaskEdit} onClick={handleSaveActiveTaskEdit}>
+                      {isSavingTaskEdit ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+                    </Button>
+                    <Button type="button" size="lg" variant="secondary" disabled={isSavingTaskEdit} onClick={handleCancelActiveTaskEdit}>
+                      {t('common.cancel', 'Vazgeç')}
+                    </Button>
+                  </>
                 ) : (
-                  <DisabledActionButton
-                    size="lg"
-                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
-                    hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}
-                  >
-                    <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('tasks.actions.route', 'Görevi Yönlendir')}
-                  </DisabledActionButton>
-                ))}
-                {isMyTasksView && selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
-                  (taskDetail?.statusChangeHistory?.length ?? 0) > 0 ? (
-                    <DisabledActionButton
-                      size="lg"
-                      className="bg-orange-500 text-white"
-                      hoverTitle={t('tasks.actions.changeStatusUsed', 'Görevin durumu yalnızca bir kez değiştirilebilir')}
-                    >
-                      {t('tasks.actions.changeStatus', 'Durum Değiştir')}
-                    </DisabledActionButton>
-                  ) : (
-                    <Button
-                      type="button"
-                      size="lg"
-                      className="bg-orange-500 text-white hover:bg-orange-600"
-                      onClick={() => openStatusChangeModal(selectedTask)}
-                    >
-                      {t('tasks.actions.changeStatus', 'Durum Değiştir')}
-                    </Button>
-                  )
-                )}
-                {isMyTasksView && selectedTask
-                  && (!canChangeTaskStatusFromDetail(selectedTask) || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
-                  && (canEditRoutineTask(selectedTask) ? (
-                  <Button
-                    type="button"
-                    size="lg"
-                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
-                    onClick={() => void openRoutineTaskEdit(selectedTask.taskId)}
-                  >
-                    <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('common.edit', 'Düzenle')}
-                  </Button>
-                ) : taskDetail && canEditSelfAssignedManagerTask(taskDetail) && parentJobDetail ? (
-                  <Button
-                    type="button"
-                    size="lg"
-                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
-                    onClick={() => openEditJobModal(parentJobDetail)}
-                  >
-                    <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('common.edit', 'Düzenle')}
-                  </Button>
-                ) : selectedTask.jobSourceType === 'Routine' ? (
-                  <DisabledActionButton
-                    size="lg"
-                    className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
-                    hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
-                  >
-                    <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('common.edit', 'Düzenle')}
-                  </DisabledActionButton>
-                ) : null)}
-                {isMyTasksView && canCompleteTask && (
-                  <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
-                    <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('tasks.actions.complete', 'Tamamla')}
-                  </Button>
-                )}
-                {isMyTasksView && canCompleteTask && (
-                  <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
-                    <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
-                  </Button>
-                )}
-                {taskDetail
-                  && isDepartmentTasksView
-                  && currentMyTaskView !== 'all'
-                  && canManageDepartmentTaskActions(taskDetail)
-                  && isActionableTaskStatus(taskDetail.currentStatus) && (
-                    <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
-                      <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                      {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
-                    </Button>
+                  <>
+                    {showRouteTaskDetailAction && selectedTask && (canRouteTaskDetail ? (
+                      <Button
+                        type="button"
+                        size="lg"
+                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
+                        onClick={() => openRouteModal(selectedTask.taskId)}
+                      >
+                        <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('tasks.actions.route', 'Görevi Yönlendir')}
+                      </Button>
+                    ) : (
+                      <DisabledActionButton
+                        size="lg"
+                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
+                        hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}
+                      >
+                        <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('tasks.actions.route', 'Görevi Yönlendir')}
+                      </DisabledActionButton>
+                    ))}
+                    {isMyTasksView && selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
+                      (taskDetail?.statusChangeHistory?.length ?? 0) > 0 ? (
+                        <DisabledActionButton
+                          size="lg"
+                          className="bg-orange-500 text-white"
+                          hoverTitle={t('tasks.actions.changeStatusUsed', 'Görevin durumu yalnızca bir kez değiştirilebilir')}
+                        >
+                          {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                        </DisabledActionButton>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="lg"
+                          className="bg-orange-500 text-white hover:bg-orange-600"
+                          onClick={() => openStatusChangeModal(selectedTask)}
+                        >
+                          {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                        </Button>
+                      )
+                    )}
+                    {isMyTasksView && selectedTask
+                      && (!canChangeTaskStatusFromDetail(selectedTask) || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+                      && (canEditRoutineTask(selectedTask) ? (
+                      <Button
+                        type="button"
+                        size="lg"
+                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
+                        onClick={() => void openRoutineTaskEdit(selectedTask.taskId)}
+                      >
+                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('common.edit', 'Düzenle')}
+                      </Button>
+                    ) : taskDetail && canEditSelfAssignedManagerTask(taskDetail) && parentJobDetail ? (
+                      <Button
+                        type="button"
+                        size="lg"
+                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
+                        onClick={() => openEditJobModal(parentJobDetail)}
+                      >
+                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('common.edit', 'Düzenle')}
+                      </Button>
+                    ) : selectedTask.jobSourceType === 'Routine' ? (
+                      <DisabledActionButton
+                        size="lg"
+                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
+                        hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
+                      >
+                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('common.edit', 'Düzenle')}
+                      </DisabledActionButton>
+                    ) : null)}
+                    {isMyTasksView && canCompleteTask && (
+                      <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
+                        <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('tasks.actions.complete', 'Tamamla')}
+                      </Button>
+                    )}
+                    {isMyTasksView && canCompleteTask && (
+                      <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
+                        <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
+                      </Button>
+                    )}
+                    {taskDetail
+                      && isDepartmentTasksView
+                      && currentMyTaskView !== 'all'
+                      && canManageDepartmentTaskActions(taskDetail)
+                      && isActionableTaskStatus(taskDetail.currentStatus) && (
+                        <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
+                          <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
+                        </Button>
+                    )}
+                  </>
                 )}
                 {taskDetail && (
                   <Button
@@ -1874,120 +1913,6 @@ const pageKicker = isMyTasksView
             <div className="flex-1 overflow-y-auto p-6">
               {detailLoading ? (
                 <div className="loading">{t('common.loading')}</div>
-              ) : editJobModal ? (
-                // Kendine atayan yönetici talebi, ayrı bir sayfaya/pop up'a gitmeden AYNI pop up
-                // içinde düzenler (card #1476 reopen ×2).
-                <form className="page-stack" onSubmit={e => void handleSaveEditJob(e)}>
-                  <label className="job-field">
-                    <span className="job-field-label">{t('jobs.form.title', 'Başlık')}</span>
-                    <input
-                      className="field-input"
-                      value={editJobModal.title}
-                      onChange={e => setEditJobModal(m => m && ({ ...m, title: e.target.value }))}
-                      required
-                    />
-                  </label>
-                  <label className="job-field">
-                    <span className="job-field-label">{t('jobs.form.description', 'Açıklama')}</span>
-                    <RichTextEditor
-                      value={editJobModal.description}
-                      onChange={val => setEditJobModal(m => m && ({ ...m, description: val }))}
-                    />
-                  </label>
-                  <label className="job-field">
-                    <span className="job-field-label">{t('jobs.form.priority', 'Öncelik')}</span>
-                    <select
-                      className="field-select"
-                      value={editJobModal.priority}
-                      onChange={e => setEditJobModal(m => m && ({ ...m, priority: e.target.value }))}
-                    >
-                      <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>
-                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                      <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                      <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
-                    </select>
-                  </label>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <label className="job-field">
-                      <span className="job-field-label">{t('jobs.form.startDate', 'Başlangıç Tarihi')}</span>
-                      <DateTimePicker
-                        value={editJobModal.startDateUtc}
-                        onChange={v => setEditJobModal(m => m && ({ ...m, startDateUtc: v }))}
-                        placeholder={t('jobs.form.startDate', 'Başlangıç Tarihi')}
-                      />
-                    </label>
-                    <label className="job-field">
-                      <span className="job-field-label">{t('jobs.form.dueDate', 'Bitiş Tarihi')}</span>
-                      <DateTimePicker
-                        value={editJobModal.dueDateUtc}
-                        onChange={v => setEditJobModal(m => m && ({ ...m, dueDateUtc: v }))}
-                        placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                      />
-                    </label>
-                  </div>
-                  <div className="inline-actions justify-end">
-                    <Button type="button" variant="secondary" onClick={() => setEditJobModal(null)}>
-                      {t('common.cancel', 'İptal')}
-                    </Button>
-                    <Button type="submit" disabled={editJobSaving}>
-                      {editJobSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-                    </Button>
-                  </div>
-                </form>
-              ) : editRoutineTaskModal ? (
-                // Rutin görev de ayrı sayfaya (Rutin Görev Düzenle) gitmeden AYNI pop up içinde
-                // düzenlenir (card #1494 reopen ×2).
-                <form className="page-stack" onSubmit={e => void handleSaveEditRoutineTask(e)}>
-                  <label className="job-field">
-                    <span className="job-field-label">{t('tasks.newRequest.title', 'Başlık')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span></span>
-                    <input
-                      className="field-input"
-                      maxLength={50}
-                      value={editRoutineTaskModal.title}
-                      onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, title: e.target.value }))}
-                      required
-                    />
-                  </label>
-                  <label className="job-field">
-                    <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span></span>
-                    <RichTextEditor
-                      value={editRoutineTaskModal.description}
-                      onChange={val => setEditRoutineTaskModal(m => m && ({ ...m, description: val }))}
-                    />
-                  </label>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <label className="job-field">
-                      <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
-                      <select
-                        className="field-select"
-                        value={editRoutineTaskModal.priority}
-                        onChange={e => setEditRoutineTaskModal(m => m && ({ ...m, priority: e.target.value }))}
-                      >
-                        <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                        <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                        <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                        <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
-                      </select>
-                    </label>
-                    <label className="job-field">
-                      <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}</span>
-                      <DateTimePicker
-                        value={editRoutineTaskModal.dueDateUtc}
-                        onChange={v => setEditRoutineTaskModal(m => m && ({ ...m, dueDateUtc: v }))}
-                        placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}
-                      />
-                    </label>
-                  </div>
-                  <div className="inline-actions justify-end">
-                    <Button type="button" variant="secondary" onClick={() => setEditRoutineTaskModal(null)}>
-                      {t('common.cancel', 'İptal')}
-                    </Button>
-                    <Button type="submit" disabled={editRoutineTaskSaving}>
-                      {editRoutineTaskSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-                    </Button>
-                  </div>
-                </form>
               ) : taskDetail ? (
                 <>
                   {/* Görev bilgi kutusu — Taleplerim detay popup'ı ile birebir aynı tasarım dili:
@@ -2002,7 +1927,20 @@ const pageKicker = isMyTasksView
                       <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
                         <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
                           <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
-                            <span className="min-w-0">{normalizeTitleCaseField(taskDetail.title)}</span>
+                            <span className="min-w-0">
+                              {activeTaskEditDraft ? (
+                                <textarea
+                                  className="field-textarea my-request-title-heading-edit__textarea font-semibold"
+                                  value={activeTaskEditDraft.title}
+                                  maxLength={50}
+                                  rows={Math.min(3, Math.max(1, Math.ceil((activeTaskEditDraft.title.length || 1) / 32)))}
+                                  onChange={e => updateActiveTaskEditDraft({ title: e.target.value })}
+                                  required
+                                />
+                              ) : (
+                                normalizeTitleCaseField(taskDetail.title)
+                              )}
+                            </span>
                             <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
                               <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{formatTaskDisplayNumber(selectedTask)}</span>
                               <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
@@ -2011,11 +1949,19 @@ const pageKicker = isMyTasksView
                             </span>
                           </span>
                         </MyRequestSectionHeading>
-                        <RichTextContent
-                          value={resolveTaskDescription(taskDetail, parentJobDetail)}
-                          emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                          className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
-                        />
+                        {activeTaskEditDraft ? (
+                          <RichTextEditor
+                            value={activeTaskEditDraft.description}
+                            onChange={value => updateActiveTaskEditDraft({ description: value })}
+                            minHeight="min-h-40"
+                          />
+                        ) : (
+                          <RichTextContent
+                            value={resolveTaskDescription(taskDetail, parentJobDetail)}
+                            emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                            className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+                          />
+                        )}
                       </div>
                       <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
                         <MyRequestSectionHeading icon={Info}>
@@ -2094,8 +2040,38 @@ const pageKicker = isMyTasksView
                                   })(),
                                 }]
                               : []),
-                            ...(taskDetail.jobSourceType === 'Routine'
-                              ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
+                            ...(activeTaskEditDraft
+                              ? [{
+                                  label: t('tasks.newRequest.priority', 'Öncelik'),
+                                  value: (
+                                    <select
+                                      className="field-select ml-auto w-auto"
+                                      value={activeTaskEditDraft.priority}
+                                      onChange={e => updateActiveTaskEditDraft({ priority: e.target.value })}
+                                    >
+                                      {editJobModal && <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>}
+                                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
+                                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
+                                      <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
+                                      <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
+                                    </select>
+                                  ),
+                                }]
+                              : taskDetail.jobSourceType === 'Routine'
+                                ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
+                                : []),
+                            ...(editJobModal
+                              ? [{
+                                  label: t('jobs.form.startDate', 'Başlangıç Tarihi'),
+                                  value: (
+                                    <DateTimePicker
+                                      value={editJobModal.startDateUtc}
+                                      onChange={v => setEditJobModal(m => m && ({ ...m, startDateUtc: v }))}
+                                      placeholder={t('jobs.form.startDate', 'Başlangıç Tarihi')}
+                                      forceUp
+                                    />
+                                  ),
+                                }]
                               : []),
                           ].map(({ label, value }, fieldIndex) => (
                             <div key={fieldIndex} className="job-detail-field-row job-detail-field-row--request-info">
@@ -2185,7 +2161,16 @@ const pageKicker = isMyTasksView
                               <span>)</span>
                             </span>
                           ) : undefined
-                          const dueDateContent = dueDateEdit?.taskId === taskDetail.taskId ? (
+                          const dueDateContent = activeTaskEditDraft ? (
+                            <div className="mt-1">
+                              <DateTimePicker
+                                value={activeTaskEditDraft.dueDateUtc}
+                                onChange={value => updateActiveTaskEditDraft({ dueDateUtc: value })}
+                                placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                                forceUp
+                              />
+                            </div>
+                          ) : dueDateEdit?.taskId === taskDetail.taskId ? (
                             // Takvim yukarı yönde açılır; tetikleyici alan gizli, "Ek Süre İste"deki seç
                             // akışıyla aynı: tarih seçilince (Seç) onay kutusu çıkar, Kaydet ile uygulanır (card 611).
                             <div className="mt-1 flex flex-col gap-1.5">

@@ -643,6 +643,7 @@ function ConversationDetail({
   onUserQuickRepliesChanged,
   anchorAtUtc,
   anchorSocialMessageId,
+  refreshSignal,
   onReadMarked,
   onOpenCreateRequest,
   onOpenViewRequests,
@@ -655,6 +656,9 @@ function ConversationDetail({
   onUserQuickRepliesChanged: () => void
   anchorAtUtc?: string | null
   anchorSocialMessageId?: string | null
+  /** Dışarıdan tetiklenen sessiz yenileme (SignalR/yeniden bağlanma/talep oluşturma) —
+   *  konuşma tamamen yeniden mount edilmeden mevcut sohbeti sessizce tazeler (card #1493). */
+  refreshSignal?: number
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId: string) => void
   onOpenViewRequests: (citizenPhone: string) => void
@@ -690,6 +694,13 @@ function ConversationDetail({
   const bottomRef = useRef<HTMLDivElement>(null)
   const entryRefs = useRef<Map<number, HTMLDivElement>>(new Map())
   const anchorAppliedRef = useRef(false)
+  // Component artık konuşma değişince remount olmuyor; bu yüzden gecikmiş bir fetch/gönderim
+  // yanıtı geldiğinde hâlâ o an ekranda gösterilen konuşmaya mı ait olduğunu buradan kontrol
+  // ederiz — aksi halde eski konuşmanın verisi yanlışlıkla yeni açık konuşmanın üzerine yazılır.
+  const latestConversationIdRef = useRef(conversationId)
+  useEffect(() => {
+    latestConversationIdRef.current = conversationId
+  })
 
   useEffect(() => {
     setProfileDraft(createProfileDraft(detail, citizenPhone, citizenName))
@@ -717,21 +728,23 @@ function ConversationDetail({
     setLoading(true)
     try {
       const data = await api.getCitizenConversationDetail(conversationId)
+      if (latestConversationIdRef.current !== conversationId) return
       setDetail(data)
     } catch {
-      setDetail(null)
+      if (latestConversationIdRef.current === conversationId) setDetail(null)
     } finally {
-      setLoading(false)
+      if (latestConversationIdRef.current === conversationId) setLoading(false)
     }
   }, [conversationId])
 
   const refreshDetail = useCallback(async () => {
     try {
       const data = await api.getCitizenConversationDetail(conversationId)
+      if (latestConversationIdRef.current !== conversationId) return
       setDetail(data)
       if (data.unreadCount > 0) {
         await api.markConversationRead(conversationId)
-        onReadMarked?.()
+        if (latestConversationIdRef.current === conversationId) onReadMarked?.()
       }
     } catch {
       // Keep the current timeline visible if a background refresh fails.
@@ -742,7 +755,9 @@ function ConversationDetail({
     void loadDetail()
     // Mark as read when conversation is opened
     api.markConversationRead(conversationId)
-      .then(() => onReadMarked?.())
+      .then(() => {
+        if (latestConversationIdRef.current === conversationId) onReadMarked?.()
+      })
       .catch(() => {})
   }, [conversationId, loadDetail, onReadMarked])
 
@@ -753,11 +768,39 @@ function ConversationDetail({
     return () => window.clearInterval(intervalId)
   }, [refreshDetail])
 
+  // Konuşma değiştiğinde önceki konuşmaya ait taslak/seçim state'i yeni konuşmaya sızmasın diye
+  // sıfırlanır (component artık `key` ile remount edilmiyor — card #1493 sonrası geçiş jank fix'i).
+  useEffect(() => {
+    setDetail(null)
+    setReplyText('')
+    setPendingFile(null)
+    setPendingFileEditing(false)
+    setChatSearch('')
+    setShowChatSearch(false)
+    setMenuOpen(false)
+    setConfirmDialog(null)
+    setSendingPendingId(null)
+    setInternalDepartmentId('')
+    setSending(false)
+    setSendingInternal(false)
+    setProfileSaving(false)
+    setHighlightEntryIndex(null)
+  }, [conversationId])
+
   useEffect(() => {
     anchorAppliedRef.current = false
     entryRefs.current.clear()
     setIsPinnedToBottom(true)
   }, [conversationId, anchorAtUtc, anchorSocialMessageId])
+
+  // Dış tetikleyiciler (SignalR mesajı, yeniden bağlanma, talep oluşturma) artık konuşmayı
+  // yeniden mount etmek yerine mevcut ekranı bozmadan sessizce tazeler.
+  const previousRefreshSignalRef = useRef(refreshSignal)
+  useEffect(() => {
+    if (previousRefreshSignalRef.current === refreshSignal) return
+    previousRefreshSignalRef.current = refreshSignal
+    void refreshDetail()
+  }, [refreshSignal, refreshDetail])
 
   useLayoutEffect(() => {
     if (loading || !detail || detail.timeline.length === 0) return
@@ -827,6 +870,7 @@ function ConversationDetail({
     const openTicket = pickReplyTicket(detail.tickets)
     if (!openTicket) return
 
+    const sentForConversationId = conversationId
     setSending(true)
     try {
       if (pendingFile) {
@@ -834,18 +878,21 @@ function ConversationDetail({
       } else {
         await api.replySocialMessage(openTicket.socialMessageId, text, true)
       }
-      setReplyText('')
-      setPendingFile(null)
-      setPendingFileEditing(false)
-      setIsPinnedToBottom(true)
+      if (latestConversationIdRef.current === sentForConversationId) {
+        setReplyText('')
+        setPendingFile(null)
+        setPendingFileEditing(false)
+        setIsPinnedToBottom(true)
+      }
       await refreshDetail()
     } finally {
-      setSending(false)
+      if (latestConversationIdRef.current === sentForConversationId) setSending(false)
     }
   }
 
   const handleProfileSave = async () => {
     if (!detail || profileSaving) return
+    const savedForConversationId = conversationId
     setProfileSaving(true)
     try {
       await api.updateCitizenConversationProfile(detail.citizenConversationId, {
@@ -859,7 +906,7 @@ function ConversationDetail({
       await refreshDetail()
       onProfileSaved()
     } finally {
-      setProfileSaving(false)
+      if (latestConversationIdRef.current === savedForConversationId) setProfileSaving(false)
     }
   }
 
@@ -867,26 +914,30 @@ function ConversationDetail({
     const text = replyText.trim()
     const targetTicket = detail?.tickets.find(ticket => ticket.departmentId === internalDepartmentId) ?? primaryTicket
     if (!text || !internalDepartmentId || !targetTicket || sendingInternal) return
+    const sentForConversationId = conversationId
     setSendingInternal(true)
     try {
       await api.addInternalConversationMessage(targetTicket.socialMessageId, internalDepartmentId, text)
-      setReplyText('')
-      setIsPinnedToBottom(true)
+      if (latestConversationIdRef.current === sentForConversationId) {
+        setReplyText('')
+        setIsPinnedToBottom(true)
+      }
       await refreshDetail()
     } finally {
-      setSendingInternal(false)
+      if (latestConversationIdRef.current === sentForConversationId) setSendingInternal(false)
     }
   }
 
   const doSendPending = async (entry: CitizenConversationTimelineEntry) => {
     if (sendingPendingId) return
+    const sentForConversationId = conversationId
     setSendingPendingId(entry.entryId)
     try {
       await api.sendPendingConversationEntry(entry.socialMessageId, entry.entryId)
-      setIsPinnedToBottom(true)
+      if (latestConversationIdRef.current === sentForConversationId) setIsPinnedToBottom(true)
       await refreshDetail()
     } finally {
-      setSendingPendingId(null)
+      if (latestConversationIdRef.current === sentForConversationId) setSendingPendingId(null)
     }
   }
 
@@ -1480,7 +1531,6 @@ export function WhatsAppConversationsPage() {
   }, [filtered, requestedPhone, selectedId])
 
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
-  const phoneOpenKey = requestedPhone && !requestedAt && !requestedMessageId ? normalizePhone(requestedPhone) : ''
 
   const handleReadMarked = useCallback(() => {
     setConversations(prev =>
@@ -1634,7 +1684,6 @@ export function WhatsAppConversationsPage() {
         <div className="min-h-[34rem] flex-1 min-w-0 overflow-hidden bg-slate-50 md:min-h-0">
           {selectedId ? (
             <ConversationDetail
-              key={`${selectedId}-${detailRefreshKey}-${requestedAt}-${requestedMessageId}-${phoneOpenKey}`}
               conversationId={selectedId}
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}
@@ -1642,6 +1691,7 @@ export function WhatsAppConversationsPage() {
               onUserQuickRepliesChanged={() => { void refreshUserQuickReplies() }}
               anchorAtUtc={requestedAt || null}
               anchorSocialMessageId={requestedMessageId || null}
+              refreshSignal={detailRefreshKey}
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
               onOpenViewRequests={handleOpenViewRequests}

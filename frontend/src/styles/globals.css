@@ -3278,10 +3278,19 @@
   }
 
   .wallboard-page > footer {
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    /* .wallboard-page zaten tüm viewport genişliğinde; footer'ın viewport'a değil sadece
+       sayfanın kendi yan padding'ine göre taşması yeterli. 100vw + negatif margin hilesi
+       dikey scrollbar varken vw'nin scrollbar dahil, sayfanın gerçek genişliğinin ise
+       scrollbar hariç ölçülmesi yüzünden sağda ince bir boşluk bırakıyordu.
+       footer bir flex item olduğu için (wallboard-page: flex column) width:auto + negatif
+       margin normal block akışındaki gibi genişliği otomatik telafi etmiyor — genişlik
+       açıkça padding'in iki katı eklenerek hesaplanmalı, yoksa sağda padding kadar boşluk kalır.
+       AppFooter kendi üzerinde Tailwind'in w-full (width:100%) utility'sini taşıyor; Tailwind
+       v4'te utilities katmanı @layer components'ten sonra geldiği için !important olmadan
+       burada width hiçbir zaman kazanamıyor (card #1448 ile aynı desen). */
+    width: calc(100% + 2 * var(--wallboard-page-pad)) !important;
+    margin-left: calc(-1 * var(--wallboard-page-pad));
+    margin-right: calc(-1 * var(--wallboard-page-pad));
     margin-top: auto;
   }
 

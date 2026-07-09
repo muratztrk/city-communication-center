@@ -1030,6 +1030,12 @@
       width: 9rem;
     }
 
+    /* "Tamamlanma Tarihi" başlığı "Onay Tarihi"/"İptal Tarihi"'nden belirgin şekilde uzun;
+       ortak grid-col-status-date genişliğinde sıralama/filtre ikonlarıyla iç içe giriyordu. */
+    .app-content-shell .incoming-requests-table .incoming-completed-at-col {
+      width: 11.5rem;
+    }
+
     .app-content-shell .my-requests-table .grid-col-status,
     .app-content-shell .incoming-requests-table .grid-col-status {
       width: 9rem;

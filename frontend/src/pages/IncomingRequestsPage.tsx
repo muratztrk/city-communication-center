@@ -849,7 +849,7 @@ export function IncomingRequestsPage() {
                 {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
                 {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <col className="grid-col-due" />}
                 {currentStatusFilter === 'approved' && <col className="grid-col-status-date" />}
-                {currentStatusFilter === 'completed' && <col className="grid-col-status-date" />}
+                {currentStatusFilter === 'completed' && <col className="grid-col-status-date incoming-completed-at-col" />}
                 {currentStatusFilter === 'cancelled' && <col className="grid-col-status-date" />}
                 {currentStatusFilter === 'all' && <col className="grid-col-status" />}
                 <col className="grid-col-actions" />

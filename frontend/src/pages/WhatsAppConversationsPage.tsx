@@ -619,26 +619,21 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.label', 'Talep Etiketi')}</span>
-          {canManageRequestTags ? (
-            <div className="flex items-center gap-1.5">
-              <input
-                className={`${fieldClass} min-w-0 flex-1`}
-                value={draft.label}
-                onChange={event => onDraftChange({ label: event.target.value })}
-              />
+          <input className={fieldClass} value={draft.label} onChange={event => onDraftChange({ label: event.target.value })} />
+          {canManageRequestTags && (
+            <div className="flex items-center gap-2 pt-1">
               <SingleSelectDropdown
+                className="min-w-0 flex-1"
                 options={requestTagOptions}
                 value=""
                 onChange={tagName => onDraftChange({ label: tagName })}
                 placeholder={t('whatsapp.requestTagsShort', 'Etiketler')}
                 emptyText={t('whatsapp.noRequestTags', 'Henüz etiket yok.')}
-                triggerClassName="w-auto shrink-0 !h-9 !text-[11px] !px-2"
+                triggerClassName="w-full !h-9 !text-xs"
                 menuClassName="w-max"
               />
               <RequestTagAddButton onChanged={() => void loadRequestTags()} />
             </div>
-          ) : (
-            <input className={fieldClass} value={draft.label} onChange={event => onDraftChange({ label: event.target.value })} />
           )}
         </label>
         <label className="block space-y-1">

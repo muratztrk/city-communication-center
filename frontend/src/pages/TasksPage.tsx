@@ -2570,6 +2570,10 @@ const pageKicker = isMyTasksView
                         />
                       </>
                     )
+                    // Kendine atayan yönetici kendi talebini düzenlerken (card #1519) Yönetici Notu
+                    // hiç gösterilmez ve Ekler/Fotoğraflar düzenlenebilir olur.
+                    const isSelfAssignedManagerTask = canEditSelfAssignedManagerTask(taskDetail)
+                    const isEditingThisParentJob = editJobModal?.jobId === parentJobDetail.jobId
                     const parentInfoCardContent = (
                       <>
                         <MyRequestSectionHeading icon={Info} className="w-full">
@@ -2591,7 +2595,7 @@ const pageKicker = isMyTasksView
                           fields={parentInfoFields}
                           detail={parentJobDetail}
                           t={t}
-                          extraTrailingRow={{
+                          extraTrailingRow={isEditingThisParentJob ? undefined : {
                             label: t('attachments.sectionTitle', 'Ekler / Fotoğraflar'),
                             value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
                               <div className="flex flex-col items-end gap-1">
@@ -2611,10 +2615,6 @@ const pageKicker = isMyTasksView
                         />
                       </>
                     )
-                    // Kendine atayan yönetici kendi talebini düzenlerken (card #1519) Yönetici Notu
-                    // hiç gösterilmez ve Ekler/Fotoğraflar düzenlenebilir olur.
-                    const isSelfAssignedManagerTask = canEditSelfAssignedManagerTask(taskDetail)
-                    const isEditingThisParentJob = editJobModal?.jobId === parentJobDetail.jobId
                     return (
                       <section className="page-stack mb-5">
                         <MyRequestDetailMainCard

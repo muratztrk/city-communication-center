@@ -1410,6 +1410,31 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       setEditJobSaving(false)
     }
   }
+  // Kendine atayan yönetici talebini düzenlerken İlgili Talep Detayları'ndaki Ekler/Fotoğraflar
+  // artık düzenlenebilir (card #1519).
+  const handleParentJobAttachmentUpload = async (file: File, onProgress?: (percent: number) => void) => {
+    if (!parentJobDetail) return
+    const attachment = await api.uploadJobAttachment(parentJobDetail.jobId, file, onProgress)
+    setParentJobDetail(current => current ? { ...current, attachments: [...(current.attachments ?? []), attachment] } : current)
+  }
+  const handleParentJobAttachmentDelete = async (attachmentId: string) => {
+    await api.deleteAttachment(attachmentId)
+    setParentJobDetail(current => current ? { ...current, attachments: (current.attachments ?? []).filter(item => item.attachmentId !== attachmentId) } : current)
+  }
+  // Rutin görevi düzenlerken Ekler/Fotoğraflar artık düzenlenebilir (card #1519).
+  const handleRoutineTaskAttachmentUpload = async (file: File, onProgress?: (percent: number) => void) => {
+    if (!editRoutineTaskModal) return
+    const attachment = await api.uploadTaskAttachment(editRoutineTaskModal.taskId, file, onProgress)
+    setTaskDetail(current => current && current.taskId === editRoutineTaskModal.taskId
+      ? { ...current, attachments: [...(current.attachments ?? []), attachment] }
+      : current)
+  }
+  const handleRoutineTaskAttachmentDelete = async (attachmentId: string) => {
+    await api.deleteAttachment(attachmentId)
+    setTaskDetail(current => current
+      ? { ...current, attachments: (current.attachments ?? []).filter(item => item.attachmentId !== attachmentId) }
+      : current)
+  }
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
   // Görev/Rutin görev düzenleme artık ayrı bir forma geçmeden, Taleplerim detay popup'ındaki
   // gibi AYNI Görev Detayları düzeni içinde satır satır editable hale geliyor (card #1500).
@@ -2364,6 +2389,7 @@ const pageKicker = isMyTasksView
                   {/* Rutin görevlerde 2. satır: Adres Bilgileri + Ekler / Fotoğraflar (card 575) */}
                   {taskDetail.jobSourceType === 'Routine' && (() => {
                     const isCompleted = taskDetail.currentStatus === 'Completed'
+                    const isEditingThisRoutineTask = editRoutineTaskModal?.taskId === taskDetail.taskId
                     return (
                       <section className="my-request-detail-bottom mb-5 grid gap-4 lg:grid-cols-3">
                         <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
@@ -2382,9 +2408,11 @@ const pageKicker = isMyTasksView
                           </MyRequestSectionHeading>
                           <AttachmentSection
                             attachments={taskDetail.attachments ?? []}
-                            readOnly
+                            readOnly={!isEditingThisRoutineTask}
                             compact
                             emptyText={t('attachments.routineEmpty', 'Rutin Görev için ek/fotoğraf bulunmamaktadır.')}
+                            onUpload={isEditingThisRoutineTask ? handleRoutineTaskAttachmentUpload : undefined}
+                            onDelete={isEditingThisRoutineTask ? handleRoutineTaskAttachmentDelete : undefined}
                           />
                           {isCompleted && (
                             <p className="mt-2 text-xs font-medium text-amber-600">
@@ -2505,6 +2533,10 @@ const pageKicker = isMyTasksView
                         <MyRequestInfoFieldsList fields={parentInfoFields} detail={parentJobDetail} t={t} />
                       </>
                     )
+                    // Kendine atayan yönetici kendi talebini düzenlerken (card #1519) Yönetici Notu
+                    // hiç gösterilmez ve Ekler/Fotoğraflar düzenlenebilir olur.
+                    const isSelfAssignedManagerTask = canEditSelfAssignedManagerTask(taskDetail)
+                    const isEditingThisParentJob = editJobModal?.jobId === parentJobDetail.jobId
                     return (
                       <section className="page-stack mb-5">
                         <MyRequestDetailMainCard
@@ -2529,7 +2561,7 @@ const pageKicker = isMyTasksView
                         />
                         <MyRequestDetailBottomCards
                           detail={parentJobDetail}
-                          showManagerNoteColumn={!isCitizenParentJob}
+                          showManagerNoteColumn={!isCitizenParentJob && !isSelfAssignedManagerTask}
                           canEditManagerNote={false}
                           canManageCoordination={false}
                           managerNoteDraft=""
@@ -2541,12 +2573,13 @@ const pageKicker = isMyTasksView
                           onManagerNoteSave={() => undefined}
                           onManagerNoteDeleteConfirm={() => undefined}
                           setConfirmDialog={() => undefined}
-                          canEditJobAttachments={false}
+                          isEditing={isEditingThisParentJob}
+                          canEditJobAttachments={isEditingThisParentJob}
                           showAttachmentLockNotice={taskDetail.currentStatus === 'Completed'}
                           attachmentLockText={t('attachments.lockedCompletedRequest', 'Talep tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}
                           attachmentUploading={false}
-                          onAttachmentUpload={async () => undefined}
-                          onAttachmentDelete={async () => undefined}
+                          onAttachmentUpload={handleParentJobAttachmentUpload}
+                          onAttachmentDelete={handleParentJobAttachmentDelete}
                           hideAddressCard
                         />
                       </section>

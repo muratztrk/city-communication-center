@@ -2587,7 +2587,28 @@ const pageKicker = isMyTasksView
                             </span>
                           </span>
                         </MyRequestSectionHeading>
-                        <MyRequestInfoFieldsList fields={parentInfoFields} detail={parentJobDetail} t={t} />
+                        <MyRequestInfoFieldsList
+                          fields={parentInfoFields}
+                          detail={parentJobDetail}
+                          t={t}
+                          extraTrailingRow={{
+                            label: t('attachments.sectionTitle', 'Ekler / Fotoğraflar'),
+                            value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
+                              <div className="flex flex-col items-end gap-1">
+                                {parentJobDetail.attachments!.map(attachment => (
+                                  <button
+                                    key={attachment.attachmentId}
+                                    type="button"
+                                    className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                    onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                  >
+                                    {attachment.fileName}
+                                  </button>
+                                ))}
+                              </div>
+                            ),
+                          }}
+                        />
                       </>
                     )
                     // Kendine atayan yönetici kendi talebini düzenlerken (card #1519) Yönetici Notu
@@ -2638,6 +2659,7 @@ const pageKicker = isMyTasksView
                           onAttachmentUpload={handleParentJobAttachmentUpload}
                           onAttachmentDelete={handleParentJobAttachmentDelete}
                           hideAddressCard
+                          hideAttachmentsCard={!isEditingThisParentJob}
                         />
                       </section>
                     )

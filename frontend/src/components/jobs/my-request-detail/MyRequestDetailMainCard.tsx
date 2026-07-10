@@ -48,6 +48,9 @@ interface MyRequestInfoFieldsListProps {
   editDraft?: MyRequestEditDraft
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
   priorityOptions?: { value: string; label: string }[]
+  // Görevlerim popup'ında (İlgili Talep Detayları) Ekler/Fotoğraflar artık ayrı kart değil,
+  // Öncelik/Proje mi? satırının hemen altında aynı hizada gösterilir (card #1481).
+  extraTrailingRow?: { label: ReactNode; value: ReactNode }
 }
 
 export function MyRequestInfoFieldsList({
@@ -58,6 +61,7 @@ export function MyRequestInfoFieldsList({
   editDraft,
   onEditDraftChange,
   priorityOptions,
+  extraTrailingRow,
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   return (
@@ -93,6 +97,12 @@ export function MyRequestInfoFieldsList({
               <JobProjectValue job={detail} t={t} />
             </span>
           </div>
+        </div>
+      )}
+      {!isEditing && extraTrailingRow && (
+        <div className="job-detail-field-row job-detail-field-row--request-info">
+          <div className="job-detail-field-row__label">{extraTrailingRow.label}</div>
+          <div className="job-detail-field-row__value">{extraTrailingRow.value}</div>
         </div>
       )}
     </div>

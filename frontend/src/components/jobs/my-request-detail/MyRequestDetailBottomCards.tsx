@@ -35,6 +35,10 @@ interface MyRequestDetailBottomCardsProps {
   // Görevlerim popup'ında (İlgili Talep Detayları) Adres Bilgileri üst satıra taşındığı ve
   // Talep Bilgileri sol sütuna taşındığı için ilk kart tamamen gizlenir (card #1444/#1449 tekrarı).
   hideAddressCard?: boolean
+  // Görevlerim popup'ında (İlgili Talep Detayları) Ekler/Fotoğraflar artık Talep Bilgileri
+  // satırına taşındığı için salt-okunur modda ayrı kart gösterilmez; düzenleme modunda yükleme/silme
+  // için hâlâ gerekli olduğundan sadece isEditing=false iken gizlenir (card #1481).
+  hideAttachmentsCard?: boolean
 }
 
 export function MyRequestDetailBottomCards({
@@ -60,10 +64,11 @@ export function MyRequestDetailBottomCards({
   editDraft,
   onEditDraftChange,
   hideAddressCard = false,
+  hideAttachmentsCard = false,
 }: MyRequestDetailBottomCardsProps) {
   const { t } = useTranslation()
 
-  const visibleCardCount = (hideAddressCard ? 0 : 1) + 1 + (showManagerNoteColumn ? 1 : 0)
+  const visibleCardCount = (hideAddressCard ? 0 : 1) + (hideAttachmentsCard ? 0 : 1) + (showManagerNoteColumn ? 1 : 0)
   const gridClass = visibleCardCount >= 3 ? 'lg:grid-cols-3' : visibleCardCount === 2 ? 'lg:grid-cols-2' : ''
 
   return (
@@ -157,24 +162,26 @@ export function MyRequestDetailBottomCards({
         </div>
       )}
 
-      <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
-        <MyRequestSectionHeading icon={Paperclip}>
-          {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-        </MyRequestSectionHeading>
-        <AttachmentSection
-          attachments={detail.attachments ?? []}
-          readOnly={!isEditing || !canEditJobAttachments}
-          displayMode="rich-list"
-          emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-          onUpload={isEditing && canEditJobAttachments ? onAttachmentUpload : undefined}
-          onDelete={isEditing && canEditJobAttachments ? onAttachmentDelete : undefined}
-          disabled={attachmentUploading}
-          showDeleteActions={isEditing}
-        />
-        {showAttachmentLockNotice && (
-          <p className="mt-2 text-xs font-medium text-amber-600">{attachmentLockText}</p>
-        )}
-      </div>
+      {!hideAttachmentsCard && (
+        <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+          <MyRequestSectionHeading icon={Paperclip}>
+            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+          </MyRequestSectionHeading>
+          <AttachmentSection
+            attachments={detail.attachments ?? []}
+            readOnly={!isEditing || !canEditJobAttachments}
+            displayMode="rich-list"
+            emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+            onUpload={isEditing && canEditJobAttachments ? onAttachmentUpload : undefined}
+            onDelete={isEditing && canEditJobAttachments ? onAttachmentDelete : undefined}
+            disabled={attachmentUploading}
+            showDeleteActions={isEditing}
+          />
+          {showAttachmentLockNotice && (
+            <p className="mt-2 text-xs font-medium text-amber-600">{attachmentLockText}</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

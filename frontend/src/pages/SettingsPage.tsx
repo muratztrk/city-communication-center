@@ -282,7 +282,7 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
 
 const TEMPLATE_CHANNEL_OPTIONS = ['Genel', 'WhatsApp', 'Facebook', 'Instagram', 'X', 'Phone', 'Other']
 const WHATSAPP_META_TEMPLATE_CHANNEL = 'WhatsApp Meta'
-const MAX_WHATSAPP_META_TEMPLATES = 3
+const MAX_WHATSAPP_META_TEMPLATES = 5
 const TEMPLATE_REPLY_DELAY_OPTIONS = [10, 30, 60, 120, 300]
 const TEMPLATE_WEEKDAY_OPTIONS = [
   { id: 'monday', label: 'Pazartesi', group: 'weekday' as const },

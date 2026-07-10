@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { UserQuickReplyTemplate } from '../types/platform'
 import { Button } from './ui/button'
+import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalBackdrop } from './ui/modal-backdrop'
 import { ModalCloseButton } from './ui/modal-close-button'
 
@@ -24,6 +25,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [content, setContent] = useState('')
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const resetForm = () => {
     setEditingId(null)
@@ -84,6 +86,18 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
     setEditingId(template.templateId)
     setName(template.name)
     setContent(template.content)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (!selectedId) return
+    setConfirmDialog({
+      title: t('whatsapp.userQuickReplyDeleteTitle', 'Şablonu Sil'),
+      titleDivider: true,
+      message: t('whatsapp.userQuickReplyDeleteConfirm', 'Bu şablon mesajı silmek istediğinize emin misiniz?'),
+      confirmLabel: t('common.delete', 'Sil'),
+      variant: 'destructive',
+      onConfirm: () => void handleDelete(),
+    })
   }
 
   const handleDelete = async () => {
@@ -170,7 +184,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
                 variant="destructive"
                 size="sm"
                 disabled={!selectedId || saving}
-                onClick={() => void handleDelete()}
+                onClick={handleDeleteConfirm}
               >
                 <Trash2 className="size-3.5" />
                 {t('common.delete', 'Sil')}
@@ -192,6 +206,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
           </div>
         </div>
       </div>
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </ModalBackdrop>,
     document.body,
   )

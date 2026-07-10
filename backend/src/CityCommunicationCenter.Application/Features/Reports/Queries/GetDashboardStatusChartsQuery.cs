@@ -122,10 +122,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var staffTasks = FilterTasks(tasks, request.StaffTaskType)
             .Where(task => task.AssignedUserId.HasValue && staffUserIds.Contains(task.AssignedUserId.Value));
         var staffTasksChart = await BuildStaffTasksChartAsync(staffTasks, tenantId, cancellationToken);
-        // Birime gelen taleplerin öncelik dağılımı — standart kullanıcı ve birim yöneticisi panolarında
-        // ortak gösterilir (card #1516/#1487).
-        var requestPriorityChart = await BuildRequestPriorityChartAsync(
-            tenantId, departmentIds, "dashboard.charts.requestPriority", request, cancellationToken);
+        // Sadece personele (yöneticinin kendisi hariç) atanmış görevlerin öncelik dağılımı — birim
+        // yöneticisi panosunda gösterilir (card #1516/#1487, "sadece personelin" ile düzeltildi).
+        var requestPriorityChart = BuildTaskPriorityChart(staffTasks, "dashboard.charts.requestPriority");
         var charts = new[]
         {
             staffTasksChart,
@@ -142,56 +141,26 @@ public sealed class GetDashboardStatusChartsQueryHandler
     }
 
     /// <summary>
-    /// Birime gelen taleplerin (sahip birim veya hedef birim eşleşmesiyle) öncelik dağılımı.
-    /// <paramref name="departmentIds"/> null verilirse tüm tenant kapsanır (Üst Düzey Yönetici, card #1518).
+    /// Tüm tenant genelindeki taleplerin (Job) öncelik dağılımı — Üst Düzey Yönetici panosunda
+    /// tüm birimleri kapsayacak şekilde gösterilir (card #1518). Birim/personel bazlı öncelik
+    /// dağılımı için <see cref="BuildTaskPriorityChart"/>/<see cref="BuildPriorityChartFromCounts"/>
+    /// kullanılır (card #1516/#1487).
     /// </summary>
-    private async Task<DashboardChartResponse> BuildRequestPriorityChartAsync(
+    private async Task<DashboardChartResponse> BuildTenantWideRequestPriorityChartAsync(
         Guid tenantId,
-        Guid[]? departmentIds,
         string titleKey,
         GetDashboardStatusChartsQuery request,
         CancellationToken cancellationToken)
     {
-        if (departmentIds is { Length: 0 })
-        {
-            return new DashboardChartResponse(titleKey,
-            [
-                new DashboardChartSlice("dashboard.chart.priorityNormal", 0, "warning"),
-                new DashboardChartSlice("dashboard.chart.priorityHigh", 0, "orange"),
-                new DashboardChartSlice("dashboard.chart.priorityVeryHigh", 0, "danger"),
-            ]);
-        }
-
-        var query = _dbContext.Jobs.AsNoTracking().Where(job => job.TenantId == tenantId
-            && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-            && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
-
-        if (departmentIds is not null)
-        {
-            query = query.Where(job => departmentIds.Contains(job.OwnerDepartmentId)
-                || _dbContext.JobDepartments.Any(department => department.JobId == job.JobId
-                    && department.Role == JobDepartmentRole.Target
-                    && departmentIds.Contains(department.DepartmentId)));
-        }
-
-        var counts = await query
+        var counts = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
             .GroupBy(job => job.Priority)
             .Select(group => new { Priority = group.Key, Count = group.Count() })
-            .ToListAsync(cancellationToken);
+            .ToDictionaryAsync(item => item.Priority, item => item.Count, cancellationToken);
 
-        int CountFor(string priority) => counts.FirstOrDefault(item => item.Priority == priority)?.Count ?? 0;
-        // Kart yalnızca 3 kova istiyor (Normal/Yüksek/Çok Yüksek) ama Priority serbest metin bir
-        // alan; bazı eski/özel formlarda hâlâ seçilebilen "Low"/"Critical" değerleri en yakın
-        // kovaya toplanır, aksi halde bu kayıtlar hiçbir dilimde görünmeyip toplamı yanıltırdı.
-        var normalCount = CountFor("Normal") + CountFor("Low");
-        var veryHighCount = CountFor("VeryHigh") + CountFor("Critical");
-
-        return new DashboardChartResponse(titleKey,
-        [
-            new DashboardChartSlice("dashboard.chart.priorityNormal", normalCount, "warning"),
-            new DashboardChartSlice("dashboard.chart.priorityHigh", CountFor("High"), "orange"),
-            new DashboardChartSlice("dashboard.chart.priorityVeryHigh", veryHighCount, "danger"),
-        ]);
+        return BuildPriorityChartFromCounts(counts, titleKey);
     }
 
     private async Task<List<CitizenJobStatusItem>> ProjectCitizenJobs(IQueryable<Job> jobs, CancellationToken cancellationToken)
@@ -387,14 +356,20 @@ public sealed class GetDashboardStatusChartsQueryHandler
             charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
             charts.Add(await BuildNeighborhoodInProgressRequestsChartAsync(tenantId, request, cancellationToken));
             // Üst Düzey Yönetici tüm birimlerin talep önceliği dağılımını görür (card #1518).
-            charts.Add(await BuildRequestPriorityChartAsync(
-                tenantId, departmentIds: null, "dashboard.charts.requestPriorityAll", request, cancellationToken));
+            charts.Add(await BuildTenantWideRequestPriorityChartAsync(
+                tenantId, "dashboard.charts.requestPriorityAll", request, cancellationToken));
         }
         else
         {
-            // Standart yetkideki kullanıcıda birime gelen taleplerin öncelik dağılımı (card #1516).
-            charts.Add(await BuildRequestPriorityChartAsync(
-                tenantId, departmentIds, "dashboard.charts.requestPriority", request, cancellationToken));
+            // Standart yetkideki kullanıcıda birimdeki personele atanmış görevlerin öncelik dağılımı
+            // (card #1516, "sadece personelin" ile düzeltildi — Job değil, görevin kendi Priority'si).
+            var departmentTaskPriorityCounts = departmentIds.Length == 0
+                ? new Dictionary<string, int>()
+                : await departmentTasksQuery
+                    .GroupBy(task => task.Priority)
+                    .Select(group => new { Priority = group.Key, Count = group.Count() })
+                    .ToDictionaryAsync(item => item.Priority, item => item.Count, cancellationToken);
+            charts.Add(BuildPriorityChartFromCounts(departmentTaskPriorityCounts, "dashboard.charts.requestPriority"));
         }
 
         return new DashboardStatusChartsResponse(charts);
@@ -654,10 +629,36 @@ public sealed class GetDashboardStatusChartsQueryHandler
                    task.AssignedUserId,
                    task.CurrentStatus,
                    task.DueDateUtc,
-                   job.SourceType);
+                   job.SourceType,
+                   task.Priority);
     }
 
-    private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType);
+    /// <summary>
+    /// Personele atanmış görevlerin öncelik dağılımı (card #1516/#1487 — "sadece personelin talep
+    /// öncelik durumu"). Job değil, her görevin KENDİ Priority'si esas alınır.
+    /// </summary>
+    private static DashboardChartResponse BuildTaskPriorityChart(IEnumerable<TaskStatusItem> tasks, string titleKey) =>
+        BuildPriorityChartFromCounts(
+            tasks.GroupBy(task => task.Priority).ToDictionary(group => group.Key, group => group.Count()),
+            titleKey);
+
+    private static DashboardChartResponse BuildPriorityChartFromCounts(IReadOnlyDictionary<string, int> counts, string titleKey)
+    {
+        int CountFor(string priority) => counts.GetValueOrDefault(priority);
+        // Priority serbest metin bir alan; bazı eski/özel formlarda hâlâ seçilebilen "Low"/"Critical"
+        // değerleri en yakın kovaya toplanır, aksi halde bu kayıtlar hiçbir dilimde görünmez (card #1516).
+        var normalCount = CountFor("Normal") + CountFor("Low");
+        var veryHighCount = CountFor("VeryHigh") + CountFor("Critical");
+
+        return new DashboardChartResponse(titleKey,
+        [
+            new DashboardChartSlice("dashboard.chart.priorityNormal", normalCount, "warning"),
+            new DashboardChartSlice("dashboard.chart.priorityHigh", CountFor("High"), "orange"),
+            new DashboardChartSlice("dashboard.chart.priorityVeryHigh", veryHighCount, "danger"),
+        ]);
+    }
+
+    private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType, string Priority);
     private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks);
     private sealed record CitizenJobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, int TaskCount);
 

@@ -17,6 +17,10 @@ import { invalidateTasks, invalidateNotifications } from '../api/cacheInvalidati
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { stringListSelectOptions } from '../utils/formDropdownOptions'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -493,6 +497,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     dueDateUtc: string
   } | null>(null)
   const [editJobSaving, setEditJobSaving] = useState(false)
+  // Rutin görev düzenlemede Mahalle seçimi için (card #1489).
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(getNeighborhoodsForDistrict(getSavedDistrictId())), [])
   // Rutin görev de ayrı sayfaya (Rutin Görev Düzenle) gitmeden aynı popup içinde düzenlenir (card #1494 reopen).
   const [editRoutineTaskModal, setEditRoutineTaskModal] = useState<{
     taskId: string
@@ -1448,6 +1454,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     if (editJobModal) setEditJobModal(m => m && ({ ...m, ...patch }))
     else if (editRoutineTaskModal) setEditRoutineTaskModal(m => m && ({ ...m, ...patch }))
   }
+  // Rutin görev düzenlemede Adres Bilgileri de düzenlenebilir (card #1489); editJobModal'da
+  // bu alanlar yok, bu yüzden updateActiveTaskEditDraft'tan ayrı tutulur.
+  const updateRoutineTaskAddressDraft = (patch: Partial<{ neighborhood: string | null; street: string | null; openAddress: string | null }>) => {
+    setEditRoutineTaskModal(m => m && ({ ...m, ...patch }))
+  }
   const handleSaveActiveTaskEdit = () => {
     if (editJobModal) void handleSaveEditJob()
     else if (editRoutineTaskModal) void handleSaveEditRoutineTask()
@@ -2399,11 +2410,51 @@ const pageKicker = isMyTasksView
                           <MyRequestSectionHeading icon={MapPin}>
                             {t('address.detailSectionTitle', 'Adres Bilgileri')}
                           </MyRequestSectionHeading>
-                          <AddressDetailFields
-                            neighborhood={parentJobDetail?.neighborhood}
-                            street={parentJobDetail?.street}
-                            openAddress={parentJobDetail?.openAddress}
-                          />
+                          {isEditingThisRoutineTask ? (
+                            <div className="grid gap-2">
+                              <label className="grid gap-1">
+                                <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                                <SingleSelectDropdown
+                                  openUp
+                                  searchable
+                                  options={neighborhoodOptions}
+                                  value={editRoutineTaskModal.neighborhood ?? ''}
+                                  onChange={neighborhood => updateRoutineTaskAddressDraft(neighborhood
+                                    ? { neighborhood }
+                                    : { neighborhood: '', street: '', openAddress: '' })}
+                                  placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                                />
+                              </label>
+                              <label className="grid gap-1">
+                                <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                                <input
+                                  className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                                  placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                                  maxLength={ADDRESS_STREET_MAX_LENGTH}
+                                  value={editRoutineTaskModal.street ?? ''}
+                                  onChange={e => updateRoutineTaskAddressDraft({ street: e.target.value })}
+                                  disabled={!editRoutineTaskModal.neighborhood}
+                                />
+                              </label>
+                              <label className="grid gap-1">
+                                <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+                                <textarea
+                                  className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                                  placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+                                  maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
+                                  value={editRoutineTaskModal.openAddress ?? ''}
+                                  onChange={e => updateRoutineTaskAddressDraft({ openAddress: e.target.value })}
+                                  disabled={!editRoutineTaskModal.neighborhood}
+                                />
+                              </label>
+                            </div>
+                          ) : (
+                            <AddressDetailFields
+                              neighborhood={parentJobDetail?.neighborhood}
+                              street={parentJobDetail?.street}
+                              openAddress={parentJobDetail?.openAddress}
+                            />
+                          )}
                         </div>
                         <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
                           <MyRequestSectionHeading icon={Paperclip}>

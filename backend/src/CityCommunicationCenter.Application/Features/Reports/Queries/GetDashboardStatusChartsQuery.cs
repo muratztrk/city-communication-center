@@ -361,11 +361,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
         }
         else
         {
-            // Standart yetkideki kullanıcıda birimdeki personele atanmış görevlerin öncelik dağılımı
-            // (card #1516, "sadece personelin" ile düzeltildi — Job değil, görevin kendi Priority'si).
+            // Standart yetkideki kullanıcıda SADECE KENDİNE atanmış görevlerin öncelik dağılımı —
+            // birim geneli değil (card #1516 3. reopen, "sadece kendine atanmış taleplerdeki
+            // durumlar olmalı" ile düzeltildi; önceki hali yanlışlıkla tüm birimi sayıyordu).
             var departmentTaskPriorityCounts = departmentIds.Length == 0
                 ? new Dictionary<string, int>()
                 : await departmentTasksQuery
+                    .Where(task => task.AssignedUserId == userId)
                     .GroupBy(task => task.Priority)
                     .Select(group => new { Priority = group.Key, Count = group.Count() })
                     .ToDictionaryAsync(item => item.Priority, item => item.Count, cancellationToken);

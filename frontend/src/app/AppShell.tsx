@@ -462,8 +462,15 @@ export function AppShell() {
           <button type="button" className="absolute inset-0 bg-slate-950/40" onClick={() => setIsMobileNavOpen(false)} aria-label="Close navigation" />
           <aside className="sidebar-shell relative z-10 flex h-full w-[88vw] max-w-[320px] flex-col p-3 shadow-2xl">
             <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
+              {/* Desktop sidebar'daki gibi sol üst köşede Atatürk görseli; mobil menüde hiç yoktu
+                  ve belediye logosu (compact, 64px) çok küçüktü (card #1205). */}
+              <img
+                src="/header-ataturk.png"
+                alt="Atatürk"
+                className="absolute left-0 top-0 h-14 w-auto opacity-80 select-none pointer-events-none z-10"
+              />
               <div className="flex min-w-0 flex-col items-center gap-3 pr-12 text-center">
-                <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} />
+                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} />
                 <div className="min-w-0">
                   <div className="text-2xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
                 </div>

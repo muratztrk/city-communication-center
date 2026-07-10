@@ -335,7 +335,14 @@ export function LoginPage() {
           }}
         >
           <div className="w-full space-y-4">
-            <div className="login-logo-panel-mobile flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-7 py-4 sm:px-9 lg:hidden">
+            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-7 py-4 sm:px-9 lg:hidden">
+              {/* Mobilde hero panel (ve içindeki Atatürk görseli) tamamen gizli olduğu için burada
+                  ayrıca gösterilmesi gerekiyor (card #1205). */}
+              <img
+                src="/header-ataturk.png"
+                alt="Atatürk"
+                className="absolute left-2 top-2 h-12 w-auto opacity-80 select-none pointer-events-none"
+              />
               {/* Beyaz alan yatayda geniş; logo object-contain ile yükseklik sınırlı kalır,
                   boyutu değişmez ve kenarlarla arasında boşluk doğar (card #1398). */}
               <MunicipalitySeal

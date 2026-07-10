@@ -378,6 +378,9 @@
       "assignedToMe": "My Tasks (non-cancelled)",
       "departmentTotal": "Department Tasks",
       "citizenProcessingReceived": "Processing Received",
+      "priorityNormal": "Normal",
+      "priorityHigh": "High",
+      "priorityVeryHigh": "Very High",
       "noData": "No data to display yet."
     },
     "charts": {
@@ -392,7 +395,9 @@
       "externalRequestPending": "Requests Pending in Department",
       "externalRequestFulfillers": "Departments Completing Requests",
       "neighborhoodCompletedRequests": "Completed Requests by Neighborhood",
-      "neighborhoodInProgressRequests": "In-Progress Requests by Neighborhood"
+      "neighborhoodInProgressRequests": "In-Progress Requests by Neighborhood",
+      "requestPriority": "Request Priority",
+      "requestPriorityAll": "Request Priority Status"
     },
     "taskFilter": {
       "assigned": "Assigned",

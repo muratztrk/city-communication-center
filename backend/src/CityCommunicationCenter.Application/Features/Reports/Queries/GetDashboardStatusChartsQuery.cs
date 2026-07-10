@@ -122,6 +122,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var staffTasks = FilterTasks(tasks, request.StaffTaskType)
             .Where(task => task.AssignedUserId.HasValue && staffUserIds.Contains(task.AssignedUserId.Value));
         var staffTasksChart = await BuildStaffTasksChartAsync(staffTasks, tenantId, cancellationToken);
+        // Birime gelen taleplerin öncelik dağılımı — standart kullanıcı ve birim yöneticisi panolarında
+        // ortak gösterilir (card #1516/#1487).
+        var requestPriorityChart = await BuildRequestPriorityChartAsync(
+            tenantId, departmentIds, "dashboard.charts.requestPriority", request, cancellationToken);
         var charts = new[]
         {
             staffTasksChart,
@@ -130,10 +134,59 @@ public sealed class GetDashboardStatusChartsQueryHandler
             BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
             BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),
             BuildJobChart("dashboard.charts.myRequests", myExternalJobs, "dashboard.chart.externalPendingApproval", now, true),
+            requestPriorityChart,
         };
 
         return new DashboardStatusChartsResponse(charts);
 
+    }
+
+    /// <summary>
+    /// Birime gelen taleplerin (sahip birim veya hedef birim eşleşmesiyle) öncelik dağılımı.
+    /// <paramref name="departmentIds"/> null verilirse tüm tenant kapsanır (Üst Düzey Yönetici, card #1518).
+    /// </summary>
+    private async Task<DashboardChartResponse> BuildRequestPriorityChartAsync(
+        Guid tenantId,
+        Guid[]? departmentIds,
+        string titleKey,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        if (departmentIds is { Length: 0 })
+        {
+            return new DashboardChartResponse(titleKey,
+            [
+                new DashboardChartSlice("dashboard.chart.priorityNormal", 0, "warning"),
+                new DashboardChartSlice("dashboard.chart.priorityHigh", 0, "orange"),
+                new DashboardChartSlice("dashboard.chart.priorityVeryHigh", 0, "danger"),
+            ]);
+        }
+
+        var query = _dbContext.Jobs.AsNoTracking().Where(job => job.TenantId == tenantId
+            && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+            && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+
+        if (departmentIds is not null)
+        {
+            query = query.Where(job => departmentIds.Contains(job.OwnerDepartmentId)
+                || _dbContext.JobDepartments.Any(department => department.JobId == job.JobId
+                    && department.Role == JobDepartmentRole.Target
+                    && departmentIds.Contains(department.DepartmentId)));
+        }
+
+        var counts = await query
+            .GroupBy(job => job.Priority)
+            .Select(group => new { Priority = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken);
+
+        int CountFor(string priority) => counts.FirstOrDefault(item => item.Priority == priority)?.Count ?? 0;
+
+        return new DashboardChartResponse(titleKey,
+        [
+            new DashboardChartSlice("dashboard.chart.priorityNormal", CountFor("Normal"), "warning"),
+            new DashboardChartSlice("dashboard.chart.priorityHigh", CountFor("High"), "orange"),
+            new DashboardChartSlice("dashboard.chart.priorityVeryHigh", CountFor("VeryHigh"), "danger"),
+        ]);
     }
 
     private async Task<List<CitizenJobStatusItem>> ProjectCitizenJobs(IQueryable<Job> jobs, CancellationToken cancellationToken)
@@ -328,6 +381,15 @@ public sealed class GetDashboardStatusChartsQueryHandler
             charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
             charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
             charts.Add(await BuildNeighborhoodInProgressRequestsChartAsync(tenantId, request, cancellationToken));
+            // Üst Düzey Yönetici tüm birimlerin talep önceliği dağılımını görür (card #1518).
+            charts.Add(await BuildRequestPriorityChartAsync(
+                tenantId, departmentIds: null, "dashboard.charts.requestPriorityAll", request, cancellationToken));
+        }
+        else
+        {
+            // Standart yetkideki kullanıcıda birime gelen taleplerin öncelik dağılımı (card #1516).
+            charts.Add(await BuildRequestPriorityChartAsync(
+                tenantId, departmentIds, "dashboard.charts.requestPriority", request, cancellationToken));
         }
 
         return new DashboardStatusChartsResponse(charts);

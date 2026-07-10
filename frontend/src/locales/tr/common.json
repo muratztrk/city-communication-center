@@ -380,6 +380,9 @@
       "assignedToMe": "Benim Görevlerim (iptal olmayan)",
       "departmentTotal": "Birimdeki Görevler",
       "citizenProcessingReceived": "İşleme Alındı",
+      "priorityNormal": "Normal",
+      "priorityHigh": "Yüksek",
+      "priorityVeryHigh": "Çok Yüksek",
       "noData": "Henüz gösterilecek veri yok."
     },
     "charts": {
@@ -394,7 +397,9 @@
       "externalRequestPending": "Birimlerde Bekleyen Talepler",
       "externalRequestFulfillers": "Talebi Tamamlayan Birimler",
       "neighborhoodCompletedRequests": "Mahallelerde Tamamlanan Talepler",
-      "neighborhoodInProgressRequests": "Mahallelerde Yapılmakta Olan Talepler"
+      "neighborhoodInProgressRequests": "Mahallelerde Yapılmakta Olan Talepler",
+      "requestPriority": "Talep Önceliği",
+      "requestPriorityAll": "Talep Öncelik Durumu"
     },
     "taskFilter": {
       "assigned": "Atanmış",

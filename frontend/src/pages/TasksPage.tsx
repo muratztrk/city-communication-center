@@ -2492,6 +2492,9 @@ const pageKicker = isMyTasksView
                             <span className="min-w-0">{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
                             <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
                               <span className="flex max-w-full flex-wrap items-center justify-end gap-1 text-xs font-semibold leading-tight text-slate-500">
+                                {isCitizenParentJob && (
+                                  <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                                )}
                                 <span>{parentRequestNumberText}</span>
                                 {parentRequestNumberSuffix}
                               </span>
@@ -3101,8 +3104,8 @@ const pageKicker = isMyTasksView
 
             {returnModal.step === 'cancel' && (
               <>
-                <h2 className="border-b border-slate-200 pb-2 text-xl font-extrabold text-slate-950">{t('tasks.actions.cancelTaskModalTitle', 'Görevi İptal Et')}</h2>
-                <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
+                <h2 className="border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('tasks.actions.cancelTaskModalTitle', 'Görevi İptal Et')}</h2>
+                <p className="text-base font-medium leading-6 text-slate-700">{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
                 <label className="job-field">
                   <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea

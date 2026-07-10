@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, Plus, Tag, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { RequestTag } from '../types/platform'
@@ -22,6 +22,7 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [name, setName] = useState('')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const loadTags = async () => {
@@ -39,6 +40,7 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
   useEffect(() => {
     if (!open) return
     setName('')
+    setSelectedId(null)
     void loadTags()
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -60,22 +62,25 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
     }
   }
 
-  const handleDeleteConfirm = (tag: RequestTag) => {
+  const handleDeleteConfirm = () => {
+    if (!selectedId) return
     setConfirmDialog({
       title: t('whatsapp.requestTagDeleteTitle', 'Etiketi Sil'),
       titleDivider: true,
       message: t('whatsapp.requestTagDeleteConfirm', 'Bu etiketi silmek istediğinize emin misiniz?'),
       confirmLabel: t('common.delete', 'Sil'),
       variant: 'destructive',
-      onConfirm: () => void handleDelete(tag.tagId),
+      onConfirm: () => void handleDelete(),
     })
   }
 
-  const handleDelete = async (tagId: string) => {
+  const handleDelete = async () => {
+    if (!selectedId) return
     setSaving(true)
     setError(null)
     try {
-      await api.deleteRequestTag(tagId)
+      await api.deleteRequestTag(selectedId)
+      setSelectedId(null)
       await loadTags()
       onChanged?.()
     } catch (err) {
@@ -120,35 +125,45 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
               </Button>
             </div>
 
+            <div className="space-y-1.5">
+              <label htmlFor="request-tag-select" className="text-xs font-semibold text-slate-600">
+                {t('whatsapp.requestTagList', 'Kayıtlı etiketler')}
+              </label>
+              <select
+                id="request-tag-select"
+                className="field-select w-full text-sm"
+                value={selectedId ?? ''}
+                disabled={loading}
+                onChange={event => setSelectedId(event.target.value || null)}
+              >
+                <option value="">
+                  {loading
+                    ? t('common.loading', 'Yükleniyor…')
+                    : tags.length === 0
+                      ? t('whatsapp.noRequestTags', 'Henüz etiket yok.')
+                      : t('whatsapp.selectRequestTag', 'Etiket seçin…')}
+                </option>
+                {tags.map(tag => (
+                  <option key={tag.tagId} value={tag.tagId}>
+                    {tag.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-slate-600">
-                {t('whatsapp.requestTagList', 'Kayıtlı etiketler')}
-              </p>
-              {loading ? (
-                <p className="text-sm text-slate-500">{t('common.loading', 'Yükleniyor…')}</p>
-              ) : tags.length === 0 ? (
-                <p className="text-sm text-slate-500">{t('whatsapp.noRequestTags', 'Henüz etiket yok.')}</p>
-              ) : (
-                <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-                  {tags.map(tag => (
-                    <li key={tag.tagId} className="flex items-center justify-between gap-2 px-3 py-2">
-                      <span className="min-w-0 truncate text-sm text-slate-800">{tag.name}</span>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        disabled={saving}
-                        onClick={() => handleDeleteConfirm(tag)}
-                        aria-label={t('common.delete', 'Sil')}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                disabled={!selectedId || saving}
+                onClick={handleDeleteConfirm}
+              >
+                <Trash2 className="size-3.5" />
+                {t('common.delete', 'Sil')}
+              </Button>
             </div>
           </div>
         </div>
@@ -183,5 +198,109 @@ export function RequestTagAddButton({ onChanged }: RequestTagAddButtonProps) {
         onChanged={onChanged}
       />
     </>
+  )
+}
+
+interface RequestTagPickerProps {
+  tags: RequestTag[]
+  onSelect: (name: string) => void
+}
+
+function computeTagMenuStyle(button: HTMLDivElement, itemCount: number) {
+  const rect = button.getBoundingClientRect()
+  const menuWidth = 224
+  const menuHeight = Math.min(224, itemCount * 40)
+  const openUp = rect.top >= menuHeight + 8
+  const left = Math.min(rect.left, window.innerWidth - menuWidth - 8)
+  return {
+    top: openUp ? rect.top - menuHeight - 4 : rect.bottom + 4,
+    left,
+    width: menuWidth,
+  }
+}
+
+// "Şablon mesajlar" (WhatsAppTemplatePicker) ile aynı buton+portal açılış davranışı — bir
+// SingleSelectDropdown yerine, seçim yapılınca kapanan basit bir menü butonu (kart #1510).
+export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
+
+  const sorted = useMemo(
+    () => [...tags].sort((left, right) => left.name.localeCompare(right.name, 'tr')),
+    [tags],
+  )
+
+  useLayoutEffect(() => {
+    if (open && menuRef.current) {
+      menuRef.current.scrollTop = 0
+    }
+  }, [open, menuStyle])
+
+  useEffect(() => {
+    if (!open) return
+    const onPointerDown = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (buttonRef.current?.contains(target) || menuRef.current?.contains(target)) return
+      setOpen(false)
+      setMenuStyle(null)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    return () => document.removeEventListener('mousedown', onPointerDown)
+  }, [open])
+
+  const isEmpty = sorted.length === 0
+
+  const toggleOpen = () => {
+    if (isEmpty) return
+    if (open) {
+      setOpen(false)
+      setMenuStyle(null)
+      return
+    }
+    if (buttonRef.current) {
+      setMenuStyle(computeTagMenuStyle(buttonRef.current, sorted.length))
+    }
+    setOpen(true)
+  }
+
+  const menu = open && menuStyle ? createPortal(
+    <div
+      ref={menuRef}
+      className="fixed z-[200] max-h-56 overflow-y-auto rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg divide-y divide-slate-100"
+      style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
+    >
+      {sorted.map(tag => (
+        <button
+          key={tag.tagId}
+          type="button"
+          onClick={() => { onSelect(tag.name); setOpen(false); setMenuStyle(null) }}
+          className="w-full truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-[color:var(--color-surface-raised)]"
+        >
+          {tag.name}
+        </button>
+      ))}
+    </div>,
+    document.body,
+  ) : null
+
+  return (
+    <div className="relative min-w-0 flex-1" ref={buttonRef}>
+      <Button
+        type="button"
+        size="sm"
+        variant="secondary"
+        onClick={toggleOpen}
+        disabled={isEmpty}
+        className="h-9 w-full gap-1.5 text-xs disabled:opacity-50"
+      >
+        <Tag className="size-3.5 text-emerald-600" />
+        {t('whatsapp.requestTagsShort', 'Etiketler')}
+        <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </Button>
+      {menu}
+    </div>
   )
 }

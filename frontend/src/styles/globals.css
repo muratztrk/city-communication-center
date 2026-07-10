@@ -3602,6 +3602,9 @@
     border-radius: 1rem;
     background: #0f2430;
     box-shadow: 0 24px 44px rgba(0, 0, 0, 0.28);
+    /* Tablo shell flex:1 ile kalan tüm dikey alanı dolduruyor; bu boşluk olmadan
+       sayfalama satırı footer'a yapışık görünüyordu (card #1514). */
+    margin-bottom: clamp(0.75rem, 1.6vw, 1.25rem);
   }
 
   /* Sayfalama satırı her zaman görünsün (shell yüksekliği sınırlı, sayfalama altta sabit).

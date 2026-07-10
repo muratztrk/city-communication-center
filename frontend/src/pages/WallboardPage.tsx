@@ -220,10 +220,11 @@ export function WallboardPage() {
     }
   }, [])
 
+  // Her vatandaş talebi birim dışından geldiği için Birim Dışı sayısına dahil edilir (card #1503).
   const summary = useMemo(() => ({
     total: items.length,
     internal: items.filter(item => item.source === 'internal').length,
-    external: items.filter(item => item.source === 'external').length,
+    external: items.filter(item => item.source === 'external' || item.source === 'citizen').length,
     overdue: items.filter(isOverdueItem).length,
   }), [items])
 
@@ -234,7 +235,7 @@ export function WallboardPage() {
     const sorted = sortItems(items)
     const byStat = sorted.filter(item => {
       if (statFilter === 'internal') return item.source === 'internal'
-      if (statFilter === 'external') return item.source === 'external'
+      if (statFilter === 'external') return item.source === 'external' || item.source === 'citizen'
       if (statFilter === 'overdue') return isOverdueItem(item)
       return true
     })

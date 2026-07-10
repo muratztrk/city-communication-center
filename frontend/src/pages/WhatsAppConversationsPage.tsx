@@ -163,7 +163,7 @@ function ConversationStatusCounts({
 
 // ─── left panel: conversation list ────────────────────────────────────────────
 
-type ConversationListFilter = 'all' | 'unread' | 'replied'
+type ConversationListFilter = 'all' | 'unread'
 type ConversationSortOrder = 'newest' | 'oldest'
 type ConversationStatusFilter = 'all' | 'intake' | 'in-progress' | 'completed' | 'cancelled'
 
@@ -333,15 +333,9 @@ function ConversationListPanel({
     () => conversations.filter(c => isWaitingForConversationResponse(c)).length,
     [conversations],
   )
-  const repliedCount = useMemo(
-    () => conversations.filter(c => isConversationTicketOpen(c) && !isWaitingForConversationResponse(c)).length,
-    [conversations],
-  )
-
   const filterOptions: { value: ConversationListFilter; label: string; badge?: number }[] = [
     { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü') },
     { value: 'unread', label: t('whatsapp.listFilter.unread', 'Yanıt bekliyor'), badge: unreadCount || undefined },
-    { value: 'replied', label: t('whatsapp.listFilter.replied', 'Yanıt verildi'), badge: repliedCount || undefined },
   ]
 
   const totalCounts = useMemo(
@@ -857,7 +851,7 @@ function ConversationDetail({
 
     if (!is24hWindowOpen(detail.lastInboundAt ?? null)) {
       setConfirmDialog({
-        title: 'Onaylı Şablon Mesajı',
+        title: 'Meta Onaylı Şablon Mesajı',
         titleDivider: true,
         message: '24 saat geçtikten sonra vatandaş yeniden mesaj atmadıysa, sadece onaylanmış mesaj şablonu kullanarak konuşmayı yeniden başlatabilirsiniz.',
         hideCancel: true,
@@ -1502,7 +1496,6 @@ export function WhatsAppConversationsPage() {
         if (filterTo && date > filterTo.slice(0, 10)) return false
       }
       if (listFilter === 'unread' && !isWaitingForConversationResponse(conversation)) return false
-      if (listFilter === 'replied' && !(isConversationTicketOpen(conversation) && !isWaitingForConversationResponse(conversation))) return false
       if (statusFilter === 'intake' && (conversation.intakeCount ?? 0) <= 0) return false
       if (statusFilter === 'in-progress' && (conversation.inProgressCount ?? 0) <= 0) return false
       if (statusFilter === 'completed' && (conversation.completedCount ?? 0) <= 0) return false

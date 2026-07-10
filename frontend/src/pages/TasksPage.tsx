@@ -1370,6 +1370,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         const refreshedDetail = await api.getTaskById(editRoutineTaskModal.taskId).catch(() => null)
         if (refreshedDetail) setTaskDetail(refreshedDetail)
       }
+      // Adres Bilgileri Job üzerinde tutuluyor; kaydettikten sonra salt-okunur görünüm
+      // (parentJobDetail) yenilenmezse eski adres gösterilmeye devam ederdi (review bulgusu).
+      if (parentJobDetail?.jobId === updated.jobId) {
+        const refreshedJob = await api.getJobById(updated.jobId).catch(() => null)
+        if (refreshedJob) setParentJobDetail(refreshedJob)
+      }
       setEditRoutineTaskModal(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))

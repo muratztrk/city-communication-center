@@ -1,3 +1,4 @@
+import { Clock, FileText, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentSection } from '../../ui/AttachmentSection'
@@ -6,6 +7,7 @@ import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
 import { richTextToPlainText } from '../../../utils/richText'
 import { formatDateTime } from './format'
+import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 
 interface MyRequestTaskDetailsSectionProps {
   detail: JobDetail
@@ -82,61 +84,71 @@ export function MyRequestTaskDetailsSection({
           )
 
           return (
-            <div key={task.taskId} className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]">
-              <div className="min-w-0 divide-y divide-slate-100">
-                {[
-                  { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
-                  { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
-                  { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
-                  { label: t('tasks.columns.owner', 'Görev Sahibi'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
-                  { label: t('tasks.columns.taskType', 'Görev Tipi'), value: taskType },
-                  ...(task.jobSourceType === 'Routine'
-                    ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
-                    : []),
-                ].map(({ label, value }) => (
-                  <div key={label} className="flex items-start gap-2 px-3 py-2">
-                    <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                    <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="divide-y divide-slate-100 border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                {[
-                  { label: t('tasks.columns.status', 'Durum'), value: taskStatus },
-                  { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
-                  ...(task.currentStatus === 'Completed'
-                    ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: <span className="text-emerald-600">{formatDateTime(task.completedAtUtc ?? null, locale)}</span> }]
-                    : task.currentStatus === 'Cancelled'
-                      ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(task.updatedAtUtc ?? null, locale)}</span> }]
+            <div key={task.taskId} className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]">
+              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                <MyRequestSectionHeading icon={Info}>
+                  {t('tasks.detail.taskInfo', 'Görev Bilgileri')}
+                </MyRequestSectionHeading>
+                <div className="divide-y divide-slate-100">
+                  {[
+                    { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
+                    { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
+                    { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
+                    { label: t('tasks.columns.owner', 'Görev Sahibi'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
+                    { label: t('tasks.columns.taskType', 'Görev Tipi'), value: taskType },
+                    ...(task.jobSourceType === 'Routine'
+                      ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
                       : []),
-                  {
-                    label: t('tasks.columns.dueDate', 'Son Tarih'),
-                    // Yöneticide bekleyen ek süre talebi talep detayında da görünür (card #1385).
-                    value: (
-                      <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                        <span>{formatDateTime(task.dueDateUtc, locale)}</span>
-                        {task.hasPendingExtraTimeRequest ? (
-                          <span className="text-xs font-bold text-amber-500">
-                            {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
-                          </span>
-                        ) : null}
-                      </span>
-                    ),
-                  },
-                ].map(({ label, value }) => (
-                  <div key={label} className={`px-3 py-2${label === t('tasks.columns.dueDate', 'Son Tarih') ? ' border-b border-slate-100' : ''}`}>
-                    <div className="text-xs font-semibold text-slate-500">{label}</div>
-                    <div className="mt-0.5 break-words text-sm text-slate-900">{value}</div>
-                  </div>
-                ))}
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex items-start gap-2 py-2">
+                      <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
+                      <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
+              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                <MyRequestSectionHeading icon={Clock}>
+                  {t('jobs.detail.processTitle', 'Süreç')}
+                </MyRequestSectionHeading>
+                <div className="divide-y divide-slate-100">
+                  {[
+                    { label: t('tasks.columns.status', 'Durum'), value: taskStatus },
+                    { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
+                    ...(task.currentStatus === 'Completed'
+                      ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: <span className="text-emerald-600">{formatDateTime(task.completedAtUtc ?? null, locale)}</span> }]
+                      : task.currentStatus === 'Cancelled'
+                        ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(task.updatedAtUtc ?? null, locale)}</span> }]
+                        : []),
+                    {
+                      label: t('tasks.columns.dueDate', 'Son Tarih'),
+                      // Yöneticide bekleyen ek süre talebi talep detayında da görünür (card #1385).
+                      value: (
+                        <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                          <span>{formatDateTime(task.dueDateUtc, locale)}</span>
+                          {task.hasPendingExtraTimeRequest ? (
+                            <span className="text-xs font-bold text-amber-500">
+                              {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                            </span>
+                          ) : null}
+                        </span>
+                      ),
+                    },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="py-2">
+                      <div className="text-xs font-semibold text-slate-500">{label}</div>
+                      <div className="mt-0.5 break-words text-sm text-slate-900">{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                <MyRequestSectionHeading icon={FileText}>
+                  {t('tasks.detail.description', 'Açıklama')}
+                </MyRequestSectionHeading>
                 {detail.status === 'Completed' && task.currentStatus === 'Completed' ? (
                   <div className="grid min-h-full gap-3 lg:grid-cols-2">
                     <div className="min-w-0 border-b border-slate-200 pb-3 lg:border-b-0 lg:border-r lg:pr-3 lg:pb-0">
-                      <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        {t('tasks.detail.description', 'Açıklama')}
-                      </div>
                       <RichTextContent
                         value={task.description?.trim() ? task.description : detail.description}
                         emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
@@ -162,16 +174,11 @@ export function MyRequestTaskDetailsSection({
                     </div>
                   </div>
                 ) : (
-                  <>
-                    <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      {t('tasks.detail.description', 'Açıklama')}
-                    </div>
-                    <RichTextContent
-                      value={task.description?.trim() ? task.description : detail.description}
-                      emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                      className="rich-text-content text-sm leading-6 text-slate-900"
-                    />
-                  </>
+                  <RichTextContent
+                    value={task.description?.trim() ? task.description : detail.description}
+                    emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                    className="rich-text-content text-sm leading-6 text-slate-900"
+                  />
                 )}
               </div>
             </div>

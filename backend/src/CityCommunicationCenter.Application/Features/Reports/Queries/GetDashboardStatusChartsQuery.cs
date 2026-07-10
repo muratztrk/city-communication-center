@@ -180,12 +180,17 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken);
 
         int CountFor(string priority) => counts.FirstOrDefault(item => item.Priority == priority)?.Count ?? 0;
+        // Kart yalnızca 3 kova istiyor (Normal/Yüksek/Çok Yüksek) ama Priority serbest metin bir
+        // alan; bazı eski/özel formlarda hâlâ seçilebilen "Low"/"Critical" değerleri en yakın
+        // kovaya toplanır, aksi halde bu kayıtlar hiçbir dilimde görünmeyip toplamı yanıltırdı.
+        var normalCount = CountFor("Normal") + CountFor("Low");
+        var veryHighCount = CountFor("VeryHigh") + CountFor("Critical");
 
         return new DashboardChartResponse(titleKey,
         [
-            new DashboardChartSlice("dashboard.chart.priorityNormal", CountFor("Normal"), "warning"),
+            new DashboardChartSlice("dashboard.chart.priorityNormal", normalCount, "warning"),
             new DashboardChartSlice("dashboard.chart.priorityHigh", CountFor("High"), "orange"),
-            new DashboardChartSlice("dashboard.chart.priorityVeryHigh", CountFor("VeryHigh"), "danger"),
+            new DashboardChartSlice("dashboard.chart.priorityVeryHigh", veryHighCount, "danger"),
         ]);
     }
 

@@ -1414,8 +1414,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   // artık düzenlenebilir (card #1519).
   const handleParentJobAttachmentUpload = async (file: File, onProgress?: (percent: number) => void) => {
     if (!parentJobDetail) return
-    const attachment = await api.uploadJobAttachment(parentJobDetail.jobId, file, onProgress)
-    setParentJobDetail(current => current ? { ...current, attachments: [...(current.attachments ?? []), attachment] } : current)
+    const uploadedForJobId = parentJobDetail.jobId
+    const attachment = await api.uploadJobAttachment(uploadedForJobId, file, onProgress)
+    setParentJobDetail(current => current && current.jobId === uploadedForJobId
+      ? { ...current, attachments: [...(current.attachments ?? []), attachment] }
+      : current)
   }
   const handleParentJobAttachmentDelete = async (attachmentId: string) => {
     await api.deleteAttachment(attachmentId)

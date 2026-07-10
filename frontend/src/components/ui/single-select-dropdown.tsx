@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
 import { cn } from '../../lib/cn'
 
@@ -44,6 +45,11 @@ export function SingleSelectDropdown({
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const rootRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  // Panel bir portal ile document.body'ye render edilir; overflow-y-auto/overflow-hidden
+  // taşıyan kaydırılabilir konteynerler (ör. WhatsApp Konuşmaları'ndaki yan panel) içinde
+  // absolute konumlandırma menüyü kırpıyordu (card #1509).
+  const [menuStyle, setMenuStyle] = useState<{ top?: number; bottom?: number; left: number; width?: number; minWidth?: number }>({ left: 0 })
   const selected = useMemo(() => options.find(option => option.value === value), [options, value])
   const normalizedSearch = search.trim().toLocaleLowerCase('tr')
   const visibleOptions = useMemo(() => (
@@ -52,12 +58,33 @@ export function SingleSelectDropdown({
       : options
   ), [options, searchable, normalizedSearch])
 
+  const updateMenuPosition = useCallback(() => {
+    const rect = rootRef.current?.getBoundingClientRect()
+    if (!rect) return
+    setMenuStyle({
+      left: rect.left,
+      ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
+      ...(menuClassName ? { minWidth: rect.width } : { width: rect.width }),
+    })
+  }, [openUp, menuClassName])
+
+  useEffect(() => {
+    if (!open) return
+    window.addEventListener('scroll', updateMenuPosition, true)
+    window.addEventListener('resize', updateMenuPosition)
+    return () => {
+      window.removeEventListener('scroll', updateMenuPosition, true)
+      window.removeEventListener('resize', updateMenuPosition)
+    }
+  }, [open, updateMenuPosition])
+
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setOpen(false)
-        setSearch('')
-      }
+      const target = event.target as Node
+      if (rootRef.current?.contains(target)) return
+      if (menuRef.current?.contains(target)) return
+      setOpen(false)
+      setSearch('')
     }
     document.addEventListener('pointerdown', handlePointerDown)
     return () => document.removeEventListener('pointerdown', handlePointerDown)
@@ -75,7 +102,11 @@ export function SingleSelectDropdown({
         aria-expanded={open}
         disabled={disabled}
         onClick={() => {
-          if (open) setSearch('')
+          if (open) {
+            setSearch('')
+          } else {
+            updateMenuPosition()
+          }
           setOpen(current => !current)
         }}
       >
@@ -85,13 +116,20 @@ export function SingleSelectDropdown({
         <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />
       </button>
 
-      {open ? (
-        <div className={cn(
-          'dropdown-menu-panel absolute left-0 z-40',
-          menuClassName ? '' : 'right-0',
-          openUp ? 'bottom-full mb-2' : 'mt-2',
-          menuClassName,
-        )}>
+      {open ? createPortal(
+        <div
+          ref={menuRef}
+          // Portal artık document.body'ye render ediliyor; modal içindeki kullanımlarda
+          // ModalBackdrop'ın z-[200] katmanının üzerinde kalması gerekiyor (card #1509).
+          className={cn('dropdown-menu-panel fixed z-[210]', menuClassName)}
+          style={{
+            left: menuStyle.left,
+            top: menuStyle.top,
+            bottom: menuStyle.bottom,
+            width: menuStyle.width,
+            minWidth: menuStyle.minWidth,
+          }}
+        >
           {searchable ? (
             <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
               <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
@@ -126,7 +164,8 @@ export function SingleSelectDropdown({
               })}
             </div>
           )}
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </div>
   )

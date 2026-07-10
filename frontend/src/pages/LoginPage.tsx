@@ -276,6 +276,11 @@ export function LoginPage() {
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
+          <img
+            src="/header-ataturk.png"
+            alt="Atatürk"
+            className="absolute left-0 top-0 h-16 w-auto opacity-80 select-none pointer-events-none z-10"
+          />
           <div className="relative grid gap-4 2xl:gap-6">
             <div className="space-y-3 2xl:space-y-5">
               {/* Logo solda; başlık tüm yeşil alana göre ortalanır (logoyu sağdaki eş genişlikte boşluk dengeler). */}

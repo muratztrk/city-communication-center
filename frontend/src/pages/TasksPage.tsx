@@ -2630,6 +2630,7 @@ const pageKicker = isMyTasksView
                           hideTitleText
                           middleColumnOverride={parentAddressColumnContent}
                           leftColumnBelowHeading={parentInfoCardContent}
+                          boxedColumns
                           canChangeDueDate={false}
                           detailDueDateEdit={null}
                           onOpenDueDateEdit={() => undefined}

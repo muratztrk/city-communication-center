@@ -132,6 +132,9 @@ interface MyRequestDetailMainCardProps {
   // Görevlerim popup'ında (İlgili Talep Detayları) sol sütunda açıklama yerine Talep Bilgileri
   // gösterilir (card #1444 tekrarı).
   leftColumnBelowHeading?: ReactNode
+  // Görevlerim popup'ında (İlgili Talep Detayları) 3 sütun tek bir çerçeve içinde iç bölücülerle
+  // değil, Yönetici Notu'ndaki gibi 3 ayrı kutucuk kart olarak gösterilir (card #1475).
+  boxedColumns?: boolean
   canChangeDueDate: boolean
   detailDueDateEdit: DetailDueDateEditState | null
   onOpenDueDateEdit: () => void
@@ -163,6 +166,7 @@ export function MyRequestDetailMainCard({
   hideTitleText = false,
   middleColumnOverride,
   leftColumnBelowHeading,
+  boxedColumns = false,
   canChangeDueDate,
   detailDueDateEdit,
   onOpenDueDateEdit,
@@ -295,13 +299,23 @@ export function MyRequestDetailMainCard({
     </div>
   )
 
+  // Yönetici Notu ile aynı kutucuk görünümü için 3 sütun bağımsız kartlara ayrılır; varsayılanda
+  // tek çerçeve içinde iç bölücülerle gösterilir (card #1475).
+  const gridContainerClass = boxedColumns
+    ? 'my-request-detail-main__grid grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]'
+    : 'my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]'
+  const boxedColumnClass = 'min-w-0 rounded-xl border border-slate-200 bg-white p-4'
+  const firstColumnClass = boxedColumns ? boxedColumnClass : 'min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r'
+  const secondColumnClass = boxedColumns ? boxedColumnClass : 'min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r'
+  const thirdColumnClass = boxedColumns ? boxedColumnClass : 'min-w-0 p-4'
+
   return (
     <section className={`my-request-detail-main form-card page-stack mb-5${isEditing ? ' my-request-detail-main--editing' : ''}`}>
       <MyRequestSectionHeading icon={ClipboardList} tone="primary">
         {sectionTitle ?? t('jobs.detail.requestInfo', 'Talep Detayları')}
       </MyRequestSectionHeading>
-      <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
-        <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+      <div className={gridContainerClass}>
+        <div className={firstColumnClass}>
           {!hideTitleText ? (
             <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
               <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
@@ -342,7 +356,7 @@ export function MyRequestDetailMainCard({
             )
           )}
         </div>
-        <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+        <div className={secondColumnClass}>
           {middleColumnOverride ?? (
             <>
               <MyRequestSectionHeading icon={Info}>
@@ -360,7 +374,7 @@ export function MyRequestDetailMainCard({
             </>
           )}
         </div>
-        <div className="min-w-0 p-4">
+        <div className={thirdColumnClass}>
           <JobProcessTimeline
             steps={steps}
             locale={locale}

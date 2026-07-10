@@ -2086,8 +2086,10 @@ const pageKicker = isMyTasksView
                                 }]
                               : []),
                             // Görev Ekleri artık ayrı bir kart değil, Durum Değişikliği'nin hemen
-                            // altında diğer verilerle aynı hizada tek satır (card #1482).
+                            // altında diğer verilerle aynı hizada tek satır (card #1482); sadece
+                            // görev Tamamlandı/İptal Edildi olduğunda gösterilir (card #1520).
                             ...(taskDetail.jobSourceType !== 'Routine'
+                              && (taskDetail.currentStatus === 'Completed' || taskDetail.currentStatus === 'Cancelled')
                               ? [{
                                   label: t('tasks.detail.attachments', 'Görev Ekleri'),
                                   value: (taskDetail.attachments?.length ?? 0) === 0 ? '—' : (

@@ -12,7 +12,7 @@ import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConversationPanel } from './ConversationPanel'
-import type { Department, SocialMessage } from '../types/platform'
+import type { CitizenConversationDetail, Department, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
@@ -167,6 +167,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [confirmedSubmit, setConfirmedSubmit] = useState(false)
+  const [conversationDetail, setConversationDetail] = useState<CitizenConversationDetail | null>(null)
+  const [internalDepartmentId, setInternalDepartmentId] = useState('')
+  const [sendingInternal, setSendingInternal] = useState(false)
 
   useEffect(() => {
     if (!forceNewRequest || editJobId) return
@@ -225,6 +228,51 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       cancelled = true
     }
   }, [editJobId, message.citizenHandle, message.content, t])
+
+  // Konuşma penceresinde de diğer birimlere kurum içi ileti gönderilebilsin diye vatandaşın
+  // güncel talep/birim bilgisi (ticket listesi) çekilir (card #1512).
+  useEffect(() => {
+    if (!citizenConversationId) {
+      setConversationDetail(null)
+      return
+    }
+    let cancelled = false
+    void api.getCitizenConversationDetail(citizenConversationId)
+      .then(detail => { if (!cancelled) setConversationDetail(detail) })
+      .catch(() => { if (!cancelled) setConversationDetail(null) })
+    return () => {
+      cancelled = true
+    }
+  }, [citizenConversationId])
+
+  const internalDepartmentOptions = useMemo(() => {
+    const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
+    const options = new Map<string, string>()
+    for (const ticket of conversationDetail?.tickets ?? []) {
+      if (!ticket.jobStatus || !activeStatuses.has(ticket.jobStatus) || !ticket.departmentId || !ticket.departmentName) continue
+      options.set(ticket.departmentId, ticket.departmentName)
+    }
+    return Array.from(options, ([departmentId, name]) => ({ departmentId, name }))
+  }, [conversationDetail?.tickets])
+
+  useEffect(() => {
+    if (!internalDepartmentId) return
+    if (!internalDepartmentOptions.some(department => department.departmentId === internalDepartmentId)) {
+      setInternalDepartmentId('')
+    }
+  }, [internalDepartmentId, internalDepartmentOptions])
+
+  const handleSendInternal = async (text: string) => {
+    const targetTicket = conversationDetail?.tickets.find(ticket => ticket.departmentId === internalDepartmentId)
+    if (!targetTicket || sendingInternal) return
+    setSendingInternal(true)
+    try {
+      await api.addInternalConversationMessage(targetTicket.socialMessageId, internalDepartmentId, text)
+      invalidateConversations(queryClient, citizenConversationId ?? undefined, targetTicket.socialMessageId)
+    } finally {
+      setSendingInternal(false)
+    }
+  }
 
   // Vatandaş talebi operatörün kendi birimine de yönlendirilebilir (card #1090);
   // sahip birim hedef listesinden çıkarılmaz.
@@ -454,6 +502,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               canSendPending={user?.role === 'Operator' || user?.role === 'SystemAdmin'}
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
               onAddMediaAsAttachment={addPendingFile}
+              internalDepartmentOptions={citizenConversationId ? internalDepartmentOptions : undefined}
+              internalDepartmentId={internalDepartmentId}
+              onInternalDepartmentIdChange={setInternalDepartmentId}
+              onSendInternal={handleSendInternal}
+              sendingInternal={sendingInternal}
             />
           </div>
 

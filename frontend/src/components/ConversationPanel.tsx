@@ -27,6 +27,12 @@ interface ConversationPanelProps {
   onAddMediaAsAttachment?: (file: File) => void
   /** Popup'ta telefon numarası başlığı göster (card 6a3f8858). */
   headerMode?: 'default' | 'phone'
+  /** Verilirse "Birim Seçin" + "Kurum İçi İlet" satırı gösterilir (card #1512). */
+  internalDepartmentOptions?: { departmentId: string; name: string }[]
+  internalDepartmentId?: string
+  onInternalDepartmentIdChange?: (departmentId: string) => void
+  onSendInternal?: (text: string) => void | Promise<void>
+  sendingInternal?: boolean
 }
 
 /** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
@@ -46,7 +52,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default' }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
@@ -98,6 +104,13 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     } finally {
       setSending(false)
     }
+  }
+
+  const handleSendInternalClick = async () => {
+    const text = replyText.trim()
+    if (!text || !internalDepartmentId || sendingInternal || !onSendInternal) return
+    await onSendInternal(text)
+    setReplyText('')
   }
 
   const doSendPending = async (entry: ConversationEntryBubbleData) => {
@@ -223,6 +236,30 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             />
             <UserQuickReplyAddButton onChanged={() => { void userQuickRepliesQuery.refetch() }} />
           </div>
+          {internalDepartmentOptions ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={internalDepartmentId}
+                onChange={event => onInternalDepartmentIdChange?.(event.target.value)}
+                className="h-9 min-w-44 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                aria-label={t('departments.selectDepartment', 'Birim seçin')}
+              >
+                <option value="">{t('departments.selectDepartment', 'Birim seçin')}</option>
+                {internalDepartmentOptions.map(department => (
+                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => void handleSendInternalClick()}
+                disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
+              </button>
+            </div>
+          ) : null}
           <div className="flex items-end gap-2">
             <textarea
               rows={3}

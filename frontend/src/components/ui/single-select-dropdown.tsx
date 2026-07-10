@@ -119,9 +119,10 @@ export function SingleSelectDropdown({
       {open ? createPortal(
         <div
           ref={menuRef}
-          // Portal artık document.body'ye render ediliyor; modal içindeki kullanımlarda
-          // ModalBackdrop'ın z-[200] katmanının üzerinde kalması gerekiyor (card #1509).
-          className={cn('dropdown-menu-panel fixed z-[210]', menuClassName)}
+          // Portal artık document.body'ye render ediliyor; FilterableTh'nin col-filter-popover'ı
+          // ile aynı üst katman kuralına uyar, modal içindeki kullanımlarda ModalBackdrop'ın
+          // z-[200] katmanının üzerinde kalır (card #1509).
+          className={cn('dropdown-menu-panel fixed z-[9999]', menuClassName)}
           style={{
             left: menuStyle.left,
             top: menuStyle.top,

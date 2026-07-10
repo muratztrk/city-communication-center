@@ -1160,6 +1160,7 @@
       "citizenPhone": "Vatandaş Telefon No",
       "citizenPhoneHint": "(Başında 0 olmadan ekleyin)",
       "citizenPhoneInvalid": "Vatandaş telefon numarası 10 haneli olmalıdır.",
+      "citizenPhoneMustStartWith5": "Telefon numarası 5 ile başlamalıdır.",
       "citizenHandlePlaceholder": "Vatandaş ismi ya da Telefon Numarası",
       "citizenHandleRequired": "Vatandaş / Gönderen gereklidir.",
       "content": "Açıklama",

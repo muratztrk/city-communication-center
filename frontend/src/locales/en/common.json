@@ -1131,6 +1131,7 @@
       "citizenPhone": "Citizen Phone No",
       "citizenPhoneHint": "(without leading 0)",
       "citizenPhoneInvalid": "Citizen phone number must be 10 digits.",
+      "citizenPhoneMustStartWith5": "Phone number must start with 5.",
       "citizenHandlePlaceholder": "e.g. @username or full name",
       "citizenHandleRequired": "Citizen / Sender is required.",
       "content": "Request Content",

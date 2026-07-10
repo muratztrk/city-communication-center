@@ -286,6 +286,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
       return
     }
+    if (!trimmedPhone.startsWith('5')) {
+      setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
+      return
+    }
     if (!targetDepartmentId) {
       setError(t('requests.create.targetDepartmentRequired', 'Talebin gideceği birim seçilmelidir.'))
       return

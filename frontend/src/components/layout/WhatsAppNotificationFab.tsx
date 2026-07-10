@@ -155,6 +155,27 @@ export function WhatsAppNotificationFab() {
     })
   }, [dismissedStorageKey])
 
+  // Konuşmalar bölümünde bir numaraya tıklayıp konuşma penceresi açıldığında, o numaradaki
+  // tüm bildirimler kalıcı olarak temizlenir — sadece "aktif konuşma" filtresine değil,
+  // localStorage'a da yazılır ki konuşma değiştirildikten sonra geri gelmesin (card #1515).
+  const dismissNotificationsForPhone = useCallback((phone: string) => {
+    if (!phone) return
+    const matches = conversations.filter(conversation => matchesPhone(conversation.citizenPhone, phone))
+    if (matches.length === 0) return
+    setDismissedNotifications(prev => {
+      const next = { ...prev }
+      matches.forEach(conversation => {
+        if (conversation.lastMessageAt) next[conversation.citizenConversationId] = conversation.lastMessageAt
+      })
+      return persistDismissedNotifications(dismissedStorageKey, next)
+    })
+    setConversations(prev => prev.map(conversation => (
+      matchesPhone(conversation.citizenPhone, phone)
+        ? { ...conversation, unreadCount: 0, hasPendingOutboundMessage: false }
+        : conversation
+    )))
+  }, [conversations, dismissedStorageKey])
+
   // Bildirim çanından bir konuşmaya tıklandığında, sebebi ne olursa olsun (okunmamış mesaj
   // veya "BEKLEMEDE" giden mesaj) o konuşma bildirim listesinden hemen kaybolsun (card #1498).
   const dismissConversationNotification = useCallback((conversationId: string, lastMessageAt?: string | null) => {
@@ -242,10 +263,13 @@ export function WhatsAppNotificationFab() {
       setActiveConversation(detail
         ? { id: detail.citizenConversationId, phone: detail.citizenPhone }
         : null)
+      if (detail?.citizenPhone) {
+        dismissNotificationsForPhone(detail.citizenPhone)
+      }
     }
     window.addEventListener('ccc:whatsapp-active-conversation', onActiveConversationChange)
     return () => window.removeEventListener('ccc:whatsapp-active-conversation', onActiveConversationChange)
-  }, [])
+  }, [dismissNotificationsForPhone])
 
   useEffect(() => {
     if (document.visibilityState !== 'visible') return

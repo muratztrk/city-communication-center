@@ -22,6 +22,7 @@ public interface IApplicationDbContext
     DbSet<RoutingRule> RoutingRules { get; }
     DbSet<PushSubscription> PushSubscriptions { get; }
     DbSet<UserQuickReplyTemplate> UserQuickReplyTemplates { get; }
+    DbSet<RequestTag> RequestTags { get; }
     DbSet<Attachment> Attachments { get; }
     DbSet<UserDepartmentAssignment> UserDepartmentAssignments { get; }
     DbSet<EDevletActivityType> EDevletActivityTypes { get; }

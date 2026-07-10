@@ -49,6 +49,7 @@ import type {
   CitizenConversationDetail,
   WhatsAppMessageTemplate,
   UserQuickReplyTemplate,
+  RequestTag,
 } from '../types/platform'
 import { API_BASE } from './config'
 import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
@@ -1093,6 +1094,30 @@ export const api = {
       body: JSON.stringify(payload),
     })
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
+  async getRequestTags(): Promise<RequestTag[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/tags`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.genericLoadFailed', 'Veriler yüklenemedi.'))
+    return response.json() as Promise<RequestTag[]>
+  },
+
+  async createRequestTag(name: string): Promise<RequestTag> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/tags`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+    await ensureOk(response, i18n.t('errors.genericSaveFailed', 'Kaydedilemedi.'))
+    return response.json() as Promise<RequestTag>
+  },
+
+  async deleteRequestTag(tagId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/tags/${tagId}`, {
+      method: 'DELETE',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.genericDeleteFailed', 'Silinemedi.'))
   },
 
   async getWhatsAppTemplates(): Promise<WhatsAppMessageTemplate[]> {

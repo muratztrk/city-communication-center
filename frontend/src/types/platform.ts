@@ -533,6 +533,11 @@ export interface UserQuickReplyTemplate {
   source?: 'user' | 'meta';
 }
 
+export interface RequestTag {
+  tagId: string;
+  name: string;
+}
+
 export interface AuditLog {
   auditLogId: string;
   tenantId: string;

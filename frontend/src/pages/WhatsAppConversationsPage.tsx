@@ -15,6 +15,7 @@ import type {
   Department,
   SocialMessage,
   UserQuickReplyTemplate,
+  RequestTag,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
@@ -22,6 +23,7 @@ import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
+import { RequestTagAddButton } from '../components/RequestTagDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
@@ -543,9 +545,33 @@ function ConversationProfilePanel({
   canCreateRequest?: boolean
 }) {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
+
+  // Talep Etiketi dropdown/butonu yalnızca Vatandaş Operatörü ve Sistem Yöneticisi görür (kart #1510).
+  const canManageRequestTags = user?.role === 'Operator' || user?.role === 'SystemAdmin'
+  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
+
+  const loadRequestTags = useCallback(async () => {
+    try {
+      setRequestTags(await api.getRequestTags())
+    } catch {
+      // sessizce yut: etiket dropdown'ı boş kalır, ana profil formu etkilenmez
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!canManageRequestTags) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- tek seferlik etiket listesi yüklemesi, döngüsel render yok
+    void loadRequestTags()
+  }, [canManageRequestTags, loadRequestTags])
+
+  const requestTagOptions = useMemo(
+    () => requestTags.map(tag => ({ value: tag.name, label: tag.name })),
+    [requestTags],
+  )
 
   const fieldClass = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
   const disabledFieldClass = `${fieldClass} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400`
@@ -593,7 +619,27 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.label', 'Talep Etiketi')}</span>
-          <input className={fieldClass} value={draft.label} onChange={event => onDraftChange({ label: event.target.value })} />
+          {canManageRequestTags ? (
+            <div className="flex items-center gap-1.5">
+              <input
+                className={`${fieldClass} min-w-0 flex-1`}
+                value={draft.label}
+                onChange={event => onDraftChange({ label: event.target.value })}
+              />
+              <SingleSelectDropdown
+                options={requestTagOptions}
+                value=""
+                onChange={tagName => onDraftChange({ label: tagName })}
+                placeholder={t('whatsapp.requestTagsShort', 'Etiketler')}
+                emptyText={t('whatsapp.noRequestTags', 'Henüz etiket yok.')}
+                triggerClassName="w-auto shrink-0 !h-9 !text-[11px] !px-2"
+                menuClassName="w-max"
+              />
+              <RequestTagAddButton onChanged={() => void loadRequestTags()} />
+            </div>
+          ) : (
+            <input className={fieldClass} value={draft.label} onChange={event => onDraftChange({ label: event.target.value })} />
+          )}
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>

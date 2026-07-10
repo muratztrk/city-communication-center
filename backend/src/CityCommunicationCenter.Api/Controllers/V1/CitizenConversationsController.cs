@@ -64,4 +64,32 @@ public sealed class CitizenConversationsController : ApiControllerBase
         if (!ok) return NotFound();
         return NoContent();
     }
+
+    [HttpGet("tags")]
+    [ProducesResponseType<IReadOnlyList<RequestTagResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<RequestTagResponse>>> GetTags(CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetRequestTagsQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("tags")]
+    [ProducesResponseType<RequestTagResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<RequestTagResponse>> CreateTag(
+        [FromBody] RequestTagRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new CreateRequestTagCommand(request.Name), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpDelete("tags/{tagId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTag(Guid tagId, CancellationToken cancellationToken)
+    {
+        var deleted = await _sender.Send(new DeleteRequestTagCommand(tagId), cancellationToken);
+        if (!deleted) return NotFound();
+        return NoContent();
+    }
 }

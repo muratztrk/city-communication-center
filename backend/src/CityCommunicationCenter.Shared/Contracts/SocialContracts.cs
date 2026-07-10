@@ -240,6 +240,10 @@ public sealed record UpdateCitizenConversationProfileRequest(
     string? Street,
     string? OpenAddress);
 
+public sealed record RequestTagResponse(Guid TagId, string Name);
+
+public sealed record RequestTagRequest(string Name);
+
 public sealed record CitizenConversationTimelineEntryDto(
     Guid EntryId,
     string Direction,

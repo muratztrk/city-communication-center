@@ -45,6 +45,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<RoutingRule> RoutingRules => Set<RoutingRule>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<UserQuickReplyTemplate> UserQuickReplyTemplates => Set<UserQuickReplyTemplate>();
+    public DbSet<RequestTag> RequestTags => Set<RequestTag>();
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<UserDepartmentAssignment> UserDepartmentAssignments => Set<UserDepartmentAssignment>();
     public DbSet<EDevletActivityType> EDevletActivityTypes => Set<EDevletActivityType>();
@@ -109,6 +110,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureRoutingRule(modelBuilder.Entity<RoutingRule>());
         ConfigurePushSubscription(modelBuilder.Entity<PushSubscription>());
         ConfigureUserQuickReplyTemplate(modelBuilder.Entity<UserQuickReplyTemplate>());
+        ConfigureRequestTag(modelBuilder.Entity<RequestTag>());
         ConfigureAttachment(modelBuilder.Entity<Attachment>());
         ConfigureUserDepartmentAssignment(modelBuilder.Entity<UserDepartmentAssignment>());
         ConfigureEDevletActivityType(modelBuilder.Entity<EDevletActivityType>());
@@ -136,6 +138,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<RoutingRule>());
         ApplyTenantFilter(modelBuilder.Entity<PushSubscription>());
         ApplyTenantFilter(modelBuilder.Entity<UserQuickReplyTemplate>());
+        ApplyTenantFilter(modelBuilder.Entity<RequestTag>());
         ApplyTenantFilter(modelBuilder.Entity<Attachment>());
         ApplyTenantFilter(modelBuilder.Entity<UserDepartmentAssignment>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletActivityType>());
@@ -607,6 +610,13 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("userquickreplytemplates");
         builder.HasKey(entity => entity.TemplateId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureRequestTag(EntityTypeBuilder<RequestTag> builder)
+    {
+        builder.ToTable("requesttags");
+        builder.HasKey(entity => entity.TagId);
         ApplyLowerCaseColumnNames(builder);
     }
 

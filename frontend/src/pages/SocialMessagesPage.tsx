@@ -14,6 +14,7 @@ import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidati
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import type { JobSummary, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -421,25 +422,21 @@ export function SocialMessagesPage() {
           </button>
         ))}
         <span className="scope-chip-divider" aria-hidden="true">|</span>
-        <select
-          className="scope-chip-year-select"
+        <SingleSelectDropdown
+          className="w-auto"
+          triggerClassName="scope-chip-year-select w-auto"
+          options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
           value={requestStatusFilter}
-          onChange={event => {
-            const value = event.target.value as SocialRequestStatusFilter
-            setRequestStatusFilter(value)
+          onChange={value => {
+            const nextValue = value as SocialRequestStatusFilter
+            setRequestStatusFilter(nextValue)
             const nextParams = new URLSearchParams(searchParams)
-            if (value === 'all') nextParams.delete('requestStatus')
-            else nextParams.set('requestStatus', value)
+            if (nextValue === 'all') nextParams.delete('requestStatus')
+            else nextParams.set('requestStatus', nextValue)
             setSearchParams(nextParams)
           }}
-          aria-label={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
-        >
-          {REQUEST_STATUS_FILTERS.map(filter => (
-            <option key={filter.value} value={filter.value}>
-              {t(filter.labelKey, filter.fallback)}
-            </option>
-          ))}
-        </select>
+          placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
+        />
       </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}

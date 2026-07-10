@@ -425,9 +425,13 @@ export function SocialMessagesPage() {
         <SingleSelectDropdown
           className="w-auto"
           triggerClassName="scope-chip-year-select w-auto"
-          // Panel genişliği kompakt trigger'ınkiyle eşleşiyor; varsayılan öğe metni (0.875rem)
-          // "Tüm Talep Durumları" gibi uzun etiketleri tek satıra sığdıramıyordu (card #1509, 3. reopen).
-          menuScrollClassName="[&_.dropdown-menu-item]:text-xs [&_.dropdown-menu-item]:whitespace-nowrap"
+          // Panel genişliği varsayılan olarak trigger'ın O ANKİ seçili etikete göre ölçülen
+          // genişliğiyle eşleşiyordu (ör. "İptal" seçiliyken çok dar) — "Tüm Talep Durumları"
+          // gibi daha uzun etiketler tek satıra sığmıyordu (card #1509, 3. reopen). menuClassName
+          // ile panel artık en geniş seçeneğe göre kendi genişliğini alıyor (MyRequestAddressEditFields
+          // ile aynı desen); metin de trigger ile aynı boyuta (0.75rem) küçültüldü.
+          menuClassName="w-max"
+          menuScrollClassName="[&_.dropdown-menu-item]:text-xs"
           options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
           value={requestStatusFilter}
           onChange={value => {

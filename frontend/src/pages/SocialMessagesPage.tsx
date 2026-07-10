@@ -425,6 +425,9 @@ export function SocialMessagesPage() {
         <SingleSelectDropdown
           className="w-auto"
           triggerClassName="scope-chip-year-select w-auto"
+          // Panel genişliği kompakt trigger'ınkiyle eşleşiyor; varsayılan öğe metni (0.875rem)
+          // "Tüm Talep Durumları" gibi uzun etiketleri tek satıra sığdıramıyordu (card #1509, 3. reopen).
+          menuScrollClassName="[&_.dropdown-menu-item]:text-xs [&_.dropdown-menu-item]:whitespace-nowrap"
           options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
           value={requestStatusFilter}
           onChange={value => {

@@ -1559,6 +1559,16 @@
     max-height: 8.5rem;
   }
 
+  /* Talep Durumu filtresi panelindeki seçenek metinleri, panel genişliği trigger'a
+     kilitli olduğu için (menuClassName kasıtlı olarak kullanılmıyor, card #1509 4.
+     reopen) uzun etiketlerde kesiliyordu; sadece bu panelin metni küçültülür,
+     .dropdown-menu-item'ın global boyutu diğer tüm dropdown'larda aynı kalır (card #1509 6. reopen). */
+  .scope-chip-status-menu-scroll .dropdown-menu-item {
+    font-size: 0.72rem;
+    min-height: 1.9rem;
+    padding: 0.35rem 0.65rem;
+  }
+
   .dropdown-menu-item {
     display: flex;
     width: 100%;

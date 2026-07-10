@@ -425,6 +425,7 @@ export function SocialMessagesPage() {
         <SingleSelectDropdown
           className="w-auto"
           triggerClassName="scope-chip-year-select w-auto"
+          menuScrollClassName="scope-chip-status-menu-scroll"
           options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
           value={requestStatusFilter}
           onChange={value => {

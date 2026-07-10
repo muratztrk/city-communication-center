@@ -61,8 +61,12 @@ export function SingleSelectDropdown({
   const updateMenuPosition = useCallback(() => {
     const rect = rootRef.current?.getBoundingClientRect()
     if (!rect) return
+    // menuClassName'li paneller (ör. max-w-[20rem]) trigger'dan geniş olabilir; sağ kenardan
+    // taşmasın diye olası genişlik varsayılarak left kırpılır (FilterableTh ile aynı desen).
+    const assumedWidth = menuClassName ? 320 : rect.width
+    const left = Math.min(rect.left, Math.max(8, window.innerWidth - assumedWidth - 8))
     setMenuStyle({
-      left: rect.left,
+      left,
       ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
       ...(menuClassName ? { minWidth: rect.width } : { width: rect.width }),
     })

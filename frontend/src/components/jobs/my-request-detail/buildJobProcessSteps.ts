@@ -214,8 +214,9 @@ export function buildJobProcessSteps(
   // Standart kullanıcının onaylanmış (Active) talebi turuncu "Durum / Yapılmakta" step'i
   // onay adımlarından sonra gösterir (card #1334); iptalden geri alınan yönetici talebi de
   // Durum adımını İptal Tarihi'nden sonra alır.
-  const standardApprovedActive = !options?.hideOwnerApproval
-    && detail.status === 'Active'
+  // hideOwnerApproval yalnızca sahip-onay adımını gizler — Durum adımını engellemez
+  // (Birime Gelen/Giden + yönetici Taleplerim, card #1535).
+  const standardApprovedActive = detail.status === 'Active'
     && !isCitizenRequestJob(detail)
   if (!isTerminalStatus(detail.status) && !statusStepEarly && (managerCreatedActive || standardApprovedActive)) {
     steps.push({

@@ -513,6 +513,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;
   Taleplerim ile aynı `JobProcessTimeline` + `buildJobProcessSteps` kullanılır (`hideOwnerApproval: true`);
   Son Tarih Değiştir / Ek süre talebini gör aksiyonları timeline `dueDate` adımında kalır.
+  `hideOwnerApproval` yalnızca sahip-onay adımını gizler; Active birim içi/dışı taleplerde
+  turuncu `Durum` adımı yine gösterilir (card #1535).
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak.

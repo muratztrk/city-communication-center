@@ -421,7 +421,16 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             var taskDescriptions = await _dbContext.Tasks
                 .AsNoTracking()
                 .Where(task => taskIds.Contains(task.TaskId))
-                .Select(task => new { task.TaskId, task.Description, task.Notes })
+                .Select(task => new
+                {
+                    task.TaskId,
+                    task.Description,
+                    // Notes alanı görev ilerleme/durum değişikliği geçmişinde de yazılıyor (genel bir
+                    // "son not" alanı) — sadece tamamlanmış görevlerde "Görev Tamamlama Notu" olarak
+                    // anlamlı olduğundan, gereksiz veri sızıntısını önlemek için diğer durumlarda null
+                    // gönderilir (card #1402 review notu).
+                    Notes = task.CurrentStatus.ToString() == "Completed" ? task.Notes : null,
+                })
                 .ToDictionaryAsync(task => task.TaskId, task => task, cancellationToken);
 
             var taskAttachmentRows = await _dbContext.Attachments

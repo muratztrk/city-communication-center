@@ -345,7 +345,8 @@
     font-size: 0.6875rem;
   }
 
-  .detail-modal-shell--my-request .my-request-detail-main {
+  .detail-modal-shell--my-request .my-request-detail-main,
+  .detail-modal-shell--my-request .my-request-task-details {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;

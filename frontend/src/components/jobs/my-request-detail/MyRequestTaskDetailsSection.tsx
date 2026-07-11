@@ -27,7 +27,7 @@ export function MyRequestTaskDetailsSection({
   if (detail.tasks.length === 0) return null
 
   return (
-    <section className="form-card page-stack mb-5">
+    <section className="my-request-task-details form-card page-stack mb-5">
       <div className="job-detail-section-title mb-1">
         {t('tasks.detail.title', 'Görev Detayları')}
       </div>

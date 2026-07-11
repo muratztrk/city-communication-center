@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, MessageSquareText, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
+import { Check, MessageSquareText, Printer, Search, Send, PenLine, StickyNote, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1761,9 +1761,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <span>(</span>
           <button
             type="button"
-            className="font-semibold hover:text-red-700"
+            className="inline-flex items-center gap-1 font-semibold hover:text-red-700"
             onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
+            <StickyNote className="size-3" aria-hidden="true" />
             <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
           </button>
           <span>)</span>
@@ -1774,9 +1775,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <span>(</span>
           <button
             type="button"
-            className="font-semibold hover:text-emerald-700"
+            className="inline-flex items-center gap-1 font-semibold hover:text-emerald-700"
             onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
+            <StickyNote className="size-3" aria-hidden="true" />
             <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
           </button>
           <span>)</span>
@@ -2437,9 +2439,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   <span>(</span>
                                   <button
                                     type="button"
-                                    className="font-semibold hover:text-red-700"
+                                    className="inline-flex items-center gap-1 font-semibold hover:text-red-700"
                                     onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                   >
+                                    <StickyNote className="size-3" aria-hidden="true" />
                                     <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                                   </button>
                                   <span>)</span>
@@ -2450,9 +2453,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   <span>(</span>
                                   <button
                                     type="button"
-                                    className="font-semibold hover:text-emerald-700"
+                                    className="inline-flex items-center gap-1 font-semibold hover:text-emerald-700"
                                     onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                   >
+                                    <StickyNote className="size-3" aria-hidden="true" />
                                     <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                                   </button>
                                   <span>)</span>

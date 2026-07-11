@@ -1,4 +1,4 @@
-import { Clock, FileText, Info } from 'lucide-react'
+import { Clock, FileText, Info, StickyNote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentSection } from '../../ui/AttachmentSection'
@@ -59,9 +59,10 @@ export function MyRequestTaskDetailsSection({
                   <span>(</span>
                   <button
                     type="button"
-                    className="font-semibold hover:text-red-700"
+                    className="inline-flex items-center gap-1 font-semibold hover:text-red-700"
                     onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: task.revisionReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                   >
+                    <StickyNote className="size-3" aria-hidden="true" />
                     <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                   </button>
                   <span>)</span>
@@ -72,9 +73,10 @@ export function MyRequestTaskDetailsSection({
                   <span>(</span>
                   <button
                     type="button"
-                    className="font-semibold hover:text-emerald-700"
+                    className="inline-flex items-center gap-1 font-semibold hover:text-emerald-700"
                     onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(task.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                   >
+                    <StickyNote className="size-3" aria-hidden="true" />
                     <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
                   </button>
                   <span>)</span>

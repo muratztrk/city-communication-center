@@ -6,7 +6,12 @@ import {
 } from '../../../utils/citizenRequests'
 import { formatDateTime, formatDueDateTime } from './format'
 
-export type JobProcessStepState = 'completed' | 'current' | 'upcoming' | 'terminal-success' | 'terminal-danger'
+export type JobProcessStepState = 'completed' | 'current' | 'pending' | 'upcoming' | 'terminal-success' | 'terminal-danger'
+
+function isPendingApprovalJobStatus(status: string): boolean {
+  return status === 'PendingOwnerApproval'
+    || status === 'PendingExternalApproval'
+}
 
 export type JobProcessStepId =
   | 'requestDate'
@@ -111,6 +116,10 @@ function resolveStepStates(steps: Omit<JobProcessStep, 'state'>[], detail: JobDe
     }
     if (step.id === 'status') {
       foundCurrent = true
+      // Onay bekleyen taleplerde Durum katmanı mavi "pending" tonunda (card #1535 reopen).
+      if (isPendingApprovalJobStatus(detail.status)) {
+        return { ...step, state: 'pending' as const }
+      }
       return { ...step, state: 'current' as const }
     }
     if (step.id === 'completionDate' || step.id === 'cancelDate') {
@@ -145,6 +154,11 @@ export function buildJobProcessSteps(
   // adımı onay beklerken Talep Tarihi'nin hemen arkasına gelir; hedef onaylandıysa hedef onay
   // adımından sonra gelir (cards #1275/#1345/#1357). İptalden geri alınan talepte İptal Tarihi
   // adımı Durum'dan önce kalmalı, o yüzden erken eklenmez.
+  // Onay beklerken aynı erken katman mavi "Durum / Onay Bekleyen" olur (card #1535 reopen).
+  const pendingApprovalStatus = isPendingApprovalJobStatus(detail.status)
+  const statusDisplayValue = pendingApprovalStatus
+    ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+    : t('jobs.statusLabel.inProgress', 'Yapılmakta')
   const managerCreatedActive = detail.createdByRoleCode === 'Manager'
     && !isCitizenRequestJob(detail)
     && (detail.requestType === 'InternalUnit' || detail.requestType === 'ExternalUnit')
@@ -155,7 +169,7 @@ export function buildJobProcessSteps(
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
-      displayValue: t('jobs.statusLabel.inProgress', 'Yapılmakta'),
+      displayValue: statusDisplayValue,
       dateTimeUtc: null,
     })
   }
@@ -216,13 +230,19 @@ export function buildJobProcessSteps(
   // Durum adımını İptal Tarihi'nden sonra alır.
   // hideOwnerApproval yalnızca sahip-onay adımını gizler — Durum adımını engellemez
   // (Birime Gelen/Giden + yönetici Taleplerim, card #1535).
+  // Sahip-onay adımı gizlendiğinde onay bekleyen talebe mavi "Durum / Onay Bekleyen"
+  // katmanı eklenir (Birime Gelen/Giden, card #1535 reopen).
   const standardApprovedActive = detail.status === 'Active'
     && !isCitizenRequestJob(detail)
-  if (!isTerminalStatus(detail.status) && !statusStepEarly && (managerCreatedActive || standardApprovedActive)) {
+  const pendingStatusWhenOwnerHidden = pendingApprovalStatus
+    && !isCitizenRequestJob(detail)
+    && Boolean(options?.hideOwnerApproval)
+  if (!isTerminalStatus(detail.status) && !statusStepEarly
+    && (managerCreatedActive || standardApprovedActive || pendingStatusWhenOwnerHidden)) {
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
-      displayValue: t('jobs.statusLabel.inProgress', 'Yapılmakta'),
+      displayValue: statusDisplayValue,
       dateTimeUtc: null,
     })
   }

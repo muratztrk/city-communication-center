@@ -13,8 +13,12 @@ function getLineClass(
   if (!nextStep) return ''
   const stepDone = step.state === 'completed' || step.state === 'terminal-success'
   const nextDone = nextStep.state === 'completed' || nextStep.state === 'terminal-success'
+  const nextIsActiveCurrent = nextStep.state === 'current' || nextStep.state === 'pending'
 
   if (stepDone && nextDone) return 'job-process-timeline__line--completed'
+  if (stepDone && nextStep.state === 'pending') {
+    return 'job-process-timeline__line--to-pending'
+  }
   if (stepDone && nextStep.state === 'current') {
     return recoveredFromCancellation
       ? 'job-process-timeline__line--to-current-from-danger'
@@ -26,19 +30,23 @@ function getLineClass(
       : 'job-process-timeline__line--completed'
   }
   if (stepDone && nextStep.state === 'terminal-danger') return 'job-process-timeline__line--to-danger'
-  if (step.state === 'terminal-danger' && nextStep.state === 'current' && recoveredFromCancellation) {
-    return 'job-process-timeline__line--to-current-from-danger'
+  if (step.state === 'terminal-danger' && nextIsActiveCurrent && recoveredFromCancellation) {
+    return nextStep.state === 'pending'
+      ? 'job-process-timeline__line--to-pending-from-danger'
+      : 'job-process-timeline__line--to-current-from-danger'
   }
   if (step.state === 'terminal-danger' && nextStep.state === 'terminal-success' && recoveredFromCancellation) {
     return 'job-process-timeline__line--to-success-from-danger'
   }
   if (step.state === 'terminal-danger') return 'job-process-timeline__line--from-danger'
+  if (step.state === 'pending') return 'job-process-timeline__line--from-pending'
   if (step.state === 'current') return 'job-process-timeline__line--from-current'
   return 'job-process-timeline__line--upcoming'
 }
 
 function getStepLabelClass(state: JobProcessStep['state']): string {
   if (state === 'completed' || state === 'terminal-success') return 'text-emerald-600'
+  if (state === 'pending') return 'text-sky-500'
   if (state === 'current') return 'text-orange-500'
   if (state === 'terminal-danger') return 'text-red-600'
   return 'text-slate-400'
@@ -116,6 +124,9 @@ function StepIndicator({ state, shouldPulse }: { state: JobProcessStep['state'];
   if (state === 'current') {
     return <span className="job-process-timeline__indicator job-process-timeline__indicator--current" aria-hidden="true" />
   }
+  if (state === 'pending') {
+    return <span className="job-process-timeline__indicator job-process-timeline__indicator--pending" aria-hidden="true" />
+  }
   return <span className="job-process-timeline__indicator job-process-timeline__indicator--upcoming" aria-hidden="true" />
 }
 
@@ -130,6 +141,8 @@ export function JobProcessTimeline({
 }: JobProcessTimelineProps) {
   const { t } = useTranslation()
   const pulseIndex = (() => {
+    const pendingIndex = steps.findIndex(step => step.state === 'pending')
+    if (pendingIndex >= 0) return pendingIndex
     const currentIndex = steps.findIndex(step => step.state === 'current')
     if (currentIndex >= 0) return currentIndex
     const terminalIndex = steps.findIndex(step => step.state === 'terminal-success' || step.state === 'terminal-danger')
@@ -157,12 +170,18 @@ export function JobProcessTimeline({
             ? 'text-emerald-600'
             : step.id === 'cancelDate'
                 ? 'text-red-600'
-                : step.state === 'current'
-                  ? 'text-[#f97316]'
-                  : step.state === 'upcoming'
-                    ? 'text-slate-400'
-                    : 'text-slate-900'
-          const displayMetaTone = step.state === 'current' ? 'text-[#f97316]' : 'text-emerald-600'
+                : step.state === 'pending'
+                  ? 'text-sky-500'
+                  : step.state === 'current'
+                    ? 'text-[#f97316]'
+                    : step.state === 'upcoming'
+                      ? 'text-slate-400'
+                      : 'text-slate-900'
+          const displayMetaTone = step.state === 'pending'
+            ? 'text-sky-500'
+            : step.state === 'current'
+              ? 'text-[#f97316]'
+              : 'text-emerald-600'
 
           return (
             <li key={step.id} className="job-process-timeline__item">

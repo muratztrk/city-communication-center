@@ -834,9 +834,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     DEPARTMENT_OUTGOING_VIEWS.find(view => view.value === currentDepartmentOutgoingView)?.labelKey ?? 'jobs.outgoingViews.pending',
     'Bekleyen Talepler',
   )
-  const detailStatusClass = detail?.status === 'Active'
-    || detail?.status === 'PendingOwnerApproval'
+  const detailStatusClass = detail?.status === 'PendingOwnerApproval'
     || detail?.status === 'PendingExternalApproval'
+    ? 'text-sky-500'
+    : detail?.status === 'Active'
     ? 'text-[#f97316]'
     : detail?.status === 'Completed'
       ? 'text-emerald-600'

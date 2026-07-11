@@ -1273,7 +1273,7 @@ function ConversationDetail({
             <div ref={bottomRef} />
           </div>
 
-          {openTicket ? (
+          {openTicket || loading ? (
             <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 <input

@@ -276,7 +276,14 @@
     text-transform: none;
   }
 
+  .detail-modal-shell .my-request-title-heading,
   .detail-modal-shell--my-request .my-request-title-heading {
+    width: 100%;
+  }
+
+  .detail-modal-shell .job-detail-card-title.my-request-title-heading,
+  .detail-modal-shell .job-detail-card-title.job-detail-card-title--spread {
+    display: flex;
     width: 100%;
   }
 

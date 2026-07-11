@@ -34,7 +34,7 @@ import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shoul
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { getRequestEditPath } from '../utils/requestEditPath'
 import {
@@ -52,6 +52,7 @@ import { isPresidencyLevelDepartment } from '../utils/departments'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
+import { getChannelLabelColor } from '../utils/channelColors'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
@@ -2302,9 +2303,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 <MyRequestSectionHeading icon={ClipboardList} tone="primary">
                   {t('jobs.detail.requestInfo', 'Talep Detayları')}
                 </MyRequestSectionHeading>
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
-                  {/* Kolon 1: Taleplerim ile aynı — başlık + talep no/tip + açıklama (card #1534). */}
-                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                {/* İlk satır Taleplerim gibi yekpare tek dış çerçeve (card #1536); kolon içleri border-r ile ayrılır. */}
+                <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
+                  {/* Kolon 1: başlık + talep no/tip (sağa hizalı, card #1534) + açıklama */}
+                  <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
                     <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
                       <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
                         <span className="min-w-0 font-semibold text-slate-900">
@@ -2317,9 +2319,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               : formatJobDisplayNumberText(detail, locale)}
                           </span>
                           {isCitizenRequestDetail ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
+                            <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
                               {t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
-                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
                             </span>
                           ) : (
                             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
@@ -2340,9 +2341,21 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
                     />
                   </div>
-                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                    <MyRequestSectionHeading icon={Info}>
-                      {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
+                  <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+                    <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
+                      <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                        <span>{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
+                        {/* Vatandaş kanalı: başlık satırında sağa hizalı ikon + kanal adı (card #1532). */}
+                        {isCitizenRequestDetail ? (
+                          <span
+                            className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold"
+                            style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? 'WhatsApp') }}
+                          >
+                            <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                            {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
+                          </span>
+                        ) : null}
+                      </span>
                     </MyRequestSectionHeading>
                     <div className="my-request-detail-fields divide-y divide-slate-100">
                     {(isCitizenRequestDetail ? [
@@ -2387,7 +2400,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     ))}
                     </div>
                   </div>
-                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                  <div className="min-w-0 p-4">
                     {(() => {
                       // Birime Gelen / Birimden Giden Süreç kolonu Taleplerim timeline tasarımını kullanır (card #1527).
                       const processSteps = buildJobProcessSteps(t, detail, locale, { hideOwnerApproval: true })

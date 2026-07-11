@@ -1,16 +1,92 @@
-import { Clock, FileText, Info, ListChecks } from 'lucide-react'
+import { FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
-import { formatDateTime } from './format'
+import { formatDateTime, formatDueDateTime } from './format'
+import type { JobProcessStep } from './buildJobProcessSteps'
+import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 
 interface MyRequestTaskDetailsSectionProps {
   detail: JobDetail
   locale: string
   onDownloadTaskAttachment: (attachmentId: string, fileName: string) => void
+}
+
+function buildTaskProcessSteps(
+  t: ReturnType<typeof useTranslation>['t'],
+  task: JobDetail['tasks'][number],
+  locale: string,
+): JobProcessStep[] {
+  const isCompleted = task.currentStatus === 'Completed'
+  const isCancelled = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
+  const dueDateStep: JobProcessStep = {
+    id: 'dueDate',
+    label: t('tasks.columns.dueDate', 'Son Tarih'),
+    displayValue: formatDueDateTime(task.dueDateUtc, locale),
+    dateTimeUtc: task.dueDateUtc ?? null,
+    state: isCompleted || isCancelled ? 'completed' : 'upcoming',
+  }
+
+  if (isCompleted) {
+    return [
+      {
+        id: 'requestDate',
+        label: t('tasks.columns.taskDate', 'Görev Tarihi'),
+        displayValue: formatDateTime(task.createdAtUtc ?? null, locale),
+        dateTimeUtc: task.createdAtUtc ?? null,
+        state: 'completed',
+      },
+      dueDateStep,
+      {
+        id: 'completionDate',
+        label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'),
+        displayValue: formatDateTime(task.completedAtUtc ?? null, locale),
+        dateTimeUtc: task.completedAtUtc ?? null,
+        state: 'terminal-success',
+      },
+    ]
+  }
+
+  if (isCancelled) {
+    return [
+      {
+        id: 'requestDate',
+        label: t('tasks.columns.taskDate', 'Görev Tarihi'),
+        displayValue: formatDateTime(task.createdAtUtc ?? null, locale),
+        dateTimeUtc: task.createdAtUtc ?? null,
+        state: 'completed',
+      },
+      dueDateStep,
+      {
+        id: 'cancelDate',
+        label: t('tasks.columns.cancelledAt', 'İptal Tarihi'),
+        displayValue: formatDateTime(task.updatedAtUtc ?? null, locale),
+        dateTimeUtc: task.updatedAtUtc ?? null,
+        state: 'terminal-danger',
+      },
+    ]
+  }
+
+  return [
+    {
+      id: 'requestDate',
+      label: t('tasks.columns.taskDate', 'Görev Tarihi'),
+      displayValue: formatDateTime(task.createdAtUtc ?? null, locale),
+      dateTimeUtc: task.createdAtUtc ?? null,
+      state: 'completed',
+    },
+    {
+      id: 'status',
+      label: t('tasks.columns.status', 'Durum'),
+      displayValue: getTaskStatusLabel(t, task.currentStatus),
+      dateTimeUtc: null,
+      state: 'current',
+    },
+    dueDateStep,
+  ]
 }
 
 export function MyRequestTaskDetailsSection({
@@ -37,17 +113,23 @@ export function MyRequestTaskDetailsSection({
             : task.assigningManagerDisplayName
               ? `${t('tasks.type.assigned', 'Atanmış')} (${task.assigningManagerDisplayName})`
               : t('tasks.type.assigned', 'Atanmış')
-          const taskStatus = (
-            <span className={task.currentStatus === 'Completed'
-              ? 'text-emerald-600'
-              : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
-                ? 'text-red-600'
-                : (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
-                  ? 'text-[#f97316]'
-                  : 'text-slate-900'}
-            >
-              {getTaskStatusLabel(t, task.currentStatus)}
-            </span>
+          const statusTone = task.currentStatus === 'Completed'
+            ? 'text-emerald-600'
+            : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
+              ? 'text-red-600'
+              : (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
+                ? 'text-[#f97316]'
+                : 'text-slate-900'
+          const processSteps = buildTaskProcessSteps(t, task, locale)
+          const dueDateContent = (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold text-slate-900">{formatDueDateTime(task.dueDateUtc, locale)}</span>
+              {task.hasPendingExtraTimeRequest ? (
+                <span className="text-xs font-bold text-amber-500">
+                  {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                </span>
+              ) : null}
+            </div>
           )
 
           return (
@@ -75,39 +157,17 @@ export function MyRequestTaskDetailsSection({
                 </div>
               </div>
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                <MyRequestSectionHeading icon={Clock}>
-                  {t('jobs.detail.processTitle', 'Süreç')}
-                </MyRequestSectionHeading>
-                <div className="divide-y divide-slate-100">
-                  {[
-                    { label: t('tasks.columns.status', 'Durum'), value: taskStatus },
-                    { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
-                    ...(task.currentStatus === 'Completed'
-                      ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: <span className="text-emerald-600">{formatDateTime(task.completedAtUtc ?? null, locale)}</span> }]
-                      : task.currentStatus === 'Cancelled'
-                        ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(task.updatedAtUtc ?? null, locale)}</span> }]
-                        : []),
-                    {
-                      label: t('tasks.columns.dueDate', 'Son Tarih'),
-                      // Yöneticide bekleyen ek süre talebi talep detayında da görünür (card #1385).
-                      value: (
-                        <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                          <span>{formatDateTime(task.dueDateUtc, locale)}</span>
-                          {task.hasPendingExtraTimeRequest ? (
-                            <span className="text-xs font-bold text-amber-500">
-                              {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
-                            </span>
-                          ) : null}
-                        </span>
-                      ),
-                    },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="py-2">
-                      <div className="text-xs font-semibold text-slate-500">{label}</div>
-                      <div className="mt-0.5 break-words text-sm text-slate-900">{value}</div>
-                    </div>
-                  ))}
-                </div>
+                {/* Görev Detayları Süreç kolonu Taleplerim/Görevlerim timeline tasarımını kullanır (card #1527). */}
+                <JobProcessTimeline
+                  steps={processSteps}
+                  locale={locale}
+                  statusContent={(
+                    <span className={`inline ${statusTone}`}>
+                      {getTaskStatusLabel(t, task.currentStatus)}
+                    </span>
+                  )}
+                  dueDateContent={dueDateContent}
+                />
               </div>
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={FileText}>

@@ -34,7 +34,7 @@ import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shoul
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { getRequestEditPath } from '../utils/requestEditPath'
 import {
@@ -46,7 +46,7 @@ import {
   shouldShowCitizenTargetApprovalDate,
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
-import { RequestNumberWithTypeLabel } from '../utils/requestDisplay'
+import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
@@ -64,6 +64,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { richTextToPlainText } from '../utils/richText'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -2301,7 +2302,44 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 <MyRequestSectionHeading icon={ClipboardList} tone="primary">
                   {t('jobs.detail.requestInfo', 'Talep Detayları')}
                 </MyRequestSectionHeading>
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
+                  {/* Kolon 1: Taleplerim ile aynı — başlık + talep no/tip + açıklama (card #1534). */}
+                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                    <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
+                      <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                        <span className="min-w-0 font-semibold text-slate-900">
+                          {normalizeTitleCaseField(detail.title)}
+                        </span>
+                        <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                          <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">
+                            {isCitizenRequestDetail
+                              ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
+                              : formatJobDisplayNumberText(detail, locale)}
+                          </span>
+                          {isCitizenRequestDetail ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
+                              {t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
+                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
+                              {detail.requestType === 'ExternalUnit'
+                                ? t('jobs.requestType.external', 'Birim Dışı')
+                                : t('jobs.requestType.internal', 'Birim İçi')}
+                            </span>
+                          )}
+                          {forwardReason ? (
+                            <span className="text-xs font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                          ) : null}
+                        </span>
+                      </span>
+                    </MyRequestSectionHeading>
+                    <RichTextContent
+                      value={detail.description}
+                      emptyText={t('common.none')}
+                      className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+                    />
+                  </div>
                   <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                     <MyRequestSectionHeading icon={Info}>
                       {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
@@ -2309,23 +2347,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <div className="my-request-detail-fields divide-y divide-slate-100">
                     {(isCitizenRequestDetail ? [
                       {
-                        label: 'Vatandaş Talep No',
-                        value: (
-                          <span className="inline-flex flex-wrap items-center gap-2">
-                            <span>{formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)}</span>
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-500">
-                              ({t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
-                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
-                              <span className="text-slate-900">{getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}</span>)
-                            </span>
-                          </span>
-                        ),
-                      },
-                      {
                         label: 'Vatandaş Adı / Telefon No',
                         value: [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—',
                       },
-                      { label: 'Talep Başlığı', value: detail.title },
                       {
                         label: 'Talep Yeri / Oluşturan',
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
@@ -2341,23 +2365,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                     ] : [
                       {
-                        label: 'Talep No',
-                        value: (
-                          <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                            <RequestNumberWithTypeLabel
-                              job={detail}
-                              t={t}
-                              locale={locale}
-                            />
-                            {/* Yönlendirilen talepte koyu turkuaz rozet (card #1406). */}
-                            {forwardReason && (
-                              <span className="text-xs font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
-                            )}
-                          </span>
-                        ),
-                      },
-                      { label: 'Talep Başlığı', value: detail.title },
-                      {
                         label: 'Talep Yeri / Oluşturan',
                         value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
@@ -2371,7 +2378,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       },
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
-                      // Yönlendirilen talebin sebebi, Öncelik/Proje satırının altında (card #1406).
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (
                       <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
@@ -2492,12 +2498,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         />
                       )
                     })()}
-                  </div>
-                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                    <MyRequestSectionHeading icon={FileText}>
-                      {t('jobs.form.description', 'Açıklama')}
-                    </MyRequestSectionHeading>
-                    <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content mt-1.5 text-sm leading-6 text-slate-900" />
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (

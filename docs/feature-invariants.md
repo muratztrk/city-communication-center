@@ -513,6 +513,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;
   Taleplerim ile aynı `JobProcessTimeline` + `buildJobProcessSteps` kullanılır (`hideOwnerApproval: true`);
   Son Tarih Değiştir / Ek süre talebini gör aksiyonları timeline `dueDate` adımında kalır.
+- **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
+  içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
+  veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak.
+- **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
+  kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç
+  timeline. Ayrı `Açıklama` paneli ve Talep Bilgileri içindeki tekrarlayan başlık/no satırları yok.
 - **Görev İptal Notu (card #1530):** job detay `TaskSummaryResponse.RevisionReason` iptal/red
   görevlerde dolu gelir; UI önce `task.revisionReason`, yoksa `detail.cancelReason` gösterir —
   "İptal notu girilmemiş" yalnızca ikisi de boşsa yazılır.

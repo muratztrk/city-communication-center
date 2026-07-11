@@ -256,16 +256,19 @@
     width: 7.5rem;
   }
 
-  /* Taleplerim detay popup görsel düzeltmeleri (card #1130) */
-  .detail-modal-shell--my-request .job-detail-section-title > svg,
-  .detail-modal-shell--my-request .job-detail-card-title > svg {
+  /* Taleplerim detay popup görsel düzeltmeleri (card #1130). Base .detail-modal-shell'e
+     scoped — Birime Gelen/Birimden Giden Talepler'in kendi modal shell'i (--my-request
+     modifier'ı yok) MyRequestSectionHeading kullanmaya başladığında da aynı ikon/başlık
+     stilini alsın diye sadece --my-request'e değil taban class'a bağlandı (card #1524, 2. reopen). */
+  .detail-modal-shell .job-detail-section-title > svg,
+  .detail-modal-shell .job-detail-card-title > svg {
     background-color: rgb(241 245 249);
     border-radius: 0.625rem;
     padding: 0.4rem;
     box-sizing: content-box;
   }
 
-  .detail-modal-shell--my-request .job-detail-card-title {
+  .detail-modal-shell .job-detail-card-title {
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: normal;
@@ -289,19 +292,19 @@
     text-align: left;
   }
 
-  .detail-modal-shell--my-request .job-detail-section-heading {
+  .detail-modal-shell .job-detail-section-heading {
     margin-bottom: 0.75rem;
     border-bottom: 1px solid rgb(226 232 240);
     padding-bottom: 0.5rem;
   }
 
-  .detail-modal-shell--my-request .job-detail-section-heading:has(> .job-detail-section-title:not(.job-detail-section-title--muted)) {
+  .detail-modal-shell .job-detail-section-heading:has(> .job-detail-section-title:not(.job-detail-section-title--muted)) {
     border-bottom: none;
     padding-bottom: 0;
     margin-bottom: 0;
   }
 
-  .detail-modal-shell--my-request .job-detail-section-title:not(.job-detail-section-title--muted) {
+  .detail-modal-shell .job-detail-section-title:not(.job-detail-section-title--muted) {
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: normal;
@@ -346,7 +349,7 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-main,
-  .detail-modal-shell--my-request .my-request-task-details {
+  .detail-modal-shell .my-request-task-details {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
@@ -354,8 +357,10 @@
   }
 
   /* "Görev Detayları" bir önceki bölümün hemen altında, kendi üst boşluğu olmadan
-     çerçeveye yapışık duruyordu (card #1523 fix'inin yan etkisi, card #1402). */
-  .detail-modal-shell--my-request .my-request-task-details {
+     çerçeveye yapışık duruyordu (card #1523 fix'inin yan etkisi, card #1402). Base
+     .detail-modal-shell'e bağlı — MyRequestTaskDetailsSection artık Birime Gelen/
+     Birimden Giden'in kendi (--my-request'siz) modal shell'inde de kullanılıyor (card #1524). */
+  .detail-modal-shell .my-request-task-details {
     margin-top: 1rem;
   }
 

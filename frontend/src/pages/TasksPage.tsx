@@ -2320,8 +2320,20 @@ const pageKicker = isMyTasksView
                           ) : (
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-900">{formatDueDateTime(taskDetail.dueDateUtc, locale)}</span>
-                              {/* Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386). */}
-                              <GridExtraTimeMarkers hasPending={taskDetail.hasPendingExtraTimeRequest} inline />
+                              {canReviewExtraTime ? (
+                                // Yöneticiye bekleyen ek süre talebi tek bir aksiyon linki olarak gösterilir;
+                                // ayrı bir "(Ek süre talebi)" işaretiyle tekrar edilmez (card #1404 reopen).
+                                <button
+                                  type="button"
+                                  className="text-xs font-bold text-amber-500 underline-offset-2 hover:underline"
+                                  onClick={openExtraTimeReview}
+                                >
+                                  ({t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')})
+                                </button>
+                              ) : (
+                                // Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386).
+                                <GridExtraTimeMarkers hasPending={taskDetail.hasPendingExtraTimeRequest} inline />
+                              )}
                               {canChangeTaskDueDate && (
                                 <button
                                   type="button"
@@ -2350,15 +2362,6 @@ const pageKicker = isMyTasksView
                                     <span className="text-red-600">({t('tasks.actions.extraTimeRejectedShort', 'red')})</span>
                                   )}
                                 </span>
-                              )}
-                              {canReviewExtraTime && (
-                                <button
-                                  type="button"
-                                  className="text-xs font-bold text-amber-600 underline-offset-2 hover:text-amber-700 hover:underline"
-                                  onClick={openExtraTimeReview}
-                                >
-                                  {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
-                                </button>
                               )}
                             </div>
                           )

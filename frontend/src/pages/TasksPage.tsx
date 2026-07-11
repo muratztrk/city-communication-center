@@ -3085,7 +3085,7 @@ const pageKicker = isMyTasksView
         </section>
       )}
 
-      {completeModal && (
+      {completeModal && createPortal(
         <ModalBackdrop>
           <div className="form-card page-stack relative w-full max-w-md">
             <button
@@ -3181,10 +3181,11 @@ const pageKicker = isMyTasksView
               </div>
             </div>
           </div>
-        </ModalBackdrop>
+        </ModalBackdrop>,
+        document.body,
       )}
 
-      {returnModal && (
+      {returnModal && createPortal(
         <ModalBackdrop>
           <div className="form-card page-stack relative w-full max-w-md">
             {/* Sağ üstte kapatma (X) ikonu. */}
@@ -3265,10 +3266,11 @@ const pageKicker = isMyTasksView
             )}
 
           </div>
-        </ModalBackdrop>
+        </ModalBackdrop>,
+        document.body,
       )}
 
-      {statusChangeModal && (
+      {statusChangeModal && createPortal(
         <ModalBackdrop>
           <div className="form-card page-stack relative w-full max-w-md">
             <button
@@ -3316,7 +3318,8 @@ const pageKicker = isMyTasksView
               </Button>
             </div>
           </div>
-        </ModalBackdrop>
+        </ModalBackdrop>,
+        document.body,
       )}
 
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />

@@ -8,6 +8,7 @@ import { Button } from './ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalBackdrop } from './ui/modal-backdrop'
 import { ModalCloseButton } from './ui/modal-close-button'
+import { SingleSelectDropdown } from './ui/single-select-dropdown'
 
 interface RequestTagDialogProps {
   open: boolean
@@ -126,29 +127,17 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="request-tag-select" className="text-xs font-semibold text-slate-600">
+              <span className="text-xs font-semibold text-slate-600">
                 {t('whatsapp.requestTagList', 'Kayıtlı etiketler')}
-              </label>
-              <select
-                id="request-tag-select"
-                className="field-select w-full text-sm"
+              </span>
+              <SingleSelectDropdown
+                options={tags.map(tag => ({ value: tag.tagId, label: tag.name }))}
                 value={selectedId ?? ''}
+                onChange={nextValue => setSelectedId(nextValue || null)}
+                placeholder={loading ? t('common.loading', 'Yükleniyor…') : t('whatsapp.selectRequestTag', 'Etiket seçin…')}
+                emptyText={t('whatsapp.noRequestTags', 'Henüz etiket yok.')}
                 disabled={loading}
-                onChange={event => setSelectedId(event.target.value || null)}
-              >
-                <option value="">
-                  {loading
-                    ? t('common.loading', 'Yükleniyor…')
-                    : tags.length === 0
-                      ? t('whatsapp.noRequestTags', 'Henüz etiket yok.')
-                      : t('whatsapp.selectRequestTag', 'Etiket seçin…')}
-                </option>
-                {tags.map(tag => (
-                  <option key={tag.tagId} value={tag.tagId}>
-                    {tag.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             {error ? <p className="text-sm text-red-600">{error}</p> : null}

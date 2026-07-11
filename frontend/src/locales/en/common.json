@@ -714,6 +714,8 @@
       "cancelNote": "Cancellation Note",
       "completionNote": "Completion Note",
       "completionNoteTitle": "Task Completion Note",
+      "cancelNoteTitle": "Task Cancellation Note",
+      "noCancelNote": "No cancellation note entered",
       "noCompletionNote": "No completion note entered",
       "assignmentHistory": "Assignment History",
       "taskAssignmentHistory": "Task Assignment History",

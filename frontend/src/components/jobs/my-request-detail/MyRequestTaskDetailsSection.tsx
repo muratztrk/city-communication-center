@@ -1,25 +1,21 @@
-import { Clock, FileText, Info, StickyNote } from 'lucide-react'
+import { Clock, FileText, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentSection } from '../../ui/AttachmentSection'
-import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
-import { richTextToPlainText } from '../../../utils/richText'
 import { formatDateTime } from './format'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 
 interface MyRequestTaskDetailsSectionProps {
   detail: JobDetail
   locale: string
-  setConfirmDialog: (state: ConfirmDialogState | null) => void
   onDownloadTaskAttachment: (attachmentId: string, fileName: string) => void
 }
 
 export function MyRequestTaskDetailsSection({
   detail,
   locale,
-  setConfirmDialog,
   onDownloadTaskAttachment,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
@@ -33,7 +29,6 @@ export function MyRequestTaskDetailsSection({
       </div>
       <div className="space-y-3">
         {detail.tasks.map(task => {
-          const hideTerminalTaskNote = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'
           const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
             .filter(Boolean)
             .join(' / ') || '—'
@@ -43,45 +38,15 @@ export function MyRequestTaskDetailsSection({
               ? `${t('tasks.type.assigned', 'Atanmış')} (${task.assigningManagerDisplayName})`
               : t('tasks.type.assigned', 'Atanmış')
           const taskStatus = (
-            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-              <span className={task.currentStatus === 'Completed'
-                ? 'text-emerald-600'
-                : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
-                  ? 'text-red-600'
-                  : (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
-                    ? 'text-[#f97316]'
-                    : 'text-slate-900'}
-              >
-                {getTaskStatusLabel(t, task.currentStatus)}
-              </span>
-              {!hideTerminalTaskNote && task.currentStatus === 'Cancelled' && task.revisionReason ? (
-                <span className="inline-flex items-center text-red-600">
-                  <span>(</span>
-                  <button
-                    type="button"
-                    aria-label={t('tasks.detail.cancelNote', 'İptal Notu')}
-                    className="inline-flex items-center font-semibold hover:text-red-700"
-                    onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: task.revisionReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                  >
-                    <StickyNote className="size-3" />
-                  </button>
-                  <span>)</span>
-                </span>
-              ) : null}
-              {!hideTerminalTaskNote && task.currentStatus === 'Completed' && task.notes ? (
-                <span className="inline-flex items-center text-emerald-600">
-                  <span>(</span>
-                  <button
-                    type="button"
-                    aria-label={t('tasks.detail.completionNote', 'Tamamlama Notu')}
-                    className="inline-flex items-center font-semibold hover:text-emerald-700"
-                    onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(task.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                  >
-                    <StickyNote className="size-3" />
-                  </button>
-                  <span>)</span>
-                </span>
-              ) : null}
+            <span className={task.currentStatus === 'Completed'
+              ? 'text-emerald-600'
+              : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
+                ? 'text-red-600'
+                : (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
+                  ? 'text-[#f97316]'
+                  : 'text-slate-900'}
+            >
+              {getTaskStatusLabel(t, task.currentStatus)}
             </span>
           )
 
@@ -148,7 +113,9 @@ export function MyRequestTaskDetailsSection({
                 <MyRequestSectionHeading icon={FileText}>
                   {detail.status === 'Completed' && task.currentStatus === 'Completed'
                     ? t('tasks.detail.completionNoteTitle', 'Görev Tamamlama Notu')
-                    : t('tasks.detail.description', 'Açıklama')}
+                    : (detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
+                      ? t('tasks.detail.cancelNoteTitle', 'Görev İptal Notu')
+                      : t('tasks.detail.description', 'Açıklama')}
                 </MyRequestSectionHeading>
                 {detail.status === 'Completed' && task.currentStatus === 'Completed' ? (
                   <div className="grid min-h-full gap-3 lg:grid-cols-2">
@@ -177,6 +144,12 @@ export function MyRequestTaskDetailsSection({
                       <p className="mt-2 text-xs text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
                     </div>
                   </div>
+                ) : (detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected') ? (
+                  <RichTextContent
+                    value={task.revisionReason}
+                    emptyText={t('tasks.detail.noCancelNote', 'İptal notu girilmemiş')}
+                    className="rich-text-content text-sm leading-6 text-slate-900"
+                  />
                 ) : (
                   <RichTextContent
                     value={task.description?.trim() ? task.description : detail.description}

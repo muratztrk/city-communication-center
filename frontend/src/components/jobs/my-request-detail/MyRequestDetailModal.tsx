@@ -272,7 +272,6 @@ export function MyRequestDetailModal({
         <MyRequestTaskDetailsSection
           detail={detail}
           locale={locale}
-          setConfirmDialog={setConfirmDialog}
           onDownloadTaskAttachment={onDownloadTaskAttachment}
         />
       </div>

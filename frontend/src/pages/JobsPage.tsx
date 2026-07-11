@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, ClipboardList, Clock, FileText, Info, MessageSquareText, Printer, Search, Send, PenLine, StickyNote, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, Clock, FileText, Info, MessageSquareText, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1756,42 +1756,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             ? t('jobs.statusLabel.completed', 'Tamamlanmış')
             : getJobStatusLabel(t, detail.status))
   ) : null
-  const myRequestStatusNoteContent = detail != null ? (
-    <>
-      {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
-        <span className="inline-flex items-center text-xs text-red-600">
-          <span>(</span>
-          <button
-            type="button"
-            aria-label={t('jobs.detail.cancelNote', 'İptal Notu')}
-            className="inline-flex items-center font-semibold hover:text-red-700"
-            onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-          >
-            <StickyNote className="size-3" />
-          </button>
-          <span>)</span>
-        </span>
-      ) : null}
-      {detail.status === 'Completed' && detail.completionNote ? (
-        <span className="inline-flex items-center text-xs text-emerald-600">
-          <span>(</span>
-          <button
-            type="button"
-            aria-label={t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
-            className="inline-flex items-center font-semibold hover:text-emerald-700"
-            onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-          >
-            <StickyNote className="size-3" />
-          </button>
-          <span>)</span>
-        </span>
-      ) : null}
-    </>
-  ) : null
+  const myRequestStatusNoteContent = null
   const myRequestStatusContent = detail != null ? (
     <>
       {myRequestStatusLabel}
-      {myRequestStatusNoteContent}
     </>
   ) : null
 
@@ -2444,34 +2412,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                         : getJobStatusLabel(t, detail.status))}
                                 {shouldShowJobStatusActorName(detail) ? ` (${detail.statusActorDisplayName})` : ''}
                               </span>
-                              {(detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason ? (
-                                <span className="inline-flex items-center text-red-600">
-                                  <span>(</span>
-                                  <button
-                                    type="button"
-                                    aria-label={t('jobs.detail.cancelNote', 'İptal Notu')}
-                                    className="inline-flex items-center font-semibold hover:text-red-700"
-                                    onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                  >
-                                    <StickyNote className="size-3" />
-                                  </button>
-                                  <span>)</span>
-                                </span>
-                              ) : null}
-                              {detail.status === 'Completed' && detail.completionNote ? (
-                                <span className="inline-flex items-center text-emerald-600">
-                                  <span>(</span>
-                                  <button
-                                    type="button"
-                                    aria-label={t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
-                                    className="inline-flex items-center font-semibold hover:text-emerald-700"
-                                    onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                                  >
-                                    <StickyNote className="size-3" />
-                                  </button>
-                                  <span>)</span>
-                                </span>
-                              ) : null}
                             </span>
                           ),
                         },
@@ -2961,7 +2901,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <MyRequestTaskDetailsSection
                 detail={detail}
                 locale={locale}
-                setConfirmDialog={setConfirmDialog}
                 onDownloadTaskAttachment={(attachmentId, fileName) => void handleDownloadTaskAttachment(attachmentId, fileName)}
               />
             )}

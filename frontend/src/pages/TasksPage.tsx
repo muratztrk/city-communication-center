@@ -2204,32 +2204,8 @@ const pageKicker = isMyTasksView
                               {taskDetail.statusActorDisplayName ? ` (${taskDetail.statusActorDisplayName})` : ''}
                             </span>
                           )
-                          // Durum + tıklanabilir İptal/Tamamlama Notu (card 642) — terminal adım yanında görünür.
-                          const statusNoteContent = taskDetail.currentStatus === 'Cancelled' && taskDetail.revisionReason ? (
-                            <span className="inline-flex items-center text-red-600">
-                              <span>(</span>
-                              <button
-                                type="button"
-                                className="font-semibold hover:text-red-700"
-                                onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), message: taskDetail.revisionReason!, hideCancel: true, variant: 'destructive', titleDivider: true, titleTone: 'danger', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                              >
-                                <span className="underline underline-offset-2">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>
-                              </button>
-                              <span>)</span>
-                            </span>
-                          ) : taskDetail.currentStatus === 'Completed' && taskDetail.notes ? (
-                            <span className="inline-flex items-center text-emerald-600">
-                              <span>(</span>
-                              <button
-                                type="button"
-                                className="font-semibold hover:text-emerald-700"
-                                onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(taskDetail.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                              >
-                                <span className="underline underline-offset-2">{t('tasks.detail.completionNote', 'Tamamlama Notu')}</span>
-                              </button>
-                              <span>)</span>
-                            </span>
-                          ) : undefined
+                          // Terminal notlar artık durum satırında gösterilmez; Görev Detayları kutusunda yer alır.
+                          const statusNoteContent = undefined
                           const dueDateContent = activeTaskEditDraft ? (
                             <div className="mt-1">
                               <DateTimePicker

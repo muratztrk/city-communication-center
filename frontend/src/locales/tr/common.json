@@ -720,6 +720,8 @@
       "cancelNote": "İptal Notu",
       "completionNote": "Tamamlama Notu",
       "completionNoteTitle": "Görev Tamamlama Notu",
+      "cancelNoteTitle": "Görev İptal Notu",
+      "noCancelNote": "İptal notu girilmemiş",
       "noCompletionNote": "Tamamlama notu girilmemiş",
       "assignmentHistory": "Atama Geçmişi",
       "taskAssignmentHistory": "Görev Atama Geçmişi",

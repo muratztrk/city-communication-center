@@ -64,13 +64,13 @@ function parseNotificationDetailTarget(url: string): { kind: 'task' | 'job' | 'u
     // actionUrl'in path'i bildirimin kimin görev listesini hedeflediğini zaten taşıyor
     // (ör. yöneticiye giden "ek süre talebi" bildirimi /department-tasks?taskId=... kullanır) —
     // önceden bu bilgi atılıp her zaman "Görevlerim" açılıyordu (card #1394).
-    const scope: 'mine' | 'department' = parsed.pathname.startsWith('/department-tasks') ? 'department' : 'mine'
+    const scope: 'mine' | 'department' = /^\/department-tasks(\/|$)/.test(parsed.pathname) ? 'department' : 'mine'
     if (taskId) return { kind: 'task', id: taskId, scope }
     if (jobId) return { kind: 'job', id: jobId }
   } catch {
     const taskMatch = url.match(/[?&]taskId=([^&]+)/)
     const jobMatch = url.match(/[?&]jobId=([^&]+)/)
-    const scope: 'mine' | 'department' = url.startsWith('/department-tasks') ? 'department' : 'mine'
+    const scope: 'mine' | 'department' = /^\/department-tasks(\/|\?|$)/.test(url) ? 'department' : 'mine'
     if (taskMatch) return { kind: 'task', id: decodeURIComponent(taskMatch[1]), scope }
     if (jobMatch) return { kind: 'job', id: decodeURIComponent(jobMatch[1]) }
   }

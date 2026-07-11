@@ -97,6 +97,32 @@ function DateDivider({ label, light = false }: { label: string; light?: boolean 
   )
 }
 
+// Konuşma değiştirilirken mesajlar yüklenene kadar boş/spinner alanı yerine gerçek mesaj
+// balonlarına benzeyen soluk iskelet gösterilir — üretim ortamındaki ağ gecikmesi sırasında
+// ekranın "boşalıp sonra dolması" hissini azaltır (kullanıcı geri bildirimi).
+function ConversationSkeleton() {
+  const bubbles = ['55%', '38%', '70%', '32%', '58%']
+  return (
+    <div aria-hidden="true" className="space-y-2.5">
+      {bubbles.map((width, index) => {
+        const isOutbound = index % 2 === 1
+        return (
+          <div key={index} className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}>
+            <div
+              className={`animate-pulse rounded-2xl px-4 py-2.5 shadow-sm ${
+                isOutbound ? 'rounded-tr-sm bg-slate-300/60' : 'rounded-tl-sm bg-white ring-1 ring-black/[0.04]'
+              }`}
+              style={{ width }}
+            >
+              <div className={`h-2.5 rounded-full ${isOutbound ? 'bg-slate-400/60' : 'bg-slate-200'}`} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function findClosestTimelineEntryIndex(
   timeline: CitizenConversationTimelineEntry[],
   anchorAtUtc: string,
@@ -1169,9 +1195,7 @@ function ConversationDetail({
             className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
           >
             {loading ? (
-              <div className="flex h-full items-center justify-center">
-                <Loader2 className="size-5 animate-spin text-[color:var(--color-primary)]" />
-              </div>
+              <ConversationSkeleton />
             ) : !detail || visibleTimeline.length === 0 ? (
               <p className="mt-8 text-center text-sm text-slate-500">
                 {normalizedChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}

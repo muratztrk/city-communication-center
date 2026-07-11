@@ -518,6 +518,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   "İptal notu girilmemiş" yalnızca ikisi de boşsa yazılır.
 - **Açıklama alanı başlıkları:** talep/rutin/vatandaş/e-Devlet açıklama giriş başlıklarında
   `(max 400 karakter) *` ibaresi görünür; RichTextEditor zaten 400 düz-metin karakter sınırını uygular.
+- **Talep oluşturma Açıklama editörü yüksekliği (card #1533):** içerik aşağı uzayınca kutu
+  büyümez; `min-height` = `max-height` + `overflow-y: auto` ile dikey scroll açılır
+  (`RichTextEditor` ve e-Devlet dönüşüm textarea'sı).
 - **Grid başlık casing/padding:** TÜM gridview header'ları (`data-table`, `table-container`,
   `wallboard-table`) `text-transform: uppercase` kullanır (card #1342 — #1318'i tersine çevirdi);
   `FilterableTh` label/ikon aralığı iki ayırıcı arasında dengeli olmalıdır.

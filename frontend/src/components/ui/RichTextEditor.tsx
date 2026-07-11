@@ -146,6 +146,19 @@ function getSelectionCommands(editor: HTMLElement): Partial<Record<RichTextComma
   return commands
 }
 
+const MIN_TO_MAX_HEIGHT: Record<string, string> = {
+  'min-h-72': 'max-h-72',
+  'min-h-64': 'max-h-64',
+  'min-h-48': 'max-h-48',
+  'min-h-40': 'max-h-40',
+  'min-h-28': 'max-h-28',
+}
+
+function toMaxHeightClass(minHeightClass: string): string {
+  // Tailwind JIT için sınıflar kaynakta literal görünmeli; runtime replace yetmez (card #1533).
+  return MIN_TO_MAX_HEIGHT[minHeightClass] ?? minHeightClass.replace(/\bmin-h-/g, 'max-h-')
+}
+
 export function RichTextEditor({
   value,
   onChange,
@@ -159,6 +172,7 @@ export function RichTextEditor({
   const lastCommittedHtmlRef = useRef<string | null>(null)
   const normalizedValue = useMemo(() => normalizeEditorValue(value || ''), [value])
   const [activeCommands, setActiveCommands] = useState<Partial<Record<RichTextCommand, boolean>>>({})
+  const maxHeight = useMemo(() => toMaxHeightClass(minHeight), [minHeight])
 
   const emitChange = useCallback(() => {
     const editor = editorRef.current
@@ -266,7 +280,7 @@ export function RichTextEditor({
 
       <div
         ref={editorRef}
-        className={['rich-text-editable', minHeight, className].filter(Boolean).join(' ')}
+        className={['rich-text-editable', 'overflow-y-auto', minHeight, maxHeight, className].filter(Boolean).join(' ')}
         contentEditable
         dir="ltr"
         role="textbox"

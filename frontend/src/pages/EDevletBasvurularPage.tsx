@@ -366,7 +366,7 @@ export function EDevletBasvurularPage() {
               </label>
               <label className="grid gap-1 text-sm">
                 <span>{t('jobs.fields.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
-                <textarea className="min-h-28 rounded-[var(--radius-lg)] border border-[var(--color-border)] px-3 py-2" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                <textarea className="min-h-28 max-h-28 resize-none overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--color-border)] px-3 py-2" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} maxLength={400} />
               </label>
               <label className="grid gap-1 text-sm">
                 <span>{t('jobs.fields.ownerDepartment', 'Sahip Müdürlük')}</span>

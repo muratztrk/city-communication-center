@@ -1402,8 +1402,11 @@
 
   .rich-text-editable {
     width: 100%;
+    /* Sabit yükseklik: içerik uzayınca kutu büyümez, dikey scroll açılır (card #1533). */
     min-height: 14rem;
-    overflow: auto;
+    max-height: 14rem;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: 1rem;
     font-size: 13px;
     color: #0f172a;
@@ -2292,6 +2295,7 @@
   .citizen-request-form .rich-text-editable {
     font-size: 0.82rem;
     min-height: 6.5rem;
+    max-height: 6.5rem;
   }
 
   .request-actions button,

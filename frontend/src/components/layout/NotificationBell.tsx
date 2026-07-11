@@ -17,7 +17,10 @@ import { RichTextContent } from '../ui/RichTextContent'
 import { GridExtraTimeMarkers } from '../ui/extra-time-markers'
 
 type NotifFilter = 'all' | 'unread'
-export type NotificationDetailTarget = { kind: 'task' | 'job'; id: string }
+// scope: bildirim başkasına atanmış bir görevle ilgiliyse (ör. yöneticinin, personelinin ek süre
+// talebini incelemesi) "department" — Birimdeki Görevler başlığıyla açılmalı; kendi görevi ise
+// "mine" — Görevlerim başlığıyla (card #1394).
+export type NotificationDetailTarget = { kind: 'task' | 'job'; id: string; scope?: 'mine' | 'department' }
 
 interface NotificationBellProps {
   onOpenDetail?: (target: NotificationDetailTarget) => void
@@ -53,17 +56,22 @@ function formatNotifDate(value: string | null | undefined, locale: string) {
   })
 }
 
-function parseNotificationDetailTarget(url: string): { kind: 'task' | 'job' | 'unsupported'; id?: string } {
+function parseNotificationDetailTarget(url: string): { kind: 'task' | 'job' | 'unsupported'; id?: string; scope?: 'mine' | 'department' } {
   try {
     const parsed = new URL(url, window.location.origin)
     const taskId = parsed.searchParams.get('taskId')
     const jobId = parsed.searchParams.get('jobId')
-    if (taskId) return { kind: 'task', id: taskId }
+    // actionUrl'in path'i bildirimin kimin görev listesini hedeflediğini zaten taşıyor
+    // (ör. yöneticiye giden "ek süre talebi" bildirimi /department-tasks?taskId=... kullanır) —
+    // önceden bu bilgi atılıp her zaman "Görevlerim" açılıyordu (card #1394).
+    const scope: 'mine' | 'department' = parsed.pathname.startsWith('/department-tasks') ? 'department' : 'mine'
+    if (taskId) return { kind: 'task', id: taskId, scope }
     if (jobId) return { kind: 'job', id: jobId }
   } catch {
     const taskMatch = url.match(/[?&]taskId=([^&]+)/)
     const jobMatch = url.match(/[?&]jobId=([^&]+)/)
-    if (taskMatch) return { kind: 'task', id: decodeURIComponent(taskMatch[1]) }
+    const scope: 'mine' | 'department' = url.startsWith('/department-tasks') ? 'department' : 'mine'
+    if (taskMatch) return { kind: 'task', id: decodeURIComponent(taskMatch[1]), scope }
     if (jobMatch) return { kind: 'job', id: decodeURIComponent(jobMatch[1]) }
   }
   return { kind: 'unsupported' }
@@ -488,7 +496,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
     setIsModalOpen(false)
     if (target.kind === 'unsupported' || !target.id) return
 
-    onOpenDetail?.({ kind: target.kind, id: target.id })
+    onOpenDetail?.({ kind: target.kind, id: target.id, scope: target.scope })
   }
 
   const openModal = () => {

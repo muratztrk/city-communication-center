@@ -734,12 +734,22 @@ export function AppShell() {
       </div>
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
       {notificationDetailTarget?.kind === 'task' && (
-        <TasksPage
-          fixedScope="mine"
-          detailOnly
-          notificationTaskId={notificationDetailTarget.id}
-          onNotificationDetailClose={() => setNotificationDetailTarget(null)}
-        />
+        notificationDetailTarget.scope === 'department' ? (
+          <TasksPage
+            mode="departmentTasks"
+            fixedScope="department"
+            detailOnly
+            notificationTaskId={notificationDetailTarget.id}
+            onNotificationDetailClose={() => setNotificationDetailTarget(null)}
+          />
+        ) : (
+          <TasksPage
+            fixedScope="mine"
+            detailOnly
+            notificationTaskId={notificationDetailTarget.id}
+            onNotificationDetailClose={() => setNotificationDetailTarget(null)}
+          />
+        )
       )}
       {notificationDetailTarget?.kind === 'job' && (
         <JobsPage

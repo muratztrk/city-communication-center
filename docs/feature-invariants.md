@@ -561,6 +561,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   boş/uyumsuz olsa bile VT kanalı kaybolmamalıdır. VT job adaylığı yalnız `RequestType=Citizen`
   ile sınırlanmaz; `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}` veya linkli VT numaralı
   `SocialMessage.JobId` de grafiğe dahil olur.
+  Aynı kanal etiketi (`channel.Phone` vb.) hem linkli SocialMessage hem unlinked legacy
+  `SourceType=SocialMessage→Phone` yolundan gelirse tek dilimde birleştirilir — çift "Telefon"
+  dilimi olmaz. Unlinked `SocialMessage` + `RequestType≠Citizen` (orphan/test) grafiğe girmez.
 - **Dashboard status pie chart query'si görev→talep kaynak tipini navigation property'ye güvenmeden
   üretir:** chart endpoint'i orphan/eksik ilişki veya provider translation yüzünden tüm paneli
   hata banner'ına düşürmemeli (card #1251).

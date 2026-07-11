@@ -99,35 +99,52 @@ public sealed class GetCitizenChannelChartQueryHandler
 
         // Other VT jobs without a SocialMessage channel — group by SourceType, but legacy
         // SocialMessage-sourced call records are displayed as Phone, not "Sosyal Medya Mesajı".
+        // InternalUnit + SocialMessage legacy noise (test/orphan) vatandaş kanal grafiğine girmez.
         var otherCounts = await citizenJobs
-            .Where(j => !linkedCitizenMessages.Any(sm => sm.JobId == j.JobId))
+            .Where(j => !linkedCitizenMessages.Any(sm => sm.JobId == j.JobId)
+                && !(j.SourceType == JobSourceType.SocialMessage && j.RequestType != JobRequestType.Citizen))
             .GroupBy(j => j.SourceType)
             .Select(g => new { SourceType = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
-        var slices = new List<DashboardChartSlice>();
+        // Aynı kanal etiketi (ör. channel.Phone) social + unlinked kaynaklardan iki kez
+        // gelmesin — dilimleri label üzerinden birleştir (çift "Telefon" dilimi).
+        var sliceMap = new Dictionary<string, (int Count, string Color)>(StringComparer.Ordinal);
 
-        foreach (var item in socialCounts.OrderByDescending(x => x.Count))
+        void AddOrMerge(string label, int count, string color)
         {
-            slices.Add(new DashboardChartSlice(
-                $"channel.{item.Channel}",
-                item.Count,
-                GetSocialChannelColor(item.Channel)));
+            if (sliceMap.TryGetValue(label, out var existing))
+            {
+                sliceMap[label] = (existing.Count + count, existing.Color);
+            }
+            else
+            {
+                sliceMap[label] = (count, color);
+            }
         }
 
-        foreach (var item in otherCounts.OrderByDescending(x => x.Count))
+        foreach (var item in socialCounts)
+        {
+            AddOrMerge($"channel.{item.Channel}", item.Count, GetSocialChannelColor(item.Channel));
+        }
+
+        foreach (var item in otherCounts)
         {
             var channel = MapUnlinkedCitizenSourceToChannel(item.SourceType);
-            slices.Add(channel.HasValue
-                ? new DashboardChartSlice(
-                    $"channel.{channel.Value}",
-                    item.Count,
-                    GetSocialChannelColor(channel.Value))
-                : new DashboardChartSlice(
-                    $"sourceType.{item.SourceType}",
-                    item.Count,
-                    GetSourceTypeColor(item.SourceType)));
+            if (channel.HasValue)
+            {
+                AddOrMerge($"channel.{channel.Value}", item.Count, GetSocialChannelColor(channel.Value));
+            }
+            else
+            {
+                AddOrMerge($"sourceType.{item.SourceType}", item.Count, GetSourceTypeColor(item.SourceType));
+            }
         }
+
+        var slices = sliceMap
+            .OrderByDescending(kv => kv.Value.Count)
+            .Select(kv => new DashboardChartSlice(kv.Key, kv.Value.Count, kv.Value.Color))
+            .ToList();
 
         return new DashboardChartResponse("dashboard.citizenChannels.title", slices);
     }

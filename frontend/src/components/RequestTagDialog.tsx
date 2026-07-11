@@ -134,7 +134,13 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
                 options={tags.map(tag => ({ value: tag.tagId, label: tag.name }))}
                 value={selectedId ?? ''}
                 onChange={nextValue => setSelectedId(nextValue || null)}
-                placeholder={loading ? t('common.loading', 'Yükleniyor…') : t('whatsapp.selectRequestTag', 'Etiket seçin…')}
+                placeholder={
+                  loading
+                    ? t('common.loading', 'Yükleniyor…')
+                    : tags.length === 0
+                      ? t('whatsapp.noRequestTags', 'Henüz etiket yok.')
+                      : t('whatsapp.selectRequestTag', 'Etiket seçin…')
+                }
                 emptyText={t('whatsapp.noRequestTags', 'Henüz etiket yok.')}
                 disabled={loading}
               />

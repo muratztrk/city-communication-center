@@ -1107,14 +1107,6 @@ export function SettingsPage() {
     setTemplateEditorMode('classic')
   }
 
-  const startNewMetaTemplate = () => {
-    setSelectedTemplateId(null)
-    setTemplateForm({ ...EMPTY_TEMPLATE_FORM, channel: WHATSAPP_META_TEMPLATE_CHANNEL })
-    setKeywordInput('')
-    setIsNewTemplate(true)
-    setTemplateEditorMode('meta')
-  }
-
   const syncMetaTemplates = async () => {
     if (syncingMetaTemplates) return
     setSyncingMetaTemplates(true)
@@ -2519,13 +2511,6 @@ export function SettingsPage() {
                 className="flex items-center justify-center gap-2 rounded-xl bg-[color:var(--color-primary)] px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:opacity-90"
               >
                 + Yeni Şablon Oluştur
-              </button>
-              <button
-                type="button"
-                onClick={startNewMetaTemplate}
-                className="flex items-center justify-center gap-2 rounded-xl border border-orange-600 bg-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:bg-orange-600"
-              >
-                Yeni Meta Onaylı Şablon Oluştur
               </button>
               <button
                 type="button"

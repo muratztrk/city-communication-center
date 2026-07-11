@@ -439,7 +439,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünür kalır. Meta onaylı şablonlar için birincil yol **Meta'dan Senkronize Et** butonudur
   (`POST /whatsapp-templates/sync-from-meta`); yalnızca Graph'ta `APPROVED` olanlar upsert edilir,
   artık onaylı olmayan yerel `WhatsApp Meta` kayıtları `IsActive=false` yapılır. Elle Meta oluşturma
-  kalabilir ama 5'lik üst sınır yoktur. Şablon editöründeki `Sil` aksiyonu kırmızı arka planlı buton
+  butonu gizlidir — Meta onaylı şablonlar Meta Manager üzerinden oluşturulur, uygulamada birincil
+  yol senkrondur. Şablon editöründeki `Sil` aksiyonu kırmızı arka planlı buton
   olarak görünür; boş edit panelinde büyük `WA` placeholder'ı basılmaz.
 - **WhatsApp Meta şablon gönderimi `type: template`:** Operatör Meta kanalı şablon seçtiğinde reply /
   send-pending yolu serbest metin değil Cloud API `SendTemplateMessageAsync` kullanır; body

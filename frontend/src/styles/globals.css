@@ -315,7 +315,8 @@
     gap: 0.25rem;
   }
 
-  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label {
+  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label,
+  .detail-modal-shell .job-detail-field-row--request-info .job-detail-field-row__label {
     text-transform: none;
     letter-spacing: normal;
     font-size: 0.75rem;
@@ -325,30 +326,35 @@
   }
 
   /* Talep Bilgileri satırları gridview zebra satırları gibi dönüşümlü zeminlidir (card #1338). */
-  .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info {
+  .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info,
+  .detail-modal-shell .my-request-detail-fields .job-detail-field-row--request-info {
     padding-left: 0.6rem;
     padding-right: 0.6rem;
   }
 
-  .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info:nth-child(even) {
+  .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info:nth-child(even),
+  .detail-modal-shell .my-request-detail-fields .job-detail-field-row--request-info:nth-child(even) {
     background: #f8fafc;
   }
 
   /* Talep Bilgileri değerleri okunaklı ama daha az koyu kalır (card #1361). */
-  .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info .job-detail-field-row__value {
+  .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info .job-detail-field-row__value,
+  .detail-modal-shell .my-request-detail-fields .job-detail-field-row--request-info .job-detail-field-row__value {
     font-size: 0.8125rem;
     font-weight: 500;
   }
 
-  .detail-modal-shell--my-request .job-process-timeline__step-value {
+  .detail-modal-shell--my-request .job-process-timeline__step-value,
+  .detail-modal-shell .job-process-timeline__step-value {
     font-size: 0.75rem;
   }
 
-  .detail-modal-shell--my-request .job-process-timeline__step-value .text-xs {
+  .detail-modal-shell--my-request .job-process-timeline__step-value .text-xs,
+  .detail-modal-shell .job-process-timeline__step-value .text-xs {
     font-size: 0.6875rem;
   }
 
-  .detail-modal-shell--my-request .my-request-detail-main,
+  .detail-modal-shell .my-request-detail-main,
   .detail-modal-shell .my-request-task-details {
     border: none !important;
     background: transparent !important;

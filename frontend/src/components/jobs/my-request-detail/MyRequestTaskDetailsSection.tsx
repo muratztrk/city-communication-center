@@ -1,4 +1,4 @@
-import { Clock, FileText, Info } from 'lucide-react'
+import { Clock, FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentSection } from '../../ui/AttachmentSection'
@@ -24,9 +24,9 @@ export function MyRequestTaskDetailsSection({
 
   return (
     <section className="my-request-task-details form-card page-stack mb-5">
-      <div className="job-detail-section-title mb-1">
+      <MyRequestSectionHeading icon={ListChecks} tone="primary">
         {t('tasks.detail.title', 'Görev Detayları')}
-      </div>
+      </MyRequestSectionHeading>
       <div className="space-y-3">
         {detail.tasks.map(task => {
           const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
@@ -56,7 +56,7 @@ export function MyRequestTaskDetailsSection({
                 <MyRequestSectionHeading icon={Info}>
                   {t('tasks.detail.taskInfo', 'Görev Bilgileri')}
                 </MyRequestSectionHeading>
-                <div className="divide-y divide-slate-100">
+                <div className="my-request-detail-fields divide-y divide-slate-100">
                   {[
                     { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
                     { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
@@ -67,9 +67,9 @@ export function MyRequestTaskDetailsSection({
                       ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
                       : []),
                   ].map(({ label, value }) => (
-                    <div key={label} className="flex items-start gap-2 py-2">
-                      <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                      <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
+                    <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
+                      <div className="job-detail-field-row__label">{label}</div>
+                      <div className={`job-detail-field-row__value ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</div>
                     </div>
                   ))}
                 </div>

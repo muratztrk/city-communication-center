@@ -2295,7 +2295,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               {/* Talep Detayları başlığı, Görev popup'undaki "İlgili Talep Detayları"/"Görev Detayları"
                   kutularıyla aynı kart tasarımı (form-card page-stack) — üstte sadece çizgi yerine tam
                   kenarlıklı kart (card 650/386). */}
-              <section className="form-card page-stack mb-5">
+              <section className="my-request-detail-main form-card page-stack mb-5">
                 <MyRequestSectionHeading icon={ClipboardList} tone="primary">
                   {t('jobs.detail.requestInfo', 'Talep Detayları')}
                 </MyRequestSectionHeading>
@@ -2304,7 +2304,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <MyRequestSectionHeading icon={Info}>
                       {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
                     </MyRequestSectionHeading>
-                    <div className="divide-y divide-slate-100">
+                    <div className="my-request-detail-fields divide-y divide-slate-100">
                     {(isCitizenRequestDetail ? [
                       {
                         label: 'Vatandaş Talep No',
@@ -2372,9 +2372,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       // Yönlendirilen talebin sebebi, Öncelik/Proje satırının altında (card #1406).
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (
-                      <div key={label} className={`flex items-start gap-2 py-2${(label === 'Öncelik' && !forwardReason) || label === t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
-                        <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                        <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
+                      <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
+                        <div className="job-detail-field-row__label">{label}</div>
+                        <div className={`job-detail-field-row__value ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</div>
                       </div>
                     ))}
                     </div>

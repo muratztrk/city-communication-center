@@ -269,7 +269,14 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col overflow-y-auto">
+    <div className="relative flex min-h-dvh flex-col overflow-y-auto">
+      {/* Mobil: açık zemin üzerinde beyaz silüet görünmez → brightness-0 ile koyu silüet;
+          sayfa sol üst köşesine yerleştirilir (card #1205 reopen). */}
+      <img
+        src="/header-ataturk.png"
+        alt="Atatürk"
+        className="pointer-events-none absolute left-0 top-0 z-20 h-[4.5rem] w-auto select-none opacity-75 brightness-0 lg:hidden"
+      />
     <div className="flex flex-1 flex-col lg:my-8 lg:mx-4 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:overflow-hidden lg:rounded-3xl lg:shadow-2xl xl:mx-[12.5%] xl:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-16 xl:px-8 2xl:px-12 2xl:py-20"
@@ -335,16 +342,8 @@ export function LoginPage() {
           }}
         >
           <div className="w-full space-y-4">
-            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-7 py-4 sm:px-9 lg:hidden">
-              {/* Mobilde hero panel (ve içindeki Atatürk görseli) tamamen gizli olduğu için burada
-                  ayrıca gösterilmesi gerekiyor (card #1205). */}
-              <img
-                src="/header-ataturk.png"
-                alt="Atatürk"
-                className="absolute left-2 top-2 h-12 w-auto opacity-80 select-none pointer-events-none"
-              />
-              {/* Beyaz alan yatayda geniş; logo object-contain ile yükseklik sınırlı kalır,
-                  boyutu değişmez ve kenarlarla arasında boşluk doğar (card #1398). */}
+            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-7 py-4 pt-16 sm:px-9 lg:hidden">
+              {/* Atatürk sayfa kökünde (sol üst); panel üst padding çakışmayı önler. */}
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}

@@ -477,6 +477,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilmez; breadcrumb doğrudan `Anasayfa > Vatandaş Talepleri` olur (card #1262).
 - **Login logosu HER ZAMAN `/tire-belediyesi-logo.png`** (LoginPage `LOGIN_LOGO_*_SRC`) —
   tenant `appearance.logoUrl` ile override edilmez.
+- **Mobil login Atatürk görseli:** `/header-ataturk.png` (beyaz silüet) sayfa sol üst köşesinde
+  `lg:hidden` ile gösterilir; açık login zemininde görünürlük için `brightness-0` (koyu silüet)
+  uygulanır. Desktop hero koyu zeminde beyaz silüet kalır.
+- **Mobil sol menü belediye logosu:** drawer marka alanında varsayılan 96px kare değil, daha geniş
+  `MunicipalitySeal` (yaklaşık `h-28 w-52`) kullanılır; Atatürk sol üstte kalır.
 - **Mobil login logo çerçevesi yatayda geniş kalır:** kompakt login logo kartının yatay
   padding'i ve kart genişliği daraltılıp kare karta geri döndürülmez; panel viewport içinde biraz
   dışa taşarak genişler, logo etrafındaki beyaz alanda yatay nefes payı olur ve logo boyutu sabit kalır.

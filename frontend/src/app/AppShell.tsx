@@ -461,16 +461,21 @@ export function AppShell() {
           onKeyDown={(e) => { if (e.key === 'Escape') setIsMobileNavOpen(false) }}>
           <button type="button" className="absolute inset-0 bg-slate-950/40" onClick={() => setIsMobileNavOpen(false)} aria-label="Close navigation" />
           <aside className="sidebar-shell relative z-10 flex h-full w-[88vw] max-w-[320px] flex-col p-3 shadow-2xl">
-            <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3">
-              {/* Desktop sidebar'daki gibi sol üst köşede Atatürk görseli; mobil menüde hiç yoktu
-                  ve belediye logosu (compact, 64px) çok küçüktü (card #1205). */}
+            <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3 pt-14">
+              {/* Desktop sidebar'daki gibi sol üst köşede Atatürk; belediye logosu mobil menüde
+                  daha geniş (varsayılan 96px kare çok küçüktü) (card #1205). */}
               <img
                 src="/header-ataturk.png"
                 alt="Atatürk"
-                className="absolute left-0 top-0 h-14 w-auto opacity-80 select-none pointer-events-none z-10"
+                className="absolute left-0 top-0 z-10 h-16 w-auto select-none opacity-80 pointer-events-none"
               />
               <div className="flex min-w-0 flex-col items-center gap-3 pr-12 text-center">
-                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} />
+                <MunicipalitySeal
+                  alt={`${institutionName} logo`}
+                  src={logoUrl}
+                  className="h-28 w-52 max-w-full border-white/25"
+                  imageClassName="h-[86%] w-[90%]"
+                />
                 <div className="min-w-0">
                   <div className="text-2xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
                 </div>

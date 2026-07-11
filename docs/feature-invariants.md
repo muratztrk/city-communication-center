@@ -436,8 +436,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; sol üst aksiyon butonu
   `+ Yeni Şablon Oluştur` metnini gösterir; form içinde
   `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri
-  görünür kalır; WhatsApp Meta onaylı 3-şablon sınırı burada uygulanmaz. Şablon editöründeki
-  `Sil` aksiyonu kırmızı arka planlı buton olarak görünür; boş edit panelinde büyük `WA` placeholder'ı basılmaz.
+  görünür kalır. Meta onaylı şablonlar için birincil yol **Meta'dan Senkronize Et** butonudur
+  (`POST /whatsapp-templates/sync-from-meta`); yalnızca Graph'ta `APPROVED` olanlar upsert edilir,
+  artık onaylı olmayan yerel `WhatsApp Meta` kayıtları `IsActive=false` yapılır. Elle Meta oluşturma
+  kalabilir ama 5'lik üst sınır yoktur. Şablon editöründeki `Sil` aksiyonu kırmızı arka planlı buton
+  olarak görünür; boş edit panelinde büyük `WA` placeholder'ı basılmaz.
+- **WhatsApp Meta şablon gönderimi `type: template`:** Operatör Meta kanalı şablon seçtiğinde reply /
+  send-pending yolu serbest metin değil Cloud API `SendTemplateMessageAsync` kullanır; body
+  değişkeni (`{{1}}` vb.) içeren şablonlar v1'de Türkçe validasyon ile reddedilir. 24s penceresi
+  dışında yalnızca Meta şablon seçiliyken gönderim açılır.
 - **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
   `Açık Adres`) üçlü yan yana düzende tek satır kalır; alt çizgi metin dekorasyonu değil,
   görseldeki gibi hafif açık gri label alt sınır çizgisidir. Boş değer çizgisi bu görünümde

@@ -74,11 +74,20 @@ public sealed class SendPendingConversationEntryCommandHandler
                 return new SendPendingConversationEntryResult(true, false);
             }
 
-            var sendResult = await client.SendMessageAsync(new SendMessageRequest
-            {
-                RecipientId = recipientPhone,
-                Message = entry.Content
-            }, cancellationToken);
+            var sendResult = !string.IsNullOrWhiteSpace(entry.WhatsAppTemplateName)
+                ? await SendWhatsAppTemplateOrFailAsync(
+                    tenantId,
+                    recipientPhone,
+                    entry.WhatsAppTemplateName,
+                    entry.WhatsAppTemplateLanguage,
+                    entry.Content,
+                    client,
+                    cancellationToken)
+                : await client.SendMessageAsync(new SendMessageRequest
+                {
+                    RecipientId = recipientPhone,
+                    Message = entry.Content
+                }, cancellationToken);
 
             if (sendResult.Success)
             {
@@ -123,5 +132,30 @@ public sealed class SendPendingConversationEntryCommandHandler
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return new SendPendingConversationEntryResult(true, entry.DeliveryStatus != ConversationDeliveryStatus.Failed);
+    }
+
+    private async Task<SocialMediaResult> SendWhatsAppTemplateOrFailAsync(
+        Guid tenantId,
+        string recipientPhone,
+        string templateName,
+        string? templateLanguage,
+        string content,
+        ISocialMediaClient fallbackClient,
+        CancellationToken cancellationToken)
+    {
+        WhatsAppMetaTemplateGuard.EnsureNoBodyVariables(content);
+        var templateClient = _clientFactory.GetWhatsAppTemplateClient(tenantId)
+            ?? fallbackClient as IWhatsAppTemplateClient;
+        if (templateClient is null)
+        {
+            return SocialMediaResult.Fail("WhatsApp şablon istemcisi yapılandırılmadı.");
+        }
+
+        return await templateClient.SendTemplateMessageAsync(
+            recipientPhone,
+            templateName,
+            string.IsNullOrWhiteSpace(templateLanguage) ? "tr" : templateLanguage,
+            parameters: null,
+            cancellationToken);
     }
 }

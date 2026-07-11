@@ -58,6 +58,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const locale = getLocale(i18n.language)
   const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
   const [replyText, setReplyText] = useState('')
+  const [selectedMetaTemplate, setSelectedMetaTemplate] = useState<{ name: string; language: string; templateId?: string } | null>(null)
   const [sending, setSending] = useState(false)
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
@@ -71,8 +72,24 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     queryKey: queryKeys.userQuickReplies.list(),
     queryFn: () => api.getUserQuickReplies(),
   })
+  const whatsAppTemplatesQuery = useQuery({
+    queryKey: queryKeys.whatsappTemplates.list(),
+    queryFn: () => api.getWhatsAppTemplates(),
+  })
   const entries = useMemo(() => conversationQuery.data ?? [], [conversationQuery.data])
-  const userQuickReplies = userQuickRepliesQuery.data ?? []
+  const userQuickReplies = useMemo(() => {
+    const metaTemplates = (whatsAppTemplatesQuery.data ?? [])
+      .filter(template => template.isActive && template.channel === 'WhatsApp Meta')
+      .map(template => ({
+        templateId: template.templateId,
+        name: template.name,
+        content: template.content,
+        source: 'meta' as const,
+        metaLanguageCode: template.metaLanguageCode ?? 'tr',
+      }))
+    const personal = (userQuickRepliesQuery.data ?? []).map(template => ({ ...template, source: 'user' as const }))
+    return [...metaTemplates, ...personal]
+  }, [userQuickRepliesQuery.data, whatsAppTemplatesQuery.data])
   const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null
   const lastEntryKey = lastEntry
     ? `${lastEntry.entryId}-${lastEntry.sentAt}-${lastEntry.deliveryStatus ?? ''}`
@@ -97,8 +114,20 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     if (!text || sending) return
     setSending(true)
     try {
-      await api.replySocialMessage(socialMessageId, text)
+      await api.replySocialMessage(
+        socialMessageId,
+        text,
+        false,
+        selectedMetaTemplate
+          ? {
+              whatsAppTemplateId: selectedMetaTemplate.templateId,
+              whatsAppTemplateName: selectedMetaTemplate.name,
+              whatsAppTemplateLanguage: selectedMetaTemplate.language,
+            }
+          : undefined,
+      )
       setReplyText('')
+      setSelectedMetaTemplate(null)
       invalidateSocialMessages(queryClient, socialMessageId)
       onReplySent?.()
     } finally {
@@ -231,7 +260,18 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
           <div className="flex flex-wrap items-center gap-2">
             <WhatsAppTemplatePicker
               userQuickReplies={userQuickReplies}
-              onSelect={content => setReplyText(content)}
+              onSelect={template => {
+                setReplyText(template.content)
+                if (template.source === 'meta') {
+                  setSelectedMetaTemplate({
+                    name: template.name,
+                    language: template.metaLanguageCode ?? 'tr',
+                    templateId: template.templateId,
+                  })
+                } else {
+                  setSelectedMetaTemplate(null)
+                }
+              }}
               menuAlign="start"
             />
             <UserQuickReplyAddButton onChanged={() => { void userQuickRepliesQuery.refetch() }} />
@@ -264,7 +304,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             <textarea
               rows={3}
               value={replyText}
-              onChange={e => setReplyText(e.target.value)}
+              onChange={e => {
+                setReplyText(e.target.value)
+                setSelectedMetaTemplate(null)
+              }}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}
               placeholder={t('social.replyPlaceholder', 'Yanıt yaz…')}
               className="field-input min-w-0 flex-1 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"

@@ -46,6 +46,15 @@ public sealed class WhatsAppMessageTemplate : AuditableTenantEntity, IHasDatabas
     /// <summary>When enabled, Saturday and Sunday are active for all hours regardless of start/end time.</summary>
     public bool TimedReplyWeekendAllHours { get; set; }
 
+    /// <summary>Meta Graph language code (e.g. tr, en_US) when channel is WhatsApp Meta.</summary>
+    public string? MetaLanguageCode { get; set; }
+
+    /// <summary>Meta message template id from Graph API.</summary>
+    public string? MetaExternalId { get; set; }
+
+    /// <summary>Meta approval status (APPROVED, …).</summary>
+    public string? MetaStatus { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 
     public static IReadOnlyList<DatabaseIndexDefinition> GetDatabaseIndexDefinitions() =>

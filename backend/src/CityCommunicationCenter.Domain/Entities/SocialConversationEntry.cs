@@ -32,5 +32,11 @@ public sealed class SocialConversationEntry
 
     public DateTimeOffset? EditedAtUtc { get; set; }
 
+    /// <summary>WhatsApp Cloud API template name when outbound was queued/sent as type=template.</summary>
+    public string? WhatsAppTemplateName { get; set; }
+
+    /// <summary>WhatsApp Cloud API template language code (e.g. tr).</summary>
+    public string? WhatsAppTemplateLanguage { get; set; }
+
     public SocialMessage SocialMessage { get; set; } = null!;
 }

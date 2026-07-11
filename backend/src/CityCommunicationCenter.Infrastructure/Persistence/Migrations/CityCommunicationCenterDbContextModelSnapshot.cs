@@ -1577,6 +1577,16 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("socialmessageid");
 
+                    b.Property<string>("WhatsAppTemplateLanguage")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("whatsapptemplatelanguage");
+
+                    b.Property<string>("WhatsAppTemplateName")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("whatsapptemplatename");
+
                     b.HasKey("EntryId");
 
                     b.HasIndex("ExternalEntryId")
@@ -2061,6 +2071,21 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("keywordsjson");
+
+                    b.Property<string>("MetaExternalId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("metaexternalid");
+
+                    b.Property<string>("MetaLanguageCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("metalanguagecode");
+
+                    b.Property<string>("MetaStatus")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("metastatus");
 
                     b.Property<string>("Name")
                         .IsRequired()

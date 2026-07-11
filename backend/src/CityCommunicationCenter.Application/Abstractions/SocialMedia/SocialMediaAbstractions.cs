@@ -16,12 +16,31 @@ public interface ISocialMediaClientFactory
     ISocialMediaClient? GetClient(SocialChannel channel, Guid tenantId);
     IEnumerable<ISocialMediaClient> GetAllClients(Guid tenantId);
     bool IsChannelConfigured(SocialChannel channel, Guid tenantId);
+    IWhatsAppTemplateClient? GetWhatsAppTemplateClient(Guid tenantId);
 }
 
 public interface IWhatsAppMediaClient
 {
     Task<SocialMediaResult> SendUploadedMediaMessageAsync(SendUploadedMediaMessageRequest request, CancellationToken ct = default);
 }
+
+public interface IWhatsAppTemplateClient
+{
+    Task<IReadOnlyList<WhatsAppMetaTemplateInfo>> ListApprovedMessageTemplatesAsync(CancellationToken ct = default);
+    Task<SocialMediaResult> SendTemplateMessageAsync(
+        string phoneNumber,
+        string templateName,
+        string languageCode,
+        Dictionary<string, string>? parameters = null,
+        CancellationToken ct = default);
+}
+
+public sealed record WhatsAppMetaTemplateInfo(
+    string Name,
+    string LanguageCode,
+    string? ExternalId,
+    string Status,
+    string BodyText);
 
 public interface ISocialMediaSettingsProvider
 {

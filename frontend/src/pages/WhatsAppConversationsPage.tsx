@@ -694,6 +694,7 @@ function ConversationDetail({
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
+  const [selectedMetaTemplate, setSelectedMetaTemplate] = useState<{ name: string; language: string; templateId?: string } | null>(null)
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [sending, setSending] = useState(false)
@@ -876,7 +877,8 @@ function ConversationDetail({
     const text = replyText.trim()
     if ((!text && !pendingFile) || sending || !detail) return
 
-    if (!is24hWindowOpen(detail.lastInboundAt ?? null)) {
+    const usingMetaTemplate = Boolean(selectedMetaTemplate)
+    if (!is24hWindowOpen(detail.lastInboundAt ?? null) && !usingMetaTemplate) {
       setConfirmDialog({
         title: 'Meta Onaylı Şablon Mesajı',
         titleDivider: true,
@@ -897,10 +899,22 @@ function ConversationDetail({
       if (pendingFile) {
         await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, true)
       } else {
-        await api.replySocialMessage(openTicket.socialMessageId, text, true)
+        await api.replySocialMessage(
+          openTicket.socialMessageId,
+          text,
+          true,
+          selectedMetaTemplate
+            ? {
+                whatsAppTemplateId: selectedMetaTemplate.templateId,
+                whatsAppTemplateName: selectedMetaTemplate.name,
+                whatsAppTemplateLanguage: selectedMetaTemplate.language,
+              }
+            : undefined,
+        )
       }
       if (latestConversationIdRef.current === sentForConversationId) {
         setReplyText('')
+        setSelectedMetaTemplate(null)
         setPendingFile(null)
         setPendingFileEditing(false)
         setIsPinnedToBottom(true)
@@ -1279,7 +1293,20 @@ function ConversationDetail({
                 />
                 <WhatsAppTemplatePicker
                   userQuickReplies={userQuickReplies}
-                  onSelect={content => setReplyText(content)}
+                  onSelect={template => {
+                    setReplyText(template.content)
+                    if (template.source === 'meta') {
+                      setSelectedMetaTemplate({
+                        name: template.name,
+                        language: template.metaLanguageCode ?? 'tr',
+                        templateId: template.templateId.startsWith('meta-')
+                          ? template.templateId.slice('meta-'.length)
+                          : template.templateId,
+                      })
+                    } else {
+                      setSelectedMetaTemplate(null)
+                    }
+                  }}
                 />
                 <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
                 <button
@@ -1317,14 +1344,17 @@ function ConversationDetail({
                 <textarea
                   rows={2}
                   value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
+                  onChange={e => {
+                    setReplyText(e.target.value)
+                    setSelectedMetaTemplate(null)
+                  }}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
                       void handleSend()
                     }
                   }}
-                  placeholder={windowOpen ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
+                  placeholder={windowOpen || selectedMetaTemplate ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
                   disabled={!windowOpen && !hasSelectableTemplates}
                   className="field-input min-h-[3.25rem] max-h-28 flex-1 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
                 />
@@ -1407,6 +1437,7 @@ export function WhatsAppConversationsPage() {
                 name: template.name,
                 content: template.content,
                 source: 'meta' as const,
+                metaLanguageCode: template.metaLanguageCode ?? 'tr',
               }))
           : []
         setUserQuickReplies([
@@ -1484,6 +1515,7 @@ export function WhatsAppConversationsPage() {
             name: template.name,
             content: template.content,
             source: 'meta' as const,
+            metaLanguageCode: template.metaLanguageCode ?? 'tr',
           })),
         ...quickReplies.map(template => ({ ...template, source: 'user' as const })),
       ])

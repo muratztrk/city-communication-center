@@ -191,8 +191,14 @@ Operatör sosyal mesaj detayından talep oluşturduğunda:
 WhatsApp üzerinden cevap gönderirken:
 
 - 24 saatlik müşteri hizmet penceresi içinde serbest mesaj gönderilebilir.
-- 24 saat dışında template mesaj gerekebilir.
+- 24 saat dışında template mesaj gerekir; uygulama Meta onaylı şablon seçildiğinde Cloud API
+  `type: template` gönderir (`SendTemplateMessageAsync`).
 - Template onayları Meta tarafında yönetilir.
+- Ayarlar → Taslak Mesajlar → **Meta'dan Senkronize Et** (`POST /api/v1/whatsapp-templates/sync-from-meta`)
+  WABA'daki `APPROVED` şablonları yerel `WhatsApp Meta` kayıtlarına upsert eder; artık onaylı
+  olmayan yerel Meta kayıtları pasifleştirilir.
+- Değişken içeren (`{{1}}`) şablonlar listede görünebilir; v1 gönderiminde parametre UI'si yoktur
+  ve backend bunları Türkçe validasyon ile reddeder.
 
 Uygulamadaki WhatsApp şablon ekranı template kayıtlarını yönetmek için kullanılır.
 

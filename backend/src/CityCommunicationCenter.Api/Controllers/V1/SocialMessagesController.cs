@@ -186,7 +186,14 @@ public sealed class SocialMessagesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var ok = await _sender.Send(
-            new ReplyToSocialMessageCommand(messageId, CurrentContext.UserId, request.Content, request.SendImmediately),
+            new ReplyToSocialMessageCommand(
+                messageId,
+                CurrentContext.UserId,
+                request.Content,
+                request.SendImmediately,
+                request.WhatsAppTemplateId,
+                request.WhatsAppTemplateName,
+                request.WhatsAppTemplateLanguage),
             cancellationToken);
         if (!ok) return NotFound();
         return NoContent();

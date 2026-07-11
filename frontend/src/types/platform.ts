@@ -524,6 +524,15 @@ export interface WhatsAppMessageTemplate {
   timedReplyEndTime: string;
   timedReplyWeekendAllHours: boolean;
   activeDays: string[];
+  metaLanguageCode?: string | null;
+  metaExternalId?: string | null;
+  metaStatus?: string | null;
+}
+
+export interface WhatsAppTemplatesSyncFromMetaResult {
+  imported: number;
+  updated: number;
+  deactivated: number;
 }
 
 export interface UserQuickReplyTemplate {
@@ -531,6 +540,7 @@ export interface UserQuickReplyTemplate {
   name: string;
   content: string;
   source?: 'user' | 'meta';
+  metaLanguageCode?: string | null;
 }
 
 export interface RequestTag {

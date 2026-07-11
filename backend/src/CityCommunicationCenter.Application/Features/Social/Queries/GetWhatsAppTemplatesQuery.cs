@@ -49,7 +49,10 @@ public sealed class GetWhatsAppTemplatesQueryHandler
                 t.TimedReplyStartTime,
                 t.TimedReplyEndTime,
                 ParseKeywords(t.ActiveDaysJson),
-                t.TimedReplyWeekendAllHours))
+                t.TimedReplyWeekendAllHours,
+                t.MetaLanguageCode,
+                t.MetaExternalId,
+                t.MetaStatus))
             .ToList();
     }
 

@@ -440,6 +440,9 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.ToTable("whatsapptemplates");
         builder.HasKey(e => e.TemplateId);
         builder.Property(e => e.KeywordsJson).HasColumnType("text");
+        builder.Property(e => e.MetaLanguageCode).HasMaxLength(20);
+        builder.Property(e => e.MetaExternalId).HasMaxLength(64);
+        builder.Property(e => e.MetaStatus).HasMaxLength(32);
         builder.HasOne(e => e.Tenant)
             .WithMany()
             .HasForeignKey(e => e.TenantId)
@@ -480,6 +483,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(e => e.SenderLabel).HasMaxLength(200);
         builder.Property(e => e.DeliveryStatus).HasConversion<string>();
         builder.Property(e => e.DeliveryError).HasMaxLength(500);
+        builder.Property(e => e.WhatsAppTemplateName).HasMaxLength(512);
+        builder.Property(e => e.WhatsAppTemplateLanguage).HasMaxLength(20);
         builder.HasOne(e => e.SocialMessage)
             .WithMany()
             .HasForeignKey(e => e.SocialMessageId)

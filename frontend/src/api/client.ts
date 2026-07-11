@@ -48,6 +48,7 @@ import type {
   CitizenConversationSummary,
   CitizenConversationDetail,
   WhatsAppMessageTemplate,
+  WhatsAppTemplatesSyncFromMetaResult,
   UserQuickReplyTemplate,
   RequestTag,
 } from '../types/platform'
@@ -999,11 +1000,26 @@ export const api = {
     return response.json() as Promise<SocialConversationEntry[]>
   },
 
-  async replySocialMessage(socialMessageId: string, content: string, sendImmediately = false): Promise<void> {
+  async replySocialMessage(
+    socialMessageId: string,
+    content: string,
+    sendImmediately = false,
+    options?: {
+      whatsAppTemplateId?: string
+      whatsAppTemplateName?: string
+      whatsAppTemplateLanguage?: string
+    },
+  ): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/reply`, {
       method: 'POST',
       headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, sendImmediately }),
+      body: JSON.stringify({
+        content,
+        sendImmediately,
+        whatsAppTemplateId: options?.whatsAppTemplateId ?? null,
+        whatsAppTemplateName: options?.whatsAppTemplateName ?? null,
+        whatsAppTemplateLanguage: options?.whatsAppTemplateLanguage ?? null,
+      }),
     })
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
@@ -1124,6 +1140,15 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/whatsapp-templates`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.socialSettingsLoadFailed'))
     return response.json() as Promise<WhatsAppMessageTemplate[]>
+  },
+
+  async syncWhatsAppTemplatesFromMeta(): Promise<WhatsAppTemplatesSyncFromMetaResult> {
+    const response = await fetchWithCredentials(`${API_BASE}/whatsapp-templates/sync-from-meta`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, 'Meta şablonları senkronize edilemedi.')
+    return response.json() as Promise<WhatsAppTemplatesSyncFromMetaResult>
   },
 
   async createWhatsAppTemplate(data: Omit<WhatsAppMessageTemplate, 'templateId'>): Promise<void> {

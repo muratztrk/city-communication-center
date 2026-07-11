@@ -175,7 +175,12 @@ public sealed record SocialConversationEntryDto(
     string? RelatedJobTerminalNote = null,
     Guid? SocialMessageId = null);
 
-public sealed record SocialReplyRequest(string Content, bool SendImmediately = false);
+public sealed record SocialReplyRequest(
+    string Content,
+    bool SendImmediately = false,
+    Guid? WhatsAppTemplateId = null,
+    string? WhatsAppTemplateName = null,
+    string? WhatsAppTemplateLanguage = null);
 
 public sealed record SocialInternalConversationMessageRequest(Guid DepartmentId, string Content);
 
@@ -293,7 +298,12 @@ public sealed record WhatsAppMessageTemplateDto(
     string? TimedReplyStartTime,
     string? TimedReplyEndTime,
     IReadOnlyList<string> ActiveDays,
-    bool TimedReplyWeekendAllHours);
+    bool TimedReplyWeekendAllHours,
+    string? MetaLanguageCode = null,
+    string? MetaExternalId = null,
+    string? MetaStatus = null);
+
+public sealed record WhatsAppTemplatesSyncFromMetaResult(int Imported, int Updated, int Deactivated);
 
 public sealed record WhatsAppMessageTemplateRequest(
     string Name,

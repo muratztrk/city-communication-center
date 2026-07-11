@@ -4,7 +4,10 @@ public sealed record ReplyToSocialMessageCommand(
     Guid SocialMessageId,
     Guid? ActorUserId,
     string Content,
-    bool SendImmediately = false) : ICommand<bool>;
+    bool SendImmediately = false,
+    Guid? WhatsAppTemplateId = null,
+    string? WhatsAppTemplateName = null,
+    string? WhatsAppTemplateLanguage = null) : ICommand<bool>;
 
 public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyToSocialMessageCommand, bool>
 {
@@ -31,6 +34,14 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
 
         if (message is null) return false;
 
+        var (templateName, templateLanguage, content) = await ResolveWhatsAppTemplateAsync(
+            tenantId,
+            request.Content,
+            request.WhatsAppTemplateId,
+            request.WhatsAppTemplateName,
+            request.WhatsAppTemplateLanguage,
+            cancellationToken);
+
         var senderLabel = await ResolveStaffSenderLabelAsync(tenantId, request.ActorUserId, cancellationToken);
         var utcNow = DateTimeOffset.UtcNow;
 
@@ -41,7 +52,7 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         // Varsayılan WhatsApp yanıtları "Beklemede" kuyruğa alınır; /whatsapp direkt operatör
         // yazımı açıkça isterse aynı endpoint üzerinden hemen iletilir.
         var isWhatsApp = message.Channel == SocialChannel.WhatsApp;
-        if (isWhatsApp && request.SendImmediately && LooksLikeAttachmentPlaceholder(request.Content))
+        if (isWhatsApp && request.SendImmediately && LooksLikeAttachmentPlaceholder(content))
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(
@@ -72,11 +83,33 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                     }
                 }
 
-                var sendResult = await client.SendMessageAsync(new SendMessageRequest
+                SocialMediaResult sendResult;
+                if (isWhatsApp && !string.IsNullOrWhiteSpace(templateName))
                 {
-                    RecipientId = recipientId,
-                    Message = request.Content
-                }, cancellationToken);
+                    var templateClient = _clientFactory.GetWhatsAppTemplateClient(tenantId)
+                        ?? client as IWhatsAppTemplateClient;
+                    if (templateClient is null)
+                    {
+                        sendResult = SocialMediaResult.Fail("WhatsApp şablon istemcisi yapılandırılmadı.");
+                    }
+                    else
+                    {
+                        sendResult = await templateClient.SendTemplateMessageAsync(
+                            recipientId,
+                            templateName,
+                            templateLanguage ?? "tr",
+                            parameters: null,
+                            cancellationToken);
+                    }
+                }
+                else
+                {
+                    sendResult = await client.SendMessageAsync(new SendMessageRequest
+                    {
+                        RecipientId = recipientId,
+                        Message = content
+                    }, cancellationToken);
+                }
 
                 if (isWhatsApp)
                 {
@@ -105,19 +138,21 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             EntryId = Guid.NewGuid(),
             SocialMessageId = request.SocialMessageId,
             Direction = ConversationEntryDirection.Outbound,
-            Content = request.Content,
+            Content = content,
             SentAt = utcNow,
             SenderLabel = senderLabel,
             ExternalEntryId = externalEntryId,
             DeliveryStatus = deliveryStatus,
             DeliveryStatusUpdatedAtUtc = deliveryStatus.HasValue ? utcNow : null,
             DeliveryError = deliveryError,
+            WhatsAppTemplateName = templateName,
+            WhatsAppTemplateLanguage = templateLanguage,
         });
 
         // Kuyruğa alınan WhatsApp mesajı henüz iletilmedi → "Yanıtlandı" gerçek gönderimde işlenir.
         if (!isWhatsApp || request.SendImmediately)
         {
-            message.ResponseContent = request.Content;
+            message.ResponseContent = content;
             message.RespondedAtUtc = utcNow;
             if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
             {
@@ -127,6 +162,78 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    private async Task<(string? TemplateName, string? TemplateLanguage, string Content)> ResolveWhatsAppTemplateAsync(
+        Guid tenantId,
+        string content,
+        Guid? templateId,
+        string? templateName,
+        string? templateLanguage,
+        CancellationToken cancellationToken)
+    {
+        if (!templateId.HasValue
+            && string.IsNullOrWhiteSpace(templateName))
+        {
+            return (null, null, content);
+        }
+
+        WhatsAppMessageTemplate? template = null;
+        if (templateId.HasValue)
+        {
+            template = await _dbContext.WhatsAppTemplates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    t => t.TemplateId == templateId.Value
+                         && t.TenantId == tenantId
+                         && t.Channel == WhatsAppMetaTemplateConstants.Channel
+                         && t.IsActive,
+                    cancellationToken);
+
+            if (template is null)
+            {
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(templateId),
+                        "Seçilen Meta şablon bulunamadı veya aktif değil.")
+                ]);
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(templateName))
+        {
+            var name = templateName.Trim();
+            var language = string.IsNullOrWhiteSpace(templateLanguage) ? null : templateLanguage.Trim();
+            var query = _dbContext.WhatsAppTemplates
+                .AsNoTracking()
+                .Where(t => t.TenantId == tenantId
+                            && t.Channel == WhatsAppMetaTemplateConstants.Channel
+                            && t.IsActive
+                            && t.Name == name);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(t => t.MetaLanguageCode == language);
+            }
+
+            template = await query.FirstOrDefaultAsync(cancellationToken);
+            if (template is null)
+            {
+                // İsim bilinen ama DB'de yoksa Cloud API adına güven — yine de değişken kontrolü content üzerinden.
+                WhatsAppMetaTemplateGuard.EnsureNoBodyVariables(content);
+                return (name, language ?? "tr", content);
+            }
+        }
+
+        if (template is null)
+        {
+            return (null, null, content);
+        }
+
+        WhatsAppMetaTemplateGuard.EnsureNoBodyVariables(template.Content);
+        var resolvedContent = string.IsNullOrWhiteSpace(content) ? template.Content : content;
+        return (
+            template.Name,
+            string.IsNullOrWhiteSpace(template.MetaLanguageCode) ? "tr" : template.MetaLanguageCode,
+            resolvedContent);
     }
 
     private async Task<string> ResolveStaffSenderLabelAsync(

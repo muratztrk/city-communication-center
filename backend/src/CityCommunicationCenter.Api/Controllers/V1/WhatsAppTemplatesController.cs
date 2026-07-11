@@ -21,6 +21,17 @@ public sealed class WhatsAppTemplatesController : ApiControllerBase
         return Ok(result);
     }
 
+    [HttpPost("sync-from-meta")]
+    [ProducesResponseType<WhatsAppTemplatesSyncFromMetaResult>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<WhatsAppTemplatesSyncFromMetaResult>> SyncFromMeta(CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new SyncWhatsAppTemplatesFromMetaCommand(CurrentContext.UserId ?? Guid.Empty),
+            cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPost("")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(

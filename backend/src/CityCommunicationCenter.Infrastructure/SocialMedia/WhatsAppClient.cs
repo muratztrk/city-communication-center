@@ -7,7 +7,7 @@ namespace CityCommunicationCenter.Infrastructure.SocialMedia;
 /// Uses Meta's Cloud API for WhatsApp Business.
 /// Documentation: https://developers.facebook.com/docs/whatsapp/cloud-api
 /// </summary>
-public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient
+public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAppTemplateClient
 {
     private readonly HttpClient _httpClient;
     private readonly WhatsAppSettings _settings;
@@ -19,6 +19,91 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient
     {
         _httpClient = httpClient;
         _settings = settings;
+    }
+
+    public async Task<IReadOnlyList<WhatsAppMetaTemplateInfo>> ListApprovedMessageTemplatesAsync(CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(_settings.BusinessAccountId) || string.IsNullOrWhiteSpace(_settings.AccessToken))
+        {
+            throw new InvalidOperationException("WhatsApp Business Account ID veya Access Token eksik.");
+        }
+
+        var results = new List<WhatsAppMetaTemplateInfo>();
+        string? after = null;
+
+        do
+        {
+            var url = $"{ApiBase}/{_settings.BusinessAccountId}/message_templates"
+                + "?status=APPROVED&fields=name,language,status,id,components&limit=100"
+                + (after is null ? string.Empty : $"&after={Uri.EscapeDataString(after)}");
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {_settings.AccessToken}");
+            var response = await _httpClient.SendAsync(request, ct);
+            var json = await response.Content.ReadAsStringAsync(ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"Meta şablon listesi alınamadı: {json}");
+            }
+
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            if (root.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in data.EnumerateArray())
+                {
+                    var name = TryGetString(item, "name");
+                    var language = TryGetString(item, "language") ?? "tr";
+                    var status = TryGetString(item, "status") ?? "APPROVED";
+                    var externalId = TryGetString(item, "id");
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        continue;
+                    }
+
+                    results.Add(new WhatsAppMetaTemplateInfo(
+                        name,
+                        language,
+                        externalId,
+                        status,
+                        ExtractBodyText(item)));
+                }
+            }
+
+            after = null;
+            if (root.TryGetProperty("paging", out var paging)
+                && paging.TryGetProperty("next", out _)
+                && paging.TryGetProperty("cursors", out var cursors)
+                && cursors.TryGetProperty("after", out var afterEl)
+                && afterEl.ValueKind == JsonValueKind.String)
+            {
+                after = afterEl.GetString();
+            }
+        }
+        while (!string.IsNullOrWhiteSpace(after));
+
+        return results;
+    }
+
+    private static string ExtractBodyText(JsonElement template)
+    {
+        if (!template.TryGetProperty("components", out var components) || components.ValueKind != JsonValueKind.Array)
+        {
+            return string.Empty;
+        }
+
+        foreach (var component in components.EnumerateArray())
+        {
+            var type = TryGetString(component, "type");
+            if (!string.Equals(type, "BODY", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return TryGetString(component, "text")?.Trim() ?? string.Empty;
+        }
+
+        return string.Empty;
     }
 
     public async Task<SocialMediaResult> SendMessageAsync(SendMessageRequest request, CancellationToken ct = default)

@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, PenLine } from 'lucide-react'
+import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, PenLine, RefreshCw } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -282,7 +282,6 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
 
 const TEMPLATE_CHANNEL_OPTIONS = ['Genel', 'WhatsApp', 'Facebook', 'Instagram', 'X', 'Phone', 'Other']
 const WHATSAPP_META_TEMPLATE_CHANNEL = 'WhatsApp Meta'
-const MAX_WHATSAPP_META_TEMPLATES = 5
 const TEMPLATE_REPLY_DELAY_OPTIONS = [10, 30, 60, 120, 300]
 const TEMPLATE_WEEKDAY_OPTIONS = [
   { id: 'monday', label: 'Pazartesi', group: 'weekday' as const },
@@ -419,6 +418,7 @@ export function SettingsPage() {
   const [templateEditorMode, setTemplateEditorMode] = useState<'classic' | 'meta'>('classic')
   const [keywordInput, setKeywordInput] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [syncingMetaTemplates, setSyncingMetaTemplates] = useState(false)
 
   useEffect(() => {
     if (!user?.tenantId) {
@@ -1108,16 +1108,32 @@ export function SettingsPage() {
   }
 
   const startNewMetaTemplate = () => {
-    const metaCount = templates.filter(isMetaWhatsAppTemplate).length
-    if (metaCount >= MAX_WHATSAPP_META_TEMPLATES) {
-      setMessage({ type: 'error', text: 'En fazla 3 WhatsApp Meta onaylı şablon mesaj oluşturabilirsiniz.' })
-      return
-    }
     setSelectedTemplateId(null)
     setTemplateForm({ ...EMPTY_TEMPLATE_FORM, channel: WHATSAPP_META_TEMPLATE_CHANNEL })
     setKeywordInput('')
     setIsNewTemplate(true)
     setTemplateEditorMode('meta')
+  }
+
+  const syncMetaTemplates = async () => {
+    if (syncingMetaTemplates) return
+    setSyncingMetaTemplates(true)
+    try {
+      const result = await api.syncWhatsAppTemplatesFromMeta()
+      const updated = await api.getWhatsAppTemplates()
+      setTemplates(updated)
+      setMessage({
+        type: 'success',
+        text: `Meta senkronu tamamlandı: ${result.imported} yeni, ${result.updated} güncellendi, ${result.deactivated} pasifleştirildi.`,
+      })
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Meta şablonları senkronize edilemedi.',
+      })
+    } finally {
+      setSyncingMetaTemplates(false)
+    }
   }
 
   const addKeyword = () => {
@@ -1155,12 +1171,7 @@ export function SettingsPage() {
 
   const persistTemplate = async (successMessage = 'Şablon kaydedildi.') => {
     if (!templateForm.name.trim() || !templateForm.content.trim()) return false
-    const metaCount = templates.filter(isMetaWhatsAppTemplate).length
     const editingMeta = templateEditorMode === 'meta'
-    if (editingMeta && isNewTemplate && metaCount >= MAX_WHATSAPP_META_TEMPLATES) {
-      setMessage({ type: 'error', text: 'En fazla 3 WhatsApp Meta onaylı şablon mesaj oluşturabilirsiniz.' })
-      return false
-    }
     const data = editingMeta
       ? {
           ...templateForm,
@@ -2512,10 +2523,18 @@ export function SettingsPage() {
               <button
                 type="button"
                 onClick={startNewMetaTemplate}
-                disabled={templates.filter(isMetaWhatsAppTemplate).length >= MAX_WHATSAPP_META_TEMPLATES}
-                className="flex items-center justify-center gap-2 rounded-xl border border-orange-600 bg-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center justify-center gap-2 rounded-xl border border-orange-600 bg-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:bg-orange-600"
               >
                 Yeni Meta Onaylı Şablon Oluştur
+              </button>
+              <button
+                type="button"
+                onClick={() => void syncMetaTemplates()}
+                disabled={syncingMetaTemplates}
+                className="flex items-center justify-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2.5 text-center text-sm font-bold text-orange-700 shadow-sm hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <RefreshCw className={`size-3.5 ${syncingMetaTemplates ? 'animate-spin' : ''}`} />
+                {syncingMetaTemplates ? 'Senkronize ediliyor…' : "Meta'dan Senkronize Et"}
               </button>
             </div>
             <div className="flex flex-col gap-0.5 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
@@ -2610,7 +2629,7 @@ export function SettingsPage() {
                       <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${templateForm.isActive ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
                     <span className="text-xs font-semibold text-slate-500">
-                      {templates.filter(isMetaWhatsAppTemplate).length}/{MAX_WHATSAPP_META_TEMPLATES} Meta şablon
+                      {templates.filter(isMetaWhatsAppTemplate).length} Meta şablon
                     </span>
                   </div>
                 )}

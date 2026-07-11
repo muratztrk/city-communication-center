@@ -7,7 +7,7 @@ import { Button } from './ui/button'
 
 interface WhatsAppTemplatePickerProps {
   userQuickReplies?: UserQuickReplyTemplate[]
-  onSelect: (content: string) => void
+  onSelect: (template: UserQuickReplyTemplate) => void
   tone?: 'default' | 'on-dark'
   /** start = menu opens upward, aligned to button left (extends right); end = aligned to button right */
   menuAlign?: 'start' | 'end'
@@ -41,7 +41,14 @@ export function WhatsAppTemplatePicker({
 
   const active = useMemo(() => {
     return userQuickReplies
-      .map(t => ({ id: t.templateId, name: t.name, content: t.content, source: t.source }))
+      .map(t => ({
+        id: t.templateId,
+        name: t.name,
+        content: t.content,
+        source: t.source,
+        metaLanguageCode: t.metaLanguageCode,
+        template: t,
+      }))
       .sort((left, right) => {
         if (left.source === 'meta' && right.source !== 'meta') return -1
         if (left.source !== 'meta' && right.source === 'meta') return 1
@@ -92,7 +99,7 @@ export function WhatsAppTemplatePicker({
         <button
           key={tpl.id}
           type="button"
-          onClick={() => { onSelect(tpl.content); setOpen(false); setMenuStyle(null) }}
+          onClick={() => { onSelect(tpl.template); setOpen(false); setMenuStyle(null) }}
           className="w-full text-left px-3 py-2 hover:bg-[color:var(--color-surface-raised)] transition-colors"
         >
           <p className="flex items-center gap-1.5 text-xs font-semibold text-[color:var(--color-foreground)]">

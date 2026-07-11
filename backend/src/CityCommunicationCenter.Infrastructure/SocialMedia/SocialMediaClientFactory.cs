@@ -61,6 +61,20 @@ public class SocialMediaClientFactory : ISocialMediaClientFactory
             _ => false
         };
     }
+
+    public IWhatsAppTemplateClient? GetWhatsAppTemplateClient(Guid tenantId)
+    {
+        var settings = _settingsProvider.GetSettings(tenantId);
+        if (settings?.WhatsApp is null
+            || string.IsNullOrWhiteSpace(settings.WhatsApp.AccessToken)
+            || string.IsNullOrWhiteSpace(settings.WhatsApp.BusinessAccountId))
+        {
+            return null;
+        }
+
+        var httpClient = _httpClientFactory.CreateClient("SocialMedia_WhatsApp");
+        return new WhatsAppClient(httpClient, settings.WhatsApp);
+    }
 }
 
 internal sealed class EDevletClient : ISocialMediaClient

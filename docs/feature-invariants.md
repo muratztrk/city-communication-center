@@ -516,7 +516,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `hideOwnerApproval` yalnızca sahip-onay adımını gizler; Active birim içi/dışı taleplerde
   turuncu `Durum` adımı yine gösterilir (card #1535). Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval`) taleplerde Talep Tarihi ile Son Tarih arasına mavi
-  `Durum / Onay Bekleyen` katmanı eklenir (`pending` state, card #1535 reopen).
+  `Durum / Onay Bekleyen` katmanı eklenir (`pending` state, card #1535 reopen). Birime Gelen'de
+  `Active` + henüz görev yok kayıtları da aynı mavi Durum katmanını alır
+  (`unassignedActiveAsPending`, card #1535).
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak.

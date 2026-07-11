@@ -836,6 +836,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   )
   const detailStatusClass = detail?.status === 'PendingOwnerApproval'
     || detail?.status === 'PendingExternalApproval'
+    || (isIncomingRequestDetail
+      && detail?.status === 'Active'
+      && (detail.tasks?.length ?? 0) === 0)
     ? 'text-sky-500'
     : detail?.status === 'Active'
     ? 'text-[#f97316]'
@@ -2404,7 +2407,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <div className="min-w-0 p-4">
                     {(() => {
                       // Birime Gelen / Birimden Giden Süreç kolonu Taleplerim timeline tasarımını kullanır (card #1527).
-                      const processSteps = buildJobProcessSteps(t, detail, locale, { hideOwnerApproval: true })
+                      const processSteps = buildJobProcessSteps(t, detail, locale, {
+                        hideOwnerApproval: true,
+                        // Birime Gelen: Active + görev yok da UI'da Onay Bekleyen (card #1535).
+                        unassignedActiveAsPending: isIncomingRequestDetail,
+                      })
                       const incomingOutgoingStatusLabel = isCitizenRequestDetail
                         ? getCitizenRequestStatusLabel(t, detail)
                         : isIncomingRequestDetail

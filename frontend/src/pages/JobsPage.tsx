@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, ClipboardList, FileText, Info, MessageSquareText, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1386,8 +1386,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   // Talep oluştururken opsiyonel olarak girilen adres alanlarını gösterir; veri yoksa boş durum (card 442).
+  // Gelen/Giden detayda Taleplerim ile aynı `my-request` adres tipografisi kullanılır.
   const renderJobAddressInfo = (job: JobDetail) => (
     <AddressDetailFields
+      variant={isRequestDetailContext ? 'my-request' : 'default'}
       neighborhood={job.neighborhood}
       street={job.street}
       openAddress={job.openAddress}
@@ -2161,13 +2163,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             />
           ) : (
           <section
-            className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+            className={`detail-modal-shell${isRequestDetailContext ? ' detail-modal-shell--my-request' : ''} flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl`}
             onClick={e => e.stopPropagation()}
           >
             {/* Fixed header */}
-            <div className="detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-2">
+            <div className={`detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 ${isRequestDetailContext ? 'my-request-detail-header px-6 pb-3 pt-6' : 'px-4 py-2'}`}>
               <div className="detail-modal-header-title min-w-0">
-                <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">
+                <div className={isRequestDetailContext ? 'my-request-detail-header__title uppercase' : 'text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600'}>
                   {detailHeaderTitle}
                 </div>
               </div>
@@ -2522,18 +2524,21 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
-                  <div className={`mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
-                    {/* Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442) */}
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                  <div className={`my-request-detail-bottom mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+                    {/* Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442).
+                        Section header Taleplerim detay ile aynı ikon + tipografi (MyRequestSectionHeading). */}
+                    <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                      <MyRequestSectionHeading icon={MapPin}>
                         {t('address.detailSectionTitle', 'Adres Bilgileri')}
-                      </h3>
+                      </MyRequestSectionHeading>
                       {renderJobAddressInfo(detail)}
                     </div>
                     {/* 3. sütun: Yönetici Notu — aktif gelen/giden talepte yönetici tarafından düzenlenebilir. */}
                     {showManagerNoteColumn && (
-                      <div className="rounded-xl border border-slate-200 bg-white p-4">
-                        <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">{t('jobs.managerNote.title', 'Yönetici Notu')}</h3>
+                      <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                        <MyRequestSectionHeading icon={NotebookPen}>
+                          {t('jobs.managerNote.title', 'Yönetici Notu')}
+                        </MyRequestSectionHeading>
                         {!canEditManagerNote ? (
                           // Salt-okunur: terminal durum veya yetkisiz kullanıcı.
                           detail.managerNote ? (
@@ -2549,7 +2554,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               <Button
                                 type="button"
                                 size="sm"
-                                className="bg-teal-700 text-white hover:bg-teal-800"
+                                className="bg-emerald-700 text-white hover:bg-emerald-800"
                                 onClick={() => {
                                   setManagerNoteDraft(detail.managerNote ?? '')
                                   setManagerNoteEditing(true)
@@ -2625,10 +2630,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       const showAttachmentLockNotice = !canEditJobAttachments
                         && (isRequestDetailContext ? isTerminalRequestStatus : !isPreApprovalStatus(detail.status))
                       return (
-                        <div className="rounded-xl border border-slate-200 bg-white p-4">
-                          <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                        <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+                          <MyRequestSectionHeading icon={Paperclip}>
                             {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                          </h3>
+                          </MyRequestSectionHeading>
                           <AttachmentSection
                             attachments={detail.attachments ?? []}
                             readOnly={!canEditJobAttachments}
@@ -2766,18 +2771,18 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
                   : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
-                <div className={`mb-5 grid gap-4 ${isCitizenRequestDetail ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
-                  <section className="rounded-xl border border-slate-200 bg-white p-4">
-                    <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                <div className={`my-request-detail-bottom mb-5 grid gap-4 ${isCitizenRequestDetail ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
+                  <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                    <MyRequestSectionHeading icon={MapPin}>
                       {t('address.detailSectionTitle', 'Adres Bilgileri')}
-                    </h3>
+                    </MyRequestSectionHeading>
                     {renderJobAddressInfo(detail)}
                   </section>
                   {!isCitizenRequestDetail ? (
-                  <section className="rounded-xl border border-slate-200 bg-white p-4">
-                    <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                  <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+                    <MyRequestSectionHeading icon={NotebookPen}>
                       {t('jobs.managerNote.title', 'Yönetici Notu')}
-                    </h3>
+                    </MyRequestSectionHeading>
                     {detail.managerNote ? (
                       <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
                     ) : (
@@ -2785,10 +2790,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     )}
                   </section>
                   ) : null}
-                  <section className="rounded-xl border border-slate-200 bg-white p-4">
-                    <h3 className="mb-3 border-b border-slate-200 pb-2 text-sm font-bold text-slate-900">
+                  <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+                    <MyRequestSectionHeading icon={Paperclip}>
                       {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-                    </h3>
+                    </MyRequestSectionHeading>
                     <AttachmentSection
                       attachments={detail.attachments ?? []}
                       readOnly

@@ -59,11 +59,11 @@ export function MyRequestTaskDetailsSection({
                   <span>(</span>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 font-semibold hover:text-red-700"
+                    aria-label={t('tasks.detail.cancelNote', 'İptal Notu')}
+                    className="inline-flex items-center font-semibold hover:text-red-700"
                     onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: task.revisionReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                   >
-                    <StickyNote className="size-3" aria-hidden="true" />
-                    <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
+                    <StickyNote className="size-3" />
                   </button>
                   <span>)</span>
                 </span>
@@ -73,11 +73,11 @@ export function MyRequestTaskDetailsSection({
                   <span>(</span>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 font-semibold hover:text-emerald-700"
+                    aria-label={t('tasks.detail.completionNote', 'Tamamlama Notu')}
+                    className="inline-flex items-center font-semibold hover:text-emerald-700"
                     onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(task.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                   >
-                    <StickyNote className="size-3" aria-hidden="true" />
-                    <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
+                    <StickyNote className="size-3" />
                   </button>
                   <span>)</span>
                 </span>

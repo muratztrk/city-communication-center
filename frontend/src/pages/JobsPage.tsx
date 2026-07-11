@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, MessageSquareText, Printer, Search, Send, PenLine, StickyNote, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, Clock, FileText, Info, MessageSquareText, Printer, Search, Send, PenLine, StickyNote, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -54,6 +54,8 @@ import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
+import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
+import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -1761,11 +1763,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <span>(</span>
           <button
             type="button"
-            className="inline-flex items-center gap-1 font-semibold hover:text-red-700"
+            aria-label={t('jobs.detail.cancelNote', 'İptal Notu')}
+            className="inline-flex items-center font-semibold hover:text-red-700"
             onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
-            <StickyNote className="size-3" aria-hidden="true" />
-            <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
+            <StickyNote className="size-3" />
           </button>
           <span>)</span>
         </span>
@@ -1775,11 +1777,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <span>(</span>
           <button
             type="button"
-            className="inline-flex items-center gap-1 font-semibold hover:text-emerald-700"
+            aria-label={t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
+            className="inline-flex items-center font-semibold hover:text-emerald-700"
             onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
           >
-            <StickyNote className="size-3" aria-hidden="true" />
-            <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
+            <StickyNote className="size-3" />
           </button>
           <span>)</span>
         </span>
@@ -2326,11 +2328,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   kutularıyla aynı kart tasarımı (form-card page-stack) — üstte sadece çizgi yerine tam
                   kenarlıklı kart (card 650/386). */}
               <section className="form-card page-stack mb-5">
-                <div className="text-sm font-semibold text-emerald-600">
+                <MyRequestSectionHeading icon={ClipboardList} tone="primary">
                   {t('jobs.detail.requestInfo', 'Talep Detayları')}
-                </div>
-                <div className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
-                  <div className="min-w-0 divide-y divide-slate-100">
+                </MyRequestSectionHeading>
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
+                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                    <MyRequestSectionHeading icon={Info}>
+                      {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
+                    </MyRequestSectionHeading>
+                    <div className="divide-y divide-slate-100">
                     {(isCitizenRequestDetail ? [
                       {
                         label: 'Vatandaş Talep No',
@@ -2398,13 +2404,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       // Yönlendirilen talebin sebebi, Öncelik/Proje satırının altında (card #1406).
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (
-                      <div key={label} className={`flex items-start gap-2 px-3 py-2${(label === 'Öncelik' && !forwardReason) || label === t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
+                      <div key={label} className={`flex items-start gap-2 py-2${(label === 'Öncelik' && !forwardReason) || label === t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi') ? ' border-b border-slate-100' : ''}`}>
                         <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
                         <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
                       </div>
                     ))}
+                    </div>
                   </div>
-                  <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
+                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                    <MyRequestSectionHeading icon={Clock}>
+                      {t('jobs.detail.processTitle', 'Süreç')}
+                    </MyRequestSectionHeading>
                     <div className="divide-y divide-slate-100">
                       {[
                         {
@@ -2439,11 +2449,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   <span>(</span>
                                   <button
                                     type="button"
-                                    className="inline-flex items-center gap-1 font-semibold hover:text-red-700"
+                                    aria-label={t('jobs.detail.cancelNote', 'İptal Notu')}
+                                    className="inline-flex items-center font-semibold hover:text-red-700"
                                     onClick={() => setConfirmDialog({ title: t('jobs.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: detail.cancelReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                   >
-                                    <StickyNote className="size-3" aria-hidden="true" />
-                                    <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
+                                    <StickyNote className="size-3" />
                                   </button>
                                   <span>)</span>
                                 </span>
@@ -2453,11 +2463,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   <span>(</span>
                                   <button
                                     type="button"
-                                    className="inline-flex items-center gap-1 font-semibold hover:text-emerald-700"
+                                    aria-label={t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
+                                    className="inline-flex items-center font-semibold hover:text-emerald-700"
                                     onClick={() => setConfirmDialog({ title: t('jobs.detail.completionResultNote', 'Tamamlanma Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(detail.completionNote), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
                                   >
-                                    <StickyNote className="size-3" aria-hidden="true" />
-                                    <span className="underline underline-offset-2">{t('jobs.detail.notes', 'Not')}</span>
+                                    <StickyNote className="size-3" />
                                   </button>
                                   <span>)</span>
                                 </span>
@@ -2496,7 +2506,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             : []),
                         { label: 'Son Tarih', value: formatDueDateTime(detail.dueDateUtc, locale) },
                       ].map(({ label, value }) => (
-                        <div key={label} className={`flex flex-col gap-0.5 px-4 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
+                        <div key={label} className={`flex flex-col gap-0.5 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
                           <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
                             {label}
                             {label === 'Son Tarih' && canChangeDetailDueDate && detailDueDateEdit?.jobId !== detail.jobId && (
@@ -2579,15 +2589,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       ))}
                     </div>
                   </div>
-                  <div className="border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                    <div className="border-b border-slate-200 px-4 py-2">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        {t('jobs.form.description', 'Açıklama')}
-                      </span>
-                    </div>
-                    <div className="px-4 py-3">
-                      <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content text-sm leading-6 text-slate-900" />
-                    </div>
+                  <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                    <MyRequestSectionHeading icon={FileText}>
+                      {t('jobs.form.description', 'Açıklama')}
+                    </MyRequestSectionHeading>
+                    <RichTextContent value={detail.description} emptyText={t('common.none')} className="rich-text-content mt-1.5 text-sm leading-6 text-slate-900" />
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
@@ -2949,172 +2955,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               )}
             </section>}
 
-            {/* Görev Detayları — ilişkili görev varsa talep detayının sonundaki, Görevlerim
-                pop-up'ıyla aynı üç sütunlu özet kartta gösterilir (card 649). */}
-            {isRequestDetailContext && detail.tasks.length > 0 && (
-              <section className="form-card page-stack mb-5">
-                <div className="text-sm font-semibold text-emerald-600">
-                  {t('tasks.detail.title', 'Görev Detayları')}
-                </div>
-                <div className="space-y-3">
-                  {detail.tasks.map(task => {
-                    // "Oluşturan" = görevi değil TALEBİ oluşturan kullanıcı (request creator). JobQueries
-                    // task.createdByDisplayName görevi oluşturan yöneticiyi veriyor; talep oluşturanı
-                    // detail.createdByDisplayName'dir (card #716). GetTasksQuery zaten talep oluşturanını
-                    // verdiği için TasksPage Görev Detayları doğruydu.
-                    const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
-                      .filter(Boolean)
-                      .join(' / ') || '—'
-                    // "Atanmış" ise görevi ATAYAN YÖNETİCİNİN adı parantez içinde gösterilir (görev
-                    // sahibi/atanan kullanıcı değil); Görevlerim pop-up'ındaki format (card #709, reopened).
-                    const taskType = task.jobSourceType === 'Routine'
-                      ? t('tasks.type.routine', 'Rutin')
-                      : task.assigningManagerDisplayName
-                        ? `${t('tasks.type.assigned', 'Atanmış')} (${task.assigningManagerDisplayName})`
-                        : t('tasks.type.assigned', 'Atanmış')
-                    const taskStatus = (
-                      <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                        <span className={task.currentStatus === 'Completed'
-                          ? 'text-emerald-600'
-                          : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
-                            ? 'text-red-600'
-                            // "Yapılmakta" (Assigned/InProgress) turuncu — Talep Detayları ile aynı (card #725).
-                            : (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
-                              ? 'text-[#f97316]'
-                              : 'text-slate-900'}
-                        >
-                          {getTaskStatusLabel(t, task.currentStatus)}
-                        </span>
-                        {task.currentStatus === 'Cancelled' && task.revisionReason ? (
-                          <span className="inline-flex items-center text-red-600">
-                            <span>(</span>
-                            <button
-                              type="button"
-                              className="font-semibold hover:text-red-700"
-                              onClick={() => setConfirmDialog({ title: t('tasks.detail.cancelNote', 'İptal Notu'), titleDivider: true, titleTone: 'danger', message: task.revisionReason!, hideCancel: true, variant: 'destructive', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                            >
-                              <span className="underline underline-offset-2">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>
-                            </button>
-                            <span>)</span>
-                          </span>
-                        ) : null}
-                        {task.currentStatus === 'Completed' && task.notes ? (
-                          <span className="inline-flex items-center text-emerald-600">
-                            <span>(</span>
-                            <button
-                              type="button"
-                              className="font-semibold hover:text-emerald-700"
-                              onClick={() => setConfirmDialog({ title: t('tasks.detail.completionNote', 'Tamamlama Notu'), titleDivider: true, titleTone: 'success', message: richTextToPlainText(task.notes), hideCancel: true, variant: 'success', confirmLabel: t('common.close', 'Kapat'), onConfirm: () => {} })}
-                            >
-                              <span className="underline underline-offset-2">{t('tasks.detail.completionNote', 'Tamamlama Notu')}</span>
-                            </button>
-                            <span>)</span>
-                          </span>
-                        ) : null}
-                      </span>
-                    )
-
-                    return (
-                      <div key={task.taskId} className="grid gap-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]">
-                        <div className="min-w-0 divide-y divide-slate-100">
-                          {[
-                            { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
-                            { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
-                            { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
-                            { label: t('tasks.columns.owner', 'Görev Sahibi'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
-                            { label: t('tasks.columns.taskType', 'Görev Tipi'), value: taskType },
-                            ...(task.jobSourceType === 'Routine'
-                              ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
-                              : []),
-                          ].map(({ label, value }) => (
-                            <div key={label} className="flex items-start gap-2 px-3 py-2">
-                              <span className="w-36 shrink-0 pt-0.5 text-xs font-semibold text-slate-500">{label}</span>
-                              <span className={`min-w-0 break-words text-sm ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="divide-y divide-slate-100 border-t border-slate-200 bg-white lg:border-l lg:border-t-0">
-                          {[
-                            // Öncelik, sol kolona Görev Tipi'nin altına taşındı (card #705/649).
-                            { label: t('tasks.columns.status', 'Durum'), value: taskStatus },
-                            { label: t('tasks.columns.taskDate', 'Görev Tarihi'), value: formatDateTime(task.createdAtUtc ?? null, locale) },
-                            // Görev tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #710).
-                            ...(task.currentStatus === 'Completed'
-                              ? [{ label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'), value: <span className="text-emerald-600">{formatDateTime(task.completedAtUtc ?? null, locale)}</span> }]
-                              : task.currentStatus === 'Cancelled'
-                                ? [{ label: t('tasks.columns.cancelledAt', 'İptal Tarihi'), value: <span className="text-red-600">{formatDateTime(task.updatedAtUtc ?? null, locale)}</span> }]
-                                : []),
-                            {
-                              label: t('tasks.columns.dueDate', 'Son Tarih'),
-                              // Yöneticide bekleyen ek süre talebi talep detayında da görünür (card #1385).
-                              value: (
-                                <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                  <span>{formatDateTime(task.dueDateUtc, locale)}</span>
-                                  {/* Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386). */}
-                                  <GridExtraTimeMarkers
-                                    hasPending={task.hasPendingExtraTimeRequest}
-                                    inline
-                                  />
-                                </span>
-                              ),
-                            },
-                          ].map(({ label, value }) => (
-                            // Son satır "Son Tarih"in altına kapanış çizgisi (card #712/#713, card 649 aynası).
-                            <div key={label} className={`px-3 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
-                              <div className="text-xs font-semibold text-slate-500">{label}</div>
-                              <div className="mt-0.5 break-words text-sm text-slate-900">{value}</div>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="border-t border-slate-200 bg-white p-3 lg:border-l lg:border-t-0">
-                          {detail.status === 'Completed' && task.currentStatus === 'Completed' ? (
-                            <div className="grid min-h-full gap-3 lg:grid-cols-2">
-                              <div className="min-w-0 border-b border-slate-200 pb-3 lg:border-b-0 lg:border-r lg:pr-3 lg:pb-0">
-                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                  {t('tasks.detail.description', 'Açıklama')}
-                                </div>
-                                <RichTextContent
-                                  value={task.description?.trim() ? task.description : detail.description}
-                                  emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                                  className="rich-text-content text-sm leading-6 text-slate-900"
-                                />
-                              </div>
-                              <div className="min-w-0">
-                                <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                  {t('tasks.detail.attachments', 'Görev Ekleri')}
-                                </div>
-                                {(task.attachments?.length ?? 0) > 0 ? (
-                                  <AttachmentSection
-                                    attachments={task.attachments!}
-                                    readOnly
-                                    compact
-                                    displayMode="list"
-                                    onDownload={handleDownloadTaskAttachment}
-                                  />
-                                ) : (
-                                  <p className="text-sm text-slate-400">{t('attachments.taskEmpty', 'Görev için ek/fotoğraf bulunmamaktadır.')}</p>
-                                )}
-                                <p className="mt-2 text-xs text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
-                              </div>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                {t('tasks.detail.description', 'Açıklama')}
-                              </div>
-                              <RichTextContent
-                                value={task.description?.trim() ? task.description : detail.description}
-                                emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                                className="rich-text-content text-sm leading-6 text-slate-900"
-                              />
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </section>
+            {/* Görev Detayları — Taleplerim ile aynı ikonlu boxed-kart bileşeni, kod tekrarı yerine
+                doğrudan paylaşılan bileşen kullanılıyor (card #1524, ikinci reopen). */}
+            {isRequestDetailContext && (
+              <MyRequestTaskDetailsSection
+                detail={detail}
+                locale={locale}
+                setConfirmDialog={setConfirmDialog}
+                onDownloadTaskAttachment={(attachmentId, fileName) => void handleDownloadTaskAttachment(attachmentId, fileName)}
+              />
             )}
            </div>
           </section>

@@ -99,7 +99,9 @@ public sealed record TaskSummaryResponse(
     string? ForwardReason = null,
     // Görevin kendi tamamlama/durum değişikliği notu — talep detayı "Görev Detayları"nda
     // "Görev Tamamlama Notu" kartı için (card #1402).
-    string? Notes = null);
+    string? Notes = null,
+    // İptal/red nedeni — talep detayı "Görev İptal Notu" kartı için (card #1530).
+    string? RevisionReason = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

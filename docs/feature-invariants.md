@@ -510,6 +510,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcı Taleplerim chip metni `Onaylanmış/Yapılmakta Taleplerim`dir.
 - **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif
   yeşil/kırmızı nokta turuncu pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339/#1343).
+- **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;
+  Taleplerim ile aynı `JobProcessTimeline` + `buildJobProcessSteps` kullanılır (`hideOwnerApproval: true`);
+  Son Tarih Değiştir / Ek süre talebini gör aksiyonları timeline `dueDate` adımında kalır.
+- **Görev İptal Notu (card #1530):** job detay `TaskSummaryResponse.RevisionReason` iptal/red
+  görevlerde dolu gelir; UI önce `task.revisionReason`, yoksa `detail.cancelReason` gösterir —
+  "İptal notu girilmemiş" yalnızca ikisi de boşsa yazılır.
 - **Açıklama alanı başlıkları:** talep/rutin/vatandaş/e-Devlet açıklama giriş başlıklarında
   `(max 400 karakter) *` ibaresi görünür; RichTextEditor zaten 400 düz-metin karakter sınırını uygular.
 - **Grid başlık casing/padding:** TÜM gridview header'ları (`data-table`, `table-container`,

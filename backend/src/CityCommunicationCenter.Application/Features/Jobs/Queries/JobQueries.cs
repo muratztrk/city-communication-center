@@ -430,6 +430,11 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     // anlamlı olduğundan, gereksiz veri sızıntısını önlemek için diğer durumlarda null
                     // gönderilir (card #1402 review notu).
                     Notes = task.CurrentStatus.ToString() == "Completed" ? task.Notes : null,
+                    // İptal/red notu yalnızca terminal görevlerde "Görev İptal Notu" kartına gider (card #1530).
+                    RevisionReason = task.CurrentStatus.ToString() == "Cancelled"
+                        || task.CurrentStatus.ToString() == "Rejected"
+                        ? task.RevisionReason
+                        : null,
                 })
                 .ToDictionaryAsync(task => task.TaskId, task => task, cancellationToken);
 
@@ -464,6 +469,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     Description = taskDescriptions.GetValueOrDefault(task.TaskId)?.Description,
                     // Görevin kendi tamamlama/durum değişikliği notu — "Görev Tamamlama Notu" kartı için (card #1402).
                     Notes = taskDescriptions.GetValueOrDefault(task.TaskId)?.Notes,
+                    // İptal/red nedeni — "Görev İptal Notu" kartı için (card #1530).
+                    RevisionReason = taskDescriptions.GetValueOrDefault(task.TaskId)?.RevisionReason,
                     Attachments = attachmentsByTask.GetValueOrDefault(task.TaskId) ?? Array.Empty<AttachmentResponse>(),
                 })
                 .ToList();

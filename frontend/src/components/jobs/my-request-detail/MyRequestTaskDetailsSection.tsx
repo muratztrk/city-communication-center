@@ -146,7 +146,8 @@ export function MyRequestTaskDetailsSection({
                   </div>
                 ) : (detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected') ? (
                   <RichTextContent
-                    value={task.revisionReason}
+                    // Görevin RevisionReason'ı yoksa talebin CancelReason'ına düş (card #1530).
+                    value={task.revisionReason?.trim() || detail.cancelReason}
                     emptyText={t('tasks.detail.noCancelNote', 'İptal notu girilmemiş')}
                     className="rich-text-content text-sm leading-6 text-slate-900"
                   />

@@ -7,7 +7,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, ClipboardList, Clock, FileText, Info, MessageSquareText, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, FileText, Info, MessageSquareText, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -56,6 +56,8 @@ import { WhatsAppConversationModal } from '../components/WhatsAppConversationMod
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
 import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
+import { buildJobProcessSteps, isJobRecoveredFromCancellation } from '../components/jobs/my-request-detail/buildJobProcessSteps'
+import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -2380,154 +2382,116 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     </div>
                   </div>
                   <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                    <MyRequestSectionHeading icon={Clock}>
-                      {t('jobs.detail.processTitle', 'Süreç')}
-                    </MyRequestSectionHeading>
-                    <div className="divide-y divide-slate-100">
-                      {[
-                        {
-                          label: 'Durum',
-                          // Durum + (durumu belirleyen kullanıcı) + tıklanabilir İptal/Tamamlama Notu (card 643).
-                          value: (
-                            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                              <span className={detailStatusClass}>
-                                {isCitizenRequestDetail
-                                  ? getCitizenRequestStatusLabel(t, detail)
-                                  : isIncomingRequestDetail
-                                    ? (
-                                      getExternalUnitTargetDisplayStatus(t, detail)
-                                      ?? (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
-                                        ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
-                                        : detail.status === 'Active'
-                                          ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
-                                          : detail.status === 'Completed'
-                                            ? t('jobs.statusLabel.completed', 'Tamamlanmış')
-                                            : getJobStatusLabel(t, detail.status))
-                                    )
-                                  : getExternalUnitOwnerDisplayStatus(t, detail)
-                                    ?? (detail.status === 'Active'
-                                      ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
-                                      : detail.status === 'Completed'
-                                        ? t('jobs.statusLabel.completed', 'Tamamlanmış')
-                                        : getJobStatusLabel(t, detail.status))}
-                                {shouldShowJobStatusActorName(detail) ? ` (${detail.statusActorDisplayName})` : ''}
-                              </span>
-                            </span>
-                          ),
-                        },
-                        { label: 'Talep Tarihi', value: formatDateTime(detail.createdAtUtc, locale) },
-                        ...(isMyRequestsView && !isCitizenRequestDetail && !isManagerLike && !isReporter ? [{
-                          // Talebi yapan birimin yöneticisinin onay tarihi (Owner JobDepartment) — card 6a397bf6.
-                          label: 'Talebin Birim Yöneticisinin Onay Tarihi',
-                          value: formatApprovalDateText(
-                            formatDueDateTime(
-                              detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null,
-                              locale,
-                            ),
-                            detail.departments.find(department => department.role === 'Owner')?.approvedByDisplayName,
-                          ),
-                        }] : []),
-                        ...(shouldShowCitizenTargetApprovalDate(detail) ? [{
-                          // Talebi alan (hedef) birimin onay tarihi (Target JobDepartment).
-                          label: 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi',
-                          value: formatApprovalDateText(
-                            formatDueDateTime(
-                              detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null,
-                              locale,
-                            ),
-                            detail.departments.find(department => department.role === 'Target')?.approvedByDisplayName,
-                          ),
-                        }] : []),
-                        // Talep tamamlandıysa/iptal edildiyse Son Tarih'ten önce ilgili tarihi göster (card #715).
-                        ...(detail.status === 'Completed'
-                          ? [{ label: 'Tamamlanma Tarihi', value: <span className="text-emerald-600">{formatDateTime(detail.completedAtUtc ?? null, locale)}</span> }]
-                          : detail.status === 'Cancelled'
-                            ? [{ label: 'İptal Tarihi', value: <span className="text-red-600">{formatDateTime(detail.updatedAtUtc ?? null, locale)}</span> }]
-                            : []),
-                        { label: 'Son Tarih', value: formatDueDateTime(detail.dueDateUtc, locale) },
-                      ].map(({ label, value }) => (
-                        <div key={label} className={`flex flex-col gap-0.5 py-2${label === 'Son Tarih' ? ' border-b border-slate-100' : ''}`}>
-                          <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                            {label}
-                            {label === 'Son Tarih' && canChangeDetailDueDate && detailDueDateEdit?.jobId !== detail.jobId && (
-                              <button
-                                type="button"
-                                className="font-bold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-                                onClick={openDetailDueDateEdit}
-                              >
-                                {t('common.change', 'Değiştir')}
-                              </button>
-                            )}
-                            {/* Bekleyen ek süre isteği yönetici tarafından talep detayından da karara bağlanır (card #1395). */}
-                            {label === 'Son Tarih' && isManagerLike && detail.tasks.some(task => task.hasPendingExtraTimeRequest) && jobExtraTimeReview?.jobId !== detail.jobId && (
-                              <button
-                                type="button"
-                                className="font-bold text-amber-600 underline underline-offset-2 hover:text-amber-700"
-                                onClick={() => void openJobExtraTimeReview()}
-                              >
-                                {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
-                              </button>
-                            )}
-                          </span>
-                          {label === 'Son Tarih' && detailDueDateEdit?.jobId === detail.jobId ? (
-                            // Takvim yukarı yönde açılır; tetikleyici alan gizli, "Ek Süre İste"deki seç akışıyla
-                            // aynı: tarih seçilince (Seç) onay kutusu çıkar, Kaydet ile uygulanır (card 588).
-                            <div className="mt-1 flex flex-col gap-1.5">
-                              <DateTimePicker
-                                value={detailDueDateEdit.value}
-                                onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: dateValue, mode: 'confirm' } : current)}
-                                placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
-                                className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
-                                forceUp
-                                autoOpen
-                                // Seçim yapmadan takvim kapatılırsa düzenlemeyi sıfırla; "Değiştir" yeniden tıklanabilir kalsın (card 615).
-                                onClose={detailDueDateEdit.mode === 'picking' ? closeDetailDueDateEdit : undefined}
-                              />
-                              {detailDueDateEdit.mode === 'confirm' && (
-                                <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
-                                  <span className="text-xs font-semibold text-slate-900">
-                                    {detailDueDateEdit.value
-                                      ? formatDateTime(new Date(detailDueDateEdit.value).toISOString(), locale)
-                                      : t('common.none')}
-                                  </span>
-                                  <div className="inline-actions justify-start gap-1.5">
-                                    <Button type="button" size="sm" variant="success" disabled={detailDueDateEdit.saving} onClick={() => void handleDetailDueDateSave()}>
-                                      {detailDueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
-                                    </Button>
-                                    <Button type="button" size="sm" variant="secondary" disabled={detailDueDateEdit.saving} onClick={closeDetailDueDateEdit}>
-                                      {t('common.cancel', 'Vazgeç')}
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ) : label === 'Son Tarih' && jobExtraTimeReview?.jobId === detail.jobId ? (
-                            <div className="mt-1 flex max-w-[20rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+                    {(() => {
+                      // Birime Gelen / Birimden Giden Süreç kolonu Taleplerim timeline tasarımını kullanır (card #1527).
+                      const processSteps = buildJobProcessSteps(t, detail, locale, { hideOwnerApproval: true })
+                      const incomingOutgoingStatusLabel = isCitizenRequestDetail
+                        ? getCitizenRequestStatusLabel(t, detail)
+                        : isIncomingRequestDetail
+                          ? (
+                            getExternalUnitTargetDisplayStatus(t, detail)
+                            ?? (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
+                              ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+                              : detail.status === 'Active'
+                                ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+                                : detail.status === 'Completed'
+                                  ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+                                  : getJobStatusLabel(t, detail.status))
+                          )
+                          : getExternalUnitOwnerDisplayStatus(t, detail)
+                            ?? (detail.status === 'Active'
+                              ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+                              : detail.status === 'Completed'
+                                ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+                                : getJobStatusLabel(t, detail.status))
+                      const dueDateContent = detailDueDateEdit?.jobId === detail.jobId ? (
+                        <div className="mt-1 flex flex-col gap-1.5">
+                          <DateTimePicker
+                            value={detailDueDateEdit.value}
+                            onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: dateValue, mode: 'confirm' } : current)}
+                            placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
+                            className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
+                            forceUp
+                            autoOpen
+                            onClose={detailDueDateEdit.mode === 'picking' ? closeDetailDueDateEdit : undefined}
+                          />
+                          {detailDueDateEdit.mode === 'confirm' && (
+                            <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
                               <span className="text-xs font-semibold text-slate-900">
-                                {jobExtraTimeReview.loading
-                                  ? t('common.loading')
-                                  : jobExtraTimeReview.proposedDueDateUtc
-                                    ? `${t('tasks.actions.extraTimeRequest', 'Ek süre iste')}: ${formatDateTime(jobExtraTimeReview.proposedDueDateUtc, locale)}`
-                                    : t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                                {detailDueDateEdit.value
+                                  ? formatDateTime(new Date(detailDueDateEdit.value).toISOString(), locale)
+                                  : t('common.none')}
                               </span>
                               <div className="inline-actions justify-start gap-1.5">
-                                <Button type="button" size="sm" variant="success" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => void handleJobExtraTimeDecision('approve')}>
-                                  {jobExtraTimeReview.saving ? t('common.loading') : t('common.approve', 'Onayla')}
+                                <Button type="button" size="sm" variant="success" disabled={detailDueDateEdit.saving} onClick={() => void handleDetailDueDateSave()}>
+                                  {detailDueDateEdit.saving ? t('common.loading') : t('common.save', 'Kaydet')}
                                 </Button>
-                                <Button type="button" size="sm" variant="destructive" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => void handleJobExtraTimeDecision('reject')}>
-                                  {t('common.reject', 'Reddet')}
-                                </Button>
-                                <Button type="button" size="sm" variant="secondary" disabled={jobExtraTimeReview.saving} onClick={() => setJobExtraTimeReview(null)}>
+                                <Button type="button" size="sm" variant="secondary" disabled={detailDueDateEdit.saving} onClick={closeDetailDueDateEdit}>
                                   {t('common.cancel', 'Vazgeç')}
                                 </Button>
                               </div>
                             </div>
-                          ) : (
-                            <span className="text-sm text-slate-900">{value}</span>
                           )}
                         </div>
-                      ))}
-                    </div>
+                      ) : jobExtraTimeReview?.jobId === detail.jobId ? (
+                        <div className="mt-1 flex max-w-[20rem] flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+                          <span className="text-xs font-semibold text-slate-900">
+                            {jobExtraTimeReview.loading
+                              ? t('common.loading')
+                              : jobExtraTimeReview.proposedDueDateUtc
+                                ? `${t('tasks.actions.extraTimeRequest', 'Ek süre iste')}: ${formatDateTime(jobExtraTimeReview.proposedDueDateUtc, locale)}`
+                                : t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}
+                          </span>
+                          <div className="inline-actions justify-start gap-1.5">
+                            <Button type="button" size="sm" variant="success" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => void handleJobExtraTimeDecision('approve')}>
+                              {jobExtraTimeReview.saving ? t('common.loading') : t('common.approve', 'Onayla')}
+                            </Button>
+                            <Button type="button" size="sm" variant="destructive" disabled={jobExtraTimeReview.saving || jobExtraTimeReview.loading} onClick={() => void handleJobExtraTimeDecision('reject')}>
+                              {t('common.reject', 'Reddet')}
+                            </Button>
+                            <Button type="button" size="sm" variant="secondary" disabled={jobExtraTimeReview.saving} onClick={() => setJobExtraTimeReview(null)}>
+                              {t('common.cancel', 'Vazgeç')}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900">{formatDueDateTime(detail.dueDateUtc, locale)}</span>
+                          {canChangeDetailDueDate && (
+                            <button
+                              type="button"
+                              className="text-xs font-bold text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
+                              onClick={openDetailDueDateEdit}
+                            >
+                              {t('common.change', 'Değiştir')}
+                            </button>
+                          )}
+                          {isManagerLike && detail.tasks.some(task => task.hasPendingExtraTimeRequest) && (
+                            <button
+                              type="button"
+                              className="text-xs font-bold text-amber-600 underline underline-offset-2 hover:text-amber-700"
+                              onClick={() => void openJobExtraTimeReview()}
+                            >
+                              {t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')}
+                            </button>
+                          )}
+                        </div>
+                      )
+                      return (
+                        <JobProcessTimeline
+                          steps={processSteps}
+                          locale={locale}
+                          recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
+                          statusContent={(
+                            <span className={`inline ${detailStatusClass}`}>
+                              {incomingOutgoingStatusLabel}
+                            </span>
+                          )}
+                          statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
+                          dueDateContent={dueDateContent}
+                        />
+                      )
+                    })()}
                   </div>
                   <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                     <MyRequestSectionHeading icon={FileText}>

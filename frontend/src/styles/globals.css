@@ -3881,7 +3881,13 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #16a34a;
-    animation: ccc-blink 1.1s ease-in-out infinite;
+    animation: ccc-blink 1.6s ease-in-out infinite;
+  }
+
+  /* Görev gridlerinde (Birimdeki Görevler/Personelimin Görevleri/Görevlerim) bekleyen ek süre
+     talebi işareti "Yeni" rozetiyle aynı yanıp sönme efektini kullanır (card #1404, 3. reopen). */
+  .extra-time-pending-blink {
+    animation: ccc-blink 1.6s ease-in-out infinite;
   }
 
   @keyframes ccc-blink {
@@ -3890,7 +3896,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .task-new-badge {
+    .task-new-badge,
+    .extra-time-pending-blink {
       animation: none;
     }
   }

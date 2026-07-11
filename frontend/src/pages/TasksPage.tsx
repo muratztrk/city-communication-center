@@ -369,6 +369,7 @@ function TaskGridExtraTimeMarkers({
     <GridExtraTimeMarkers
       hasPending={task.hasPendingExtraTimeRequest}
       lastDecision={task.lastExtraTimeRequestDecision}
+      blink
     />
   )
 }
@@ -2325,7 +2326,7 @@ const pageKicker = isMyTasksView
                                 // ayrı bir "(Ek süre talebi)" işaretiyle tekrar edilmez (card #1404 reopen).
                                 <button
                                   type="button"
-                                  className="text-xs font-bold text-amber-500 underline-offset-2 hover:underline"
+                                  className="text-xs font-bold text-amber-500 underline-offset-2 hover:text-amber-600 hover:underline"
                                   onClick={openExtraTimeReview}
                                 >
                                   ({t('tasks.actions.viewExtraTimeRequest', 'Ek süre talebini gör')})

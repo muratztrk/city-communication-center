@@ -306,7 +306,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         string.Join(" — ", messageParts),
                         isHistoricalRead,
                         isTask
-                            ? $"/my-tasks?taskId={a.EntityId}"
+                            ? ResolveHistoricalTaskActionUrl(a.Action, a.EntityId)
                             : $"/my-requests?jobId={a.EntityId}",
                         a.EventTimeUtc,
                         IsHistorical: true,
@@ -365,6 +365,15 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 && audit.StatusAtEvent == WorkflowTaskStatus.Cancelled.ToString() => "Görev İptal Edildi",
             _ => ActionTitle(audit.Action),
         };
+
+    /// <summary>
+    /// Ek süre talebi yöneticiye gider; Detay Birimdeki Görevler popup'ını açmalı
+    /// (<c>/department-tasks</c>). Kalıcı bildirim de aynı path'i kullanır (card #1394).
+    /// </summary>
+    private static string ResolveHistoricalTaskActionUrl(string action, string taskId) =>
+        action is "TaskExtraTimeRequested"
+            ? $"/department-tasks?taskId={taskId}"
+            : $"/my-tasks?taskId={taskId}";
 
     private static string ActionTitle(string action) => action switch
     {

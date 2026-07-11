@@ -80,7 +80,7 @@ function parseNotificationDetailTarget(url: string): { kind: 'task' | 'job' | 'u
 interface NotifItemProps {
   item: AppNotification
   onMarkRead: (id: string) => void
-  onNavigate?: (url: string) => void
+  onNavigate?: (url: string, title?: string) => void
   locale: string
   largeDetailButton?: boolean
 }
@@ -122,7 +122,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
   }
   const handleOpenDetail = () => {
     if (canMarkRead) onMarkRead(n.notificationId)
-    if (n.actionUrl && onNavigate) onNavigate(n.actionUrl)
+    if (n.actionUrl && onNavigate) onNavigate(n.actionUrl, n.title)
   }
 
   return (
@@ -195,7 +195,7 @@ function hasExtraTimeMarker(source: Pick<TaskDetail, 'hasPendingExtraTimeRequest
 interface NotifListProps {
   items: AppNotification[]
   onMarkRead: (id: string) => void
-  onNavigate?: (url: string) => void
+  onNavigate?: (url: string, title?: string) => void
   locale: string
   largeDetailButton?: boolean
 }
@@ -491,12 +491,18 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   }
 
   // Bildirim detayı, mevcut sayfayı değiştirmeden uygulama kabuğunda açılır.
-  const handleOpenNotificationDetail = async (url: string) => {
+  const handleOpenNotificationDetail = async (url: string, title?: string) => {
     const target = parseNotificationDetailTarget(url)
     setIsModalOpen(false)
     if (target.kind === 'unsupported' || !target.id) return
 
-    onOpenDetail?.({ kind: target.kind, id: target.id, scope: target.scope })
+    // Ek süre talebi yöneticiye gider; eski audit-feed URL'leri /my-tasks yazmış olsa bile
+    // Birimdeki Görevler popup'ı açılmalı (card #1394).
+    const scope = target.kind === 'task' && /^Ek süre talebi$/i.test(title?.trim() ?? '')
+      ? 'department'
+      : target.scope
+
+    onOpenDetail?.({ kind: target.kind, id: target.id, scope })
   }
 
   const openModal = () => {

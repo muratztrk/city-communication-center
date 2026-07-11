@@ -421,8 +421,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             var taskDescriptions = await _dbContext.Tasks
                 .AsNoTracking()
                 .Where(task => taskIds.Contains(task.TaskId))
-                .Select(task => new { task.TaskId, task.Description })
-                .ToDictionaryAsync(task => task.TaskId, task => task.Description, cancellationToken);
+                .Select(task => new { task.TaskId, task.Description, task.Notes })
+                .ToDictionaryAsync(task => task.TaskId, task => task, cancellationToken);
 
             var taskAttachmentRows = await _dbContext.Attachments
                 .AsNoTracking()
@@ -452,7 +452,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             tasks = tasks
                 .Select(task => task with
                 {
-                    Description = taskDescriptions.GetValueOrDefault(task.TaskId),
+                    Description = taskDescriptions.GetValueOrDefault(task.TaskId)?.Description,
+                    // Görevin kendi tamamlama/durum değişikliği notu — "Görev Tamamlama Notu" kartı için (card #1402).
+                    Notes = taskDescriptions.GetValueOrDefault(task.TaskId)?.Notes,
                     Attachments = attachmentsByTask.GetValueOrDefault(task.TaskId) ?? Array.Empty<AttachmentResponse>(),
                 })
                 .ToList();

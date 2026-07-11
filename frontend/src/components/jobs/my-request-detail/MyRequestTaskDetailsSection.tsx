@@ -144,14 +144,16 @@ export function MyRequestTaskDetailsSection({
               </div>
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={FileText}>
-                  {t('tasks.detail.description', 'Açıklama')}
+                  {detail.status === 'Completed' && task.currentStatus === 'Completed'
+                    ? t('tasks.detail.completionNoteTitle', 'Görev Tamamlama Notu')
+                    : t('tasks.detail.description', 'Açıklama')}
                 </MyRequestSectionHeading>
                 {detail.status === 'Completed' && task.currentStatus === 'Completed' ? (
                   <div className="grid min-h-full gap-3 lg:grid-cols-2">
                     <div className="min-w-0 border-b border-slate-200 pb-3 lg:border-b-0 lg:border-r lg:pr-3 lg:pb-0">
                       <RichTextContent
-                        value={task.description?.trim() ? task.description : detail.description}
-                        emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                        value={task.notes}
+                        emptyText={t('tasks.detail.noCompletionNote', 'Tamamlama notu girilmemiş')}
                         className="rich-text-content text-sm leading-6 text-slate-900"
                       />
                     </div>

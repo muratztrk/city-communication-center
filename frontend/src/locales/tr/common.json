@@ -719,6 +719,8 @@
       "noDescription": "Açıklama yok",
       "cancelNote": "İptal Notu",
       "completionNote": "Tamamlama Notu",
+      "completionNoteTitle": "Görev Tamamlama Notu",
+      "noCompletionNote": "Tamamlama notu girilmemiş",
       "assignmentHistory": "Atama Geçmişi",
       "taskAssignmentHistory": "Görev Atama Geçmişi",
       "statusChangeHistory": "Durum Değişikliği",

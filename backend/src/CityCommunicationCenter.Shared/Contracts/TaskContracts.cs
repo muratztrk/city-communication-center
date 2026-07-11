@@ -96,7 +96,10 @@ public sealed record TaskSummaryResponse(
     string? Description = null,
     IReadOnlyCollection<AttachmentResponse>? Attachments = null,
     // Yönlendirilmiş dış birim talebinin hedef departman notu (Talebin Yönlenme Sebebi).
-    string? ForwardReason = null);
+    string? ForwardReason = null,
+    // Görevin kendi tamamlama/durum değişikliği notu — talep detayı "Görev Detayları"nda
+    // "Görev Tamamlama Notu" kartı için (card #1402).
+    string? Notes = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

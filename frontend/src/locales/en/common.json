@@ -713,6 +713,8 @@
       "noDescription": "No description",
       "cancelNote": "Cancellation Note",
       "completionNote": "Completion Note",
+      "completionNoteTitle": "Task Completion Note",
+      "noCompletionNote": "No completion note entered",
       "assignmentHistory": "Assignment History",
       "taskAssignmentHistory": "Task Assignment History",
       "statusChangeHistory": "Status Change",

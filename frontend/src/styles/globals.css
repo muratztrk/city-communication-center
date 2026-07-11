@@ -353,6 +353,12 @@
     padding: 0 !important;
   }
 
+  /* "Görev Detayları" bir önceki bölümün hemen altında, kendi üst boşluğu olmadan
+     çerçeveye yapışık duruyordu (card #1523 fix'inin yan etkisi, card #1402). */
+  .detail-modal-shell--my-request .my-request-task-details {
+    margin-top: 1rem;
+  }
+
   .detail-modal-shell--my-request .my-request-detail-description-panel {
     background: rgb(248 250 249);
   }

@@ -329,7 +329,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tam `DisplayName` yazar. Frontend eski `Dept / Name` biçimini `Dept · Name` yapar ve eski
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.
 - **WhatsApp gelen vatandaş balonu sender label (card #1554 reopen):** kayıtlı vatandaş adı varsa
-  `Ad Soyad Telefon` (bullet yok), ad yoksa yalnız biçimlendirilmiş telefon gösterilir; boş üst satır basılmaz.
+  `Ad Soyad Telefon` (bullet yok) gösterilir; telefon addan küçük ve daha açık renktir. Ad yoksa yalnız
+  biçimlendirilmiş telefon gösterilir; boş üst satır basılmaz.
 - **Konuşma balonu zaman formatı (cards #1557/#1558/#1560):** WhatsApp ve kurum içi mesajlarda
   bugün `HH:mm`, önceki takvim günü saatten bağımsız `Dün`, daha eski mesaj `gg.aa.yyyy` gösterir.
 - **WhatsApp Talep oluştur konuşma header (card #1555):** `headerMode=phone` iken ortak
@@ -346,7 +347,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ortak `/icons/whatsapp.webp` asset'ini kullanır. Sağ alt WhatsApp bildirim FAB'ı eski yalın yeşil
   baloncuk görünümünde kalır; merkezinde küçük beyaz disk içinde ortak `/icons/whatsapp.webp`
   görünür. `/whatsapp` konuşma listesinin sağ üst
-  zaman alanı göreli gün metni (`Dün`, `Bugün`) değil, son mesajın saat:dakika değeridir.
+  zaman alanı bugün saat:dakika, önceki takvim günü `Dün`, daha eskide `gg.aa.yyyy` değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
   detay header'ı telefon yerine adı öncelikli gösterir. Sol konuşma kartında isim varsa telefon
@@ -411,6 +412,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   balonundan bir kademe küçüktür (`text-xs` / `px-2.5 py-1.5`).
 - **Kurum İçi Mesajlar teslim/okunma durumu (card #1559):** kullanıcının kendi balonunda zamanın
   solunda çift tik + `İletildi` bulunur; `ReadAtUtc` dolunca çift tik ve `Okundu` mavi olur.
+- **Kurum İçi Mesajlar küçük ayraç/paging hizası (card #1542 reopen):** gönderen ve teslim durumu
+  bullet'ları metnin optik ortasında küçük kalır; paging yazıları üst/alt border'a yapışmaz.
 - **WhatsApp talep etiketi (card #1561):** profil Talep Etiketi input'u salt okunurdur; seçim yalnız
   ortak Etiketler dropdown'undan yapılır. Vatandaş Çağrı Talebi modalı aynı salt-okunur değer +
   Etiketler + Etiket Ekle bileşenlerini kullanır ve seçim conversation profile'a anında kaydedilir.

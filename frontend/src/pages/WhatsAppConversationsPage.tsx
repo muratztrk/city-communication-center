@@ -34,6 +34,7 @@ import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { formatConversationMessageTime } from '../utils/conversationListTime'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -217,7 +218,7 @@ function ConversationListItem({
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
   const ticketOpen = isConversationTicketOpen(conv)
-  const timeLabel = new Date(conv.lastMessageAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+  const timeLabel = formatConversationMessageTime(conv.lastMessageAt, locale, t)
   const recentTime = isRecentConversationTime(conv.lastMessageAt)
   const responseStatus = waitingForResponse ? (
     <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">

@@ -33,12 +33,7 @@ export function formatConversationListTime(dateStr: string, locale: string, t: T
     return t('common.today', 'Bugün')
   }
 
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / (24 * 60 * 60 * 1000))
-  if (options?.compact && diffDays >= 1 && diffDays < 7) {
-    return locale.startsWith('tr') ? `${diffDays} gün` : `${diffDays}d`
-  }
-
-  return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
+  return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 /** Mesaj balonu zamanı: bugün HH:mm, önceki takvim günü Dün, daha eski gg.aa.yyyy. */

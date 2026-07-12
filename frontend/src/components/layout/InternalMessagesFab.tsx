@@ -225,13 +225,13 @@ export function InternalMessagesFab() {
     <div className="relative size-14 shrink-0">
       {isOpen ? (
         <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(66dvh,37rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
-          <div className="flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pl-2 pr-4">
-              <div className="flex min-w-0 flex-1 items-start gap-2">
+          <div className="flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pl-1 pr-4">
+              <div className="flex min-w-0 flex-1 items-start gap-1.5">
                 {activeChat ? (
                   <button
                     type="button"
                     onClick={() => { setActiveChat(null); setChatDetail(null) }}
-                    className="inline-flex shrink-0 flex-col items-center gap-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
+                    className="inline-flex shrink-0 flex-col items-center gap-0 rounded-md px-1 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
                     aria-label={t('common.back', 'Geri')}
                   >
                     <span>{t('common.back', 'Geri')}</span>
@@ -300,7 +300,7 @@ export function InternalMessagesFab() {
                             }`}
                           >
                             <p className={`mb-0.5 text-[11px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-slate-900'}`}>
-                              {senderName} <span className="text-[7px]" aria-hidden="true">•</span> {senderDepartment}
+                              {senderName} <span className="mx-0.5 inline-block size-1 translate-y-[-0.08em] rounded-full bg-current align-middle opacity-70" aria-hidden="true" /> {senderDepartment}
                             </p>
                             <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
                             <p className={`mt-0.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
@@ -308,7 +308,7 @@ export function InternalMessagesFab() {
                                 <span className={`inline-flex items-center gap-0.5 ${message.readAtUtc ? 'text-sky-300' : 'text-emerald-100'}`}>
                                   <CheckCheck className="size-3" aria-hidden="true" />
                                   <span>{message.readAtUtc ? 'Okundu' : 'İletildi'}</span>
-                                  <span className="text-[6px]" aria-hidden="true">•</span>
+                                  <span className="mx-0.5 inline-block size-1 rounded-full bg-current align-middle opacity-70" aria-hidden="true" />
                                 </span>
                               ) : null}
                               <span>{formatConversationMessageTime(message.createdAtUtc, locale, t)}</span>

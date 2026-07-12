@@ -2040,3 +2040,17 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   sırası Personel • Birim oldu, bullet küçültüldü; paging dikey padding artırıldı.
 
 ## STATUS: Round 255 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 256 (Doing — 2026-07-12, konuşma görsel ince ayarları)
+- [x] `6a53a040cc2116ea7f0ab2bf` / #1558 reopen — Kurum içi konuşma listesinde dün ve daha
+  eski zaman etiketleri takvim günü esaslı `Dün` / `gg.aa.yyyy` olarak kesinleştirildi.
+- [x] `6a5388d28e6a11e958a0e5a4` / #1554 reopen — Kayıtlı vatandaş balonunda telefon,
+  vatandaş adından küçük ve daha açık renkte ayrıştırıldı.
+- [x] `6a539f43901cabf74a680e60` / #1557 reopen — WhatsApp konuşma listesi zamanı bugün
+  `HH:mm`, dün `Dün`, daha eskide `gg.aa.yyyy` gösterir.
+- [x] `6a538c5c06a6ddb55707cb9b` / #1555 reopen — Vatandaş talebi oluştur konuşma
+  header'ındaki WhatsApp ikonu bir kademe daha küçültüldü.
+- [x] `6a536136575f3a55687a604f` / #1542 reopen — Kurum içi sohbet geri/avatar grubu sola
+  yaklaştırıldı; küçük bullet'lar optik ortalandı ve paging üst/alt boşluğu artırıldı.
+
+## STATUS: Round 256 complete — frontend build/lint passed; cards ready to move to Done.

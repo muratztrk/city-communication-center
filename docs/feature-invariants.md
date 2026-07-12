@@ -328,6 +328,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma balonu sender label:** personel adı soyadı kısaltılmaz; backend `FormatStaffLabel`
   tam `DisplayName` yazar. Frontend eski `Dept / Name` biçimini `Dept · Name` yapar ve eski
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.
+- **WhatsApp gelen vatandaş balonu sender label (card #1554):** kayıtlı vatandaş adı varsa
+  `Ad Soyad • Telefon`, yoksa yalnız biçimlendirilmiş telefon gösterilir; boş üst satır basılmaz.
 - **WhatsApp konuşma detay header zemini:** seçili konuşmanın üst bilgi şeridi breadcrumb `Anasayfa`
   yüzeyiyle aynı açık `slate-50` zemininde kalır; chat mesaj alanı ayrı WhatsApp dokulu zemindir
   (card #1252).
@@ -395,6 +397,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kaybolmaz; geri aksiyonu koyu turkuaz `← Geri`dir. Personel avatarı ad/soyad baş harflerini kullanır;
   liste durumu zamanın altında renkli noktayla görünür. Mesaj balonunda `Birim • Ad Soyad` etiketi ve
   takvim günü değiştiğinde ortalı `gün ay` ayırıcısı bulunur.
+- **Kurum İçi Mesajlar sohbet header/balonları (card #1542 reopen):** `← Geri` üst hizada;
+  personel adı ana satırda, birim altında, küçük `Kurum İçi Mesajlar` etiketi sağa yaslıdır.
+  Mesaj balon padding/radius/gölge/font ölçüsü WhatsApp `ConversationEntryBubble` ile eşleşir.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.

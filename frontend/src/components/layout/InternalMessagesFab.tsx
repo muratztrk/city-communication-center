@@ -225,13 +225,13 @@ export function InternalMessagesFab() {
     <div className="relative size-14 shrink-0">
       {isOpen ? (
         <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(66dvh,37rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-emerald-700/10 px-4 py-3">
-              <div className="flex min-w-0 items-center gap-2">
+          <div className="flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 px-4 py-3">
+              <div className="flex min-w-0 flex-1 items-start gap-2">
                 {activeChat ? (
                   <button
                     type="button"
                     onClick={() => { setActiveChat(null); setChatDetail(null) }}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-1 text-xs font-bold text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
                     aria-label={t('common.back', 'Geri')}
                   >
                     <span aria-hidden="true">←</span>
@@ -243,17 +243,22 @@ export function InternalMessagesFab() {
                     {getInitials(activeChat.displayName)}
                   </span>
                 ) : null}
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-[color:var(--color-foreground)]">
-                    {t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}
-                  </p>
+                <div className="min-w-0 flex-1">
                   {activeChat ? (
-                    <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
-                      {activeChat.displayName} · {activeChat.departmentName ?? '—'}
-                    </p>
-                  ) : null}
+                    <>
+                      <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
+                      <p className="mt-0.5 truncate text-xs text-[color:var(--color-muted-foreground)]">{activeChat.departmentName ?? '—'}</p>
+                    </>
+                  ) : (
+                    <p className="truncate text-sm font-bold text-[color:var(--color-foreground)]">{t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}</p>
+                  )}
               </div>
             </div>
+            {activeChat ? (
+              <span className="mt-0.5 shrink-0 text-right text-[10px] font-semibold text-teal-700">
+                {t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}
+              </span>
+            ) : null}
             <button
               type="button"
               className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
@@ -290,14 +295,14 @@ export function InternalMessagesFab() {
                         ) : null}
                         <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                           <div
-                            className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
-                              isMine ? 'bg-emerald-700 text-white' : 'border border-slate-200 bg-white text-slate-900'
+                            className={`max-w-[min(72%,28rem)] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-md ${
+                              isMine ? 'rounded-tr-sm bg-emerald-700 text-white ring-1 ring-white/10' : 'rounded-tl-sm bg-white text-slate-800 ring-1 ring-black/[0.04]'
                             }`}
                           >
-                            <p className={`mb-1 text-[10px] font-bold ${isMine ? 'text-emerald-100' : 'text-orange-600'}`}>
+                            <p className={`mb-1.5 text-[13px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-orange-600'}`}>
                               {senderDepartment} <span aria-hidden="true">•</span> {senderName}
                             </p>
-                            <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                            <p className="whitespace-pre-wrap break-words leading-snug">{message.content}</p>
                             <p className={`mt-1 text-right text-[10px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
                               {formatConversationListTime(message.createdAtUtc, locale, t, { compact: true })}
                             </p>

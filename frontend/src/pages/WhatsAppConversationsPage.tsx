@@ -1060,6 +1060,11 @@ function ConversationDetail({
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
   const headerInitials = citizenName ? getInitials(citizenName) : null
+  const inboundSenderLabel = citizenName?.trim() && phoneForHeader
+    ? `${citizenName.trim()} • ${formatPhone(phoneForHeader)}`
+    : phoneForHeader
+      ? formatPhone(phoneForHeader)
+      : null
   const ticketLabel = detail
     ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount + detail.cancelledCount}`
     : formatWhatsAppTicketLabel(primaryTicket)
@@ -1217,6 +1222,7 @@ function ConversationDetail({
                       <ConversationEntryBubble
                         entry={entry}
                         theme="light"
+                        inboundSenderLabel={inboundSenderLabel}
                         canSendPending={canSendPending}
                         onSendPending={() => handleSendPending(entry)}
                         sendingPending={sendingPendingId === entry.entryId}

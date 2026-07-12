@@ -2010,3 +2010,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Panel sağ hizaları scroll FAB'ın render durumuna göre koşullu ayarlandı.
 
 ## STATUS: Round 253 complete — frontend build/lint passed; card moved to Done.
+
+## Round 254 (Doing — 2026-07-12, WhatsApp vatandaş etiketi + kurum içi chat uyumu)
+- [x] `6a5388d28e6a11e958a0e5a4` / #1554 — `/whatsapp` gelen vatandaş balonuna kayıtlı
+  isim varsa `Ad Soyad • Telefon`, yoksa yalnız telefon üst bilgisi eklendi.
+- [x] `6a536136575f3a55687a604f` / #1542 reopen — Kurum İçi Mesajlar sohbet header'ında
+  geri/personel/birim/başlık hizası yenilendi; mesaj balonları WhatsApp padding, radius, gölge,
+  font boyutu ve sender label tipografisine eşitlendi.
+
+## STATUS: Round 254 complete — frontend build/lint passed; cards moved to Done.

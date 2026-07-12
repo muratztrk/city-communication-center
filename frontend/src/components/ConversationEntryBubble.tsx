@@ -38,6 +38,7 @@ interface ConversationEntryBubbleProps {
   /** Beklemedeki mesaj metnini düzenler (yalnızca operatör) — card #1094. */
   onEditPending?: (entryId: string, content: string) => void | Promise<void>
   onShowTerminalNote?: (entry: ConversationEntryBubbleData) => void
+  inboundSenderLabel?: string | null
 }
 
 export function ConversationEntryBubble({
@@ -51,6 +52,7 @@ export function ConversationEntryBubble({
   sendingPending = false,
   onEditPending,
   onShowTerminalNote,
+  inboundSenderLabel,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
@@ -94,7 +96,9 @@ export function ConversationEntryBubble({
                 : { background: 'color-mix(in srgb, var(--color-header-from) 55%, #000)' }
           }
         >
-          {!isInbound && senderLabel ? (
+          {isInbound && inboundSenderLabel ? (
+            <ConversationSenderHeader label={inboundSenderLabel} variant="inline" tone="inbound" />
+          ) : !isInbound && senderLabel ? (
             <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" />
           ) : null}
           {hasMedia && (

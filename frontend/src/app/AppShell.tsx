@@ -2,6 +2,7 @@ import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, Chev
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
+import { InternalMessagesFab } from '../components/layout/InternalMessagesFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 
 declare const __APP_VERSION__: string
@@ -733,6 +734,9 @@ export function AppShell() {
             <WhatsAppNotificationFab />
           </div>
         ) : null}
+        <div className="pointer-events-auto">
+          <InternalMessagesFab />
+        </div>
         <div className="pointer-events-auto">
           <ScrollFab />
         </div>

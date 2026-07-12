@@ -25,9 +25,18 @@ export interface WhatsAppMessagePayload {
   senderUserId?: string | null
 }
 
+export interface InternalMessagePayload {
+  internalConversationId: string
+  senderUserId: string
+  senderDisplayName: string
+  messagePreview: string
+  createdAtUtc: string
+}
+
 export interface SignalRHandlers {
   onNotification?: (payload: NotificationPayload) => void
   onWhatsAppMessage?: (payload: WhatsAppMessagePayload) => void
+  onInternalMessage?: (payload: InternalMessagePayload) => void
   onReconnected?: () => void
 }
 
@@ -54,8 +63,19 @@ function mapWhatsAppPayload(raw: Record<string, unknown>): WhatsAppMessagePayloa
   }
 }
 
+function mapInternalMessagePayload(raw: Record<string, unknown>): InternalMessagePayload {
+  return {
+    internalConversationId: String(raw.internalConversationId ?? raw.InternalConversationId ?? ''),
+    senderUserId: String(raw.senderUserId ?? raw.SenderUserId ?? ''),
+    senderDisplayName: String(raw.senderDisplayName ?? raw.SenderDisplayName ?? ''),
+    messagePreview: String(raw.messagePreview ?? raw.MessagePreview ?? ''),
+    createdAtUtc: String(raw.createdAtUtc ?? raw.CreatedAtUtc ?? ''),
+  }
+}
+
 const notificationHandlers = new Set<(payload: NotificationPayload) => void>()
 const whatsAppMessageHandlers = new Set<(payload: WhatsAppMessagePayload) => void>()
+const internalMessageHandlers = new Set<(payload: InternalMessagePayload) => void>()
 const reconnectHandlers = new Set<() => void>()
 
 let connection: signalR.HubConnection | null = null
@@ -69,6 +89,10 @@ function dispatchNotification(payload: NotificationPayload) {
 function dispatchWhatsAppMessage(payload: WhatsAppMessagePayload) {
   whatsAppMessageHandlers.forEach(handler => handler(payload))
   window.dispatchEvent(new CustomEvent('ccc:whatsapp-message', { detail: payload }))
+}
+
+function dispatchInternalMessage(payload: InternalMessagePayload) {
+  internalMessageHandlers.forEach(handler => handler(payload))
 }
 
 function dispatchReconnect() {
@@ -85,6 +109,7 @@ async function disconnectSignalR() {
 function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
   nextConnection.off('ReceiveNotification')
   nextConnection.off('ReceiveWhatsAppMessage')
+  nextConnection.off('ReceiveInternalMessage')
   nextConnection.off('reconnected')
 
   nextConnection.on('ReceiveNotification', (payload: Record<string, unknown>) => {
@@ -93,6 +118,10 @@ function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
 
   nextConnection.on('ReceiveWhatsAppMessage', (payload: Record<string, unknown>) => {
     dispatchWhatsAppMessage(mapWhatsAppPayload(payload))
+  })
+
+  nextConnection.on('ReceiveInternalMessage', (payload: Record<string, unknown>) => {
+    dispatchInternalMessage(mapInternalMessagePayload(payload))
   })
 
   nextConnection.onreconnected(() => {
@@ -167,12 +196,16 @@ export function useSignalR(handlers?: SignalRHandlers) {
     const onWhatsAppMessage = (payload: WhatsAppMessagePayload) => {
       handlersRef.current?.onWhatsAppMessage?.(payload)
     }
+    const onInternalMessage = (payload: InternalMessagePayload) => {
+      handlersRef.current?.onInternalMessage?.(payload)
+    }
     const onReconnected = () => {
       handlersRef.current?.onReconnected?.()
     }
 
     notificationHandlers.add(onNotification)
     whatsAppMessageHandlers.add(onWhatsAppMessage)
+    internalMessageHandlers.add(onInternalMessage)
     reconnectHandlers.add(onReconnected)
 
     void ensureConnection(sessionActive)
@@ -180,6 +213,7 @@ export function useSignalR(handlers?: SignalRHandlers) {
     return () => {
       notificationHandlers.delete(onNotification)
       whatsAppMessageHandlers.delete(onWhatsAppMessage)
+      internalMessageHandlers.delete(onInternalMessage)
       reconnectHandlers.delete(onReconnected)
     }
   }, [])

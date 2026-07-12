@@ -47,6 +47,9 @@ import type {
   AppNotification,
   CitizenConversationSummary,
   CitizenConversationDetail,
+  InternalConversationSummary,
+  InternalMessage,
+  InternalConversationDetail,
   WhatsAppMessageTemplate,
   WhatsAppTemplatesSyncFromMetaResult,
   UserQuickReplyTemplate,
@@ -1094,6 +1097,36 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
+  async getInternalConversations(): Promise<InternalConversationSummary[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/internal-messages/conversations`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.internalMessagesLoadFailed', 'Kurum içi mesajlar yüklenemedi.'))
+    return response.json() as Promise<InternalConversationSummary[]>
+  },
+
+  async getInternalConversationWithUser(otherUserId: string): Promise<InternalConversationDetail> {
+    const response = await fetchWithCredentials(`${API_BASE}/internal-messages/conversations/with/${otherUserId}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.internalMessagesLoadFailed', 'Kurum içi mesajlar yüklenemedi.'))
+    return response.json() as Promise<InternalConversationDetail>
+  },
+
+  async sendInternalMessage(recipientUserId: string, content: string): Promise<{ internalConversationId: string; message: InternalMessage }> {
+    const response = await fetchWithCredentials(`${API_BASE}/internal-messages/messages`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipientUserId, content }),
+    })
+    await ensureOk(response, i18n.t('errors.internalMessageSendFailed', 'Mesaj gönderilemedi.'))
+    return response.json() as Promise<{ internalConversationId: string; message: InternalMessage }>
+  },
+
+  async markInternalConversationRead(internalConversationId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/internal-messages/conversations/${internalConversationId}/read`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.internalMessagesLoadFailed', 'Kurum içi mesajlar yüklenemedi.'))
   },
 
   async updateCitizenConversationProfile(conversationId: string, payload: {

@@ -454,6 +454,34 @@ export interface CitizenConversationSummary {
   lastStaffSenderDisplayName?: string | null;
 }
 
+// Kurum içi (personel-arası) mesajlaşma — card #1539.
+export interface InternalConversationSummary {
+  internalConversationId: string;
+  otherUserId: string;
+  otherUserDisplayName: string;
+  otherUserDepartmentName: string | null;
+  lastMessagePreview: string | null;
+  lastMessageSenderUserId: string | null;
+  lastMessageAtUtc: string;
+  unreadCount: number;
+}
+
+export interface InternalMessage {
+  internalMessageId: string;
+  senderUserId: string;
+  content: string;
+  createdAtUtc: string;
+  readAtUtc: string | null;
+}
+
+export interface InternalConversationDetail {
+  internalConversationId: string | null;
+  otherUserId: string;
+  otherUserDisplayName: string;
+  otherUserDepartmentName: string | null;
+  messages: InternalMessage[];
+}
+
 export interface CitizenConversationTimelineEntry {
   entryId: string;
   direction: 'Inbound' | 'Outbound';

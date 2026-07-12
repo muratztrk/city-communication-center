@@ -50,4 +50,21 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             .Group($"tenant-{tenantId}")
             .SendAsync("ReceiveWhatsAppMessage", payload, cancellationToken);
     }
+
+    public async Task SendInternalMessageToUserAsync(
+        Guid tenantId,
+        Guid recipientUserId,
+        InternalMessagePayload payload,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug(
+            "Sending internal message to user {UserId} in tenant {TenantId} for conversation {ConversationId}",
+            recipientUserId,
+            tenantId,
+            payload.InternalConversationId);
+
+        await _hubContext.Clients
+            .Group($"user-{recipientUserId}")
+            .SendAsync("ReceiveInternalMessage", payload, cancellationToken);
+    }
 }

@@ -51,6 +51,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<EDevletActivityType> EDevletActivityTypes => Set<EDevletActivityType>();
     public DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans => Set<EDevletDailyActivityPlan>();
     public DbSet<EDevletBasvuru> EDevletBasvurular => Set<EDevletBasvuru>();
+    public DbSet<InternalConversation> InternalConversations => Set<InternalConversation>();
+    public DbSet<InternalMessage> InternalMessages => Set<InternalMessage>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -117,6 +119,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureEDevletDailyActivityPlan(modelBuilder.Entity<EDevletDailyActivityPlan>());
         ConfigureEDevletBasvuru(modelBuilder.Entity<EDevletBasvuru>());
         ConfigureEDevletBasvuruAttachment(modelBuilder.Entity<EDevletBasvuruAttachment>());
+        ConfigureInternalConversation(modelBuilder.Entity<InternalConversation>());
+        ConfigureInternalMessage(modelBuilder.Entity<InternalMessage>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -145,6 +149,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<EDevletDailyActivityPlan>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuru>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuruAttachment>());
+        ApplyTenantFilter(modelBuilder.Entity<InternalConversation>());
+        ApplyTenantFilter(modelBuilder.Entity<InternalMessage>());
 
         ApplyInstallSeedData(modelBuilder);
     }
@@ -608,6 +614,20 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("pushsubscriptions");
         builder.HasKey(entity => entity.PushSubscriptionId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureInternalConversation(EntityTypeBuilder<InternalConversation> builder)
+    {
+        builder.ToTable("internalconversations");
+        builder.HasKey(entity => entity.InternalConversationId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureInternalMessage(EntityTypeBuilder<InternalMessage> builder)
+    {
+        builder.ToTable("internalmessages");
+        builder.HasKey(entity => entity.InternalMessageId);
         ApplyLowerCaseColumnNames(builder);
     }
 

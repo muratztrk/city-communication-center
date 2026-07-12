@@ -28,6 +28,8 @@ public interface IApplicationDbContext
     DbSet<EDevletActivityType> EDevletActivityTypes { get; }
     DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans { get; }
     DbSet<EDevletBasvuru> EDevletBasvurular { get; }
+    DbSet<InternalConversation> InternalConversations { get; }
+    DbSet<InternalMessage> InternalMessages { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

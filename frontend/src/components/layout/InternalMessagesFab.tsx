@@ -300,7 +300,7 @@ export function InternalMessagesFab() {
                             }`}
                           >
                             <p className={`mb-0.5 text-[11px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-slate-900'}`}>
-                              {senderName} <span className="mx-0.5 inline-block size-[2px] translate-y-[-0.08em] rounded-full bg-current align-middle opacity-70" aria-hidden="true" /> {senderDepartment}
+                              {senderName} <span className="mx-0.5 inline-block size-[2px] translate-y-[-0.08em] rounded-full bg-current align-middle opacity-70" aria-hidden="true" /> <span className="italic">{senderDepartment}</span>
                             </p>
                             <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
                             <p className={`mt-0.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>

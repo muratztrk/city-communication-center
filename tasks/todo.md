@@ -2105,3 +2105,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   personel adı, seçilen hedef birim yerine gönderen kullanıcının profilinden üretilir hale getirildi.
 
 ## STATUS: Round 264 complete — backend solution build passed; card ready to move to Done.
+
+## Round 265 (Doing — 2026-07-12, kurum içi gönderen italik ayrımı)
+- [x] `6a53f0f57539112fa590fc74` / #1564 — Kurum İçi Mesajlaşma FAB balonunda birim adı;
+  WhatsApp kurum içi mesaj balonunda personel adı italik gösterildi, mevcut sıra/bullet korundu.
+
+## STATUS: Round 265 complete — frontend build/lint passed; card ready to move to Done.

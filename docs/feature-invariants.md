@@ -413,6 +413,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (dikey `Geri` / `←`); personel adı ana satırda, birim altında, küçük `Kurum İçi Mesajlar` etiketi
   sağa yaslıdır. Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
   balonundan bir kademe küçüktür (`text-xs` / `px-2.5 py-1.5`).
+- **Kurum içi gönderen italik ayrımı (card #1564):** Kurum İçi Mesajlaşma FAB sohbet balonunda
+  birim adı italiktir; WhatsApp kurum içi mesaj balonunda ise personel adı italiktir. Diğer parça
+  normal stile ve mevcut `Birim · Ad Soyad` sırasına sadık kalır.
 - **Kurum İçi Mesajlar teslim/okunma durumu (card #1559):** kullanıcının kendi balonunda zamanın
   solunda çift tik + `İletildi` bulunur; `ReadAtUtc` dolunca çift tik ve `Okundu` mavi olur.
 - **Kurum İçi Mesajlar küçük ayraç/paging hizası (card #1542 reopen):** gönderen ve teslim durumu

@@ -14,6 +14,7 @@ export function ConversationSenderHeader({
   // "Kurum İçi Mesaj · Birim · Kullanıcı" etiketi iki satır olur: ilk satır standart turuncu
   // başlık (card #1341), ikinci satır birim + kullanıcı bilgisi (card #1347).
   const internalMatch = label.match(/^Kurum İçi Mesaj\s*·\s*(.+)$/)
+  const internalParts = internalMatch?.[1].split(/\s*·\s*/).filter(Boolean) ?? []
   const citizenWithPhoneMatch = tone === 'inbound'
     ? label.match(/^(.*?)\s+(\+\d[\d\s]+)$/)
     : null
@@ -27,7 +28,9 @@ export function ConversationSenderHeader({
         <div className="mb-1.5 leading-snug">
           <p className="text-[13px] font-semibold text-orange-400">Kurum İçi Mesaj</p>
           <p className={`mt-1 text-[13px] ${inlineLabelClass}`}>
-            {internalMatch[1]}
+            {internalParts.length >= 2 ? (
+              <>{internalParts.slice(0, -1).join(' · ')} · <span className="italic">{internalParts.at(-1)}</span></>
+            ) : internalMatch[1]}
           </p>
         </div>
       )

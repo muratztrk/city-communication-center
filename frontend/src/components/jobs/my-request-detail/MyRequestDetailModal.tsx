@@ -11,8 +11,6 @@ import type { DetailDueDateEditState, JobExtraTimeReviewState } from './MyReques
 import { MyRequestDetailMainCard } from './MyRequestDetailMainCard'
 import { MyRequestTaskDetailsSection } from './MyRequestTaskDetailsSection'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
-import { buildJobProcessSteps } from './buildJobProcessSteps'
-import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 
@@ -133,39 +131,6 @@ export function MyRequestDetailModal({
   hideTaskPlainDescription = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
-  const isStandardUserLayout = !canManageCoordination
-  const standardUserExtraRows = isStandardUserLayout && !isEditing ? [
-    {
-      label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
-      value: (
-        <AttachmentSection
-          attachments={detail.attachments ?? []}
-          readOnly
-          compact
-          displayMode="list"
-          emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
-        />
-      ),
-    },
-    ...(detail.managerNote ? [{
-      label: t('jobs.managerNote.title', 'Yönetici Notu'),
-      value: <span className="whitespace-pre-wrap">{detail.managerNote}</span>,
-    }] : []),
-  ] : undefined
-
-  const standardUserAddress = isStandardUserLayout && !isEditing ? (
-    <>
-      <MyRequestSectionHeading icon={MapPin}>
-        {t('address.detailSectionTitle', 'Adres Bilgileri')}
-      </MyRequestSectionHeading>
-      <AddressDetailFields
-        variant="my-request"
-        neighborhood={detail.neighborhood}
-        street={detail.street}
-        openAddress={detail.openAddress}
-      />
-    </>
-  ) : undefined
 
   return (
     <section
@@ -212,16 +177,6 @@ export function MyRequestDetailModal({
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}
           splitLocationFields={splitLocationFields}
-          firstColumnOverride={isStandardUserLayout && !isEditing ? (
-            <JobProcessTimeline
-              steps={buildJobProcessSteps(t, detail, locale, { hideOwnerApproval: false })}
-              locale={locale}
-              statusContent={<span className={`inline ${detailStatusClass}`}>{statusLabel ?? statusContent}</span>}
-              statusNoteContent={statusNoteContent}
-            />
-          ) : undefined}
-          thirdColumnOverride={standardUserAddress}
-          extraTrailingRows={standardUserExtraRows}
         />
 
         {canManageCoordination ? (
@@ -249,7 +204,7 @@ export function MyRequestDetailModal({
             editDraft={editDraft}
             onEditDraftChange={onEditDraftChange}
           />
-        ) : isEditing ? (
+        ) : (
           <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
               <MyRequestSectionHeading icon={MapPin}>
@@ -297,7 +252,7 @@ export function MyRequestDetailModal({
               )}
             </section>
           </div>
-        ) : null}
+        )}
 
         {detailLoading && <div className="loading">{t('common.loading')}</div>}
 

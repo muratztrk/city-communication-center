@@ -40,6 +40,22 @@ function formatBadgeCount(count: number) {
   return count > 99 ? '99+' : String(count)
 }
 
+function getInitials(displayName: string) {
+  const parts = displayName.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '—'
+  return `${parts[0][0] ?? ''}${parts.length > 1 ? parts[parts.length - 1][0] ?? '' : ''}`.toLocaleUpperCase('tr')
+}
+
+function isSameCalendarDay(left: string, right: string) {
+  const a = new Date(left)
+  const b = new Date(right)
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+
+function formatMessageDay(dateUtc: string, locale: string) {
+  return new Date(dateUtc).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+}
+
 export function InternalMessagesFab() {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -210,26 +226,32 @@ export function InternalMessagesFab() {
       {isOpen ? (
         <div className="absolute bottom-full right-0 z-10 mb-3 flex h-[min(66dvh,37rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-emerald-700/10 px-4 py-3">
-            <div className="flex items-center gap-2 min-w-0">
-              {activeChat ? (
-                <button
-                  type="button"
-                  onClick={() => { setActiveChat(null); setChatDetail(null) }}
-                  className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
-                  aria-label={t('common.back', 'Geri')}
-                >
-                  ←
-                </button>
-              ) : null}
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-[color:var(--color-foreground)]">
-                  {activeChat ? activeChat.displayName : t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}
-                </p>
+              <div className="flex min-w-0 items-center gap-2">
                 {activeChat ? (
-                  <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
-                    {activeChat.departmentName ?? ''}
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => { setActiveChat(null); setChatDetail(null) }}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-1 text-xs font-bold text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
+                    aria-label={t('common.back', 'Geri')}
+                  >
+                    <span aria-hidden="true">←</span>
+                    {t('common.back', 'Geri')}
+                  </button>
                 ) : null}
+                {activeChat ? (
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
+                    {getInitials(activeChat.displayName)}
+                  </span>
+                ) : null}
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-[color:var(--color-foreground)]">
+                    {t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}
+                  </p>
+                  {activeChat ? (
+                    <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
+                      {activeChat.displayName} · {activeChat.departmentName ?? '—'}
+                    </p>
+                  ) : null}
               </div>
             </div>
             <button
@@ -252,19 +274,34 @@ export function InternalMessagesFab() {
                     {t('internalMessages.noMessages', 'Henüz mesaj yok. İlk mesajı gönderin.')}
                   </p>
                 ) : (
-                  chatDetail?.messages.map((message: InternalMessage) => {
+                  chatDetail?.messages.map((message: InternalMessage, index) => {
                     const isMine = message.senderUserId === currentUserId
+                    const senderName = isMine ? (user?.displayName ?? '—') : activeChat.displayName
+                    const senderDepartment = isMine ? (user?.departmentName ?? '—') : (activeChat.departmentName ?? '—')
+                    const showDaySeparator = index === 0 || !isSameCalendarDay(chatDetail.messages[index - 1].createdAtUtc, message.createdAtUtc)
                     return (
-                      <div key={message.internalMessageId} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                        <div
-                          className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
-                            isMine ? 'bg-emerald-700 text-white' : 'border border-slate-200 bg-white text-slate-900'
-                          }`}
-                        >
-                          <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                          <p className={`mt-1 text-right text-[10px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
-                            {formatConversationListTime(message.createdAtUtc, locale, t, { compact: true })}
-                          </p>
+                      <div key={message.internalMessageId}>
+                        {showDaySeparator ? (
+                          <div className="my-3 flex justify-center">
+                            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-semibold text-slate-600 shadow-sm">
+                              {formatMessageDay(message.createdAtUtc, locale)}
+                            </span>
+                          </div>
+                        ) : null}
+                        <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                          <div
+                            className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
+                              isMine ? 'bg-emerald-700 text-white' : 'border border-slate-200 bg-white text-slate-900'
+                            }`}
+                          >
+                            <p className={`mb-1 text-[10px] font-bold ${isMine ? 'text-emerald-100' : 'text-orange-600'}`}>
+                              {senderDepartment} <span aria-hidden="true">•</span> {senderName}
+                            </p>
+                            <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                            <p className={`mt-1 text-right text-[10px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
+                              {formatConversationListTime(message.createdAtUtc, locale, t, { compact: true })}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     )
@@ -299,7 +336,7 @@ export function InternalMessagesFab() {
             </>
           ) : (
             <>
-              <div className="shrink-0 space-y-2.5 border-b border-slate-100 px-3 pb-2.5 pt-3">
+              <div className="shrink-0 space-y-2 border-b border-slate-100 px-3 pb-2 pt-2.5">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" aria-hidden="true" />
                   <input
@@ -307,7 +344,7 @@ export function InternalMessagesFab() {
                     value={search}
                     onChange={e => { setPage(1); setSearch(e.target.value) }}
                     placeholder={t('internalMessages.searchPlaceholder', 'Personel adı...')}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-9 text-xs text-slate-800 placeholder:text-slate-400 focus:border-emerald-600/40 focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
                   />
                   {search ? (
                     <button
@@ -324,7 +361,7 @@ export function InternalMessagesFab() {
                   <button
                     type="button"
                     onClick={() => { setPage(1); setListFilter('all') }}
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                       listFilter === 'all' ? 'bg-emerald-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
                     }`}
                   >
@@ -333,7 +370,7 @@ export function InternalMessagesFab() {
                   <button
                     type="button"
                     onClick={() => { setPage(1); setListFilter('waiting') }}
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                       listFilter === 'waiting' ? 'bg-emerald-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
                     }`}
                   >
@@ -358,28 +395,27 @@ export function InternalMessagesFab() {
                       onClick={() => openRow(row)}
                       className="flex w-full items-start gap-3 border-b border-[var(--color-border)]/70 px-4 py-3 text-left transition-colors hover:bg-slate-50"
                     >
-                      <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-700/10 text-emerald-700">
-                        <MessageCircle className="size-5" />
+                      <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+                        {getInitials(row.displayName)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">{row.displayName}</p>
                           {row.lastMessageAtUtc ? (
-                            <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
-                              {formatConversationListTime(row.lastMessageAtUtc, locale, t)}
+                            <span className="flex shrink-0 flex-col items-end gap-0.5 text-[11px] text-[color:var(--color-muted-foreground)]">
+                              <span>{formatConversationListTime(row.lastMessageAtUtc, locale, t)}</span>
+                              <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${isWaiting ? 'text-orange-600' : 'text-emerald-700'}`}>
+                                <span className={`size-1.5 rounded-full ${isWaiting ? 'bg-orange-500' : 'bg-emerald-500'}`} aria-hidden="true" />
+                                {isWaiting
+                                  ? t('internalMessages.waitingReply', 'Yanıt bekliyor')
+                                  : t('internalMessages.replied', 'Yanıt verildi')}
+                              </span>
                             </span>
                           ) : null}
                         </div>
                         <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">{row.departmentName ?? '—'}</p>
                         {row.lastMessagePreview ? (
                           <p className="mt-1 line-clamp-1 text-xs text-slate-500">{row.lastMessagePreview}</p>
-                        ) : null}
-                        {row.lastMessageAtUtc ? (
-                          <span className={`mt-1 inline-block text-[10px] font-bold ${isWaiting ? 'text-orange-600' : 'text-emerald-700'}`}>
-                            {isWaiting
-                              ? t('internalMessages.waitingReply', 'Yanıt bekliyor')
-                              : t('internalMessages.replied', 'Yanıt verildi')}
-                          </span>
                         ) : null}
                       </div>
                       {row.unreadCount > 0 ? (

@@ -3112,6 +3112,7 @@
     --table-chrome-row-inner-height: 1.5rem;
     gap: 0.25rem 0.4rem;
     font-size: 0.68rem;
+    justify-content: center;
   }
   .table-pagination-bar.internal-messages-pagination .table-pagination-page,
   .table-pagination-bar.internal-messages-pagination .table-pagination-btn {

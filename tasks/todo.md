@@ -1982,3 +1982,16 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   ikinci satırda ortalandı ve 24px dokunma hedefi korundu.
 
 ## STATUS: Round 250 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 251 (Doing — 2026-07-12, #1549 rollback + kurum içi mesaj tasarımı)
+- [x] `6a53753eed5d0e339f872efa` / #1549 reopen — Standart kullanıcı Taleplerim detayına
+  eklenen rol bazlı kolon/alt-kart düzeni tamamen geri alındı; eski Talep Detayları ve ayrı
+  Adres/Yönetici Notu/Talep Ekleri kartları geri geldi. Yönetici-only #1550 korunur.
+- [x] `6a536136575f3a55687a604f` / #1542 reopen — Kurum İçi Mesajlar search/filtreleri
+  küçültüldü; paging satırları ortalandı; personel baş harf avatarları ve noktalı yanıt durumu
+  eklendi. Sohbette başlık sabit kaldı, geri aksiyonu koyu turkuaz `← Geri` oldu.
+- [x] `6a537968880572dd0bf0774b` / #1552 — Kurum içi mesaj balonlarına `Birim • Ad Soyad`
+  gönderen etiketi, tarihler değiştiğinde ortalı gün/ay ayırıcısı eklendi; liste yanıt durumu
+  tarih/saatin alt satırına taşındı.
+
+## STATUS: Round 251 complete — frontend build/lint passed; cards moved to Done.

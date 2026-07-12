@@ -388,6 +388,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum İçi Mesajlar panel sınırı/paging (card #1542 reopen):** konuşma listesi büyüdüğünde panel
   banner alt sınırından yukarı taşmaz (`max 37rem`); paging gezinme düğmeleri ikinci satırda ortalıdır
   ve en az 24px dokunma hedefini korur.
+- **Kurum İçi Mesajlar liste/sohbet düzeni (cards #1542/#1552):** panel başlığı sohbet açılınca
+  kaybolmaz; geri aksiyonu koyu turkuaz `← Geri`dir. Personel avatarı ad/soyad baş harflerini kullanır;
+  liste durumu zamanın altında renkli noktayla görünür. Mesaj balonunda `Birim • Ad Soyad` etiketi ve
+  takvim günü değiştiğinde ortalı `gün ay` ayırıcısı bulunur.
 - **WhatsApp konuşma satırı durum sayaçları salt metindir:** konuşma kartındaki `İşleme Alınan /
   Yapılmakta / Tamamlandı` değerleri tıklanabilir buton gibi davranmaz; `İptal` bu satırda basılmaz ve yalnız sol panel
   üstündeki özet sayaçları Vatandaş Talepleri filtrelerine götürür.
@@ -548,10 +552,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak.
-- **Taleplerim rol bazlı detay düzeni (cards #1549/#1550):** standart kullanıcıda Talep Detayları
-  açıklama kolonu yerine Süreç, eski Süreç kolonu yerine Adres gösterir; Talep Ekleri ve varsa
-  Yönetici Notu, Talep Bilgileri satırlarıdır ve ayrı alt kartlar basılmaz. Yönetici Taleplerim
-  görev özetinde yalnız düz `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur.
+- **Yönetici Taleplerim görev özeti (card #1550):** yalnız Manager/SystemAdmin görünümünde düz
+  `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur. Standart kullanıcı Talep
+  Detayları rol bazlı kolon override'ı kullanmaz (card #1549 geri alındı).
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç
   timeline. Ayrı `Açıklama` paneli ve Talep Bilgileri içindeki tekrarlayan başlık/no satırları yok.

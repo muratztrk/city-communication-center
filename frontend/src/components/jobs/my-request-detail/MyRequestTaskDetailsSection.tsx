@@ -8,6 +8,7 @@ import { formatDateTime, formatDueDateTime, getStatusChangeTextClass } from './f
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
+import { StackedFieldValue } from './StackedFieldValue'
 
 interface MyRequestTaskDetailsSectionProps {
   detail: JobDetail
@@ -105,9 +106,8 @@ export function MyRequestTaskDetailsSection({
       </MyRequestSectionHeading>
       <div className="space-y-3">
         {detail.tasks.map(task => {
-          const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
-            .filter(Boolean)
-            .join(' / ') || '—'
+          const taskLocationDepartment = task.ownerDepartmentName ?? detail.ownerDepartmentName
+          const taskLocationCreator = detail.createdByDisplayName ?? task.createdByDisplayName
           const taskNoText = task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—'
           const taskTypeBadge = task.jobSourceType === 'Routine'
             ? t('tasks.type.routine', 'Rutin')
@@ -145,7 +145,11 @@ export function MyRequestTaskDetailsSection({
                 </MyRequestSectionHeading>
                 <div className="my-request-detail-fields divide-y divide-slate-100">
                   {[
-                    { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
+                    {
+                      // Talep yeri (birim) üst, oluşturan personel alt satırda (card #1544).
+                      label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'),
+                      value: <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
+                    },
                     { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
                     ...(task.jobSourceType !== 'Routine'
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]

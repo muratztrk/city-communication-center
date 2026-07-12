@@ -57,6 +57,7 @@ import { WhatsAppConversationModal } from '../components/WhatsAppConversationMod
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
 import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
+import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
@@ -2370,16 +2371,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <div className="my-request-detail-fields divide-y divide-slate-100">
                     {(isCitizenRequestDetail ? [
                       {
+                        // Vatandaş adı üst, telefon no alt satırda (card #1545).
                         label: 'Vatandaş Adı / Telefon No',
-                        value: [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—',
+                        value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
                       },
                       {
+                        // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
                         label: 'Talep Yeri / Oluşturan',
-                        value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                        value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: formatRequestApproverDisplay(detail) ?? '—',
+                        // Onaylayan kişi henüz yoksa eskisi gibi tek "—" gösterilir; birim adı yalnız
+                        // başına onaylayanmış gibi görünmesin (codex review).
+                        value: getRequestApproverDisplayName(detail) ? (
+                          <StackedFieldValue top={getRequestApproverDepartmentName(detail)} bottom={getRequestApproverDisplayName(detail)} />
+                        ) : (formatRequestApproverDisplay(detail) ?? '—'),
                       }] : []),
                       {
                         label: 'Talep Yapılan Birim',
@@ -2388,29 +2395,25 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                     ] : [
                       {
+                        // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
                         label: 'Talep Yeri / Oluşturan',
-                        // Birimden Giden'de birim üst, personel alt satırda gösterilir (card #1295).
-                        value: isDepartmentOutgoingView ? (
-                          <div className="flex flex-col items-end text-right">
-                            <span>{detail.ownerDepartmentName || '—'}</span>
-                            <span className="text-slate-500">{detail.createdByDisplayName || '—'}</span>
-                          </div>
-                        ) : [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                        value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         // Onaylayan kişi henüz yoksa (örn. iptal/reddedilmiş) eskisi gibi tek "—"
                         // gösterilir; birim adı yalnız başına onaylayanmış gibi görünmesin (codex review).
-                        value: isDepartmentOutgoingView && getRequestApproverDisplayName(detail) ? (
-                          <div className="flex flex-col items-end text-right">
-                            <span>{getRequestApproverDepartmentName(detail) || '—'}</span>
-                            <span className="text-slate-500">{getRequestApproverDisplayName(detail)}</span>
-                          </div>
+                        value: getRequestApproverDisplayName(detail) ? (
+                          <StackedFieldValue top={getRequestApproverDepartmentName(detail)} bottom={getRequestApproverDisplayName(detail)} />
                         ) : (formatRequestApproverDisplay(detail) ?? '—'),
                       }] : []),
                       {
                         label: 'Talep Yapılan Birim',
-                        value: formatJobDestinationsWithAssignees(detail),
+                        // Birimden Giden'de yönetici/personel bilgisi bu satırdan kaldırılır — hedef
+                        // birim henüz atama yapmamıştır (card #1544).
+                        value: isDepartmentOutgoingView
+                          ? formatJobDestinationsWithAssignees(detail, false, false)
+                          : formatJobDestinationsWithAssignees(detail),
                       },
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },

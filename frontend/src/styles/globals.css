@@ -3102,15 +3102,19 @@
   }
 
   /* Kurum İçi Mesajlar panelinin dar sohbet listesinde paging alanı standart grid'lerin
-     yaklaşık yarısı yükseklikte kalır; sayfa numarası satırın ortasında hizalanır (card #1542). */
-  .internal-messages-pagination {
-    --table-chrome-row-py: 0.3rem;
-    --table-chrome-row-inner-height: 1.15rem;
+     yaklaşık yarısı yükseklikte kalır; sayfa numarası satırın ortasında hizalanır (card #1542).
+     Bileşik seçici (.table-pagination-bar.internal-messages-pagination) yalnızca bu paneldeki
+     TablePagination'ı hedefler — iç içe başka bir sayfalama olsa bile CSS özel değişkeni miras
+     yoluyla sızmaz. Buton boyutu WCAG 2.5.8 asgari 24px dokunma hedefinin altına düşürülmez
+     (codex review). */
+  .table-pagination-bar.internal-messages-pagination {
+    --table-chrome-row-py: 0.15rem;
+    --table-chrome-row-inner-height: 1.5rem;
   }
-  .internal-messages-pagination .table-pagination-page,
-  .internal-messages-pagination .table-pagination-btn {
-    min-width: 1.15rem;
-    height: 1.15rem;
+  .table-pagination-bar.internal-messages-pagination .table-pagination-page,
+  .table-pagination-bar.internal-messages-pagination .table-pagination-btn {
+    min-width: 1.5rem;
+    height: 1.5rem;
   }
 
   .table-pagination-bar {

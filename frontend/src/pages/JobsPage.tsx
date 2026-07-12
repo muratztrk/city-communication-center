@@ -2399,10 +2399,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: isDepartmentOutgoingView ? (
+                        // Onaylayan kişi henüz yoksa (örn. iptal/reddedilmiş) eskisi gibi tek "—"
+                        // gösterilir; birim adı yalnız başına onaylayanmış gibi görünmesin (codex review).
+                        value: isDepartmentOutgoingView && getRequestApproverDisplayName(detail) ? (
                           <div className="flex flex-col items-end text-right">
                             <span>{getRequestApproverDepartmentName(detail) || '—'}</span>
-                            <span className="text-slate-500">{getRequestApproverDisplayName(detail) || '—'}</span>
+                            <span className="text-slate-500">{getRequestApproverDisplayName(detail)}</span>
                           </div>
                         ) : (formatRequestApproverDisplay(detail) ?? '—'),
                       }] : []),

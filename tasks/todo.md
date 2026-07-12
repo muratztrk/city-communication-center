@@ -2121,3 +2121,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   standardını kullanma kuralı invariant olarak kaydedildi.
 
 ## STATUS: Round 266 complete — frontend build/lint passed; cards ready to move to Done.
+
+## Round 267 (Doing — 2026-07-12, kurum içi birim italik rollback)
+- [x] `6a53f0f57539112fa590fc74` / #1564 reopen — Kurum İçi Mesajlaşma FAB balonundaki
+  birim italikliği geri alındı; WhatsApp kurum içi mesaj personel adı italik kalmaya devam etti.
+
+## STATUS: Round 267 complete — frontend build/lint passed; card ready to move to Done.

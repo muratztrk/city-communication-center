@@ -2127,3 +2127,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   birim italikliği geri alındı; WhatsApp kurum içi mesaj personel adı italik kalmaya devam etti.
 
 ## STATUS: Round 267 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 268 (Doing — 2026-07-12, #1565 üretim verisi engeli)
+- [ ] `6a53f19b8bed6e86747c927e` / #1565 reopen — Backend doğru gönderen kullanıcıyı ve
+  birimini kullanıyor; ancak üretimdeki paylaşımlı `operator` hesabının DisplayName değeri
+  `Vatandaş Operatörü`, gerçek ad-soyad/e-posta/unvan verileri boş. Gerçek personel adı kaynakta
+  bulunmadığı için kart Doing'de bırakıldı ve Trello'ya veri düzeltme notu eklendi.
+
+## STATUS: Round 268 blocked by source user data — no code change, no deploy.

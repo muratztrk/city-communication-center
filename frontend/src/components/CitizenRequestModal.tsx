@@ -496,6 +496,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               socialMessageId={message.socialMessageId}
               citizenHandle={message.citizenHandle}
               citizenPhone={citizenPhone}
+              citizenName={savedCitizenName || undefined}
               headerMode="phone"
               onClose={onClose}
               // Yalnızca Vatandaş Operatörü beklemedeki mesajı vatandaşa iletebilir — card #1091.
@@ -540,7 +541,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <label className="job-field">
                   <span className="job-field-label">
                     {t('settings.citizen.citizenPhone', 'Vatandaş Telefon No')}{' '}
-                    <span className="field-hint">{t('settings.citizen.citizenPhoneHint', '(başında 0 olmadan ekleyin)')}</span>{' '}
+                    {/* WhatsApp'tan gelen numara salt okunur; "başında 0 olmadan" giriş ipucu gösterilmez (card #1555). */}
+                    {!citizenPhoneLocked ? (
+                      <span className="field-hint">{t('settings.citizen.citizenPhoneHint', '(başında 0 olmadan ekleyin)')}</span>
+                    ) : null}{' '}
                     <span className="text-red-500">*</span>
                   </span>
                   <input

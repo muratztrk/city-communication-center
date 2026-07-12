@@ -19,6 +19,8 @@ interface ConversationPanelProps {
   socialMessageId: string
   citizenHandle: string
   citizenPhone?: string | null
+  /** Kayıtlı vatandaş adı — phone header'da numaranın önüne yazılır (card #1555). */
+  citizenName?: string | null
   onClose: () => void
   canReply?: boolean
   /** Beklemedeki giden mesajların yanında "Mesajı Gönder" butonu göster (yalnızca operatör) — card #1091. */
@@ -42,6 +44,21 @@ function getInitials(value: string): string | null {
   return words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
 }
 
+/** Phone-header satırı: +90 önekli okunabilir numara (card #1555). */
+function formatConversationPanelPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  const local = digits.length === 12 && digits.startsWith('90')
+    ? digits.slice(2)
+    : digits.length === 11 && digits.startsWith('0')
+      ? digits.slice(1)
+      : digits
+  if (local.length === 10) {
+    return `+90 ${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6, 8)} ${local.slice(8)}`
+  }
+  if (digits.length === 0) return phone
+  return digits.startsWith('90') ? `+${digits}` : `+90 ${digits}`
+}
+
 function DateDivider({ label }: { label: string }) {
   return (
     <div className="flex justify-center py-1.5">
@@ -52,7 +69,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
@@ -193,8 +210,13 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     })
   }
 
+  const registeredCitizenName = citizenName?.trim() || null
+  const phoneDigitsRaw = citizenPhone?.replace(/\D/g, '') || ''
+  const phoneForDisplay = phoneDigitsRaw
+    ? formatConversationPanelPhone(citizenPhone!)
+    : (citizenHandle.replace(/\D/g, '').length >= 10 ? formatConversationPanelPhone(citizenHandle) : citizenHandle)
   const headerSubtitle = headerMode === 'phone'
-    ? (citizenPhone?.replace(/\D/g, '').replace(/^90(?=\d{10}$)/, '') || citizenHandle)
+    ? (registeredCitizenName ? `${registeredCitizenName} ${phoneForDisplay}` : phoneForDisplay)
     : citizenHandle
 
   const headerKicker = headerMode === 'phone'
@@ -209,12 +231,17 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         className="flex items-center gap-3 px-4 py-3 shrink-0 text-white"
         style={{ backgroundColor: 'var(--color-header-from)' }}
       >
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: 'var(--color-header-from)' }}>
-          {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
-        </div>
+        {headerMode === 'phone' ? (
+          // Ortak WhatsApp asset; beyaz dış çerçeve yok (card #1555).
+          <img src="/icons/whatsapp.webp" alt="" className="size-9 shrink-0" aria-hidden="true" />
+        ) : (
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: 'var(--color-header-from)' }}>
+            {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">{headerKicker}</p>
-          <p className="truncate text-[15px] font-semibold leading-tight">{headerSubtitle}</p>
+          <p className={`truncate font-semibold leading-tight ${headerMode === 'phone' ? 'text-xs' : 'text-[15px]'}`}>{headerSubtitle}</p>
         </div>
         <ModalCloseButton
           onClick={onClose}

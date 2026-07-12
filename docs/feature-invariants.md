@@ -329,7 +329,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tam `DisplayName` yazar. Frontend eski `Dept / Name` biçimini `Dept · Name` yapar ve eski
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.
 - **WhatsApp gelen vatandaş balonu sender label (card #1554):** kayıtlı vatandaş adı varsa
-  `Ad Soyad • Telefon`, yoksa yalnız biçimlendirilmiş telefon gösterilir; boş üst satır basılmaz.
+  yalnız ad soyad gösterilir (`• Telefon` bullet satırı yok); ad yoksa biçimlendirilmiş telefon
+  gösterilir; boş üst satır basılmaz.
+- **WhatsApp Talep oluştur konuşma header (card #1555):** `headerMode=phone` iken ortak
+  `/icons/whatsapp.webp` kullanılır (beyaz dış daire yok); `Whatsapp Telefon No` altındaki değer
+  küçük punto + `+90` önekli biçimlenir; kayıtlı vatandaş adı varsa numaranın önüne yazılır.
+  Formda kilitli telefon alanında `(başında 0 olmadan ekleyin)` ipucu gösterilmez.
 - **WhatsApp konuşma detay header zemini:** seçili konuşmanın üst bilgi şeridi breadcrumb `Anasayfa`
   yüzeyiyle aynı açık `slate-50` zemininde kalır; chat mesaj alanı ayrı WhatsApp dokulu zemindir
   (card #1252).

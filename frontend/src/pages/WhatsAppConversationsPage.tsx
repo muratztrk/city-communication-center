@@ -1060,8 +1060,8 @@ function ConversationDetail({
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
   const headerInitials = citizenName ? getInitials(citizenName) : null
-  const inboundSenderLabel = citizenName?.trim() && phoneForHeader
-    ? `${citizenName.trim()} • ${formatPhone(phoneForHeader)}`
+  const inboundSenderLabel = citizenName?.trim()
+    ? citizenName.trim()
     : phoneForHeader
       ? formatPhone(phoneForHeader)
       : null

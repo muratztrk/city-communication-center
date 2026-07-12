@@ -2174,3 +2174,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   işareti kaldırıldı; `Geri` metni yanındaki personel avatarının düşey merkezine hizalandı.
 
 ## STATUS: Round 273 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 274 (Doing — 2026-07-12, kurum içi Geri/avatar iki satır)
+- [x] `6a53fcbfa72b4b9b2b5d81a1` / #1572 reopen — Sohbet header üst satırına `← Geri`
+  yerleştirildi; avatar + personel/birim bilgisi alt satırda sağa girintili hizalandı.
+
+## STATUS: Round 274 complete — frontend build/lint passed; card ready to move to Done.

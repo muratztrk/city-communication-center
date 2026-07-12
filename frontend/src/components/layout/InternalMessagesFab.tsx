@@ -226,32 +226,31 @@ export function InternalMessagesFab() {
       {isOpen ? (
         <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(66dvh,37rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
           <div className={`flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pr-4 ${activeChat ? 'pl-1' : 'pl-4'}`}>
-              <div className="flex min-w-0 flex-1 items-start gap-1.5">
+              <div className={`min-w-0 flex-1 ${activeChat ? 'flex flex-col gap-1' : 'flex items-start'}`}>
                 {activeChat ? (
+                  <>
                   <button
                     type="button"
                     onClick={() => { setActiveChat(null); setChatDetail(null) }}
-                    className="inline-flex h-8 shrink-0 items-center rounded-md px-1 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
+                    className="inline-flex h-5 w-fit shrink-0 items-center gap-1 rounded-md px-1 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
                     aria-label={t('common.back', 'Geri')}
                   >
+                    <span aria-hidden="true" className="text-xs leading-none">←</span>
                     <span>{t('common.back', 'Geri')}</span>
                   </button>
-                ) : null}
-                {activeChat ? (
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
-                    {getInitials(activeChat.displayName)}
-                  </span>
-                ) : null}
-                <div className="min-w-0 flex-1">
-                  {activeChat ? (
-                    <>
+                  <div className="flex min-w-0 items-start gap-1.5 pl-4">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
+                      {getInitials(activeChat.displayName)}
+                    </span>
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
                       <p className="mt-0.5 truncate text-xs text-[color:var(--color-muted-foreground)]">{activeChat.departmentName ?? '—'}</p>
-                    </>
-                  ) : (
-                    <p className="truncate text-sm font-bold text-[color:var(--color-foreground)]">{t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}</p>
-                  )}
-              </div>
+                    </div>
+                  </div>
+                  </>
+                ) : (
+                  <p className="truncate text-sm font-bold text-[color:var(--color-foreground)]">{t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}</p>
+                )}
             </div>
             {activeChat ? (
               <span className="mt-0.5 shrink-0 text-right text-[10px] font-semibold text-teal-700">

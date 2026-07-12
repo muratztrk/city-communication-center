@@ -729,16 +729,13 @@ export function AppShell() {
       </div>
       </div> {/* end main area row */}
       <div className="fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex flex-col-reverse items-end">
-        {canSeeWhatsAppNotifications ? (
-          <div className="pointer-events-auto">
-            <WhatsAppNotificationFab />
-          </div>
-        ) : null}
-        <div className="pointer-events-auto">
-          <InternalMessagesFab />
-        </div>
         <div className="pointer-events-auto">
           <ScrollFab />
+        </div>
+        {/* Kurum İçi Mesajlar, WhatsApp konuşma butonunun üstünde değil sağında durur (card #1543). */}
+        <div className="pointer-events-auto flex items-end gap-3">
+          {canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}
+          <InternalMessagesFab />
         </div>
       </div>
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}

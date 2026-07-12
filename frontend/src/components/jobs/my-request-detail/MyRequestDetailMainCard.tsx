@@ -152,6 +152,9 @@ interface MyRequestDetailMainCardProps {
   isEditing?: boolean
   editDraft?: MyRequestEditDraft
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
+  // Taleplerim'de standart kullanıcı için Talep Ekleri / Yönetici Notu, Öncelik-Proje satırının
+  // altında Talep Bilgileri listesine satır olarak eklenir (card #1549, Görevlerim #1481/#1538 deseni).
+  infoExtraTrailingRows?: { label: ReactNode; value: ReactNode }[]
 }
 
 export function MyRequestDetailMainCard({
@@ -184,6 +187,7 @@ export function MyRequestDetailMainCard({
   isEditing = false,
   editDraft,
   onEditDraftChange,
+  infoExtraTrailingRows,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -374,6 +378,7 @@ export function MyRequestDetailMainCard({
                 editDraft={editDraft}
                 onEditDraftChange={onEditDraftChange}
                 priorityOptions={priorityOptions}
+                extraTrailingRows={infoExtraTrailingRows}
               />
             </>
           )}

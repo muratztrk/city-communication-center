@@ -1,5 +1,6 @@
 import { ArrowRight, FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
@@ -14,6 +15,9 @@ interface MyRequestTaskDetailsSectionProps {
   locale: string
   onDownloadTaskAttachment: (attachmentId: string, fileName: string) => void
   hidePlainDescription?: boolean
+  // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
+  // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
+  addressColumnContent?: ReactNode
 }
 
 function buildTaskProcessSteps(
@@ -95,6 +99,7 @@ export function MyRequestTaskDetailsSection({
   locale,
   onDownloadTaskAttachment,
   hidePlainDescription = false,
+  addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
 
@@ -135,9 +140,16 @@ export function MyRequestTaskDetailsSection({
           const hasTerminalNote = (detail.status === 'Completed' && task.currentStatus === 'Completed')
             || ((detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'))
           const showDescriptionCard = !hidePlainDescription || hasTerminalNote
+          const gridColsClass = addressColumnContent
+            ? (showDescriptionCard
+                ? 'lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,1fr)]'
+                : 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]')
+            : (showDescriptionCard
+                ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]'
+                : 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]')
 
           return (
-            <div key={task.taskId} className={`grid gap-4 ${showDescriptionCard ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]'}`}>
+            <div key={task.taskId} className={`grid gap-4 ${gridColsClass}`}>
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={Info} className="w-full">
                   <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
@@ -217,6 +229,11 @@ export function MyRequestTaskDetailsSection({
                   ))}
                 </div>
               </div>
+              {addressColumnContent && (
+                <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                  {addressColumnContent}
+                </div>
+              )}
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 {/* Görev Detayları Süreç kolonu Taleplerim/Görevlerim timeline tasarımını kullanır (card #1527). */}
                 <JobProcessTimeline

@@ -2186,3 +2186,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   üst satırdaki geri okunun başlangıç hizasına kadar sola çekildi.
 
 ## STATUS: Round 275 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 276 (Doing — 2026-07-13, kurum içi avatar mikro hizası)
+- [x] `6a5401286470e0b7bb37448e` / #1573 reopen — Sohbet header alt satırındaki yuvarlak
+  avatar 4px sağa alınarak üst satırdaki ok glyph başlangıcına hizalandı.
+
+## STATUS: Round 276 complete — frontend build/lint passed; card ready to move to Done.

@@ -417,7 +417,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kalır (önceki “zaman altı durum” satırı kaldırıldı). Mesaj balonunda `Birim • Ad Soyad` etiketi ve
   takvim günü değiştiğinde ortalı `gün ay` ayırıcısı bulunur.
 - **Kurum İçi Mesajlar sohbet header/balonları (cards #1542/#1572/#1573):** üst satırda `← Geri`,
-  alt satırda ok işaretinin başlangıcıyla aynı sol hizadaki personel avatarı + bilgi bloğu bulunur;
+  alt satırda 4px girintiyle ok glyph başlangıcına hizalanan personel avatarı + bilgi bloğu bulunur;
   personel adı ana satırda,
   birim altında, küçük `Kurum İçi Mesajlar` etiketi
   sağa yaslıdır. Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp

@@ -30,7 +30,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
@@ -2389,11 +2389,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     ] : [
                       {
                         label: 'Talep Yeri / Oluşturan',
-                        value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                        // Birimden Giden'de birim üst, personel alt satırda gösterilir (card #1295).
+                        value: isDepartmentOutgoingView ? (
+                          <div className="flex flex-col items-end text-right">
+                            <span>{detail.ownerDepartmentName || '—'}</span>
+                            <span className="text-slate-500">{detail.createdByDisplayName || '—'}</span>
+                          </div>
+                        ) : [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        value: formatRequestApproverDisplay(detail) ?? '—',
+                        value: isDepartmentOutgoingView ? (
+                          <div className="flex flex-col items-end text-right">
+                            <span>{getRequestApproverDepartmentName(detail) || '—'}</span>
+                            <span className="text-slate-500">{getRequestApproverDisplayName(detail) || '—'}</span>
+                          </div>
+                        ) : (formatRequestApproverDisplay(detail) ?? '—'),
                       }] : []),
                       {
                         label: 'Talep Yapılan Birim',

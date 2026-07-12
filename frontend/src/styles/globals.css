@@ -3101,6 +3101,18 @@
     --table-chrome-row-min-height: calc(var(--table-chrome-row-py) * 2 + var(--table-chrome-row-inner-height));
   }
 
+  /* Kurum İçi Mesajlar panelinin dar sohbet listesinde paging alanı standart grid'lerin
+     yaklaşık yarısı yükseklikte kalır; sayfa numarası satırın ortasında hizalanır (card #1542). */
+  .internal-messages-pagination {
+    --table-chrome-row-py: 0.3rem;
+    --table-chrome-row-inner-height: 1.15rem;
+  }
+  .internal-messages-pagination .table-pagination-page,
+  .internal-messages-pagination .table-pagination-btn {
+    min-width: 1.15rem;
+    height: 1.15rem;
+  }
+
   .table-pagination-bar {
     display: flex;
     align-items: center;

@@ -390,7 +390,7 @@ export function InternalMessagesFab() {
                 })}
               </div>
 
-              <div className="shrink-0 border-t border-[var(--color-border)]">
+              <div className="internal-messages-pagination shrink-0 border-t border-[var(--color-border)]">
                 <TablePagination
                   totalCount={filteredRows.length}
                   pageSize={PAGE_SIZE}

@@ -1972,4 +1972,4 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a5376d41771aa4ab395d201` / #1550 — Yönetici Taleplerim görev özetinde düz Açıklama
   kartı kaldırıldı; Görev Tamamlama/İptal Notu terminal kartları korunur.
 
-## STATUS: Round 249 implementation complete — frontend build/lint passed; push and Done move blocked by GitHub authentication.
+## STATUS: Round 249 complete — frontend build/lint passed; main+master pushed; cards moved to Done.

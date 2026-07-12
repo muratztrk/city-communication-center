@@ -270,13 +270,6 @@ export function LoginPage() {
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-y-auto">
-      {/* Mobil: açık zemin üzerinde beyaz silüet görünmez → brightness-0 ile koyu silüet;
-          sayfa sol üst köşesine yerleştirilir (card #1205 reopen). */}
-      <img
-        src="/header-ataturk.png"
-        alt="Atatürk"
-        className="pointer-events-none absolute left-0 top-0 z-20 h-[4.5rem] w-auto select-none opacity-75 brightness-0 lg:hidden"
-      />
     <div className="flex flex-1 flex-col lg:my-8 lg:mx-4 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:overflow-hidden lg:rounded-3xl lg:shadow-2xl xl:mx-[12.5%] xl:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-16 xl:px-8 2xl:px-12 2xl:py-20"
@@ -342,8 +335,13 @@ export function LoginPage() {
           }}
         >
           <div className="w-full space-y-4">
-            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/55 px-7 py-4 pt-16 sm:px-9 lg:hidden">
-              {/* Atatürk sayfa kökünde (sol üst); panel üst padding çakışmayı önler. */}
+            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-3 overflow-hidden rounded-[var(--radius-xl)] border border-emerald-900/20 bg-[color:var(--color-header-from)] px-7 py-4 pt-16 sm:px-9 lg:hidden">
+              {/* Mobilde Atatürk silüeti logo kartının kendi border'ı içinde sol üstte kalır. */}
+              <img
+                src="/header-ataturk.png"
+                alt="Atatürk"
+                className="pointer-events-none absolute left-0 top-0 z-10 h-[4.5rem] w-auto select-none opacity-80"
+              />
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
@@ -351,7 +349,7 @@ export function LoginPage() {
                 imageClassName="h-[92%] w-[92%]"
               />
               <div className="min-w-0 text-center">
-                <div className="text-base font-bold text-slate-950">{t('shell.subtitle', { municipalityName })}</div>
+                <div className="text-base font-bold text-white">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             </div>
 

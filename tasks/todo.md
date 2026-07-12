@@ -1995,3 +1995,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   tarih/saatin alt satırına taşındı.
 
 ## STATUS: Round 251 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 252 (manual — 2026-07-12, mobil login/sidebar marka alanı)
+- [x] Mobil login logo kartı açık gri yerine uygulamanın koyu yeşil tonuna alındı; Atatürk
+  görseli sayfa kökünden kartın içine taşınıp border içinde sol üste hizalandı.
+- [x] Giriş sonrası mobil drawer belediye logosunun çerçevesi küçültüldü (`h-20 w-44`), logo
+  doluluk oranı artırıldı; desktop sidebar değişmedi.
+
+## STATUS: Round 252 complete — mobile viewport verified; frontend build/lint passed.

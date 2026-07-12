@@ -36,6 +36,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
+- **Mobil login/sidebar marka alanı:** login logo kartı kullanılan koyu yeşil yüzeydir ve Atatürk
+  silüeti kart border'ının içinde sol üstte kalır. Mobil drawer belediye logo çerçevesi logoya göre
+  gereksiz büyük tutulmaz; logo çerçeveyi yüksek doluluk oranıyla kullanır. Desktop etkilenmez.
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 600` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.

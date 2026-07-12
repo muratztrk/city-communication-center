@@ -2149,3 +2149,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   paylaşımlı operator hesabında gerçek ad-soyad bulunmuyor ve kart Doing'de tutuluyor.
 
 ## STATUS: Round 269 complete — backend build + frontend build/lint passed; #1565 remains data-blocked.
+
+## Round 270 (Doing — 2026-07-12, Birim dropdown arama eşiği)
+- [x] `6a53f9877a9b611ff08971fb` / #1571 — WhatsApp ana sayfa ve Talep Oluştur konuşma
+  footer'ındaki Birim dropdown araması zorunlu olmaktan çıkarıldı; ortak 7+ seçenek eşiğine bağlandı.
+
+## STATUS: Round 270 complete — frontend build/lint passed; card ready to move to Done.

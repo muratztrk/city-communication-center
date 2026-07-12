@@ -315,7 +315,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 onChange={value => onInternalDepartmentIdChange?.(value)}
                 placeholder={t('departments.selectDepartment', 'Birim seçin')}
                 emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                searchable
                 searchPlaceholder={t('departments.search', 'Birim ara...')}
                 openUp
                 className="min-w-44"

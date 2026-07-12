@@ -330,7 +330,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.
 - **WhatsApp gelen vatandaş balonu sender label (card #1554 reopen):** kayıtlı vatandaş adı varsa
   `Ad Soyad Telefon` (bullet yok) gösterilir; telefon addan küçük ve daha açık renktir. Ad yoksa yalnız
-  biçimlendirilmiş telefon eski boyutunda ama aynı açık renk/orta ağırlıkta gösterilir; boş üst satır basılmaz.
+  biçimlendirilmiş telefon addan biraz küçük ve aynı açık renk/orta ağırlıkta gösterilir; boş üst satır basılmaz.
 - **Konuşma balonu zaman formatı (cards #1557/#1558/#1560):** WhatsApp ve kurum içi mesajlarda
   bugün `HH:mm`, önceki takvim günü saatten bağımsız `Dün`, daha eski mesaj `gg.aa.yyyy` gösterir.
 - **WhatsApp Talep oluştur konuşma header (card #1555):** `headerMode=phone` iken ortak
@@ -402,7 +402,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   banner alt sınırından yukarı taşmaz (`max 37rem`); paging gezinme düğmeleri ikinci satırda ortalıdır
   ve en az 24px dokunma hedefini korur.
 - **Kurum İçi Mesajlar liste/sohbet düzeni (cards #1542/#1552/#1556):** panel başlığı sohbet açılınca
-  kaybolmaz; personel avatarı ad/soyad baş harflerini kullanır. Durum rozeti avatarın sağ alt
+  kaybolmaz; liste görünümünde başlık sol kenara yapışmaz, aktif sohbette geri/avatar için dar sol
+  padding korunur. Personel avatarı ad/soyad baş harflerini kullanır. Durum rozeti avatarın sağ alt
   köşesinde WhatsApp konuşma listesiyle aynıdır (yeşil = yanıt verildi, turuncu = yanıt bekliyor);
   durum metni birim satırının sağına yaslanır; birim + son mesaj zamanın altında tek satır aşağıda
   kalır (önceki “zaman altı durum” satırı kaldırıldı). Mesaj balonunda `Birim • Ad Soyad` etiketi ve

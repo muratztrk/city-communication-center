@@ -42,7 +42,7 @@ export function ConversationSenderHeader({
     }
     if (citizenPhoneOnly) {
       return (
-        <p className="mb-1.5 text-[13px] font-medium leading-snug text-slate-400">
+        <p className="mb-1.5 text-[11px] font-medium leading-snug text-slate-400">
           {label}
         </p>
       )

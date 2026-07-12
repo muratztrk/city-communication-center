@@ -225,7 +225,7 @@ export function InternalMessagesFab() {
     <div className="relative size-14 shrink-0">
       {isOpen ? (
         <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(66dvh,37rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
-          <div className="flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pl-1 pr-4">
+          <div className={`flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pr-4 ${activeChat ? 'pl-1' : 'pl-4'}`}>
               <div className="flex min-w-0 flex-1 items-start gap-1.5">
                 {activeChat ? (
                   <button

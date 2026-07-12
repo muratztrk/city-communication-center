@@ -2073,3 +2073,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   header'ının mükerrer `X` aksiyonu kaldırıldı; dış kırmızı popup kapatma düğmesi korundu.
 
 ## STATUS: Round 259 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 260 (Doing — 2026-07-12, telefon punto + kurum içi panel başlığı)
+- [x] `6a5388d28e6a11e958a0e5a4` / #1554 reopen — İsimsiz vatandaş telefon etiketi açık
+  renk/orta ağırlığı koruyarak bir kademe küçültüldü.
+- [x] `6a536136575f3a55687a604f` / #1542 reopen — Kurum İçi Mesajlar liste başlığı eski sol
+  iç boşluğuna döndürüldü; aktif sohbet geri/avatar hizası korunarak iki görünüm ayrıştırıldı.
+
+## STATUS: Round 260 complete — frontend build/lint passed; cards ready to move to Done.

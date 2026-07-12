@@ -527,6 +527,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               citizenPhone={citizenPhone}
               citizenName={savedCitizenName || undefined}
               headerMode="phone"
+              showCloseButton={false}
               onClose={onClose}
               // Yalnızca Vatandaş Operatörü beklemedeki mesajı vatandaşa iletebilir — card #1091.
               canSendPending={user?.role === 'Operator' || user?.role === 'SystemAdmin'}

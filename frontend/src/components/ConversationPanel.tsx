@@ -29,6 +29,7 @@ interface ConversationPanelProps {
   onAddMediaAsAttachment?: (file: File) => void
   /** Popup'ta telefon numarası başlığı göster (card 6a3f8858). */
   headerMode?: 'default' | 'phone'
+  showCloseButton?: boolean
   /** Verilirse "Birim Seçin" + "Kurum İçi İlet" satırı gösterilir (card #1512). */
   internalDepartmentOptions?: { departmentId: string; name: string }[]
   internalDepartmentId?: string
@@ -69,7 +70,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
@@ -243,11 +244,13 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
           <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">{headerKicker}</p>
           <p className={`truncate font-semibold leading-tight ${headerMode === 'phone' ? 'text-xs' : 'text-[15px]'}`}>{headerSubtitle}</p>
         </div>
-        <ModalCloseButton
-          onClick={onClose}
-          label={t('common.close', 'Kapat')}
-          className="size-8 shrink-0 text-white/80 hover:bg-white/15 hover:text-white"
-        />
+        {showCloseButton ? (
+          <ModalCloseButton
+            onClick={onClose}
+            label={t('common.close', 'Kapat')}
+            className="size-8 shrink-0 text-white/80 hover:bg-white/15 hover:text-white"
+          />
+        ) : null}
       </div>
 
       <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4">

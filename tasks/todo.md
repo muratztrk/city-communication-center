@@ -2067,3 +2067,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   mevcut punto boyutu korundu; kayıtlı isim yanındaki telefonla aynı açık renk ve orta ağırlık uygulandı.
 
 ## STATUS: Round 258 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 259 (Doing — 2026-07-12, Talep Oluştur mükerrer kapatma aksiyonu)
+- [x] `6a538c5c06a6ddb55707cb9b` / #1555 reopen — Talep Oluştur popup'ındaki konuşma
+  header'ının mükerrer `X` aksiyonu kaldırıldı; dış kırmızı popup kapatma düğmesi korundu.
+
+## STATUS: Round 259 complete — frontend build/lint passed; card ready to move to Done.

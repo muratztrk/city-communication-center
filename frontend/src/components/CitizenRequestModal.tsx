@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FileImage, FileText, Paperclip, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -12,14 +12,13 @@ import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConversationPanel } from './ConversationPanel'
-import type { CitizenConversationDetail, Department, RequestTag, SocialMessage } from '../types/platform'
+import type { CitizenConversationDetail, Department, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
-import { RequestTagAddButton, RequestTagPicker } from './RequestTagDialog'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -29,7 +28,6 @@ interface CitizenRequestModalProps {
   citizenConversationId?: string | null
   onClose: () => void
   onCreated: () => void
-  onProfileUpdated?: () => void
 }
 
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
@@ -134,7 +132,7 @@ function sanitizeCitizenName(value: string | null | undefined): string {
 /**
  * Vatandaş talebini ilgili WhatsApp konuşması yan tarafta görünür şekilde bir pop-up içinde oluşturur.
  */
-export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, citizenConversationId = null, onClose, onCreated, onProfileUpdated }: CitizenRequestModalProps) {
+export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, citizenConversationId = null, onClose, onCreated }: CitizenRequestModalProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -172,20 +170,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [conversationDetail, setConversationDetail] = useState<CitizenConversationDetail | null>(null)
   const [internalDepartmentId, setInternalDepartmentId] = useState('')
   const [sendingInternal, setSendingInternal] = useState(false)
-  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
-  const [requestLabel, setRequestLabel] = useState('')
-
-  const loadRequestTags = useCallback(async () => {
-    try {
-      setRequestTags(await api.getRequestTags())
-    } catch {
-      setRequestTags([])
-    }
-  }, [])
-
-  useEffect(() => {
-    void loadRequestTags()
-  }, [loadRequestTags])
 
   useEffect(() => {
     if (!forceNewRequest || editJobId) return
@@ -257,7 +241,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       .then(detail => {
         if (!cancelled) {
           setConversationDetail(detail)
-          setRequestLabel(detail.label ?? '')
         }
       })
       .catch(() => { if (!cancelled) setConversationDetail(null) })
@@ -265,14 +248,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       cancelled = true
     }
   }, [citizenConversationId])
-
-  const selectRequestTag = async (label: string) => {
-    setRequestLabel(label)
-    if (!citizenConversationId) return
-    await api.updateCitizenConversationProfile(citizenConversationId, { label })
-    invalidateConversations(queryClient)
-    onProfileUpdated?.()
-  }
 
   const internalDepartmentOptions = useMemo(() => {
     const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
@@ -551,20 +526,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   {t('social.citizenRequestNumberLabel', 'Vatandaş Talep No')}: {editCitizenRequestNumber}
                 </div>
               ) : null}
-              <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-                <div className="job-field min-w-36">
-                  <span className="job-field-label">{t('social.channel', 'Talep Kanalı')}</span>
-                  <input className="field-input" value={message.channel} readOnly disabled />
-                </div>
-                <div className="job-field min-w-[18rem] flex-1 md:max-w-[28rem]">
-                  <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <input className="field-input min-w-32 flex-1" value={requestLabel} readOnly disabled />
-                    <RequestTagPicker tags={requestTags} onSelect={label => void selectRequestTag(label)} />
-                    <RequestTagAddButton onChanged={() => void loadRequestTags()} />
-                  </div>
-                </div>
-              </div>
               <div className="grid gap-2.5 md:grid-cols-2">
                 <label className="job-field">
                   <span className="job-field-label">

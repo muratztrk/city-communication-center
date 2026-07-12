@@ -1818,10 +1818,6 @@ export function WhatsAppConversationsPage() {
             setRequestModalForceNew(false)
           }}
           onCreated={handleRequestCreated}
-          onProfileUpdated={() => {
-            setDetailRefreshKey(current => current + 1)
-            void loadConversations()
-          }}
         />
       ) : null}
     </div>

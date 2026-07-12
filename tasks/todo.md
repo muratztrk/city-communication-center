@@ -2087,3 +2087,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   bullet ayırıcısı optik hizası korunarak 2px'e küçültüldü.
 
 ## STATUS: Round 261 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 262 (Doing — 2026-07-12, popup Kanal/Talep Etiketi kaldırma)
+- [x] `6a53ee95a49ff690fef98f36` / #1563 — WhatsApp Talep Oluştur popup sağ formundaki
+  Kanal ve Talep Etiketi bloğu kaldırıldı; ana WhatsApp profilindeki etiket yönetimi korundu.
+
+## STATUS: Round 262 complete — frontend build/lint passed; card ready to move to Done.

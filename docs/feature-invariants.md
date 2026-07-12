@@ -417,10 +417,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum İçi Mesajlar küçük ayraç/paging hizası (card #1542 reopen):** gönderen ve teslim durumu
   bullet'ları metnin optik ortasında küçük kalır; personel/birim bullet'ı özellikle 2px'i aşmaz.
   Paging yazıları üst/alt border'a yapışmaz.
-- **WhatsApp talep etiketi (card #1561):** profil Talep Etiketi input'u salt okunurdur; seçim yalnız
-  ortak Etiketler dropdown'undan yapılır. Vatandaş Çağrı Talebi modalı aynı salt-okunur değer +
-  Etiketler + Etiket Ekle bileşenlerini Talep Kanalı'nın sağında kullanır; iki yüzeydeki seçim de
-  conversation profile'a anında kaydedilir ve diğer yüzeye yansır.
+- **WhatsApp talep etiketi (cards #1561/#1563):** profil Talep Etiketi input'u salt okunurdur;
+  seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. Vatandaş Çağrı Talebi
+  oluşturma popup'ında Kanal/Talep Etiketi bloğu gösterilmez; etiket yönetimi ana profilde kalır.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.

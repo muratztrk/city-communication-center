@@ -418,6 +418,8 @@ export interface SocialMessage {
   dueDateUtc?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  /** Mesaj bir WhatsApp vatandaş konuşmasına bağlıysa dolu gelir (detay yanıtı, card #1561). */
+  citizenConversationId?: string | null;
 }
 
 export interface CitizenConversationSummary {

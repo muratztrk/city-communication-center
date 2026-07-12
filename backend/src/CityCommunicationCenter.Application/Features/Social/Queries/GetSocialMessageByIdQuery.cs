@@ -65,6 +65,7 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             message.Longitude,
             string.IsNullOrWhiteSpace(message.Tags)
                 ? Array.Empty<string>()
-                : message.Tags.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                : message.Tags.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+            message.CitizenConversationId);
     }
 }

@@ -2192,3 +2192,21 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   avatar 4px sağa alınarak üst satırdaki ok glyph başlangıcına hizalandı.
 
 ## STATUS: Round 276 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 277 (Doing — 2026-07-13, mobil logo + Taleplerim standart düzen + Talep Etiketi klonu)
+- [x] `6a53f19b8bed6e86747c927e` / #1565 — Round 264 (`093352f8`) düzeltmesi doğrulandı:
+  kurum içi mesaj etiketi artık gönderenin kendi birimi + görünen adıyla yazılır; ekrandaki
+  görsel fix öncesi kayıtlara aitti. Ek kod değişikliği gerekmedi, kart Done'a taşındı.
+- [x] `6a46373eb24396a082d2aece` / #1205 — Mobil menü logosu `h-20 w-44` → `h-28 w-56`,
+  başlık `text-2xl` → `text-xl`; `pr-12` kaldırılarak logo+başlık bloğu kart içinde ortalandı.
+- [x] `6a53753eed5d0e339f872efa` / #1549 reopen — Standart kullanıcı Taleplerim popup'ı:
+  Talep Ekleri + dolu Yönetici Notu, Talep Bilgileri'nde `Öncelik / Proje mi?` altına satır
+  olarak taşındı; ayrı alt kartlar kaldırıldı; Görev Detayları kolonları Görev Bilgileri →
+  Adres Bilgileri → Süreç oldu, düz Açıklama gizlendi (terminal not korunur, düzenleme
+  modunda eski kutucuklar geri gelir). Round 251 geri alması müşteri reopen'ıyla geçersiz.
+- [x] `6a53afa4b24b5394894d6c35` / #1561 reopen — Talep Etiketi bloğu (salt-okunur değer +
+  Etiketler + Etiket Ekle) Talep Oluştur > Vatandaş Çağrı Talebi formunda Talep Kanalı'nın
+  sağına klonlandı; `SocialMessageDetailResponse`'a `CitizenConversationId` eklendi, kaynak
+  mesaj konuşmaya bağlıysa etiket seçimi profile anında kaydedilir.
+
+## STATUS: Round 277 complete — backend + frontend build, lint passed; cards ready to move to Done.

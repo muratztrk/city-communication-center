@@ -1,20 +1,21 @@
 import { Building2, FileImage, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
+import { invalidateConversations, invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
+import { RequestTagAddButton, RequestTagPicker } from '../components/RequestTagDialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import { userWorksInDepartment } from '../utils/userDepartments'
-import type { Department, User } from '../types/platform'
+import type { Department, RequestTag, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
@@ -412,6 +413,38 @@ export function CreateRequestPage() {
 
   const [editSocialMessageId, setEditSocialMessageId] = useState<string | null>(null)
 
+  // Talep Etiketi bloğu: WhatsApp profilindeki salt-okunur değer + Etiketler + Etiket Ekle
+  // bileşenlerinin klonu, aynı etiket verisiyle (card #1561). Konuşması olan vatandaşta seçim
+  // profile anında kaydedilir; konuşma yoksa form üzerinde bilgilendirici olarak kalır.
+  const canManageRequestTags = user?.role === 'Operator' || user?.role === 'SystemAdmin'
+  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
+  const [citizenLabel, setCitizenLabel] = useState('')
+  const [citizenConversationId, setCitizenConversationId] = useState<string | null>(null)
+
+  const loadRequestTags = useCallback(async () => {
+    try {
+      setRequestTags(await api.getRequestTags())
+    } catch {
+      // sessizce yut: etiket dropdown'ı boş kalır, form etkilenmez
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedKind !== 'citizen' || !canManageRequestTags) return
+    void loadRequestTags()
+  }, [selectedKind, canManageRequestTags, loadRequestTags])
+
+  const handleCitizenLabelSelect = useCallback(async (label: string) => {
+    setCitizenLabel(label)
+    if (!citizenConversationId) return
+    try {
+      await api.updateCitizenConversationProfile(citizenConversationId, { label })
+      invalidateConversations(queryClient, citizenConversationId)
+    } catch {
+      // profil güncellenemezse yerel seçim korunur
+    }
+  }, [citizenConversationId, queryClient])
+
   useEffect(() => {
     if (!editJobId || editPrefilled || selectedKind !== 'citizen') return
     let cancelled = false
@@ -424,6 +457,12 @@ export function CreateRequestPage() {
           .filter(department => department.role === 'Target')
           .map(department => department.departmentId)
         setEditSocialMessageId(message.socialMessageId)
+        setCitizenConversationId(message.citizenConversationId ?? null)
+        if (message.citizenConversationId) {
+          void api.getCitizenConversationDetail(message.citizenConversationId)
+            .then(detail => { if (!cancelled) setCitizenLabel(detail.label ?? '') })
+            .catch(() => {})
+        }
         setCitizenForm({
           channel: message.channel,
           citizenHandle: job.citizenName ?? message.citizenHandle,
@@ -455,6 +494,12 @@ export function CreateRequestPage() {
       .then(message => {
         if (cancelled || !message) return
         setEditSocialMessageId(message.socialMessageId)
+        setCitizenConversationId(message.citizenConversationId ?? null)
+        if (message.citizenConversationId) {
+          void api.getCitizenConversationDetail(message.citizenConversationId)
+            .then(detail => { if (!cancelled) setCitizenLabel(detail.label ?? '') })
+            .catch(() => {})
+        }
         setCitizenForm({
           ...EMPTY_CITIZEN_FORM,
           channel: message.channel,
@@ -880,6 +925,8 @@ export function CreateRequestPage() {
         invalidateJobs(queryClient, editJobId)
         setCitizenForm(EMPTY_CITIZEN_FORM)
         setEditSocialMessageId(null)
+        setCitizenLabel('')
+        setCitizenConversationId(null)
         navigateAfterCitizenRequest(navigate, returnToParam)
         return
       }
@@ -916,6 +963,8 @@ export function CreateRequestPage() {
       invalidateJobs(queryClient)
       setCitizenForm(EMPTY_CITIZEN_FORM)
       setEditSocialMessageId(null)
+      setCitizenLabel('')
+      setCitizenConversationId(null)
       navigateAfterCitizenRequest(navigate, returnToParam)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -1211,24 +1260,44 @@ export function CreateRequestPage() {
                 />
               </label>
             </div>
-            <div className="job-field">
-              <span className="job-field-label">{t('settings.citizen.channel', 'Talep Kanalı')}</span>
-              <div className="flex gap-1">
-                {CITIZEN_CHANNELS.map(channel => (
-                  <button
-                    key={channel}
-                    type="button"
-                    onClick={() => setCitizenForm(current => ({ ...current, channel }))}
-                    className={`inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-semibold transition-colors ${
-                      citizenForm.channel === channel
-                        ? 'border-sky-500 text-sky-600'
-                        : 'border-slate-200 text-slate-600 hover:border-slate-300'
-                    }`}
-                  >
-                    <ChannelIcon channel={channel} className="size-4 shrink-0" />
-                    <span className="truncate text-center leading-tight">{t(`settings.citizen.channels.${channel}`, channel)}</span>
-                  </button>
-                ))}
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="job-field">
+                <span className="job-field-label">{t('settings.citizen.channel', 'Talep Kanalı')}</span>
+                <div className="flex gap-1">
+                  {CITIZEN_CHANNELS.map(channel => (
+                    <button
+                      key={channel}
+                      type="button"
+                      onClick={() => setCitizenForm(current => ({ ...current, channel }))}
+                      className={`inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-semibold transition-colors ${
+                        citizenForm.channel === channel
+                          ? 'border-sky-500 text-sky-600'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      <ChannelIcon channel={channel} className="size-4 shrink-0" />
+                      <span className="truncate text-center leading-tight">{t(`settings.citizen.channels.${channel}`, channel)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Talep Kanalı'nın sağında WhatsApp profilindeki Talep Etiketi bloğunun klonu (card #1561). */}
+              <div className="job-field">
+                <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    className="field-input min-w-0 flex-1 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    value={citizenLabel}
+                    readOnly
+                    disabled
+                  />
+                  {canManageRequestTags && (
+                    <>
+                      <RequestTagPicker tags={requestTags} onSelect={label => void handleCitizenLabelSelect(label)} />
+                      <RequestTagAddButton onChanged={() => void loadRequestTags()} />
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <div className="job-field min-h-0">

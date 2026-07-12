@@ -89,7 +89,8 @@ public sealed record SocialMessageDetailResponse(
     DateTimeOffset? UpdatedAtUtc,
     double? Latitude,
     double? Longitude,
-    IReadOnlyCollection<string> Tags);
+    IReadOnlyCollection<string> Tags,
+    Guid? CitizenConversationId = null);
 
 public sealed record SocialChannelStatusResponse(
     bool Configured,

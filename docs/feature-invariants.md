@@ -432,8 +432,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aynı 2px ölçüdedir.
   Paging yazıları üst/alt border'a yapışmaz.
 - **WhatsApp talep etiketi (cards #1561/#1563):** profil Talep Etiketi input'u salt okunurdur;
-  seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. Vatandaş Çağrı Talebi
-  oluşturma popup'ında Kanal/Talep Etiketi bloğu gösterilmez; etiket yönetimi ana profilde kalır.
+  seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. WhatsApp'tan açılan
+  Vatandaş Çağrı Talebi oluşturma POPUP'ında Kanal/Talep Etiketi bloğu gösterilmez (card #1563);
+  Talep Oluştur SAYFASINDAKİ Vatandaş Çağrı Talebi formunda ise Talep Kanalı'nın sağında aynı
+  salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (card #1561 reopen, 2026-07-13);
+  kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
@@ -599,8 +602,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak.
 - **Yönetici Taleplerim görev özeti (card #1550):** yalnız Manager/SystemAdmin görünümünde düz
-  `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur. Standart kullanıcı Talep
-  Detayları rol bazlı kolon override'ı kullanmaz (card #1549 geri alındı).
+  `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur.
+- **Standart kullanıcı Taleplerim popup düzeni (card #1549 reopen, 2026-07-13):** Manager/
+  Reporter olmayan kullanıcıda ayrı Adres/Yönetici Notu/Talep Ekleri alt kartları gösterilmez:
+  Talep Ekleri ve dolu Yönetici Notu, Talep Bilgileri listesinde `Öncelik / Proje mi?` altına
+  satır olarak girer (Görevlerim #1481/#1538 deseni); Görev Detayları kolon sırası
+  Görev Bilgileri → Adres Bilgileri → Süreç olur, düz `Açıklama` kartı gizlenir (terminal
+  tamamlama/iptal notu korunur). Düzenleme modunda ek yükleme/adres alanları için eski
+  kutucuk düzeni geri gelir. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
+  geçersizdir.)
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç
   timeline. Ayrı `Açıklama` paneli ve Talep Bilgileri içindeki tekrarlayan başlık/no satırları yok.

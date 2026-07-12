@@ -2111,3 +2111,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   WhatsApp kurum içi mesaj balonunda personel adı italik gösterildi, mevcut sıra/bullet korundu.
 
 ## STATUS: Round 265 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 266 (Doing — 2026-07-12, ortak dropdown standardı + etiket arama)
+- [x] `6a53f43484698f24504a60a5` / #1568 — Etiketler menüsüne kayıt sayısı 7'yi aşınca
+  ilk satırda Türkçe uyumlu arama alanı eklendi.
+- [x] `6a53f3afafc42d88357eed80` / #1566 — WhatsApp ana sayfa ve Talep Oluştur konuşma
+  footer'ındaki Birim seçin native select'leri mahalleyle aynı aramalı portal dropdown'a geçirildi.
+- [x] `6a53f3f0278e9d9c6cfdc39b` / #1567 — Yeni dropdown'ların ortak mahalle dropdown
+  standardını kullanma kuralı invariant olarak kaydedildi.
+
+## STATUS: Round 266 complete — frontend build/lint passed; cards ready to move to Done.

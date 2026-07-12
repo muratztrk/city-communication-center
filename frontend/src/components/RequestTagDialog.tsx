@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronDown, Plus, Tag, Trash2 } from 'lucide-react'
+import { ChevronDown, Plus, Search, Tag, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { RequestTag } from '../types/platform'
@@ -201,10 +201,10 @@ interface RequestTagPickerProps {
   onSelect: (name: string) => void
 }
 
-function computeTagMenuStyle(button: HTMLDivElement, itemCount: number) {
+function computeTagMenuStyle(button: HTMLDivElement, itemCount: number, hasSearch: boolean) {
   const rect = button.getBoundingClientRect()
   const menuWidth = 224
-  const menuHeight = Math.min(224, itemCount * 40)
+  const menuHeight = Math.min(224, itemCount * 40) + (hasSearch ? 40 : 0)
   const openUp = rect.top >= menuHeight + 8
   const left = Math.min(rect.left, window.innerWidth - menuWidth - 8)
   return {
@@ -219,6 +219,7 @@ function computeTagMenuStyle(button: HTMLDivElement, itemCount: number) {
 export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
   const buttonRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
@@ -226,6 +227,14 @@ export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
   const sorted = useMemo(
     () => [...tags].sort((left, right) => left.name.localeCompare(right.name, 'tr')),
     [tags],
+  )
+  const searchable = sorted.length > 7
+  const normalizedSearch = search.trim().toLocaleLowerCase('tr')
+  const visibleTags = useMemo(
+    () => normalizedSearch
+      ? sorted.filter(tag => tag.name.toLocaleLowerCase('tr').includes(normalizedSearch))
+      : sorted,
+    [normalizedSearch, sorted],
   )
 
   useLayoutEffect(() => {
@@ -240,6 +249,7 @@ export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
       const target = event.target as Node
       if (buttonRef.current?.contains(target) || menuRef.current?.contains(target)) return
       setOpen(false)
+      setSearch('')
       setMenuStyle(null)
     }
     document.addEventListener('mousedown', onPointerDown)
@@ -256,7 +266,7 @@ export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
       return
     }
     if (buttonRef.current) {
-      setMenuStyle(computeTagMenuStyle(buttonRef.current, sorted.length))
+      setMenuStyle(computeTagMenuStyle(buttonRef.current, sorted.length, searchable))
     }
     setOpen(true)
   }
@@ -264,19 +274,36 @@ export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
   const menu = open && menuStyle ? createPortal(
     <div
       ref={menuRef}
-      className="fixed z-[200] max-h-56 overflow-y-auto rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg divide-y divide-slate-100"
+      className="fixed z-[200] overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg"
       style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
     >
-      {sorted.map(tag => (
-        <button
-          key={tag.tagId}
-          type="button"
-          onClick={() => { onSelect(tag.name); setOpen(false); setMenuStyle(null) }}
-          className="w-full truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-[color:var(--color-surface-raised)]"
-        >
-          {tag.name}
-        </button>
-      ))}
+      {searchable ? (
+        <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
+          <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+          <input
+            type="text"
+            autoFocus
+            value={search}
+            onChange={event => setSearch(event.target.value)}
+            placeholder={t('common.search', 'Ara...')}
+            className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+          />
+        </div>
+      ) : null}
+      <div className="max-h-56 overflow-y-auto divide-y divide-slate-100">
+        {visibleTags.length === 0 ? (
+          <p className="px-3 py-2 text-xs font-semibold text-slate-500">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
+        ) : visibleTags.map(tag => (
+          <button
+            key={tag.tagId}
+            type="button"
+            onClick={() => { onSelect(tag.name); setOpen(false); setSearch(''); setMenuStyle(null) }}
+            className="w-full truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-[color:var(--color-surface-raised)]"
+          >
+            {tag.name}
+          </button>
+        ))}
+      </div>
     </div>,
     document.body,
   ) : null

@@ -1366,17 +1366,18 @@ function ConversationDetail({
                 </button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <select
+                <SingleSelectDropdown
+                  options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                   value={internalDepartmentId}
-                  onChange={event => setInternalDepartmentId(event.target.value)}
-                  className="h-9 min-w-44 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  aria-label={t('departments.selectDepartment', 'Birim seçin')}
-                >
-                  <option value="">{t('departments.selectDepartment', 'Birim seçin')}</option>
-                  {internalDepartmentOptions.map(department => (
-                    <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                  ))}
-                </select>
+                  onChange={setInternalDepartmentId}
+                  placeholder={t('departments.selectDepartment', 'Birim seçin')}
+                  emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
+                  searchable
+                  searchPlaceholder={t('departments.search', 'Birim ara...')}
+                  openUp
+                  className="min-w-44"
+                  triggerClassName="h-9 rounded-full px-3 text-xs font-semibold"
+                />
                 <button
                   type="button"
                   onClick={() => void handleSendInternal()}

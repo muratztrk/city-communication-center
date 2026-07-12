@@ -32,6 +32,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Özellikle Görevlerim iptal/tamamla/durum popup'ları da Taleplerim gibi body'ye portal
   edilmeli; aksi halde `.app-content-shell .form-card` kompakt stilleri popup'ı küçültür.
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
+- **Yeni dropdown'larda native `<select>` açma:** mahalle seçimindeki ortak `SingleSelectDropdown`
+  standardını (portal paneli, ortak satır/hover, gerektiğinde arama) kullan; yeni özel/native menü üretme.
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
@@ -373,7 +375,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünür ve konuşma son mesaj zamanını günceller. Balondaki `Birim · Ad Soyad`, footer'da seçilen hedef
   birimden değil mesajı gönderen kullanıcının kendi birim/display-name bilgisinden üretilir.
 - **WhatsApp detay iç yönlendirme birimleri:** `/whatsapp` footer birim dropdown'u genel departman
-  listesini değil, seçili konuşmadaki işleme alınan/yapılmakta aktif taleplerin hedef departmanlarını gösterir.
+  listesini değil, seçili konuşmadaki işleme alınan/yapılmakta aktif taleplerin hedef departmanlarını gösterir;
+  native select değil mahalle dropdown'uyla aynı ortak, aramalı portal bileşenini kullanır.
 - **`Birim İçi İlet` mesajı SEÇİLEN birimin ticket'ına yazılır, `primaryTicket`'a değil:** aynı konuşmada
   birden fazla aktif talep farklı birimlere gidiyorsa, iç mesaj `internalDepartmentId`'ye eşleşen ticket'ın
   `socialMessageId`'sine kaydedilmeli — yoksa o birimin yöneticisi/personeli kendi görevinden "Yazışmaya Git"
@@ -425,6 +428,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp talep etiketi (cards #1561/#1563):** profil Talep Etiketi input'u salt okunurdur;
   seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. Vatandaş Çağrı Talebi
   oluşturma popup'ında Kanal/Talep Etiketi bloğu gösterilmez; etiket yönetimi ana profilde kalır.
+  Kayıtlı etiket sayısı 7'yi aşarsa Etiketler menüsünün ilk satırında arama alanı gösterilir.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.

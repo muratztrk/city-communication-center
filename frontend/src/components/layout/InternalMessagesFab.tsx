@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MessageCircle, Search, Send, X } from 'lucide-react'
+import { CheckCheck, MessageCircle, Search, Send, X } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { useSignalR } from '../../hooks/useSignalR'
 import type { InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
-import { formatConversationListTime } from '../../utils/conversationListTime'
+import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
 
@@ -225,7 +225,7 @@ export function InternalMessagesFab() {
     <div className="relative size-14 shrink-0">
       {isOpen ? (
         <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(66dvh,37rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
-          <div className="flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 px-4 py-3">
+          <div className="flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pl-2 pr-4">
               <div className="flex min-w-0 flex-1 items-start gap-2">
                 {activeChat ? (
                   <button
@@ -300,11 +300,18 @@ export function InternalMessagesFab() {
                             }`}
                           >
                             <p className={`mb-0.5 text-[11px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-slate-900'}`}>
-                              {senderDepartment} <span aria-hidden="true">•</span> {senderName}
+                              {senderName} <span className="text-[7px]" aria-hidden="true">•</span> {senderDepartment}
                             </p>
                             <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
-                            <p className={`mt-0.5 text-right text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
-                              {formatConversationListTime(message.createdAtUtc, locale, t, { compact: true })}
+                            <p className={`mt-0.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
+                              {isMine ? (
+                                <span className={`inline-flex items-center gap-0.5 ${message.readAtUtc ? 'text-sky-300' : 'text-emerald-100'}`}>
+                                  <CheckCheck className="size-3" aria-hidden="true" />
+                                  <span>{message.readAtUtc ? 'Okundu' : 'İletildi'}</span>
+                                  <span className="text-[6px]" aria-hidden="true">•</span>
+                                </span>
+                              ) : null}
+                              <span>{formatConversationMessageTime(message.createdAtUtc, locale, t)}</span>
                             </p>
                           </div>
                         </div>

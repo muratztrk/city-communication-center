@@ -640,7 +640,7 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.label', 'Talep Etiketi')}</span>
-          <input className={fieldClass} value={draft.label} onChange={event => onDraftChange({ label: event.target.value })} />
+          <input className={disabledFieldClass} value={draft.label} readOnly disabled />
           {canManageRequestTags && (
             <div className="flex items-center gap-2 pt-1">
               <RequestTagPicker tags={requestTags} onSelect={tagName => onDraftChange({ label: tagName })} />
@@ -1061,7 +1061,7 @@ function ConversationDetail({
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
   const headerInitials = citizenName ? getInitials(citizenName) : null
   const inboundSenderLabel = citizenName?.trim()
-    ? citizenName.trim()
+    ? `${citizenName.trim()}${phoneForHeader ? ` ${formatPhone(phoneForHeader)}` : ''}`
     : phoneForHeader
       ? formatPhone(phoneForHeader)
       : null

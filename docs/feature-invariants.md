@@ -328,9 +328,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma balonu sender label:** personel adı soyadı kısaltılmaz; backend `FormatStaffLabel`
   tam `DisplayName` yazar. Frontend eski `Dept / Name` biçimini `Dept · Name` yapar ve eski
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.
-- **WhatsApp gelen vatandaş balonu sender label (card #1554):** kayıtlı vatandaş adı varsa
-  yalnız ad soyad gösterilir (`• Telefon` bullet satırı yok); ad yoksa biçimlendirilmiş telefon
-  gösterilir; boş üst satır basılmaz.
+- **WhatsApp gelen vatandaş balonu sender label (card #1554 reopen):** kayıtlı vatandaş adı varsa
+  `Ad Soyad Telefon` (bullet yok), ad yoksa yalnız biçimlendirilmiş telefon gösterilir; boş üst satır basılmaz.
+- **Konuşma balonu zaman formatı (cards #1557/#1558/#1560):** WhatsApp ve kurum içi mesajlarda
+  bugün `HH:mm`, önceki takvim günü saatten bağımsız `Dün`, daha eski mesaj `gg.aa.yyyy` gösterir.
 - **WhatsApp Talep oluştur konuşma header (card #1555):** `headerMode=phone` iken ortak
   `/icons/whatsapp.webp` kullanılır (beyaz dış daire yok); `Whatsapp Telefon No` altındaki değer
   küçük punto + `+90` önekli biçimlenir; kayıtlı vatandaş adı varsa numaranın önüne yazılır.
@@ -408,6 +409,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (dikey `Geri` / `←`); personel adı ana satırda, birim altında, küçük `Kurum İçi Mesajlar` etiketi
   sağa yaslıdır. Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
   balonundan bir kademe küçüktür (`text-xs` / `px-2.5 py-1.5`).
+- **Kurum İçi Mesajlar teslim/okunma durumu (card #1559):** kullanıcının kendi balonunda zamanın
+  solunda çift tik + `İletildi` bulunur; `ReadAtUtc` dolunca çift tik ve `Okundu` mavi olur.
+- **WhatsApp talep etiketi (card #1561):** profil Talep Etiketi input'u salt okunurdur; seçim yalnız
+  ortak Etiketler dropdown'undan yapılır. Vatandaş Çağrı Talebi modalı aynı salt-okunur değer +
+  Etiketler + Etiket Ekle bileşenlerini kullanır ve seçim conversation profile'a anında kaydedilir.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.

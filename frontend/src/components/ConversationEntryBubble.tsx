@@ -8,6 +8,7 @@ import { getLocale } from '../utils/localization'
 import { formatConversationSenderLabel } from '../utils/formatConversationSenderLabel'
 import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
 import { formatWhatsAppDeliveryError } from '../utils/formatWhatsAppDeliveryError'
+import { formatConversationMessageTime } from '../utils/conversationListTime'
 
 export interface ConversationEntryBubbleData {
   entryId: string
@@ -76,7 +77,7 @@ export function ConversationEntryBubble({
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
-  const sentTime = new Date(entry.sentAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+  const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
 
   return (

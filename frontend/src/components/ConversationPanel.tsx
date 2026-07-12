@@ -233,7 +233,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       >
         {headerMode === 'phone' ? (
           // Ortak WhatsApp asset; beyaz dış çerçeve yok (card #1555).
-          <img src="/icons/whatsapp.webp" alt="" className="size-9 shrink-0" aria-hidden="true" />
+          <img src="/icons/whatsapp.webp" alt="" className="size-7 shrink-0" aria-hidden="true" />
         ) : (
           <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: 'var(--color-header-from)' }}>
             {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}

@@ -2023,3 +2023,20 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   font boyutu ve sender label tipografisine eşitlendi.
 
 ## STATUS: Round 254 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 255 (Doing — 2026-07-12, konuşma zaman/okunma/etiket düzeni)
+- [x] `6a53a0772d626d46b6eadde3` / #1559 — Kurum içi outbound balonda çift tik + İletildi;
+  `readAtUtc` sonrası mavi çift tik + Okundu gösterildi.
+- [x] `6a53a040cc2116ea7f0ab2bf` / #1558 ve `6a53a89176d473a60b98506e` / #1560 — Kurum içi
+  mesaj zamanı bugün HH:mm, dün Dün, daha eski gg.aa.yyyy oldu.
+- [x] `6a5388d28e6a11e958a0e5a4` / #1554 reopen — Kayıtlı vatandaş inbound etiketi
+  `Ad Soyad Telefon` oldu; bullet kaldırıldı, telefon geri eklendi.
+- [x] `6a539f43901cabf74a680e60` / #1557 — WhatsApp balon zamanı aynı bugün/dün/tarih kuralına alındı.
+- [x] `6a53afa4b24b5394894d6c35` / #1561 — WhatsApp profil Talep Etiketi salt okunur oldu;
+  Vatandaş Çağrı Talebi modalına senkron salt-okunur etiket alanı + Etiketler/Etiket Ekle eklendi.
+- [x] `6a538c5c06a6ddb55707cb9b` / #1555 — Vatandaş Talebi Oluştur konuşma header WhatsApp
+  ikonu `size-9` → `size-7` küçültüldü.
+- [x] `6a536136575f3a55687a604f` / #1542 reopen — Geri border'a yaklaştırıldı; balon sender
+  sırası Personel • Birim oldu, bullet küçültüldü; paging dikey padding artırıldı.
+
+## STATUS: Round 255 complete — frontend build/lint passed; cards moved to Done.

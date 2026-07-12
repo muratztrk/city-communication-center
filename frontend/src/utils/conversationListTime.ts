@@ -40,3 +40,15 @@ export function formatConversationListTime(dateStr: string, locale: string, t: T
 
   return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
 }
+
+/** Mesaj balonu zamanı: bugün HH:mm, önceki takvim günü Dün, daha eski gg.aa.yyyy. */
+export function formatConversationMessageTime(dateStr: string, locale: string, t: TFunction): string {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+
+  if (sameDay(date, now)) return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+  if (sameDay(date, yesterday)) return t('common.yesterday', 'Dün')
+  return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
+}

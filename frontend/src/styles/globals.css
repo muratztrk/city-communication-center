@@ -3108,7 +3108,7 @@
      değişkeni miras yoluyla sızmaz. Buton boyutu WCAG 2.5.8 asgari 24px dokunma hedefinin altına
      düşürülmez (codex review); yalnızca çevresindeki yazı/boşluk küçültülür. */
   .table-pagination-bar.internal-messages-pagination {
-    --table-chrome-row-py: 0.15rem;
+    --table-chrome-row-py: 0.3rem;
     --table-chrome-row-inner-height: 1.5rem;
     gap: 0.25rem 0.4rem;
     font-size: 0.68rem;

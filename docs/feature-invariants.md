@@ -72,6 +72,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Metin değişikliği kartlarında önce LOCALE dosyasını düzelt, t() fallback'ini değil:** kod içi
   `t('key', 'fallback')` ikinci argümanı yalnız anahtar locale'de yokken görünür; anahtar
   `locales/tr/common.json`'da varsa oradaki metin kazanır (card #1308 reopen, `searchPlaceholderExtended`).
+- **Aynı `t()` anahtarı birden çok bağlamda (talep/görev gibi) farklı metin göstermeli olduğunda
+  yeni bir locale anahtarı aç, mevcut anahtarın fallback'ini değiştirme** — anahtar zaten locale'de
+  varsa tüm çağrı yerleri aynı metni gösterir (`attachments.sectionTitle` → context'e göre
+  `attachments.requestSectionTitle`/`attachments.taskSectionTitle`'a ayrıştırıldı, card #1537).
 - **Bildirim başlıkları generic `İşlem gerçekleşti` göstermez:** audit action mapping eksikse
   `GetNotificationsQuery.ActionTitle` entity/action tipine göre en az `Talep güncellendi` /
   `Görev güncellendi` gibi anlamlı bir başlığa düşer.

@@ -1570,7 +1570,6 @@ export function WhatsAppConversationsPage() {
         ? true
         : (normalizedSearchPhone.length > 0 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
           || (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName)
-          || normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone)
           || (normalizedSearchTicket.length > 0 && ticketNumber.includes(normalizedSearchTicket))
       if (!matchesSearch) return false
       if (filterFrom || filterTo) {

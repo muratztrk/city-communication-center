@@ -2571,23 +2571,33 @@ const pageKicker = isMyTasksView
                           fields={parentInfoFields}
                           detail={parentJobDetail}
                           t={t}
-                          extraTrailingRow={isEditingThisParentJob ? undefined : {
-                            label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
-                            value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
-                              <div className="flex flex-col items-end gap-1">
-                                {parentJobDetail.attachments!.map(attachment => (
-                                  <button
-                                    key={attachment.attachmentId}
-                                    type="button"
-                                    className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                    onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
-                                  >
-                                    {attachment.fileName}
-                                  </button>
-                                ))}
-                              </div>
-                            ),
-                          }}
+                          extraTrailingRows={isEditingThisParentJob ? undefined : [
+                            {
+                              label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
+                              value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
+                                <div className="flex flex-col items-end gap-1">
+                                  {parentJobDetail.attachments!.map(attachment => (
+                                    <button
+                                      key={attachment.attachmentId}
+                                      type="button"
+                                      className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                      onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                    >
+                                      {attachment.fileName}
+                                    </button>
+                                  ))}
+                                </div>
+                              ),
+                            },
+                            // Yönetici notu yalnızca doluysa Talep Ekleri'nin hemen altında gösterilir (card #1538);
+                            // vatandaş talebi veya kendine atayan yönetici için hiç gösterilmez (card #1519 devamı).
+                            ...(!isCitizenParentJob && !isSelfAssignedManagerTask && parentJobDetail.managerNote?.trim()
+                              ? [{
+                                  label: t('jobs.managerNote.title', 'Yönetici Notu'),
+                                  value: <span className="whitespace-pre-wrap text-right">{parentJobDetail.managerNote}</span>,
+                                }]
+                              : []),
+                          ]}
                         />
                       </>
                     )
@@ -2616,7 +2626,9 @@ const pageKicker = isMyTasksView
                         />
                         <MyRequestDetailBottomCards
                           detail={parentJobDetail}
-                          showManagerNoteColumn={!isCitizenParentJob && !isSelfAssignedManagerTask}
+                          // Yönetici Notu artık dolu olduğunda Talep Bilgileri listesinde Talep Ekleri'nin
+                          // hemen altında satır olarak gösteriliyor; ayrı kart tekrar oluşturulmaz (card #1538).
+                          showManagerNoteColumn={false}
                           canEditManagerNote={false}
                           canManageCoordination={false}
                           managerNoteDraft=""

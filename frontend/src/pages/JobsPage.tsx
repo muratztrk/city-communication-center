@@ -2163,6 +2163,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               editSaving={myRequestEditSaving}
               onSaveEdit={() => void handleSaveMyRequestEdit()}
               onCancelEdit={cancelMyRequestEdit}
+              splitLocationFields
             />
           ) : (
           <section

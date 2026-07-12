@@ -68,6 +68,8 @@ export interface MyRequestDetailModalProps {
   editSaving?: boolean
   onSaveEdit?: () => void
   onCancelEdit?: () => void
+  // Yalnızca Taleplerim'de birleşik başlıklar ayrı satırlara bölünür (card #1460).
+  splitLocationFields?: boolean
 }
 
 export function MyRequestDetailModal({
@@ -124,6 +126,7 @@ export function MyRequestDetailModal({
   editSaving = false,
   onSaveEdit,
   onCancelEdit,
+  splitLocationFields = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
@@ -171,6 +174,7 @@ export function MyRequestDetailModal({
           isEditing={isEditing}
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}
+          splitLocationFields={splitLocationFields}
         />
 
         {canManageCoordination ? (

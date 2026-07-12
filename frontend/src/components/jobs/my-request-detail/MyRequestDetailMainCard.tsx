@@ -49,8 +49,9 @@ interface MyRequestInfoFieldsListProps {
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
   priorityOptions?: { value: string; label: string }[]
   // Görevlerim popup'ında (İlgili Talep Detayları) Ekler/Fotoğraflar artık ayrı kart değil,
-  // Öncelik/Proje mi? satırının hemen altında aynı hizada gösterilir (card #1481).
-  extraTrailingRow?: { label: ReactNode; value: ReactNode }
+  // Öncelik/Proje mi? satırının hemen altında aynı hizada gösterilir (card #1481). Talep Ekleri'nden
+  // sonra veri varsa Yönetici Notu satırı da aynı listede eklenebilir (card #1538).
+  extraTrailingRows?: { label: ReactNode; value: ReactNode }[]
 }
 
 export function MyRequestInfoFieldsList({
@@ -61,7 +62,7 @@ export function MyRequestInfoFieldsList({
   editDraft,
   onEditDraftChange,
   priorityOptions,
-  extraTrailingRow,
+  extraTrailingRows,
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   return (
@@ -99,12 +100,12 @@ export function MyRequestInfoFieldsList({
           </div>
         </div>
       )}
-      {!isEditing && extraTrailingRow && (
-        <div className="job-detail-field-row job-detail-field-row--request-info">
-          <div className="job-detail-field-row__label">{extraTrailingRow.label}</div>
-          <div className="job-detail-field-row__value">{extraTrailingRow.value}</div>
+      {!isEditing && extraTrailingRows?.map((row, index) => (
+        <div key={index} className="job-detail-field-row job-detail-field-row--request-info">
+          <div className="job-detail-field-row__label">{row.label}</div>
+          <div className="job-detail-field-row__value">{row.value}</div>
         </div>
-      )}
+      ))}
     </div>
   )
 }
@@ -123,6 +124,8 @@ interface MyRequestDetailMainCardProps {
   // Görevlerim popup'ında (İlgili Talep Detayları) atanan kişi Görev Bilgileri'nde zaten
   // gösterildiği için tekrar edilmez (card #1446).
   includeAssigneeField?: boolean
+  // Yalnızca Taleplerim'de birleşik başlıklar ayrı satırlara bölünür (card #1460).
+  splitLocationFields?: boolean
   // Görevlerim popup'ında (İlgili Talep Detayları) talep başlığı metni başlık alanından
   // kaldırılıp Talep Bilgileri listesine taşınır (card #1444).
   hideTitleText?: boolean
@@ -163,6 +166,7 @@ export function MyRequestDetailMainCard({
   requestNumberSuffix,
   extraFields,
   includeAssigneeField = true,
+  splitLocationFields = false,
   hideTitleText = false,
   middleColumnOverride,
   leftColumnBelowHeading,
@@ -195,8 +199,8 @@ export function MyRequestDetailMainCard({
   const citizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
   const projectLabel = t('jobs.form.isProject', 'Proje mi')
   const fields = useMemo(
-    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField),
-    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField],
+    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, splitLocationFields),
+    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, splitLocationFields],
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false

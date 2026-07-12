@@ -1561,7 +1561,7 @@ export function WhatsAppConversationsPage() {
   }, [conversations, requestedPhone])
 
   const normalizedSearchPhone = normalizePhone(search)
-  const normalizedSearchName = search.toLocaleLowerCase('tr')
+  const normalizedSearchName = search.trim().toLocaleLowerCase('tr')
   const normalizedSearchTicket = search.replace(/\D/g, '')
   const filtered = useMemo(() => {
     const matches = conversations.filter(conversation => {

@@ -1,7 +1,6 @@
 import { ArrowRight, FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
-import { AttachmentSection } from '../../ui/AttachmentSection'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime, getStatusChangeTextClass } from './format'
@@ -230,32 +229,13 @@ export function MyRequestTaskDetailsSection({
                       : t('tasks.detail.description', 'Açıklama')}
                 </MyRequestSectionHeading>
                 {detail.status === 'Completed' && task.currentStatus === 'Completed' ? (
-                  <div className="grid min-h-full gap-3 lg:grid-cols-2">
-                    <div className="min-w-0 border-b border-slate-200 pb-3 lg:border-b-0 lg:border-r lg:pr-3 lg:pb-0">
-                      <RichTextContent
-                        value={task.notes}
-                        emptyText={t('tasks.detail.noCompletionNote', 'Tamamlama notu girilmemiş')}
-                        className="rich-text-content text-sm leading-6 text-slate-900"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="mb-1.5 border-b border-slate-200 pb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        {t('tasks.detail.attachments', 'Görev Ekleri')}
-                      </div>
-                      {(task.attachments?.length ?? 0) > 0 ? (
-                        <AttachmentSection
-                          attachments={task.attachments!}
-                          readOnly
-                          compact
-                          displayMode="list"
-                          onDownload={onDownloadTaskAttachment}
-                        />
-                      ) : (
-                        <p className="text-sm text-slate-400">{t('attachments.taskEmpty', 'Görev için ek/fotoğraf bulunmamaktadır.')}</p>
-                      )}
-                      <p className="mt-2 text-xs text-orange-500">{t('attachments.taskLockedCompleted', 'Görev tamamlandığı için sonradan Ek/Fotoğraf eklenemez.')}</p>
-                    </div>
-                  </div>
+                  // Görev Ekleri artık yalnız Görev Bilgileri kartında gösterilir; burada tekrar
+                  // edilmez (card #1548).
+                  <RichTextContent
+                    value={task.notes}
+                    emptyText={t('tasks.detail.noCompletionNote', 'Tamamlama notu girilmemiş')}
+                    className="rich-text-content text-sm leading-6 text-slate-900"
+                  />
                 ) : (detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected') ? (
                   <RichTextContent
                     // Görevin RevisionReason'ı yoksa talebin CancelReason'ına düş (card #1530).

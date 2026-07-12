@@ -559,6 +559,7 @@ function ConversationProfilePanel({
   draft,
   saving,
   onDraftChange,
+  onLabelSelect,
   onSave,
   onCreateRequest,
   canCreateRequest,
@@ -567,6 +568,7 @@ function ConversationProfilePanel({
   draft: ConversationProfileDraft
   saving: boolean
   onDraftChange: (patch: Partial<ConversationProfileDraft>) => void
+  onLabelSelect: (label: string) => void
   onSave: () => void
   onCreateRequest?: () => void
   canCreateRequest?: boolean
@@ -644,7 +646,7 @@ function ConversationProfilePanel({
           <input className={disabledFieldClass} value={draft.label} readOnly disabled />
           {canManageRequestTags && (
             <div className="flex items-center gap-2 pt-1">
-              <RequestTagPicker tags={requestTags} onSelect={tagName => onDraftChange({ label: tagName })} />
+              <RequestTagPicker tags={requestTags} onSelect={onLabelSelect} />
               <RequestTagAddButton onChanged={() => void loadRequestTags()} />
             </div>
           )}
@@ -969,6 +971,20 @@ function ConversationDetail({
       onProfileSaved()
     } finally {
       if (latestConversationIdRef.current === savedForConversationId) setProfileSaving(false)
+    }
+  }
+
+  const handleProfileLabelSelect = async (label: string) => {
+    if (!detail || profileSaving) return
+    const normalizedLabel = normalizeTitleCaseField(label) ?? ''
+    setProfileDraft(current => ({ ...current, label: normalizedLabel }))
+    setProfileSaving(true)
+    try {
+      await api.updateCitizenConversationProfile(detail.citizenConversationId, { label: normalizedLabel })
+      await refreshDetail()
+      onProfileSaved()
+    } finally {
+      setProfileSaving(false)
     }
   }
 
@@ -1412,6 +1428,7 @@ function ConversationDetail({
           draft={profileDraft}
           saving={profileSaving}
           onDraftChange={patch => setProfileDraft(current => ({ ...current, ...patch }))}
+          onLabelSelect={label => { void handleProfileLabelSelect(label) }}
           onSave={() => { void handleProfileSave() }}
           canCreateRequest={Boolean(primaryTicket)}
           onCreateRequest={primaryTicket ? () => onOpenCreateRequest(primaryTicket.socialMessageId) : undefined}
@@ -1801,6 +1818,10 @@ export function WhatsAppConversationsPage() {
             setRequestModalForceNew(false)
           }}
           onCreated={handleRequestCreated}
+          onProfileUpdated={() => {
+            setDetailRefreshKey(current => current + 1)
+            void loadConversations()
+          }}
         />
       ) : null}
     </div>

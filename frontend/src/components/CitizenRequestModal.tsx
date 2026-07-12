@@ -29,6 +29,7 @@ interface CitizenRequestModalProps {
   citizenConversationId?: string | null
   onClose: () => void
   onCreated: () => void
+  onProfileUpdated?: () => void
 }
 
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
@@ -133,7 +134,7 @@ function sanitizeCitizenName(value: string | null | undefined): string {
 /**
  * Vatandaş talebini ilgili WhatsApp konuşması yan tarafta görünür şekilde bir pop-up içinde oluşturur.
  */
-export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, citizenConversationId = null, onClose, onCreated }: CitizenRequestModalProps) {
+export function CitizenRequestModal({ message, departments, editJobId = null, forceNewRequest = false, citizenConversationId = null, onClose, onCreated, onProfileUpdated }: CitizenRequestModalProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -270,6 +271,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     if (!citizenConversationId) return
     await api.updateCitizenConversationProfile(citizenConversationId, { label })
     invalidateConversations(queryClient)
+    onProfileUpdated?.()
   }
 
   const internalDepartmentOptions = useMemo(() => {

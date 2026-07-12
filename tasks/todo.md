@@ -2054,3 +2054,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   yaklaştırıldı; küçük bullet'lar optik ortalandı ve paging üst/alt boşluğu artırıldı.
 
 ## STATUS: Round 256 complete — frontend build/lint passed; cards ready to move to Done.
+
+## Round 257 (Doing — 2026-07-12, Talep Etiketi çift yönlü senkron)
+- [x] `6a53afa4b24b5394894d6c35` / #1561 reopen — WhatsApp profilindeki etiket bileşenleri
+  korundu; Vatandaş Çağrı Talebi formundaki Talep Kanalı yanı klonla birlikte her iki yüzeydeki
+  etiket seçimi anında kaydedilip karşı yüzeye yenileme sinyaliyle yansıtıldı.
+
+## STATUS: Round 257 complete — frontend build/lint passed; card ready to move to Done.

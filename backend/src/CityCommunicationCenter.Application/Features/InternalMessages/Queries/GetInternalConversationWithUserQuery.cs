@@ -45,12 +45,18 @@ public sealed class GetInternalConversationWithUserQueryHandler
             return new InternalConversationDetailResponse(null, request.OtherUserId, otherUser.DisplayName, otherUser.DepartmentName, []);
         }
 
+        // Sınırsız transkript yüklemesi, uzun süredir devam eden konuşmalarda tekrarlanan
+        // SignalR yenilemeleriyle birlikte gereksiz büyük yanıtlara yol açar — en son N mesajla
+        // sınırla (codex review, card #1539). Panel şu an eski mesajlar için sayfalama sunmuyor.
+        const int maxMessages = 200;
         var messages = await _dbContext.InternalMessages
             .AsNoTracking()
             .Where(m => m.TenantId == tenantId && m.InternalConversationId == conversation.InternalConversationId)
-            .OrderBy(m => m.CreatedAtUtc)
+            .OrderByDescending(m => m.CreatedAtUtc)
+            .Take(maxMessages)
             .Select(m => new InternalMessageResponse(m.InternalMessageId, m.SenderUserId, m.Content, m.CreatedAtUtc, m.ReadAtUtc))
             .ToListAsync(cancellationToken);
+        messages.Reverse();
 
         return new InternalConversationDetailResponse(
             conversation.InternalConversationId, request.OtherUserId, otherUser.DisplayName, otherUser.DepartmentName, messages);

@@ -37,8 +37,9 @@ public sealed class SendInternalMessageCommandHandler
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var currentUserId = request.ActorUserId ?? Guid.Empty;
 
+        // Pasif kullanıcıya mesaj gönderilemez — SearchUsersQuery ile aynı kural (codex review, card #1539).
         var recipientExists = await _dbContext.Users.AsNoTracking()
-            .AnyAsync(u => u.TenantId == tenantId && u.UserId == request.RecipientUserId, cancellationToken);
+            .AnyAsync(u => u.TenantId == tenantId && u.UserId == request.RecipientUserId && u.IsActive, cancellationToken);
         if (!recipientExists) return null;
 
         var senderName = await _dbContext.Users.AsNoTracking()
@@ -63,6 +64,18 @@ public sealed class SendInternalMessageCommandHandler
                 CreatedByUserId = request.ActorUserId,
             };
             _dbContext.InternalConversations.Add(conversation);
+            try
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException)
+            {
+                // İki kullanıcı aynı anda ilk mesajı gönderirse eşsiz indeks bir isteği reddeder;
+                // mesajı kaybetmek yerine kazanan satırı kullanmaya devam et (codex review, card #1539).
+                _dbContext.InternalConversations.Entry(conversation).State = EntityState.Detached;
+                conversation = await _dbContext.InternalConversations
+                    .FirstAsync(c => c.TenantId == tenantId && c.UserAId == userAId && c.UserBId == userBId, cancellationToken);
+            }
         }
         else
         {
@@ -84,11 +97,21 @@ public sealed class SendInternalMessageCommandHandler
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _notificationPushService.SendInternalMessageToUserAsync(
-            tenantId,
-            request.RecipientUserId,
-            new InternalMessagePayload(conversation.InternalConversationId, currentUserId, senderName, content, utcNow),
-            cancellationToken);
+        // Mesaj zaten kalıcı kaydedildi — SignalR bildirimi başarısız olsa da isteği başarısız gösterme,
+        // aksi halde istemci zaten gönderilmiş mesajı tekrar göndermeye çalışıp mükerrer oluşturur
+        // (codex review, card #1539). Alıcı bir sonraki poll'da mesajı zaten görür.
+        try
+        {
+            await _notificationPushService.SendInternalMessageToUserAsync(
+                tenantId,
+                request.RecipientUserId,
+                new InternalMessagePayload(conversation.InternalConversationId, currentUserId, senderName, content, utcNow),
+                cancellationToken);
+        }
+        catch (Exception)
+        {
+            // yoksay — mesaj kaydedildi, gerçek zamanlı bildirim en iyi çaba (best-effort)
+        }
 
         return new SendInternalMessageResponse(
             conversation.InternalConversationId,

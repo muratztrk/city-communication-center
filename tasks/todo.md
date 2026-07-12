@@ -2180,3 +2180,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   yerleştirildi; avatar + personel/birim bilgisi alt satırda sağa girintili hizalandı.
 
 ## STATUS: Round 274 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 275 (Doing — 2026-07-13, kurum içi avatar sol hizası)
+- [x] `6a5401286470e0b7bb37448e` / #1573 — Sohbet header alt satırındaki yuvarlak avatar,
+  üst satırdaki geri okunun başlangıç hizasına kadar sola çekildi.
+
+## STATUS: Round 275 complete — frontend build/lint passed; card ready to move to Done.

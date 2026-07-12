@@ -238,7 +238,7 @@ export function InternalMessagesFab() {
                     <span aria-hidden="true" className="text-xs leading-none">←</span>
                     <span>{t('common.back', 'Geri')}</span>
                   </button>
-                  <div className="flex min-w-0 items-start gap-1.5 pl-4">
+                  <div className="flex min-w-0 items-start gap-1.5">
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
                       {getInitials(activeChat.displayName)}
                     </span>

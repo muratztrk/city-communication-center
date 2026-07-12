@@ -2393,8 +2393,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         ) : (formatRequestApproverDisplay(detail) ?? '—'),
                       }] : []),
                       {
+                        // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
+                        // gösterilmez (codex review, cards #1544/#1546).
                         label: 'Talep Yapılan Birim',
-                        value: formatJobDestinationsWithAssignees(detail),
+                        value: formatJobDestinationsWithAssignees(detail, false, false),
                       },
                       { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                     ] : [

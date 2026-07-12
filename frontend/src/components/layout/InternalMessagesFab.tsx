@@ -231,11 +231,10 @@ export function InternalMessagesFab() {
                   <button
                     type="button"
                     onClick={() => { setActiveChat(null); setChatDetail(null) }}
-                    className="inline-flex shrink-0 flex-col items-center gap-0 rounded-md px-1 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
+                    className="inline-flex h-8 shrink-0 items-center rounded-md px-1 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
                     aria-label={t('common.back', 'Geri')}
                   >
                     <span>{t('common.back', 'Geri')}</span>
-                    <span aria-hidden="true" className="text-sm leading-none">←</span>
                   </button>
                 ) : null}
                 {activeChat ? (

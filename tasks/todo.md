@@ -2168,3 +2168,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   seçenek olduğunda aşağı, 2 veya daha fazla seçenek olduğunda yukarı açılır hale getirildi.
 
 ## STATUS: Round 272 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 273 (Doing — 2026-07-12, kurum içi Geri hizası)
+- [x] `6a53fcbfa72b4b9b2b5d81a1` / #1572 — Kurum İçi Mesajlar sohbet header'ındaki ok
+  işareti kaldırıldı; `Geri` metni yanındaki personel avatarının düşey merkezine hizalandı.
+
+## STATUS: Round 273 complete — frontend build/lint passed; card ready to move to Done.

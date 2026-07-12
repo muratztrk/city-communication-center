@@ -416,8 +416,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   durum metni birim satırının sağına yaslanır; birim + son mesaj zamanın altında tek satır aşağıda
   kalır (önceki “zaman altı durum” satırı kaldırıldı). Mesaj balonunda `Birim • Ad Soyad` etiketi ve
   takvim günü değiştiğinde ortalı `gün ay` ayırıcısı bulunur.
-- **Kurum İçi Mesajlar sohbet header/balonları (card #1542):** `Geri` metni ok ikonunun üst satırındadır
-  (dikey `Geri` / `←`); personel adı ana satırda, birim altında, küçük `Kurum İçi Mesajlar` etiketi
+- **Kurum İçi Mesajlar sohbet header/balonları (cards #1542/#1572):** `Geri` metni tek başına,
+  ok işareti olmadan yanındaki personel avatarının düşey ortasındadır; personel adı ana satırda,
+  birim altında, küçük `Kurum İçi Mesajlar` etiketi
   sağa yaslıdır. Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
   balonundan bir kademe küçüktür (`text-xs` / `px-2.5 py-1.5`).
 - **Kurum içi gönderen italik ayrımı (card #1564 reopen):** Kurum İçi Mesajlaşma FAB sohbet

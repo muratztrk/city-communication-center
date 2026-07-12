@@ -470,15 +470,15 @@ export function AppShell() {
                 alt="Atatürk"
                 className="absolute left-0 top-0 z-10 h-16 w-auto select-none opacity-80 pointer-events-none"
               />
-              <div className="flex min-w-0 flex-col items-center gap-3 pr-12 text-center">
+              <div className="flex min-w-0 flex-col items-center gap-3 text-center">
                 <MunicipalitySeal
                   alt={`${institutionName} logo`}
                   src={logoUrl}
-                  className="h-20 w-44 max-w-full rounded-xl border-white/18"
+                  className="h-28 w-56 max-w-full rounded-xl border-white/18"
                   imageClassName="h-[96%] w-[96%]"
                 />
                 <div className="min-w-0">
-                  <div className="text-2xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
+                  <div className="text-xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
                 </div>
               </div>
               <button type="button" className="sidebar-chip absolute right-3 top-3" onClick={() => setIsMobileNavOpen(false)} aria-label="Close menu">

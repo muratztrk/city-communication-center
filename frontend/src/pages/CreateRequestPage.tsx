@@ -848,19 +848,23 @@ export function CreateRequestPage() {
 
     setSaving(true)
     setError(null)
-    // Vatandaş adı girilen casing'den bağımsız her kelimenin ilk harfi büyük kaydedilir (card #1547).
-    const trimmedName = normalizeTitleCaseField(citizenForm.citizenHandle) ?? ''
+    const trimmedName = citizenForm.citizenHandle.trim()
+    // Vatandaş adı (Job.CitizenName) girilen casing'den bağımsız her kelimenin ilk harfi büyük
+    // kaydedilir; SocialMessage.CitizenHandle ham haliyle korunur — WhatsApp gibi diğer kanallarda
+    // bu alan telefon/kimlik türevi bir eşleşme anahtarıdır, isim gibi normalize edilmez
+    // (codex review, card #1547).
+    const normalizedCitizenName = normalizeTitleCaseField(trimmedName) ?? trimmedName
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
       if (editJobId && linkedSocialMessageId) {
         await api.updateJob(editJobId, {
-          title: citizenForm.title.trim() || trimmedName,
+          title: citizenForm.title.trim() || normalizedCitizenName,
           description: citizenForm.content.trim(),
           priority: citizenForm.priority,
           startDateUtc: toApiDateTime(citizenForm.startDateUtc),
           dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
           isProject: false,
-          citizenName: trimmedName,
+          citizenName: normalizedCitizenName,
           citizenPhone: trimmedPhone,
           neighborhood: citizenForm.neighborhood || null,
           street: citizenForm.street || null,
@@ -881,7 +885,7 @@ export function CreateRequestPage() {
       }
 
       const convertPayload = {
-        title: citizenForm.title.trim() || trimmedName,
+        title: citizenForm.title.trim() || normalizedCitizenName,
         description: citizenForm.content.trim(),
         ownerDepartmentId: myDepartmentId,
         priority: citizenForm.priority,
@@ -893,7 +897,7 @@ export function CreateRequestPage() {
         neighborhood: citizenForm.neighborhood || null,
         street: citizenForm.street || null,
         openAddress: citizenForm.openAddress || null,
-        citizenName: trimmedName,
+        citizenName: normalizedCitizenName,
         citizenPhone: trimmedPhone,
       }
 

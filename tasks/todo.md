@@ -2099,3 +2099,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   bullet, üst satırdaki personel/birim bullet'ıyla aynı 2px ölçüye küçültüldü.
 
 ## STATUS: Round 263 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 264 (Doing — 2026-07-12, WhatsApp kurum içi gönderen etiketi)
+- [x] `6a53f19b8bed6e86747c927e` / #1565 — WhatsApp kurum içi mesaj balonundaki birim ve
+  personel adı, seçilen hedef birim yerine gönderen kullanıcının profilinden üretilir hale getirildi.
+
+## STATUS: Round 264 complete — backend solution build passed; card ready to move to Done.

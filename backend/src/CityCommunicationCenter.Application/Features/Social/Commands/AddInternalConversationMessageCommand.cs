@@ -40,13 +40,20 @@ public sealed class AddInternalConversationMessageCommandHandler
             .FirstOrDefaultAsync(cancellationToken);
         if (departmentName is null) return false;
 
-        var actorName = request.ActorUserId.HasValue
+        var actor = request.ActorUserId.HasValue
             ? await _dbContext.Users
                 .AsNoTracking()
                 .Where(u => u.UserId == request.ActorUserId.Value && u.TenantId == tenantId)
-                .Select(u => u.DisplayName)
+                .Select(u => new
+                {
+                    u.DisplayName,
+                    DepartmentName = u.Department != null ? u.Department.Name : null,
+                })
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
+        var actorLabel = actor is null
+            ? "Belediye"
+            : ConversationEntrySenderLabelHelper.FormatStaffLabel(actor.DepartmentName, actor.DisplayName);
 
         var utcNow = DateTimeOffset.UtcNow;
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
@@ -56,7 +63,7 @@ public sealed class AddInternalConversationMessageCommandHandler
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
-            SenderLabel = $"Kurum İçi Mesaj · {departmentName}{(string.IsNullOrWhiteSpace(actorName) ? string.Empty : $" · {actorName}")}",
+            SenderLabel = $"Kurum İçi Mesaj · {actorLabel}",
             DeliveryStatus = null,
             DeliveryStatusUpdatedAtUtc = null,
         });

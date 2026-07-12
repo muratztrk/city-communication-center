@@ -415,7 +415,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum İçi Mesajlar teslim/okunma durumu (card #1559):** kullanıcının kendi balonunda zamanın
   solunda çift tik + `İletildi` bulunur; `ReadAtUtc` dolunca çift tik ve `Okundu` mavi olur.
 - **Kurum İçi Mesajlar küçük ayraç/paging hizası (card #1542 reopen):** gönderen ve teslim durumu
-  bullet'ları metnin optik ortasında küçük kalır; paging yazıları üst/alt border'a yapışmaz.
+  bullet'ları metnin optik ortasında küçük kalır; personel/birim bullet'ı özellikle 2px'i aşmaz.
+  Paging yazıları üst/alt border'a yapışmaz.
 - **WhatsApp talep etiketi (card #1561):** profil Talep Etiketi input'u salt okunurdur; seçim yalnız
   ortak Etiketler dropdown'undan yapılır. Vatandaş Çağrı Talebi modalı aynı salt-okunur değer +
   Etiketler + Etiket Ekle bileşenlerini Talep Kanalı'nın sağında kullanır; iki yüzeydeki seçim de

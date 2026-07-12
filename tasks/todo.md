@@ -2081,3 +2081,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   iç boşluğuna döndürüldü; aktif sohbet geri/avatar hizası korunarak iki görünüm ayrıştırıldı.
 
 ## STATUS: Round 260 complete — frontend build/lint passed; cards ready to move to Done.
+
+## Round 261 (Doing — 2026-07-12, kurum içi sender bullet)
+- [x] `6a53eb9b1f4375625b39ca19` / #1562 — Kurum içi mesaj balonundaki personel/birim
+  bullet ayırıcısı optik hizası korunarak 2px'e küçültüldü.
+
+## STATUS: Round 261 complete — frontend build/lint passed; card ready to move to Done.

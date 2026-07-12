@@ -823,7 +823,7 @@
     "addAsRequestAttachment": "Talep Eki Olarak Ekle",
     "tickets": "Bağlı Talepler",
     "ticketStatus": "Durum",
-    "replyPlaceholder": "Yanıt yaz…",
+    "replyPlaceholder": "Mesaj yazın...",
     "replySent": "Mesaj gönderildi",
     "replyFailed": "Mesaj gönderilemedi",
     "delivery": {

@@ -1378,7 +1378,7 @@ function ConversationDetail({
                       void handleSend()
                     }
                   }}
-                  placeholder={windowOpen || selectedMetaTemplate ? t('whatsapp.replyPlaceholder', 'Yanıt yaz…') : 'Şablon seçin…'}
+                  placeholder={t('whatsapp.replyPlaceholder', 'Mesaj yazın...')}
                   disabled={!windowOpen && !hasSelectableTemplates}
                   className="field-input min-h-[3.25rem] max-h-28 flex-1 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
                 />

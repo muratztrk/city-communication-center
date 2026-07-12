@@ -62,7 +62,7 @@ export function TablePagination({
       <span className="table-pagination-divider" />
 
       {/* Page navigation */}
-      <span className="flex items-center gap-1">
+      <span className="table-pagination-navigation flex items-center gap-1">
         <button
           type="button"
           className="table-pagination-btn table-pagination-control"

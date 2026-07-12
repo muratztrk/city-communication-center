@@ -1973,3 +1973,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   kartı kaldırıldı; Görev Tamamlama/İptal Notu terminal kartları korunur.
 
 ## STATUS: Round 249 complete — frontend build/lint passed; main+master pushed; cards moved to Done.
+
+## Round 250 (Doing — 2026-07-12, WhatsApp placeholder + kurum içi paging reopen)
+- [x] `6a5379079fe4354aca9d3f9e` / #1551 — WhatsApp konuşma mesaj textarea placeholder'ı
+  pencere/şablon durumundan bağımsız `Mesaj yazın...` oldu; TR/EN locale anahtarı güncellendi.
+- [x] `6a536136575f3a55687a604f` / #1542 reopen — Kurum İçi Mesajlar panel yüksekliği banner
+  alt sınırını aşmayacak şekilde `min(66dvh, 37rem)` ile sınırlandı; paging gezinme düğmeleri
+  ikinci satırda ortalandı ve 24px dokunma hedefi korundu.
+
+## STATUS: Round 250 complete — frontend build/lint passed; cards moved to Done.

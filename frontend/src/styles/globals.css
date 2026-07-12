@@ -3125,6 +3125,10 @@
   .table-pagination-bar.internal-messages-pagination .table-pagination-divider {
     height: 0.85rem;
   }
+  .table-pagination-bar.internal-messages-pagination .table-pagination-navigation {
+    flex-basis: 100%;
+    justify-content: center;
+  }
 
   .table-pagination-bar {
     display: flex;

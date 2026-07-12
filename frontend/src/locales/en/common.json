@@ -817,7 +817,7 @@
     "addAsRequestAttachment": "Add as Request Attachment",
     "tickets": "Linked Tickets",
     "ticketStatus": "Status",
-    "replyPlaceholder": "Type a reply…",
+    "replyPlaceholder": "Type a message...",
     "replySent": "Message sent",
     "replyFailed": "Failed to send message",
     "delivery": {

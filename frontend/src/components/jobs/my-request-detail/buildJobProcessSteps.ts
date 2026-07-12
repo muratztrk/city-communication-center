@@ -13,7 +13,7 @@ function isPendingApprovalJobStatus(status: string): boolean {
     || status === 'PendingExternalApproval'
 }
 
-/** Birime Gelen: Active + henüz görev yok → UI'da Onay Bekleyen (card #1535). */
+/** Birime Gelen: Active + henüz görev yok → UI'da Onay Bekleyen (card #1535, vatandaş talebinde de card #1535 reopen). */
 function isUnassignedActivePending(
   detail: JobDetail,
   options?: BuildJobProcessStepsOptions,
@@ -21,14 +21,12 @@ function isUnassignedActivePending(
   return Boolean(options?.unassignedActiveAsPending)
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
-    && !isCitizenRequestJob(detail)
 }
 
 function shouldShowPendingStatusLayer(
   detail: JobDetail,
   options?: BuildJobProcessStepsOptions,
 ): boolean {
-  if (isCitizenRequestJob(detail)) return false
   if (!options?.hideOwnerApproval) return false
   return isPendingApprovalJobStatus(detail.status) || isUnassignedActivePending(detail, options)
 }

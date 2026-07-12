@@ -78,6 +78,7 @@ import { MyRequestDetailBottomCards } from '../components/jobs/my-request-detail
 import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail/myRequestDetailFields'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
+import { getStatusChangeTextClass } from '../components/jobs/my-request-detail/format'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface TaskScopeFiltersProps {
@@ -190,13 +191,6 @@ function formatDateTime(value: string | null | undefined, locale: string) {
 function formatDueDateTime(value: string | null | undefined, locale: string) {
   if (!value) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
   return formatDateTime(value, locale)
-}
-
-function getStatusChangeTextClass(status: string) {
-  if (status === 'Cancelled' || status === 'Rejected') return 'text-red-600'
-  if (status === 'Completed') return 'text-emerald-600'
-  if (status === 'InProgress' || status === 'Active') return 'text-orange-600'
-  return 'text-slate-900'
 }
 
 function formatApprovalDateText(value: string, approverName: string | null | undefined) {
@@ -1658,7 +1652,7 @@ const pageKicker = isMyTasksView
       case 'dueDateUtc': return t('tasks.columns.dueDate', 'Son Tarih')
       case 'address': return t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')
       case 'description': return t('tasks.newRequest.description', 'Açıklama')
-      case 'attachments': return t('attachments.sectionTitle', 'Ekler / Fotoğraflar')
+      case 'attachments': return t('attachments.taskSectionTitle', 'Görev Ekleri')
       default: return fieldKey
     }
   }
@@ -2443,7 +2437,7 @@ const pageKicker = isMyTasksView
                         </div>
                         <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
                           <MyRequestSectionHeading icon={Paperclip}>
-                            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                            {t('attachments.taskSectionTitle', 'Görev Ekleri')}
                           </MyRequestSectionHeading>
                           <AttachmentSection
                             attachments={taskDetail.attachments ?? []}
@@ -2578,7 +2572,7 @@ const pageKicker = isMyTasksView
                           detail={parentJobDetail}
                           t={t}
                           extraTrailingRow={isEditingThisParentJob ? undefined : {
-                            label: t('attachments.sectionTitle', 'Ekler / Fotoğraflar'),
+                            label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
                             value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
                               <div className="flex flex-col items-end gap-1">
                                 {parentJobDetail.attachments!.map(attachment => (

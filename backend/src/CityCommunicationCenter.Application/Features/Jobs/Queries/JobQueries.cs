@@ -463,6 +463,37 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     group => group.Key,
                     group => (IReadOnlyCollection<AttachmentResponse>)group.Select(row => row.Response).ToList());
 
+            // Görevlerin "Durum Değiştir" geçmişi — talep detayı "Görev Bilgileri" kartında
+            // Görevlerim ile aynı gösterim için (card #1541). GetTaskByIdQuery'deki mantıkla
+            // aynı, ama tüm görevler için tek sorguda toplu çekilir (N+1 önlenir).
+            var taskIdStrings = taskIds.Select(id => id.ToString()).ToList();
+            var taskStatusAuditRows = await _dbContext.AuditLogs.AsNoTracking()
+                .Where(a => a.TenantId == tenantId
+                    && a.EntityType == nameof(WorkTask)
+                    && taskIdStrings.Contains(a.EntityId)
+                    && a.Action == "TaskStatusChanged"
+                    && a.StatusAtEvent != null)
+                .OrderBy(a => a.EventTimeUtc)
+                .Select(a => new { a.EntityId, a.StatusAtEvent, a.Details, a.EventTimeUtc })
+                .ToListAsync(cancellationToken);
+            var statusHistoryByTask = taskStatusAuditRows
+                .GroupBy(row => row.EntityId)
+                .ToDictionary(
+                    group => Guid.Parse(group.Key),
+                    group =>
+                    {
+                        var transitions = group
+                            .Select(audit =>
+                            {
+                                var parts = audit.Details?.Split("->", 2);
+                                var fromStatus = parts?.Length == 2 ? parts[0] : null;
+                                return new TaskStatusChangeHistoryResponse(fromStatus, audit.StatusAtEvent!, null, null, audit.EventTimeUtc);
+                            })
+                            .ToList();
+                        transitions.Reverse();
+                        return (IReadOnlyCollection<TaskStatusChangeHistoryResponse>)transitions;
+                    });
+
             tasks = tasks
                 .Select(task => task with
                 {
@@ -472,6 +503,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     // İptal/red nedeni — "Görev İptal Notu" kartı için (card #1530).
                     RevisionReason = taskDescriptions.GetValueOrDefault(task.TaskId)?.RevisionReason,
                     Attachments = attachmentsByTask.GetValueOrDefault(task.TaskId) ?? Array.Empty<AttachmentResponse>(),
+                    StatusChangeHistory = statusHistoryByTask.GetValueOrDefault(task.TaskId),
                 })
                 .ToList();
         }

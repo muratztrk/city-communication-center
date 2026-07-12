@@ -162,6 +162,8 @@ export interface Task {
   assigningManagerDisplayName?: string | null;
   // Yönlendirilmiş dış birim talebinin hedef departman notu.
   forwardReason?: string | null;
+  // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #1541).
+  statusChangeHistory?: TaskStatusChangeHistory[] | null;
 }
 
 export interface TaskDetail {

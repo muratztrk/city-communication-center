@@ -101,7 +101,10 @@ public sealed record TaskSummaryResponse(
     // "Görev Tamamlama Notu" kartı için (card #1402).
     string? Notes = null,
     // İptal/red nedeni — talep detayı "Görev İptal Notu" kartı için (card #1530).
-    string? RevisionReason = null);
+    string? RevisionReason = null,
+    // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi — talep detayı "Görev
+    // Bilgileri" kartında Görevlerim ile aynı gösterim için (card #1541).
+    IReadOnlyCollection<TaskStatusChangeHistoryResponse>? StatusChangeHistory = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

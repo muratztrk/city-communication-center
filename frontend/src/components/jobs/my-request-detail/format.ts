@@ -31,6 +31,13 @@ export function formatDueDateTime(value: string | null, locale: string) {
   return formatDateTime(value, locale)
 }
 
+export function getStatusChangeTextClass(status: string) {
+  if (status === 'Cancelled' || status === 'Rejected') return 'text-red-600'
+  if (status === 'Completed') return 'text-emerald-600'
+  if (status === 'InProgress' || status === 'Active') return 'text-orange-600'
+  return 'text-slate-900'
+}
+
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`

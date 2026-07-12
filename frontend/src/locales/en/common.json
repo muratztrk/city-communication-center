@@ -1478,6 +1478,8 @@
   },
   "attachments": {
     "sectionTitle": "Attachments / Photos",
+    "requestSectionTitle": "Request Attachments",
+    "taskSectionTitle": "Task Attachments",
     "label": "Add File / Photo (optional)",
     "uploadLabel": "Add Photo",
     "uploadHint": "JPG, PNG, PDF, Office — max 5 MB",

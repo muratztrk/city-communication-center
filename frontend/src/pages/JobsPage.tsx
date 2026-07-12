@@ -463,7 +463,7 @@ function printJobDetail(
     <div class="desc">${managerNote ? escHtml(managerNote).replace(/\n/g, '<br/>') : '<em>Talep için yönetici notu bulunmamaktadır.</em>'}</div>
   </div>
   <div class="section">
-    <div class="section-title">Ekler / Fotoğraflar (${(detail.attachments ?? []).length})</div>
+    <div class="section-title">Talep Ekleri (${(detail.attachments ?? []).length})</div>
     ${attachItems ? `<ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>` : '<p style="color:#888;font-size:11px">Talep için ek/fotoğraf bulunmamaktadır.</p>'}
   </div>
   ${taskDetailSections}
@@ -1434,7 +1434,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     setError(null)
     try {
       const jobDetail = detail?.jobId === jobId ? detail : await api.getJobById(jobId)
-      if (jobDetail.status === 'PendingOwnerApproval') {
+      // Birimden Giden Talepler'de birim dışı talep hedef birime gideceği için owner onayı
+      // personel atama adımı değildir; personel ataması hedef birim onayında yapılır (card #1540).
+      const skipOwnerStaffAssign = isDepartmentOutgoingView && jobDetail.requestType === 'ExternalUnit'
+      if (jobDetail.status === 'PendingOwnerApproval' && !skipOwnerStaffAssign) {
         const departmentId = activeDeptId ?? jobDetail.ownerDepartmentId
         const users = await api.getUsers()
         setStaffAssignModal({
@@ -2632,7 +2635,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       return (
                         <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
                           <MyRequestSectionHeading icon={Paperclip}>
-                            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                            {t('attachments.requestSectionTitle', 'Talep Ekleri')}
                           </MyRequestSectionHeading>
                           <AttachmentSection
                             attachments={detail.attachments ?? []}
@@ -2792,7 +2795,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   ) : null}
                   <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
                     <MyRequestSectionHeading icon={Paperclip}>
-                      {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                      {t('attachments.requestSectionTitle', 'Talep Ekleri')}
                     </MyRequestSectionHeading>
                     <AttachmentSection
                       attachments={detail.attachments ?? []}
@@ -2820,7 +2823,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               return (
                 <section className="mb-5">
                   <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-                    {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                    {t('attachments.requestSectionTitle', 'Talep Ekleri')}
                   </h3>
                   <AttachmentSection
                     attachments={detail.attachments ?? []}

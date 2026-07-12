@@ -165,7 +165,7 @@ export function MyRequestDetailBottomCards({
       {!hideAttachmentsCard && (
         <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
           <MyRequestSectionHeading icon={Paperclip}>
-            {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+            {t('attachments.requestSectionTitle', 'Talep Ekleri')}
           </MyRequestSectionHeading>
           <AttachmentSection
             attachments={detail.attachments ?? []}

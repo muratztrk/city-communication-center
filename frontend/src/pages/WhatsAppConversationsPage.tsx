@@ -435,7 +435,7 @@ function ConversationListPanel({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" aria-hidden="true" />
           <input
-            type="search"
+            type="text"
             value={search}
             onChange={event => {
               setConversationPage(1)

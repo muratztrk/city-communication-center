@@ -1,10 +1,10 @@
-import { FileText, Info, ListChecks } from 'lucide-react'
+import { ArrowRight, FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
-import { formatDateTime, formatDueDateTime } from './format'
+import { formatDateTime, formatDueDateTime, getStatusChangeTextClass } from './format'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
@@ -108,11 +108,10 @@ export function MyRequestTaskDetailsSection({
           const taskLocation = [task.ownerDepartmentName ?? detail.ownerDepartmentName, detail.createdByDisplayName ?? task.createdByDisplayName]
             .filter(Boolean)
             .join(' / ') || '—'
-          const taskType = task.jobSourceType === 'Routine'
+          const taskNoText = task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—'
+          const taskTypeBadge = task.jobSourceType === 'Routine'
             ? t('tasks.type.routine', 'Rutin')
-            : task.assigningManagerDisplayName
-              ? `${t('tasks.type.assigned', 'Atanmış')} (${task.assigningManagerDisplayName})`
-              : t('tasks.type.assigned', 'Atanmış')
+            : t('tasks.type.assigned', 'Atanmış')
           const statusTone = task.currentStatus === 'Completed'
             ? 'text-emerald-600'
             : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
@@ -135,18 +134,67 @@ export function MyRequestTaskDetailsSection({
           return (
             <div key={task.taskId} className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]">
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                <MyRequestSectionHeading icon={Info}>
-                  {t('tasks.detail.taskInfo', 'Görev Bilgileri')}
+                <MyRequestSectionHeading icon={Info} className="w-full">
+                  <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                    <span className="min-w-0">{t('tasks.detail.taskInfo', 'Görev Bilgileri')}</span>
+                    <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                      <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{taskNoText}</span>
+                      <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{taskTypeBadge}</span>
+                    </span>
+                  </span>
                 </MyRequestSectionHeading>
                 <div className="my-request-detail-fields divide-y divide-slate-100">
                   {[
-                    { label: t('tasks.columns.taskNo', 'Görev No'), value: task.taskNumber != null ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}` : '—' },
-                    { label: t('tasks.columns.title', 'Görev Başlığı'), value: task.title },
                     { label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), value: taskLocation },
-                    { label: t('tasks.columns.owner', 'Görev Sahibi'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
-                    { label: t('tasks.columns.taskType', 'Görev Tipi'), value: taskType },
+                    { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
+                    ...(task.jobSourceType !== 'Routine'
+                      ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
+                      : []),
+                    ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
+                      ? [{
+                          label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği'),
+                          value: (() => {
+                            const history = task.statusChangeHistory!
+                            const firstChange = history[history.length - 1]
+                            const lastChange = history[0]
+                            const firstStatus = firstChange.fromStatus ?? firstChange.toStatus
+                            return (
+                              <div className="flex w-full items-start justify-end gap-2 text-right">
+                                <div className="min-w-0">
+                                  <div className={`font-normal ${getStatusChangeTextClass(firstStatus)}`}>{getTaskStatusLabel(t, firstStatus)}</div>
+                                  <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstChange.changedAtUtc, locale)}</div>
+                                </div>
+                                <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                                <div className="min-w-0">
+                                  <div className={`font-normal ${getStatusChangeTextClass(lastChange.toStatus)}`}>{getTaskStatusLabel(t, lastChange.toStatus)}</div>
+                                  <div className="text-[10px] font-normal text-slate-500">{formatDateTime(lastChange.changedAtUtc, locale)}</div>
+                                </div>
+                              </div>
+                            )
+                          })(),
+                        }]
+                      : []),
                     ...(task.jobSourceType === 'Routine'
                       ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
+                      : []),
+                    ...(task.jobSourceType !== 'Routine' && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+                      ? [{
+                          label: t('attachments.taskSectionTitle', 'Görev Ekleri'),
+                          value: (task.attachments?.length ?? 0) === 0 ? '—' : (
+                            <div className="flex flex-col items-end gap-1">
+                              {task.attachments!.map(attachment => (
+                                <button
+                                  key={attachment.attachmentId}
+                                  type="button"
+                                  className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                  onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                >
+                                  {attachment.fileName}
+                                </button>
+                              ))}
+                            </div>
+                          ),
+                        }]
                       : []),
                   ].map(({ label, value }) => (
                     <div key={label} className="job-detail-field-row job-detail-field-row--request-info">

@@ -398,13 +398,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum İçi Mesajlar panel sınırı/paging (card #1542 reopen):** konuşma listesi büyüdüğünde panel
   banner alt sınırından yukarı taşmaz (`max 37rem`); paging gezinme düğmeleri ikinci satırda ortalıdır
   ve en az 24px dokunma hedefini korur.
-- **Kurum İçi Mesajlar liste/sohbet düzeni (cards #1542/#1552):** panel başlığı sohbet açılınca
-  kaybolmaz; geri aksiyonu koyu turkuaz `← Geri`dir. Personel avatarı ad/soyad baş harflerini kullanır;
-  liste durumu zamanın altında renkli noktayla görünür. Mesaj balonunda `Birim • Ad Soyad` etiketi ve
+- **Kurum İçi Mesajlar liste/sohbet düzeni (cards #1542/#1552/#1556):** panel başlığı sohbet açılınca
+  kaybolmaz; personel avatarı ad/soyad baş harflerini kullanır. Durum rozeti avatarın sağ alt
+  köşesinde WhatsApp konuşma listesiyle aynıdır (yeşil = yanıt verildi, turuncu = yanıt bekliyor);
+  durum metni birim satırının sağına yaslanır; birim + son mesaj zamanın altında tek satır aşağıda
+  kalır (önceki “zaman altı durum” satırı kaldırıldı). Mesaj balonunda `Birim • Ad Soyad` etiketi ve
   takvim günü değiştiğinde ortalı `gün ay` ayırıcısı bulunur.
-- **Kurum İçi Mesajlar sohbet header/balonları (card #1542 reopen):** `← Geri` üst hizada;
-  personel adı ana satırda, birim altında, küçük `Kurum İçi Mesajlar` etiketi sağa yaslıdır.
-  Mesaj balon padding/radius/gölge/font ölçüsü WhatsApp `ConversationEntryBubble` ile eşleşir.
+- **Kurum İçi Mesajlar sohbet header/balonları (card #1542):** `Geri` metni ok ikonunun üst satırındadır
+  (dikey `Geri` / `←`); personel adı ana satırda, birim altında, küçük `Kurum İçi Mesajlar` etiketi
+  sağa yaslıdır. Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
+  balonundan bir kademe küçüktür (`text-xs` / `px-2.5 py-1.5`).
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.

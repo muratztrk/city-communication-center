@@ -231,11 +231,11 @@ export function InternalMessagesFab() {
                   <button
                     type="button"
                     onClick={() => { setActiveChat(null); setChatDetail(null) }}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
+                    className="inline-flex shrink-0 flex-col items-center gap-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
                     aria-label={t('common.back', 'Geri')}
                   >
-                    <span aria-hidden="true">←</span>
-                    {t('common.back', 'Geri')}
+                    <span>{t('common.back', 'Geri')}</span>
+                    <span aria-hidden="true" className="text-sm leading-none">←</span>
                   </button>
                 ) : null}
                 {activeChat ? (
@@ -295,15 +295,15 @@ export function InternalMessagesFab() {
                         ) : null}
                         <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                           <div
-                            className={`max-w-[min(72%,28rem)] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-md ${
+                            className={`max-w-[min(72%,28rem)] rounded-xl px-2.5 py-1.5 text-xs leading-snug shadow-sm ${
                               isMine ? 'rounded-tr-sm bg-emerald-700 text-white ring-1 ring-white/10' : 'rounded-tl-sm bg-white text-slate-800 ring-1 ring-black/[0.04]'
                             }`}
                           >
-                            <p className={`mb-1.5 text-[13px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-orange-600'}`}>
+                            <p className={`mb-0.5 text-[11px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-slate-900'}`}>
                               {senderDepartment} <span aria-hidden="true">•</span> {senderName}
                             </p>
-                            <p className="whitespace-pre-wrap break-words leading-snug">{message.content}</p>
-                            <p className={`mt-1 text-right text-[10px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
+                            <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
+                            <p className={`mt-0.5 text-right text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
                               {formatConversationListTime(message.createdAtUtc, locale, t, { compact: true })}
                             </p>
                           </div>
@@ -393,6 +393,7 @@ export function InternalMessagesFab() {
                   </p>
                 ) : pagedRows.map(row => {
                   const isWaiting = row.lastMessageSenderUserId != null && row.lastMessageSenderUserId !== currentUserId
+                  const hasStatus = Boolean(row.lastMessageAtUtc)
                   return (
                     <button
                       key={row.otherUserId}
@@ -400,27 +401,41 @@ export function InternalMessagesFab() {
                       onClick={() => openRow(row)}
                       className="flex w-full items-start gap-3 border-b border-[var(--color-border)]/70 px-4 py-3 text-left transition-colors hover:bg-slate-50"
                     >
-                      <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
-                        {getInitials(row.displayName)}
+                      <div className="relative mt-0.5 shrink-0">
+                        <div className="flex size-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+                          {getInitials(row.displayName)}
+                        </div>
+                        {hasStatus ? (
+                          <span
+                            className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full ring-2 ring-white ${
+                              isWaiting ? 'bg-orange-400' : 'bg-emerald-500'
+                            }`}
+                            aria-hidden="true"
+                          />
+                        ) : null}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">{row.displayName}</p>
                           {row.lastMessageAtUtc ? (
-                            <span className="flex shrink-0 flex-col items-end gap-0.5 text-[11px] text-[color:var(--color-muted-foreground)]">
-                              <span>{formatConversationListTime(row.lastMessageAtUtc, locale, t)}</span>
-                              <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${isWaiting ? 'text-orange-600' : 'text-emerald-700'}`}>
-                                <span className={`size-1.5 rounded-full ${isWaiting ? 'bg-orange-500' : 'bg-emerald-500'}`} aria-hidden="true" />
-                                {isWaiting
-                                  ? t('internalMessages.waitingReply', 'Yanıt bekliyor')
-                                  : t('internalMessages.replied', 'Yanıt verildi')}
-                              </span>
+                            <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
+                              {formatConversationListTime(row.lastMessageAtUtc, locale, t)}
                             </span>
                           ) : null}
                         </div>
-                        <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">{row.departmentName ?? '—'}</p>
+                        <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
+                          <p className="min-w-0 truncate text-xs text-[color:var(--color-muted-foreground)]">{row.departmentName ?? '—'}</p>
+                          {hasStatus ? (
+                            <span className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold ${isWaiting ? 'text-orange-700' : 'text-emerald-700'}`}>
+                              <span className={`size-1.5 rounded-full ${isWaiting ? 'bg-orange-500' : 'bg-emerald-500'}`} aria-hidden="true" />
+                              {isWaiting
+                                ? t('internalMessages.waitingReply', 'Yanıt bekliyor')
+                                : t('internalMessages.replied', 'Yanıt verildi')}
+                            </span>
+                          ) : null}
+                        </div>
                         {row.lastMessagePreview ? (
-                          <p className="mt-1 line-clamp-1 text-xs text-slate-500">{row.lastMessagePreview}</p>
+                          <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">{row.lastMessagePreview}</p>
                         ) : null}
                       </div>
                       {row.unreadCount > 0 ? (

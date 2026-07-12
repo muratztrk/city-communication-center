@@ -1,3 +1,7 @@
+## Round — Kurum İçi Mesajlar UI (#1556/#1542)
+- [x] `6a538f7b` (#1556) — Liste avatar köşe rozeti (yeşil/turuncu, WA ile aynı) + birim/son mesaj bir satır yukarı (durum birim satırına).
+- [x] `6a536136` (#1542) — Geri metni ok üstünde; balon/text küçültüldü; gelen balon etiketi siyah.
+
 # Trello "Doing" list — implementation tracking
 
 Board: https://trello.com/b/4kvG8aa5 · List: Doing (`69ef9d96d58778f5f9f53ff7`)

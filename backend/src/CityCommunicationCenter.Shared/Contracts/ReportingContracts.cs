@@ -26,7 +26,7 @@ public sealed record DashboardStatusChartsResponse(
 
 public sealed record DashboardChartSlice(
     string Label,
-    int Value,
+    double Value,
     string ColorHint);
 
 public sealed record DashboardChartDrilldownRow(

@@ -385,6 +385,7 @@
     },
     "charts": {
       "staffTasks": "My Staff's Tasks",
+      "staffResolutionTime": "My Staff Task Resolution Time (Hours)",
       "departmentTasks": "Department Tasks",
       "myTasks": "My Tasks",
       "outgoingRequests": "Outgoing Requests",

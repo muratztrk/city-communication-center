@@ -122,19 +122,34 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var staffTasks = FilterTasks(tasks, request.StaffTaskType)
             .Where(task => task.AssignedUserId.HasValue && staffUserIds.Contains(task.AssignedUserId.Value));
         var staffTasksChart = await BuildStaffTasksChartAsync(staffTasks, tenantId, cancellationToken);
+        var staffResolutionTimeChart = context.RoleCode == "Manager"
+            ? await BuildStaffResolutionTimeChartAsync(
+                tenantId,
+                departmentIds,
+                staffUserIds.ToArray(),
+                request,
+                cancellationToken)
+            : null;
         // Sadece personele (yöneticinin kendisi hariç) atanmış görevlerin öncelik dağılımı — birim
         // yöneticisi panosunda gösterilir (card #1516/#1487, "sadece personelin" ile düzeltildi).
         var requestPriorityChart = BuildTaskPriorityChart(staffTasks, "dashboard.charts.requestPriority");
-        var charts = new[]
+        var charts = new List<DashboardChartResponse>
         {
             staffTasksChart,
+        };
+        if (staffResolutionTimeChart is not null)
+        {
+            charts.Add(staffResolutionTimeChart);
+        }
+        charts.AddRange(
+        [
             BuildTaskChart("dashboard.charts.departmentTasks", FilterTasks(tasks, request.DepartmentTaskType), now),
             BuildTaskChart("dashboard.charts.myTasks", FilterTasks(tasks.Where(task => task.AssignedUserId == context.UserId.Value), request.MyTaskType), now),
             BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
             BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),
             BuildJobChart("dashboard.charts.myRequests", myExternalJobs, "dashboard.chart.externalPendingApproval", now, true),
             requestPriorityChart,
-        };
+        ]);
 
         return new DashboardStatusChartsResponse(charts);
 
@@ -537,6 +552,88 @@ public sealed class GetDashboardStatusChartsQueryHandler
             counts.Select((item, index) => new DashboardChartSlice(
                 $"{item.UserId}|{userNames.GetValueOrDefault(item.UserId, "—")}",
                 item.Count,
+                StaffChartColors[index % StaffChartColors.Length]))
+                .ToList());
+    }
+
+    private async Task<DashboardChartResponse> BuildStaffResolutionTimeChartAsync(
+        Guid tenantId,
+        Guid[] departmentIds,
+        Guid[] staffUserIds,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var terminalTasks = await (
+            from task in _dbContext.Tasks.AsNoTracking()
+            join job in _dbContext.Jobs.AsNoTracking().Where(job => job.TenantId == tenantId)
+                on task.JobId equals job.JobId
+            where task.TenantId == tenantId
+                && task.AssignedDepartmentId.HasValue
+                && departmentIds.Contains(task.AssignedDepartmentId.Value)
+                && task.AssignedUserId.HasValue
+                && staffUserIds.Contains(task.AssignedUserId.Value)
+                && job.SourceType != JobSourceType.Routine
+                && (task.CurrentStatus == WorkflowTaskStatus.Completed
+                    || task.CurrentStatus == WorkflowTaskStatus.Cancelled)
+                && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value)
+            select new
+            {
+                task.TaskId,
+                AssignedUserId = task.AssignedUserId!.Value,
+                task.CreatedAtUtc,
+                task.CompletedAtUtc,
+                task.CurrentStatus,
+            }).ToListAsync(cancellationToken);
+
+        var cancelledEntityIds = terminalTasks
+            .Where(task => task.CurrentStatus == WorkflowTaskStatus.Cancelled)
+            .Select(task => task.TaskId.ToString())
+            .ToArray();
+        var cancelledAtByTaskId = cancelledEntityIds.Length == 0
+            ? new Dictionary<string, DateTimeOffset>()
+            : await _dbContext.AuditLogs.AsNoTracking()
+                .Where(log => log.TenantId == tenantId
+                    && log.EntityType == nameof(WorkTask)
+                    && log.Action == "TaskCancelled"
+                    && cancelledEntityIds.Contains(log.EntityId))
+                .GroupBy(log => log.EntityId)
+                .Select(group => new { EntityId = group.Key, CancelledAtUtc = group.Max(log => log.EventTimeUtc) })
+                .ToDictionaryAsync(item => item.EntityId, item => item.CancelledAtUtc, cancellationToken);
+
+        var averages = terminalTasks
+            .Select(task => new
+            {
+                task.AssignedUserId,
+                task.CreatedAtUtc,
+                TerminalAtUtc = task.CurrentStatus == WorkflowTaskStatus.Completed
+                    ? task.CompletedAtUtc
+                    : cancelledAtByTaskId.GetValueOrDefault(task.TaskId.ToString()),
+            })
+            .Where(task => task.TerminalAtUtc.HasValue && task.TerminalAtUtc.Value >= task.CreatedAtUtc)
+            .GroupBy(task => task.AssignedUserId)
+            .Select(group => new
+            {
+                UserId = group.Key,
+                AverageHours = Math.Round(
+                    group.Average(task => (task.TerminalAtUtc!.Value - task.CreatedAtUtc).TotalHours),
+                    1),
+            })
+            .OrderByDescending(item => item.AverageHours)
+            .ToList();
+
+        var userIds = averages.Select(item => item.UserId).ToArray();
+        var userNames = userIds.Length == 0
+            ? new Dictionary<Guid, string>()
+            : await _dbContext.Users.AsNoTracking()
+                .Where(user => user.TenantId == tenantId && userIds.Contains(user.UserId))
+                .ToDictionaryAsync(user => user.UserId, user => user.DisplayName, cancellationToken);
+
+        return new DashboardChartResponse(
+            "dashboard.charts.staffResolutionTime",
+            averages.Select((item, index) => new DashboardChartSlice(
+                $"{item.UserId}|{userNames.GetValueOrDefault(item.UserId, "—")}",
+                item.AverageHours,
                 StaffChartColors[index % StaffChartColors.Length]))
                 .ToList());
     }

@@ -387,6 +387,7 @@
     },
     "charts": {
       "staffTasks": "Personelimin Görevleri",
+      "staffResolutionTime": "Personelimin Görevi Çözme Süresi (Saat)",
       "departmentTasks": "Birimdeki Görevler",
       "myTasks": "Görevlerim",
       "outgoingRequests": "Birimden Giden Talepler",

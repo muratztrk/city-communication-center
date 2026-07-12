@@ -2155,3 +2155,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   footer'ındaki Birim dropdown araması zorunlu olmaktan çıkarıldı; ortak 7+ seçenek eşiğine bağlandı.
 
 ## STATUS: Round 270 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 271 (Doing — 2026-07-12, personel görev çözme süresi)
+- [x] `6a5097283c0e031ac3deec89` / #1517 — Manager dashboard'una, yalnız rutin olmayan
+  atanmış terminal görevlerde CreatedAt→CompletedAt/TaskCancelled süresini personel bazında
+  ortalama saat olarak gösteren `Personelimin Görevi Çözme Süresi` grafiği eklendi.
+
+## STATUS: Round 271 complete — backend build + frontend build/lint passed; card ready to move to Done.

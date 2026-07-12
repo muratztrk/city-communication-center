@@ -626,6 +626,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 ## 5. Dashboard / Wallboard
 
 - **Banner buton sayımları client-side hesaplanır; dashboard'da bu aggregation YOK.**
+- **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
+  kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
+  (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı
+  arasındadır; personel başına ortalama saat (1 ondalık) gösterilir.
 - **Reporter dashboard pie drilldown popup:** başlık yeşil ve `Info` ikonludur; tablo başlıkları
   portal/zoom farkını dengeleyecek şekilde `.data-table` genel header fontundan sonra override edilir
   ve Taleplerim gridview'ın görsel başlık font/ölçeğiyle, pagination satırı yüksekliğiyle uyumlu kalır.

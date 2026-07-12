@@ -848,7 +848,8 @@ export function CreateRequestPage() {
 
     setSaving(true)
     setError(null)
-    const trimmedName = citizenForm.citizenHandle.trim()
+    // Vatandaş adı girilen casing'den bağımsız her kelimenin ilk harfi büyük kaydedilir (card #1547).
+    const trimmedName = normalizeTitleCaseField(citizenForm.citizenHandle) ?? ''
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
       if (editJobId && linkedSocialMessageId) {

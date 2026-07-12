@@ -381,7 +381,7 @@ function printJobDetail(
   detail: JobDetail,
   locale: string,
   t: TFunction,
-  options?: { incomingTargetView?: boolean; myRequestView?: boolean },
+  options?: { incomingTargetView?: boolean; myRequestView?: boolean; outgoingView?: boolean },
 ) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
@@ -398,7 +398,11 @@ function printJobDetail(
     ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
       ? []
       : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
-    ['Talep Yapılan Birim', formatJobDestinationsWithAssignees(detail)],
+    // Birimden Giden'de modal ile aynı: hedef birim henüz atama yapmadığından personel bilgisi
+    // yazdırma çıktısında da gösterilmez (codex review, card #1544 tutarlılığı).
+    ['Talep Yapılan Birim', options?.outgoingView
+      ? formatJobDestinationsWithAssignees(detail, false, false)
+      : formatJobDestinationsWithAssignees(detail)],
     ['Proje mi', formatJobProjectLabel(detail, t)],
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
@@ -2288,7 +2292,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   size="lg"
                   variant="ghost"
                   className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
-                  onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}
+                  onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, outgoingView: isDepartmentOutgoingView })}
                   aria-label={t('common.print', 'Yazdır')}
                 >
                   <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

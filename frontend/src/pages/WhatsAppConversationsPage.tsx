@@ -1373,7 +1373,7 @@ function ConversationDetail({
                   placeholder={t('departments.selectDepartment', 'Birim seçin')}
                   emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
                   searchPlaceholder={t('departments.search', 'Birim ara...')}
-                  openUp
+                  openUp={internalDepartmentOptions.length >= 2}
                   className="min-w-44"
                   triggerClassName="h-9 rounded-full px-3 text-xs font-semibold"
                   menuScrollClassName="whatsapp-department-menu-scroll"

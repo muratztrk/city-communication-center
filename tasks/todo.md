@@ -2162,3 +2162,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   ortalama saat olarak gösteren `Personelimin Görevi Çözme Süresi` grafiği eklendi.
 
 ## STATUS: Round 271 complete — backend build + frontend build/lint passed; card ready to move to Done.
+
+## Round 272 (Doing — 2026-07-12, Birim dropdown açılma yönü)
+- [x] `6a53f9877a9b611ff08971fb` / #1571 reopen — WhatsApp Birim dropdown paneli tek
+  seçenek olduğunda aşağı, 2 veya daha fazla seçenek olduğunda yukarı açılır hale getirildi.
+
+## STATUS: Round 272 complete — frontend build/lint passed; card ready to move to Done.

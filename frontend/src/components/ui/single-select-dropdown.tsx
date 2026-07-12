@@ -51,12 +51,13 @@ export function SingleSelectDropdown({
   // absolute konumlandırma menüyü kırpıyordu (card #1509).
   const [menuStyle, setMenuStyle] = useState<{ top?: number; bottom?: number; left: number; width?: number; minWidth?: number }>({ left: 0 })
   const selected = useMemo(() => options.find(option => option.value === value), [options, value])
+  const searchEnabled = searchable || options.length >= 7
   const normalizedSearch = search.trim().toLocaleLowerCase('tr')
   const visibleOptions = useMemo(() => (
-    searchable && normalizedSearch
+    searchEnabled && normalizedSearch
       ? options.filter(option => option.label.toLocaleLowerCase('tr').includes(normalizedSearch))
       : options
-  ), [options, searchable, normalizedSearch])
+  ), [options, searchEnabled, normalizedSearch])
 
   const updateMenuPosition = useCallback(() => {
     const rect = rootRef.current?.getBoundingClientRect()
@@ -135,7 +136,7 @@ export function SingleSelectDropdown({
             minWidth: menuStyle.minWidth,
           }}
         >
-          {searchable ? (
+          {searchEnabled ? (
             <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
               <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
               <input

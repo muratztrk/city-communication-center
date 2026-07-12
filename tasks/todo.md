@@ -2135,3 +2135,17 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   bulunmadığı için kart Doing'de bırakıldı ve Trello'ya veri düzeltme notu eklendi.
 
 ## STATUS: Round 268 blocked by source user data — no code change, no deploy.
+
+## Round 269 (Doing — 2026-07-12, dropdown ince ayarları + otomatik WhatsApp gönderimi)
+- [x] `6a53f3afafc42d88357eed80` / #1566 reopen — WhatsApp Birim seçin portal menüsündeki
+  seçeneklerin punto/padding'i küçültüldü.
+- [x] `6a53f43484698f24504a60a5` / #1568 reopen — Etiketler arama input metni küçültüldü;
+  arama eşiği genel 7+ dropdown kuralıyla eşlendi.
+- [x] `6a53f4d43ea787e2907ef3cf` / #1569 — İşleme Alındı, Yapılmakta, Tamamlandı ve İptal
+  otomatik durum mesajları operatör kuyruğunu atlayarak WhatsApp'a doğrudan gönderilir hale getirildi.
+- [x] `6a53f72db16227315e833762` / #1570 — Ortak `SingleSelectDropdown`, seçenek sayısı
+  7 veya daha fazlaysa aramayı çağıran prop'undan bağımsız otomatik açar.
+- [ ] `6a53f19b8bed6e86747c927e` / #1565 — Üretim kullanıcı verisi engeli değişmedi;
+  paylaşımlı operator hesabında gerçek ad-soyad bulunmuyor ve kart Doing'de tutuluyor.
+
+## STATUS: Round 269 complete — backend build + frontend build/lint passed; #1565 remains data-blocked.

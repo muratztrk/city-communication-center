@@ -32,6 +32,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Özellikle Görevlerim iptal/tamamla/durum popup'ları da Taleplerim gibi body'ye portal
   edilmeli; aksi halde `.app-content-shell .form-card` kompakt stilleri popup'ı küçültür.
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
+- **Tüm ortak dropdown'lar 7+ seçenekte otomatik arama gösterir:** çağıran ayrıca `searchable`
+  vermese de `SingleSelectDropdown` ilk satıra Türkçe casing uyumlu arama alanı ekler.
 - **Yeni dropdown'larda native `<select>` açma:** mahalle seçimindeki ortak `SingleSelectDropdown`
   standardını (portal paneli, ortak satır/hover, gerektiğinde arama) kullan; yeni özel/native menü üretme.
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
@@ -288,9 +290,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
-  oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından üretilen
-  WhatsApp durum cevapları da aynı kuyruğa girer; tamamlandı/iptal cevapları vatandaş operatörü
-  onaylamadan iletilmez. Terminal not butonları yalnız ilgili bekleyen mesaj terminal durumu
+  oluşturur (diğer kanallar eskisi gibi anında gider). İstisna olarak `ICitizenJobStatusNotifier`
+  tarafından üretilen İşleme Alındı/Yapılmakta/Tamamlandı/İptal Edildi durum mesajları operatör
+  onayı beklemeden WhatsApp'a doğrudan gönderilir ve entry `Sent`/`Failed` sonucunu taşır.
+  Terminal not butonları yalnız ilgili bekleyen mesaj terminal durumu
   (`Tamamlandı/Tamamlanmış` veya `İptal/İptal Edildi`) içeriyorsa görünür; ara durum
   (`İşleme Alındı`, `Yapılmakta`) mesajlarında görünmez. Gerçek gönderim `SendPendingConversationEntryCommand`
   (`POST /social/messages/{id}/conversation/{entryId}/send`) ile yapılır; yetki = `Operator` veya
@@ -428,7 +431,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp talep etiketi (cards #1561/#1563):** profil Talep Etiketi input'u salt okunurdur;
   seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. Vatandaş Çağrı Talebi
   oluşturma popup'ında Kanal/Talep Etiketi bloğu gösterilmez; etiket yönetimi ana profilde kalır.
-  Kayıtlı etiket sayısı 7'yi aşarsa Etiketler menüsünün ilk satırında arama alanı gösterilir.
+  Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
@@ -442,7 +445,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   güncellemesi açık konuşmaya `isStatusUpdate` payload'ı yollar; istemci konuşmayı yeniler ama
   bunu yeni mesaj gibi `mark-read` yapmaz.
 - **Otomatik vatandaş durum mesajı konuşma kuyruğunu da günceller:** `ICitizenJobStatusNotifier`
-  WhatsApp `Pending` entry eklediğinde ilgili `CitizenConversation.LastMessageAt/UnreadCount`
+  WhatsApp `Sent`/`Failed` entry eklediğinde ilgili `CitizenConversation.LastMessageAt/UnreadCount`
   değerlerini ve SignalR WhatsApp payload'ını da günceller; aksi halde mesaj operatör listesinde
   son konuşma/sıra olarak görünmeyebilir.
 - **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);

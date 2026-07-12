@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
@@ -13,16 +14,19 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantSmsSettingsService _smsSettingsService;
     private readonly INotificationPushService? _notificationPushService;
+    private readonly ISocialMediaClientFactory _clientFactory;
     private readonly ILogger<CitizenJobStatusNotifier> _logger;
 
     public CitizenJobStatusNotifier(
         IApplicationDbContext dbContext,
         ITenantSmsSettingsService smsSettingsService,
+        ISocialMediaClientFactory clientFactory,
         ILogger<CitizenJobStatusNotifier> logger,
         INotificationPushService? notificationPushService = null)
     {
         _dbContext = dbContext;
         _smsSettingsService = smsSettingsService;
+        _clientFactory = clientFactory;
         _notificationPushService = notificationPushService;
         _logger = logger;
     }
@@ -160,6 +164,21 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
 
+        var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+            _dbContext,
+            message,
+            cancellationToken);
+        var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
+        var sendResult = string.IsNullOrWhiteSpace(recipientPhone) || client is null
+            ? SocialMediaResult.Fail(string.IsNullOrWhiteSpace(recipientPhone)
+                ? "WhatsApp alıcı telefonu bulunamadı."
+                : "WhatsApp kanalı yapılandırılmadı.")
+            : await client.SendMessageAsync(new SendMessageRequest
+            {
+                RecipientId = recipientPhone,
+                Message = content,
+            }, cancellationToken);
+
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
         {
             EntryId = Guid.NewGuid(),
@@ -167,10 +186,31 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
+            ExternalEntryId = sendResult.MessageId,
             SenderLabel = tenantName,
-            DeliveryStatus = ConversationDeliveryStatus.Pending,
+            DeliveryStatus = sendResult.Success
+                ? ConversationDeliveryStatus.Sent
+                : ConversationDeliveryStatus.Failed,
+            DeliveryError = sendResult.Success ? null : sendResult.Error,
             DeliveryStatusUpdatedAtUtc = utcNow,
         });
+
+        if (sendResult.Success)
+        {
+            message.ResponseContent = content;
+            message.RespondedAtUtc = utcNow;
+            if (message.Status is SocialMessageStatus.New or SocialMessageStatus.Routed)
+            {
+                message.Status = SocialMessageStatus.Responded;
+            }
+        }
+        else
+        {
+            _logger.LogWarning(
+                "Automatic WhatsApp status message failed for SocialMessage {SocialMessageId}: {Error}",
+                message.SocialMessageId,
+                sendResult.Error);
+        }
 
         WhatsAppMessagePayload? pendingPush = null;
         if (message.CitizenConversationId is Guid conversationId)

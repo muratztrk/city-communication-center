@@ -228,7 +228,7 @@ export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
     () => [...tags].sort((left, right) => left.name.localeCompare(right.name, 'tr')),
     [tags],
   )
-  const searchable = sorted.length > 7
+  const searchable = sorted.length >= 7
   const normalizedSearch = search.trim().toLocaleLowerCase('tr')
   const visibleTags = useMemo(
     () => normalizedSearch
@@ -286,7 +286,7 @@ export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
             value={search}
             onChange={event => setSearch(event.target.value)}
             placeholder={t('common.search', 'Ara...')}
-            className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            className="min-w-0 flex-1 bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
       ) : null}

@@ -1377,6 +1377,7 @@ function ConversationDetail({
                   openUp
                   className="min-w-44"
                   triggerClassName="h-9 rounded-full px-3 text-xs font-semibold"
+                  menuScrollClassName="whatsapp-department-menu-scroll"
                 />
                 <button
                   type="button"

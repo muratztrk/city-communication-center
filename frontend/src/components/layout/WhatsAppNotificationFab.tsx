@@ -389,14 +389,12 @@ export function WhatsAppNotificationFab() {
     return null
   }
 
-  // Bu FAB artık Kurum İçi Mesajlar'ın solunda duruyor (card #1543); panel yine ekranın sağ
-  // kenarına (fixed-fab-stack'in gerçek right-5 sınırına) hizalanır — komşu buton genişliği +
-  // boşluğu kadar (3.5rem + gap-3) sağa kaydırılır, aksi halde dar ekranlarda sol taşma olur
-  // (codex review).
+  // Panelin sağ kenarı yanındaki FAB'lara göre CSS'te viewport sınırına hizalanır
+  // (cards #1543/#1553); scroll FAB yalnız scroll varsa render edildiği için offset koşulludur.
   return (
     <div className="relative size-14 shrink-0">
         {isOpen ? (
-          <div className="absolute bottom-full -right-[4.25rem] mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
+          <div className="whatsapp-notification-fab-panel absolute bottom-full mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[#25D366]/10 px-4 py-3">
             <div>
               <p className="text-sm font-bold text-[color:var(--color-foreground)]">

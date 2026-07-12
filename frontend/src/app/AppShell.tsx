@@ -728,15 +728,11 @@ export function AppShell() {
       <AppFooter />
       </div>
       </div> {/* end main area row */}
-      <div className="fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex flex-col-reverse items-end">
-        <div className="pointer-events-auto">
-          <ScrollFab />
-        </div>
-        {/* Kurum İçi Mesajlar, WhatsApp konuşma butonunun üstünde değil sağında durur (card #1543). */}
-        <div className="pointer-events-auto flex items-end gap-3">
-          {canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}
-          <InternalMessagesFab />
-        </div>
+      <div className="fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex items-end gap-3">
+        {/* FAB sırası: WhatsApp → Kurum İçi Mesajlar → aşağı/yukarı (cards #1543/#1553). */}
+        <div className="pointer-events-auto">{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>
+        <div className="pointer-events-auto"><InternalMessagesFab /></div>
+        <div className="pointer-events-auto"><ScrollFab /></div>
       </div>
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
       {notificationDetailTarget?.kind === 'task' && (

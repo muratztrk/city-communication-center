@@ -395,6 +395,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kaybolmaz; geri aksiyonu koyu turkuaz `← Geri`dir. Personel avatarı ad/soyad baş harflerini kullanır;
   liste durumu zamanın altında renkli noktayla görünür. Mesaj balonunda `Birim • Ad Soyad` etiketi ve
   takvim günü değiştiğinde ortalı `gün ay` ayırıcısı bulunur.
+- **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
+  aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
+  Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
 - **WhatsApp konuşma satırı durum sayaçları salt metindir:** konuşma kartındaki `İşleme Alınan /
   Yapılmakta / Tamamlandı` değerleri tıklanabilir buton gibi davranmaz; `İptal` bu satırda basılmaz ve yalnız sol panel
   üstündeki özet sayaçları Vatandaş Talepleri filtrelerine götürür.

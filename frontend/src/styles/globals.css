@@ -4354,7 +4354,18 @@
   /* Fixed FAB stack: WhatsApp above footer, scroll arrow above WhatsApp (#1055). */
   .fixed-fab-stack {
     bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap));
-    gap: var(--fab-stack-gap);
+  }
+
+  .whatsapp-notification-fab-panel {
+    right: -4.25rem;
+  }
+
+  .fixed-fab-stack:has(.scroll-fab-button) .internal-messages-fab-panel {
+    right: -3.5rem;
+  }
+
+  .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
+    right: -7.75rem;
   }
 
   /* WhatsApp-style chat surface: base color + subtle dot pattern (not Meta assets). */

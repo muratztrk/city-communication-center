@@ -2003,3 +2003,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   doluluk oranı artırıldı; desktop sidebar değişmedi.
 
 ## STATUS: Round 252 complete — mobile viewport verified; frontend build/lint passed.
+
+## Round 253 (Doing — 2026-07-12, FAB yatay sırası)
+- [x] `6a5384a6367f319887695d4d` / #1553 — Aşağı/yukarı scroll FAB'ı Kurum İçi Mesajlar
+  butonunun üstünden sağına taşındı; sıra WhatsApp → Kurum İçi Mesajlar → scroll oldu.
+  Panel sağ hizaları scroll FAB'ın render durumuna göre koşullu ayarlandı.
+
+## STATUS: Round 253 complete — frontend build/lint passed; card moved to Done.

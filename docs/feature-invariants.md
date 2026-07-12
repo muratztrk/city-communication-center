@@ -330,7 +330,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.
 - **WhatsApp gelen vatandaş balonu sender label (card #1554 reopen):** kayıtlı vatandaş adı varsa
   `Ad Soyad Telefon` (bullet yok) gösterilir; telefon addan küçük ve daha açık renktir. Ad yoksa yalnız
-  biçimlendirilmiş telefon gösterilir; boş üst satır basılmaz.
+  biçimlendirilmiş telefon eski boyutunda ama aynı açık renk/orta ağırlıkta gösterilir; boş üst satır basılmaz.
 - **Konuşma balonu zaman formatı (cards #1557/#1558/#1560):** WhatsApp ve kurum içi mesajlarda
   bugün `HH:mm`, önceki takvim günü saatten bağımsız `Dün`, daha eski mesaj `gg.aa.yyyy` gösterir.
 - **WhatsApp Talep oluştur konuşma header (card #1555):** `headerMode=phone` iken ortak

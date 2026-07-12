@@ -17,6 +17,7 @@ export function ConversationSenderHeader({
   const citizenWithPhoneMatch = tone === 'inbound'
     ? label.match(/^(.*?)\s+(\+\d[\d\s]+)$/)
     : null
+  const citizenPhoneOnly = tone === 'inbound' && /^\+\d[\d\s]+$/.test(label)
 
   const inlineLabelClass = tone === 'inbound' ? 'text-slate-700 font-semibold' : 'text-white/90 font-semibold'
 
@@ -36,6 +37,13 @@ export function ConversationSenderHeader({
         <p className="mb-1.5 flex flex-wrap items-baseline gap-x-1.5 leading-snug">
           <span className="text-[13px] font-semibold text-slate-700">{citizenWithPhoneMatch[1]}</span>
           <span className="text-[10px] font-medium text-slate-400">{citizenWithPhoneMatch[2]}</span>
+        </p>
+      )
+    }
+    if (citizenPhoneOnly) {
+      return (
+        <p className="mb-1.5 text-[13px] font-medium leading-snug text-slate-400">
+          {label}
         </p>
       )
     }

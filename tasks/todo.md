@@ -2061,3 +2061,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   etiket seçimi anında kaydedilip karşı yüzeye yenileme sinyaliyle yansıtıldı.
 
 ## STATUS: Round 257 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 258 (Doing — 2026-07-12, isimsiz vatandaş telefon tonu)
+- [x] `6a5388d28e6a11e958a0e5a4` / #1554 reopen — Kayıtlı vatandaş adı yokken telefonun
+  mevcut punto boyutu korundu; kayıtlı isim yanındaki telefonla aynı açık renk ve orta ağırlık uygulandı.
+
+## STATUS: Round 258 complete — frontend build/lint passed; card ready to move to Done.

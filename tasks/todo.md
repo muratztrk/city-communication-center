@@ -1961,3 +1961,15 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   veya unread state'i aynı `lastMessageAt` ile geri getiremiyor.
 
 ## STATUS: Round 248 complete — frontend build/lint passed; cards moved to Done.
+
+## Round 249 (Doing — 2026-07-12, rol bazlı Taleplerim detay düzeni)
+- [x] `6a53721749bc11584d519bf4` / #1548 — Görev Tamamlama Notu kartındaki mükerrer
+  Görev Ekleri başlığı, boş durum metni ve terminal kilit uyarısı kaldırıldı; görev ekleri
+  Görev Bilgileri satırında korunur.
+- [x] `6a53753eed5d0e339f872efa` / #1549 — Standart kullanıcı Taleplerim detayında Süreç
+  açıklama kolonuna, Adres Bilgileri eski Süreç kolonuna taşındı; Talep Ekleri ve varsa
+  Yönetici Notu, Talep Bilgileri altında satır olarak gösterildi ve ayrı alt kartlar kaldırıldı.
+- [x] `6a5376d41771aa4ab395d201` / #1550 — Yönetici Taleplerim görev özetinde düz Açıklama
+  kartı kaldırıldı; Görev Tamamlama/İptal Notu terminal kartları korunur.
+
+## STATUS: Round 249 implementation complete — frontend build/lint passed; push and Done move blocked by GitHub authentication.

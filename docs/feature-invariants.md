@@ -545,6 +545,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak.
+- **Taleplerim rol bazlı detay düzeni (cards #1549/#1550):** standart kullanıcıda Talep Detayları
+  açıklama kolonu yerine Süreç, eski Süreç kolonu yerine Adres gösterir; Talep Ekleri ve varsa
+  Yönetici Notu, Talep Bilgileri satırlarıdır ve ayrı alt kartlar basılmaz. Yönetici Taleplerim
+  görev özetinde yalnız düz `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur.
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç
   timeline. Ayrı `Açıklama` paneli ve Talep Bilgileri içindeki tekrarlayan başlık/no satırları yok.

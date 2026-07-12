@@ -135,6 +135,9 @@ interface MyRequestDetailMainCardProps {
   // Görevlerim popup'ında (İlgili Talep Detayları) sol sütunda açıklama yerine Talep Bilgileri
   // gösterilir (card #1444 tekrarı).
   leftColumnBelowHeading?: ReactNode
+  firstColumnOverride?: ReactNode
+  thirdColumnOverride?: ReactNode
+  extraTrailingRows?: { label: ReactNode; value: ReactNode }[]
   // Görevlerim popup'ında (İlgili Talep Detayları) 3 sütun tek bir çerçeve içinde iç bölücülerle
   // değil, Yönetici Notu'ndaki gibi 3 ayrı kutucuk kart olarak gösterilir (card #1475).
   boxedColumns?: boolean
@@ -170,6 +173,9 @@ export function MyRequestDetailMainCard({
   hideTitleText = false,
   middleColumnOverride,
   leftColumnBelowHeading,
+  firstColumnOverride,
+  thirdColumnOverride,
+  extraTrailingRows,
   boxedColumns = false,
   canChangeDueDate,
   detailDueDateEdit,
@@ -320,6 +326,8 @@ export function MyRequestDetailMainCard({
       </MyRequestSectionHeading>
       <div className={gridContainerClass}>
         <div className={firstColumnClass}>
+          {firstColumnOverride ?? (
+          <>
           {!hideTitleText ? (
             <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
               <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
@@ -357,7 +365,9 @@ export function MyRequestDetailMainCard({
                 emptyText={t('common.none')}
                 className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
               />
-            )
+              )
+          )}
+          </>
           )}
         </div>
         <div className={secondColumnClass}>
@@ -374,12 +384,13 @@ export function MyRequestDetailMainCard({
                 editDraft={editDraft}
                 onEditDraftChange={onEditDraftChange}
                 priorityOptions={priorityOptions}
+                extraTrailingRows={extraTrailingRows}
               />
             </>
           )}
         </div>
         <div className={thirdColumnClass}>
-          <JobProcessTimeline
+          {thirdColumnOverride ?? <JobProcessTimeline
             steps={steps}
             locale={locale}
             recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
@@ -391,7 +402,7 @@ export function MyRequestDetailMainCard({
             statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
             statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}
-          />
+          />}
         </div>
       </div>
     </section>

@@ -2126,6 +2126,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               showManagerNoteColumn={showManagerNoteColumn}
               canEditManagerNote={canEditManagerNote}
               canManageCoordination={canManageCoordination}
+              hideTaskPlainDescription={isManagerLike}
               managerNoteDraft={managerNoteDraft}
               managerNoteEditing={managerNoteEditing}
               managerNoteSaved={managerNoteSaved}

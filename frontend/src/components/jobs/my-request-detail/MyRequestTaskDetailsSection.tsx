@@ -13,6 +13,7 @@ interface MyRequestTaskDetailsSectionProps {
   detail: JobDetail
   locale: string
   onDownloadTaskAttachment: (attachmentId: string, fileName: string) => void
+  hidePlainDescription?: boolean
 }
 
 function buildTaskProcessSteps(
@@ -93,6 +94,7 @@ export function MyRequestTaskDetailsSection({
   detail,
   locale,
   onDownloadTaskAttachment,
+  hidePlainDescription = false,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
 
@@ -130,8 +132,12 @@ export function MyRequestTaskDetailsSection({
             </div>
           )
 
+          const hasTerminalNote = (detail.status === 'Completed' && task.currentStatus === 'Completed')
+            || ((detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'))
+          const showDescriptionCard = !hidePlainDescription || hasTerminalNote
+
           return (
-            <div key={task.taskId} className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]">
+            <div key={task.taskId} className={`grid gap-4 ${showDescriptionCard ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]'}`}>
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={Info} className="w-full">
                   <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
@@ -180,7 +186,11 @@ export function MyRequestTaskDetailsSection({
                     ...(task.jobSourceType === 'Routine'
                       ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
                       : []),
-                    ...(task.jobSourceType !== 'Routine' && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+                    // Görevlerim'in kendi görünümünde rutin görevler için ayrı, her zaman görünen bir
+                    // Ekler/Fotoğraflar kartı var; bu paylaşılan "Görev Detayları" bileşeninde öyle bir
+                    // kart yok — rutin dışlaması burada uygulanmaz, aksi halde tamamlanmış/iptal rutin
+                    // görevin ekleri hiçbir yerde görünmez olurdu (codex review, card #1548 regresyonu).
+                    ...((task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
                       ? [{
                           label: t('attachments.taskSectionTitle', 'Görev Ekleri'),
                           value: (task.attachments?.length ?? 0) === 0 ? '—' : (
@@ -220,7 +230,7 @@ export function MyRequestTaskDetailsSection({
                   dueDateContent={dueDateContent}
                 />
               </div>
-              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+              {showDescriptionCard && <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={FileText}>
                   {detail.status === 'Completed' && task.currentStatus === 'Completed'
                     ? t('tasks.detail.completionNoteTitle', 'Görev Tamamlama Notu')
@@ -250,7 +260,7 @@ export function MyRequestTaskDetailsSection({
                     className="rich-text-content text-sm leading-6 text-slate-900"
                   />
                 )}
-              </div>
+              </div>}
             </div>
           )
         })}

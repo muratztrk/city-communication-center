@@ -2093,3 +2093,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Kanal ve Talep Etiketi bloğu kaldırıldı; ana WhatsApp profilindeki etiket yönetimi korundu.
 
 ## STATUS: Round 262 complete — frontend build/lint passed; card ready to move to Done.
+
+## Round 263 (Doing — 2026-07-12, teslim durumu bullet eşleme)
+- [x] `6a53eb9b1f4375625b39ca19` / #1562 reopen — Okundu/İletildi ile zaman arasındaki
+  bullet, üst satırdaki personel/birim bullet'ıyla aynı 2px ölçüye küçültüldü.
+
+## STATUS: Round 263 complete — frontend build/lint passed; card ready to move to Done.

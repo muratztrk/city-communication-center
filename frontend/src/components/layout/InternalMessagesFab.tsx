@@ -308,7 +308,7 @@ export function InternalMessagesFab() {
                                 <span className={`inline-flex items-center gap-0.5 ${message.readAtUtc ? 'text-sky-300' : 'text-emerald-100'}`}>
                                   <CheckCheck className="size-3" aria-hidden="true" />
                                   <span>{message.readAtUtc ? 'Okundu' : 'İletildi'}</span>
-                                  <span className="mx-0.5 inline-block size-1 rounded-full bg-current align-middle opacity-70" aria-hidden="true" />
+                                  <span className="mx-0.5 inline-block size-[2px] rounded-full bg-current align-middle opacity-70" aria-hidden="true" />
                                 </span>
                               ) : null}
                               <span>{formatConversationMessageTime(message.createdAtUtc, locale, t)}</span>

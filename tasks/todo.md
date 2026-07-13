@@ -2379,3 +2379,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Yeni/düzenlenen vatandaş taleplerinde seçili etiket SocialMessage.Category alanına da kaydedilir.
 
 ## STATUS: Round 296 complete — backend build + 41 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); Docker daemon kapalı olduğu için runtime doğrulaması yapılamadı.
+
+## Round 297 (Doing — 2026-07-13, dashboard pie lejant scroll)
+- [x] `6a54f27d59c75a1a8425716a` / #1597 — Dashboard pie chart lejantı 5 satırı aşınca
+  yalnız sağdaki etiket listesi dikey scroll olur; uzun liste dashboard grid satırını ve kartları
+  aşağı doğru büyütmez.
+
+## STATUS: Round 297 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

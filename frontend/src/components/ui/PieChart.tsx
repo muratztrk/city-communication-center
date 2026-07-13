@@ -89,6 +89,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
   const { t } = useTranslation()
   const nonZero = slices.filter(s => s.value > 0)
   const shouldShowZeroChart = showZeroSlices && slices.length > 0
+  const legendSlices = showZeroSlices ? slices : nonZero
 
   if (nonZero.length === 0 && !shouldShowZeroChart) {
     return (
@@ -178,8 +179,8 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
         </text>
       </svg>
 
-      <ul className="relative z-10 flex min-w-0 w-full flex-col gap-2">
-        {(showZeroSlices ? slices : nonZero).map(slice => (
+      <ul className={`relative z-10 flex min-w-0 w-full flex-col gap-2 ${legendSlices.length > 5 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
+        {legendSlices.map(slice => (
           <LegendItem
             key={slice.label}
             slice={slice}

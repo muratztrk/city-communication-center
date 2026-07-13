@@ -2473,3 +2473,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Taleplerim Onaylanmış/Yapılmakta detay timeline'ına eklendi.
 
 ## STATUS: Round 307 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 308 (Doing — 2026-07-13, ek bağlantısı yazımı ve buton dengeleme)
+- [x] `6a552d8db1c587ac7329feda` / #1601 fourth reopen — `Dosya ekle` butonu önceki 24px
+  ölçüden hafifçe büyütülerek 26px/10.5px'e dengelendi.
+- [x] `6a554114b7c6c15bbb85f206` / #1605 reopen — Görev/Talep Bilgileri ek dosyası
+  bağlantılarının alt çizgisi kaldırıldı; yalnız görüntülenen uzantı küçük harfe normalleştirildi,
+  gerçek indirme dosya adı korundu.
+
+## STATUS: Round 308 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

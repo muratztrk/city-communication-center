@@ -2180,10 +2180,10 @@
   }
 
   .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button {
-    height: 1.5rem !important;
-    min-height: 1.5rem !important;
-    padding-inline: 0.5rem !important;
-    font-size: 0.625rem !important;
+    height: 1.625rem !important;
+    min-height: 1.625rem !important;
+    padding-inline: 0.5625rem !important;
+    font-size: 0.65625rem !important;
   }
 
   .my-request-edit-priority-menu .dropdown-menu-item,

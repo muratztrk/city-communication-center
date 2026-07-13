@@ -9,6 +9,7 @@ import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldValue } from './StackedFieldValue'
+import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
 
 interface MyRequestTaskDetailsSectionProps {
   detail: JobDetail
@@ -217,11 +218,11 @@ export function MyRequestTaskDetailsSection({
                                   <button
                                     key={attachment.attachmentId}
                                     type="button"
-                                    className="inline-flex max-w-full items-center gap-1 text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                    className="inline-flex max-w-full items-center gap-1 text-emerald-700 hover:text-emerald-800"
                                     onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                   >
                                     <AttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
-                                    <span className="truncate">{attachment.fileName}</span>
+                                    <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                   </button>
                                 )
                               })}

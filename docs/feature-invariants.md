@@ -207,7 +207,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (cards #1199/#1200/#1201/#1204/#1208/#1211).
   Detay popup'larında `Görev Bilgileri > Görev Ekleri` veya `Talep Bilgileri > Talep Ekleri`
   satırında gerçek dosya varsa dosya adının önünde uzantıya göre küçük görsel/doküman ikonu
-  bulunur; boş `—` değerinde ikon gösterilmez (card #1605).
+  bulunur; bağlantı metni altı çizgisizdir ve yalnız dosya uzantısı küçük harfle gösterilir
+  (indirmedeki gerçek ad değişmez). Boş `—` değerinde ikon gösterilmez (card #1605 reopen).
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
   Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
@@ -679,7 +680,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep detay düzenleme kontrolleri kompakttır (card #1601):** detay içi `Düzenle` modunda
   Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 20rem,
   minimum 1.5rem ve 11px; Son Tarih kontrolü tam placeholder için en fazla 12rem/12px;
-  `Dosya ekle` 1.5rem/10px'tir (card #1601 third reopen).
+  `Dosya ekle` son görsel dengelemesinde 1.625rem/10.5px'tir (card #1601 fourth reopen).
   Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç

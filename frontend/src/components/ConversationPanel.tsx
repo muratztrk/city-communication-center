@@ -37,6 +37,8 @@ interface ConversationPanelProps {
   onInternalDepartmentIdChange?: (departmentId: string) => void
   onSendInternal?: (text: string) => void | Promise<void>
   sendingInternal?: boolean
+  /** Talep Oluştur popup'ındaki yardımcı aksiyonları daha kompakt göster. */
+  compactActions?: boolean
 }
 
 /** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
@@ -71,7 +73,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
@@ -304,8 +306,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 }
               }}
               menuAlign="start"
+              compact={compactActions}
             />
-            <UserQuickReplyAddButton onChanged={() => { void userQuickRepliesQuery.refetch() }} />
+            <UserQuickReplyAddButton compact={compactActions} onChanged={() => { void userQuickRepliesQuery.refetch() }} />
           </div>
           {internalDepartmentOptions ? (
             <div className="flex flex-wrap items-center gap-2">
@@ -318,14 +321,14 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 searchPlaceholder={t('departments.search', 'Birim ara...')}
                 openUp={internalDepartmentOptions.length >= 2}
                 className="min-w-44"
-                triggerClassName="h-9 rounded-full px-3 text-xs font-semibold"
+                triggerClassName={`${compactActions ? 'h-7 px-2 text-[11px]' : 'h-9 px-3 text-xs'} rounded-full font-semibold`}
                 menuScrollClassName="whatsapp-department-menu-scroll"
               />
               <button
                 type="button"
                 onClick={() => void handleSendInternalClick()}
                 disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className={`inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-sm'}`}
               >
                 {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
                 {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}

@@ -4,6 +4,7 @@ import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../../../data/i
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../../../utils/addressLimits'
+import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 
 interface MyRequestAddressEditFieldsProps {
@@ -48,6 +49,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             value={draft.street}
             rows={autoGrowRows(draft.street)}
             onChange={e => onChange({ street: e.target.value })}
+            onBlur={() => onChange({ street: normalizeTitleCaseField(draft.street) ?? '' })}
             disabled={!hasNeighborhood}
           />
         </label>
@@ -60,6 +62,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             value={draft.openAddress}
             rows={autoGrowRows(draft.openAddress)}
             onChange={e => onChange({ openAddress: e.target.value })}
+            onBlur={() => onChange({ openAddress: normalizeTitleCaseField(draft.openAddress) ?? '' })}
             disabled={!hasNeighborhood}
           />
         </label>

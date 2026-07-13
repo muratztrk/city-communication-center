@@ -171,9 +171,10 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
 
 interface RequestTagAddButtonProps {
   onChanged?: () => void
+  largeText?: boolean
 }
 
-export function RequestTagAddButton({ onChanged }: RequestTagAddButtonProps) {
+export function RequestTagAddButton({ onChanged, largeText = false }: RequestTagAddButtonProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
@@ -182,7 +183,7 @@ export function RequestTagAddButton({ onChanged }: RequestTagAddButtonProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+        className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${largeText ? 'text-sm' : 'text-xs'}`}
       >
         <Plus className="size-3.5 text-emerald-600" aria-hidden="true" />
         {t('whatsapp.addRequestTagButton', 'Etiket ekle')}
@@ -199,6 +200,7 @@ export function RequestTagAddButton({ onChanged }: RequestTagAddButtonProps) {
 interface RequestTagPickerProps {
   tags: RequestTag[]
   onSelect: (name: string) => void
+  largeText?: boolean
 }
 
 function computeTagMenuStyle(button: HTMLDivElement, itemCount: number, hasSearch: boolean) {
@@ -216,7 +218,7 @@ function computeTagMenuStyle(button: HTMLDivElement, itemCount: number, hasSearc
 
 // "Şablon mesajlar" (WhatsAppTemplatePicker) ile aynı buton+portal açılış davranışı — bir
 // SingleSelectDropdown yerine, seçim yapılınca kapanan basit bir menü butonu (kart #1510).
-export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
+export function RequestTagPicker({ tags, onSelect, largeText = false }: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -316,7 +318,7 @@ export function RequestTagPicker({ tags, onSelect }: RequestTagPickerProps) {
         variant="secondary"
         onClick={toggleOpen}
         disabled={isEmpty}
-        className="h-9 w-full gap-1.5 text-xs disabled:opacity-50"
+        className={`h-9 w-full gap-1.5 disabled:opacity-50 ${largeText ? 'text-sm' : 'text-xs'}`}
       >
         <Tag className="size-3.5 text-emerald-600" />
         {t('whatsapp.requestTagsShort', 'Etiketler')}

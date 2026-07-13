@@ -2210,3 +2210,26 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   mesaj konuşmaya bağlıysa etiket seçimi profile anında kaydedilir.
 
 ## STATUS: Round 277 complete — backend + frontend build, lint passed; cards ready to move to Done.
+
+## Round 278 (Doing — 2026-07-13, 11 kartlık UI/mesajlaşma paketi)
+- [x] `6a46373eb24396a082d2aece` / #1205 reopen — Mobil drawer belediye logo çerçevesi
+  küçültüldü, logo çerçeve içinde daha küçük ve ferah gösterildi.
+- [x] `6a547c02b3e485de373fe88c` / #1575 — Cadde/Sokak/Bulvar ve Açık Adres girişleri
+  Türkçe kelime başı büyük/kalan harfler küçük biçiminde normalize edildi.
+- [x] `6a547cec9b23ae02b4363fc1` / #1576 ve `6a547d5e58cb57c11ea03930` / #1577 —
+  Standart kullanıcı düzenlemesinde Yönetici Notu edit kutusu kaldırıldı; dolu not Talep
+  Bilgileri'nin son satırında korunuyor.
+- [x] `6a5479ad25a174ab0b33f48d` / #1574 ve `6a547eecd999ddd9674b9f61` / #1578 —
+  Görev Tamamlama/İptal Notu kartı Süreç kartının önüne taşındı.
+- [x] `6a5485cc0c3bf29f540a09cd` / #1580 — Talep Oluştur popup'ındaki şablon ve kurum içi
+  iletim kontrolleri yalnız bu yüzeyde kompaktlaştırıldı.
+- [x] `6a5401286470e0b7bb37448e` / #1573 reopen — Kurum içi sohbet Geri + avatar bloğu
+  birlikte biraz sağa alındı.
+- [x] `6a54885e119765a2f1b9e075` / #1581 — Tamamlandı/İptal terminal otomatik WhatsApp
+  mesajları operatör onayı için Pending kuyruğuna alındı; ara durumlar doğrudan gönderilir.
+- [x] `6a53afa4b24b5394894d6c35` / #1561 reopen — Yalnız Vatandaş Çağrı Talebi oluşturma
+  formundaki Etiketler/Etiket ekle metinleri büyütüldü.
+- [x] `6a54825876d473a60be19845` / #1579 — Kurum içi okundu bilgisi gönderen kullanıcıya
+  SignalR ile anında iletilip açık sohbet yenileniyor.
+
+## STATUS: Round 278 complete — frontend build/lint, backend build and 34 backend tests passed; cards ready to move to Done.

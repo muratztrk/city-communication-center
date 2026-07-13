@@ -31,6 +31,7 @@ export interface InternalMessagePayload {
   senderDisplayName: string
   messagePreview: string
   createdAtUtc: string
+  isReadReceipt?: boolean
 }
 
 export interface SignalRHandlers {
@@ -70,6 +71,7 @@ function mapInternalMessagePayload(raw: Record<string, unknown>): InternalMessag
     senderDisplayName: String(raw.senderDisplayName ?? raw.SenderDisplayName ?? ''),
     messagePreview: String(raw.messagePreview ?? raw.MessagePreview ?? ''),
     createdAtUtc: String(raw.createdAtUtc ?? raw.CreatedAtUtc ?? ''),
+    isReadReceipt: Boolean(raw.isReadReceipt ?? raw.IsReadReceipt ?? false),
   }
 }
 

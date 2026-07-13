@@ -37,4 +37,5 @@ public sealed record InternalMessagePayload(
     Guid SenderUserId,
     string SenderDisplayName,
     string MessagePreview,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    bool IsReadReceipt = false);

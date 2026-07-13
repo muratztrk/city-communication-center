@@ -6,11 +6,16 @@ public sealed class MarkInternalConversationReadCommandHandler : ICommandHandler
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INotificationPushService _notificationPushService;
 
-    public MarkInternalConversationReadCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public MarkInternalConversationReadCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        INotificationPushService notificationPushService)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _notificationPushService = notificationPushService;
     }
 
     public async ValueTask<bool> Handle(MarkInternalConversationReadCommand request, CancellationToken cancellationToken)
@@ -40,6 +45,26 @@ public sealed class MarkInternalConversationReadCommandHandler : ICommandHandler
             message.ReadAtUtc = utcNow;
         }
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var senderUserId = conversation.UserAId == currentUserId ? conversation.UserBId : conversation.UserAId;
+        try
+        {
+            await _notificationPushService.SendInternalMessageToUserAsync(
+                tenantId,
+                senderUserId,
+                new InternalMessagePayload(
+                    conversation.InternalConversationId,
+                    currentUserId,
+                    string.Empty,
+                    string.Empty,
+                    utcNow,
+                    IsReadReceipt: true),
+                cancellationToken);
+        }
+        catch (Exception)
+        {
+            // Okundu bilgisi kalıcıdır; anlık bildirim başarısızsa gönderenin periyodik yenilemesi yakalar.
+        }
         return true;
     }
 }

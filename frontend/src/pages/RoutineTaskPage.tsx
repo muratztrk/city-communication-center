@@ -295,6 +295,7 @@ export function RoutineTaskPage() {
                     maxLength={ADDRESS_STREET_MAX_LENGTH}
                     value={form.street}
                     onChange={e => set('street', e.target.value)}
+                    onBlur={() => set('street', normalizeTitleCaseField(form.street) ?? '')}
                     disabled={!hasNeighborhood}
                   />
                 </div>
@@ -308,6 +309,7 @@ export function RoutineTaskPage() {
                     maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                     value={form.openAddress}
                     onChange={e => set('openAddress', e.target.value)}
+                    onBlur={() => set('openAddress', normalizeTitleCaseField(form.openAddress) ?? '')}
                     disabled={!hasNeighborhood}
                   />
                 </label>

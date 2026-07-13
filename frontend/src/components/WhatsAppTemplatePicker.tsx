@@ -11,6 +11,7 @@ interface WhatsAppTemplatePickerProps {
   tone?: 'default' | 'on-dark'
   /** start = menu opens upward, aligned to button left (extends right); end = aligned to button right */
   menuAlign?: 'start' | 'end'
+  compact?: boolean
 }
 
 function computeMenuStyle(button: HTMLDivElement, itemCount: number, menuAlign: 'start' | 'end') {
@@ -33,6 +34,7 @@ export function WhatsAppTemplatePicker({
   onSelect,
   tone = 'default',
   menuAlign = 'end',
+  compact = false,
 }: WhatsAppTemplatePickerProps) {
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLDivElement>(null)
@@ -130,7 +132,7 @@ export function WhatsAppTemplatePicker({
         className={
           isOnDark
             ? 'h-9 gap-1.5 rounded-full border border-white/30 bg-transparent px-4 text-white hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent'
-            : 'h-9 gap-1 disabled:opacity-50'
+            : `${compact ? 'h-7 px-2 text-xs' : 'h-9'} gap-1 disabled:opacity-50`
         }
       >
         <FileText className="size-3.5 text-emerald-600" />

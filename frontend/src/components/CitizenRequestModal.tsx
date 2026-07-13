@@ -19,6 +19,7 @@ import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -386,8 +387,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           citizenName: trimmedHandle,
           citizenPhone: trimmedPhone,
           neighborhood: neighborhood || null,
-          street: street || null,
-          openAddress: openAddress || null,
+          street: normalizeTitleCaseField(street),
+          openAddress: normalizeTitleCaseField(openAddress),
           targetDepartmentIds: [targetDepartmentId],
         })
         await api.updateSocialMessage(message.socialMessageId, {
@@ -432,8 +433,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         startDateUtc: toApiDateTime(startDateUtc),
         dueDateUtc: toApiDateTime(dueDateUtc),
         neighborhood: neighborhood || null,
-        street: street || null,
-        openAddress: openAddress || null,
+        street: normalizeTitleCaseField(street),
+        openAddress: normalizeTitleCaseField(openAddress),
         citizenName: trimmedHandle,
         citizenPhone: trimmedPhone,
       })
@@ -513,6 +514,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               onInternalDepartmentIdChange={setInternalDepartmentId}
               onSendInternal={handleSendInternal}
               sendingInternal={sendingInternal}
+              compactActions
             />
           </div>
 
@@ -638,6 +640,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       maxLength={ADDRESS_STREET_MAX_LENGTH}
                       value={street}
                       onChange={event => setStreet(event.target.value)}
+                      onBlur={() => setStreet(normalizeTitleCaseField(street) ?? '')}
                       disabled={!neighborhood}
                     />
                   </label>
@@ -651,6 +654,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                       value={openAddress}
                       onChange={event => setOpenAddress(event.target.value)}
+                      onBlur={() => setOpenAddress(normalizeTitleCaseField(openAddress) ?? '')}
                       disabled={!neighborhood}
                     />
                   </label>

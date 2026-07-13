@@ -214,9 +214,10 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
 
 interface UserQuickReplyAddButtonProps {
   onChanged?: () => void
+  compact?: boolean
 }
 
-export function UserQuickReplyAddButton({ onChanged }: UserQuickReplyAddButtonProps) {
+export function UserQuickReplyAddButton({ onChanged, compact = false }: UserQuickReplyAddButtonProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
@@ -225,7 +226,7 @@ export function UserQuickReplyAddButton({ onChanged }: UserQuickReplyAddButtonPr
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-9 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+        className={`inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${compact ? 'h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'}`}
       >
         <Plus className="size-3 text-emerald-600" aria-hidden="true" />
         {t('whatsapp.addUserTemplate', 'Şablon mesaj ekle')}

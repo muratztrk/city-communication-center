@@ -137,6 +137,7 @@ export function MyRequestDetailModal({
   // Detayları'nda Süreç'in önüne taşınır. Düzenleme modunda ekler/adres alanları düzenlenebilir
   // kalsın diye eski kutucuk düzeni korunur.
   const isStandardUserLayout = !canManageCoordination && !isEditing
+  const isStandardUser = !canManageCoordination
 
   return (
     <section
@@ -183,24 +184,24 @@ export function MyRequestDetailModal({
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}
           splitLocationFields={splitLocationFields}
-          infoExtraTrailingRows={isStandardUserLayout ? [
-            {
-              label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
-              value: (detail.attachments?.length ?? 0) === 0 ? '—' : (
-                <div className="flex flex-col items-end gap-1">
-                  {detail.attachments!.map(attachment => (
-                    <button
-                      key={attachment.attachmentId}
-                      type="button"
-                      className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                      onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
-                    >
-                      {attachment.fileName}
-                    </button>
-                  ))}
-                </div>
-              ),
-            },
+          infoExtraTrailingRows={isStandardUser ? [
+            ...(!isEditing ? [{
+                label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
+                value: (detail.attachments?.length ?? 0) === 0 ? '—' : (
+                  <div className="flex flex-col items-end gap-1">
+                    {detail.attachments!.map(attachment => (
+                      <button
+                        key={attachment.attachmentId}
+                        type="button"
+                        className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                        onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                      >
+                        {attachment.fileName}
+                      </button>
+                    ))}
+                  </div>
+                ),
+              }] : []),
             ...(showManagerNoteColumn && detail.managerNote?.trim()
               ? [{
                   label: t('jobs.managerNote.title', 'Yönetici Notu'),
@@ -252,7 +253,7 @@ export function MyRequestDetailModal({
                 />
               )}
             </section>
-            {showManagerNoteColumn && (
+            {showManagerNoteColumn && !isStandardUser && (
               <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={NotebookPen}>
                   {t('jobs.managerNote.title', 'Yönetici Notu')}

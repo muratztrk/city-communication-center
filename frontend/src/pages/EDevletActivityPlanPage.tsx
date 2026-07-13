@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface ActivityType {
   activityTypeId: string
@@ -114,7 +115,7 @@ export function EDevletActivityPlanPage() {
         activityTypeId: form.activityTypeId,
         description: form.description.trim(),
         neighborhood: form.neighborhood,
-        street: form.street,
+        street: normalizeTitleCaseField(form.street),
         openAddress: null,
       }
       if (editingPlanId) {
@@ -286,6 +287,7 @@ export function EDevletActivityPlanPage() {
                 value={form.street}
                 maxLength={ADDRESS_STREET_MAX_LENGTH}
                 onChange={event => setForm(current => ({ ...current, street: event.target.value }))}
+                onBlur={() => setForm(current => ({ ...current, street: normalizeTitleCaseField(current.street) ?? '' }))}
                 disabled={!form.neighborhood}
                 required
               />

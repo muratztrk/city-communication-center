@@ -655,6 +655,7 @@ export function CreateRequestPage() {
               maxLength={ADDRESS_STREET_MAX_LENGTH}
               value={form.street}
               onChange={e => setField('street', e.target.value)}
+              onBlur={() => setField('street', normalizeTitleCaseField(form.street) ?? '')}
               disabled={!hasNeighborhood}
             />
           </div>
@@ -668,6 +669,7 @@ export function CreateRequestPage() {
               maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
               value={form.openAddress}
               onChange={e => setField('openAddress', e.target.value)}
+              onBlur={() => setField('openAddress', normalizeTitleCaseField(form.openAddress) ?? '')}
               disabled={!hasNeighborhood}
             />
           </label>
@@ -723,8 +725,8 @@ export function CreateRequestPage() {
           dueDateUtc: toApiDateTime(internalForm.dueDateUtc),
           isProject: internalForm.isProject,
           neighborhood: internalForm.neighborhood || '',
-          street: internalForm.street || '',
-          openAddress: internalForm.openAddress || '',
+          street: normalizeTitleCaseField(internalForm.street) ?? '',
+          openAddress: normalizeTitleCaseField(internalForm.openAddress) ?? '',
         })
         for (const file of pendingFiles) {
           await api.uploadJobAttachment(editJobId, file)
@@ -745,8 +747,8 @@ export function CreateRequestPage() {
         dueDateUtc: toApiDateTime(internalForm.dueDateUtc),
         sourceType: 'InternalRequest',
         neighborhood: internalForm.neighborhood || null,
-        street: internalForm.street || null,
-        openAddress: internalForm.openAddress || null,
+        street: normalizeTitleCaseField(internalForm.street),
+        openAddress: normalizeTitleCaseField(internalForm.openAddress),
       })
       for (const file of pendingFiles) {
         await api.uploadJobAttachment(job.jobId, file)
@@ -912,8 +914,8 @@ export function CreateRequestPage() {
           citizenName: normalizedCitizenName,
           citizenPhone: trimmedPhone,
           neighborhood: citizenForm.neighborhood || null,
-          street: citizenForm.street || null,
-          openAddress: citizenForm.openAddress || null,
+          street: normalizeTitleCaseField(citizenForm.street),
+          openAddress: normalizeTitleCaseField(citizenForm.openAddress),
           targetDepartmentIds: [citizenForm.targetDepartmentId],
         })
         await api.updateSocialMessage(linkedSocialMessageId, {
@@ -942,8 +944,8 @@ export function CreateRequestPage() {
         startDateUtc: toApiDateTime(citizenForm.startDateUtc),
         dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
         neighborhood: citizenForm.neighborhood || null,
-        street: citizenForm.street || null,
-        openAddress: citizenForm.openAddress || null,
+        street: normalizeTitleCaseField(citizenForm.street),
+        openAddress: normalizeTitleCaseField(citizenForm.openAddress),
         citizenName: normalizedCitizenName,
         citizenPhone: trimmedPhone,
       }
@@ -1293,8 +1295,8 @@ export function CreateRequestPage() {
                   />
                   {canManageRequestTags && (
                     <>
-                      <RequestTagPicker tags={requestTags} onSelect={label => void handleCitizenLabelSelect(label)} />
-                      <RequestTagAddButton onChanged={() => void loadRequestTags()} />
+                      <RequestTagPicker largeText tags={requestTags} onSelect={label => void handleCitizenLabelSelect(label)} />
+                      <RequestTagAddButton largeText onChanged={() => void loadRequestTags()} />
                     </>
                   )}
                 </div>

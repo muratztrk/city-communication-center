@@ -234,19 +234,6 @@ export function MyRequestTaskDetailsSection({
                   {addressColumnContent}
                 </div>
               )}
-              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                {/* Görev Detayları Süreç kolonu Taleplerim/Görevlerim timeline tasarımını kullanır (card #1527). */}
-                <JobProcessTimeline
-                  steps={processSteps}
-                  locale={locale}
-                  statusContent={(
-                    <span className={`inline ${statusTone}`}>
-                      {getTaskStatusLabel(t, task.currentStatus)}
-                    </span>
-                  )}
-                  dueDateContent={dueDateContent}
-                />
-              </div>
               {showDescriptionCard && <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={FileText}>
                   {detail.status === 'Completed' && task.currentStatus === 'Completed'
@@ -278,6 +265,19 @@ export function MyRequestTaskDetailsSection({
                   />
                 )}
               </div>}
+              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                {/* Terminal not/açıklama kartı Süreç'in önünde kalır (cards #1574/#1578). */}
+                <JobProcessTimeline
+                  steps={processSteps}
+                  locale={locale}
+                  statusContent={(
+                    <span className={`inline ${statusTone}`}>
+                      {getTaskStatusLabel(t, task.currentStatus)}
+                    </span>
+                  )}
+                  dueDateContent={dueDateContent}
+                />
+              </div>
             </div>
           )
         })}

@@ -474,8 +474,8 @@ export function AppShell() {
                 <MunicipalitySeal
                   alt={`${institutionName} logo`}
                   src={logoUrl}
-                  className="h-28 w-56 max-w-full rounded-xl border-white/18"
-                  imageClassName="h-[96%] w-[96%]"
+                  className="h-24 w-48 max-w-full rounded-xl border-white/18"
+                  imageClassName="h-[72%] w-[72%]"
                 />
                 <div className="min-w-0">
                   <div className="text-xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>

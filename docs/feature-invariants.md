@@ -42,7 +42,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
 - **Mobil login/sidebar marka alanı:** login logo kartı kullanılan koyu yeşil yüzeydir ve Atatürk
   silüeti kart border'ının içinde sol üstte kalır. Mobil drawer belediye logo çerçevesi logoya göre
-  gereksiz büyük tutulmaz; logo çerçeveyi yüksek doluluk oranıyla kullanır. Desktop etkilenmez.
+  gereksiz büyük tutulmaz; logo çerçevenin içinde belirgin beyaz nefes payıyla daha küçük kalır.
+  Desktop etkilenmez.
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 600` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
@@ -191,6 +192,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak / Bulvar tüm giriş yüzeylerinde en fazla 50 karakter,
   Açık Adres en fazla 100 karakterdir; backend komut validasyonları da aynı sınırı korur.
+- **Adres metni yazımı:** Cadde / Sokak / Bulvar ve Açık Adres değerleri Türkçe locale kurallarıyla
+  her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilerek kaydedilir.
 - **Ekler / Fotoğraflar ortak bileşendir:** Talepler detay popup'larında düzenlenebilir ek alanı
   kompakt ataç ikonlu **Dosya ekle** butonu + sağda dosya listesi (`rich-list`) düzenini
   kullanır; "Dosyayı buraya sürükleyin" dropzone metni popup/ortak bileşene tekrar eklenmez.
@@ -259,6 +262,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma footer aksiyonları:** Alt aksiyon satırında `Talep oluştur` butonu görünmez;
   `Şablon mesajlar`, `Şablon mesaj ekle` ve `Dosya ekle` yan yana durur. Bu aksiyonların ikonları
   yeşil kalır; buton metinleri yeşile boyanmaz (card #1245/#1466).
+  Vatandaş Çağrı Talebi oluşturma popup'ında Şablon mesajlar/Şablon mesaj ekle/Birim seçin/
+  Kurum İçi İlet kontrolleri yalnız o popup'a özel kompakt 28px yüksekliktedir.
 - **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,
   `Cadde / Sokak / Bulvar` ve `Açık Adres` etiketleri değerlerden bağımsız daha büyük okunur;
   adres değerlerinin font boyutu değiştirilmez (card #1246).
@@ -290,9 +295,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
-  oluşturur (diğer kanallar eskisi gibi anında gider). İstisna olarak `ICitizenJobStatusNotifier`
-  tarafından üretilen İşleme Alındı/Yapılmakta/Tamamlandı/İptal Edildi durum mesajları operatör
-  onayı beklemeden WhatsApp'a doğrudan gönderilir ve entry `Sent`/`Failed` sonucunu taşır.
+  oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından
+  üretilen İşleme Alındı/Yapılmakta mesajları doğrudan gönderilir; Tamamlandı/Tamamlanmış ve
+  İptal/İptal Edildi terminal mesajları `Pending` kalır ve operatör onayı olmadan vatandaşa gitmez.
   Terminal not butonları yalnız ilgili bekleyen mesaj terminal durumu
   (`Tamamlandı/Tamamlanmış` veya `İptal/İptal Edildi`) içeriyorsa görünür; ara durum
   (`İşleme Alındı`, `Yapılmakta`) mesajlarında görünmez. Gerçek gönderim `SendPendingConversationEntryCommand`
@@ -417,7 +422,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kalır (önceki “zaman altı durum” satırı kaldırıldı). Mesaj balonunda `Birim • Ad Soyad` etiketi ve
   takvim günü değiştiğinde ortalı `gün ay` ayırıcısı bulunur.
 - **Kurum İçi Mesajlar sohbet header/balonları (cards #1542/#1572/#1573):** üst satırda `← Geri`,
-  alt satırda 4px girintiyle ok glyph başlangıcına hizalanan personel avatarı + bilgi bloğu bulunur;
+  alt satırda aynı sol başlangıca hizalanan personel avatarı + bilgi bloğu bulunur; iki satır da
+  panelin solundan kontrollü 12px iç boşlukla biraz sağda durur;
   personel adı ana satırda,
   birim altında, küçük `Kurum İçi Mesajlar` etiketi
   sağa yaslıdır. Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
@@ -427,6 +433,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   adı italiktir. Mevcut `Birim · Ad Soyad` sırası korunur.
 - **Kurum İçi Mesajlar teslim/okunma durumu (card #1559):** kullanıcının kendi balonunda zamanın
   solunda çift tik + `İletildi` bulunur; `ReadAtUtc` dolunca çift tik ve `Okundu` mavi olur.
+  Alıcı sohbeti açıp okundu işaretlediğinde gönderen SignalR okundu bildirimiyle beklemeden yenilenir.
 - **Kurum İçi Mesajlar küçük ayraç/paging hizası (card #1542 reopen):** gönderen ve teslim durumu
   bullet'ları metnin optik ortasında küçük kalır; personel/birim ve Okundu/İletildi-zaman bullet'ları
   aynı 2px ölçüdedir.
@@ -438,6 +445,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (card #1561 reopen, 2026-07-13);
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
+  Yalnız Talep Oluştur sayfasındaki Vatandaş Çağrı Talebi bloğunda Etiketler ve Etiket ekle
+  buton metinleri diğer WhatsApp profil yüzeyinden bir kademe büyük (`text-sm`) görünür.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
@@ -600,16 +609,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`unassignedActiveAsPending`, card #1535).
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
-  veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak.
+  veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak. Görev
+  Tamamlama/İptal Notu (ya da aktif görev Açıklaması) Süreç kartının önünde yer alır.
 - **Yönetici Taleplerim görev özeti (card #1550):** yalnız Manager/SystemAdmin görünümünde düz
   `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur.
 - **Standart kullanıcı Taleplerim popup düzeni (card #1549 reopen, 2026-07-13):** Manager/
   Reporter olmayan kullanıcıda ayrı Adres/Yönetici Notu/Talep Ekleri alt kartları gösterilmez:
   Talep Ekleri ve dolu Yönetici Notu, Talep Bilgileri listesinde `Öncelik / Proje mi?` altına
   satır olarak girer (Görevlerim #1481/#1538 deseni); Görev Detayları kolon sırası
-  Görev Bilgileri → Adres Bilgileri → Süreç olur, düz `Açıklama` kartı gizlenir (terminal
+  Görev Bilgileri → Adres Bilgileri → terminal not → Süreç olur, düz `Açıklama` kartı gizlenir (terminal
   tamamlama/iptal notu korunur). Düzenleme modunda ek yükleme/adres alanları için eski
-  kutucuk düzeni geri gelir. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
+  kutucuk düzeni geri gelir; Yönetici Notu düzenleme kutusu standart kullanıcıya açılmaz ve
+  dolu not düzenleme sırasında da Talep Bilgileri'nin son satırında kalır. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
   geçersizdir.)
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç

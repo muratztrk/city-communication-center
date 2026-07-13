@@ -114,10 +114,17 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             taskCount,
             utcNow,
             template);
+        var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
 
         if (message.Channel == SocialChannel.WhatsApp)
         {
-            await SendWhatsAppAsync(tenantId, message, content, utcNow, cancellationToken);
+            await SendWhatsAppAsync(
+                tenantId,
+                message,
+                content,
+                utcNow,
+                requiresOperatorApproval: IsTerminalStatus(statusLabel),
+                cancellationToken);
             return;
         }
 
@@ -151,11 +158,15 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
         statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı" or "İptal";
 
+    private static bool IsTerminalStatus(string statusLabel) =>
+        statusLabel is "Tamamlanmış" or "Tamamlandı" or "İptal" or "İptal Edildi";
+
     private async Task SendWhatsAppAsync(
         Guid tenantId,
         SocialMessage message,
         string content,
         DateTimeOffset utcNow,
+        bool requiresOperatorApproval,
         CancellationToken cancellationToken)
     {
         var tenantName = await _dbContext.Tenants
@@ -164,20 +175,24 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
 
-        var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
-            _dbContext,
-            message,
-            cancellationToken);
-        var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
-        var sendResult = string.IsNullOrWhiteSpace(recipientPhone) || client is null
-            ? SocialMediaResult.Fail(string.IsNullOrWhiteSpace(recipientPhone)
-                ? "WhatsApp alıcı telefonu bulunamadı."
-                : "WhatsApp kanalı yapılandırılmadı.")
-            : await client.SendMessageAsync(new SendMessageRequest
-            {
-                RecipientId = recipientPhone,
-                Message = content,
-            }, cancellationToken);
+        SocialMediaResult? sendResult = null;
+        if (!requiresOperatorApproval)
+        {
+            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+                _dbContext,
+                message,
+                cancellationToken);
+            var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
+            sendResult = string.IsNullOrWhiteSpace(recipientPhone) || client is null
+                ? SocialMediaResult.Fail(string.IsNullOrWhiteSpace(recipientPhone)
+                    ? "WhatsApp alıcı telefonu bulunamadı."
+                    : "WhatsApp kanalı yapılandırılmadı.")
+                : await client.SendMessageAsync(new SendMessageRequest
+                {
+                    RecipientId = recipientPhone,
+                    Message = content,
+                }, cancellationToken);
+        }
 
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
         {
@@ -186,16 +201,18 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
-            ExternalEntryId = sendResult.MessageId,
+            ExternalEntryId = sendResult?.MessageId,
             SenderLabel = tenantName,
-            DeliveryStatus = sendResult.Success
-                ? ConversationDeliveryStatus.Sent
-                : ConversationDeliveryStatus.Failed,
-            DeliveryError = sendResult.Success ? null : sendResult.Error,
+            DeliveryStatus = requiresOperatorApproval
+                ? ConversationDeliveryStatus.Pending
+                : sendResult!.Success
+                    ? ConversationDeliveryStatus.Sent
+                    : ConversationDeliveryStatus.Failed,
+            DeliveryError = requiresOperatorApproval || sendResult!.Success ? null : sendResult.Error,
             DeliveryStatusUpdatedAtUtc = utcNow,
         });
 
-        if (sendResult.Success)
+        if (sendResult?.Success == true)
         {
             message.ResponseContent = content;
             message.RespondedAtUtc = utcNow;
@@ -204,12 +221,12 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 message.Status = SocialMessageStatus.Responded;
             }
         }
-        else
+        else if (!requiresOperatorApproval)
         {
             _logger.LogWarning(
                 "Automatic WhatsApp status message failed for SocialMessage {SocialMessageId}: {Error}",
                 message.SocialMessageId,
-                sendResult.Error);
+                sendResult!.Error);
         }
 
         WhatsAppMessagePayload? pendingPush = null;

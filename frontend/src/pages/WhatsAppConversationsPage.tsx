@@ -666,7 +666,7 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.street', 'Cadde / Sokak / Bulvar')}</span>
-          <input className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} disabled={!hasNeighborhood} />
+          <input className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} onBlur={() => onDraftChange({ street: normalizeTitleCaseField(draft.street) ?? '' })} disabled={!hasNeighborhood} />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.openAddress', 'Açık Adres')}</span>
@@ -676,6 +676,7 @@ function ConversationProfilePanel({
             maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
             value={draft.openAddress}
             onChange={event => onDraftChange({ openAddress: event.target.value })}
+            onBlur={() => onDraftChange({ openAddress: normalizeTitleCaseField(draft.openAddress) ?? '' })}
             disabled={!hasNeighborhood}
           />
         </label>

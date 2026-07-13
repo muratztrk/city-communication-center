@@ -2373,8 +2373,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             </span>
                           ) : null}
                           <span className="flex flex-col items-end text-right leading-tight">
-                            <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                            <span className="text-xs font-semibold text-slate-900">{getPriorityLabel(t, detail.priority)}</span>
+                            <span className="text-[10px] font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
+                            <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : 'text-slate-900'}`}>
+                              {getPriorityLabel(t, detail.priority)}
+                            </span>
                           </span>
                         </span>
                       </span>

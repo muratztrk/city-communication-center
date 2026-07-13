@@ -685,7 +685,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kanal ikonu + kanal adı; metin rengi ikon rengiyle aynı (`getChannelLabelColor`).
 - **Talep detay öncelik başlığı (card #1599):** Taleplerim, Birime Gelen ve Birimden Giden
   detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
-  üstte, değeri altta görünür. Vatandaş kanal ikonu/adı varsa bu bloğun solunda kalır.
+  üstte, değeri altta görünür. Etiket title-case (`Öncelik`) kalır, değer önceki görünümden biraz küçüktür
+  ve `Normal` değeri yeşildir. Vatandaş kanal ikonu/adı varsa bu bloğun solunda kalır
+  (card #1599 reopen).
 - **Vatandaş Talepleri detay alt kartları (card #1587):** salt-okunur vatandaş detayında
   `Proje mi` ve `Talep Ekleri` Talep Bilgileri satırlarında görünmez; `Adres Bilgileri` ile
   `Talep Ekleri` kendi başlıklı kutuları olarak ana kartın altında gösterilir.

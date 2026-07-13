@@ -2405,3 +2405,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Talep Ekleri kaldırıldı; Adres Bilgileri ile Talep Ekleri ayrı kutular olarak gösterildi.
 
 ## STATUS: Round 299 complete — backend build + 45 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 300 (Doing — 2026-07-13, detay öncelik tipografisi)
+- [x] `6a55022d276ab5aea465d3ff` / #1599 reopen — Taleplerim, Birime Gelen ve Birimden Giden
+  detay başlığındaki `Öncelik` uppercase zorlamasından çıkarıldı; değer yazısı küçültüldü ve
+  `Normal` öncelik değeri yeşil gösterildi.
+
+## STATUS: Round 300 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

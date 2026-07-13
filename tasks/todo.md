@@ -2269,3 +2269,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   uzamak yerine tekrar küçük buton olarak alt kenara hizalandı.
 
 ## STATUS: Round 282 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 283 (Doing — 2026-07-13, kurum içi FAB ikon mikro küçültme)
+- [x] `6a548c13888d61f91ef2b8f3` / #1583 reopen — Tek dolu konuşma balonunun yapısı ve
+  %90 belirginliği korunarak ikon 32px'den 28px'e küçültüldü.
+
+## STATUS: Round 283 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

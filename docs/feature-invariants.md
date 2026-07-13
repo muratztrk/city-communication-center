@@ -452,7 +452,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   buton metinleri diğer WhatsApp profil yüzeyinden bir kademe büyük (`text-sm`) görünür.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
-- **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, büyük ve belirgin dolu konuşma
+- **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, 28px ve belirgin dolu konuşma
   balonu görünür; ikinci/öndeki balon ve üç nokta gösterilmez (card #1583 reopen).
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
 - **FAB panel katmanı:** WhatsApp ve Kurum İçi Mesajlar birlikte açıkken WhatsApp bildirim paneli

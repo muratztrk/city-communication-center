@@ -2233,3 +2233,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   SignalR ile anında iletilip açık sohbet yenileniyor.
 
 ## STATUS: Round 278 complete — frontend build/lint, backend build and 34 backend tests passed; cards ready to move to Done.
+
+## Round 279 (Doing — 2026-07-13, durum mesajı tekilleştirme + kurum içi FAB ikonu)
+- [x] `6a5488eb0bf5cc8986360fce` / #1582 — Aynı vatandaş talebi ve aynı otomatik durum
+  metni Pending/gönderilmiş durumdayken ikinci kez oluşturulmaz; Failed kayıt yeniden denenebilir.
+- [x] `6a548c13888d61f91ef2b8f3` / #1583 — Kurum İçi Mesajlar yuvarlak FAB ikonu, ekli
+  referanstaki üst üste iki konuşma balonu + üç nokta görünümüne çevrildi.
+
+## STATUS: Round 279 complete — frontend build/lint, backend build and 34 backend tests passed; cards ready to move to Done.

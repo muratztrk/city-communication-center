@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCheck, MessageCircle, Search, Send, X } from 'lucide-react'
+import { CheckCheck, Search, Send, X } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { useSignalR } from '../../hooks/useSignalR'
@@ -54,6 +54,29 @@ function isSameCalendarDay(left: string, right: string) {
 
 function formatMessageDay(dateUtc: string, locale: string) {
   return new Date(dateUtc).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+}
+
+function InternalMessagesIcon() {
+  return (
+    <svg viewBox="0 0 64 56" className="relative size-8" aria-hidden="true">
+      <path
+        d="M29 13h22c6 0 10 4 10 10v14c0 6-4 10-10 10h-4l5 7-14-7h-9c-6 0-10-4-10-10V23c0-6 4-10 10-10Z"
+        fill="currentColor"
+        opacity="0.42"
+      />
+      <path
+        d="M5 4h34c6 0 10 4 10 10v18c0 6-4 10-10 10H20L9 51l2-9H5C-1 42-5 38-5 32V14C-5 8-1 4 5 4Z"
+        transform="translate(7 0)"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="5"
+        strokeLinejoin="round"
+      />
+      <circle cx="21" cy="23" r="3.5" fill="currentColor" />
+      <circle cx="32" cy="23" r="3.5" fill="currentColor" />
+      <circle cx="43" cy="23" r="3.5" fill="currentColor" />
+    </svg>
+  )
 }
 
 export function InternalMessagesFab() {
@@ -476,7 +499,7 @@ export function InternalMessagesFab() {
         className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
       >
         <span className="absolute inset-0 rounded-full bg-emerald-700/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
-        <MessageCircle className="relative size-6" />
+        <InternalMessagesIcon />
         {totalUnread > 0 ? (
           <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${formatBadgeCount(totalUnread).length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
             {formatBadgeCount(totalUnread)}

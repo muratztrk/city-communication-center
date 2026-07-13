@@ -118,6 +118,25 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         if (message.Channel == SocialChannel.WhatsApp)
         {
+            // Aynı vatandaş talebi + aynı durum için oluşturulan metin ikinci kez kuyruğa
+            // girmesin/gönderilmesin. Failed kayıt yeniden denemeyi engellemez.
+            var alreadyCreated = await _dbContext.ConversationEntries
+                .AsNoTracking()
+                .AnyAsync(
+                    entry => entry.SocialMessageId == message.SocialMessageId
+                        && entry.Direction == ConversationEntryDirection.Outbound
+                        && entry.Content == content
+                        && entry.DeliveryStatus != ConversationDeliveryStatus.Failed,
+                    cancellationToken);
+            if (alreadyCreated)
+            {
+                _logger.LogInformation(
+                    "Skipping duplicate automatic WhatsApp status message for SocialMessage {SocialMessageId}, status {StatusLabel}",
+                    message.SocialMessageId,
+                    statusLabel);
+                return;
+            }
+
             await SendWhatsAppAsync(
                 tenantId,
                 message,

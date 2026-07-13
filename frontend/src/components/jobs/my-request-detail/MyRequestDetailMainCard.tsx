@@ -137,8 +137,8 @@ interface MyRequestDetailMainCardProps {
   // Görevlerim popup'ında (İlgili Talep Detayları) atanan kişi Görev Bilgileri'nde zaten
   // gösterildiği için tekrar edilmez (card #1446).
   includeAssigneeField?: boolean
-  // Yalnızca Taleplerim'de birleşik başlıklar ayrı satırlara bölünür (card #1460).
-  splitLocationFields?: boolean
+  // Taleplerim'e özgü konum/oluşturan stack'i ve hedef birim/görevi yapan ayrımı (cards #1460/#1592).
+  useMyRequestsFieldLayout?: boolean
   // Görevlerim popup'ında (İlgili Talep Detayları) talep başlığı metni başlık alanından
   // kaldırılıp Talep Bilgileri listesine taşınır (card #1444).
   hideTitleText?: boolean
@@ -183,7 +183,7 @@ export function MyRequestDetailMainCard({
   requestNumberSuffix,
   extraFields,
   includeAssigneeField = true,
-  splitLocationFields = false,
+  useMyRequestsFieldLayout = false,
   hideTitleText = false,
   middleColumnOverride,
   leftColumnBelowHeading,
@@ -218,8 +218,8 @@ export function MyRequestDetailMainCard({
   const citizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
   const projectLabel = t('jobs.form.isProject', 'Proje mi')
   const fields = useMemo(
-    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, splitLocationFields),
-    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, splitLocationFields],
+    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, useMyRequestsFieldLayout),
+    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, useMyRequestsFieldLayout],
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false

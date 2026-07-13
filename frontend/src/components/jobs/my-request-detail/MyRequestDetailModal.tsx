@@ -68,8 +68,8 @@ export interface MyRequestDetailModalProps {
   editSaving?: boolean
   onSaveEdit?: () => void
   onCancelEdit?: () => void
-  // Yalnızca Taleplerim'de birleşik başlıklar ayrı satırlara bölünür (card #1460).
-  splitLocationFields?: boolean
+  // Taleplerim'e özgü konum/oluşturan stack'i ve hedef birim/görevi yapan ayrımı (cards #1460/#1592).
+  useMyRequestsFieldLayout?: boolean
   hideTaskPlainDescription?: boolean
 }
 
@@ -127,7 +127,7 @@ export function MyRequestDetailModal({
   editSaving = false,
   onSaveEdit,
   onCancelEdit,
-  splitLocationFields = false,
+  useMyRequestsFieldLayout = false,
   hideTaskPlainDescription = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
@@ -183,7 +183,7 @@ export function MyRequestDetailModal({
           isEditing={isEditing}
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}
-          splitLocationFields={splitLocationFields}
+          useMyRequestsFieldLayout={useMyRequestsFieldLayout}
           separatePriorityProjectRows
           infoExtraTrailingRows={isStandardUser ? [
             ...(!isEditing ? [{

@@ -2329,3 +2329,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   çeviri anahtarı açıkça tanımlandı.
 
 ## STATUS: Round 290 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 291 (Doing — 2026-07-13, Taleplerim konum/oluşturan birleşimi)
+- [x] `6a54bb1bd4efdcd78e532659` / #1592 — Taleplerim detay popup Talep Bilgileri'ndeki ayrı
+  `Talep Yeri` ve `Talebi Oluşturan` alanları `Talep Yeri / Oluşturan` başlığında birleşti;
+  talep yeri üstte, oluşturan altta gösterilir. Hedef birim/görevi yapan ayrımı korunur.
+
+## STATUS: Round 291 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

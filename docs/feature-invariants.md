@@ -601,6 +601,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   desenlidir, değer metinleri `font-weight: 500` civarında kalır; salt-okunur görünümde `Proje mi`
   satırı `Öncelik` satırının hemen üstündedir; kolon3 = `Süreç`
   timeline. Ayrı `Açıklama` paneli YOKTUR.
+  `Talep Yeri / Oluşturan` tek satır başlığıdır; değer alanında talep yeri üstte, oluşturan kişi
+  altta `StackedFieldValue` ile gösterilir. `Talep Yapılan Birim` ve `Görevi Yapan` ayrı kalır (card #1592).
 - **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337/#1345/#1357):**
   birim içi taleplerde hiç görünmez. Vatandaş ve birim dışı taleplerde hedef birim GERÇEKTEN
   onaylandığında (Approved + gerçek decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF

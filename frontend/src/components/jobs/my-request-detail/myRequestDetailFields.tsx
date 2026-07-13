@@ -11,6 +11,7 @@ import {
 } from '../../../utils/citizenRequests'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
+import { StackedFieldValue } from './StackedFieldValue'
 
 export interface MyRequestDetailField {
   label: string
@@ -28,10 +29,9 @@ export function buildMyRequestDetailFields(
   // Görevlerim popup'ında (İlgili Talep Detayları), atanan kişi bilgisi zaten Görev Bilgileri
   // panelinde gösterildiği için tekrar edilmez (card #1446).
   includeAssignee = true,
-  // Yalnızca Taleplerim'de "Talep Yeri / Oluşturan" ve "Talep Yapılan Birim / Görevi Yapan"
-  // birleşik başlıkları ayrı satırlara bölünür; Görevlerim/Dashboard gibi diğer tüketiciler
-  // birleşik gösterimi korur (card #1460).
-  splitLocationFields = false,
+  // Taleplerim'de konum/oluşturan tek başlık altında iki satır gösterilir; hedef birim/görevi yapan
+  // ise ayrı alanlar olarak kalır. Diğer tüketiciler birleşik eski düzeni korur (cards #1460/#1592).
+  useMyRequestsFieldLayout = false,
 ): MyRequestDetailField[] {
   // Sadece Taleplerim'de "Talep Yapılan Birim / Görevi Yapan" iki ayrı başlığa bölünür; "Görevi
   // Yapan" satırı yalnızca talebin görevi oluşup bir personele atanmışsa gösterilir (card #1460).
@@ -59,16 +59,16 @@ export function buildMyRequestDetailFields(
         value: [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—',
       },
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
-      ...(splitLocationFields
-        ? [
-            { label: t('jobs.detail.requestLocation', 'Talep Yeri'), value: detail.ownerDepartmentName || '—' },
-            { label: t('jobs.detail.requestCreator', 'Talebi Oluşturan'), value: detail.createdByDisplayName || '—' },
-          ]
+      ...(useMyRequestsFieldLayout
+        ? [{
+            label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
+            value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+          }]
         : [{
             label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
             value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
           }]),
-      ...(splitLocationFields
+      ...(useMyRequestsFieldLayout
         ? [
             { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: formatJobDestinationsWithAssignees(detail, false, false) },
             ...(assigneeNames.length > 0
@@ -99,16 +99,16 @@ export function buildMyRequestDetailFields(
       ),
     },
     { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
-    ...(splitLocationFields
-      ? [
-          { label: t('jobs.detail.requestLocation', 'Talep Yeri'), value: detail.ownerDepartmentName || '—' },
-          { label: t('jobs.detail.requestCreator', 'Talebi Oluşturan'), value: detail.createdByDisplayName || '—' },
-        ]
+    ...(useMyRequestsFieldLayout
+      ? [{
+          label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
+          value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+        }]
       : [{
           label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
           value: [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—',
         }]),
-    ...(splitLocationFields
+    ...(useMyRequestsFieldLayout
       ? [
           { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: formatJobDestinationsWithAssignees(detail, false, false) },
           ...(assigneeNames.length > 0

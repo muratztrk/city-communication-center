@@ -2455,3 +2455,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   doküman ikonu eklendi; boş değerler ikonsuz `—` kalır.
 
 ## STATUS: Round 305 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 306 (Doing — 2026-07-13, başlık ve Dosya ekle mikro ölçü revizyonu)
+- [x] `6a552d8db1c587ac7329feda` / #1601 third reopen — Detay içi düzenlemede Başlık
+  textarea'sı 1.5rem minimum yükseklik/11px metne, `Dosya ekle` butonu 1.5rem/10px'e
+  indirildi; scoped `!important` değerlerle genel textarea/button ölçülerinin ezmesi önlendi.
+
+## STATUS: Round 306 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

@@ -2151,15 +2151,15 @@
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit__textarea {
     width: min(80%, 20rem);
-    min-height: 1.75rem;
-    max-height: 4.25rem;
-    padding: 0.25rem 0.45rem;
-    font-size: 0.75rem;
+    min-height: 1.5rem !important;
+    max-height: 3.75rem;
+    padding: 0.1rem 0.4rem !important;
+    font-size: 0.6875rem !important;
     resize: none;
     overflow-y: auto;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    line-height: 1.35;
+    line-height: 1.1;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date {
@@ -2174,9 +2174,10 @@
   }
 
   .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button {
-    height: 1.75rem;
-    padding-inline: 0.625rem;
-    font-size: 0.6875rem;
+    height: 1.5rem !important;
+    min-height: 1.5rem !important;
+    padding-inline: 0.5rem !important;
+    font-size: 0.625rem !important;
   }
 
   .my-request-edit-priority-menu .dropdown-menu-item,

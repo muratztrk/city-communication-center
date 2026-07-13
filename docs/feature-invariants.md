@@ -673,9 +673,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dolu not düzenleme sırasında da Talep Bilgileri'nin son satırında kalır. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
   geçersizdir.)
 - **Talep detay düzenleme kontrolleri kompakttır (card #1601):** detay içi `Düzenle` modunda
-  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 20rem ve 12px;
-  Son Tarih kontrolü tam placeholder için en fazla 12rem/12px; `Dosya ekle` butonu 1.75rem
-  yükseklik ve 11px metindir (card #1601 reopen).
+  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 20rem,
+  minimum 1.5rem ve 11px; Son Tarih kontrolü tam placeholder için en fazla 12rem/12px;
+  `Dosya ekle` 1.5rem/10px'tir (card #1601 third reopen).
   Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç

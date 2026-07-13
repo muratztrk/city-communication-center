@@ -444,6 +444,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   okundu makbuzunu açık konuşmanın yerel state'ine anında uygular, yeniden GET'i beklemez (card #1579 reopen).
   SignalR cookie ve varsa Bearer token ile yetkilendirilir; açık konuşma görünür sekmede 1 saniyelik
   yedek senkronizasyonla `ReadAtUtc` değişimini sayfa yenilemeden yakalar (card #1579 second reopen).
+  İlk SignalR bağlantı hatası 2/5/10/30 saniye geri çekilmeyle tekrar denenir; reconnect ve sekmenin
+  yeniden görünür olması konuşma listesini hemen yeniler. FAB polling bağlıyken 15 saniye, bağlantı
+  yokken 3 saniyedir. Kalıcı mesaj/read kaydından sonraki push HTTP iptalinden bağımsız 5 saniyelik
+  timeout kullanır ve başarısızlık warning olarak loglanır (live delivery hardening, 2026-07-13).
 - **Kurum İçi Mesajlar küçük ayraç/paging hizası (card #1542 reopen):** gönderen ve teslim durumu
   bullet'ları metnin optik ortasında küçük kalır; personel/birim ve Okundu/İletildi-zaman bullet'ları
   aynı 2px ölçüdedir.

@@ -40,7 +40,10 @@ export interface SignalRHandlers {
   onWhatsAppMessage?: (payload: WhatsAppMessagePayload) => void
   onInternalMessage?: (payload: InternalMessagePayload) => void
   onReconnected?: () => void
+  onConnectionStateChange?: (state: SignalRConnectionState) => void
 }
+
+export type SignalRConnectionState = 'connected' | 'connecting' | 'reconnecting' | 'disconnected'
 
 function mapNotificationPayload(raw: Record<string, unknown>): NotificationPayload {
   return {
@@ -80,10 +83,16 @@ const notificationHandlers = new Set<(payload: NotificationPayload) => void>()
 const whatsAppMessageHandlers = new Set<(payload: WhatsAppMessagePayload) => void>()
 const internalMessageHandlers = new Set<(payload: InternalMessagePayload) => void>()
 const reconnectHandlers = new Set<() => void>()
+const connectionStateHandlers = new Set<(state: SignalRConnectionState) => void>()
 
 let connection: signalR.HubConnection | null = null
 let connectingPromise: Promise<void> | null = null
 let sessionActive = false
+let connectionState: SignalRConnectionState = 'disconnected'
+let initialRetryAttempt = 0
+let initialRetryTimer: number | null = null
+
+const INITIAL_RETRY_DELAYS_MS = [2_000, 5_000, 10_000, 30_000]
 
 function dispatchNotification(payload: NotificationPayload) {
   notificationHandlers.forEach(handler => handler(payload))
@@ -102,11 +111,37 @@ function dispatchReconnect() {
   reconnectHandlers.forEach(handler => handler())
 }
 
+function setConnectionState(state: SignalRConnectionState) {
+  if (connectionState === state) return
+  connectionState = state
+  connectionStateHandlers.forEach(handler => handler(state))
+}
+
+function clearInitialRetry() {
+  if (initialRetryTimer != null) {
+    window.clearTimeout(initialRetryTimer)
+    initialRetryTimer = null
+  }
+}
+
+function scheduleInitialRetry() {
+  if (!sessionActive || initialRetryTimer != null) return
+
+  const delay = INITIAL_RETRY_DELAYS_MS[Math.min(initialRetryAttempt, INITIAL_RETRY_DELAYS_MS.length - 1)]
+  initialRetryAttempt += 1
+  initialRetryTimer = window.setTimeout(() => {
+    initialRetryTimer = null
+    void ensureConnection(true)
+  }, delay)
+}
+
 async function disconnectSignalR() {
+  clearInitialRetry()
   if (connection) {
     await connection.stop()
     connection = null
   }
+  setConnectionState('disconnected')
 }
 
 function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
@@ -128,7 +163,21 @@ function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
   })
 
   nextConnection.onreconnected(() => {
+    initialRetryAttempt = 0
+    clearInitialRetry()
+    setConnectionState('connected')
     dispatchReconnect()
+  })
+
+  nextConnection.onreconnecting(() => {
+    setConnectionState('reconnecting')
+  })
+
+  nextConnection.onclose(() => {
+    if (connection !== nextConnection) return
+    connection = null
+    setConnectionState('disconnected')
+    scheduleInitialRetry()
   })
 }
 
@@ -140,6 +189,12 @@ async function ensureConnection(active: boolean) {
   }
 
   if (connection?.state === signalR.HubConnectionState.Connected) {
+    setConnectionState('connected')
+    return
+  }
+
+  if (connection?.state === signalR.HubConnectionState.Connecting
+    || connection?.state === signalR.HubConnectionState.Reconnecting) {
     return
   }
 
@@ -157,6 +212,8 @@ async function ensureConnection(active: boolean) {
       await disconnectSignalR()
     }
 
+    setConnectionState('connecting')
+
     const nextConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${API_ORIGIN}/hubs/notifications`, {
         withCredentials: true,
@@ -168,17 +225,37 @@ async function ensureConnection(active: boolean) {
 
     attachConnectionHandlers(nextConnection)
 
-    await nextConnection.start()
     connection = nextConnection
+    try {
+      await nextConnection.start()
+    } catch (error) {
+      if (connection === nextConnection) connection = null
+      throw error
+    }
+
+    if (!sessionActive) {
+      await disconnectSignalR()
+      return
+    }
+
+    initialRetryAttempt = 0
+    clearInitialRetry()
+    setConnectionState('connected')
   })()
 
   try {
     await connectingPromise
   } catch (err) {
+    setConnectionState('disconnected')
     console.warn('SignalR connection failed:', err)
+    scheduleInitialRetry()
   } finally {
     connectingPromise = null
   }
+}
+
+export function ensureSignalRConnected() {
+  return ensureConnection(sessionActive)
 }
 
 export function useSignalR(handlers?: SignalRHandlers) {
@@ -206,11 +283,16 @@ export function useSignalR(handlers?: SignalRHandlers) {
     const onReconnected = () => {
       handlersRef.current?.onReconnected?.()
     }
+    const onConnectionStateChange = (state: SignalRConnectionState) => {
+      handlersRef.current?.onConnectionStateChange?.(state)
+    }
 
     notificationHandlers.add(onNotification)
     whatsAppMessageHandlers.add(onWhatsAppMessage)
     internalMessageHandlers.add(onInternalMessage)
     reconnectHandlers.add(onReconnected)
+    connectionStateHandlers.add(onConnectionStateChange)
+    onConnectionStateChange(connectionState)
 
     void ensureConnection(sessionActive)
 
@@ -219,6 +301,7 @@ export function useSignalR(handlers?: SignalRHandlers) {
       whatsAppMessageHandlers.delete(onWhatsAppMessage)
       internalMessageHandlers.delete(onInternalMessage)
       reconnectHandlers.delete(onReconnected)
+      connectionStateHandlers.delete(onConnectionStateChange)
     }
   }, [])
 }

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace CityCommunicationCenter.Application.Features.InternalMessages;
 
 public sealed record MarkInternalConversationReadCommand(Guid InternalConversationId, Guid? ActorUserId) : ICommand<bool>;
@@ -7,15 +9,18 @@ public sealed class MarkInternalConversationReadCommandHandler : ICommandHandler
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly INotificationPushService _notificationPushService;
+    private readonly ILogger<MarkInternalConversationReadCommandHandler> _logger;
 
     public MarkInternalConversationReadCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        INotificationPushService notificationPushService)
+        INotificationPushService notificationPushService,
+        ILogger<MarkInternalConversationReadCommandHandler> logger)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _notificationPushService = notificationPushService;
+        _logger = logger;
     }
 
     public async ValueTask<bool> Handle(MarkInternalConversationReadCommand request, CancellationToken cancellationToken)
@@ -49,6 +54,7 @@ public sealed class MarkInternalConversationReadCommandHandler : ICommandHandler
         var senderUserId = conversation.UserAId == currentUserId ? conversation.UserBId : conversation.UserAId;
         try
         {
+            using var pushTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             await _notificationPushService.SendInternalMessageToUserAsync(
                 tenantId,
                 senderUserId,
@@ -59,11 +65,15 @@ public sealed class MarkInternalConversationReadCommandHandler : ICommandHandler
                     string.Empty,
                     utcNow,
                     IsReadReceipt: true),
-                cancellationToken);
+                pushTimeout.Token);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
-            // Okundu bilgisi kalıcıdır; anlık bildirim başarısızsa gönderenin periyodik yenilemesi yakalar.
+            _logger.LogWarning(
+                exception,
+                "Internal conversation {InternalConversationId} was marked read but receipt delivery to user {SenderUserId} failed",
+                conversation.InternalConversationId,
+                senderUserId);
         }
         return true;
     }

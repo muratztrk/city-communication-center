@@ -2336,3 +2336,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   talep yeri üstte, oluşturan altta gösterilir. Hedef birim/görevi yapan ayrımı korunur.
 
 ## STATUS: Round 291 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 292 (2026-07-13, kurum içi FAB canlı bildirim dayanıklılığı)
+- [x] SignalR ilk bağlantı hataları 2/5/10/30 sn geri çekilmeyle sürekli yeniden denenir; otomatik
+  reconnect sonrasında ve sekme görünür olduğunda konuşma listesi hemen yenilenir.
+- [x] FAB polling SignalR bağlıyken 15 sn güvenlik ağı, bağlantı yokken 3 sn geçici fallback olur;
+  böylece kaçan olay sayfa yenilemeden hızlı yakalanır.
+- [x] Mesaj ve okundu makbuzu push'ları HTTP request cancellation'dan ayrıldı, 5 sn timeout aldı;
+  best-effort push hataları artık backend warning loguna yazılır.
+
+## STATUS: Round 292 complete — backend build passed; frontend build/lint passed (0 error, 4 existing hook warnings); Docker runtime unavailable.

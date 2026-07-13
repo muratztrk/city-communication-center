@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace CityCommunicationCenter.Application.Features.InternalMessages;
 
 public sealed record SendInternalMessageCommand(Guid RecipientUserId, Guid? ActorUserId, string Content)
@@ -21,15 +23,18 @@ public sealed class SendInternalMessageCommandHandler
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly INotificationPushService _notificationPushService;
+    private readonly ILogger<SendInternalMessageCommandHandler> _logger;
 
     public SendInternalMessageCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        INotificationPushService notificationPushService)
+        INotificationPushService notificationPushService,
+        ILogger<SendInternalMessageCommandHandler> logger)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _notificationPushService = notificationPushService;
+        _logger = logger;
     }
 
     public async ValueTask<SendInternalMessageResponse?> Handle(SendInternalMessageCommand request, CancellationToken cancellationToken)
@@ -102,15 +107,20 @@ public sealed class SendInternalMessageCommandHandler
         // (codex review, card #1539). Alıcı bir sonraki poll'da mesajı zaten görür.
         try
         {
+            using var pushTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             await _notificationPushService.SendInternalMessageToUserAsync(
                 tenantId,
                 request.RecipientUserId,
                 new InternalMessagePayload(conversation.InternalConversationId, currentUserId, senderName, content, utcNow),
-                cancellationToken);
+                pushTimeout.Token);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
-            // yoksay — mesaj kaydedildi, gerçek zamanlı bildirim en iyi çaba (best-effort)
+            _logger.LogWarning(
+                exception,
+                "Internal message {InternalMessageId} was persisted but real-time delivery to user {RecipientUserId} failed",
+                message.InternalMessageId,
+                request.RecipientUserId);
         }
 
         return new SendInternalMessageResponse(

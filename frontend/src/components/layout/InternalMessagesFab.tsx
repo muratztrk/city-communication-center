@@ -3,13 +3,19 @@ import { useTranslation } from 'react-i18next'
 import { CheckCheck, Search, Send, X } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
-import { useSignalR, type InternalMessagePayload } from '../../hooks/useSignalR'
+import {
+  ensureSignalRConnected,
+  useSignalR,
+  type InternalMessagePayload,
+  type SignalRConnectionState,
+} from '../../hooks/useSignalR'
 import type { InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
 
-const POLL_INTERVAL_MS = 15_000
+const CONNECTED_POLL_INTERVAL_MS = 15_000
+const DISCONNECTED_POLL_INTERVAL_MS = 3_000
 const OPEN_CHAT_POLL_INTERVAL_MS = 1_000
 const PAGE_SIZE = 10
 
@@ -106,6 +112,7 @@ export function InternalMessagesFab() {
   const [chatLoading, setChatLoading] = useState(false)
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [signalRState, setSignalRState] = useState<SignalRConnectionState>('disconnected')
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const refreshConversations = useCallback(async () => {
@@ -122,10 +129,24 @@ export function InternalMessagesFab() {
   }, [refreshConversations])
 
   useEffect(() => {
+    const pollInterval = signalRState === 'connected'
+      ? CONNECTED_POLL_INTERVAL_MS
+      : DISCONNECTED_POLL_INTERVAL_MS
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') void refreshConversations()
-    }, POLL_INTERVAL_MS)
+    }, pollInterval)
     return () => window.clearInterval(timer)
+  }, [refreshConversations, signalRState])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return
+      void ensureSignalRConnected()
+      void refreshConversations()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [refreshConversations])
 
   const openConversationById = useCallback(async (conversationId: string) => {
@@ -176,7 +197,11 @@ export function InternalMessagesFab() {
     }
   }, [activeChat, currentUserId, loadChat, refreshConversations])
 
-  useSignalR({ onInternalMessage: handleInternalMessage })
+  useSignalR({
+    onInternalMessage: handleInternalMessage,
+    onReconnected: refreshConversations,
+    onConnectionStateChange: setSignalRState,
+  })
 
   useEffect(() => {
     if (!isOpen || !activeChat) return

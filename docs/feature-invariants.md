@@ -645,6 +645,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`MapPin` / `NotebookPen` / `Paperclip`) ve `job-detail-card-title` tipografisini kullanır;
   düz `h3` border-b başlık kullanılmaz. Adres alanları `AddressDetailFields variant="my-request"`.
   Shell `detail-modal-shell--my-request` taşır.
+- **Yönetici Notu limiti (card #1585):** yönetici detay popup'larındaki textarea ve
+  `SetJobManagerNoteCommand` en fazla 100 karakter kabul eder; başlık yanında
+  `(max 100 karakter) *` gösterilir.
 - **Vatandaş kanalı Birime Gelen detayda (card #1532):** `Talep Bilgileri` başlık satırının sağında
   kanal ikonu + kanal adı; metin rengi ikon rengiyle aynı (`getChannelLabelColor`).
 - **Görev İptal Notu (card #1530):** job detay `TaskSummaryResponse.RevisionReason` iptal/red

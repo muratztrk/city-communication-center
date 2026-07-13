@@ -2283,3 +2283,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Detayları düz `Açıklama` kartı gizlendi; terminal tamamlama/iptal notları korundu.
 
 ## STATUS: Round 284 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 285 (Doing — 2026-07-13, Yönetici Notu 100 karakter sınırı)
+- [x] `6a54a9ce71906a866bd5ae21` / #1585 — Yönetici detay popup'larındaki Yönetici Notu
+  textarea'ları `maxLength=100` oldu; başlığa `(max 100 karakter) *` eklendi. Backend komutu da
+  100 karakter üstünü Türkçe validasyon mesajıyla reddeder.
+
+## STATUS: Round 285 complete — backend build passed; frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

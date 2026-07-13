@@ -94,7 +94,11 @@ export function MyRequestDetailBottomCards({
       {showManagerNoteColumn && (
         <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
           <MyRequestSectionHeading icon={NotebookPen}>
-            {t('jobs.managerNote.title', 'Yönetici Notu')}
+            <span>
+              {t('jobs.managerNote.title', 'Yönetici Notu')}{' '}
+              <span className="text-xs font-normal text-slate-400">(max 100 karakter)</span>{' '}
+              <span className="text-red-500">*</span>
+            </span>
           </MyRequestSectionHeading>
           {!canEditManagerNote ? (
             detail.managerNote ? (
@@ -124,6 +128,7 @@ export function MyRequestDetailBottomCards({
               <textarea
                 className="field-textarea manager-note-textarea min-h-24 w-full text-xs placeholder:text-xs"
                 rows={3}
+                maxLength={100}
                 value={managerNoteDraft}
                 onChange={e => onManagerNoteDraftChange(e.target.value)}
                 placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}

@@ -10,6 +10,16 @@ public sealed record SetJobManagerNoteCommand(
     Guid? ActorUserId,
     string? Note) : ICommand<bool>;
 
+public sealed class SetJobManagerNoteCommandValidator : AbstractValidator<SetJobManagerNoteCommand>
+{
+    public SetJobManagerNoteCommandValidator()
+    {
+        RuleFor(command => command.Note)
+            .MaximumLength(100)
+            .WithMessage("Yönetici notu en fazla 100 karakter olabilir.");
+    }
+}
+
 public sealed class SetJobManagerNoteCommandHandler : ICommandHandler<SetJobManagerNoteCommand, bool>
 {
     private readonly IApplicationDbContext _dbContext;

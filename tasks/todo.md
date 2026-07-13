@@ -2259,3 +2259,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Birim seçin` kontrolü çok küçük 24×144px ölçüden ara ölçü 28×160px'e çıkarıldı.
 
 ## STATUS: Round 281 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 282 (Doing — 2026-07-13, FAB panel katmanı + ikon/send hizası reopen)
+- [x] `6a547eecd999ddd9674b9f61` / #1578 — WhatsApp ve Kurum İçi Mesajlar panelleri
+  birlikte açıkken WhatsApp paneli `z-20` ile önde gösterildi.
+- [x] `6a548c13888d61f91ef2b8f3` / #1583 reopen — Öndeki balon kaldırıldı; kalan dolu
+  konuşma balonu 32px'e büyütülüp %90 opaklıkla belirginleştirildi.
+- [x] `6a5485cc0c3bf29f540a09cd` / #1580 reopen — Popup yanıt ileti butonu textarea boyunca
+  uzamak yerine tekrar küçük buton olarak alt kenara hizalandı.
+
+## STATUS: Round 282 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

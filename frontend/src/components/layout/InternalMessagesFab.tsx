@@ -58,23 +58,12 @@ function formatMessageDay(dateUtc: string, locale: string) {
 
 function InternalMessagesIcon() {
   return (
-    <svg viewBox="0 0 56 48" className="relative size-7" aria-hidden="true">
+    <svg viewBox="0 0 50 48" className="relative size-8" aria-hidden="true">
       <path
-        d="M25 14h20c5 0 8 3 8 8v10c0 5-3 8-8 8h-2l5 6-12-6H25c-5 0-8-3-8-8V22c0-5 3-8 8-8Z"
+        d="M10 7h28c6 0 10 4 10 10v12c0 6-4 10-10 10h-5l9 7-16-7H10C4 39 1 35 1 29V17C1 11 4 7 10 7Z"
         fill="currentColor"
-        opacity="0.62"
+        opacity="0.9"
       />
-      <path
-        d="M8 4h25c5 0 8 3 8 8v12c0 5-3 8-8 8H19L9 41l2-9H8c-5 0-8-3-8-8V12c0-5 3-8 8-8Z"
-        transform="translate(3 0)"
-        fill="#047857"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinejoin="round"
-      />
-      <circle cx="15" cy="18" r="2.2" fill="currentColor" />
-      <circle cx="24" cy="18" r="2.2" fill="currentColor" />
-      <circle cx="33" cy="18" r="2.2" fill="currentColor" />
     </svg>
   )
 }

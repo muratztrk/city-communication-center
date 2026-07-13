@@ -348,7 +348,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               className="field-input min-w-0 flex-1 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"
               style={{ height: 'auto' }}
             />
-            <Button size="sm" onClick={() => void handleSend()} disabled={!replyText.trim() || sending} className="self-stretch shrink-0">
+            <Button size="sm" onClick={() => void handleSend()} disabled={!replyText.trim() || sending} className="self-end shrink-0">
               {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
             </Button>
           </div>

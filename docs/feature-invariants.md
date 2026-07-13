@@ -265,6 +265,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Çağrı Talebi oluşturma popup'ında Şablon mesajlar/Şablon mesaj ekle/Kurum İçi İlet
   kontrolleri yalnız o popup'a özel kompakt 28px; `Birim seçin` de gerçek 28px yükseklik ve orta
   genişlikte (160px) kalır. Genel dropdown ölçüleri etkilenmez.
+  Yanıt textarea'sının sağındaki ileti butonu textarea boyunca uzamaz; küçük buton olarak alt
+  kenara hizalanır (`self-end`).
 - **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,
   `Cadde / Sokak / Bulvar` ve `Açık Adres` etiketleri değerlerden bağımsız daha büyük okunur;
   adres değerlerinin font boyutu değiştirilmez (card #1246).
@@ -450,10 +452,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   buton metinleri diğer WhatsApp profil yüzeyinden bir kademe büyük (`text-sm`) görünür.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
-- **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda ekli referanstaki gibi iki ayrı katmanda
-  konuşma balonu ve ön balonda üç nokta görünür; 28px ikonun ön konturu ince, arka dolgu belirgin
-  kalır, balonlar birbirine karışmaz; tek `MessageCircle` ikonuna geri dönmez.
+- **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, büyük ve belirgin dolu konuşma
+  balonu görünür; ikinci/öndeki balon ve üç nokta gösterilmez (card #1583 reopen).
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
+- **FAB panel katmanı:** WhatsApp ve Kurum İçi Mesajlar birlikte açıkken WhatsApp bildirim paneli
+  `z-20` ile kurum içi panelin önünde görünür (card #1578).
 - **WhatsApp konuşma satırı durum sayaçları salt metindir:** konuşma kartındaki `İşleme Alınan /
   Yapılmakta / Tamamlandı` değerleri tıklanabilir buton gibi davranmaz; `İptal` bu satırda basılmaz ve yalnız sol panel
   üstündeki özet sayaçları Vatandaş Talepleri filtrelerine götürür.

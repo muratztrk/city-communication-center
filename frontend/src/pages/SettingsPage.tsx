@@ -55,10 +55,10 @@ type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
 
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
-  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı. {GönderilenBirim} ",
-  inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta. {GönderilenBirim} ",
-  completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı. {GönderilenBirim} ",
-  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal Edildi. {GönderilenBirim} ",
+  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı. {GönderilenBirim}",
+  inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta. {GönderilenBirim}",
+  completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı. {GönderilenBirim}",
+  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal Edildi. {GönderilenBirim}",
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -71,8 +71,10 @@ type CitizenAutoReplyTemplateKey = keyof CitizenAutoReplyTemplates
 
 function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
   const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
-  const normalizedSuffix = normalize ? suffixText.trim() : suffixText
-  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}. ${TARGET_DEPARTMENT_TOKEN} ${normalizedSuffix}`
+  // {GönderilenBirim} sonrası otomatik ayraç yok: kullanıcı "'ne iletilmiştir." gibi bitişik metin
+  // yazabilmeli; baştaki bilinçli boşluk da korunur, yalnız sondaki boşluk temizlenir (card #1598 2. reopen).
+  const normalizedSuffix = normalize ? suffixText.trimEnd() : suffixText
+  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}`
 }
 
 function removeTemplateSeparatorSpaces(value: string) {
@@ -80,10 +82,6 @@ function removeTemplateSeparatorSpaces(value: string) {
   return withoutLeadingSeparator.endsWith(' ')
     ? withoutLeadingSeparator.slice(0, -1)
     : withoutLeadingSeparator
-}
-
-function removeLeadingTemplateSeparatorSpace(value: string) {
-  return value.startsWith(' ') ? value.slice(1) : value
 }
 
 function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) {
@@ -101,9 +99,11 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
 }
 
 function extractCitizenAutoReplySuffixText(template: string) {
+  // Token sonrası metin olduğu gibi gösterilir; eski kayıtlardaki zorunlu ayraç boşluğu da
+  // görünür/düzenlenebilir olur — gizli otomatik boşluk kalmaz (card #1598 2. reopen).
   const tokenIndex = template.indexOf(TARGET_DEPARTMENT_TOKEN)
   return tokenIndex >= 0
-    ? removeLeadingTemplateSeparatorSpace(template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length))
+    ? template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length)
     : ''
 }
 

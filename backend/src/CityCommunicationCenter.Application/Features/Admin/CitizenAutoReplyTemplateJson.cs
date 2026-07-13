@@ -61,11 +61,13 @@ public static class CitizenAutoReplyTemplateJson
                 continue;
             }
 
+            // Token adı kanonikleştirilir; token sonrası metin OLDUĞU GİBİ korunur — otomatik
+            // boşluk eklenmez, "…{GönderilenBirim}'ne iletilmiştir." bitişik kalır (card #1598 2. reopen).
             var beforeToken = template[..tokenIndex];
-            var afterToken = template[(tokenIndex + token.Length)..].TrimStart();
-            return $"{beforeToken}{{GönderilenBirim}} {afterToken}";
+            var afterToken = template[(tokenIndex + token.Length)..];
+            return $"{beforeToken}{{GönderilenBirim}}{afterToken}";
         }
 
-        return $"{template.TrimEnd()} {{GönderilenBirim}} ";
+        return $"{template.TrimEnd()} {{GönderilenBirim}}";
     }
 }

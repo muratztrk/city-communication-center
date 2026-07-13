@@ -61,20 +61,10 @@ public static class CitizenJobStatusLabelHelper
 
     private static string ReplaceTargetDepartmentToken(string template, string targetDepartments)
     {
-        foreach (var token in new[] { "{GönderilenBirim}", "{Gönderilen Birim}" })
-        {
-            var tokenIndex = template.IndexOf(token, StringComparison.Ordinal);
-            if (tokenIndex < 0)
-            {
-                continue;
-            }
-
-            var suffix = template[(tokenIndex + token.Length)..].TrimStart();
-            return suffix.Length == 0
-                ? $"{template[..tokenIndex]}{targetDepartments}"
-                : $"{template[..tokenIndex]}{targetDepartments} {suffix}";
-        }
-
-        return template;
+        // Token sonrasına otomatik ayraç EKLENMEZ; şablon metni ne ise o korunur —
+        // "…{GönderilenBirim}'ne iletilmiştir." bitişik kalmalıdır (card #1598 2. reopen).
+        return template
+            .Replace("{GönderilenBirim}", targetDepartments, StringComparison.Ordinal)
+            .Replace("{Gönderilen Birim}", targetDepartments, StringComparison.Ordinal);
     }
 }

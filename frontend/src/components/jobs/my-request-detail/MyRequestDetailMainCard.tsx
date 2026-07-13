@@ -93,7 +93,7 @@ export function MyRequestInfoFieldsList({
       {!isEditing && (separatePriorityProjectRows ? (
         <>
           <div className="job-detail-field-row job-detail-field-row--request-info">
-            <div className="job-detail-field-row__label">{t('jobs.form.isProject', 'Proje mi')}</div>
+            <div className="job-detail-field-row__label">{t('jobs.columns.project', 'Proje mi')}</div>
             <div className="job-detail-field-row__value"><JobProjectValue job={detail} t={t} /></div>
           </div>
           <div className="job-detail-field-row job-detail-field-row--request-info">

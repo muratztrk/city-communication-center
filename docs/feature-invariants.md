@@ -238,7 +238,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   JobsPage/TasksPage detay popupları da aynı ortak `.detail-modal-shell` ölçüsünü kullanır;
   detay modal boyutlarını sayfa bazında yeniden ayrıştırma.
   Taleplerim salt-okunur Talep Bilgileri listesinde `Proje mi` ve `Öncelik` birleşik değildir;
-  önce `Proje mi`, hemen alt satırda `Öncelik` gösterilir (card #1586).
+  önce `Proje mi`, hemen alt satırda `Öncelik` gösterilir; proje başlığı formdaki
+  `Proje niteliğinde mi?` çevirisini kullanmaz (card #1586 reopen).
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
   etiketi tek satır kalır ve atanmış kullanıcı yoksa değer kısmında `Birim / -` gösterir; `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak / Bulvar` ve `Açık Adres` üçlü yan yana durur; adres etiketleri
@@ -415,7 +416,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   footer değil, Taleplerim gridleriyle aynı ortak `TablePagination` barı kullanılır; liste gerçek
   sayfalama yapar ve bar panelin iki alt sınır çizgisini kaplayan koyu paging yüzeyi olarak görünür.
 - **Kurum İçi Mesajlar panel sınırı/paging (card #1542 reopen):** konuşma listesi büyüdüğünde panel
-  banner alt sınırından yukarı taşmaz (`max 37rem`); paging gezinme düğmeleri ikinci satırda ortalıdır
+  banner alt sınırına kadar uzanır ve yukarı taşmaz (`max 42rem`, card #1588); paging gezinme düğmeleri ikinci satırda ortalıdır
   ve en az 24px dokunma hedefini korur.
 - **Kurum İçi Mesajlar liste/sohbet düzeni (cards #1542/#1552/#1556):** panel başlığı sohbet açılınca
   kaybolmaz; liste görünümünde başlık sol kenara yapışmaz, aktif sohbette geri/avatar için dar sol

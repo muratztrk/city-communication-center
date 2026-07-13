@@ -2312,3 +2312,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   sayfa yenilemeden yakalar; gelen okunmamış ileti de aynı döngüde okundu işaretlenir.
 
 ## STATUS: Round 288 complete — backend build passed; frontend build/lint passed (0 error, 4 existing hook warnings); runtime unavailable because Docker daemon is stopped.
+
+## Round 289 (Doing — 2026-07-13, panel yüksekliği ve Proje mi etiketi)
+- [x] `6a54b5e66de5f9e9c8278fde` / #1588 — Kurum İçi Mesajlar panelinin yükseklik tavanı
+  `37rem` → `42rem`; alt konumu korunurken üst kenar görseldeki banner alt hizasına uzanır.
+- [x] `6a54ac97a8e480b562f135c4` / #1586 reopen — Taleplerim salt-okunur Talep Bilgileri proje
+  satırı form çevirisi yerine `jobs.columns.project` kullanır ve kesin olarak `Proje mi` görünür.
+
+## STATUS: Round 289 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

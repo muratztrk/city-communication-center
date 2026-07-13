@@ -2297,3 +2297,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   mesajlarına yerel olarak uygular ve `İletildi` etiketi GET beklemeden `Okundu` olur.
 
 ## STATUS: Round 286 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 287 (Doing — 2026-07-13, Taleplerim Proje/Priorite satırları)
+- [x] `6a54ac97a8e480b562f135c4` / #1586 — Taleplerim detay popup'ında birleşik
+  `Öncelik / Proje mi?` satırı kaldırıldı; salt-okunur Talep Bilgileri listesinde önce `Proje mi`,
+  hemen alt satırda `Öncelik` gösterilir. Değişiklik diğer ortak detay bağlamlarına yayılmaz.
+
+## STATUS: Round 287 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

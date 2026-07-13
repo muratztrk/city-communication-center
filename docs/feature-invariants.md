@@ -237,8 +237,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yaklaşık `70.25vw` / `84.3rem` genişlik ve `80.7dvh` / `46.85rem` yükseklik.
   JobsPage/TasksPage detay popupları da aynı ortak `.detail-modal-shell` ölçüsünü kullanır;
   detay modal boyutlarını sayfa bazında yeniden ayrıştırma.
-  `Öncelik / Proje Niteliğinde mi?` değerindeki ayraç, süreç timeline tarih-saat ayracıyla
-  aynı küçük nokta bileşenini kullanır; düz `·` karakterine dönmez.
+  Taleplerim salt-okunur Talep Bilgileri listesinde `Proje mi` ve `Öncelik` birleşik değildir;
+  önce `Proje mi`, hemen alt satırda `Öncelik` gösterilir (card #1586).
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
   etiketi tek satır kalır ve atanmış kullanıcı yoksa değer kısmında `Birim / -` gösterir; `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak / Bulvar` ve `Açık Adres` üçlü yan yana durur; adres etiketleri
@@ -593,8 +593,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   rozeti sağa yaslıdır ve sığmazsa yine sağa yaslı alt satıra sarar — parantezli tip metni KULLANILMAZ;
   altında Title Case talep başlığı `font-bold` ve SİYAH açıklama metni); kolon2 = `Talep Bilgileri`
   (Info ikonlu) alan satırları — satırlar gridview zebra
-  desenlidir, değer metinleri `font-weight: 500` civarında kalır ve `Öncelik / Proje Niteliğinde mi?`
-  değeri `Normal · Hayır` biçimindedir ("Proje niteliğinde mi?:" öneki yazılmaz); kolon3 = `Süreç`
+  desenlidir, değer metinleri `font-weight: 500` civarında kalır; salt-okunur görünümde `Proje mi`
+  satırı `Öncelik` satırının hemen üstündedir; kolon3 = `Süreç`
   timeline. Ayrı `Açıklama` paneli YOKTUR.
 - **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337/#1345/#1357):**
   birim içi taleplerde hiç görünmez. Vatandaş ve birim dışı taleplerde hedef birim GERÇEKTEN
@@ -630,7 +630,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur.
 - **Standart kullanıcı Taleplerim popup düzeni (card #1549 reopen, 2026-07-13):** Manager/
   Reporter olmayan kullanıcıda ayrı Adres/Yönetici Notu/Talep Ekleri alt kartları gösterilmez:
-  Talep Ekleri ve dolu Yönetici Notu, Talep Bilgileri listesinde `Öncelik / Proje mi?` altına
+  Talep Ekleri ve dolu Yönetici Notu, Talep Bilgileri listesinde `Proje mi` ve `Öncelik` satırlarından sonra
   satır olarak girer (Görevlerim #1481/#1538 deseni); Görev Detayları kolon sırası
   Görev Bilgileri → Adres Bilgileri → terminal not → Süreç olur, düz `Açıklama` kartı gizlenir (terminal
   tamamlama/iptal notu korunur). Düzenleme modunda ek yükleme/adres alanları için eski

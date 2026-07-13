@@ -48,6 +48,7 @@ interface MyRequestInfoFieldsListProps {
   editDraft?: MyRequestEditDraft
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
   priorityOptions?: { value: string; label: string }[]
+  separatePriorityProjectRows?: boolean
   // Görevlerim popup'ında (İlgili Talep Detayları) Ekler/Fotoğraflar artık ayrı kart değil,
   // Öncelik/Proje mi? satırının hemen altında aynı hizada gösterilir (card #1481). Talep Ekleri'nden
   // sonra veri varsa Yönetici Notu satırı da aynı listede eklenebilir (card #1538).
@@ -62,6 +63,7 @@ export function MyRequestInfoFieldsList({
   editDraft,
   onEditDraftChange,
   priorityOptions,
+  separatePriorityProjectRows = false,
   extraTrailingRows,
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
@@ -88,7 +90,18 @@ export function MyRequestInfoFieldsList({
           </div>
         </div>
       ))}
-      {!isEditing && (
+      {!isEditing && (separatePriorityProjectRows ? (
+        <>
+          <div className="job-detail-field-row job-detail-field-row--request-info">
+            <div className="job-detail-field-row__label">{t('jobs.form.isProject', 'Proje mi')}</div>
+            <div className="job-detail-field-row__value"><JobProjectValue job={detail} t={t} /></div>
+          </div>
+          <div className="job-detail-field-row job-detail-field-row--request-info">
+            <div className="job-detail-field-row__label">{t('jobs.columns.priority', 'Öncelik')}</div>
+            <div className="job-detail-field-row__value">{getPriorityLabel(t, detail.priority)}</div>
+          </div>
+        </>
+      ) : (
         <div className="job-detail-field-row job-detail-field-row--request-info">
           <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje mi?')}</div>
           <div className="job-detail-field-row__value">
@@ -99,7 +112,7 @@ export function MyRequestInfoFieldsList({
             </span>
           </div>
         </div>
-      )}
+      ))}
       {!isEditing && extraTrailingRows?.map((row, index) => (
         <div key={index} className="job-detail-field-row job-detail-field-row--request-info">
           <div className="job-detail-field-row__label">{row.label}</div>
@@ -155,6 +168,7 @@ interface MyRequestDetailMainCardProps {
   // Taleplerim'de standart kullanıcı için Talep Ekleri / Yönetici Notu, Öncelik-Proje satırının
   // altında Talep Bilgileri listesine satır olarak eklenir (card #1549, Görevlerim #1481/#1538 deseni).
   infoExtraTrailingRows?: { label: ReactNode; value: ReactNode }[]
+  separatePriorityProjectRows?: boolean
 }
 
 export function MyRequestDetailMainCard({
@@ -188,6 +202,7 @@ export function MyRequestDetailMainCard({
   editDraft,
   onEditDraftChange,
   infoExtraTrailingRows,
+  separatePriorityProjectRows = false,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -378,6 +393,7 @@ export function MyRequestDetailMainCard({
                 editDraft={editDraft}
                 onEditDraftChange={onEditDraftChange}
                 priorityOptions={priorityOptions}
+                separatePriorityProjectRows={separatePriorityProjectRows}
                 extraTrailingRows={infoExtraTrailingRows}
               />
             </>

@@ -184,6 +184,7 @@ export function MyRequestDetailModal({
           editDraft={editDraft}
           onEditDraftChange={onEditDraftChange}
           splitLocationFields={splitLocationFields}
+          separatePriorityProjectRows
           infoExtraTrailingRows={isStandardUser ? [
             ...(!isEditing ? [{
                 label: t('attachments.requestSectionTitle', 'Talep Ekleri'),

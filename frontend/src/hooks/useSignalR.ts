@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as signalR from '@microsoft/signalr'
 import { useAuth } from '../context/AuthContext'
 import { API_ORIGIN } from '../api/config'
+import { getValidAccessToken } from '../api/auth'
 
 export interface NotificationPayload {
   notificationId: string
@@ -159,6 +160,7 @@ async function ensureConnection(active: boolean) {
     const nextConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${API_ORIGIN}/hubs/notifications`, {
         withCredentials: true,
+        accessTokenFactory: async () => await getValidAccessToken() ?? '',
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)

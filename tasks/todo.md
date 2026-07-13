@@ -2304,3 +2304,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   hemen alt satırda `Öncelik` gösterilir. Değişiklik diğer ortak detay bağlamlarına yayılmaz.
 
 ## STATUS: Round 287 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 288 (2026-07-13, kurum içi okundu canlı güncelleme ikinci sertleştirme)
+- [x] `#1579 second reopen` — SignalR bağlantısı cookie yanında varsa geçerli Bearer tokenı da
+  gönderir; hub kullanıcı grubu `sub` yanında NameIdentifier claim'ini de kabul eder. Açık kurum içi
+  konuşma görünür sekmede 1 saniyelik yedek senkronizasyonla karşı tarafın `ReadAtUtc` güncellemesini
+  sayfa yenilemeden yakalar; gelen okunmamış ileti de aynı döngüde okundu işaretlenir.
+
+## STATUS: Round 288 complete — backend build passed; frontend build/lint passed (0 error, 4 existing hook warnings); runtime unavailable because Docker daemon is stopped.

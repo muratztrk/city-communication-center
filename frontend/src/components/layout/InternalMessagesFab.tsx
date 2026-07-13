@@ -10,6 +10,7 @@ import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
 
 const POLL_INTERVAL_MS = 15_000
+const OPEN_CHAT_POLL_INTERVAL_MS = 1_000
 const PAGE_SIZE = 10
 
 interface MessageRow {
@@ -38,6 +39,26 @@ function toRow(conversation: InternalConversationSummary): MessageRow {
 
 function formatBadgeCount(count: number) {
   return count > 99 ? '99+' : String(count)
+}
+
+function areConversationDetailsEqual(left: InternalConversationDetail | null, right: InternalConversationDetail) {
+  if (!left
+    || left.internalConversationId !== right.internalConversationId
+    || left.otherUserId !== right.otherUserId
+    || left.otherUserDisplayName !== right.otherUserDisplayName
+    || left.otherUserDepartmentName !== right.otherUserDepartmentName
+    || left.messages.length !== right.messages.length) {
+    return false
+  }
+
+  return left.messages.every((message, index) => {
+    const nextMessage = right.messages[index]
+    return message.internalMessageId === nextMessage.internalMessageId
+      && message.senderUserId === nextMessage.senderUserId
+      && message.content === nextMessage.content
+      && message.createdAtUtc === nextMessage.createdAtUtc
+      && message.readAtUtc === nextMessage.readAtUtc
+  })
 }
 
 function getInitials(displayName: string) {
@@ -156,6 +177,42 @@ export function InternalMessagesFab() {
   }, [activeChat, currentUserId, loadChat, refreshConversations])
 
   useSignalR({ onInternalMessage: handleInternalMessage })
+
+  useEffect(() => {
+    if (!isOpen || !activeChat) return
+
+    let cancelled = false
+    let refreshing = false
+    const refreshOpenChat = async () => {
+      if (refreshing || document.visibilityState !== 'visible') return
+
+      refreshing = true
+      try {
+        const detail = await api.getInternalConversationWithUser(activeChat.otherUserId)
+        if (cancelled) return
+
+        setChatDetail(current => areConversationDetailsEqual(current, detail) ? current : detail)
+        if (currentUserId
+          && detail.internalConversationId
+          && detail.messages.some(message => message.senderUserId !== currentUserId && !message.readAtUtc)) {
+          void openConversationById(detail.internalConversationId)
+        }
+      } catch {
+        // SignalR yeniden bağlanırken açık konuşma bir sonraki kısa poll'da tekrar eşitlenir.
+      } finally {
+        refreshing = false
+      }
+    }
+
+    const timer = window.setInterval(() => {
+      void refreshOpenChat()
+    }, OPEN_CHAT_POLL_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [activeChat, currentUserId, isOpen, openConversationById])
 
   useEffect(() => {
     if (!scrollRef.current) return

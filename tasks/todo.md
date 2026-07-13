@@ -2290,3 +2290,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   100 karakter üstünü Türkçe validasyon mesajıyla reddeder.
 
 ## STATUS: Round 285 complete — backend build passed; frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 286 (Doing — 2026-07-13, kurum içi okundu bilgisini anlık gösterme)
+- [x] `6a54825876d473a60be19845` / #1579 reopen — Alıcının konuşma satırına tıklamasıyla okundu
+  isteği detay yüklenmeden başlar; gönderen SignalR okundu makbuzunu açık konuşmadaki kendi
+  mesajlarına yerel olarak uygular ve `İletildi` etiketi GET beklemeden `Okundu` olur.
+
+## STATUS: Round 286 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

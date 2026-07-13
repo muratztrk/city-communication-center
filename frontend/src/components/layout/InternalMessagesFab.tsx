@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { CheckCheck, Search, Send, X } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
-import { useSignalR } from '../../hooks/useSignalR'
+import { useSignalR, type InternalMessagePayload } from '../../hooks/useSignalR'
 import type { InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
@@ -131,12 +131,29 @@ export function InternalMessagesFab() {
     }
   }, [openConversationById])
 
-  const handleInternalMessage = useCallback(() => {
+  const handleInternalMessage = useCallback((payload: InternalMessagePayload) => {
     void refreshConversations()
+
+    if (payload.isReadReceipt) {
+      setChatDetail(current => {
+        if (!currentUserId || current?.internalConversationId !== payload.internalConversationId) return current
+
+        let changed = false
+        const messages = current.messages.map(message => {
+          if (message.senderUserId !== currentUserId || message.readAtUtc) return message
+          changed = true
+          return { ...message, readAtUtc: payload.createdAtUtc }
+        })
+
+        return changed ? { ...current, messages } : current
+      })
+      return
+    }
+
     if (activeChat) {
       void loadChat(activeChat.otherUserId)
     }
-  }, [activeChat, loadChat, refreshConversations])
+  }, [activeChat, currentUserId, loadChat, refreshConversations])
 
   useSignalR({ onInternalMessage: handleInternalMessage })
 
@@ -206,6 +223,9 @@ export function InternalMessagesFab() {
   const openRow = (row: MessageRow) => {
     setActiveChat({ otherUserId: row.otherUserId, displayName: row.displayName, departmentName: row.departmentName })
     setChatDetail(null)
+    if (row.internalConversationId) {
+      void openConversationById(row.internalConversationId)
+    }
     void loadChat(row.otherUserId)
   }
 

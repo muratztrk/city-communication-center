@@ -2421,3 +2421,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   dropdown'u başlık konumunda kalır ve alan listesindeki eski kopyası gizlenir.
 
 ## STATUS: Round 301 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 302 (Doing — 2026-07-13, Öncelik etiketi boyutu)
+- [x] `6a55022d276ab5aea465d3ff` / #1599 second reopen — Taleplerim, Birime Gelen ve Birimden
+  Giden detay başlığındaki `Öncelik` etiketi 10px → 12px büyütüldü; küçültülmesi istenen değer
+  metni 11px olarak korundu.
+
+## STATUS: Round 302 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

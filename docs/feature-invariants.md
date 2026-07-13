@@ -685,8 +685,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kanal ikonu + kanal adı; metin rengi ikon rengiyle aynı (`getChannelLabelColor`).
 - **Talep detay öncelik başlığı (card #1599):** Taleplerim, Birime Gelen ve Birimden Giden
   detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
-  üstte, değeri altta görünür. Etiket title-case (`Öncelik`) kalır, değer önceki görünümden biraz küçüktür
-  ve `Normal` değeri yeşildir. Vatandaş kanal ikonu/adı varsa bu bloğun solunda kalır
+  üstte, değeri altta görünür. Etiket title-case (`Öncelik`) ve 12px kalır; yalnız değer önceki
+  görünümden biraz küçülerek 11px olur ve `Normal` değeri yeşildir. Vatandaş kanal ikonu/adı
+  varsa bu bloğun solunda kalır
   (card #1599 reopen). Detay içi `Düzenle` modunda değer aynı başlık konumunda kompakt dropdown'a
   dönüşür; `Talep Yapılan Birim` satırının altında ikinci bir Öncelik alanı oluşmaz
   (cards #1587 reopen/#1600).

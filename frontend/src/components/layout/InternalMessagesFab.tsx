@@ -174,6 +174,24 @@ export function InternalMessagesFab() {
   }, [openConversationById])
 
   const handleInternalMessage = useCallback((payload: InternalMessagePayload) => {
+    // Rozet, API yanıtını beklemeden anında güncellenir (card #1608): konuşma listedeyse
+    // unreadCount iyimser artırılır; refreshConversations hemen ardından sunucu doğrusunu getirir.
+    // Açık sohbetin mesajı loadChat/markRead ile zaten okunacağı için artırılmaz.
+    if (!payload.isReadReceipt
+      && payload.senderUserId !== currentUserId
+      && chatDetail?.internalConversationId !== payload.internalConversationId) {
+      setConversations(prev => prev.map(conversation =>
+        conversation.internalConversationId === payload.internalConversationId
+          ? {
+              ...conversation,
+              unreadCount: conversation.unreadCount + 1,
+              lastMessagePreview: payload.messagePreview,
+              lastMessageSenderUserId: payload.senderUserId,
+              lastMessageAtUtc: payload.createdAtUtc,
+            }
+          : conversation))
+    }
+
     void refreshConversations()
 
     if (payload.isReadReceipt) {
@@ -195,7 +213,7 @@ export function InternalMessagesFab() {
     if (activeChat) {
       void loadChat(activeChat.otherUserId)
     }
-  }, [activeChat, currentUserId, loadChat, refreshConversations])
+  }, [activeChat, chatDetail?.internalConversationId, currentUserId, loadChat, refreshConversations])
 
   useSignalR({
     onInternalMessage: handleInternalMessage,

@@ -2492,3 +2492,25 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   gerçek indirme dosya adı korundu.
 
 ## STATUS: Round 308 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 311 (Doing — 2026-07-14, Onay Bekleyen katmanı + otomatik boşluk + FAB bildirimi)
+- [x] `6a553b58f44069729941dbca` / #1603 reopen + `6a55443a329f3c33759c1293` / #1606 reopen —
+  Mantık hatası kökü: tek hedefli dış talepte sahip onayı hedef JobDepartment'ı da otomatik
+  `Approved` + `DecidedAtUtc` damgalıyor (one-step approval); `!targetDecided` koşulu bu yüzden
+  hiç tutmuyordu. `buildJobProcessSteps`e `hasRealTargetDecision` eklendi (card #1595 sezgisi:
+  farklı onaycı adı veya hedef birimde atanmış görev = gerçek karar); Birimden Giden + standart
+  Taleplerim'de Durum'dan sonra mavi `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi /
+  Onay Bekleyen` katmanı artık çıkıyor.
+- [x] `6a54ff14205b7b8aa970da02` / #1598 2. reopen — `{GönderilenBirim}` sonrası otomatik boşluk
+  tamamen kaldırıldı (önceki fix tek boşluğu garanti ediyordu, müşteri tam tersini istiyormuş:
+  "'ne iletilmiştir." bitişik yazılabilmeli). BuildStatusMessage + EnsureTargetDepartmentToken
+  verbatim; SettingsPage compose/extract verbatim (Kaydet'te yalnız sondan trim); default
+  şablonlardaki kuyruk boşluğu kalktı; testler yeni davranışa çevrildi (46 test yeşil).
+- [x] `6a554a06b71c5f0ace85c2c5` / #1608 — Kurum içi mesaj rozet gecikmesi: frontend nginx'inde
+  `/hubs/` location'ı yoktu → SignalR istekleri SPA fallback'ine düşüyor/upgrade'siz kalıyordu;
+  WebSocket upgrade'li + buffering kapalı `/hubs/` proxy eklendi. Ayrıca FAB,
+  ReceiveInternalMessage'da rozeti API yanıtını beklemeden iyimser artırıyor. NOT: gecikme
+  sürerse host-level proxy'nin (yenitim.tire.bel.tr) /hubs için Upgrade header geçirdiği
+  doğrulanmalı (tarayıcı devtools'ta ws:// yerine SSE/long-poll görünüyorsa proxy sorunu).
+
+## STATUS: Round 311 complete — backend build + 46 test, frontend build/lint passed; cards ready to move to Done.

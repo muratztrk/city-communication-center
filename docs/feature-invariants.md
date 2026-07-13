@@ -205,6 +205,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   basmadan görüntüleme yüzeyinde görünmez. Taleplerim detayında `Dosya ekle` butonu da
   yalnız `Düzenle` modu açıkken görünür. Boyut bilgisi gizli kalır
   (cards #1199/#1200/#1201/#1204/#1208/#1211).
+  Detay popup'larında `Görev Bilgileri > Görev Ekleri` veya `Talep Bilgileri > Talep Ekleri`
+  satırında gerçek dosya varsa dosya adının önünde uzantıya göre küçük görsel/doküman ikonu
+  bulunur; boş `—` değerinde ikon gösterilmez (card #1605).
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
   Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter

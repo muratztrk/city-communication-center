@@ -2448,3 +2448,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   sahip-birim yönetici onayı, `Durum / Onay Bekleyen` katmanından önce gösterilir.
 
 ## STATUS: Round 304 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 305 (Doing — 2026-07-13, inline ek dosyası ikonları)
+- [x] `6a554114b7c6c15bbb85f206` / #1605 — Detay popup Görev Bilgileri içindeki Görev Ekleri
+  ve Talep Bilgileri içindeki Talep Ekleri dosya adlarının önüne, uzantıya göre görsel veya
+  doküman ikonu eklendi; boş değerler ikonsuz `—` kalır.
+
+## STATUS: Round 305 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

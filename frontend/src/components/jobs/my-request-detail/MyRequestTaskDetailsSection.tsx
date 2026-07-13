@@ -1,4 +1,4 @@
-import { ArrowRight, FileText, Info, ListChecks } from 'lucide-react'
+import { ArrowRight, FileImage, FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
@@ -18,6 +18,10 @@ interface MyRequestTaskDetailsSectionProps {
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
   // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
   addressColumnContent?: ReactNode
+}
+
+function getInlineAttachmentIcon(fileName: string) {
+  return /\.(?:jpe?g|png)$/i.test(fileName) ? FileImage : FileText
 }
 
 function buildTaskProcessSteps(
@@ -207,16 +211,20 @@ export function MyRequestTaskDetailsSection({
                           label: t('attachments.taskSectionTitle', 'Görev Ekleri'),
                           value: (task.attachments?.length ?? 0) === 0 ? '—' : (
                             <div className="flex flex-col items-end gap-1">
-                              {task.attachments!.map(attachment => (
-                                <button
-                                  key={attachment.attachmentId}
-                                  type="button"
-                                  className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                  onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
-                                >
-                                  {attachment.fileName}
-                                </button>
-                              ))}
+                              {task.attachments!.map(attachment => {
+                                const AttachmentIcon = getInlineAttachmentIcon(attachment.fileName)
+                                return (
+                                  <button
+                                    key={attachment.attachmentId}
+                                    type="button"
+                                    className="inline-flex max-w-full items-center gap-1 text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                    onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                  >
+                                    <AttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                                    <span className="truncate">{attachment.fileName}</span>
+                                  </button>
+                                )
+                              })}
                             </div>
                           ),
                         }]

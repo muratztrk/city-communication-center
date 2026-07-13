@@ -2090,16 +2090,20 @@ const pageKicker = isMyTasksView
                                   label: t('tasks.detail.attachments', 'Görev Ekleri'),
                                   value: (taskDetail.attachments?.length ?? 0) === 0 ? '—' : (
                                     <div className="flex flex-col items-end gap-1">
-                                      {taskDetail.attachments!.map(attachment => (
-                                        <button
-                                          key={attachment.attachmentId}
-                                          type="button"
-                                          className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                          onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
-                                        >
-                                          {attachment.fileName}
-                                        </button>
-                                      ))}
+                                      {taskDetail.attachments!.map(attachment => {
+                                        const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
+                                        return (
+                                          <button
+                                            key={attachment.attachmentId}
+                                            type="button"
+                                            className="inline-flex max-w-full items-center gap-1 text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                            onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                          >
+                                            <AttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                                            <span className="truncate">{attachment.fileName}</span>
+                                          </button>
+                                        )
+                                      })}
                                     </div>
                                   ),
                                 }]
@@ -2577,16 +2581,20 @@ const pageKicker = isMyTasksView
                               label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
                               value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
                                 <div className="flex flex-col items-end gap-1">
-                                  {parentJobDetail.attachments!.map(attachment => (
-                                    <button
-                                      key={attachment.attachmentId}
-                                      type="button"
-                                      className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                                      onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
-                                    >
-                                      {attachment.fileName}
-                                    </button>
-                                  ))}
+                                  {parentJobDetail.attachments!.map(attachment => {
+                                    const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
+                                    return (
+                                      <button
+                                        key={attachment.attachmentId}
+                                        type="button"
+                                        className="inline-flex max-w-full items-center gap-1 text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                                        onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                      >
+                                        <AttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                                        <span className="truncate">{attachment.fileName}</span>
+                                      </button>
+                                    )
+                                  })}
                                 </div>
                               ),
                             },

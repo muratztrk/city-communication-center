@@ -2251,3 +2251,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Birim seçin` kontrolü yalnız kompakt modda 24px yüksekliğe ve 144px minimum genişliğe indirildi.
 
 ## STATUS: Round 280 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 281 (Doing — 2026-07-13, FAB ikon ayrımı + popup dropdown ara ölçü)
+- [x] `6a548c13888d61f91ef2b8f3` / #1583 reopen — Kurum İçi Mesajlar FAB ikonu 28px'e
+  küçültüldü; ön balon ince konturlu, arka balon daha belirgin dolgu ve ayrı katman olarak çizildi.
+- [x] `6a5485cc0c3bf29f540a09cd` / #1580 reopen — WhatsApp Talep Oluştur popup'ındaki
+  `Birim seçin` kontrolü çok küçük 24×144px ölçüden ara ölçü 28×160px'e çıkarıldı.
+
+## STATUS: Round 281 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

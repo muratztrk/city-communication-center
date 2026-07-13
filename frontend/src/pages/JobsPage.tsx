@@ -30,7 +30,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
@@ -390,7 +390,6 @@ function printJobDetail(
   const ownerApprovalDate = detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
   const targetApprovalDate = detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null
   const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
-  const targetDepartment = detail.departments.find(department => department.role === 'Target')
   const requestDetailRows: Array<[string, string]> = [
     ['Talep No', jobDisplayNumber],
     ['Talep Başlığı', detail.title],
@@ -409,7 +408,7 @@ function printJobDetail(
     ['Talep Tarihi', fd(detail.createdAtUtc)],
     ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(ownerApprovalDate), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApprovalDate), targetDepartment?.approvedByDisplayName)] as [string, string]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApprovalDate), getJobTargetApproverDisplayName(detail))] as [string, string]]
       : []),
     ...(detail.status === 'Completed'
       ? [['Tamamlanma Tarihi', fd(detail.completedAtUtc)] as [string, string]]

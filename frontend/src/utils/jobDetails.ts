@@ -13,9 +13,24 @@ export function getJobOwnerApproverDisplayName(
 }
 
 export function getJobTargetApproverDisplayName(
-  job: Pick<JobDetail, 'departments'>,
+  job: Pick<JobDetail, 'departments'> & Partial<Pick<JobDetail, 'requestType' | 'tasks'>>,
 ): string | null {
-  return job.departments.find(department => department.role === 'Target')?.approvedByDisplayName ?? null
+  const target = job.departments.find(department =>
+    department.role === 'Target'
+      && department.approvalStatus === 'Approved'
+      && Boolean(department.decidedAtUtc),
+  ) ?? job.departments.find(department => department.role === 'Target')
+  const storedApprover = target?.approvedByDisplayName ?? null
+  if (job.requestType !== 'ExternalUnit' || !target) return storedApprover
+
+  // Eski tek-hedefli birim dışı kayıtlarda sahibi birim onayı hedef kayda da aynı kişiyle
+  // yazılmış olabilir. İlk hedef görevini atayan yönetici gerçek hedef onaycısıdır (card #1595).
+  const ownerApprover = getJobOwnerApproverDisplayName(job)
+  if (storedApprover && storedApprover !== ownerApprover) return storedApprover
+  return job.tasks?.find(task =>
+    task.assignedDepartmentId === target.departmentId
+      && Boolean(task.assigningManagerDisplayName),
+  )?.assigningManagerDisplayName ?? storedApprover
 }
 
 export function getRequestApproverDepartmentName(

@@ -5,6 +5,7 @@ import {
   shouldShowCitizenTargetApprovalDate,
 } from '../../../utils/citizenRequests'
 import { formatDateTime, formatDueDateTime } from './format'
+import { getJobTargetApproverDisplayName } from '../../../utils/jobDetails'
 
 export type JobProcessStepState = 'completed' | 'current' | 'pending' | 'upcoming' | 'terminal-success' | 'terminal-danger'
 
@@ -235,7 +236,7 @@ export function buildJobProcessSteps(
       displayValue: targetDepartment?.decidedAtUtc
         ? formatDueDateTime(targetDepartment.decidedAtUtc, locale)
         : t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
-      displayMeta: targetDepartment?.approvedByDisplayName ?? undefined,
+      displayMeta: getJobTargetApproverDisplayName(detail) ?? undefined,
       dateTimeUtc: targetDepartment?.decidedAtUtc ?? null,
     })
   }

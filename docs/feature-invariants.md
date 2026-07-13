@@ -621,8 +621,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yönetici birim dışı talebinde hedef onay gerçekleştiyse sıra `Hedef Onay Tarihi` → `Durum / Yapılmakta`
   olmalıdır; bekleyen durumda `Durum / Yapılmakta` daha erken kalabilir.
   `CreateJobCommand` otomatik hedef onayında ApprovedBy/DecidedAt YAZMAZ; gerçek damga
-  `CitizenJobTargetApproval.TryRecordTargetApprovalAsync` ile ilk personel atamasında vurulur
-  (eski yaratıcı-damgalı satırları da düzeltir).
+  `CitizenJobTargetApproval.TryRecordTargetApprovalAsync` ile ilk görev atamasında hedef yöneticisi
+  adına kesin olarak vurulur (eski yaratıcı veya sahibi-birim-yöneticisi damgalı satırları da düzeltir).
+  Eski kayıtların Timeline/yazdırma görünümünde hedef ve sahip onaycı aynıysa gerçek hedef onaycı,
+  hedef birimin ilk görevindeki `assigningManagerDisplayName` üzerinden çözülür (card #1595).
 - **Timeline `Durum / Yapılmakta` step'i:** yönetici-birim-içi istisnasına ek olarak standart
   kullanıcının Active (onaylanmış) non-citizen taleplerinde de gösterilir (card #1334); standart
   kullanıcı Taleplerim chip metni `Onaylanmış/Yapılmakta Taleplerim`dir.

@@ -2356,3 +2356,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   gerçek hedef birim adını basan sabit `{GönderilenBirim}` ve ardından düzenlenebilir ikinci metin alanı eklendi.
 
 ## STATUS: Round 293 complete — backend build + 36 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); Docker daemon kapalı olduğu için runtime doğrulaması yapılamadı.
+
+## Round 294 (Doing — 2026-07-13, hedef birim onaycısı düzeltmesi)
+- [x] `6a54e3e0833c79cd1f8ea9c9` / #1595 — Birim dışı talebin ilk hedef görevi oluşturulurken
+  otomatik sahibi-birim onaycı damgası gerçek hedef yöneticisiyle yenilenir; geçmiş hatalı kayıtlarda
+  Timeline ve yazdırma hedef onaycısı ilk hedef görevini atayan yönetici üzerinden çözülür.
+
+## STATUS: Round 294 complete — backend build + 38 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); Docker daemon kapalı olduğu için runtime doğrulaması yapılamadı.

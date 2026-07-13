@@ -66,7 +66,7 @@ import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
-import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
@@ -260,7 +260,7 @@ function printTaskDetail(
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), targetApproval?.approvedByDisplayName)]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), getJobTargetApproverDisplayName(parentJob))]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ] : [
@@ -275,7 +275,7 @@ function printTaskDetail(
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(ownerApproval?.decidedAtUtc), ownerApproval?.approvedByDisplayName)],
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), targetApproval?.approvedByDisplayName)]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), getJobTargetApproverDisplayName(parentJob))]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ]).map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(String(value))}</td></tr>`).join('') : ''

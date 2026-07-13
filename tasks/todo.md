@@ -2241,3 +2241,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   referanstaki üst üste iki konuşma balonu + üç nokta görünümüne çevrildi.
 
 ## STATUS: Round 279 complete — frontend build/lint, backend build and 34 backend tests passed; cards ready to move to Done.
+
+## Round 280 (Doing — 2026-07-13, mobil logo + etiket/dropdown mikro küçültme)
+- [x] `6a46373eb24396a082d2aece` / #1205 reopen — Yalnız mobil drawer belediye logo
+  çerçevesi 96×192px'den 88×176px'e az küçültüldü; logo iç nefes payı ve desktop korundu.
+- [x] `6a53afa4b24b5394894d6c35` / #1561 reopen — Talep Oluştur > Vatandaş Çağrı Talebi
+  formunda yalnız Talep Etiketi salt-okunur input değeri `text-xs` yapıldı.
+- [x] `6a5485cc0c3bf29f540a09cd` / #1580 reopen — WhatsApp Talep Oluştur popup'ındaki
+  `Birim seçin` kontrolü yalnız kompakt modda 24px yüksekliğe ve 144px minimum genişliğe indirildi.
+
+## STATUS: Round 280 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

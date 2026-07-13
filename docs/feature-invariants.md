@@ -262,8 +262,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma footer aksiyonları:** Alt aksiyon satırında `Talep oluştur` butonu görünmez;
   `Şablon mesajlar`, `Şablon mesaj ekle` ve `Dosya ekle` yan yana durur. Bu aksiyonların ikonları
   yeşil kalır; buton metinleri yeşile boyanmaz (card #1245/#1466).
-  Vatandaş Çağrı Talebi oluşturma popup'ında Şablon mesajlar/Şablon mesaj ekle/Birim seçin/
-  Kurum İçi İlet kontrolleri yalnız o popup'a özel kompakt 28px yüksekliktedir.
+  Vatandaş Çağrı Talebi oluşturma popup'ında Şablon mesajlar/Şablon mesaj ekle/Kurum İçi İlet
+  kontrolleri yalnız o popup'a özel kompakt 28px; `Birim seçin` ise 24px yükseklik ve dar trigger
+  ölçüsündedir. Genel dropdown ölçüleri etkilenmez.
 - **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,
   `Cadde / Sokak / Bulvar` ve `Açık Adres` etiketleri değerlerden bağımsız daha büyük okunur;
   adres değerlerinin font boyutu değiştirilmez (card #1246).
@@ -558,7 +559,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `lg:hidden` ile gösterilir; açık login zemininde görünürlük için `brightness-0` (koyu silüet)
   uygulanır. Desktop hero koyu zeminde beyaz silüet kalır.
 - **Mobil sol menü belediye logosu:** drawer marka alanında varsayılan 96px kare değil, daha geniş
-  `MunicipalitySeal` (yaklaşık `h-28 w-52`) kullanılır; Atatürk sol üstte kalır.
+  `MunicipalitySeal` (yaklaşık 88×176px) kullanılır; Atatürk sol üstte kalır.
 - **Mobil login logo çerçevesi yatayda geniş kalır:** kompakt login logo kartının yatay
   padding'i ve kart genişliği daraltılıp kare karta geri döndürülmez; panel viewport içinde biraz
   dışa taşarak genişler, logo etrafındaki beyaz alanda yatay nefes payı olur ve logo boyutu sabit kalır.
@@ -570,6 +571,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep oluşturma formlarında adres `Cadde / Sokak / Bulvar` input metni aynı formdaki `Açık Adres`
   textarea metin ölçüsüyle eşleşir**; ana oluşturma sayfası ve WhatsApp vatandaş modalı kompakt
   ölçüleri ayrı korunur (card #1247).
+- **Talep Oluştur > Vatandaş Çağrı Talebi Talep Etiketi değeri:** yalnız salt-okunur input metni
+  `text-xs` kalır; Etiketler/Etiket ekle butonlarının büyütülmüş metni etkilenmez (card #1561).
 - **Birim içi/dışı/vatandaş talep oluşturma formlarının input/dropdown yükseklikleri kompakt
   tutulur**; genel `.field-input` / `.field-select` ölçeği bu istek için değiştirilmez (card #1249).
 - **Birim içi talep oluşturma `Bitiş Tarihi` picker'ı yukarı açılır**; diğer tarih picker'larının

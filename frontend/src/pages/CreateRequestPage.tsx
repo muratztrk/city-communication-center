@@ -1288,7 +1288,7 @@ export function CreateRequestPage() {
                 <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
                 <div className="flex items-center gap-2">
                   <input
-                    className="field-input min-w-0 flex-1 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    className="field-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     value={citizenLabel}
                     readOnly
                     disabled

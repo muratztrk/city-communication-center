@@ -320,8 +320,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
                 searchPlaceholder={t('departments.search', 'Birim ara...')}
                 openUp={internalDepartmentOptions.length >= 2}
-                className="min-w-44"
-                triggerClassName={`${compactActions ? 'h-7 px-2 text-[11px]' : 'h-9 px-3 text-xs'} rounded-full font-semibold`}
+                className={compactActions ? 'min-w-36' : 'min-w-44'}
+                triggerClassName={`${compactActions ? 'min-h-6 h-6 px-2 text-[10px]' : 'h-9 px-3 text-xs'} rounded-full font-semibold`}
                 menuScrollClassName="whatsapp-department-menu-scroll"
               />
               <button

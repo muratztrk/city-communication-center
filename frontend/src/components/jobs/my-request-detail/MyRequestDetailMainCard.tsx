@@ -75,7 +75,7 @@ export function MyRequestInfoFieldsList({
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   return (
     <div className="my-request-detail-fields divide-y divide-slate-100">
-      {fields.map(field => (
+      {fields.filter(field => !(hidePriorityRow && field.label === priorityLabel)).map(field => (
         <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
           <div className="job-detail-field-row__label">{field.label}</div>
           <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
@@ -409,12 +409,24 @@ export function MyRequestDetailMainCard({
                         {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
                       </span>
                     ) : null}
-                    {priorityInInfoHeader && !isEditing ? (
+                    {priorityInInfoHeader ? (
                       <span className="flex flex-col items-end text-right leading-tight">
                         <span className="text-[10px] font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                        <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : 'text-slate-900'}`}>
-                          {getPriorityLabel(t, detail.priority)}
-                        </span>
+                        {isEditing && editDraft && onEditDraftChange ? (
+                          <SingleSelectDropdown
+                            className="mt-0.5 w-28"
+                            triggerClassName="!min-h-7 !px-2 !py-1 text-[11px] font-semibold"
+                            menuScrollClassName="dropdown-menu-scroll--compact"
+                            options={priorityOptions}
+                            value={editDraft.priority}
+                            onChange={priority => onEditDraftChange({ priority })}
+                            placeholder={t('jobs.form.priority', 'Öncelik')}
+                          />
+                        ) : (
+                          <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : 'text-slate-900'}`}>
+                            {getPriorityLabel(t, detail.priority)}
+                          </span>
+                        )}
                       </span>
                     ) : null}
                   </span>

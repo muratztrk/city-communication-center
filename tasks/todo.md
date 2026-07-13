@@ -2412,3 +2412,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   `Normal` öncelik değeri yeşil gösterildi.
 
 ## STATUS: Round 300 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 301 (Doing — 2026-07-13, detay düzenleme öncelik konumu)
+- [x] `6a54afa0e6e0465ecdd94fe8` / #1587 reopen — Vatandaş Talepleri detay içi Düzenle
+  modunda Öncelik dropdown'u başlıktaki mevcut Öncelik değerinin yerinde açılır; Talep Yapılan
+  Birim altında tekrarlanmaz.
+- [x] `6a552af06d2e531c17a23927` / #1600 — Taleplerim ortak detay düzenleme düzeninde de Öncelik
+  dropdown'u başlık konumunda kalır ve alan listesindeki eski kopyası gizlenir.
+
+## STATUS: Round 301 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

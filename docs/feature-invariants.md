@@ -687,7 +687,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
   üstte, değeri altta görünür. Etiket title-case (`Öncelik`) kalır, değer önceki görünümden biraz küçüktür
   ve `Normal` değeri yeşildir. Vatandaş kanal ikonu/adı varsa bu bloğun solunda kalır
-  (card #1599 reopen).
+  (card #1599 reopen). Detay içi `Düzenle` modunda değer aynı başlık konumunda kompakt dropdown'a
+  dönüşür; `Talep Yapılan Birim` satırının altında ikinci bir Öncelik alanı oluşmaz
+  (cards #1587 reopen/#1600).
 - **Vatandaş Talepleri detay alt kartları (card #1587):** salt-okunur vatandaş detayında
   `Proje mi` ve `Talep Ekleri` Talep Bilgileri satırlarında görünmez; `Adres Bilgileri` ile
   `Talep Ekleri` kendi başlıklı kutuları olarak ana kartın altında gösterilir.

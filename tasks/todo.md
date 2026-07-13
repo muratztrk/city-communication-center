@@ -2346,3 +2346,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   best-effort push hataları artık backend warning loguna yazılır.
 
 ## STATUS: Round 292 complete — backend build passed; frontend build/lint passed (0 error, 4 existing hook warnings); Docker runtime unavailable.
+
+## Round 293 (Doing — 2026-07-13, WhatsApp otomatik durum mesajları ve görev alan sırası)
+- [x] `6a53f4d43ea787e2907ef3cf` / #1569 — İşleme Alındı, Yapılmakta, Tamamlandı ve İptal Edildi
+  otomatik WhatsApp mesajlarının tamamı operatör onayı/Pending aksiyonları olmadan doğrudan gönderilir.
+- [x] `6a54bbcf1cdd5858a0ba60a1` / #1593 — Görevlerim ailesi ile Birimden Giden/Birime Gelen görev
+  detaylarında `Talep Yeri / Oluşturan` değeri birim üstte, oluşturan altta gösterilir.
+- [x] `6a54cbb8fe5dcd8a33b04545` / #1594 — Vatandaşa Giden Cevaplar şablonlarında durumdan sonra
+  gerçek hedef birim adını basan sabit `{GönderilenBirim}` ve ardından düzenlenebilir ikinci metin alanı eklendi.
+
+## STATUS: Round 293 complete — backend build + 36 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); Docker daemon kapalı olduğu için runtime doğrulaması yapılamadı.

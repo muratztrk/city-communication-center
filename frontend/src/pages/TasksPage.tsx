@@ -76,6 +76,7 @@ import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/My
 import { MyRequestDetailMainCard, MyRequestInfoFieldsList } from '../components/jobs/my-request-detail/MyRequestDetailMainCard'
 import { MyRequestDetailBottomCards } from '../components/jobs/my-request-detail/MyRequestDetailBottomCards'
 import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail/myRequestDetailFields'
+import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { getStatusChangeTextClass } from '../components/jobs/my-request-detail/format'
@@ -2012,7 +2013,7 @@ const pageKicker = isMyTasksView
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
                                   label: 'Talep Yeri / Oluşturan',
-                                  value: [selectedTask.ownerDepartmentName, selectedTask.createdByDisplayName].filter(Boolean).join(' / ') || '—',
+                                  value: <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
                                 }]
                               : []),
                             // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;

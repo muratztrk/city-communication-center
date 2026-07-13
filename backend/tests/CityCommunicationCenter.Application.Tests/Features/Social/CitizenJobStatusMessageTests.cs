@@ -1,0 +1,58 @@
+using CityCommunicationCenter.Application.Features.Admin;
+using CityCommunicationCenter.Application.Features.Social;
+using CityCommunicationCenter.Domain.Entities;
+using CityCommunicationCenter.Domain.Enums;
+
+namespace CityCommunicationCenter.Application.Tests.Features.Social;
+
+public sealed class CitizenJobStatusMessageTests
+{
+    [Fact]
+    public void ParseOrDefault_AddsTargetDepartmentToken_ToExistingSavedTemplates()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "{VatandaşTalepNo} talebiniz İşleme Alındı.",
+              "InProgress": "{VatandaşTalepNo} talebiniz Yapılmakta.",
+              "Completed": "{VatandaşTalepNo} talebiniz Tamamlandı.",
+              "Cancelled": "{VatandaşTalepNo} talebiniz İptal Edildi."
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.Contains("{GönderilenBirim}", templates.ProcessingReceived);
+        Assert.Contains("{GönderilenBirim}", templates.InProgress);
+        Assert.Contains("{GönderilenBirim}", templates.Completed);
+        Assert.Contains("{GönderilenBirim}", templates.Cancelled);
+    }
+
+    [Fact]
+    public void BuildStatusMessage_ReplacesTargetDepartmentToken()
+    {
+        var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);
+        var message = new SocialMessage
+        {
+            CitizenRequestNumber = 42,
+            CitizenRequestNumberYear = 2026,
+            ReceivedAtUtc = receivedAt,
+        };
+        var job = new Job
+        {
+            Title = "Yol bakım",
+            Status = JobStatus.Active,
+        };
+
+        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+            message,
+            job,
+            1,
+            receivedAt,
+            "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebiniz {VatandaşTalepDurumu}. {GönderilenBirim} ekiplerince inceleniyor.",
+            "Fen İşleri Müdürlüğü");
+
+        Assert.Equal(
+            "VT-2026-42 no'lu Yol bakım talebiniz Yapılmakta. Fen İşleri Müdürlüğü ekiplerince inceleniyor.",
+            content);
+    }
+}

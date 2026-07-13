@@ -297,12 +297,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 
-- **WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
+- **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
   oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından
-  üretilen İşleme Alındı/Yapılmakta mesajları doğrudan gönderilir; Tamamlandı/Tamamlanmış ve
-  İptal/İptal Edildi terminal mesajları `Pending` kalır ve operatör onayı olmadan vatandaşa gitmez.
-  Terminal not butonları yalnız ilgili bekleyen mesaj terminal durumu
+  üretilen İşleme Alındı/Yapılmakta/Tamamlandı/İptal Edildi mesajlarının dördü de operatör onayı
+  beklemeden WhatsApp'a doğrudan gönderilir; bu otomatik mesajlar `Pending` ve
+  `Düzenle`/`Mesaj Gönder` aksiyonu üretmez (card #1569).
+  Terminal not butonları yalnız diğer ilgili bekleyen mesaj terminal durumu
   (`Tamamlandı/Tamamlanmış` veya `İptal/İptal Edildi`) içeriyorsa görünür; ara durum
   (`İşleme Alındı`, `Yapılmakta`) mesajlarında görünmez. Gerçek gönderim `SendPendingConversationEntryCommand`
   (`POST /social/messages/{id}/conversation/{entryId}/send`) ile yapılır; yetki = `Operator` veya
@@ -516,7 +517,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   red/son tarihi geçmiş etiketleri bu otomatik şablonlara düşürülmez (cards #1266/#1268).
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
-  kullanıcı tarafından düzenlenemez, yalnız aradaki serbest metin düzenlenir. İptal alanının görsel
+  kullanıcı tarafından düzenlenemez. Durum adından sonra sabit `{GönderilenBirim}` gelir ve aktif
+  hedef birim adlarıyla değiştirilir; bu alanın ardından ikinci serbest metin düzenlenebilir. Eski
+  kayıtlı şablonlara eksik birim token'ı okunurken/yazılırken otomatik eklenir (card #1594).
+  İptal alanının görsel
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
   Aynı SocialMessage/talep için aynı üretilmiş durum mesajı Pending/Sent/Delivered/Read olarak
@@ -606,7 +610,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   satırı `Öncelik` satırının hemen üstündedir; kolon3 = `Süreç`
   timeline. Ayrı `Açıklama` paneli YOKTUR.
   `Talep Yeri / Oluşturan` tek satır başlığıdır; değer alanında talep yeri üstte, oluşturan kişi
-  altta `StackedFieldValue` ile gösterilir. `Talep Yapılan Birim` ve `Görevi Yapan` ayrı kalır (card #1592).
+  altta `StackedFieldValue` ile gösterilir. Aynı sıra Görevlerim, Birimdeki Görevler,
+  Personelimin Görevleri, Birimden Giden ve Birime Gelen görev detaylarında da korunur.
+  `Talep Yapılan Birim` ve `Görevi Yapan` ayrı kalır (cards #1592/#1593).
 - **Süreç "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" adımı (cards #1333/#1337/#1345/#1357):**
   birim içi taleplerde hiç görünmez. Vatandaş ve birim dışı taleplerde hedef birim GERÇEKTEN
   onaylandığında (Approved + gerçek decidedAtUtc + görev atanmış) görünür ve onaylayan HEDEF

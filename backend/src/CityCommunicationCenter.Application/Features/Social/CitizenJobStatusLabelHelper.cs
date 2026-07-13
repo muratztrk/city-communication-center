@@ -27,7 +27,13 @@ public static class CitizenJobStatusLabelHelper
         return BuildStatusMessage(message, job, taskCount, utcNow, null);
     }
 
-    public static string BuildStatusMessage(SocialMessage message, Job job, int taskCount, DateTimeOffset utcNow, string? template)
+    public static string BuildStatusMessage(
+        SocialMessage message,
+        Job job,
+        int taskCount,
+        DateTimeOffset utcNow,
+        string? template,
+        string? targetDepartmentNames = null)
     {
         var requestNumber = ConversationEntrySenderLabelHelper.FormatCitizenRequestNumber(
             message.CitizenRequestNumber,
@@ -35,8 +41,11 @@ public static class CitizenJobStatusLabelHelper
             message.ReceivedAtUtc);
         var statusLabel = GetDisplayStatus(job, taskCount, utcNow);
         var title = string.IsNullOrWhiteSpace(job.Title) ? "talebiniz" : job.Title.Trim();
+        var targetDepartments = string.IsNullOrWhiteSpace(targetDepartmentNames)
+            ? "İlgili birim"
+            : targetDepartmentNames.Trim();
         var messageTemplate = string.IsNullOrWhiteSpace(template)
-            ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu {VatandaşTalepDurumu}."
+            ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu {VatandaşTalepDurumu}. {GönderilenBirim}"
             : template;
 
         return messageTemplate
@@ -45,6 +54,9 @@ public static class CitizenJobStatusLabelHelper
             .Replace("{VatandaşTalepBaşlığı}", title, StringComparison.Ordinal)
             .Replace("{Vatandaş Talep Başlığı}", title, StringComparison.Ordinal)
             .Replace("{VatandaşTalepDurumu}", statusLabel, StringComparison.Ordinal)
-            .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal);
+            .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal)
+            .Replace("{GönderilenBirim}", targetDepartments, StringComparison.Ordinal)
+            .Replace("{Gönderilen Birim}", targetDepartments, StringComparison.Ordinal)
+            .Trim();
     }
 }

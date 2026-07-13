@@ -108,12 +108,23 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
+        var targetDepartmentNames = await _dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(link => link.TenantId == tenantId
+                && link.JobId == job.JobId
+                && link.Role == JobDepartmentRole.Target
+                && link.ApprovalStatus != JobApprovalStatus.Rejected)
+            .OrderBy(link => link.Department.Name)
+            .Select(link => link.Department.Name)
+            .Distinct()
+            .ToListAsync(cancellationToken);
         var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
             message,
             job,
             taskCount,
             utcNow,
-            template);
+            template,
+            string.Join(", ", targetDepartmentNames));
         var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
 
         if (message.Channel == SocialChannel.WhatsApp)
@@ -142,7 +153,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 message,
                 content,
                 utcNow,
-                requiresOperatorApproval: IsTerminalStatus(statusLabel),
                 cancellationToken);
             return;
         }
@@ -177,15 +187,11 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
         statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı" or "İptal";
 
-    private static bool IsTerminalStatus(string statusLabel) =>
-        statusLabel is "Tamamlanmış" or "Tamamlandı" or "İptal" or "İptal Edildi";
-
     private async Task SendWhatsAppAsync(
         Guid tenantId,
         SocialMessage message,
         string content,
         DateTimeOffset utcNow,
-        bool requiresOperatorApproval,
         CancellationToken cancellationToken)
     {
         var tenantName = await _dbContext.Tenants
@@ -194,23 +200,25 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
 
-        SocialMediaResult? sendResult = null;
-        if (!requiresOperatorApproval)
+        var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+            _dbContext,
+            message,
+            cancellationToken);
+        var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
+        SocialMediaResult sendResult;
+        if (string.IsNullOrWhiteSpace(recipientPhone) || client is null)
         {
-            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
-                _dbContext,
-                message,
-                cancellationToken);
-            var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
-            sendResult = string.IsNullOrWhiteSpace(recipientPhone) || client is null
-                ? SocialMediaResult.Fail(string.IsNullOrWhiteSpace(recipientPhone)
-                    ? "WhatsApp alıcı telefonu bulunamadı."
-                    : "WhatsApp kanalı yapılandırılmadı.")
-                : await client.SendMessageAsync(new SendMessageRequest
-                {
-                    RecipientId = recipientPhone,
-                    Message = content,
-                }, cancellationToken);
+            sendResult = SocialMediaResult.Fail(string.IsNullOrWhiteSpace(recipientPhone)
+                ? "WhatsApp alıcı telefonu bulunamadı."
+                : "WhatsApp kanalı yapılandırılmadı.");
+        }
+        else
+        {
+            sendResult = await client.SendMessageAsync(new SendMessageRequest
+            {
+                RecipientId = recipientPhone,
+                Message = content,
+            }, cancellationToken);
         }
 
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
@@ -220,18 +228,16 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
-            ExternalEntryId = sendResult?.MessageId,
+            ExternalEntryId = sendResult.MessageId,
             SenderLabel = tenantName,
-            DeliveryStatus = requiresOperatorApproval
-                ? ConversationDeliveryStatus.Pending
-                : sendResult!.Success
-                    ? ConversationDeliveryStatus.Sent
-                    : ConversationDeliveryStatus.Failed,
-            DeliveryError = requiresOperatorApproval || sendResult!.Success ? null : sendResult.Error,
+            DeliveryStatus = sendResult.Success
+                ? ConversationDeliveryStatus.Sent
+                : ConversationDeliveryStatus.Failed,
+            DeliveryError = sendResult.Success ? null : sendResult.Error,
             DeliveryStatusUpdatedAtUtc = utcNow,
         });
 
-        if (sendResult?.Success == true)
+        if (sendResult.Success)
         {
             message.ResponseContent = content;
             message.RespondedAtUtc = utcNow;
@@ -240,12 +246,12 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 message.Status = SocialMessageStatus.Responded;
             }
         }
-        else if (!requiresOperatorApproval)
+        else
         {
             _logger.LogWarning(
                 "Automatic WhatsApp status message failed for SocialMessage {SocialMessageId}: {Error}",
                 message.SocialMessageId,
-                sendResult!.Error);
+                sendResult.Error);
         }
 
         WhatsAppMessagePayload? pendingPush = null;

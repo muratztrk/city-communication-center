@@ -55,22 +55,24 @@ type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
 
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
-  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı.",
-  inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta.",
-  completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı.",
-  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal Edildi.",
+  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı. {GönderilenBirim}",
+  inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta. {GönderilenBirim}",
+  completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı. {GönderilenBirim}",
+  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal Edildi. {GönderilenBirim}",
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
 const CITIZEN_REQUEST_TITLE_TOKEN = '{VatandaşTalepBaşlığı}'
 const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
+const TARGET_DEPARTMENT_TOKEN = '{GönderilenBirim}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
 type CitizenAutoReplyTemplateKey = keyof CitizenAutoReplyTemplates
 
-function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string) {
+function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '') {
   const normalizedBody = bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT
-  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}.`
+  const normalizedSuffix = suffixText.trim()
+  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix ? ` ${normalizedSuffix}` : ''}`
 }
 
 function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) {
@@ -78,11 +80,22 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
   const afterTitle = titleIndex >= 0
     ? template.slice(titleIndex + CITIZEN_REQUEST_TITLE_TOKEN.length)
     : template
-  return afterTitle
+  const fixedStatusIndex = afterTitle.indexOf(statusLabel)
+  const tokenStatusIndex = afterTitle.indexOf(CITIZEN_REQUEST_STATUS_TOKEN)
+  const statusIndex = fixedStatusIndex >= 0 ? fixedStatusIndex : tokenStatusIndex
+  const editableBody = statusIndex >= 0 ? afterTitle.slice(0, statusIndex) : afterTitle
+  return editableBody
     .replace(CITIZEN_REQUEST_STATUS_TOKEN, '')
-    .replace(statusLabel, '')
+    .replace(TARGET_DEPARTMENT_TOKEN, '')
     .replace(/[.\s]+$/u, '')
     .trim() || DEFAULT_AUTO_REPLY_BODY_TEXT
+}
+
+function extractCitizenAutoReplySuffixText(template: string) {
+  const tokenIndex = template.indexOf(TARGET_DEPARTMENT_TOKEN)
+  return tokenIndex >= 0
+    ? template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length).trim()
+    : ''
 }
 
 interface CitizenAutoReplyTemplateFieldProps {
@@ -112,12 +125,27 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
       <textarea
         className="field-textarea min-h-[4.5rem]"
         value={extractCitizenAutoReplyBodyText(value, templateStatusLabel)}
-        onChange={event => onChange(buildCitizenAutoReplyTemplate(event.target.value, templateStatusLabel))}
+        onChange={event => onChange(buildCitizenAutoReplyTemplate(
+          event.target.value,
+          templateStatusLabel,
+          extractCitizenAutoReplySuffixText(value),
+        ))}
       />
       <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
         <span className={`rounded-md border px-2 py-1 font-bold ${statusToneClass}`}>{statusLabel}</span>
         <span>.</span>
+        <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 font-bold text-sky-700">{TARGET_DEPARTMENT_TOKEN}</span>
       </div>
+      <textarea
+        className="field-textarea min-h-[4.5rem]"
+        value={extractCitizenAutoReplySuffixText(value)}
+        onChange={event => onChange(buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(value, templateStatusLabel),
+          templateStatusLabel,
+          event.target.value,
+        ))}
+        placeholder="Gönderilen birim bilgisinden sonra gelecek metin"
+      />
     </div>
   )
 }
@@ -988,18 +1016,22 @@ export function SettingsPage() {
         processingReceived: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.processingReceived, t('social.requestStatus.processingReceived', 'İşleme Alındı')),
           t('social.requestStatus.processingReceived', 'İşleme Alındı'),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.processingReceived),
         ),
         inProgress: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.inProgress, t('social.requestStatus.inProgress', 'Yapılmakta')),
           t('social.requestStatus.inProgress', 'Yapılmakta'),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.inProgress),
         ),
         completed: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.completed, t('social.requestStatus.completed', 'Tamamlandı')),
           t('social.requestStatus.completed', 'Tamamlandı'),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.completed),
         ),
         cancelled: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.cancelled, t('social.requestStatus.cancelledMessage', 'İptal Edildi')),
           t('social.requestStatus.cancelledMessage', 'İptal Edildi'),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.cancelled),
         ),
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
@@ -2335,7 +2367,7 @@ export function SettingsPage() {
               ))}
             </div>
             <p className="text-xs font-medium text-slate-500">
-              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı} ve durum adı.')}
+              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı ve {GönderilenBirim}.')}
             </p>
           </section>
 

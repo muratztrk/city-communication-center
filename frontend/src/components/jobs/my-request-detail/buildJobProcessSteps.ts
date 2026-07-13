@@ -64,6 +64,22 @@ function isTerminalStatus(status: string): boolean {
   return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
 }
 
+/**
+ * Tek hedefli birim dışı talepte sahip yöneticisinin onayı hedef kaydı da aynı anda otomatik
+ * damgalar (ApproveRejectJobOwnerCommands "one-step approval") — bu damga hedef yöneticisinin
+ * kararı DEĞİLDİR. Gerçek karar sinyali: hedef kayıttaki onaycı adının sahip onaycısından
+ * farklı olması veya hedef birimde atanmış görev bulunması (card #1595 ile aynı sezgi;
+ * cards #1603/#1606 "Onay Bekleyen" katmanı bu ayrıma dayanır).
+ */
+function hasRealTargetDecision(detail: JobDetail): boolean {
+  const target = detail.departments.find(department => department.role === 'Target')
+  if (!target?.decidedAtUtc) return false
+  if (detail.requestType !== 'ExternalUnit' || isCitizenRequestJob(detail)) return true
+  const ownerApprover = detail.departments.find(department => department.role === 'Owner')?.approvedByDisplayName ?? null
+  if (target.approvedByDisplayName && target.approvedByDisplayName !== ownerApprover) return true
+  return detail.tasks?.some(task => task.assignedDepartmentId === target.departmentId) ?? false
+}
+
 function wasRecoveredFromCancellation(detail: JobDetail): boolean {
   return Boolean(detail.cancelReason?.trim())
     && (detail.status === 'Active' || detail.status === 'Completed')
@@ -112,7 +128,8 @@ function resolveStepStates(
 
   let foundCurrent = false
   const ownerDecided = detail.departments.find(d => d.role === 'Owner')?.decidedAtUtc
-  const targetDecided = detail.departments.find(d => d.role === 'Target')?.decidedAtUtc
+  // Sahip onayının hedefe bastığı otomatik damga gerçek karar sayılmaz (cards #1603/#1606).
+  const targetDecided = hasRealTargetDecision(detail)
   return steps.map(step => {
     // Hedef onay adımı, turuncu Durum adımından sonra da gelse onaylandıysa yeşil kalır (card #1345).
     if (step.id === 'targetApproval' && targetDecided) {
@@ -184,7 +201,9 @@ export function buildJobProcessSteps(
     },
   ]
   const targetDepartment = detail.departments.find(department => department.role === 'Target')
-  const targetDecided = Boolean(targetDepartment?.decidedAtUtc)
+  // decidedAtUtc tek başına güvenilmez: tek hedefli dış talepte sahip onayı hedefi de otomatik
+  // damgalar. Gerçek hedef kararı hasRealTargetDecision ile ayrıştırılır (cards #1603/#1606).
+  const targetDecided = hasRealTargetDecision(detail)
   const showPendingTargetApproval = Boolean(options?.showPendingTargetApprovalAfterStatus)
     && !isCitizenRequestJob(detail)
     && detail.requestType === 'ExternalUnit'

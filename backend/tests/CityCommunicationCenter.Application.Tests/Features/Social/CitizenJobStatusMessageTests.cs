@@ -25,6 +25,27 @@ public sealed class CitizenJobStatusMessageTests
         Assert.Contains("{GönderilenBirim}", templates.InProgress);
         Assert.Contains("{GönderilenBirim}", templates.Completed);
         Assert.Contains("{GönderilenBirim}", templates.Cancelled);
+        Assert.EndsWith("{GönderilenBirim} ", templates.ProcessingReceived);
+    }
+
+    [Fact]
+    public void ParseOrDefault_AddsSingleSpaceBetweenTargetDepartmentTokenAndSuffix()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "İşleme Alındı. {GönderilenBirim}ekiplerce inceleniyor.",
+              "InProgress": "Yapılmakta. {Gönderilen Birim}   ekiplerce inceleniyor.",
+              "Completed": "Tamamlandı. {GönderilenBirim} ekiplerce incelendi.",
+              "Cancelled": "İptal Edildi. {GönderilenBirim}"
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.Contains("{GönderilenBirim} ekiplerce inceleniyor.", templates.ProcessingReceived);
+        Assert.Contains("{GönderilenBirim} ekiplerce inceleniyor.", templates.InProgress);
+        Assert.Contains("{GönderilenBirim} ekiplerce incelendi.", templates.Completed);
+        Assert.EndsWith("{GönderilenBirim} ", templates.Cancelled);
     }
 
     [Fact]

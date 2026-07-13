@@ -2386,3 +2386,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   aşağı doğru büyütmez.
 
 ## STATUS: Round 297 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 298 (Doing — 2026-07-13, GönderilenBirim sonrası otomatik boşluk)
+- [x] `6a54ff14205b7b8aa970da02` / #1598 — Ayarlar > Otomatik Yönlendirme otomatik cevap
+  şablonlarında `{GönderilenBirim}` sonrasına tek ayraç boşluğu otomatik eklenir; eski bitişik veya
+  çok boşluklu kayıtlar backend tarafından tek boşluğa normalleştirilir.
+
+## STATUS: Round 298 complete — backend build + 42 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

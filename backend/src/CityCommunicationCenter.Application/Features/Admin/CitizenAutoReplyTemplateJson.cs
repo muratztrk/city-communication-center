@@ -51,9 +51,21 @@ public static class CitizenAutoReplyTemplateJson
             EnsureTargetDepartmentToken(model.Completed),
             EnsureTargetDepartmentToken(model.Cancelled)));
 
-    private static string EnsureTargetDepartmentToken(string template) =>
-        template.Contains("{GönderilenBirim}", StringComparison.Ordinal)
-            || template.Contains("{Gönderilen Birim}", StringComparison.Ordinal)
-            ? template
-            : $"{template.TrimEnd()} {{GönderilenBirim}}";
+    private static string EnsureTargetDepartmentToken(string template)
+    {
+        foreach (var token in new[] { "{GönderilenBirim}", "{Gönderilen Birim}" })
+        {
+            var tokenIndex = template.IndexOf(token, StringComparison.Ordinal);
+            if (tokenIndex < 0)
+            {
+                continue;
+            }
+
+            var beforeToken = template[..tokenIndex];
+            var afterToken = template[(tokenIndex + token.Length)..].TrimStart();
+            return $"{beforeToken}{{GönderilenBirim}} {afterToken}";
+        }
+
+        return $"{template.TrimEnd()} {{GönderilenBirim}} ";
+    }
 }

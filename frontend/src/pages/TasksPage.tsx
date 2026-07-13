@@ -2441,7 +2441,7 @@ const pageKicker = isMyTasksView
                             />
                           )}
                         </div>
-                        <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+                        <div className="my-request-detail-card my-request-detail-card--attachments routine-task-attachments-card rounded-xl border border-slate-200 bg-white p-4">
                           <MyRequestSectionHeading icon={Paperclip}>
                             {t('attachments.taskSectionTitle', 'Görev Ekleri')}
                           </MyRequestSectionHeading>
@@ -2449,6 +2449,7 @@ const pageKicker = isMyTasksView
                             attachments={taskDetail.attachments ?? []}
                             readOnly={!isEditingThisRoutineTask}
                             compact
+                            displayMode="rich-list"
                             emptyText={t('attachments.routineEmpty', 'Rutin Görev için ek/fotoğraf bulunmamaktadır.')}
                             onUpload={isEditingThisRoutineTask ? handleRoutineTaskAttachmentUpload : undefined}
                             onDelete={isEditingThisRoutineTask ? handleRoutineTaskAttachmentDelete : undefined}

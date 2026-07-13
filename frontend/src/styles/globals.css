@@ -2186,6 +2186,18 @@
     font-size: 0.65625rem !important;
   }
 
+  .detail-modal-shell--my-request .routine-task-attachments-card .attachment-upload-zone button {
+    height: 1.5rem !important;
+    min-height: 1.5rem !important;
+    padding-inline: 0.5rem !important;
+    font-size: 0.625rem !important;
+  }
+
+  .routine-task-attachments-card .attachment-rich-list {
+    justify-self: end;
+    width: 100%;
+  }
+
   .my-request-edit-priority-menu .dropdown-menu-item,
   .my-request-edit-neighborhood-menu .dropdown-menu-item {
     min-height: 2rem;

@@ -7,6 +7,10 @@
 Board: https://trello.com/b/4kvG8aa5 · List: Doing (`69ef9d96d58778f5f9f53ff7`)
 Polling every ~5 min this session. Commit + push to main after each card.
 
+## Round 309 — Rutin görev eki düzeni
+- [x] `6a552d8d` (#1601 fifth reopen) — Rutin görev düzenleme popup'ında Görev Ekleri `Dosya ekle` butonu 1.5rem/10px'e küçültüldü; ekler iki sütunlu rich-list ile sağ kart sınırına hizalandı.
+- [x] Doğrulama: `frontend npm run build` + `npm run lint`.
+
 ## Done
 - [x] `6a525c45` (#1535 reopen) — Onay bekleyen Gelen/Giden Süreç timeline'ına mavi `Durum / Onay Bekleyen` katmanı. Pushed.
 - [x] `6a265aaf` — "Görev Tipi" column in Görevlerim grid (matched Personelimin Görevleri). Pushed.

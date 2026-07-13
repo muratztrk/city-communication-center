@@ -205,6 +205,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   basmadan görüntüleme yüzeyinde görünmez. Taleplerim detayında `Dosya ekle` butonu da
   yalnız `Düzenle` modu açıkken görünür. Boyut bilgisi gizli kalır
   (cards #1199/#1200/#1201/#1204/#1208/#1211).
+  Rutin görev detayının düzenleme modunda `Görev Ekleri`, rich-list'in iki sütunlu düzenini
+  kullanır: 1.5rem/10px `Dosya ekle` solda, mevcut ekler sağ kart sınırına yaslıdır; bu scope
+  Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez (card #1601 fifth reopen).
   Detay popup'larında `Görev Bilgileri > Görev Ekleri` veya `Talep Bilgileri > Talep Ekleri`
   satırında gerçek dosya varsa dosya adının önünde uzantıya göre küçük görsel/doküman ikonu
   bulunur; bağlantı metni altı çizgisizdir ve yalnız dosya uzantısı küçük harfle gösterilir

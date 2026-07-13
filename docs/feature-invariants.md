@@ -654,6 +654,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Durum / Onay Bekleyen` katmanı eklenir (`pending` state, card #1535 reopen). Birime Gelen'de
   `Active` + henüz görev yok kayıtları da aynı mavi Durum katmanını alır
   (`unassignedActiveAsPending`, card #1535).
+  Sahip-birim onayı tamamlanmış fakat hedef-birim onayı bekleyen birim dışı talepte, standart
+  kullanıcı Taleplerim ve Birimden Giden timeline'ı turuncu `Durum`dan hemen sonra mavi
+  `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi / Onay Bekleyen` adımını gösterir;
+  hedef onaylanınca bu sentetik bekleyen adım gösterilmez (cards #1603 reopen/#1606).
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak. Görev
@@ -706,6 +710,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev İptal Notu (card #1530):** job detay `TaskSummaryResponse.RevisionReason` iptal/red
   görevlerde dolu gelir; UI önce `task.revisionReason`, yoksa `detail.cancelReason` gösterir —
   "İptal notu girilmemiş" yalnızca ikisi de boşsa yazılır.
+- **Görevi Birim İçi Yönlendir personel seçimi (card #1607):** native `<select>` değildir;
+  ortak portal tabanlı `SingleSelectDropdown` kullanır. Trigger `Personel seçiniz` metni 12px,
+  açılan seçenekler 12px/2rem satır yüksekliğindedir ve uzun listede standart arama/scroll davranışı korunur.
 - **Açıklama alanı başlıkları:** talep/rutin/vatandaş/e-Devlet açıklama giriş başlıklarında
   `(max 400 karakter) *` ibaresi görünür; RichTextEditor zaten 400 düz-metin karakter sınırını uygular.
 - **Talep oluşturma Açıklama editörü yüksekliği (card #1533):** içerik aşağı uzayınca kutu

@@ -36,6 +36,8 @@ export type BuildJobProcessStepsOptions = {
   hideOwnerApproval?: boolean
   /** Gelen/Giden detayında sahip-birim onayını Durum katmanından önce gösterir. */
   ownerApprovalBeforeStatus?: boolean
+  /** Standart kullanıcı/Giden detayında bekleyen hedef-birim onayını Durum'dan sonra gösterir. */
+  showPendingTargetApprovalAfterStatus?: boolean
   /** Birime Gelen detayında Active + görev yok = mavi Durum/Onay Bekleyen */
   unassignedActiveAsPending?: boolean
 }
@@ -116,6 +118,9 @@ function resolveStepStates(
     if (step.id === 'targetApproval' && targetDecided) {
       return { ...step, state: 'completed' as const }
     }
+    if (step.id === 'targetApproval' && options?.showPendingTargetApprovalAfterStatus && !targetDecided) {
+      return { ...step, state: 'pending' as const }
+    }
     if (foundCurrent) {
       return { ...step, state: 'upcoming' as const }
     }
@@ -180,6 +185,13 @@ export function buildJobProcessSteps(
   ]
   const targetDepartment = detail.departments.find(department => department.role === 'Target')
   const targetDecided = Boolean(targetDepartment?.decidedAtUtc)
+  const showPendingTargetApproval = Boolean(options?.showPendingTargetApprovalAfterStatus)
+    && !isCitizenRequestJob(detail)
+    && detail.requestType === 'ExternalUnit'
+    && Boolean(detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc)
+    && Boolean(targetDepartment)
+    && !targetDecided
+    && detail.status === 'Active'
 
   // Birim yöneticisinin oluşturduğu birim içi/birim dışı aktif taleplerde turuncu "Durum / Yapılmakta"
   // adımı onay beklerken Talep Tarihi'nin hemen arkasına gelir; hedef onaylandıysa hedef onay
@@ -294,6 +306,15 @@ export function buildJobProcessSteps(
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
       displayValue: statusDisplayValue,
+      dateTimeUtc: null,
+    })
+  }
+
+  if (showPendingTargetApproval) {
+    steps.push({
+      id: 'targetApproval',
+      label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
+      displayValue: t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
       dateTimeUtc: null,
     })
   }

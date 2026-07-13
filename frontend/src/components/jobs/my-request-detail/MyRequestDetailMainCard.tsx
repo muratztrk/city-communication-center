@@ -241,7 +241,10 @@ export function MyRequestDetailMainCard({
     if (!isEditing && [priorityLabel, projectLabel].includes(field.label)) return false
     return true
   })
-  const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, { hideOwnerApproval }), [t, detail, locale, hideOwnerApproval])
+  const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, {
+    hideOwnerApproval,
+    showPendingTargetApprovalAfterStatus: !hideOwnerApproval,
+  }), [t, detail, locale, hideOwnerApproval])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
   const requestTypeText = detail.requestType === 'ExternalUnit'
     ? t('jobs.requestType.external', 'Birim Dışı')

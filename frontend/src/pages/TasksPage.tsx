@@ -3253,17 +3253,19 @@ const pageKicker = isMyTasksView
                     {departments.find(d => d.departmentId === returnModal.assignedDepartmentId)?.name ?? '—'}
                   </div>
                 </div>
-                <label className="job-field">
+                <div className="job-field">
                   <span className="job-field-label">{t('tasks.draftUser', 'Kullanıcı (isteğe bağlı)')}</span>
-                  <select className="field-select" value={returnUserId} onChange={e => setReturnUserId(e.target.value)}>
-                    <option value="" disabled hidden>
-                      {t('tasks.userSelection', 'Personel seçiniz')}
-                    </option>
-                    {returnDeptUsers.map(u => (
-                      <option key={u.userId} value={u.userId}>{u.displayName}</option>
-                    ))}
-                  </select>
-                </label>
+                  <SingleSelectDropdown
+                    className="w-full"
+                    triggerClassName="text-xs font-medium"
+                    menuScrollClassName="task-return-user-menu-scroll"
+                    options={returnDeptUsers.map(userOption => ({ value: userOption.userId, label: userOption.displayName }))}
+                    value={returnUserId}
+                    onChange={setReturnUserId}
+                    placeholder={t('tasks.userSelection', 'Personel seçiniz')}
+                    emptyText={t('tasks.noUsers', 'Personel bulunamadı')}
+                  />
+                </div>
                 <div className="inline-actions justify-end">
                   <Button type="button" variant="secondary" onClick={closeReturnModal}>
                     {t('common.exit', 'Çıkış')}

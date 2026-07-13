@@ -2462,3 +2462,14 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   indirildi; scoped `!important` değerlerle genel textarea/button ölçülerinin ezmesi önlendi.
 
 ## STATUS: Round 306 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 307 (Doing — 2026-07-13, hedef onay bekleyen timeline ve yönlendirme dropdown'u)
+- [x] `6a554577321dfc4317795d41` / #1607 — Görevi Birim İçi Yönlendir personel seçimi
+  standart portal tabanlı dropdown'a geçirildi; placeholder ve seçenek metinleri küçültüldü.
+- [x] `6a553b58f44069729941dbca` / #1603 reopen — Birimden Giden timeline'ında hedef-birim
+  onayı bekleniyorsa Durum'dan sonra mavi `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi /
+  Onay Bekleyen` adımı eklendi.
+- [x] `6a55443a329f3c33759c1293` / #1606 — Aynı hedef-onay bekleyen adımı standart kullanıcının
+  Taleplerim Onaylanmış/Yapılmakta detay timeline'ına eklendi.
+
+## STATUS: Round 307 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

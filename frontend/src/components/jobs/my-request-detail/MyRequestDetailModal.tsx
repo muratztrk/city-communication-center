@@ -134,11 +134,8 @@ export function MyRequestDetailModal({
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
-  // Standart kullanıcı görünümünde (card #1549) alt kutucuk grid'i kaldırılır: Talep Ekleri ve
-  // dolu Yönetici Notu, Talep Bilgileri listesine satır olarak girer; Adres Bilgileri Görev
-  // Detayları'nda Süreç'in önüne taşınır. Düzenleme modunda ekler/adres alanları düzenlenebilir
-  // kalsın diye eski kutucuk düzeni korunur.
-  const isStandardUserLayout = !canManageCoordination && !isEditing && !forceCitizenDetailCards
+  // Standart kullanıcıda da Adres Bilgileri ve Talep Ekleri ayrı alt kutular olarak kalır
+  // (card #1602). Yönetici Notu varsa eski davranışla Talep Bilgileri'nin sonunda gösterilir.
   const isStandardUser = !canManageCoordination
 
   return (
@@ -190,23 +187,6 @@ export function MyRequestDetailModal({
           priorityInInfoHeader
           hideProjectRow={forceCitizenDetailCards}
           infoExtraTrailingRows={isStandardUser && !forceCitizenDetailCards ? [
-            ...(!isEditing ? [{
-                label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
-                value: (detail.attachments?.length ?? 0) === 0 ? '—' : (
-                  <div className="flex flex-col items-end gap-1">
-                    {detail.attachments!.map(attachment => (
-                      <button
-                        key={attachment.attachmentId}
-                        type="button"
-                        className="max-w-full truncate text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                        onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
-                      >
-                        {attachment.fileName}
-                      </button>
-                    ))}
-                  </div>
-                ),
-              }] : []),
             ...(showManagerNoteColumn && detail.managerNote?.trim()
               ? [{
                   label: t('jobs.managerNote.title', 'Yönetici Notu'),
@@ -241,8 +221,8 @@ export function MyRequestDetailModal({
             editDraft={editDraft}
             onEditDraftChange={onEditDraftChange}
           />
-        ) : isStandardUserLayout ? null : (
-          <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+        ) : (
+          <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn && !isStandardUser ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
               <MyRequestSectionHeading icon={MapPin}>
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
@@ -316,20 +296,7 @@ export function MyRequestDetailModal({
           detail={detail}
           locale={locale}
           onDownloadTaskAttachment={onDownloadTaskAttachment}
-          hidePlainDescription={hideTaskPlainDescription || isStandardUserLayout}
-          addressColumnContent={isStandardUserLayout ? (
-            <>
-              <MyRequestSectionHeading icon={MapPin}>
-                {t('address.detailSectionTitle', 'Adres Bilgileri')}
-              </MyRequestSectionHeading>
-              <AddressDetailFields
-                variant="stacked"
-                neighborhood={detail.neighborhood}
-                street={detail.street}
-                openAddress={detail.openAddress}
-              />
-            </>
-          ) : undefined}
+          hidePlainDescription={hideTaskPlainDescription || (isStandardUser && !isEditing)}
         />
       </div>
     </section>

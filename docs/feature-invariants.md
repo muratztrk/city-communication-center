@@ -641,10 +641,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif
   yeşil/kırmızı nokta turuncu pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339/#1343).
 - **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;
-  Taleplerim ile aynı `JobProcessTimeline` + `buildJobProcessSteps` kullanılır (`hideOwnerApproval: true`);
+  Taleplerim ile aynı `JobProcessTimeline` + `buildJobProcessSteps` kullanılır;
   Son Tarih Değiştir / Ek süre talebini gör aksiyonları timeline `dueDate` adımında kalır.
-  `hideOwnerApproval` yalnızca sahip-onay adımını gizler; Active birim içi/dışı taleplerde
-  turuncu `Durum` adımı yine gösterilir (card #1535). Onay bekleyen (`PendingOwnerApproval` /
+  Standart kullanıcının birim dışı talebi sahibi-birim yöneticisince onaylandıysa hem Birimden
+  Giden hem Birime Gelen timeline'ında `Talebin Birim Yöneticisinin Onay Tarihi`, `Durum`
+  katmanından önce gösterilir (cards #1603/#1604). Active birim içi/dışı taleplerde turuncu
+  `Durum` adımı gösterilir (card #1535). Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval`) taleplerde Talep Tarihi ile Son Tarih arasına mavi
   `Durum / Onay Bekleyen` katmanı eklenir (`pending` state, card #1535 reopen). Birime Gelen'de
   `Active` + henüz görev yok kayıtları da aynı mavi Durum katmanını alır
@@ -659,18 +661,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aktif görevin düz `Açıklama` kartı gizlenir; terminal Görev Tamamlama/İptal Notu korunur.
 - **Yönetici Taleplerim görev özeti (card #1550):** yalnız Manager/SystemAdmin görünümünde düz
   `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur.
-- **Standart kullanıcı Taleplerim popup düzeni (card #1549 reopen, 2026-07-13):** Manager/
-  Reporter olmayan kullanıcıda ayrı Adres/Yönetici Notu/Talep Ekleri alt kartları gösterilmez:
-  Talep Ekleri ve dolu Yönetici Notu, Talep Bilgileri listesinde `Proje mi` satırından sonra
-  satır olarak girer (Görevlerim #1481/#1538 deseni); Görev Detayları kolon sırası
-  Görev Bilgileri → Adres Bilgileri → terminal not → Süreç olur, düz `Açıklama` kartı gizlenir (terminal
-  tamamlama/iptal notu korunur). Düzenleme modunda ek yükleme/adres alanları için eski
-  kutucuk düzeni geri gelir; Yönetici Notu düzenleme kutusu standart kullanıcıya açılmaz ve
+- **Standart kullanıcı Taleplerim popup düzeni (cards #1549/#1602):** Manager/Reporter olmayan
+  kullanıcıda `Adres Bilgileri` ve `Talep Ekleri` ana talep kartının altında ayrı kutular olarak
+  gösterilir; Talep Ekleri Talep Bilgileri listesinde tekrarlanmaz. Dolu Yönetici Notu,
+  Talep Bilgileri listesinde `Proje mi` satırından sonra kalır. Görev Detayları düz `Açıklama`
+  kartı gizlenir (terminal tamamlama/iptal notu korunur). Düzenleme modunda ek yükleme/adres alanları için eski
+  kutucuklar düzenlenebilir kalır; Yönetici Notu düzenleme kutusu standart kullanıcıya açılmaz ve
   dolu not düzenleme sırasında da Talep Bilgileri'nin son satırında kalır. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
   geçersizdir.)
 - **Talep detay düzenleme kontrolleri kompakttır (card #1601):** detay içi `Düzenle` modunda
-  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 24rem ve 12px;
-  Son Tarih kontrolü en fazla 9rem/12px; `Dosya ekle` butonu 2rem yükseklik ve 12px metindir.
+  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 20rem ve 12px;
+  Son Tarih kontrolü tam placeholder için en fazla 12rem/12px; `Dosya ekle` butonu 1.75rem
+  yükseklik ve 11px metindir (card #1601 reopen).
   Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç

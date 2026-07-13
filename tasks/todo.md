@@ -2436,3 +2436,15 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   scope edildi.
 
 ## STATUS: Round 303 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 304 (Doing — 2026-07-13, standart alt kutular ve timeline sahip onayı)
+- [x] `6a5539608d238e87bf65c76b` / #1602 — Standart kullanıcı Taleplerim detayına ayrı
+  `Adres Bilgileri` ve `Talep Ekleri` kutuları eklendi; satır içi ek/adres tekrarları kaldırıldı.
+- [x] `6a552d8db1c587ac7329feda` / #1601 reopen — Başlık textarea'sı daha da daraltıldı,
+  Son Tarih placeholder'ı tam görünecek biçimde genişletildi ve `Dosya ekle` yeniden küçültüldü.
+- [x] `6a553b58f44069729941dbca` / #1603 — Birimden Giden onaylanmış talep timeline'ında
+  `Talebin Birim Yöneticisinin Onay Tarihi`, `Durum` katmanından önce gösterilir.
+- [x] `6a553d8c906cf19dfb2cb4db` / #1604 — Birime Gelen hedef-onay bekleyen talep timeline'ında
+  sahip-birim yönetici onayı, `Durum / Onay Bekleyen` katmanından önce gösterilir.
+
+## STATUS: Round 304 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

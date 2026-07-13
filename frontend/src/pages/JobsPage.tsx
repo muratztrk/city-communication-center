@@ -2441,7 +2441,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(() => {
                       // Birime Gelen / Birimden Giden Süreç kolonu Taleplerim timeline tasarımını kullanır (card #1527).
                       const processSteps = buildJobProcessSteps(t, detail, locale, {
-                        hideOwnerApproval: true,
+                        hideOwnerApproval: false,
+                        ownerApprovalBeforeStatus: true,
                         // Birime Gelen: Active + görev yok da UI'da Onay Bekleyen (card #1535).
                         unassignedActiveAsPending: isIncomingRequestDetail,
                       })

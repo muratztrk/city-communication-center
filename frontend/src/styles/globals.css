@@ -2150,7 +2150,7 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit__textarea {
-    width: min(92%, 24rem);
+    width: min(80%, 20rem);
     min-height: 1.75rem;
     max-height: 4.25rem;
     padding: 0.25rem 0.45rem;
@@ -2163,7 +2163,7 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date {
-    max-width: 9rem;
+    max-width: 12rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date .field-input {
@@ -2174,9 +2174,9 @@
   }
 
   .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button {
-    height: 2rem;
-    padding-inline: 0.75rem;
-    font-size: 0.75rem;
+    height: 1.75rem;
+    padding-inline: 0.625rem;
+    font-size: 0.6875rem;
   }
 
   .my-request-edit-priority-menu .dropdown-menu-item,

@@ -28,12 +28,14 @@ function shouldShowPendingStatusLayer(
   detail: JobDetail,
   options?: BuildJobProcessStepsOptions,
 ): boolean {
-  if (!options?.hideOwnerApproval) return false
+  if (!options?.hideOwnerApproval && !options?.ownerApprovalBeforeStatus) return false
   return isPendingApprovalJobStatus(detail.status) || isUnassignedActivePending(detail, options)
 }
 
 export type BuildJobProcessStepsOptions = {
   hideOwnerApproval?: boolean
+  /** Gelen/Giden detayında sahip-birim onayını Durum katmanından önce gösterir. */
+  ownerApprovalBeforeStatus?: boolean
   /** Birime Gelen detayında Active + görev yok = mavi Durum/Onay Bekleyen */
   unassignedActiveAsPending?: boolean
 }
@@ -195,6 +197,7 @@ export function buildJobProcessSteps(
   const statusStepEarly = managerCreatedActive
     && !wasRecoveredFromCancellation(detail)
     && !(detail.requestType === 'ExternalUnit' && targetDecided)
+    && !options?.ownerApprovalBeforeStatus
   if (statusStepEarly && !isTerminalStatus(detail.status)) {
     steps.push({
       id: 'status',
@@ -204,9 +207,10 @@ export function buildJobProcessSteps(
     })
   }
 
-  // Gelen/Giden (hideOwnerApproval): onay bekleyen talepte Durum katmanını Talep Tarihi'nin
+  // Sahip onayı gizlenen eski tüketicilerde onay bekleyen Durum katmanını Talep Tarihi'nin
   // hemen arkasına koy — yönetici-oluşturmadıysa statusStepEarly kaçırırdı (card #1535).
-  if (!statusStepEarly && pendingStatusLayer && !isTerminalStatus(detail.status)) {
+  // Gelen/Giden yeni düzeninde ownerApprovalBeforeStatus bu adımı sahip onayının arkasına erteler.
+  if (!statusStepEarly && pendingStatusLayer && !options?.ownerApprovalBeforeStatus && !isTerminalStatus(detail.status)) {
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
@@ -226,6 +230,15 @@ export function buildJobProcessSteps(
       displayValue: formatDueDateTime(ownerDepartment?.decidedAtUtc ?? null, locale),
       displayMeta: ownerApprovalActor ?? undefined,
       dateTimeUtc: ownerDepartment?.decidedAtUtc ?? null,
+    })
+  }
+
+  if (!statusStepEarly && pendingStatusLayer && options?.ownerApprovalBeforeStatus && !isTerminalStatus(detail.status)) {
+    steps.push({
+      id: 'status',
+      label: t('jobs.columns.status', 'Durum'),
+      displayValue: t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+      dateTimeUtc: null,
     })
   }
 

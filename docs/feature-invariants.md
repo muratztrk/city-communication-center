@@ -432,6 +432,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birim altında, küçük `Kurum İçi Mesajlar` etiketi
   sağa yaslıdır. Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
   balonundan bir kademe küçüktür (`text-xs` / `px-2.5 py-1.5`).
+- **Kurum İçi Mesajlar kapatma hover'ı (card #1590):** panel sağ üst X butonu hover'da
+  standart açık kırmızı zemin (`red-50`) ve kırmızı ikon (`red-600`) kullanır.
 - **Kurum içi gönderen italik ayrımı (card #1564 reopen):** Kurum İçi Mesajlaşma FAB sohbet
   balonunda personel ve birim normal stildedir; WhatsApp kurum içi mesaj balonunda yalnız personel
   adı italiktir. Mevcut `Birim · Ad Soyad` sırası korunur.
@@ -627,6 +629,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak. Görev
   Tamamlama/İptal Notu (ya da aktif görev Açıklaması) Süreç kartının önünde yer alır.
+- **Görevlerim ailesi ilgili talep birleşik etiketi (card #1589):** Görevlerim, Birimdeki Görevler
+  ve Personelimin Görevleri popup'larında başlık `Öncelik / Proje mi` biçimindedir; sonunda `?` yoktur.
 - **Birime Gelen Görev Detayları açıklaması (card #1584):** yalnız Birime Gelen detay popup'ında
   aktif görevin düz `Açıklama` kartı gizlenir; terminal Görev Tamamlama/İptal Notu korunur.
 - **Yönetici Taleplerim görev özeti (card #1550):** yalnız Manager/SystemAdmin görünümünde düz

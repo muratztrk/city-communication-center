@@ -1428,6 +1428,7 @@
       "requestInfo": "Request Details",
       "requestInfoFields": "Request Info",
       "processTitle": "Process",
+      "priorityProject": "Priority / Project",
       "requestDate": "Request Date",
       "ownerManagerApprovalDate": "Owner Unit Manager Approval Date",
       "targetManagerApprovalDate": "Target Unit Manager Approval Date",

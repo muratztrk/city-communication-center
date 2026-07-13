@@ -2320,3 +2320,12 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   satırı form çevirisi yerine `jobs.columns.project` kullanır ve kesin olarak `Proje mi` görünür.
 
 ## STATUS: Round 289 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 290 (Doing — 2026-07-13, mesaj X hover ve görev proje etiketi)
+- [x] `6a54b9757f6012159fbb8da6` / #1590 — Kurum İçi Mesajlar panel sağ üst X butonu
+  hover'da açık kırmızı zemin ve kırmızı ikon kullanır.
+- [x] `6a54b89550b4bb947b23d404` / #1589 — Görevlerim/Birimdeki Görevler/Personelimin Görevleri
+  İlgili Talep Detayları birleşik etiketi `Öncelik / Proje mi`; soru işareti kaldırıldı ve tr/en
+  çeviri anahtarı açıkça tanımlandı.
+
+## STATUS: Round 290 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

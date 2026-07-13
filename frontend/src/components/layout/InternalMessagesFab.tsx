@@ -348,7 +348,7 @@ export function InternalMessagesFab() {
             ) : null}
             <button
               type="button"
-              className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
+              className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600"
               aria-label={t('common.close', 'Kapat')}
               onClick={closePanel}
             >

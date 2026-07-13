@@ -458,7 +458,8 @@ export function CreateRequestPage() {
           .map(department => department.departmentId)
         setEditSocialMessageId(message.socialMessageId)
         setCitizenConversationId(message.citizenConversationId ?? null)
-        if (message.citizenConversationId) {
+        setCitizenLabel(message.category ?? '')
+        if (message.citizenConversationId && !message.category) {
           void api.getCitizenConversationDetail(message.citizenConversationId)
             .then(detail => { if (!cancelled) setCitizenLabel(detail.label ?? '') })
             .catch(() => {})
@@ -495,7 +496,8 @@ export function CreateRequestPage() {
         if (cancelled || !message) return
         setEditSocialMessageId(message.socialMessageId)
         setCitizenConversationId(message.citizenConversationId ?? null)
-        if (message.citizenConversationId) {
+        setCitizenLabel(message.category ?? '')
+        if (message.citizenConversationId && !message.category) {
           void api.getCitizenConversationDetail(message.citizenConversationId)
             .then(detail => { if (!cancelled) setCitizenLabel(detail.label ?? '') })
             .catch(() => {})
@@ -922,6 +924,7 @@ export function CreateRequestPage() {
           channel: citizenForm.channel,
           citizenHandle: trimmedName,
           content: citizenForm.content.trim(),
+          category: citizenLabel.trim() || undefined,
         })
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
         invalidateJobs(queryClient, editJobId)
@@ -951,6 +954,12 @@ export function CreateRequestPage() {
       }
 
       if (linkedSocialMessageId) {
+        await api.updateSocialMessage(linkedSocialMessageId, {
+          channel: citizenForm.channel,
+          citizenHandle: trimmedName,
+          content: citizenForm.content.trim(),
+          category: citizenLabel.trim() || undefined,
+        })
         await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
       } else {
@@ -958,6 +967,7 @@ export function CreateRequestPage() {
           channel: citizenForm.channel,
           citizenHandle: trimmedName,
           content: citizenForm.content.trim(),
+          category: citizenLabel.trim() || undefined,
         })
         await api.convertSocialMessageToJob(socialMessageId, convertPayload)
         invalidateSocialMessages(queryClient, socialMessageId)

@@ -40,10 +40,11 @@ public sealed class ReportsController : ApiControllerBase
         CancellationToken cancellationToken,
         [FromQuery] TaskDashboardFilter staffTaskType = TaskDashboardFilter.All,
         [FromQuery] TaskDashboardFilter departmentTaskType = TaskDashboardFilter.All,
-        [FromQuery] TaskDashboardFilter myTaskType = TaskDashboardFilter.All)
+        [FromQuery] TaskDashboardFilter myTaskType = TaskDashboardFilter.All,
+        [FromQuery] RequestTagDashboardFilter requestTagStatus = RequestTagDashboardFilter.All)
     {
         var response = await _sender.Send(new GetDashboardStatusChartsQuery(
-            from, to, staffTaskType, departmentTaskType, myTaskType), cancellationToken);
+            from, to, staffTaskType, departmentTaskType, myTaskType, requestTagStatus), cancellationToken);
         return Ok(response);
     }
 

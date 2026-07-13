@@ -6,13 +6,15 @@ namespace CityCommunicationCenter.Application.Features.Reports;
 
 /// <summary>Builds the manager dashboard's status-based task and request summaries.</summary>
 public enum TaskDashboardFilter { All, Assigned, Routine }
+public enum RequestTagDashboardFilter { All, InProgress, Completed }
 
 public sealed record GetDashboardStatusChartsQuery(
     DateTimeOffset? FromUtc,
     DateTimeOffset? ToUtc,
     TaskDashboardFilter StaffTaskType = TaskDashboardFilter.All,
     TaskDashboardFilter DepartmentTaskType = TaskDashboardFilter.All,
-    TaskDashboardFilter MyTaskType = TaskDashboardFilter.All)
+    TaskDashboardFilter MyTaskType = TaskDashboardFilter.All,
+    RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All)
     : IQuery<DashboardStatusChartsResponse>;
 
 public sealed class GetDashboardStatusChartsQueryHandler
@@ -362,6 +364,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
                         && job.DueDateUtc.HasValue
                         && job.DueDateUtc.Value < now))), cancellationToken);
             charts.Add(BuildCitizenRequestsChart(citizenJobs, now));
+            charts.Add(await BuildRequestTagChartAsync(tenantId, request, cancellationToken));
         }
 
         // Üst Düzey Yönetici (Reporter) tenant genelinde birim-dışı talep dağılımını görür (card #835, #763).
@@ -390,6 +393,79 @@ public sealed class GetDashboardStatusChartsQueryHandler
         }
 
         return new DashboardStatusChartsResponse(charts);
+    }
+
+    private async Task<DashboardChartResponse> BuildRequestTagChartAsync(
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var jobs = _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+        jobs = request.RequestTagStatus switch
+        {
+            RequestTagDashboardFilter.InProgress => jobs.Where(job => job.Status == JobStatus.Active),
+            RequestTagDashboardFilter.Completed => jobs.Where(job => job.Status == JobStatus.Completed),
+            _ => jobs,
+        };
+
+        var taggedRows = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(message => message.TenantId == tenantId && message.JobId.HasValue)
+            .Join(
+                jobs,
+                message => message.JobId!.Value,
+                job => job.JobId,
+                (message, job) => new
+                {
+                    job.JobId,
+                    message.Category,
+                    ConversationLabel = message.CitizenConversationId.HasValue
+                        ? _dbContext.CitizenConversations
+                            .AsNoTracking()
+                            .Where(conversation => conversation.CitizenConversationId == message.CitizenConversationId.Value)
+                            .Select(conversation => conversation.Label)
+                            .FirstOrDefault()
+                        : null,
+                })
+            .ToListAsync(cancellationToken);
+
+        var tagsByJob = taggedRows
+            .Select(row => new
+            {
+                row.JobId,
+                Tag = string.IsNullOrWhiteSpace(row.Category) ? row.ConversationLabel : row.Category,
+            })
+            .Where(row => !string.IsNullOrWhiteSpace(row.Tag))
+            .GroupBy(row => row.JobId)
+            .Select(group => group.Select(row => row.Tag!.Trim()).First())
+            .ToList();
+        var configuredTags = await _dbContext.RequestTags
+            .AsNoTracking()
+            .Where(tag => tag.TenantId == tenantId && tag.Name != "")
+            .OrderBy(tag => tag.Name)
+            .Select(tag => tag.Name)
+            .ToListAsync(cancellationToken);
+        var countsByTag = tagsByJob
+            .GroupBy(tag => tag, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.OrdinalIgnoreCase);
+        var labels = configuredTags
+            .Select(tag => tag.Trim())
+            .Concat(tagsByJob)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(tag => tag, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+        var colorHints = new[] { "primary", "success", "info", "warning", "orange", "danger", "neutral" };
+        var slices = labels
+            .Select((label, index) => new DashboardChartSlice(
+                label,
+                countsByTag.GetValueOrDefault(label),
+                colorHints[index % colorHints.Length]))
+            .ToArray();
+
+        return new DashboardChartResponse("dashboard.charts.requestTags", slices);
     }
 
     /// <summary>

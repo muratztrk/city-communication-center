@@ -400,11 +400,18 @@
       "neighborhoodCompletedRequests": "Mahallelerde Tamamlanan Talepler",
       "neighborhoodInProgressRequests": "Mahallelerde Yapılmakta Olan Talepler",
       "requestPriority": "Talep Önceliği",
-      "requestPriorityAll": "Talep Öncelik Durumu"
+      "requestPriorityAll": "Talep Öncelik Durumu",
+      "requestTags": "Talep Etiketi"
     },
     "taskFilter": {
       "assigned": "Atanmış",
       "routine": "Rutin",
+      "all": "Tümü"
+    },
+    "requestTagFilter": {
+      "label": "Talep durumu",
+      "inProgress": "Yapılmakta Olan",
+      "completed": "Tamamlanan",
       "all": "Tümü"
     },
     "citizenChannels": {

@@ -158,14 +158,15 @@ export const api = {
     return response.json() as Promise<DashboardChartResponse>
   },
 
-  async getDashboardStatusCharts(from?: string, to?: string, taskTypes?: { staff: string; department: string; mine: string }): Promise<DashboardStatusChartsResponse> {
+  async getDashboardStatusCharts(from?: string, to?: string, filters?: { staff: string; department: string; mine: string; requestTagStatus?: string }): Promise<DashboardStatusChartsResponse> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)
     if (to) params.set('to', to)
-    if (taskTypes) {
-      params.set('staffTaskType', taskTypes.staff)
-      params.set('departmentTaskType', taskTypes.department)
-      params.set('myTaskType', taskTypes.mine)
+    if (filters) {
+      params.set('staffTaskType', filters.staff)
+      params.set('departmentTaskType', filters.department)
+      params.set('myTaskType', filters.mine)
+      if (filters.requestTagStatus) params.set('requestTagStatus', filters.requestTagStatus)
     }
     const qs = params.toString()
     const url = `${API_BASE}/reports/dashboard-status-charts${qs ? `?${qs}` : ''}`
@@ -909,6 +910,7 @@ export const api = {
       updatedAtUtc: detail.updatedAtUtc ?? null,
       latitude: detail.latitude,
       longitude: detail.longitude,
+      citizenConversationId: detail.citizenConversationId ?? null,
     }
   },
 

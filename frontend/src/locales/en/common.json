@@ -398,11 +398,18 @@
       "neighborhoodCompletedRequests": "Completed Requests by Neighborhood",
       "neighborhoodInProgressRequests": "In-Progress Requests by Neighborhood",
       "requestPriority": "Request Priority",
-      "requestPriorityAll": "Request Priority Status"
+      "requestPriorityAll": "Request Priority Status",
+      "requestTags": "Request Tags"
     },
     "taskFilter": {
       "assigned": "Assigned",
       "routine": "Routine",
+      "all": "All"
+    },
+    "requestTagFilter": {
+      "label": "Request status",
+      "inProgress": "In Progress",
+      "completed": "Completed",
       "all": "All"
     },
     "citizenChannels": {

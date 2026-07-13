@@ -25,6 +25,7 @@ interface MetricCard {
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
 type TaskChartFilter = 'all' | 'assigned' | 'routine'
+type RequestTagChartFilter = 'all' | 'inProgress' | 'completed'
 type TaskChartKey = 'dashboard.charts.staffTasks' | 'dashboard.charts.departmentTasks' | 'dashboard.charts.myTasks'
 
 const TASK_CHART_KEYS = new Set<TaskChartKey>([
@@ -198,6 +199,7 @@ export function DashboardPage() {
     'dashboard.charts.departmentTasks': 'all',
     'dashboard.charts.myTasks': 'all',
   })
+  const [requestTagChartFilter, setRequestTagChartFilter] = useState<RequestTagChartFilter>('all')
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
   const activeDeptId = getActiveDepartmentId()
 
@@ -257,11 +259,13 @@ export function DashboardPage() {
       staffTaskType: taskChartFilters['dashboard.charts.staffTasks'],
       departmentTaskType: taskChartFilters['dashboard.charts.departmentTasks'],
       myTaskType: taskChartFilters['dashboard.charts.myTasks'],
+      requestTagStatus: requestTagChartFilter,
     }),
     queryFn: () => api.getDashboardStatusCharts(activeFrom || undefined, activeTo || undefined, {
       staff: taskChartFilters['dashboard.charts.staffTasks'],
       department: taskChartFilters['dashboard.charts.departmentTasks'],
       mine: taskChartFilters['dashboard.charts.myTasks'],
+      requestTagStatus: requestTagChartFilter,
     }),
     enabled: true,
     refetchInterval: 60_000,
@@ -520,6 +524,7 @@ export function DashboardPage() {
               || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
+            const isRequestTagReadOnly = card.titleKey === 'dashboard.charts.requestTags'
             const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343).
             const isDrilldownChart = isReporter && DRILLDOWN_CHART_KEYS.has(card.titleKey)
@@ -562,10 +567,27 @@ export function DashboardPage() {
                     })}
                   </div>
                 )}
+                {card.titleKey === 'dashboard.charts.requestTags' && (
+                  <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('dashboard.requestTagFilter.label', 'Talep durumu')}>
+                    {(['inProgress', 'completed', 'all'] as const).map(filter => {
+                      const active = requestTagChartFilter === filter
+                      return (
+                        <button
+                          key={filter}
+                          type="button"
+                          onClick={() => setRequestTagChartFilter(filter)}
+                          className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${active ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                        >
+                          {t(`dashboard.requestTagFilter.${filter}`, { inProgress: 'Yapılmakta Olan', completed: 'Tamamlanan', all: 'Tümü' }[filter])}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
               <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isDrilldownChart ? slice => {
                 setChartDrilldown({ chartKey: card.titleKey, sliceKey: slice.label })
-              } : isExternalDrilldownOnlyChart ? undefined : slice => {
+              } : isExternalDrilldownOnlyChart || isRequestTagReadOnly ? undefined : slice => {
                 const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange)
                 if (route) navigate(route)
               }} isSliceSelectable={isDrilldownChart || isExternalDrilldownOnlyChart

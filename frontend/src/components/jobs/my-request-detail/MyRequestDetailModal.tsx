@@ -71,6 +71,7 @@ export interface MyRequestDetailModalProps {
   // Taleplerim'e özgü konum/oluşturan stack'i ve hedef birim/görevi yapan ayrımı (cards #1460/#1592).
   useMyRequestsFieldLayout?: boolean
   hideTaskPlainDescription?: boolean
+  forceCitizenDetailCards?: boolean
 }
 
 export function MyRequestDetailModal({
@@ -129,6 +130,7 @@ export function MyRequestDetailModal({
   onCancelEdit,
   useMyRequestsFieldLayout = false,
   hideTaskPlainDescription = false,
+  forceCitizenDetailCards = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
@@ -136,7 +138,7 @@ export function MyRequestDetailModal({
   // dolu Yönetici Notu, Talep Bilgileri listesine satır olarak girer; Adres Bilgileri Görev
   // Detayları'nda Süreç'in önüne taşınır. Düzenleme modunda ekler/adres alanları düzenlenebilir
   // kalsın diye eski kutucuk düzeni korunur.
-  const isStandardUserLayout = !canManageCoordination && !isEditing
+  const isStandardUserLayout = !canManageCoordination && !isEditing && !forceCitizenDetailCards
   const isStandardUser = !canManageCoordination
 
   return (
@@ -185,7 +187,9 @@ export function MyRequestDetailModal({
           onEditDraftChange={onEditDraftChange}
           useMyRequestsFieldLayout={useMyRequestsFieldLayout}
           separatePriorityProjectRows
-          infoExtraTrailingRows={isStandardUser ? [
+          priorityInInfoHeader
+          hideProjectRow={forceCitizenDetailCards}
+          infoExtraTrailingRows={isStandardUser && !forceCitizenDetailCards ? [
             ...(!isEditing ? [{
                 label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
                 value: (detail.attachments?.length ?? 0) === 0 ? '—' : (

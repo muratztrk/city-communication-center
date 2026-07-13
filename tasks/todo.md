@@ -2393,3 +2393,15 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   çok boşluklu kayıtlar backend tarafından tek boşluğa normalleştirilir.
 
 ## STATUS: Round 298 complete — backend build + 42 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 299 (Doing — 2026-07-13, detay başlık metaları ve vatandaş alt kartları)
+- [x] `6a54ff14205b7b8aa970da02` / #1598 reopen — `{GönderilenBirim}` sonrasındaki ayraç,
+  kayıt normalizasyonuna ek olarak gerçek otomatik mesaj üretilirken de tek boşluk olarak garanti edildi;
+  bitişik/eski token biçimleri testlerle kapsandı.
+- [x] `6a55022d276ab5aea465d3ff` / #1599 — Taleplerim, Birime Gelen ve Birimden Giden detaylarında
+  Öncelik bilgisi Talep Bilgileri başlığının sağ sınırına, etiketi üstte/değeri altta taşındı;
+  vatandaş kanal bilgisi bunun solunda korundu.
+- [x] `6a54afa0e6e0465ecdd94fe8` / #1587 — Vatandaş Talepleri detayında Proje mi ve satır içi
+  Talep Ekleri kaldırıldı; Adres Bilgileri ile Talep Ekleri ayrı kutular olarak gösterildi.
+
+## STATUS: Round 299 complete — backend build + 45 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

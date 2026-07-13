@@ -2169,6 +2169,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onSaveEdit={() => void handleSaveMyRequestEdit()}
               onCancelEdit={cancelMyRequestEdit}
               useMyRequestsFieldLayout
+              forceCitizenDetailCards={detailContext === 'social'}
             />
           ) : (
           <section
@@ -2360,16 +2361,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
                       <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
                         <span>{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
-                        {/* Vatandaş kanalı: başlık satırında sağa hizalı ikon + kanal adı (card #1532). */}
-                        {isCitizenRequestDetail ? (
-                          <span
-                            className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold"
-                            style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? 'WhatsApp') }}
-                          >
-                            <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
-                            {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
+                        <span className="ml-auto flex shrink-0 items-center gap-3">
+                          {/* Vatandaş kanalı öncelik bilgisinin solunda kalır (cards #1532/#1599). */}
+                          {isCitizenRequestDetail ? (
+                            <span
+                              className="inline-flex items-center gap-1 text-xs font-semibold"
+                              style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? 'WhatsApp') }}
+                            >
+                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                              {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
+                            </span>
+                          ) : null}
+                          <span className="flex flex-col items-end text-right leading-tight">
+                            <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
+                            <span className="text-xs font-semibold text-slate-900">{getPriorityLabel(t, detail.priority)}</span>
                           </span>
-                        ) : null}
+                        </span>
                       </span>
                     </MyRequestSectionHeading>
                     <div className="my-request-detail-fields divide-y divide-slate-100">
@@ -2398,7 +2405,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: 'Talep Yapılan Birim',
                         value: formatJobDestinationsWithAssignees(detail, false, false),
                       },
-                      { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                     ] : [
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
@@ -2420,7 +2426,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: formatJobDestinationsWithAssignees(detail, false, false),
                       },
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
-                      { label: 'Öncelik', value: getPriorityLabel(t, detail.priority) },
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (
                       <div key={label} className="job-detail-field-row job-detail-field-row--request-info">

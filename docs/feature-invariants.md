@@ -237,9 +237,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yaklaşık `70.25vw` / `84.3rem` genişlik ve `80.7dvh` / `46.85rem` yükseklik.
   JobsPage/TasksPage detay popupları da aynı ortak `.detail-modal-shell` ölçüsünü kullanır;
   detay modal boyutlarını sayfa bazında yeniden ayrıştırma.
-  Taleplerim salt-okunur Talep Bilgileri listesinde `Proje mi` ve `Öncelik` birleşik değildir;
-  önce `Proje mi`, hemen alt satırda `Öncelik` gösterilir; proje başlığı formdaki
-  `Proje niteliğinde mi?` çevirisini kullanmaz (card #1586 reopen).
+  Taleplerim salt-okunur Talep Bilgileri listesinde `Proje mi` ayrı satırdır ve formdaki
+  `Proje niteliğinde mi?` çevirisini kullanmaz; `Öncelik` ise Talep Bilgileri başlığının sağ
+  sınırında etiketi üstte, değeri altta olacak biçimde gösterilir (cards #1586/#1599).
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
   etiketi tek satır kalır ve atanmış kullanıcı yoksa değer kısmında `Birim / -` gösterir; `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak / Bulvar` ve `Açık Adres` üçlü yan yana durur; adres etiketleri
@@ -525,7 +525,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1594 reopen).
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   eski bitişik veya çok boşluklu kayıtlar okunurken/yazılırken tek boşluğa normalleştirilir
-  (card #1598). Kullanıcının ikinci textarea'da ayrıca başına boşluk yazması gerekmez.
+  ve mesaj üretilirken de gerçek hedef birim ile devam metni arasındaki tek boşluk son kez garanti
+  edilir (card #1598 reopen). Kullanıcının ikinci textarea'da ayrıca başına boşluk yazması gerekmez.
   İptal alanının görsel
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
@@ -660,7 +661,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Açıklama` kartı gizlenir; terminal tamamlama/iptal notu korunur.
 - **Standart kullanıcı Taleplerim popup düzeni (card #1549 reopen, 2026-07-13):** Manager/
   Reporter olmayan kullanıcıda ayrı Adres/Yönetici Notu/Talep Ekleri alt kartları gösterilmez:
-  Talep Ekleri ve dolu Yönetici Notu, Talep Bilgileri listesinde `Proje mi` ve `Öncelik` satırlarından sonra
+  Talep Ekleri ve dolu Yönetici Notu, Talep Bilgileri listesinde `Proje mi` satırından sonra
   satır olarak girer (Görevlerim #1481/#1538 deseni); Görev Detayları kolon sırası
   Görev Bilgileri → Adres Bilgileri → terminal not → Süreç olur, düz `Açıklama` kartı gizlenir (terminal
   tamamlama/iptal notu korunur). Düzenleme modunda ek yükleme/adres alanları için eski
@@ -682,6 +683,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `(max 100 karakter) *` gösterilir.
 - **Vatandaş kanalı Birime Gelen detayda (card #1532):** `Talep Bilgileri` başlık satırının sağında
   kanal ikonu + kanal adı; metin rengi ikon rengiyle aynı (`getChannelLabelColor`).
+- **Talep detay öncelik başlığı (card #1599):** Taleplerim, Birime Gelen ve Birimden Giden
+  detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
+  üstte, değeri altta görünür. Vatandaş kanal ikonu/adı varsa bu bloğun solunda kalır.
+- **Vatandaş Talepleri detay alt kartları (card #1587):** salt-okunur vatandaş detayında
+  `Proje mi` ve `Talep Ekleri` Talep Bilgileri satırlarında görünmez; `Adres Bilgileri` ile
+  `Talep Ekleri` kendi başlıklı kutuları olarak ana kartın altında gösterilir.
 - **Görev İptal Notu (card #1530):** job detay `TaskSummaryResponse.RevisionReason` iptal/red
   görevlerde dolu gelir; UI önce `task.revisionReason`, yoksa `detail.cancelReason` gösterir —
   "İptal notu girilmemiş" yalnızca ikisi de boşsa yazılır.

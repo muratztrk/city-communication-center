@@ -18,12 +18,14 @@ import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime } from './format'
-import { getPriorityLabel } from '../../../utils/localization'
+import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 import { formatJobDisplayNumberText } from '../../../utils/requestNumberText'
 import { formatCitizenRequestNumber, isCitizenRequestJob } from '../../../utils/citizenRequests'
+import { getChannelLabelColor } from '../../../utils/channelColors'
+import { ChannelIcon } from '../../ui/channel-icon'
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -49,6 +51,8 @@ interface MyRequestInfoFieldsListProps {
   onEditDraftChange?: (patch: Partial<MyRequestEditDraft>) => void
   priorityOptions?: { value: string; label: string }[]
   separatePriorityProjectRows?: boolean
+  hidePriorityRow?: boolean
+  hideProjectRow?: boolean
   // Görevlerim popup'ında (İlgili Talep Detayları) Ekler/Fotoğraflar artık ayrı kart değil,
   // Öncelik/Proje mi? satırının hemen altında aynı hizada gösterilir (card #1481). Talep Ekleri'nden
   // sonra veri varsa Yönetici Notu satırı da aynı listede eklenebilir (card #1538).
@@ -64,6 +68,8 @@ export function MyRequestInfoFieldsList({
   onEditDraftChange,
   priorityOptions,
   separatePriorityProjectRows = false,
+  hidePriorityRow = false,
+  hideProjectRow = false,
   extraTrailingRows,
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
@@ -90,16 +96,20 @@ export function MyRequestInfoFieldsList({
           </div>
         </div>
       ))}
-      {!isEditing && (separatePriorityProjectRows ? (
+      {!isEditing && (separatePriorityProjectRows || hidePriorityRow || hideProjectRow ? (
         <>
-          <div className="job-detail-field-row job-detail-field-row--request-info">
-            <div className="job-detail-field-row__label">{t('jobs.columns.project', 'Proje mi')}</div>
-            <div className="job-detail-field-row__value"><JobProjectValue job={detail} t={t} /></div>
-          </div>
-          <div className="job-detail-field-row job-detail-field-row--request-info">
-            <div className="job-detail-field-row__label">{t('jobs.columns.priority', 'Öncelik')}</div>
-            <div className="job-detail-field-row__value">{getPriorityLabel(t, detail.priority)}</div>
-          </div>
+          {!hideProjectRow ? (
+            <div className="job-detail-field-row job-detail-field-row--request-info">
+              <div className="job-detail-field-row__label">{t('jobs.columns.project', 'Proje mi')}</div>
+              <div className="job-detail-field-row__value"><JobProjectValue job={detail} t={t} /></div>
+            </div>
+          ) : null}
+          {!hidePriorityRow ? (
+            <div className="job-detail-field-row job-detail-field-row--request-info">
+              <div className="job-detail-field-row__label">{t('jobs.columns.priority', 'Öncelik')}</div>
+              <div className="job-detail-field-row__value">{getPriorityLabel(t, detail.priority)}</div>
+            </div>
+          ) : null}
         </>
       ) : (
         <div className="job-detail-field-row job-detail-field-row--request-info">
@@ -169,6 +179,8 @@ interface MyRequestDetailMainCardProps {
   // altında Talep Bilgileri listesine satır olarak eklenir (card #1549, Görevlerim #1481/#1538 deseni).
   infoExtraTrailingRows?: { label: ReactNode; value: ReactNode }[]
   separatePriorityProjectRows?: boolean
+  priorityInInfoHeader?: boolean
+  hideProjectRow?: boolean
 }
 
 export function MyRequestDetailMainCard({
@@ -203,6 +215,8 @@ export function MyRequestDetailMainCard({
   onEditDraftChange,
   infoExtraTrailingRows,
   separatePriorityProjectRows = false,
+  priorityInInfoHeader = false,
+  hideProjectRow = false,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -382,8 +396,27 @@ export function MyRequestDetailMainCard({
         <div className={secondColumnClass}>
           {middleColumnOverride ?? (
             <>
-              <MyRequestSectionHeading icon={Info}>
-                {t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}
+              <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
+                <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <span>{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
+                  <span className="ml-auto flex shrink-0 items-center gap-3">
+                    {isCitizenRequestJob(detail) ? (
+                      <span
+                        className="inline-flex items-center gap-1 text-xs font-semibold"
+                        style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? 'WhatsApp') }}
+                      >
+                        <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                        {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
+                      </span>
+                    ) : null}
+                    {priorityInInfoHeader && !isEditing ? (
+                      <span className="flex flex-col items-end text-right leading-tight">
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
+                        <span className="text-xs font-semibold text-slate-900">{getPriorityLabel(t, detail.priority)}</span>
+                      </span>
+                    ) : null}
+                  </span>
+                </span>
               </MyRequestSectionHeading>
               <MyRequestInfoFieldsList
                 fields={visibleFields}
@@ -394,6 +427,8 @@ export function MyRequestDetailMainCard({
                 onEditDraftChange={onEditDraftChange}
                 priorityOptions={priorityOptions}
                 separatePriorityProjectRows={separatePriorityProjectRows}
+                hidePriorityRow={priorityInInfoHeader}
+                hideProjectRow={hideProjectRow}
                 extraTrailingRows={infoExtraTrailingRows}
               />
             </>

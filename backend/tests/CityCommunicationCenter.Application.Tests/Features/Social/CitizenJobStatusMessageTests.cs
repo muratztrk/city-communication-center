@@ -76,4 +76,27 @@ public sealed class CitizenJobStatusMessageTests
             "VT-2026-42 no'lu Yol bakım talebiniz Yapılmakta. Fen İşleri Müdürlüğü ekiplerince inceleniyor.",
             content);
     }
+
+    [Theory]
+    [InlineData("{GönderilenBirim}ekiplerce inceleniyor.")]
+    [InlineData("{GönderilenBirim}   ekiplerce inceleniyor.")]
+    [InlineData("{Gönderilen Birim}ekiplerce inceleniyor.")]
+    public void BuildStatusMessage_AlwaysSeparatesTargetDepartmentFromSuffix(string templateSuffix)
+    {
+        var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);
+        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+            new SocialMessage
+            {
+                CitizenRequestNumber = 42,
+                CitizenRequestNumberYear = 2026,
+                ReceivedAtUtc = receivedAt,
+            },
+            new Job { Title = "Yol bakım", Status = JobStatus.Active },
+            1,
+            receivedAt,
+            $"{{VatandaşTalepNo}} talebiniz. {templateSuffix}",
+            "Fen İşleri Müdürlüğü");
+
+        Assert.EndsWith("Fen İşleri Müdürlüğü ekiplerce inceleniyor.", content);
+    }
 }

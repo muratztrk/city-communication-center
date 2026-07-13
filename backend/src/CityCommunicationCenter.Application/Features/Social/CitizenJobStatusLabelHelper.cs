@@ -48,15 +48,33 @@ public static class CitizenJobStatusLabelHelper
             ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu {VatandaşTalepDurumu}. {GönderilenBirim}"
             : template;
 
-        return messageTemplate
+        var content = messageTemplate
             .Replace("{VatandaşTalepNo}", requestNumber, StringComparison.Ordinal)
             .Replace("{Vatandaş Talep No}", requestNumber, StringComparison.Ordinal)
             .Replace("{VatandaşTalepBaşlığı}", title, StringComparison.Ordinal)
             .Replace("{Vatandaş Talep Başlığı}", title, StringComparison.Ordinal)
             .Replace("{VatandaşTalepDurumu}", statusLabel, StringComparison.Ordinal)
-            .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal)
-            .Replace("{GönderilenBirim}", targetDepartments, StringComparison.Ordinal)
-            .Replace("{Gönderilen Birim}", targetDepartments, StringComparison.Ordinal)
-            .Trim();
+            .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal);
+
+        return ReplaceTargetDepartmentToken(content, targetDepartments).Trim();
+    }
+
+    private static string ReplaceTargetDepartmentToken(string template, string targetDepartments)
+    {
+        foreach (var token in new[] { "{GönderilenBirim}", "{Gönderilen Birim}" })
+        {
+            var tokenIndex = template.IndexOf(token, StringComparison.Ordinal);
+            if (tokenIndex < 0)
+            {
+                continue;
+            }
+
+            var suffix = template[(tokenIndex + token.Length)..].TrimStart();
+            return suffix.Length == 0
+                ? $"{template[..tokenIndex]}{targetDepartments}"
+                : $"{template[..tokenIndex]}{targetDepartments} {suffix}";
+        }
+
+        return template;
     }
 }

@@ -7,6 +7,12 @@
 Board: https://trello.com/b/4kvG8aa5 · List: Doing (`69ef9d96d58778f5f9f53ff7`)
 Polling every ~5 min this session. Commit + push to main after each card.
 
+## Round 310 — Mobil detay aksiyonları ve yükleme ilerlemesi
+- [x] `6a552d8d` (#1601 sixth reopen) — Rutin görev Görev Ekleri `Dosya ekle` butonu son geri bildirimle 1.625rem/10.5px'e büyütüldü; sağa hizalı ek listesi korundu.
+- [x] `6a554af5` (#1609) — Mobil detay popup header'larında 2+ aksiyon kompakt, en fazla iki kolonlu grid olarak akar; tek aksiyon etkilenmez.
+- [x] `6a554bbc` (#1610) — Detay eki yüklemesi 1 saniyeyi aşarsa yüzde metinli progress bar gösterilir; hızlı yüklemede gösterge açılmaz.
+- [x] Doğrulama: `frontend npm run build` + `npm run lint`.
+
 ## Round 309 — Rutin görev eki düzeni
 - [x] `6a552d8d` (#1601 fifth reopen) — Rutin görev düzenleme popup'ında Görev Ekleri `Dosya ekle` butonu 1.5rem/10px'e küçültüldü; ekler iki sütunlu rich-list ile sağ kart sınırına hizalandı.
 - [x] Doğrulama: `frontend npm run build` + `npm run lint`.

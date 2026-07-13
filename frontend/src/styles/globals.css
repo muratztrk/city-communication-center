@@ -2187,10 +2187,10 @@
   }
 
   .detail-modal-shell--my-request .routine-task-attachments-card .attachment-upload-zone button {
-    height: 1.5rem !important;
-    min-height: 1.5rem !important;
-    padding-inline: 0.5rem !important;
-    font-size: 0.625rem !important;
+    height: 1.625rem !important;
+    min-height: 1.625rem !important;
+    padding-inline: 0.5625rem !important;
+    font-size: 0.65625rem !important;
   }
 
   .routine-task-attachments-card .attachment-rich-list {
@@ -4198,14 +4198,28 @@
       gap: 0.35rem !important;
     }
 
+    .detail-modal-header-actions:has(> :nth-child(2)) {
+      display: grid;
+      width: min(68%, 15rem);
+      max-width: 68%;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: center;
+    }
+
     .detail-modal-header-actions button,
     .detail-modal-header-actions a {
-      min-height: 1.75rem !important;
+      min-height: 1.625rem !important;
       height: auto !important;
-      padding: 0.32rem 0.48rem !important;
+      padding: 0.25rem 0.4rem !important;
       border-radius: 0.5rem !important;
-      font-size: 0.68rem !important;
+      font-size: 0.625rem !important;
       line-height: 1.05 !important;
+    }
+
+    .detail-modal-header-actions:has(> :nth-child(2)) > button,
+    .detail-modal-header-actions:has(> :nth-child(2)) > a {
+      width: 100%;
+      justify-content: center;
     }
 
     .detail-modal-header-actions .detail-modal-header-close {
@@ -4213,6 +4227,7 @@
       height: 1.75rem !important;
       padding: 0 !important;
       border-radius: 999px !important;
+      justify-self: end;
     }
 
     .detail-modal-header-actions .detail-print-action {

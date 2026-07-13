@@ -58,7 +58,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `var(--font-sans)` olur; `letter-spacing:0` ve kontrollü line-height korunur, placeholder/ikon
   yeşil banner üstünde okunur kalır.
 - **Mobil detay popup başlıkları aksiyonlarla çakışmaz:** talep/görev detay header'ında başlık alanı
-  esnek kalır; sağ üst aksiyonlar küçük, wrap edebilir butonlar olarak durur. Dashboard pie chart
+  esnek kalır; sağ üstte iki veya daha fazla aksiyon varsa butonlar 10px kompakt ölçüde ve bir
+  satırda en fazla iki buton olacak grid düzeninde akar; tek aksiyon mevcut hizasını korur
+  (card #1609). Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
   tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.
@@ -206,8 +208,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `Düzenle` modu açıkken görünür. Boyut bilgisi gizli kalır
   (cards #1199/#1200/#1201/#1204/#1208/#1211).
   Rutin görev detayının düzenleme modunda `Görev Ekleri`, rich-list'in iki sütunlu düzenini
-  kullanır: 1.5rem/10px `Dosya ekle` solda, mevcut ekler sağ kart sınırına yaslıdır; bu scope
-  Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez (card #1601 fifth reopen).
+  kullanır: son görsel dengede 1.625rem/10.5px `Dosya ekle` solda, mevcut ekler sağ kart
+  sınırına yaslıdır; bu scope Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez
+  (card #1601 sixth reopen).
+  Detay popup düzenleme yüzeylerindeki yükleme 1 saniyeden uzun sürerse yüzde metinli progress bar
+  gösterilir; daha hızlı yüklemelerde gösterge yanıp sönmez. XHR progress callback'i korunur
+  (card #1610).
   Detay popup'larında `Görev Bilgileri > Görev Ekleri` veya `Talep Bilgileri > Talep Ekleri`
   satırında gerçek dosya varsa dosya adının önünde uzantıya göre küçük görsel/doküman ikonu
   bulunur; bağlantı metni altı çizgisizdir ve yalnız dosya uzantısı küçük harfle gösterilir

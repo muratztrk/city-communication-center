@@ -1,5 +1,5 @@
 import { Download, FileImage, FileText, Paperclip } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -44,10 +44,25 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [showUploadProgress, setShowUploadProgress] = useState(false)
+  const uploadProgressDelayRef = useRef<number | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+
+  const clearUploadProgressDelay = () => {
+    if (uploadProgressDelayRef.current !== null) {
+      window.clearTimeout(uploadProgressDelayRef.current)
+      uploadProgressDelayRef.current = null
+    }
+  }
+
+  useEffect(() => () => {
+    if (uploadProgressDelayRef.current !== null) {
+      window.clearTimeout(uploadProgressDelayRef.current)
+    }
+  }, [])
 
   const validate = (file: File): string | null => {
     if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
@@ -70,11 +85,19 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       }
       setUploading(true)
       setUploadProgress(0)
+      setShowUploadProgress(false)
+      clearUploadProgressDelay()
+      uploadProgressDelayRef.current = window.setTimeout(() => {
+        uploadProgressDelayRef.current = null
+        setShowUploadProgress(true)
+      }, 1_000)
       try {
         await onUpload?.(file, setUploadProgress)
       } catch (err) {
         setValidationError(err instanceof Error ? err.message : String(err))
       } finally {
+        clearUploadProgressDelay()
+        setShowUploadProgress(false)
         setUploading(false)
         setUploadProgress(0)
       }
@@ -146,9 +169,18 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
           </button>
-          {uploading && (
-            <div className="mt-2 w-36 overflow-hidden rounded-full bg-slate-200" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
-              <div className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150" style={{ width: `${uploadProgress}%` }} />
+          {uploading && showUploadProgress && (
+            <div className="mt-2 w-36" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
+              <div className="mb-1 flex items-center justify-between text-[10px] font-medium text-slate-500">
+                <span>{t('attachments.uploading', 'Yükleniyor...')}</span>
+                <span>%{uploadProgress}</span>
+              </div>
+              <div className="overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150"
+                  style={{ width: `${Math.max(uploadProgress, 4)}%` }}
+                />
+              </div>
             </div>
           )}
           <input

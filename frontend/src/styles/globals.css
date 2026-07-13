@@ -2150,8 +2150,11 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit__textarea {
-    min-height: 2rem;
-    max-height: 4.75rem;
+    width: min(92%, 24rem);
+    min-height: 1.75rem;
+    max-height: 4.25rem;
+    padding: 0.25rem 0.45rem;
+    font-size: 0.75rem;
     resize: none;
     overflow-y: auto;
     white-space: pre-wrap;
@@ -2160,17 +2163,27 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date {
-    max-width: 10.5rem;
+    max-width: 9rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date .field-input {
     width: 100%;
+    min-height: 1.75rem;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.75rem;
   }
 
   .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button {
-    height: 2.25rem;
-    padding-inline: 0.875rem;
-    font-size: 0.8125rem;
+    height: 2rem;
+    padding-inline: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .my-request-edit-priority-menu .dropdown-menu-item,
+  .my-request-edit-neighborhood-menu .dropdown-menu-item {
+    min-height: 2rem;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.75rem;
   }
 
   .reporter-department-text {

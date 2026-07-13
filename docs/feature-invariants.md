@@ -668,6 +668,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kutucuk düzeni geri gelir; Yönetici Notu düzenleme kutusu standart kullanıcıya açılmaz ve
   dolu not düzenleme sırasında da Talep Bilgileri'nin son satırında kalır. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
   geçersizdir.)
+- **Talep detay düzenleme kontrolleri kompakttır (card #1601):** detay içi `Düzenle` modunda
+  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 24rem ve 12px;
+  Son Tarih kontrolü en fazla 9rem/12px; `Dosya ekle` butonu 2rem yükseklik ve 12px metindir.
+  Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç
   timeline. Ayrı `Açıklama` paneli ve Talep Bilgileri içindeki tekrarlayan başlık/no satırları yok.

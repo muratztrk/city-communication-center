@@ -2428,3 +2428,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   metni 11px olarak korundu.
 
 ## STATUS: Round 302 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 303 (Doing — 2026-07-13, detay düzenleme kontrollerini kompaktlaştırma)
+- [x] `6a552d8db1c587ac7329feda` / #1601 — Detay içi Düzenle modunda Öncelik ve Mahalle
+  dropdown seçenek metinleri küçültüldü; başlık textarea'sı ile Son Tarih kontrolü daraltıldı;
+  `Dosya ekle` butonu daha küçük ölçüye getirildi. Değişiklik yalnız ortak talep detay modalına
+  scope edildi.
+
+## STATUS: Round 303 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

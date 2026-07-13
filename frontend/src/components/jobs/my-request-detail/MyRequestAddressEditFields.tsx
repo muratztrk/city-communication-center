@@ -32,6 +32,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             openUp
             searchable
             menuClassName="min-w-full w-max max-w-[20rem]"
+            menuScrollClassName="my-request-edit-neighborhood-menu"
             options={neighborhoodOptions}
             value={draft.neighborhood}
             onChange={neighborhood => {

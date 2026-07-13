@@ -84,7 +84,7 @@ export function MyRequestInfoFieldsList({
                 openUp
                 className="my-request-detail-edit-control my-request-detail-edit-control--priority ml-auto"
                 triggerClassName="font-semibold"
-                menuScrollClassName="dropdown-menu-scroll--compact"
+                menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
                 options={priorityOptions ?? []}
                 value={editDraft.priority}
                 onChange={priority => onEditDraftChange({ priority })}
@@ -416,7 +416,7 @@ export function MyRequestDetailMainCard({
                           <SingleSelectDropdown
                             className="mt-0.5 w-28"
                             triggerClassName="!min-h-7 !px-2 !py-1 text-[11px] font-semibold"
-                            menuScrollClassName="dropdown-menu-scroll--compact"
+                            menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
                             options={priorityOptions}
                             value={editDraft.priority}
                             onChange={priority => onEditDraftChange({ priority })}

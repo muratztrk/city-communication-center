@@ -2275,3 +2275,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   %90 belirginliği korunarak ikon 32px'den 28px'e küçültüldü.
 
 ## STATUS: Round 283 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 284 (Doing — 2026-07-13, FAB ikon + incoming görev açıklaması)
+- [x] `6a548c13888d61f91ef2b8f3` / #1583 reopen — Tek dolu kurum içi mesaj FAB ikonu
+  28px'den 24px'e küçültüldü.
+- [x] `6a54a1339665726dbb7bf1d8` / #1584 — Birime Gelen detay popup'ındaki Görev
+  Detayları düz `Açıklama` kartı gizlendi; terminal tamamlama/iptal notları korundu.
+
+## STATUS: Round 284 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

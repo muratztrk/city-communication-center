@@ -2363,3 +2363,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   Timeline ve yazdırma hedef onaycısı ilk hedef görevini atayan yönetici üzerinden çözülür.
 
 ## STATUS: Round 294 complete — backend build + 38 tests passed; frontend build/lint passed (0 error, 4 existing hook warnings); Docker daemon kapalı olduğu için runtime doğrulaması yapılamadı.
+
+## Round 295 (Doing — 2026-07-13, vatandaş adı/telefon ve şablon boşluk girişi)
+- [x] `6a54e97d6132f3e117729b8c` / #1596 — Görevlerim, Birimdeki Görevler ve Personelimin Görevleri
+  ilgili vatandaş talebi detayında vatandaş adı üstte, telefon numarası altta gösterilir.
+- [x] `6a54cbb8fe5dcd8a33b04545` / #1594 reopen — Otomatik cevap gövde ve son ek textarea'ları
+  yazım sırasında boşluk karakterlerini korur; trim yalnız Kaydet sırasında uygulanır.
+
+## STATUS: Round 295 complete — frontend build/lint passed (0 error, 4 existing hook warnings); Docker daemon kapalı olduğu için runtime doğrulaması yapılamadı.

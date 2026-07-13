@@ -69,10 +69,21 @@ const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
 type CitizenAutoReplyTemplateKey = keyof CitizenAutoReplyTemplates
 
-function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '') {
-  const normalizedBody = bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT
-  const normalizedSuffix = suffixText.trim()
-  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix ? ` ${normalizedSuffix}` : ''}`
+function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
+  const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
+  const normalizedSuffix = normalize ? suffixText.trim() : suffixText
+  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix.length > 0 ? ` ${normalizedSuffix}` : ''}`
+}
+
+function removeTemplateSeparatorSpaces(value: string) {
+  const withoutLeadingSeparator = value.startsWith(' ') ? value.slice(1) : value
+  return withoutLeadingSeparator.endsWith(' ')
+    ? withoutLeadingSeparator.slice(0, -1)
+    : withoutLeadingSeparator
+}
+
+function removeLeadingTemplateSeparatorSpace(value: string) {
+  return value.startsWith(' ') ? value.slice(1) : value
 }
 
 function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) {
@@ -84,17 +95,15 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
   const tokenStatusIndex = afterTitle.indexOf(CITIZEN_REQUEST_STATUS_TOKEN)
   const statusIndex = fixedStatusIndex >= 0 ? fixedStatusIndex : tokenStatusIndex
   const editableBody = statusIndex >= 0 ? afterTitle.slice(0, statusIndex) : afterTitle
-  return editableBody
+  return removeTemplateSeparatorSpaces(editableBody
     .replace(CITIZEN_REQUEST_STATUS_TOKEN, '')
-    .replace(TARGET_DEPARTMENT_TOKEN, '')
-    .replace(/[.\s]+$/u, '')
-    .trim() || DEFAULT_AUTO_REPLY_BODY_TEXT
+    .replace(TARGET_DEPARTMENT_TOKEN, ''))
 }
 
 function extractCitizenAutoReplySuffixText(template: string) {
   const tokenIndex = template.indexOf(TARGET_DEPARTMENT_TOKEN)
   return tokenIndex >= 0
-    ? template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length).trim()
+    ? removeLeadingTemplateSeparatorSpace(template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length))
     : ''
 }
 
@@ -1017,21 +1026,25 @@ export function SettingsPage() {
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.processingReceived, t('social.requestStatus.processingReceived', 'İşleme Alındı')),
           t('social.requestStatus.processingReceived', 'İşleme Alındı'),
           extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.processingReceived),
+          true,
         ),
         inProgress: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.inProgress, t('social.requestStatus.inProgress', 'Yapılmakta')),
           t('social.requestStatus.inProgress', 'Yapılmakta'),
           extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.inProgress),
+          true,
         ),
         completed: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.completed, t('social.requestStatus.completed', 'Tamamlandı')),
           t('social.requestStatus.completed', 'Tamamlandı'),
           extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.completed),
+          true,
         ),
         cancelled: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.cancelled, t('social.requestStatus.cancelledMessage', 'İptal Edildi')),
           t('social.requestStatus.cancelledMessage', 'İptal Edildi'),
           extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.cancelled),
+          true,
         ),
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)

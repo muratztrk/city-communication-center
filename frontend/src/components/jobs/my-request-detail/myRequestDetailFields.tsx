@@ -56,7 +56,7 @@ export function buildMyRequestDetailFields(
       },
       {
         label: t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No'),
-        value: [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—',
+        value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
       },
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {

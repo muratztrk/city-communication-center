@@ -9,7 +9,12 @@ public sealed record CancelJobCommand(Guid JobId, Guid? ActorUserId, string Reas
 
 public sealed class CancelJobCommandValidator : AbstractValidator<CancelJobCommand>
 {
-    public CancelJobCommandValidator() { RuleFor(c => c.Reason).NotEmpty().WithMessage("Iptal nedeni zorunludur."); }
+    public CancelJobCommandValidator()
+    {
+        RuleFor(c => c.Reason)
+            .NotEmpty().WithMessage("İptal nedeni zorunludur.")
+            .MaximumLength(100).WithMessage("İptal nedeni en fazla 100 karakter olabilir.");
+    }
 }
 
 public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, bool>

@@ -1047,10 +1047,11 @@ export function IncomingRequestsPage() {
                 : t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
             <label className="job-field mt-5">
-              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
+                maxLength={100}
                 value={cancelModal.reason}
                 onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value } : null)}
                 placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}

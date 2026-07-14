@@ -451,6 +451,31 @@
 
   .attachment-section--rich-edit .attachment-rich-list {
     min-width: 0;
+    display: flex;
+    max-height: 4.25rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-content: flex-start;
+    gap: 0.35rem 0.5rem;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .attachment-section--rich-edit .attachment-rich-list > li {
+    width: auto;
+    max-width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0.2rem 0;
+  }
+
+  .attachment-section--rich-edit .attachment-rich-list > li > div {
+    border: 0;
+    background: transparent;
+  }
+
+  .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span {
+    color: rgb(37 99 235);
   }
 
   .attachment-section--rich-edit .alert {
@@ -2187,15 +2212,29 @@
   }
 
   .detail-modal-shell--my-request .routine-task-attachments-card .attachment-upload-zone button {
-    height: 1.625rem !important;
-    min-height: 1.625rem !important;
-    padding-inline: 0.5625rem !important;
-    font-size: 0.65625rem !important;
+    height: 1.75rem !important;
+    min-height: 1.75rem !important;
+    padding-inline: 0.625rem !important;
+    font-size: 0.6875rem !important;
   }
 
   .routine-task-attachments-card .attachment-rich-list {
     justify-self: end;
     width: 100%;
+  }
+
+  .completion-attachment-list {
+    display: flex;
+    max-height: 4.25rem;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 0.35rem 1rem;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .completion-attachment-list > li {
+    max-width: calc(50% - 0.5rem);
   }
 
   .my-request-edit-priority-menu .dropdown-menu-item,
@@ -4160,6 +4199,42 @@
   }
 }
 
+/* Kısa masaüstü viewport'larında (tipik 15.6 inç dizüstü tarayıcı alanı) detay kartları
+   birbirine taşmadan aynı modal içinde kalır. */
+@media (min-width: 768px) and (max-height: 900px) {
+  .detail-modal-shell > .flex-1 {
+    padding: 0.85rem !important;
+  }
+
+  .detail-modal-shell .my-request-detail-main__grid > div,
+  .detail-modal-shell .my-request-detail-bottom .my-request-detail-card {
+    padding: 0.75rem !important;
+  }
+
+  .detail-modal-shell .job-detail-section-heading {
+    margin-bottom: 0.55rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .detail-modal-shell .job-detail-field-row--request-info {
+    min-height: 2.6rem;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .detail-modal-shell .field-input,
+  .detail-modal-shell .field-select,
+  .detail-modal-shell .field-textarea {
+    font-size: 0.75rem;
+  }
+
+  .detail-modal-shell .address-detail-my-request__grid--three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 0.55rem 0.75rem;
+  }
+}
+
 @media (max-width: 767px) {
   @layer components {
     .detail-modal-shell,
@@ -4199,11 +4274,17 @@
     }
 
     .detail-modal-header-actions:has(> :nth-child(2)) {
-      display: grid;
-      width: min(68%, 15rem);
-      max-width: 68%;
+      display: grid !important;
+      width: 100%;
+      max-width: 100%;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: center;
+    }
+
+    .detail-modal-header-mobile:has(.detail-modal-header-actions > :nth-child(2)) {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: stretch;
     }
 
     .detail-modal-header-actions button,

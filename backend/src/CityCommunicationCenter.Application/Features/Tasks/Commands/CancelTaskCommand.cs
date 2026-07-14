@@ -12,7 +12,9 @@ public sealed class CancelTaskCommandValidator : AbstractValidator<CancelTaskCom
 {
     public CancelTaskCommandValidator()
     {
-        RuleFor(c => c.Reason).NotEmpty().WithMessage("İptal nedeni zorunludur.");
+        RuleFor(c => c.Reason)
+            .NotEmpty().WithMessage("İptal nedeni zorunludur.")
+            .MaximumLength(100).WithMessage("İptal nedeni en fazla 100 karakter olabilir.");
     }
 }
 

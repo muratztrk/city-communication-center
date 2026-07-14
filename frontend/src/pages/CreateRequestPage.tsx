@@ -221,11 +221,20 @@ export function CreateRequestPage() {
   const [confirmedKind, setConfirmedKind] = useState<RequestKind | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
+  const [attachmentUploadProgress, setAttachmentUploadProgress] = useState(0)
+  const [showAttachmentUploadProgress, setShowAttachmentUploadProgress] = useState(false)
   const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const attachmentUploadDelayRef = useRef<number | null>(null)
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
+
+  useEffect(() => () => {
+    if (attachmentUploadDelayRef.current !== null) {
+      window.clearTimeout(attachmentUploadDelayRef.current)
+    }
+  }, [])
   // "Talep Oluştur"a basmadan mod seçimine (Geri) dönülünce girilen veriler temizlenir; tekrar
   // girildiğinde alanlar boş başlar. `kind` bir query param olduğundan seçim ekranına dönüşte bileşen
   // unmount olmaz ve state kalırdı; başka sayfaya gidildiğinde ise zaten unmount olup sıfırlanır.
@@ -617,9 +626,51 @@ export function CreateRequestPage() {
           )}
         </div>
       </div>
+      {saving && showAttachmentUploadProgress ? (
+        <div className="mt-2" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
+          <div className="mb-1 flex items-center justify-between text-[10px] font-medium text-slate-500">
+            <span>{t('attachments.uploading', 'Yükleniyor...')}</span>
+            <span>%{attachmentUploadProgress}</span>
+          </div>
+          <div className="overflow-hidden rounded-full bg-slate-200">
+            <div
+              className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150"
+              style={{ width: `${Math.max(attachmentUploadProgress, 4)}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
     </div>
   )
+
+  const uploadPendingFiles = async (jobId: string) => {
+    if (pendingFiles.length === 0) return
+
+    setAttachmentUploadProgress(0)
+    setShowAttachmentUploadProgress(false)
+    if (attachmentUploadDelayRef.current !== null) window.clearTimeout(attachmentUploadDelayRef.current)
+    attachmentUploadDelayRef.current = window.setTimeout(() => {
+      attachmentUploadDelayRef.current = null
+      setShowAttachmentUploadProgress(true)
+    }, 1_000)
+
+    try {
+      for (const [index, file] of pendingFiles.entries()) {
+        await api.uploadJobAttachment(jobId, file, fileProgress => {
+          const overallProgress = Math.round(((index + fileProgress / 100) / pendingFiles.length) * 100)
+          setAttachmentUploadProgress(overallProgress)
+        })
+      }
+    } finally {
+      if (attachmentUploadDelayRef.current !== null) {
+        window.clearTimeout(attachmentUploadDelayRef.current)
+        attachmentUploadDelayRef.current = null
+      }
+      setShowAttachmentUploadProgress(false)
+      setAttachmentUploadProgress(0)
+    }
+  }
 
   const renderAddressFields = (
     form: { neighborhood: string; street: string; openAddress: string },
@@ -730,9 +781,7 @@ export function CreateRequestPage() {
           street: normalizeTitleCaseField(internalForm.street) ?? '',
           openAddress: normalizeTitleCaseField(internalForm.openAddress) ?? '',
         })
-        for (const file of pendingFiles) {
-          await api.uploadJobAttachment(editJobId, file)
-        }
+        await uploadPendingFiles(editJobId)
         invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return
@@ -752,9 +801,7 @@ export function CreateRequestPage() {
         street: normalizeTitleCaseField(internalForm.street),
         openAddress: normalizeTitleCaseField(internalForm.openAddress),
       })
-      for (const file of pendingFiles) {
-        await api.uploadJobAttachment(job.jobId, file)
-      }
+      await uploadPendingFiles(job.jobId)
       invalidateJobs(queryClient, job.jobId)
       setInternalForm(EMPTY_INTERNAL_FORM)
       setPendingFiles([])
@@ -810,9 +857,7 @@ export function CreateRequestPage() {
           openAddress: normalizeTitleCaseField(externalForm.openAddress) ?? '',
           targetDepartmentIds,
         })
-        for (const file of pendingFiles) {
-          await api.uploadJobAttachment(editJobId, file)
-        }
+        await uploadPendingFiles(editJobId)
         invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return
@@ -833,9 +878,7 @@ export function CreateRequestPage() {
         street: normalizeTitleCaseField(externalForm.street),
         openAddress: normalizeTitleCaseField(externalForm.openAddress),
       })
-      for (const file of pendingFiles) {
-        await api.uploadJobAttachment(job.jobId, file)
-      }
+      await uploadPendingFiles(job.jobId)
       invalidateJobs(queryClient, job.jobId)
       setExternalForm(EMPTY_EXTERNAL_FORM)
       setPendingFiles([])
@@ -926,6 +969,7 @@ export function CreateRequestPage() {
           content: citizenForm.content.trim(),
           category: citizenLabel.trim() || undefined,
         })
+        await uploadPendingFiles(editJobId)
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
         invalidateJobs(queryClient, editJobId)
         setCitizenForm(EMPTY_CITIZEN_FORM)
@@ -960,7 +1004,8 @@ export function CreateRequestPage() {
           content: citizenForm.content.trim(),
           category: citizenLabel.trim() || undefined,
         })
-        await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
+        const job = await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
+        await uploadPendingFiles(job.jobId)
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
       } else {
         const socialMessageId = await api.createSocialMessage({
@@ -969,7 +1014,8 @@ export function CreateRequestPage() {
           content: citizenForm.content.trim(),
           category: citizenLabel.trim() || undefined,
         })
-        await api.convertSocialMessageToJob(socialMessageId, convertPayload)
+        const job = await api.convertSocialMessageToJob(socialMessageId, convertPayload)
+        await uploadPendingFiles(job.jobId)
         invalidateSocialMessages(queryClient, socialMessageId)
       }
       invalidateJobs(queryClient)

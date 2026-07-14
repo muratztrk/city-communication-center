@@ -12,7 +12,9 @@ public sealed class CompleteTaskCommandValidator : AbstractValidator<CompleteTas
     {
         RuleFor(x => x.ResultNote)
             .NotEmpty()
-            .WithMessage("Tamamlama notu gereklidir.");
+            .WithMessage("Tamamlama notu gereklidir.")
+            .MaximumLength(100)
+            .WithMessage("Tamamlama notu en fazla 100 karakter olabilir.");
     }
 }
 

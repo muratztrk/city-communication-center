@@ -172,10 +172,10 @@ export function MyRequestTaskDetailsSection({
                       label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'),
                       value: <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
                     },
-                    { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
                     ...(task.jobSourceType !== 'Routine'
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
                       : []),
+                    { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
                     ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
                       ? [{
                           label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği'),
@@ -198,6 +198,12 @@ export function MyRequestTaskDetailsSection({
                               </div>
                             )
                           })(),
+                        }]
+                      : []),
+                    ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
+                      ? [{
+                          label: t('tasks.detail.statusChangeReason', 'Durum Değişikliği Nedeni'),
+                          value: task.statusChangeHistory![0].reason ?? '—',
                         }]
                       : []),
                     ...(task.jobSourceType === 'Routine'

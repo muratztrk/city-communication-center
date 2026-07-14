@@ -7,6 +7,23 @@
 Board: https://trello.com/b/4kvG8aa5 · List: Doing (`69ef9d96d58778f5f9f53ff7`)
 Polling every ~5 min this session. Commit + push to main after each card.
 
+## Round 311 — 16 kartlık detay/ek/not responsive paketi
+- [x] `6a5655df` — Durum değişikliği nedeni FE+BE 100 karakter.
+- [x] `6a56571e` — Talebi İptal Et nedeni tüm UI yüzeyleri + BE 100 karakter.
+- [x] `6a5656e4` — Görevi İptal Et nedeni FE+BE 100 karakter.
+- [x] `6a565681` — Görevi Tamamla notu FE+BE 100 karakter.
+- [x] `6a5653fe` — Durum Değişikliği Nedeni, durum özetinin alt satırında gösterilir.
+- [x] `6a554bbc` reopen — Tüm Talep Oluştur türlerinde 1 saniye gecikmeli birleşik upload progress; vatandaş ekleri de gerçek job'a yüklenir.
+- [x] `6a564431` / `6a5642d7` / `6a5650a0` — Düzenleme rich-list ekleri yatay, bordersız, mavi, küçük harf uzantılı ve iki satır scroll.
+- [x] `6a564227` — Kısa dizüstü viewport detay bileşenleri kompakt; adres grid iki kolona düşer.
+- [x] `6a563a62` — Görev Bilgileri başlığının sağında bağlı talep önceliği.
+- [x] `6a552d8d` seventh reopen — Rutin Görev Ekleri Dosya ekle 1.75rem/11px.
+- [x] `6a565162` — Durum Değiştir dropdown'u `SingleSelectDropdown` standardında.
+- [x] `6a56532c` — Görevi Atayan Yönetici üstte, Görevi Yapan altta.
+- [x] `6a564f98` — Görevi Tamamla geçici ekleri yatay/küçük harf/two-row scroll.
+- [x] `6a554af5` reopen — Mobil 2+ header aksiyonu gerçek iki kolon; flex override giderildi.
+- [x] Doğrulama: backend build + 46 test; frontend build/lint (0 error, 4 mevcut hook warning).
+
 ## Round 310 — Mobil detay aksiyonları ve yükleme ilerlemesi
 - [x] `6a552d8d` (#1601 sixth reopen) — Rutin görev Görev Ekleri `Dosya ekle` butonu son geri bildirimle 1.625rem/10.5px'e büyütüldü; sağa hizalı ek listesi korundu.
 - [x] `6a554af5` (#1609) — Mobil detay popup header'larında 2+ aksiyon kompakt, en fazla iki kolonlu grid olarak akar; tek aksiyon etkilenmez.

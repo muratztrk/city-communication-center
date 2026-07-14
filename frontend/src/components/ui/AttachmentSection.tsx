@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
+import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 import { ConfirmDialog } from './confirm-dialog'
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
@@ -206,7 +207,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
 
       {/* Dosya listesi — Talep Detayları ve görev tamamlama paneliyle aynı görünüm (card #855). */}
       {attachments.length > 0 && displayMode === 'rich-list' && (
-        <ul className="attachment-rich-list space-y-1.5">
+        <ul className="attachment-rich-list">
           {attachments.map(att => {
             const Icon = getAttachmentIcon(att.fileName)
             return (
@@ -221,7 +222,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 onClick={() => void handleDownload(att)}
               >
                 <span className="block truncate text-[11px] font-normal text-slate-900 hover:text-slate-700">
-                  {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
+                  {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : lowercaseFileExtension(att.fileName)}
                 </span>
               </button>
               {canShowDeleteActions && (

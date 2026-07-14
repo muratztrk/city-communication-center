@@ -591,10 +591,11 @@ export function SocialMessagesPage() {
             <h2 id="cancel-social-job-dialog-title" className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
             <p className="mt-2 text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
             <label className="job-field mt-5">
-              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')}</span>
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
+                maxLength={100}
                 value={cancelModal.reason}
                 onChange={event => setCancelModal(current => current ? { ...current, reason: event.target.value } : null)}
                 placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}

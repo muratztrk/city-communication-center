@@ -2007,7 +2007,17 @@ const pageKicker = isMyTasksView
                       </div>
                       <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
                         <MyRequestSectionHeading icon={Info}>
-                          {t('tasks.detail.infoFields', 'Görev Bilgileri')}
+                          <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                            <span className="min-w-0">{t('tasks.detail.infoFields', 'Görev Bilgileri')}</span>
+                            {parentJobDetail ? (
+                              <span className="ml-auto flex flex-col items-end text-right text-[11px] leading-tight">
+                                <span className="font-semibold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
+                                <span className={`font-bold ${getPriorityColorClass(parentJobDetail.priority)}`}>
+                                  {getPriorityLabel(t, parentJobDetail.priority)}
+                                </span>
+                              </span>
+                            ) : null}
+                          </span>
                         </MyRequestSectionHeading>
                         <div className="my-request-detail-fields divide-y divide-slate-100">
                           {[
@@ -2017,10 +2027,7 @@ const pageKicker = isMyTasksView
                                   value: <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
                                 }]
                               : []),
-                            // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
-                            // assignedUser önce, yoksa owner (card #719).
-                            { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
-                            // Rutin görev atanmadığı için bu satır sadece Atanmış görevlerde gösterilir (card #1445).
+                            // Atayan yönetici üstte, görevi yapan hemen altında kalır (card #1613).
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
                                   label: (
@@ -2053,6 +2060,9 @@ const pageKicker = isMyTasksView
                                   value: taskDetail.assigningManagerDisplayName ?? '—',
                                 }]
                               : []),
+                            // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
+                            // assignedUser önce, yoksa owner (card #719).
+                            { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
                             // Görev durumu değiştiyse Görev Tipi'nin hemen altında; geçmiş listesi yerine
                             // ilk/son durum tek satırda özetlenir (card #1443 tekrarı).
                             ...(taskDetail.jobSourceType !== 'Routine' && (taskDetail.statusChangeHistory?.length ?? 0) > 0
@@ -2080,6 +2090,12 @@ const pageKicker = isMyTasksView
                                       </div>
                                     )
                                   })(),
+                                }]
+                              : []),
+                            ...(taskDetail.jobSourceType !== 'Routine' && (taskDetail.statusChangeHistory?.length ?? 0) > 0
+                              ? [{
+                                  label: t('tasks.detail.statusChangeReason', 'Durum Değişikliği Nedeni'),
+                                  value: taskDetail.statusChangeHistory![0].reason ?? '—',
                                 }]
                               : []),
                             // Görev Ekleri artık ayrı bir kart değil, Durum Değişikliği'nin hemen
@@ -2126,9 +2142,7 @@ const pageKicker = isMyTasksView
                                     </select>
                                   ),
                                 }]
-                              : taskDetail.jobSourceType === 'Routine'
-                                ? [{ label: 'Öncelik', value: getPriorityLabel(t, taskDetail.priority) }]
-                                : []),
+                              : []),
                             ...(editJobModal
                               ? [{
                                   label: t('jobs.form.startDate', 'Başlangıç Tarihi'),
@@ -3120,11 +3134,11 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
-                maxLength={200}
+                maxLength={100}
                 value={completionNote}
                 onChange={e => setCompletionNote(e.target.value)}
                 placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
@@ -3132,15 +3146,15 @@ const pageKicker = isMyTasksView
               />
             </label>
             {pendingCompletionAttachments.length > 0 ? (
-              <ul className="space-y-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+              <ul className="completion-attachment-list rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
                 {pendingCompletionAttachments.map(item => {
                   const Icon = completionAttachmentIcon(item.fileName)
                   return (
-                  <li key={item.attachmentId} className="flex min-w-0 items-start gap-2">
+                  <li key={item.attachmentId} className="inline-flex min-w-0 items-start gap-2">
                     <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                       <Icon className="size-3" aria-hidden="true" />
                     </span>
-                    <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-slate-700">{item.fileName}</span>
+                    <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
                     <button
                       type="button"
                       className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
@@ -3220,11 +3234,11 @@ const pageKicker = isMyTasksView
                 <h2 className="border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('tasks.actions.cancelTaskModalTitle', 'Görevi İptal Et')}</h2>
                 <p className="text-base font-medium leading-6 text-slate-700">{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
                 <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
+                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea
                     className="field-textarea"
                     rows={3}
-                    maxLength={200}
+                    maxLength={100}
                     value={cancelReason}
                     onChange={e => setCancelReason(e.target.value)}
                     placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
@@ -3308,26 +3322,30 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(max 200 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
-                maxLength={200}
+                maxLength={100}
                 value={statusChangeReason}
                 onChange={e => setStatusChangeReason(e.target.value)}
                 placeholder={t('tasks.actions.changeStatusReasonPlaceholder', 'Durum değişikliği nedenini açıklayınız...')}
                 autoFocus
               />
             </label>
-            <label className="job-field">
+            <div className="job-field">
               <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'Görev Durumu Seç')}</span>
-              <select className="field-select" value={statusChangeTarget} onChange={e => setStatusChangeTarget(e.target.value)}>
-                <option value="" disabled hidden>{t('tasks.actions.changeStatusPlaceholder', 'Görev durumu seçiniz')}</option>
-                {STATUS_CHANGE_OPTIONS.filter(o => o.value !== statusChangeModal.currentStatus).map(o => (
-                  <option key={o.value} value={o.value}>{t(o.labelKey, o.fallback)}</option>
-                ))}
-              </select>
-            </label>
+              <SingleSelectDropdown
+                className="w-full"
+                menuScrollClassName="task-status-change-menu-scroll"
+                options={STATUS_CHANGE_OPTIONS
+                  .filter(option => option.value !== statusChangeModal.currentStatus)
+                  .map(option => ({ value: option.value, label: t(option.labelKey, option.fallback) }))}
+                value={statusChangeTarget}
+                onChange={setStatusChangeTarget}
+                placeholder={t('tasks.actions.changeStatusPlaceholder', 'Görev durumu seçiniz')}
+              />
+            </div>
             <div className="inline-actions justify-end">
               <Button type="button" variant="secondary" onClick={closeStatusChangeModal}>
                 {t('common.dismiss', 'Vazgeç')}

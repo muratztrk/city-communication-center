@@ -60,7 +60,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil detay popup başlıkları aksiyonlarla çakışmaz:** talep/görev detay header'ında başlık alanı
   esnek kalır; sağ üstte iki veya daha fazla aksiyon varsa butonlar 10px kompakt ölçüde ve bir
   satırda en fazla iki buton olacak grid düzeninde akar; tek aksiyon mevcut hizasını korur
-  (card #1609). Dashboard pie chart
+  (card #1609 reopen: Tailwind `flex` utility'sini yenmek için grid display `!important`, çoklu
+  aksiyonda header tek kolon ve aksiyon alanı tam genişliktir). Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
   tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.
@@ -187,6 +188,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   {SocialMessage, CitizenRequest, EDevlet}.
 - **Talep oluşturma yetki hatalarında kullanıcı metni "talep" der, "iş" değil**
   (`CreateJobCommand`, card #1079).
+- **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
+  seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; toplam yükleme
+  1 saniyeyi aşarsa tüm dosyalar için birleşik yüzdeli progress bar görünür, hızlı yüklemede
+  yanıp sönmez. Vatandaş create/edit akışı da seçili dosyaları oluşan job'a gerçekten yükler
+  (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
   Cadde/Sokak/Bulvar ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
   alt adres alanları da temizlenir. Taleplerim terminal talep notu süreç satırında tekil **Not**
@@ -208,12 +214,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `Düzenle` modu açıkken görünür. Boyut bilgisi gizli kalır
   (cards #1199/#1200/#1201/#1204/#1208/#1211).
   Rutin görev detayının düzenleme modunda `Görev Ekleri`, rich-list'in iki sütunlu düzenini
-  kullanır: son görsel dengede 1.625rem/10.5px `Dosya ekle` solda, mevcut ekler sağ kart
+  kullanır: son görsel dengede 1.75rem/11px `Dosya ekle` solda, mevcut ekler sağ kart
   sınırına yaslıdır; bu scope Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez
   (card #1601 sixth reopen).
   Detay popup düzenleme yüzeylerindeki yükleme 1 saniyeden uzun sürerse yüzde metinli progress bar
   gösterilir; daha hızlı yüklemelerde gösterge yanıp sönmez. XHR progress callback'i korunur
   (card #1610).
+  Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
+  adı mavi ve uzantısı küçük harftir. İki görsel satırdan sonrası kendi alanında scroll olur
+  (cards #1615/#1616/#1618). Görevi Tamamla geçici ekleri de yatay sarılır, küçük harf uzantı
+  kullanır ve iki satırdan sonra scroll olur (card #1617).
   Detay popup'larında `Görev Bilgileri > Görev Ekleri` veya `Talep Bilgileri > Talep Ekleri`
   satırında gerçek dosya varsa dosya adının önünde uzantıya göre küçük görsel/doküman ikonu
   bulunur; bağlantı metni altı çizgisizdir ve yalnız dosya uzantısı küçük harfle gösterilir
@@ -515,7 +525,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi/kategorisini gösterir.
 - **Detay popup header aksiyonları:** Detaylar butonundan açılan iş/talep/görev detay popup'larında
   sağ üst aksiyon butonları `Button size="lg"` ölçeğinde, kapatma butonu `size-9` yuvarlak kırmızı
-  buton olarak kalır.
+  buton olarak kalır. 768px üstü fakat viewport yüksekliği 900px ve altındaki dizüstü ekranlarda
+  gövde/kart padding ve kontroller kompaktlaşır; üçlü adres alanı iki kolona düşerek iç içe geçmez
+  (card #1614).
 - **Talep Oluştur manuel vatandaş akışı:** `Vatandaş Çağrı Talebi` olarak adlandırılır; kanal seçimi
   yalnız `Çağrı`dır, form ve onay aksiyon metni `Talep Oluştur` kalır ve oluşturulan kayıt Vatandaş
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Tek `Çağrı` kanal butonu satırı dolduran
@@ -674,6 +686,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Tamamlama/İptal Notu (ya da aktif görev Açıklaması) Süreç kartının önünde yer alır.
 - **Görevlerim ailesi ilgili talep birleşik etiketi (card #1589):** Görevlerim, Birimdeki Görevler
   ve Personelimin Görevleri popup'larında başlık `Öncelik / Proje mi` biçimindedir; sonunda `?` yoktur.
+- **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
+  detayında bağlı talebin `Öncelik` etiketi/değeri Görev Bilgileri başlığının sağına yaslanır.
+  Alanlarda `Görevi Atayan Yönetici` üstte, `Görevi Yapan` hemen alttadır (cards #1611/#1613).
+  Durum Değiştir geçmişi varsa `Durum Değişikliği` satırının hemen altında son işlemin gerçek
+  nedeni `Durum Değişikliği Nedeni` olarak gösterilir (card #1619).
 - **Birime Gelen Görev Detayları açıklaması (card #1584):** yalnız Birime Gelen detay popup'ında
   aktif görevin düz `Açıklama` kartı gizlenir; terminal Görev Tamamlama/İptal Notu korunur.
 - **Yönetici Taleplerim görev özeti (card #1550):** yalnız Manager/SystemAdmin görünümünde düz
@@ -704,6 +721,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yönetici Notu limiti (card #1585):** yönetici detay popup'larındaki textarea ve
   `SetJobManagerNoteCommand` en fazla 100 karakter kabul eder; başlık yanında
   `(max 100 karakter) *` gösterilir.
+- **Terminal işlem notları 100 karakterdir:** Görevi Tamamla `Tamamlama Notu`, Görevi İptal Et
+  `İptal Nedeni`, Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni frontend
+  `maxLength` + açıklama metninde ve backend FluentValidation'da aynı 100 sınırını uygular
+  (cards #1620/#1621/#1622/#1623).
+- **Görev durum dropdown'u ortak tasarımdır:** Görev Durum Değişikliği popup'ı native `select`
+  kullanmaz; portal tabanlı `SingleSelectDropdown` ile diğer form dropdown'larıyla aynı görünür
+  (card #1612).
 - **Vatandaş kanalı Birime Gelen detayda (card #1532):** `Talep Bilgileri` başlık satırının sağında
   kanal ikonu + kanal adı; metin rengi ikon rengiyle aynı (`getChannelLabelColor`).
 - **Talep detay öncelik başlığı (card #1599):** Taleplerim, Birime Gelen ve Birimden Giden

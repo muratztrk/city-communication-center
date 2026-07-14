@@ -734,6 +734,7 @@
       "assignmentHistory": "Atama Geçmişi",
       "taskAssignmentHistory": "Görev Atama Geçmişi",
       "statusChangeHistory": "Durum Değişikliği",
+      "statusChangeReason": "Durum Değişikliği Nedeni",
       "noAssignmentHistory": "Atama geçmişi yok",
       "routineEditHistoryTitle": "Rutin Görev Düzenleme Geçmişi",
       "routineEditHistoryEmpty": "Düzenleme geçmişi bulunmuyor.",

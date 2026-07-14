@@ -1800,13 +1800,13 @@ const pageKicker = isMyTasksView
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — Taleplerim detay popup'ı ile birebir aynı tasarım dili (my-request-detail-header). */}
-            <div className="my-request-detail-header detail-modal-header-mobile flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-6 pb-3 pt-6">
+            <div className="my-request-detail-header detail-modal-header-mobile detail-modal-header-mobile--actions-grid flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-6 pb-3 pt-6">
               <div className="detail-modal-header-title min-w-0">
                 <div className="my-request-detail-header__title uppercase">
                   {detailScopeLabel}
                 </div>
               </div>
-              <div className="detail-modal-header-actions flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-wrap items-center justify-end gap-2">
                 {parentJobDetail
                   && isCitizenRequestJob(parentJobDetail)
                   && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage) && (

@@ -61,7 +61,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   esnek kalır; sağ üstte iki veya daha fazla aksiyon varsa butonlar 10px kompakt ölçüde ve bir
   satırda en fazla iki buton olacak grid düzeninde akar; tek aksiyon mevcut hizasını korur
   (card #1609 reopen: Tailwind `flex` utility'sini yenmek için grid display `!important`, çoklu
-  aksiyonda header tek kolon ve aksiyon alanı tam genişliktir). Dashboard pie chart
+  aksiyonda header tek kolon ve aksiyon alanı tam genişliktir). Bu davranış tarayıcı `:has()`
+  desteğine bağlı değildir; header ve aksiyon alanındaki açık mobil-grid sınıflarıyla uygulanır.
+  Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
   tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.

@@ -4275,7 +4275,7 @@
       gap: 0.35rem !important;
     }
 
-    .detail-modal-header-actions:has(> :nth-child(2)) {
+    .detail-modal-header-actions--mobile-grid {
       display: grid !important;
       width: 100%;
       max-width: 100%;
@@ -4283,7 +4283,7 @@
       align-items: center;
     }
 
-    .detail-modal-header-mobile:has(.detail-modal-header-actions > :nth-child(2)) {
+    .detail-modal-header-mobile--actions-grid {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr);
       align-items: stretch;
@@ -4299,8 +4299,8 @@
       line-height: 1.05 !important;
     }
 
-    .detail-modal-header-actions:has(> :nth-child(2)) > button,
-    .detail-modal-header-actions:has(> :nth-child(2)) > a {
+    .detail-modal-header-actions--mobile-grid > button,
+    .detail-modal-header-actions--mobile-grid > a {
       width: 100%;
       justify-content: center;
     }

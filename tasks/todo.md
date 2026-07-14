@@ -2558,3 +2558,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   seçicinin trigger/placeholder ve açılır menü seçenekleri 12px'e küçültüldü.
 
 ## STATUS: Round 314 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 315 (Doing — 2026-07-14, mobil detay aksiyon grid'i yeniden açıldı)
+- [x] `6a554af5aa9f90a9fcc61c75` / #1609 reopen — Mobil detay header'larındaki iki kolon
+  düzeni `:has()` tarayıcı desteğinden ayrıldı; talep, görev, ortak talep ve bildirim detaylarında
+  açık mobil-grid sınıflarıyla butonlar kompakt ve satır başına iki adet akıyor.
+
+## STATUS: Round 315 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.

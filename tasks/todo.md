@@ -7,7 +7,7 @@
 Board: https://trello.com/b/4kvG8aa5 · List: Doing (`69ef9d96d58778f5f9f53ff7`)
 Polling every ~5 min this session. Commit + push to main after each card.
 
-## Round 311 — 16 kartlık detay/ek/not responsive paketi
+## Round 312 — 16 kartlık detay/ek/not responsive paketi
 - [x] `6a5655df` — Durum değişikliği nedeni FE+BE 100 karakter.
 - [x] `6a56571e` — Talebi İptal Et nedeni tüm UI yüzeyleri + BE 100 karakter.
 - [x] `6a5656e4` — Görevi İptal Et nedeni FE+BE 100 karakter.

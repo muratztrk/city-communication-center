@@ -125,7 +125,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                 && a.Action == "TaskStatusChanged"
                 && a.StatusAtEvent != null)
             .OrderBy(a => a.EventTimeUtc)
-            .Select(a => new { a.StatusAtEvent, a.Details, a.EventTimeUtc })
+            .Select(a => new { a.StatusAtEvent, a.Details, a.Notes, a.ActorDisplayName, a.EventTimeUtc })
             .ToListAsync(cancellationToken);
         // Her "Durum Değiştir" denetim kaydı zaten kendi geçişini taşır (Details = "Önceki->Yeni",
         // ChangeTaskStatusCommand'da yazılır) — önceki kayda bakmaya gerek yok, tek kullanımda bile
@@ -135,7 +135,12 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             {
                 var parts = audit.Details?.Split("->", 2);
                 var fromStatus = parts?.Length == 2 ? parts[0] : null;
-                return new TaskStatusChangeHistoryResponse(fromStatus, audit.StatusAtEvent!, null, null, audit.EventTimeUtc);
+                return new TaskStatusChangeHistoryResponse(
+                    fromStatus,
+                    audit.StatusAtEvent!,
+                    audit.Notes,
+                    audit.ActorDisplayName,
+                    audit.EventTimeUtc);
             })
             .ToList();
         statusTransitions.Reverse(); // en yeni üstte

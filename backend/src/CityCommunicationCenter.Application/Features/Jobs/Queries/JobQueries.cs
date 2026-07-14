@@ -474,7 +474,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     && a.Action == "TaskStatusChanged"
                     && a.StatusAtEvent != null)
                 .OrderBy(a => a.EventTimeUtc)
-                .Select(a => new { a.EntityId, a.StatusAtEvent, a.Details, a.EventTimeUtc })
+                .Select(a => new { a.EntityId, a.StatusAtEvent, a.Details, a.Notes, a.ActorDisplayName, a.EventTimeUtc })
                 .ToListAsync(cancellationToken);
             var statusHistoryByTask = taskStatusAuditRows
                 .GroupBy(row => row.EntityId)
@@ -487,7 +487,12 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                             {
                                 var parts = audit.Details?.Split("->", 2);
                                 var fromStatus = parts?.Length == 2 ? parts[0] : null;
-                                return new TaskStatusChangeHistoryResponse(fromStatus, audit.StatusAtEvent!, null, null, audit.EventTimeUtc);
+                                return new TaskStatusChangeHistoryResponse(
+                                    fromStatus,
+                                    audit.StatusAtEvent!,
+                                    audit.Notes,
+                                    audit.ActorDisplayName,
+                                    audit.EventTimeUtc);
                             })
                             .ToList();
                         transitions.Reverse();

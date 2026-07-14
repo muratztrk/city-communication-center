@@ -143,10 +143,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonrası güncel atanan). `AssignTask` `OwnerUserId`'i değiştirmez, sadece `AssignedUserId`.
 - **Görev Atama Geçmişi:** ilk atanan kullanıcıdan farklı bir kullanıcıya yönlendirme yoksa
   gösterilmez; varsa Tasks detayındaki Görev Detayları kartında Açıklama'nın sağında sütun olarak görünür.
-- **Görev Detayları durum değişikliği özeti:** Durum değiştiyse `Görev Bilgileri` altında
-  `Durum Değişikliği` satırı ilk durum → son durum şeklinde görünür; durum metinleri normal ağırlıkta,
-  tarihleri saniyesiz ve durumların altında ortalıdır. `İptal`/iade kırmızı, `Yapılmakta` turuncu,
-  `Tamamlanmış` yeşil metindir.
+- **Görev Detayları durum değişikliği özeti:** Durum değiştiyse `Durum Değişikliği`, Görev Bilgileri
+  içinden çıkar ve sağdaki `Süreç` timeline'ı bittikten sonra satır olarak görünür; hemen altındaki
+  `Durum Değişikliği Nedeni`, audit `Notes` alanındaki gerçek textbox verisini gösterir. Backend
+  hem `GetTaskByIdQuery` hem `JobQueries` projeksiyonunda `Notes`/`ActorDisplayName` taşır.
+  Özet ilk durum → son durumdur; metinler normal ağırlıkta, tarihler saniyesiz ve durumların altında
+  ortalıdır. `İptal`/iade kırmızı, `Yapılmakta` turuncu, `Tamamlanmış` yeşildir (cards #1624/#1619 reopen).
 - **Görev Detayları geçmiş kolonları:** Açıklama + Görev Atama Geçmişi birlikte görünürken sol
   "Görev No/Talep No" bilgi kolonları dar tutulur; geçmiş başlıkları tek satır kalacak kadar sağ panel alanı bırakılır.
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
@@ -157,7 +159,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gibi normal geçişler de dahil. Mantık: audit'ler zaman sırasıyla gezilir, `StatusAtEvent` bir öncekinden
   farklıysa bir geçiş kaydı çıkar. Eski audit zinciri ilk kaydı doğrudan yeni durumla başlatırsa
   Atandı→ilk durum geçişi sentetik görünür. Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun
-  (rutin görevlerde gizli); UI yalnızca **durum + tarih** gösterir (card #1095). Atama Geçmişi ile
+  (rutin görevlerde gizli); eski yalnız-durum+tarih kuralı #1619/#1624 ile geçersizdir. Atama Geçmişi ile
   yan yana görünürse iki geçmiş başlığı da tek satıra sığacak şekilde geniş tutulur.
 - **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
   görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
@@ -221,7 +223,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilir; daha hızlı yüklemelerde gösterge yanıp sönmez. XHR progress callback'i korunur
   (card #1610).
   Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
-  adı mavi ve uzantısı küçük harftir. İki görsel satırdan sonrası kendi alanında scroll olur
+  adı mavi ve uzantısı küçük harftir. Liste `display:grid !important` ile iki eşit kolondur;
+  JSX düzenleme öğesine border utility eklemez. İki görsel satırdan sonrası kendi alanında scroll olur
   (cards #1615/#1616/#1618). Görevi Tamamla geçici ekleri de yatay sarılır, küçük harf uzantı
   kullanır ve iki satırdan sonra scroll olur (card #1617).
   Detay popup'larında `Görev Bilgileri > Görev Ekleri` veya `Talep Bilgileri > Talep Ekleri`
@@ -505,8 +508,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WhatsApp `Sent`/`Failed` entry eklediğinde ilgili `CitizenConversation.LastMessageAt/UnreadCount`
   değerlerini ve SignalR WhatsApp payload'ını da günceller; aksi halde mesaj operatör listesinde
   son konuşma/sıra olarak görünmeyebilir.
-- **Durum Değişikliği Geçmişi yalnızca durum + tarih gösterir** (neden/aktör kaldırıldı — card #1095);
-  veri yine `TaskStatusChanged` audit'inden türer.
+- **Durum Değişikliği Geçmişi audit reason taşır:** #1095'te kaldırılan neden, #1619 reopen ile
+  geri gelmiştir; veri `TaskStatusChanged` audit `Notes` alanından okunur ve Süreç altında gösterilir.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres
@@ -687,10 +690,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim ailesi ilgili talep birleşik etiketi (card #1589):** Görevlerim, Birimdeki Görevler
   ve Personelimin Görevleri popup'larında başlık `Öncelik / Proje mi` biçimindedir; sonunda `?` yoktur.
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
-  detayında bağlı talebin `Öncelik` etiketi/değeri Görev Bilgileri başlığının sağına yaslanır.
+  detayında bağlı talebin `Öncelik` etiketi/değeri `job-detail-card-title--spread` ile Görev Bilgileri
+  başlığının sağ border'ına yaslanır; `Normal` bu yüzeyde emerald yeşilidir.
   Alanlarda `Görevi Atayan Yönetici` üstte, `Görevi Yapan` hemen alttadır (cards #1611/#1613).
-  Durum Değiştir geçmişi varsa `Durum Değişikliği` satırının hemen altında son işlemin gerçek
-  nedeni `Durum Değişikliği Nedeni` olarak gösterilir (card #1619).
+  Durum Değiştir geçmişi Süreç timeline'ı altında, son işlemin gerçek nedeni hemen altındadır
+  (cards #1619 reopen/#1624).
 - **Birime Gelen Görev Detayları açıklaması (card #1584):** yalnız Birime Gelen detay popup'ında
   aktif görevin düz `Açıklama` kartı gizlenir; terminal Görev Tamamlama/İptal Notu korunur.
 - **Yönetici Taleplerim görev özeti (card #1550):** yalnız Manager/SystemAdmin görünümünde düz

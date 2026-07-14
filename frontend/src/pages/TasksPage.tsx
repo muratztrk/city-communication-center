@@ -2006,13 +2006,13 @@ const pageKicker = isMyTasksView
                         )}
                       </div>
                       <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
-                        <MyRequestSectionHeading icon={Info}>
+                        <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
                           <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
                             <span className="min-w-0">{t('tasks.detail.infoFields', 'Görev Bilgileri')}</span>
                             {parentJobDetail ? (
                               <span className="ml-auto flex flex-col items-end text-right text-[11px] leading-tight">
                                 <span className="font-semibold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                                <span className={`font-bold ${getPriorityColorClass(parentJobDetail.priority)}`}>
+                                <span className={`font-bold ${parentJobDetail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(parentJobDetail.priority)}`}>
                                   {getPriorityLabel(t, parentJobDetail.priority)}
                                 </span>
                               </span>
@@ -2063,41 +2063,6 @@ const pageKicker = isMyTasksView
                             // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
                             // assignedUser önce, yoksa owner (card #719).
                             { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
-                            // Görev durumu değiştiyse Görev Tipi'nin hemen altında; geçmiş listesi yerine
-                            // ilk/son durum tek satırda özetlenir (card #1443 tekrarı).
-                            ...(taskDetail.jobSourceType !== 'Routine' && (taskDetail.statusChangeHistory?.length ?? 0) > 0
-                              ? [{
-                                  label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği'),
-                                  value: (() => {
-                                    const history = taskDetail.statusChangeHistory!
-                                    const firstChange = history[history.length - 1]
-                                    const lastChange = history[0]
-                                    // "Durum Değiştir" öncesindeki durum (fromStatus) ilk durum olarak, butonla
-                                    // seçilen yeni durum (toStatus) son durum olarak gösterilir — ikisi aynı
-                                    // anda "Yapılmakta" gibi görünmemeli (card #1474).
-                                    const firstStatus = firstChange.fromStatus ?? firstChange.toStatus
-                                    return (
-                                      <div className="flex w-full items-start justify-end gap-2 text-right">
-                                        <div className="min-w-0">
-                                          <div className={`font-normal ${getStatusChangeTextClass(firstStatus)}`}>{getTaskStatusLabel(t, firstStatus)}</div>
-                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstChange.changedAtUtc, locale)}</div>
-                                        </div>
-                                        <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-                                        <div className="min-w-0">
-                                          <div className={`font-normal ${getStatusChangeTextClass(lastChange.toStatus)}`}>{getTaskStatusLabel(t, lastChange.toStatus)}</div>
-                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(lastChange.changedAtUtc, locale)}</div>
-                                        </div>
-                                      </div>
-                                    )
-                                  })(),
-                                }]
-                              : []),
-                            ...(taskDetail.jobSourceType !== 'Routine' && (taskDetail.statusChangeHistory?.length ?? 0) > 0
-                              ? [{
-                                  label: t('tasks.detail.statusChangeReason', 'Durum Değişikliği Nedeni'),
-                                  value: taskDetail.statusChangeHistory![0].reason ?? '—',
-                                }]
-                              : []),
                             // Görev Ekleri artık ayrı bir kart değil, Durum Değişikliği'nin hemen
                             // altında diğer verilerle aynı hizada tek satır (card #1482); sadece
                             // görev Tamamlandı/İptal Edildi olduğunda gösterilir (card #1520).
@@ -2356,15 +2321,47 @@ const pageKicker = isMyTasksView
                               )}
                             </div>
                           )
+                          const statusChangeHistory = taskDetail.statusChangeHistory ?? []
+                          const firstStatusChange = statusChangeHistory[statusChangeHistory.length - 1]
+                          const latestStatusChange = statusChangeHistory[0]
+                          const firstChangedStatus = firstStatusChange
+                            ? firstStatusChange.fromStatus ?? firstStatusChange.toStatus
+                            : null
                           return (
-                            <JobProcessTimeline
-                              steps={steps}
-                              locale={locale}
-                              statusContent={statusContent}
-                              statusActorName={taskDetail.statusActorDisplayName ?? null}
-                              statusNoteContent={statusNoteContent}
-                              dueDateContent={dueDateContent}
-                            />
+                            <>
+                              <JobProcessTimeline
+                                steps={steps}
+                                locale={locale}
+                                statusContent={statusContent}
+                                statusActorName={taskDetail.statusActorDisplayName ?? null}
+                                statusNoteContent={statusNoteContent}
+                                dueDateContent={dueDateContent}
+                              />
+                              {firstStatusChange && latestStatusChange && firstChangedStatus ? (
+                                <div className="task-process-status-change mt-1 border-t border-slate-100 pt-1">
+                                  <div className="job-detail-field-row job-detail-field-row--request-info">
+                                    <div className="job-detail-field-row__label">{t('tasks.detail.statusChangeHistory', 'Durum Değişikliği')}</div>
+                                    <div className="job-detail-field-row__value">
+                                      <div className="flex w-full items-start justify-end gap-2 text-right">
+                                        <div className="min-w-0">
+                                          <div className={`font-normal ${getStatusChangeTextClass(firstChangedStatus)}`}>{getTaskStatusLabel(t, firstChangedStatus)}</div>
+                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstStatusChange.changedAtUtc, locale)}</div>
+                                        </div>
+                                        <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                                        <div className="min-w-0">
+                                          <div className={`font-normal ${getStatusChangeTextClass(latestStatusChange.toStatus)}`}>{getTaskStatusLabel(t, latestStatusChange.toStatus)}</div>
+                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(latestStatusChange.changedAtUtc, locale)}</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="job-detail-field-row job-detail-field-row--request-info">
+                                    <div className="job-detail-field-row__label">{t('tasks.detail.statusChangeReason', 'Durum Değişikliği Nedeni')}</div>
+                                    <div className="job-detail-field-row__value text-slate-900">{latestStatusChange.reason ?? '—'}</div>
+                                  </div>
+                                </div>
+                              ) : null}
+                            </>
                           )
                         })()}
                       </div>
@@ -2372,8 +2369,8 @@ const pageKicker = isMyTasksView
                   </section>
 
                   {/* Görev Atama Geçmişi — Taleplerim alt kartlarıyla aynı kart dili.
-                      Durum Değişikliği Geçmişi ve Görev Ekleri artık Görev Bilgileri panelinde
-                      (Görev Tipi altında), ayrı kart değil (card #1443/#1482). */}
+                      Durum Değişikliği özeti Süreç timeline'ının altında; Görev Ekleri ise
+                      Görev Bilgileri panelinde kalır (cards #1443/#1482/#1624). */}
                   {taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0 && (
                     <div className="my-request-detail-bottom mb-5 grid gap-4">
                       <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">

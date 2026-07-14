@@ -451,22 +451,20 @@
 
   .attachment-section--rich-edit .attachment-rich-list {
     min-width: 0;
-    display: flex;
+    display: grid !important;
     max-height: 4.25rem;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    align-content: flex-start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.35rem 0.5rem;
     overflow-y: auto;
     scrollbar-gutter: stable;
   }
 
   .attachment-section--rich-edit .attachment-rich-list > li {
-    width: auto;
+    width: 100%;
     max-width: 100%;
-    border: 0;
-    background: transparent;
-    padding: 0.2rem 0;
+    border: 0 !important;
+    background: transparent !important;
+    padding: 0.2rem 0 !important;
   }
 
   .attachment-section--rich-edit .attachment-rich-list > li > div {

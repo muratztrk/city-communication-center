@@ -7,6 +7,13 @@
 Board: https://trello.com/b/4kvG8aa5 · List: Doing (`69ef9d96d58778f5f9f53ff7`)
 Polling every ~5 min this session. Commit + push to main after each card.
 
+## Round 313 — Öncelik/ek grid/status reason reopen paketi
+- [x] `6a563a62` reopen — Görev Bilgileri Öncelik sağ border'a dayalı; Normal emerald yeşil.
+- [x] `6a5642d7` / `6a564431` reopen — Düzenleme ekleri JSX bordersız ve zorunlu iki kolon yatay grid.
+- [x] `6a56553f` — Durum Değişikliği özeti Görev Bilgileri'nden Süreç timeline altına taşındı.
+- [x] `6a5653fe` reopen — Audit Notes/Actor backend response'a taşındı; gerçek Durum Değişikliği Nedeni görünür.
+- [x] Doğrulama: backend build + test; frontend build/lint.
+
 ## Round 312 — 16 kartlık detay/ek/not responsive paketi
 - [x] `6a5655df` — Durum değişikliği nedeni FE+BE 100 karakter.
 - [x] `6a56571e` — Talebi İptal Et nedeni tüm UI yüzeyleri + BE 100 karakter.

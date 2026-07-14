@@ -2538,3 +2538,23 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   doğrulanmalı (tarayıcı devtools'ta ws:// yerine SSE/long-poll görünüyorsa proxy sorunu).
 
 ## STATUS: Round 311 complete — backend build + 46 test, frontend build/lint passed; cards ready to move to Done.
+
+## Round 313 (Doing — 2026-07-14, görev detay sunumu yeniden açılan kartlar)
+- [x] `6a563a623158fe07784905d4` — Görev Bilgileri başlığında Öncelik sağ sınıra taşındı;
+  Normal değeri yeşil, diğer değerler ortak öncelik rengiyle gösteriliyor.
+- [x] `6a5642d748694e2e391808a2` + `6a564431a4a143047381792b` reopen — Talep/Görev
+  düzenleme ekleri bordersız ve iki eşit sütunlu rich-list düzenine alındı.
+- [x] `6a56553f21b1c6a63deb279b` + `6a5653fe5e8fbe12c2823600` — Durum Değişikliği
+  özeti Görev Bilgileri'nden Süreç timeline'ının altına taşındı; gerçek neden ve aktör audit
+  projeksiyonundan gösteriliyor.
+
+## STATUS: Round 313 complete — backend build + 46 test, frontend build/lint passed; cards moved to Done.
+
+## Round 314 (Doing — 2026-07-14, tamamlama eki hizası + durum dropdown tipografisi)
+- [x] `6a564f988447c6a83ad6cd85` / #1617 reopen — Görevi Tamamla geçici eklerinde ikonun
+  üst marjı kaldırıldı, dosya adı 20px satır yüksekliğine alındı; tek satırda dikey orta hizası
+  sağlanırken uzun dosya adlarının doğal biçimde alt satıra geçmesi korundu.
+- [x] `6a5651629a3e69161c146529` / #1612 reopen — Görev Durum Değişikliği popup'ındaki durum
+  seçicinin trigger/placeholder ve açılır menü seçenekleri 12px'e küçültüldü.
+
+## STATUS: Round 314 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

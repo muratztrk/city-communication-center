@@ -2235,6 +2235,10 @@
     max-width: calc(50% - 0.5rem);
   }
 
+  .task-status-change-menu-scroll .dropdown-menu-item {
+    font-size: 0.75rem;
+  }
+
   .my-request-edit-priority-menu .dropdown-menu-item,
   .my-request-edit-neighborhood-menu .dropdown-menu-item {
     min-height: 2rem;

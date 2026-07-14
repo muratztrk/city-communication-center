@@ -3148,10 +3148,10 @@ const pageKicker = isMyTasksView
                   const Icon = completionAttachmentIcon(item.fileName)
                   return (
                   <li key={item.attachmentId} className="inline-flex min-w-0 items-start gap-2">
-                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                       <Icon className="size-3" aria-hidden="true" />
                     </span>
-                    <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
+                    <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
                     <button
                       type="button"
                       className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
@@ -3334,6 +3334,7 @@ const pageKicker = isMyTasksView
               <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'Görev Durumu Seç')}</span>
               <SingleSelectDropdown
                 className="w-full"
+                triggerClassName="text-xs font-medium"
                 menuScrollClassName="task-status-change-menu-scroll"
                 options={STATUS_CHANGE_OPTIONS
                   .filter(option => option.value !== statusChangeModal.currentStatus)

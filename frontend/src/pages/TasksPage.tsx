@@ -2090,18 +2090,19 @@ const pageKicker = isMyTasksView
                               && (taskDetail.currentStatus === 'Completed' || taskDetail.currentStatus === 'Cancelled')
                               ? [{
                                   label: t('tasks.detail.attachments', 'Görev Ekleri'),
+                                  // Dosya adı mavi; liste iki satırı aşarsa kendi içinde kayar (card #1617).
                                   value: (taskDetail.attachments?.length ?? 0) === 0 ? '—' : (
-                                    <div className="flex flex-col items-end gap-1">
+                                    <div className="flex max-h-11 flex-col items-end gap-1 overflow-y-auto pr-0.5 [scrollbar-gutter:stable]">
                                       {taskDetail.attachments!.map(attachment => {
                                         const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
                                         return (
                                           <button
                                             key={attachment.attachmentId}
                                             type="button"
-                                            className="inline-flex max-w-full items-center gap-1 text-emerald-700 hover:text-emerald-800"
+                                            className="inline-flex max-w-full items-center gap-1 text-blue-600 hover:text-blue-700"
                                             onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                           >
-                                            <AttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                                            <AttachmentIcon className="size-3.5 shrink-0 text-emerald-700" aria-hidden="true" />
                                             <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                           </button>
                                         )
@@ -2608,18 +2609,19 @@ const pageKicker = isMyTasksView
                           extraTrailingRows={isEditingThisParentJob ? undefined : [
                             {
                               label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
+                              // Görev Ekleri satırıyla aynı sunum: mavi ad, iki satırı aşınca scroll (card #1617).
                               value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
-                                <div className="flex flex-col items-end gap-1">
+                                <div className="flex max-h-11 flex-col items-end gap-1 overflow-y-auto pr-0.5 [scrollbar-gutter:stable]">
                                   {parentJobDetail.attachments!.map(attachment => {
                                     const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
                                     return (
                                       <button
                                         key={attachment.attachmentId}
                                         type="button"
-                                        className="inline-flex max-w-full items-center gap-1 text-emerald-700 hover:text-emerald-800"
+                                        className="inline-flex max-w-full items-center gap-1 text-blue-600 hover:text-blue-700"
                                         onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                       >
-                                        <AttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                                        <AttachmentIcon className="size-3.5 shrink-0 text-emerald-700" aria-hidden="true" />
                                         <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                       </button>
                                     )

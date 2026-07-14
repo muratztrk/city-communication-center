@@ -4,6 +4,14 @@
 
 # Trello "Doing" list — implementation tracking
 
+## Round 317 — Ek sunumu reopen paketi (view=edit)
+- [x] `6a554bbc` (#1610 reopen) — Çoklu dosya seçiminde tek 1 sn zamanlayıcı + bayt ağırlıklı birleşik yüzde; geçersiz seçim sonrası input değeri temizlenir.
+- [x] `6a564431` (#1614 reopen) / `6a5650a0` (#1617 reopen) — Salt-okunur rich-list `attachment-section--rich-view` ile edit sunumunu aldı (iki kolon, bordersız, 2 satır scroll). Mavi ad `!important` ile: Round 312'nin mavi kuralı utilities katmanına yenildiği için hiç uygulanmamıştı (asıl reopen nedeni). Görev Bilgileri + İlgili Talep ek satırları da mavi + `max-h-11` scroll.
+- [x] `6a564227` (#1612) — ≤1600px'te my-request adres edit grid'i tek kolon (mobil dahil), alanlar `min-w-0`, modal alanları bir tık kompakt; kısa-viewport bloğuyla padding çakışması 0.75rem'de eşitlendi.
+- [x] `6a552d8d` (#1601 eighth reopen) — "Dosya ekle" Talep/Görev Ekleri'nde ortak 1.875rem/12px.
+- [x] /review: 6 bulgu (0 kritik) — 5 düzeltildi (compare paneli scroll sızıntısı dahil), 1 bilinçli atlandı (başarısız dosyanın progress'e sayılması).
+- [x] Doğrulama: frontend build + lint (0 error, 4 mevcut hook warning); derlenmiş CSS statik harness'ta ölçüldü (mavi, scroll, tek kolon, buton 30px).
+
 Board: https://trello.com/b/4kvG8aa5 · List: Doing (`69ef9d96d58778f5f9f53ff7`)
 Polling every ~5 min this session. Commit + push to main after each card.
 

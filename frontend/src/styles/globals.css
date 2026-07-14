@@ -449,7 +449,9 @@
     justify-self: start;
   }
 
-  .attachment-section--rich-edit .attachment-rich-list {
+  /* Salt-okunur (--rich-view) liste düzenleme moduyla aynı görünür (cards #1614/#1617). */
+  .attachment-section--rich-edit .attachment-rich-list,
+  .attachment-section--rich-view .attachment-rich-list {
     min-width: 0;
     display: grid !important;
     max-height: 4.25rem;
@@ -459,7 +461,8 @@
     scrollbar-gutter: stable;
   }
 
-  .attachment-section--rich-edit .attachment-rich-list > li {
+  .attachment-section--rich-edit .attachment-rich-list > li,
+  .attachment-section--rich-view .attachment-rich-list > li {
     width: 100%;
     max-width: 100%;
     border: 0 !important;
@@ -467,19 +470,31 @@
     padding: 0.2rem 0 !important;
   }
 
+  /* Not: salt-okunur listedeki ikon rozeti (emerald çerçeve) bilinçli korunur —
+     rutin düzenleme geçmişi karşılaştırmasında onaylı desenle aynı (#1614 yalnız
+     satır çerçevesini kaldırır). Utility'ler bu bildirimi zaten ezdiği için
+     --rich-view bu kurala eklenmez. */
   .attachment-section--rich-edit .attachment-rich-list > li > div {
     border: 0;
     background: transparent;
   }
 
-  .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span {
-    color: rgb(37 99 235);
+  .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span,
+  .attachment-section--rich-view .attachment-rich-list > li > button:first-of-type span {
+    /* !important şart: span'daki text-slate-900 utility'si components katmanını eziyor
+       (#1617 reopen'ın kök nedeni — mavi Round 312'de hiç uygulanmamış). */
+    color: rgb(37 99 235) !important;
   }
 
   .routine-edit-history-attachment-compare .attachment-rich-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.35rem 0.5rem;
+    /* Önceki/Sonraki karşılaştırması tam liste gösterir; --rich-view'ün 2 satır
+       scroll sınırı burada farkları gizlemesin (review bulgusu, round 317). */
+    max-height: none;
+    overflow-y: visible;
+    scrollbar-gutter: auto;
   }
 
   .routine-edit-history-attachment-compare .attachment-rich-list > li {
@@ -2215,18 +2230,13 @@
     font-size: 0.75rem;
   }
 
-  .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button {
-    height: 1.625rem !important;
-    min-height: 1.625rem !important;
-    padding-inline: 0.5625rem !important;
-    font-size: 0.65625rem !important;
-  }
-
+  /* "Dosya ekle" butonu bir tık büyük; Talep Ekleri ve Görev Ekleri aynı ölçüde (card #1601). */
+  .detail-modal-shell--my-request .attachment-section--rich-edit .attachment-upload-zone button,
   .detail-modal-shell--my-request .routine-task-attachments-card .attachment-upload-zone button {
-    height: 1.75rem !important;
-    min-height: 1.75rem !important;
-    padding-inline: 0.625rem !important;
-    font-size: 0.6875rem !important;
+    height: 1.875rem !important;
+    min-height: 1.875rem !important;
+    padding-inline: 0.6875rem !important;
+    font-size: 0.75rem !important;
   }
 
   .routine-task-attachments-card .attachment-rich-list {
@@ -4247,6 +4257,38 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     justify-content: stretch;
     gap: 0.55rem 0.75rem;
+  }
+}
+
+/* 15.6" ve daha küçük monitörler (ör. %125 ölçekli 1080p → ~1536px viewport): detay popup
+   bileşenleri bir tık daha kompakt, adres düzenleme alanları tek kolon akar ve Mahalle
+   seçimi komşu alanların üstüne binmez (card #1612). Tek kolon kuralı mobili de kapsar;
+   telefonda da grid-cols-3 sıkışmasın (invariant: mobil modal formları tek kolon akar). */
+@media (max-width: 1600px) {
+  .detail-modal-shell--my-request .my-request-edit-address-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1600px) {
+  /* 0.75rem: kısa-viewport bloğundaki (max-height: 900px) mevcut kompaktlaştırmayla
+     aynı değer — iki medya sorgusu birlikte eşleştiğinde çelişki olmasın. */
+  .detail-modal-shell--my-request .my-request-detail-bottom .my-request-detail-card {
+    padding: 0.75rem !important;
+  }
+
+  .detail-modal-shell--my-request .field-input,
+  .detail-modal-shell--my-request .field-select,
+  .detail-modal-shell--my-request .field-textarea {
+    font-size: 0.72rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-edit-fields .field-input,
+  .detail-modal-shell--my-request .my-request-edit-fields .field-select,
+  .detail-modal-shell--my-request .my-request-edit-fields .field-textarea {
+    min-height: 1.85rem;
+    padding: 0.28rem 0.45rem;
   }
 }
 

@@ -25,12 +25,15 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
 
   return (
     <div className="my-request-edit-fields grid gap-3">
-      <div className="grid grid-cols-3 gap-3">
-        <label className="grid gap-1">
+      {/* Kolonlar min-w-0 ile daralabilir kalır; dar ekranda grid tek kolona iner,
+          Mahalle seçimi komşu alanın üstüne binmez (card #1612). */}
+      <div className="my-request-edit-address-grid grid grid-cols-3 gap-3">
+        <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
           <SingleSelectDropdown
             openUp
             searchable
+            className="min-w-0 max-w-full"
             menuClassName="min-w-full w-max max-w-[20rem]"
             menuScrollClassName="my-request-edit-neighborhood-menu"
             options={neighborhoodOptions}
@@ -41,7 +44,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
           />
         </label>
-        <label className="grid gap-1">
+        <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
           <textarea
             className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
@@ -54,7 +57,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             disabled={!hasNeighborhood}
           />
         </label>
-        <label className="grid gap-1">
+        <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
           <textarea
             className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"

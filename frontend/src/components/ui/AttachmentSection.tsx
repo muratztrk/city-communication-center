@@ -78,30 +78,45 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
     setValidationError(null)
-    for (const file of Array.from(files)) {
+    const selectedFiles = Array.from(files)
+    for (const file of selectedFiles) {
       const error = validate(file)
       if (error) {
         setValidationError(error)
+        // Aynı dosya(lar) yeniden seçilebilsin; değer temizlenmezse change tetiklenmez.
+        if (fileInputRef.current) fileInputRef.current.value = ''
         return
       }
-      setUploading(true)
-      setUploadProgress(0)
-      setShowUploadProgress(false)
-      clearUploadProgressDelay()
-      uploadProgressDelayRef.current = window.setTimeout(() => {
-        uploadProgressDelayRef.current = null
-        setShowUploadProgress(true)
-      }, 1_000)
-      try {
-        await onUpload?.(file, setUploadProgress)
-      } catch (err) {
-        setValidationError(err instanceof Error ? err.message : String(err))
-      } finally {
-        clearUploadProgressDelay()
-        setShowUploadProgress(false)
-        setUploading(false)
-        setUploadProgress(0)
+    }
+    // Tek zamanlayıcı + dosyalar arası birleşik yüzde: her dosya tek başına 1 sn altında
+    // yüklense bile toplam süre 1 sn'yi aşarsa progress bar görünür (card #1610 reopen).
+    const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
+    let uploadedBytes = 0
+    setUploading(true)
+    setUploadProgress(0)
+    setShowUploadProgress(false)
+    clearUploadProgressDelay()
+    uploadProgressDelayRef.current = window.setTimeout(() => {
+      uploadProgressDelayRef.current = null
+      setShowUploadProgress(true)
+    }, 1_000)
+    try {
+      for (const file of selectedFiles) {
+        try {
+          await onUpload?.(file, percent => {
+            setUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+          })
+        } catch (err) {
+          setValidationError(err instanceof Error ? err.message : String(err))
+        }
+        uploadedBytes += file.size
+        setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
       }
+    } finally {
+      clearUploadProgressDelay()
+      setShowUploadProgress(false)
+      setUploading(false)
+      setUploadProgress(0)
     }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
@@ -150,8 +165,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     ? 'grid grid-cols-[repeat(auto-fit,minmax(4.75rem,1fr))] gap-2'
     : 'grid grid-cols-[repeat(auto-fit,minmax(6.5rem,1fr))] gap-3'
   const previewHeightClassName = compact ? 'h-16' : 'h-24'
-  const sectionClassName = displayMode === 'rich-list' && !readOnly
-    ? 'page-stack attachment-section--rich-edit'
+  // Salt-okunur rich-list de düzenleme moduyla aynı sunumu kullanır: yan yana iki kolon,
+  // çerçevesiz, mavi dosya adı, iki satırı aşınca scroll (cards #1614/#1617 reopen).
+  const sectionClassName = displayMode === 'rich-list'
+    ? (readOnly ? 'page-stack attachment-section--rich-view' : 'page-stack attachment-section--rich-edit')
     : 'page-stack'
   const canShowDeleteActions = !readOnly && (showDeleteActions ?? true)
 

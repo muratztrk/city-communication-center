@@ -167,6 +167,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yan yana görünürse iki geçmiş başlığı da tek satıra sığacak şekilde geniş tutulur.
 - **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
   görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
+- **Ek listesi sunumu (round 317, #1614/#1617):** Talep/Görev Ekleri listeleri view ve edit modunda AYNI
+  görünür: iki kolon, bordersız satır, MAVİ dosya adı (`!important` şart — span'daki `text-slate-900`
+  utility'si components katmanını ezer; renk kuralı yazınca computed style ile doğrula), iki satırı aşınca
+  scroll. Rutin düzenleme geçmişi Önceki/Sonraki karşılaştırması İSTİSNA: tam liste, scroll kırpması yok.
 
 ## 2. Talepler (Jobs) — `pages/JobsPage.tsx`
 

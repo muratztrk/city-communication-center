@@ -2063,6 +2063,26 @@ const pageKicker = isMyTasksView
                             // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
                             // assignedUser önce, yoksa owner (card #719).
                             { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
+                            ...(() => {
+                              const statusChangeWithReason = (taskDetail.statusChangeHistory ?? []).find(item => item.reason?.trim())
+                              return statusChangeWithReason
+                                ? [{
+                                    label: t('tasks.detail.statusChangeReason', 'Durum Değişikliği Nedeni'),
+                                    value: statusChangeWithReason.reason!.trim(),
+                                  }]
+                                : []
+                            })(),
+                            ...(taskDetail.currentStatus === 'Completed'
+                              ? [{
+                                  label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                                  value: richTextToPlainText(taskDetail.notes ?? '') || '—',
+                                }]
+                              : taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
+                                ? [{
+                                    label: t('tasks.detail.cancelNote', 'İptal Notu'),
+                                    value: taskDetail.revisionReason?.trim() || '—',
+                                  }]
+                                : []),
                             // Görev Ekleri artık ayrı bir kart değil, Durum Değişikliği'nin hemen
                             // altında diğer verilerle aynı hizada tek satır (card #1482); sadece
                             // görev Tamamlandı/İptal Edildi olduğunda gösterilir (card #1520).
@@ -2344,20 +2364,16 @@ const pageKicker = isMyTasksView
                                     <div className="job-detail-field-row__value">
                                       <div className="flex w-full items-start justify-end gap-2 text-right">
                                         <div className="min-w-0">
-                                          <div className={`font-normal ${getStatusChangeTextClass(firstChangedStatus)}`}>{getTaskStatusLabel(t, firstChangedStatus)}</div>
+                                          <div className={`text-xs font-normal leading-tight ${getStatusChangeTextClass(firstChangedStatus)}`}>{getTaskStatusLabel(t, firstChangedStatus)}</div>
                                           <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstStatusChange.changedAtUtc, locale)}</div>
                                         </div>
                                         <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
                                         <div className="min-w-0">
-                                          <div className={`font-normal ${getStatusChangeTextClass(latestStatusChange.toStatus)}`}>{getTaskStatusLabel(t, latestStatusChange.toStatus)}</div>
+                                          <div className={`text-xs font-normal leading-tight ${getStatusChangeTextClass(latestStatusChange.toStatus)}`}>{getTaskStatusLabel(t, latestStatusChange.toStatus)}</div>
                                           <div className="text-[10px] font-normal text-slate-500">{formatDateTime(latestStatusChange.changedAtUtc, locale)}</div>
                                         </div>
                                       </div>
                                     </div>
-                                  </div>
-                                  <div className="job-detail-field-row job-detail-field-row--request-info">
-                                    <div className="job-detail-field-row__label">{t('tasks.detail.statusChangeReason', 'Durum Değişikliği Nedeni')}</div>
-                                    <div className="job-detail-field-row__value text-slate-900">{latestStatusChange.reason ?? '—'}</div>
                                   </div>
                                 </div>
                               ) : null}
@@ -2369,8 +2385,8 @@ const pageKicker = isMyTasksView
                   </section>
 
                   {/* Görev Atama Geçmişi — Taleplerim alt kartlarıyla aynı kart dili.
-                      Durum Değişikliği özeti Süreç timeline'ının altında; Görev Ekleri ise
-                      Görev Bilgileri panelinde kalır (cards #1443/#1482/#1624). */}
+                      Durum Değişikliği özeti Süreç timeline'ının altında; nedeni ve Görev Ekleri
+                      Görev Bilgileri panelinde kalır (cards #1443/#1482/#1624/#1627). */}
                   {taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0 && (
                     <div className="my-request-detail-bottom mb-5 grid gap-4">
                       <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
@@ -2742,21 +2758,23 @@ const pageKicker = isMyTasksView
                     )}
                     {attachmentsChanged ? (
                       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                        <div className="rounded-lg border border-slate-200 bg-white p-3">
+                        <div className="routine-edit-history-attachment-compare rounded-lg border border-slate-200 bg-white p-3">
                           <div className="mb-2 text-xs font-semibold text-slate-500">{t('tasks.detail.routineEditBefore', 'Önceki')}</div>
                           <AttachmentSection
                             attachments={snapshotAttachmentsToAttachmentList(entry.snapshot.attachments)}
                             readOnly
                             compact
+                            displayMode="rich-list"
                             emptyText={t('attachments.routineEmpty', 'Rutin Görev için ek/fotoğraf bulunmamaktadır.')}
                           />
                         </div>
-                        <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3">
+                        <div className="routine-edit-history-attachment-compare rounded-lg border border-emerald-200 bg-emerald-50/40 p-3">
                           <div className="mb-2 text-xs font-semibold text-emerald-700">{t('tasks.detail.routineEditAfter', 'Sonraki')}</div>
                           <AttachmentSection
                             attachments={snapshotAttachmentsToAttachmentList(afterSnapshot.attachments)}
                             readOnly
                             compact
+                            displayMode="rich-list"
                             emptyText={t('attachments.routineEmpty', 'Rutin Görev için ek/fotoğraf bulunmamaktadır.')}
                           />
                         </div>

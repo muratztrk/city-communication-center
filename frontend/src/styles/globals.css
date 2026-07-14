@@ -439,7 +439,7 @@
 
   .attachment-section--rich-edit {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: start;
     gap: 0.75rem;
   }
@@ -474,6 +474,19 @@
 
   .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span {
     color: rgb(37 99 235);
+  }
+
+  .routine-edit-history-attachment-compare .attachment-rich-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 0.5rem;
+  }
+
+  .routine-edit-history-attachment-compare .attachment-rich-list > li {
+    min-width: 0;
+    border: 0 !important;
+    background: transparent !important;
+    padding: 0.2rem 0 !important;
   }
 
   .attachment-section--rich-edit .alert {
@@ -4261,6 +4274,7 @@
     .detail-modal-header-title {
       flex: 1 1 auto;
       min-width: 0;
+      padding-right: 2rem;
     }
 
     .detail-modal-header-title > * {
@@ -4284,6 +4298,7 @@
     }
 
     .detail-modal-header-mobile--actions-grid {
+      position: relative;
       display: grid !important;
       grid-template-columns: minmax(0, 1fr);
       align-items: stretch;
@@ -4306,6 +4321,9 @@
     }
 
     .detail-modal-header-actions .detail-modal-header-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
       width: 1.75rem !important;
       height: 1.75rem !important;
       padding: 0 !important;

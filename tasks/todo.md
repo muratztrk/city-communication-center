@@ -2565,3 +2565,19 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   açık mobil-grid sınıflarıyla butonlar kompakt ve satır başına iki adet akıyor.
 
 ## STATUS: Round 315 complete — frontend build/lint passed (0 error, 4 existing hook warnings); card ready to move to Done.
+
+## Round 316 (Doing — 2026-07-14, detay popup ek/not/status/mobil rötuşları)
+- [x] `6a56642f7e0ebfc8574e5147` / #1626 — Rutin görev düzenleme geçmişinde tekil ek
+  çerçeveleri kaldırıldı; birden fazla ek Önceki/Sonraki kartlarında iki sütun yan yana akar.
+- [x] `6a566fedea8c31f5a74ea320` / #1628 — Görevlerim/Birimdeki Görevler/Personelimin
+  Görevleri detayında Tamamlama veya İptal Notu Görevi Yapan satırının altına eklendi.
+- [x] `6a5665b20ac7bdacfbc0d11b` / #1627 — Gerçek Durum Değişikliği Nedeni Süreç'ten
+  Görev Bilgileri içindeki Görevi Yapan satırının altına taşındı.
+- [x] `6a5642d748694e2e391808a2` / #1613 reopen — Düzenleme eklerinde Dosya ekle alanı
+  doğal genişliğe indirildi; iki sütunlu dosya listesi kalan tüm yatay alanı kullanıyor.
+- [x] `6a554af5aa9f90a9fcc61c75` / #1609 reopen — Mobil detay popup X butonu grid
+  akışından çıkarılıp küçültülmüş biçimde sağ üst köşeye sabitlendi.
+- [x] `6a56553f21b1c6a63deb279b` / #1621 reopen — Süreç altındaki durum değişikliği
+  okunun iki yanındaki durum metinleri 12px'e küçültüldü.
+
+## STATUS: Round 316 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.

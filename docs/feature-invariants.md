@@ -63,6 +63,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1609 reopen: Tailwind `flex` utility'sini yenmek için grid display `!important`, çoklu
   aksiyonda header tek kolon ve aksiyon alanı tam genişliktir). Bu davranış tarayıcı `:has()`
   desteğine bağlı değildir; header ve aksiyon alanındaki açık mobil-grid sınıflarıyla uygulanır.
+  Kapatma X'i grid akışına katılmaz; mobil header'ın mutlak konumlu sağ üst köşesinde kalır.
   Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
@@ -146,8 +147,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Atama Geçmişi:** ilk atanan kullanıcıdan farklı bir kullanıcıya yönlendirme yoksa
   gösterilmez; varsa Tasks detayındaki Görev Detayları kartında Açıklama'nın sağında sütun olarak görünür.
 - **Görev Detayları durum değişikliği özeti:** Durum değiştiyse `Durum Değişikliği`, Görev Bilgileri
-  içinden çıkar ve sağdaki `Süreç` timeline'ı bittikten sonra satır olarak görünür; hemen altındaki
-  `Durum Değişikliği Nedeni`, audit `Notes` alanındaki gerçek textbox verisini gösterir. Backend
+  içinden çıkar ve sağdaki `Süreç` timeline'ı bittikten sonra satır olarak görünür; okun iki yanındaki
+  durum metinleri 12px kalır. `Durum Değişikliği Nedeni` ise `Görevi Yapan` satırının hemen altında,
+  audit `Notes` alanındaki gerçek textbox verisini gösterir. Backend
   hem `GetTaskByIdQuery` hem `JobQueries` projeksiyonunda `Notes`/`ActorDisplayName` taşır.
   Özet ilk durum → son durumdur; metinler normal ağırlıkta, tarihler saniyesiz ve durumların altında
   ortalıdır. `İptal`/iade kırmızı, `Yapılmakta` turuncu, `Tamamlanmış` yeşildir (cards #1624/#1619 reopen).
@@ -225,7 +227,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilir; daha hızlı yüklemelerde gösterge yanıp sönmez. XHR progress callback'i korunur
   (card #1610).
   Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
-  adı mavi ve uzantısı küçük harftir. Liste `display:grid !important` ile iki eşit kolondur;
+  adı mavi ve uzantısı küçük harftir. Yükleme butonu yalnız doğal genişliğini alır, liste kalan
+  yatay alanın tamamını kullanır ve `display:grid !important` ile iki eşit kolondur;
   JSX düzenleme öğesine border utility eklemez. İki görsel satırdan sonrası kendi alanında scroll olur
   (cards #1615/#1616/#1618). Görevi Tamamla geçici ekleri de yatay sarılır, küçük harf uzantı
   kullanır ve iki satırdan sonra scroll olur; dosya adının 20px satır yüksekliği ikonla dikey
@@ -234,6 +237,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   satırında gerçek dosya varsa dosya adının önünde uzantıya göre küçük görsel/doküman ikonu
   bulunur; bağlantı metni altı çizgisizdir ve yalnız dosya uzantısı küçük harfle gösterilir
   (indirmedeki gerçek ad değişmez). Boş `—` değerinde ikon gösterilmez (card #1605 reopen).
+- **Rutin görev düzenleme geçmişi ek karşılaştırması:** Önceki/Sonraki karşılaştırma kartları
+  korunur; kartların içindeki tekil ekler ayrıca çerçevelenmez ve birden fazla ek iki sütunda
+  yan yana akar (card #1626).
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
   Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
@@ -732,6 +738,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `İptal Nedeni`, Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni frontend
   `maxLength` + açıklama metninde ve backend FluentValidation'da aynı 100 sınırını uygular
   (cards #1620/#1621/#1622/#1623).
+- **Görev listesi detayında terminal not konumu:** Görevlerim, Birimdeki Görevler ve Personelimin
+  Görevleri popup'larında terminal görev notu `Görev Bilgileri` içinde `Görevi Yapan` (ve varsa
+  Durum Değişikliği Nedeni) sonrasında gösterilir; tamamlanmışta `Tamamlama Notu`, iptal/reddedilmişte
+  `İptal Notu` etiketi kullanılır (card #1628).
 - **Görev durum dropdown'u ortak tasarımdır:** Görev Durum Değişikliği popup'ı native `select`
   kullanmaz; portal tabanlı `SingleSelectDropdown` ile diğer form dropdown'larıyla aynı görünür
   ve bu popup'ta seçili değer/placeholder ile menü seçenekleri 12px kalır (card #1612 reopen).

@@ -4,6 +4,16 @@
 
 # Trello "Doing" list — implementation tracking
 
+## Round 318 — Talep görev notu + ek adı + mobil X boşluğu
+- [x] `6a566fedea8c31f5a74ea320` (#1628 reopen) — Taleplerim/Birime Gelen/Birimden Giden
+  detaylarında terminal görev Tamamlama/İptal Notu Görev Bilgileri > Görevi Yapan altına taşındı;
+  ayrı terminal not kartı kaldırıldı.
+- [x] `6a57264bf7ff03e1bdbe4d64` (#1630) — Düzenlenebilir Talep/Görev Ekleri'nde ikon 20px,
+  ikon–metin aralığı 2px ve dosya adı alanı minimum 12ch; ilk en az 10 karaktere yer ayrıldı.
+- [x] `6a554af5aa9f90a9fcc61c75` (#1609 reopen) — Mobil header başlık satırı X yüksekliğini
+  rezerve ediyor; sağ üst X ile alt aksiyon butonu arasındaki dikey mesafe artırıldı.
+- [x] Doğrulama: frontend build + lint (0 error, 4 mevcut hook warning).
+
 ## Round 317 — Ek sunumu reopen paketi (view=edit)
 - [x] `6a554bbc` (#1610 reopen) — Çoklu dosya seçiminde tek 1 sn zamanlayıcı + bayt ağırlıklı birleşik yüzde; geçersiz seçim sonrası input değeri temizlenir.
 - [x] `6a564431` (#1614 reopen) / `6a5650a0` (#1617 reopen) — Salt-okunur rich-list `attachment-section--rich-view` ile edit sunumunu aldı (iki kolon, bordersız, 2 satır scroll). Mavi ad `!important` ile: Round 312'nin mavi kuralı utilities katmanına yenildiği için hiç uygulanmamıştı (asıl reopen nedeni). Görev Bilgileri + İlgili Talep ek satırları da mavi + `max-h-11` scroll.

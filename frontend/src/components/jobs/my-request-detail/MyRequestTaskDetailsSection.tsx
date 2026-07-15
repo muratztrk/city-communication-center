@@ -10,6 +10,7 @@ import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldValue } from './StackedFieldValue'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
+import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
   detail: JobDetail
@@ -142,9 +143,9 @@ export function MyRequestTaskDetailsSection({
             </div>
           )
 
-          const hasTerminalNote = (detail.status === 'Completed' && task.currentStatus === 'Completed')
-            || ((detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'))
-          const showDescriptionCard = !hidePlainDescription || hasTerminalNote
+          const isCompletedTask = task.currentStatus === 'Completed'
+          const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
+          const showDescriptionCard = !hidePlainDescription
           const gridColsClass = addressColumnContent
             ? (showDescriptionCard
                 ? 'lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,1fr)]'
@@ -176,6 +177,17 @@ export function MyRequestTaskDetailsSection({
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
                       : []),
                     { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
+                    ...(isCompletedTask
+                      ? [{
+                          label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                          value: richTextToPlainText(task.notes) || '—',
+                        }]
+                      : isCancelledTask
+                        ? [{
+                            label: t('tasks.detail.cancelNote', 'İptal Notu'),
+                            value: task.revisionReason?.trim() || detail.cancelReason?.trim() || '—',
+                          }]
+                        : []),
                     ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
                       ? [{
                           label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği'),
@@ -251,37 +263,16 @@ export function MyRequestTaskDetailsSection({
               )}
               {showDescriptionCard && <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={FileText}>
-                  {detail.status === 'Completed' && task.currentStatus === 'Completed'
-                    ? t('tasks.detail.completionNoteTitle', 'Görev Tamamlama Notu')
-                    : (detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
-                      ? t('tasks.detail.cancelNoteTitle', 'Görev İptal Notu')
-                      : t('tasks.detail.description', 'Açıklama')}
+                  {t('tasks.detail.description', 'Açıklama')}
                 </MyRequestSectionHeading>
-                {detail.status === 'Completed' && task.currentStatus === 'Completed' ? (
-                  // Görev Ekleri artık yalnız Görev Bilgileri kartında gösterilir; burada tekrar
-                  // edilmez (card #1548).
-                  <RichTextContent
-                    value={task.notes}
-                    emptyText={t('tasks.detail.noCompletionNote', 'Tamamlama notu girilmemiş')}
-                    className="rich-text-content text-sm leading-6 text-slate-900"
-                  />
-                ) : (detail.status === 'Cancelled' || detail.status === 'Rejected') && (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected') ? (
-                  <RichTextContent
-                    // Görevin RevisionReason'ı yoksa talebin CancelReason'ına düş (card #1530).
-                    value={task.revisionReason?.trim() || detail.cancelReason}
-                    emptyText={t('tasks.detail.noCancelNote', 'İptal notu girilmemiş')}
-                    className="rich-text-content text-sm leading-6 text-slate-900"
-                  />
-                ) : (
-                  <RichTextContent
-                    value={task.description?.trim() ? task.description : detail.description}
-                    emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                    className="rich-text-content text-sm leading-6 text-slate-900"
-                  />
-                )}
+                <RichTextContent
+                  value={task.description?.trim() ? task.description : detail.description}
+                  emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
+                  className="rich-text-content text-sm leading-6 text-slate-900"
+                />
               </div>}
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                {/* Terminal not/açıklama kartı Süreç'in önünde kalır (cards #1574/#1578). */}
+                {/* Açıklama gösterilen yüzeylerde Süreç'in önünde kalır; terminal not Görev Bilgileri'ndedir. */}
                 <JobProcessTimeline
                   steps={processSteps}
                   locale={locale}

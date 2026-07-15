@@ -231,10 +231,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             <li
               key={att.attachmentId}
               className={readOnly
-                ? 'group flex min-w-0 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5'
-                : 'group flex min-w-0 items-center gap-1.5 px-1 py-1'}
+                ? 'group flex min-w-0 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5'
+                : 'group flex min-w-0 items-center gap-0.5 px-1 py-1'}
             >
-              <div className={`flex size-6 shrink-0 items-center justify-center text-emerald-700 ${readOnly ? 'rounded-md border border-emerald-100 bg-emerald-50' : ''}`}>
+              <div className={`flex size-5 shrink-0 items-center justify-center text-emerald-700 ${readOnly ? 'rounded-md border border-emerald-100 bg-emerald-50' : ''}`}>
                 <Icon className="size-3" aria-hidden="true" />
               </div>
               <button

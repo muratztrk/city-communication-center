@@ -64,6 +64,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aksiyonda header tek kolon ve aksiyon alanı tam genişliktir). Bu davranış tarayıcı `:has()`
   desteğine bağlı değildir; header ve aksiyon alanındaki açık mobil-grid sınıflarıyla uygulanır.
   Kapatma X'i grid akışına katılmaz; mobil header'ın mutlak konumlu sağ üst köşesinde kalır.
+  Başlık satırı X yüksekliği kadar minimum alan ayırır; X ile alt aksiyon satırı birbirine değmez.
   Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
@@ -233,6 +234,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
   adı mavi ve uzantısı küçük harftir. Yükleme butonu yalnız doğal genişliğini alır, liste kalan
   yatay alanın tamamını kullanır ve `display:grid !important` ile iki eşit kolondur;
+  ikon kutusu 20px ve ikon/metin aralığı 2px'tir; dosya adı alanı en az 12ch olduğundan ilk
+  10 karakterin kesilmeden görünmesine yer bırakır.
   JSX düzenleme öğesine border utility eklemez. İki görsel satırdan sonrası kendi alanında scroll olur
   (cards #1615/#1616/#1618). Görevi Tamamla geçici ekleri de yatay sarılır, küçük harf uzantı
   kullanır ve iki satırdan sonra scroll olur; dosya adının 20px satır yüksekliği ikonla dikey
@@ -742,10 +745,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `İptal Nedeni`, Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni frontend
   `maxLength` + açıklama metninde ve backend FluentValidation'da aynı 100 sınırını uygular
   (cards #1620/#1621/#1622/#1623).
-- **Görev listesi detayında terminal not konumu:** Görevlerim, Birimdeki Görevler ve Personelimin
-  Görevleri popup'larında terminal görev notu `Görev Bilgileri` içinde `Görevi Yapan` (ve varsa
-  Durum Değişikliği Nedeni) sonrasında gösterilir; tamamlanmışta `Tamamlama Notu`, iptal/reddedilmişte
-  `İptal Notu` etiketi kullanılır (card #1628).
+- **Görev detayında terminal not konumu:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri ile
+  Taleplerim/Birime Gelen/Birimden Giden popup'larında terminal görev notu `Görev Bilgileri` içinde
+  `Görevi Yapan` sonrasında gösterilir; tamamlanmışta `Tamamlama Notu`, iptal/reddedilmişte `İptal Notu`
+  etiketi kullanılır. Talep detayındaki ayrı terminal not kartı tekrar edilmez; normal Açıklama kartı
+  yalnız ilgili yüzey açıklamayı zaten gösteriyorsa kalır (card #1628 reopen).
 - **Görev durum dropdown'u ortak tasarımdır:** Görev Durum Değişikliği popup'ı native `select`
   kullanmaz; portal tabanlı `SingleSelectDropdown` ile diğer form dropdown'larıyla aynı görünür
   ve bu popup'ta seçili değer/placeholder ile menü seçenekleri 12px kalır (card #1612 reopen).

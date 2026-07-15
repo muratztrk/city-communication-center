@@ -486,6 +486,10 @@
     color: rgb(37 99 235) !important;
   }
 
+  .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type {
+    min-width: 12ch;
+  }
+
   .routine-edit-history-attachment-compare .attachment-rich-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4314,8 +4318,11 @@
     }
 
     .detail-modal-header-title {
+      display: flex;
       flex: 1 1 auto;
+      min-height: 1.75rem;
       min-width: 0;
+      align-items: center;
       padding-right: 2rem;
     }
 

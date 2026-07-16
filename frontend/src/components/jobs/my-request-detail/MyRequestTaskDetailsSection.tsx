@@ -147,7 +147,8 @@ export function MyRequestTaskDetailsSection({
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
           const showDescriptionCard = !hidePlainDescription
-          // Açıklama yokken Görev Bilgileri + Süreç eşit kolonlarda üst başlık hizası korunur (cards #1634/#1635).
+          // Açıklama yokken Görev Bilgileri + Süreç eşit kolonlarda; kartlar düşeyde eşit
+          // yükseklikte (items-stretch) ve başlıklar üstte hizalı (cards #1634/#1635).
           const gridColsClass = addressColumnContent
             ? (showDescriptionCard
                 ? 'lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,1fr)]'
@@ -157,8 +158,8 @@ export function MyRequestTaskDetailsSection({
                 : 'lg:grid-cols-2')
 
           return (
-            <div key={task.taskId} className={`grid items-start gap-4 ${gridColsClass}`}>
-              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+            <div key={task.taskId} className={`grid items-stretch gap-4 ${gridColsClass}`}>
+              <div className="flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={Info} className="w-full">
                   <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1">
                     <span className="min-w-0 leading-tight">{t('tasks.detail.taskInfo', 'Görev Bilgileri')}</span>
@@ -255,11 +256,11 @@ export function MyRequestTaskDetailsSection({
                 </div>
               </div>
               {addressColumnContent && (
-                <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">
                   {addressColumnContent}
                 </div>
               )}
-              {showDescriptionCard && <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+              {showDescriptionCard && <div className="flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={FileText}>
                   {t('tasks.detail.description', 'Açıklama')}
                 </MyRequestSectionHeading>
@@ -269,7 +270,7 @@ export function MyRequestTaskDetailsSection({
                   className="rich-text-content text-sm leading-6 text-slate-900"
                 />
               </div>}
-              <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+              <div className="flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">
                 {/* Açıklama gösterilen yüzeylerde Süreç'in önünde kalır; terminal not Görev Bilgileri'ndedir. */}
                 <JobProcessTimeline
                   steps={processSteps}

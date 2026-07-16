@@ -551,8 +551,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Süreç "Durum Değişikliği" özeti (cards #1621/#1633):** `Tamamlanmış` gibi uzun durum etiketleri
   tek satırda kalır; değer satırın sağ border'ına yaslanır ve ~0.75rem fontla okunaklıdır
   (`StatusChangeTransition`).
-- **Birimden Giden Tamamlanmış görev detayı (cards #1634/#1635):** düz `Açıklama` kartı gösterilmez;
-  `Görev Bilgileri` ve `Süreç` eşit iki kolonda üst başlık hizası (`items-start`) ile yan yana durur.
+- **Birimden Giden Tamamlanmış / ortak görev detayı (cards #1634/#1635):** düz `Açıklama` kartı
+  Birimden Giden Tamamlanmış'ta gösterilmez. Taleplerim / Birime Gelen / Birimden Giden'de
+  `Görev Bilgileri` ve `Süreç` kartları eşit yükseklikte gerilir (`items-stretch` + `h-full`);
+  başlık metinleri kart üstünde `items-start` ile aynı düşey hizada kalır.
 - **Talep Oluştur manuel vatandaş akışı:** `Vatandaş Çağrı Talebi` olarak adlandırılır; kanal seçimi
   yalnız `Çağrı`dır, form ve onay aksiyon metni `Talep Oluştur` kalır ve oluşturulan kayıt Vatandaş
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Tek `Çağrı` kanal butonu satırı dolduran

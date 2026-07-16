@@ -1,3 +1,6 @@
+## Round — #1635 reopen düşey hiza
+- [x] `6a58d617` (#1635 reopen) — Taleplerim/Gelen/Giden: Görev Bilgileri + Süreç kartları eşit yükseklik (`items-stretch`).
+
 ## Round — #1633 sağa yasla + #1634/#1635 Giden tamamlanmış
 - [x] `6a58c720` (#1633 reopen) — Durum Değişikliği değeri sağ border’a dayalı (~0.75rem font korundu).
 - [x] `6a58d539` (#1634) — Birimden Giden Tamamlanmış: Görev Detayları Açıklama kartı gizlendi.

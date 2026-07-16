@@ -544,12 +544,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi/kategorisini gösterir.
 - **Detay popup header aksiyonları:** Detaylar butonundan açılan iş/talep/görev detay popup'larında
   sağ üst aksiyon butonları (Düzenle/Tamamla/Yazdır vb.) ve kapatma (X) kompakt ölçülüdür
-  (~1.875rem yükseklik, ~0.7rem yazı; card #1632). 768px üstü fakat viewport yüksekliği 900px ve
-  altındaki dizüstü ekranlarda gövde/kart padding ve kontroller ayrıca kompaktlaşır; üçlü adres
-  alanı iki kolona düşerek iç içe geçmez (card #1614).
-- **Süreç "Durum Değişikliği" özeti (card #1621):** `Tamamlanmış` gibi uzun durum etiketleri tek
-  satırda kalır (`whitespace-nowrap` + kompakt font); değer `Durum Değişikliği` başlığına yakın
-  hizalanır (`StatusChangeTransition`).
+  (~1.875rem yükseklik, ~0.7rem yazı; card #1632). Sol üst popup başlığı
+  (`.my-request-detail-header__title`) de kompaktır (~0.7rem / 0.14em tracking; card #1632 reopen).
+  768px üstü fakat viewport yüksekliği 900px ve altındaki dizüstü ekranlarda gövde/kart padding ve
+  kontroller ayrıca kompaktlaşır; üçlü adres alanı iki kolona düşerek iç içe geçmez (card #1614).
+- **Süreç "Durum Değişikliği" özeti (cards #1621/#1633):** `Tamamlanmış` gibi uzun durum etiketleri
+  tek satırda kalır; değer başlığın hemen yanında (sağa itilmez) ve ~0.75rem fontla okunaklıdır
+  (`StatusChangeTransition`).
 - **Talep Oluştur manuel vatandaş akışı:** `Vatandaş Çağrı Talebi` olarak adlandırılır; kanal seçimi
   yalnız `Çağrı`dır, form ve onay aksiyon metni `Talep Oluştur` kalır ve oluşturulan kayıt Vatandaş
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Tek `Çağrı` kanal butonu satırı dolduran

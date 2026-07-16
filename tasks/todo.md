@@ -1,3 +1,7 @@
+## Round — #1632 reopen header title + #1633 Durum Değişikliği
+- [x] `6a58a150` (#1632 reopen) — Detay popup sol üst başlık `.my-request-detail-header__title` ~0.7rem.
+- [x] `6a58c720` (#1633) — Durum Değişikliği değeri başlığın yanında + font ~0.75rem (sağa itilmez).
+
 ## Round — #1621 Durum Değişikliği sığdır + #1632 header butonları
 - [x] `6a56553f` (#1621) — Süreç altı Durum Değişikliği: Tamamlanmış tek satır + başlığa yaklaştır (`StatusChangeTransition`).
 - [x] `6a58a150` (#1632) — Detay popup sağ üst aksiyon/X butonları kompakt (~1.875rem / 0.7rem).

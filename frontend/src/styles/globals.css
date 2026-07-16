@@ -173,10 +173,11 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-header__title {
-    font-size: 0.8125rem;
+    /* Sol üst popup başlığı (TALEPLERİM / GÖREVLERİM …) kompakt (card #1632 reopen). */
+    font-size: 0.7rem;
     font-weight: 800;
-    letter-spacing: 0.18em;
-    line-height: 1.25;
+    letter-spacing: 0.14em;
+    line-height: 1.2;
     color: rgb(71 85 105);
   }
 
@@ -4238,21 +4239,27 @@
     height: 0.95rem !important;
   }
 
-  /* Süreç altı "Durum Değişikliği": Tamamlanmış gibi uzun etiketler tek satıra sığar;
-     değer başlığa daha yakın (card #1621). */
+  /* Süreç altı "Durum Değişikliği": değer başlığa yakın + okunaklı font (cards #1621/#1633).
+     justify-end kaldırıldı — aksi halde değer satırın sağına itilip başlıktan uzaklaşır. */
   .task-process-status-change__row,
   .job-detail-field-row--request-info:has(.task-process-status-change__transition) {
-    gap: 0.35rem !important;
+    gap: 0.25rem !important;
     align-items: center;
+  }
+
+  .task-process-status-change__row .job-detail-field-row__value,
+  .job-detail-field-row--request-info:has(.task-process-status-change__transition) .job-detail-field-row__value {
+    flex: 0 1 auto;
+    text-align: left !important;
   }
 
   .task-process-status-change__transition {
     display: inline-flex;
     max-width: 100%;
     align-items: flex-start;
-    justify-content: flex-end;
-    gap: 0.3rem;
-    text-align: right;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    text-align: left;
   }
 
   .task-process-status-change__side {
@@ -4260,14 +4267,14 @@
   }
 
   .task-process-status-change__status {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    line-height: 1.15;
+    line-height: 1.2;
     white-space: nowrap;
   }
 
   .task-process-status-change__date {
-    font-size: 0.5625rem;
+    font-size: 0.625rem;
     font-weight: 400;
     line-height: 1.2;
     color: rgb(100 116 139);
@@ -4275,9 +4282,9 @@
   }
 
   .task-process-status-change__arrow {
-    margin-top: 0.1rem;
-    width: 0.75rem;
-    height: 0.75rem;
+    margin-top: 0.15rem;
+    width: 0.8rem;
+    height: 0.8rem;
     flex-shrink: 0;
     color: rgb(148 163 184);
   }

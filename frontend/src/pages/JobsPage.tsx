@@ -2930,7 +2930,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 detail={detail}
                 locale={locale}
                 onDownloadTaskAttachment={(attachmentId, fileName) => void handleDownloadTaskAttachment(attachmentId, fileName)}
-                hidePlainDescription={isIncomingRequestDetail}
+                hidePlainDescription={isIncomingRequestDetail || (isDepartmentOutgoingView && activeJobView === 'completed')}
               />
             )}
            </div>

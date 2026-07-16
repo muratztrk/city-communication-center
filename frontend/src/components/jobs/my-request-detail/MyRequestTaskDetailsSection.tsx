@@ -147,21 +147,22 @@ export function MyRequestTaskDetailsSection({
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
           const showDescriptionCard = !hidePlainDescription
+          // Açıklama yokken Görev Bilgileri + Süreç eşit kolonlarda üst başlık hizası korunur (cards #1634/#1635).
           const gridColsClass = addressColumnContent
             ? (showDescriptionCard
                 ? 'lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,1fr)]'
-                : 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]')
+                : 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,1fr)]')
             : (showDescriptionCard
                 ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)_minmax(0,1fr)]'
-                : 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.8fr)]')
+                : 'lg:grid-cols-2')
 
           return (
-            <div key={task.taskId} className={`grid gap-4 ${gridColsClass}`}>
+            <div key={task.taskId} className={`grid items-start gap-4 ${gridColsClass}`}>
               <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={Info} className="w-full">
-                  <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
-                    <span className="min-w-0">{t('tasks.detail.taskInfo', 'Görev Bilgileri')}</span>
-                    <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                  <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1">
+                    <span className="min-w-0 leading-tight">{t('tasks.detail.taskInfo', 'Görev Bilgileri')}</span>
+                    <span className="ml-auto flex max-w-full flex-col items-end justify-start gap-1 text-right">
                       <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{taskNoText}</span>
                       <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{taskTypeBadge}</span>
                     </span>

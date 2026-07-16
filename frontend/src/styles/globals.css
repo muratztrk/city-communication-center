@@ -4239,27 +4239,28 @@
     height: 0.95rem !important;
   }
 
-  /* Süreç altı "Durum Değişikliği": değer başlığa yakın + okunaklı font (cards #1621/#1633).
-     justify-end kaldırıldı — aksi halde değer satırın sağına itilip başlıktan uzaklaşır. */
+  /* Süreç altı "Durum Değişikliği": okunaklı font + sağ border'a dayalı (cards #1621/#1633). */
   .task-process-status-change__row,
   .job-detail-field-row--request-info:has(.task-process-status-change__transition) {
-    gap: 0.25rem !important;
+    gap: 0.35rem !important;
     align-items: center;
   }
 
   .task-process-status-change__row .job-detail-field-row__value,
   .job-detail-field-row--request-info:has(.task-process-status-change__transition) .job-detail-field-row__value {
-    flex: 0 1 auto;
-    text-align: left !important;
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right !important;
   }
 
   .task-process-status-change__transition {
     display: inline-flex;
     max-width: 100%;
+    margin-left: auto;
     align-items: flex-start;
-    justify-content: flex-start;
+    justify-content: flex-end;
     gap: 0.35rem;
-    text-align: left;
+    text-align: right;
   }
 
   .task-process-status-change__side {

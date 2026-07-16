@@ -1,3 +1,8 @@
+## Round — #1633 sağa yasla + #1634/#1635 Giden tamamlanmış
+- [x] `6a58c720` (#1633 reopen) — Durum Değişikliği değeri sağ border’a dayalı (~0.75rem font korundu).
+- [x] `6a58d539` (#1634) — Birimden Giden Tamamlanmış: Görev Detayları Açıklama kartı gizlendi.
+- [x] `6a58d617` (#1635) — Görev Bilgileri + Süreç eşit 2 kolon, başlıklar items-start hizalı.
+
 ## Round — #1632 reopen header title + #1633 Durum Değişikliği
 - [x] `6a58a150` (#1632 reopen) — Detay popup sol üst başlık `.my-request-detail-header__title` ~0.7rem.
 - [x] `6a58c720` (#1633) — Durum Değişikliği değeri başlığın yanında + font ~0.75rem (sağa itilmez).

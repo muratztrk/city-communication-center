@@ -4,6 +4,10 @@
 
 # Trello "Doing" list — implementation tracking
 
+## Round 319 — Detay popup boyutu
+- [x] `6a588698` (#1631) — Altı liste görünümünün detay popup'ı ~%5 küçültüldü: `detail-modal-shell--my-request` 66.75vw/80rem × 76.7dvh/44.5rem (1920×900'de 1349×726 → 1280×690, harness'ta ölçüldü). Base shell (drilldown, vatandaş formu, bildirim) bilinçli eski ölçüde.
+- [x] /review: temiz (9 satır salt-CSS); doğrulama build + lint + derlenmiş CSS computed-style ölçümü.
+
 ## Round 318 — Talep görev notu + ek adı + mobil X boşluğu
 - [x] `6a566fedea8c31f5a74ea320` (#1628 reopen) — Taleplerim/Birime Gelen/Birimden Giden
   detaylarında terminal görev Tamamlama/İptal Notu Görev Bilgileri > Görevi Yapan altına taşındı;

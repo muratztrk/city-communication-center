@@ -163,10 +163,13 @@
     width: min(88vw, 64rem);
   }
 
+  /* Altı liste görünümünün (Taleplerim, Birime Gelen/Giden, Görevlerim, Birimdeki/
+     Personelimin Görevleri) detay popup'ı ~%5 küçültüldü (card #1631). Base
+     .detail-modal-shell (drilldown, vatandaş formu) bilinçli olarak eski ölçüde. */
   .detail-modal-shell--my-request {
-    width: min(70.25vw, 84.3rem);
-    height: min(80.7dvh, 46.85rem);
-    max-height: min(80.7dvh, 46.85rem);
+    width: min(66.75vw, 80rem);
+    height: min(76.7dvh, 44.5rem);
+    max-height: min(76.7dvh, 44.5rem);
   }
 
   .detail-modal-shell--my-request .my-request-detail-header__title {

@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCheck, FileImage, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
+import { CheckCheck, FileImage, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -31,7 +31,7 @@ import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusLabel, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
@@ -80,7 +80,7 @@ import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
-import { getStatusChangeTextClass } from '../components/jobs/my-request-detail/format'
+import { StatusChangeTransition } from '../components/jobs/my-request-detail/StatusChangeTransition'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface TaskScopeFiltersProps {
@@ -2360,20 +2360,16 @@ const pageKicker = isMyTasksView
                               />
                               {firstStatusChange && latestStatusChange && firstChangedStatus ? (
                                 <div className="task-process-status-change mt-1 border-t border-slate-100 pt-1">
-                                  <div className="job-detail-field-row job-detail-field-row--request-info">
+                                  <div className="job-detail-field-row job-detail-field-row--request-info task-process-status-change__row">
                                     <div className="job-detail-field-row__label">{t('tasks.detail.statusChangeHistory', 'Durum Değişikliği')}</div>
                                     <div className="job-detail-field-row__value">
-                                      <div className="flex w-full items-start justify-end gap-2 text-right">
-                                        <div className="min-w-0">
-                                          <div className={`text-xs font-normal leading-tight ${getStatusChangeTextClass(firstChangedStatus)}`}>{getTaskStatusLabel(t, firstChangedStatus)}</div>
-                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstStatusChange.changedAtUtc, locale)}</div>
-                                        </div>
-                                        <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-                                        <div className="min-w-0">
-                                          <div className={`text-xs font-normal leading-tight ${getStatusChangeTextClass(latestStatusChange.toStatus)}`}>{getTaskStatusLabel(t, latestStatusChange.toStatus)}</div>
-                                          <div className="text-[10px] font-normal text-slate-500">{formatDateTime(latestStatusChange.changedAtUtc, locale)}</div>
-                                        </div>
-                                      </div>
+                                      <StatusChangeTransition
+                                        fromStatus={firstChangedStatus}
+                                        toStatus={latestStatusChange.toStatus}
+                                        fromAtUtc={firstStatusChange.changedAtUtc}
+                                        toAtUtc={latestStatusChange.changedAtUtc}
+                                        locale={locale}
+                                      />
                                     </div>
                                   </div>
                                 </div>

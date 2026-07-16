@@ -1,3 +1,7 @@
+## Round — #1621 Durum Değişikliği sığdır + #1632 header butonları
+- [x] `6a56553f` (#1621) — Süreç altı Durum Değişikliği: Tamamlanmış tek satır + başlığa yaklaştır (`StatusChangeTransition`).
+- [x] `6a58a150` (#1632) — Detay popup sağ üst aksiyon/X butonları kompakt (~1.875rem / 0.7rem).
+
 ## Round — Kurum İçi Mesajlar UI (#1556/#1542)
 - [x] `6a538f7b` (#1556) — Liste avatar köşe rozeti (yeşil/turuncu, WA ile aynı) + birim/son mesaj bir satır yukarı (durum birim satırına).
 - [x] `6a536136` (#1542) — Geri metni ok üstünde; balon/text küçültüldü; gelen balon etiketi siyah.

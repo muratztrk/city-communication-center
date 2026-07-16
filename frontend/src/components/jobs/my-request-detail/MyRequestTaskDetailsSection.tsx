@@ -1,14 +1,15 @@
-import { ArrowRight, FileImage, FileText, Info, ListChecks } from 'lucide-react'
+import { FileImage, FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
-import { formatDateTime, formatDueDateTime, getStatusChangeTextClass } from './format'
+import { formatDateTime, formatDueDateTime } from './format'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldValue } from './StackedFieldValue'
+import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
@@ -197,17 +198,13 @@ export function MyRequestTaskDetailsSection({
                             const lastChange = history[0]
                             const firstStatus = firstChange.fromStatus ?? firstChange.toStatus
                             return (
-                              <div className="flex w-full items-start justify-end gap-2 text-right">
-                                <div className="min-w-0">
-                                  <div className={`font-normal ${getStatusChangeTextClass(firstStatus)}`}>{getTaskStatusLabel(t, firstStatus)}</div>
-                                  <div className="text-[10px] font-normal text-slate-500">{formatDateTime(firstChange.changedAtUtc, locale)}</div>
-                                </div>
-                                <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-                                <div className="min-w-0">
-                                  <div className={`font-normal ${getStatusChangeTextClass(lastChange.toStatus)}`}>{getTaskStatusLabel(t, lastChange.toStatus)}</div>
-                                  <div className="text-[10px] font-normal text-slate-500">{formatDateTime(lastChange.changedAtUtc, locale)}</div>
-                                </div>
-                              </div>
+                              <StatusChangeTransition
+                                fromStatus={firstStatus}
+                                toStatus={lastChange.toStatus}
+                                fromAtUtc={firstChange.changedAtUtc}
+                                toAtUtc={lastChange.changedAtUtc}
+                                locale={locale}
+                              />
                             )
                           })(),
                         }]

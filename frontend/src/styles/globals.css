@@ -4218,16 +4218,68 @@
 }
 
 @layer components {
-  /* Tüm detay popup'larında sağ üstteki aksiyon butonları (Düzenle/Tamamla/İptal Et/Yazdır vb.)
-     kapatma (X) butonu hariç biraz daha yüksek görünür. */
+  /* Tüm detay popup'larında sağ üstteki aksiyon butonları biraz kompakt (card #1632).
+     Button size utility'leri Tailwind v4 utilities katmanında olduğu için !important gerekir. */
   .detail-modal-header-actions button:not(.detail-modal-header-close),
   .detail-modal-header-actions a {
-    /* Button bileşeninin kendi boyut utility'leri (h-10/px-4/text-sm) Tailwind v4'te
-       utilities katmanında olduğu için @layer components burada !important olmadan
-       hiçbir zaman kazanamıyor (card #1448 tekrarı). */
-    height: 2.25rem !important;
-    padding: 0 0.85rem !important;
-    font-size: 0.8rem !important;
+    height: 1.875rem !important;
+    padding: 0 0.65rem !important;
+    font-size: 0.7rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .detail-modal-header-actions .detail-modal-header-close {
+    width: 1.875rem !important;
+    height: 1.875rem !important;
+  }
+
+  .detail-modal-header-actions .detail-modal-header-close svg {
+    width: 0.95rem !important;
+    height: 0.95rem !important;
+  }
+
+  /* Süreç altı "Durum Değişikliği": Tamamlanmış gibi uzun etiketler tek satıra sığar;
+     değer başlığa daha yakın (card #1621). */
+  .task-process-status-change__row,
+  .job-detail-field-row--request-info:has(.task-process-status-change__transition) {
+    gap: 0.35rem !important;
+    align-items: center;
+  }
+
+  .task-process-status-change__transition {
+    display: inline-flex;
+    max-width: 100%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    text-align: right;
+  }
+
+  .task-process-status-change__side {
+    min-width: 0;
+  }
+
+  .task-process-status-change__status {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .task-process-status-change__date {
+    font-size: 0.5625rem;
+    font-weight: 400;
+    line-height: 1.2;
+    color: rgb(100 116 139);
+    white-space: nowrap;
+  }
+
+  .task-process-status-change__arrow {
+    margin-top: 0.1rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    flex-shrink: 0;
+    color: rgb(148 163 184);
   }
 }
 

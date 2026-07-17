@@ -1,4 +1,4 @@
-import { FileImage, FileText, Info, ListChecks } from 'lucide-react'
+import { FileText, Image, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
@@ -24,7 +24,7 @@ interface MyRequestTaskDetailsSectionProps {
 }
 
 function getInlineAttachmentIcon(fileName: string) {
-  return /\.(?:jpe?g|png)$/i.test(fileName) ? FileImage : FileText
+  return /\.(?:jpe?g|png)$/i.test(fileName) ? Image : FileText
 }
 
 function buildTaskProcessSteps(
@@ -184,11 +184,15 @@ export function MyRequestTaskDetailsSection({
                       ? [{
                           label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                           value: richTextToPlainText(task.notes) || '—',
+                          // Etiket + değer yeşil (card #1638).
+                          tone: 'completion' as const,
                         }]
                       : isCancelledTask
                         ? [{
                             label: t('tasks.detail.cancelNote', 'İptal Notu'),
                             value: task.revisionReason?.trim() || detail.cancelReason?.trim() || '—',
+                            // Etiket + değer kırmızı (card #1638).
+                            tone: 'cancel' as const,
                           }]
                         : []),
                     ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
@@ -247,12 +251,15 @@ export function MyRequestTaskDetailsSection({
                           ),
                         }]
                       : []),
-                  ].map(({ label, value }) => (
-                    <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
-                      <div className="job-detail-field-row__label">{label}</div>
-                      <div className={`job-detail-field-row__value ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</div>
+                  ].map((row) => {
+                    const tone = 'tone' in row ? row.tone : undefined
+                    return (
+                    <div key={row.label} className="job-detail-field-row job-detail-field-row--request-info">
+                      <div className={`job-detail-field-row__label ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
+                      <div className={`job-detail-field-row__value ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
               {addressColumnContent && (

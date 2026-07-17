@@ -700,13 +700,24 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   katmanından önce gösterilir (cards #1603/#1604). Active birim içi/dışı taleplerde turuncu
   `Durum` adımı gösterilir (card #1535). Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval`) taleplerde Talep Tarihi ile Son Tarih arasına mavi
-  `Durum / Onay Bekleyen` katmanı eklenir (`pending` state, card #1535 reopen). Birime Gelen'de
+  `Durum / Onay Bekleyen` katmanı eklenir (`pending` state, card #1535 reopen) — **istisna:**
+  `ownerApprovalBeforeStatus` açıkken ve sahip-onay adımı görünürken `PendingOwnerApproval`
+  için Durum katmanı eklenmez (sahip-onay satırıyla mükerrer; card #1629). Birime Gelen'de
   `Active` + henüz görev yok kayıtları da aynı mavi Durum katmanını alır
   (`unassignedActiveAsPending`, card #1535).
+  `MyRequestDetailMainCard` (Taleplerim / İlgili Talep) sahip onayı gösterirken
+  `ownerApprovalBeforeStatus: true` kullanır — yönetici-oluşturmuş taleplerde sahip onay
+  adımı `Durum`dan önce gelir (card #1636).
   Sahip-birim onayı tamamlanmış fakat hedef-birim onayı bekleyen birim dışı talepte, standart
   kullanıcı Taleplerim ve Birimden Giden timeline'ı turuncu `Durum`dan hemen sonra mavi
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi / Onay Bekleyen` adımını gösterir;
   hedef onaylanınca bu sentetik bekleyen adım gösterilmez (cards #1603 reopen/#1606).
+- **Görev Bilgileri İptal/Tamamlama Notu renkleri (card #1638):** `İptal Notu` etiket+değer
+  kırmızı (`text-red-600`), `Tamamlama Notu` etiket+değer yeşil (`text-emerald-600`).
+- **Görsel ek ikonu (card #1637):** JPG/PNG eklerde Lucide `Image` kullanılır (`FileImage`
+  değil); ikon boyut sınıfları (`size-3` / `size-3.5`) değişmez.
+- **Düzenleme placeholder fontları (cards #1615/#1639):** Son Tarih DateTimePicker placeholder
+  + seçili değer `0.6875rem`; adres Mahalle/Cadde/Açık Adres placeholder'ları aynı ölçüde.
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak. Görev

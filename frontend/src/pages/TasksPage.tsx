@@ -1,4 +1,4 @@
-import { CheckCheck, FileImage, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
+import { CheckCheck, FileText, History, Image, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -49,7 +49,7 @@ function completionAttachmentExtension(name: string): string {
 }
 
 function completionAttachmentIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(completionAttachmentExtension(name)) ? FileImage : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(completionAttachmentExtension(name)) ? Image : FileText
 }
 
 function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHistory[] {
@@ -2076,11 +2076,13 @@ const pageKicker = isMyTasksView
                               ? [{
                                   label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                                   value: richTextToPlainText(taskDetail.notes ?? '') || '—',
+                                  tone: 'completion' as const,
                                 }]
                               : taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
                                 ? [{
                                     label: t('tasks.detail.cancelNote', 'İptal Notu'),
                                     value: taskDetail.revisionReason?.trim() || '—',
+                                    tone: 'cancel' as const,
                                   }]
                                 : []),
                             // Görev Ekleri artık ayrı bir kart değil, Durum Değişikliği'nin hemen
@@ -2142,12 +2144,15 @@ const pageKicker = isMyTasksView
                                   ),
                                 }]
                               : []),
-                          ].map(({ label, value }, fieldIndex) => (
+                          ].map((row, fieldIndex) => {
+                            const tone = 'tone' in row ? row.tone : undefined
+                            return (
                             <div key={fieldIndex} className="job-detail-field-row job-detail-field-row--request-info">
-                              <div className="job-detail-field-row__label">{label}</div>
-                              <div className="job-detail-field-row__value">{value}</div>
+                              <div className={`job-detail-field-row__label ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
+                              <div className={`job-detail-field-row__value ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.value}</div>
                             </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                       <div className="min-w-0 p-4">
@@ -2207,7 +2212,7 @@ const pageKicker = isMyTasksView
                           // Terminal notlar artık durum satırında gösterilmez; Görev Detayları kutusunda yer alır.
                           const statusNoteContent = undefined
                           const dueDateContent = activeTaskEditDraft ? (
-                            <div className="mt-1">
+                            <div className="mt-1 my-request-detail-edit-due-date">
                               <DateTimePicker
                                 value={activeTaskEditDraft.dueDateUtc}
                                 onChange={value => updateActiveTaskEditDraft({ dueDateUtc: value })}
@@ -2420,7 +2425,7 @@ const pageKicker = isMyTasksView
                             {t('address.detailSectionTitle', 'Adres Bilgileri')}
                           </MyRequestSectionHeading>
                           {isEditingThisRoutineTask ? (
-                            <div className="grid gap-2">
+                            <div className="my-request-edit-fields grid gap-2">
                               <label className="grid gap-1">
                                 <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                                 <SingleSelectDropdown

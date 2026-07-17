@@ -1,4 +1,4 @@
-import { Building2, FileImage, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
+import { Building2, FileText, Image, Paperclip, Phone, Send, Workflow } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -140,7 +140,7 @@ function fileExtension(name: string): string {
 }
 
 function pendingFileIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? FileImage : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? Image : FileText
 }
 
 function validateFile(file: File): string | null {

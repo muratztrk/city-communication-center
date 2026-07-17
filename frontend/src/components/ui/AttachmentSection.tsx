@@ -1,4 +1,4 @@
-import { Download, FileImage, FileText, Paperclip } from 'lucide-react'
+import { Download, FileText, Image, Paperclip } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
@@ -21,7 +21,8 @@ function isImageFile(name: string): boolean {
 }
 
 function getAttachmentIcon(fileName: string) {
-  return isImageFile(fileName) ? FileImage : FileText
+  // Görsel ekler belge ikonundan ayrışsın; boyut sınıfları aynı kalır (card #1637).
+  return isImageFile(fileName) ? Image : FileText
 }
 
 interface AttachmentSectionProps {

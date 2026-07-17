@@ -1,4 +1,4 @@
-import { ClipboardList, FileImage, FileText, Paperclip, Send } from 'lucide-react'
+import { ClipboardList, FileText, Image, Paperclip, Send } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -46,7 +46,7 @@ function fileExtension(name: string): string {
 }
 
 function pendingFileIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? FileImage : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? Image : FileText
 }
 
 function validateFile(file: File): string | null {

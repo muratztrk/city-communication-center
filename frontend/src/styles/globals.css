@@ -2231,11 +2231,24 @@
     max-width: 12rem;
   }
 
-  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date .field-input {
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-due-date .field-input,
+  .detail-modal-shell--my-request .my-request-detail-edit-due-date .field-input {
     width: 100%;
     min-height: 1.75rem;
     padding: 0.25rem 0.4rem;
-    font-size: 0.75rem;
+    /* Placeholder + seçili değer daha küçük (card #1615). */
+    font-size: 0.6875rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-edit-due-date .field-input span {
+    font-size: 0.6875rem;
+  }
+
+  /* Adres düzenleme placeholder'ları (Mahalle / Cadde / Açık Adres) — card #1639 */
+  .detail-modal-shell--my-request .my-request-edit-fields .field-input::placeholder,
+  .detail-modal-shell--my-request .my-request-edit-fields .field-textarea::placeholder,
+  .detail-modal-shell--my-request .my-request-edit-fields .field-select span.text-slate-400 {
+    font-size: 0.6875rem;
   }
 
   /* "Dosya ekle" butonu bir tık büyük; Talep Ekleri ve Görev Ekleri aynı ölçüde (card #1601). */

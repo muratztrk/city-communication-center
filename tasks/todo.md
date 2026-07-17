@@ -1,3 +1,11 @@
+## Round — #1629/#1615/#1639/#1638/#1636/#1637 UI polish
+- [x] `6a571b37` (#1629) — PendingOwnerApproval + sahip-onay adımı varken mükerrer Durum/Onay Bekleyen kaldırıldı.
+- [x] `6a564572` (#1615) — Düzenlemede Son Tarih DateTimePicker placeholder+değer 0.6875rem.
+- [x] `6a59cdc7` (#1639) — Adres edit Mahalle/Cadde/Açık Adres placeholder fontları küçültüldü.
+- [x] `6a59cc8f` (#1638) — İptal Notu kırmızı / Tamamlama Notu yeşil (etiket+değer).
+- [x] `6a59c8be` (#1636) — İlgili Talep timeline: sahip onay adımı Durum'dan önce.
+- [x] `6a59cc10` (#1637) — Görsel eklerde Lucide `Image` (boyut aynı).
+
 ## Round — #1635 reopen düşey hiza
 - [x] `6a58d617` (#1635 reopen) — Taleplerim/Gelen/Giden: Görev Bilgileri + Süreç kartları eşit yükseklik (`items-stretch`).
 

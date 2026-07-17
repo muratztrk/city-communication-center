@@ -243,6 +243,8 @@ export function MyRequestDetailMainCard({
   })
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, {
     hideOwnerApproval,
+    // İlgili Talep / personel Taleplerim: sahip onay adımı Durum'dan önce (card #1636).
+    ownerApprovalBeforeStatus: !hideOwnerApproval,
     showPendingTargetApprovalAfterStatus: !hideOwnerApproval,
   }), [t, detail, locale, hideOwnerApproval])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])

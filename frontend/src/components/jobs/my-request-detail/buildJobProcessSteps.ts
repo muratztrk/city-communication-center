@@ -264,13 +264,21 @@ export function buildJobProcessSteps(
     })
   }
 
+  // Sahip onayı henüz yokken Durum/Onay Bekleyen, hemen üstteki sahip-onay adımıyla
+  // mükerrer kalır — o durumda Durum katmanını ekleme (card #1629). Unassigned Active
+  // ve PendingExternalApproval için mavi Durum katmanı korunur.
   if (!statusStepEarly && pendingStatusLayer && options?.ownerApprovalBeforeStatus && !isTerminalStatus(detail.status)) {
-    steps.push({
-      id: 'status',
-      label: t('jobs.columns.status', 'Durum'),
-      displayValue: t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
-      dateTimeUtc: null,
-    })
+    const ownerStepShowsPendingApproval = !options?.hideOwnerApproval
+      && !isCitizenRequestJob(detail)
+      && detail.status === 'PendingOwnerApproval'
+    if (!ownerStepShowsPendingApproval) {
+      steps.push({
+        id: 'status',
+        label: t('jobs.columns.status', 'Durum'),
+        displayValue: t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+        dateTimeUtc: null,
+      })
+    }
   }
 
   if (shouldShowCitizenTargetApprovalDate(detail)) {

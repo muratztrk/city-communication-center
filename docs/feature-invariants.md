@@ -720,9 +720,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`pending` / `text-sky-500`). `Durum / Yapılmakta` turuncu (`current` / `#f97316`) —
   card #1645, #1643'ün Yapılmakta-mavi kuralını geri alır. `Durum / Son Tarihi Geçmiş`
   turuncu (`current`) — card #1644.
-  **Güncelleme (card #1646):** süresi geçmiş aktif Durum metni yalnız `Yapılmakta` veya yalnız
+  **Güncelleme (card #1646/#1647):** süresi geçmiş aktif Durum metni yalnız `Yapılmakta` veya yalnız
   `Son Tarihi Geçmiş` olmaz; `Yapılmakta (Son Tarihi Geçmiş)` birleşik etiketi kullanılır
-  (Talepler/Taleplerim/Görevler/Görevlerim Süreç kolonu + ilgili grid durum etiketleri).
+  (Talepler/Taleplerim/Görevler/Görevlerim Süreç kolonu + Birimdeki Görevler İlgili Talep
+  Süreç kolonu + ilgili grid durum etiketleri).
+- **Üst düzey (Reporter) görev vurgusu (card #1648):** Birimdeki Görevler (ve Görevlerim ailesi)
+  gridinde Reporter-kaynaklı talepten gelen görevlerde `Başlık` + `Görevi Yapan` turuncu
+  (`#f97316`); detay popup'ta aynı alanlar da turuncudur.
 - **Görev Bilgileri İptal/Tamamlama Notu renkleri (card #1638):** `İptal Notu` etiket+değer
   kırmızı (`text-red-600`), `Tamamlama Notu` etiket+değer yeşil (`text-emerald-600`).
 - **Görsel ek ikonu (cards #1637/#1637 reopen):** JPG/PNG eklerde `SimpleImageAttachmentIcon`

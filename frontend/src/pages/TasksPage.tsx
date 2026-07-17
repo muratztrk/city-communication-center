@@ -32,7 +32,7 @@ import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { useAuth } from '../context/AuthContext'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
@@ -1970,7 +1970,7 @@ const pageKicker = isMyTasksView
                       <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
                         <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
                           <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
-                            <span className="min-w-0">
+                            <span className={`min-w-0${isReporterCreated(selectedTask?.createdByRoleCode) ? ' text-[#f97316]' : ''}`}>
                               {activeTaskEditDraft ? (
                                 <textarea
                                   className="field-textarea my-request-title-heading-edit__textarea font-semibold"
@@ -2063,7 +2063,15 @@ const pageKicker = isMyTasksView
                               : []),
                             // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
                             // assignedUser önce, yoksa owner (card #719).
-                            { label: t('tasks.columns.owner', 'Görevi Yapan'), value: taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—' },
+                            // Üst düzey (Reporter) talepten atanmış görevde Görevi Yapan turuncu (card #1648).
+                            {
+                              label: t('tasks.columns.owner', 'Görevi Yapan'),
+                              value: (
+                                <span className={isReporterCreated(selectedTask?.createdByRoleCode) ? 'font-semibold text-[#f97316]' : undefined}>
+                                  {taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—'}
+                                </span>
+                              ),
+                            },
                             ...(() => {
                               const statusChangeWithReason = (taskDetail.statusChangeHistory ?? []).find(item => item.reason?.trim())
                               return statusChangeWithReason
@@ -2534,18 +2542,26 @@ const pageKicker = isMyTasksView
                       </span>
                     ) : null
                     const isCitizenParentJob = isCitizenRequestJob(parentJobDetail)
+                    const parentOverdue = parentJobDetail.dueDateUtc != null
+                      && new Date(parentJobDetail.dueDateUtc).getTime() < Date.now()
+                      && parentJobDetail.status !== 'Completed'
+                      && parentJobDetail.status !== 'Cancelled'
+                      && parentJobDetail.status !== 'Rejected'
                     const parentStatusClass = parentJobDetail.status === 'Completed'
                       ? 'text-emerald-600'
                       : parentJobDetail.status === 'Cancelled'
                         ? 'text-rose-600'
                         : 'text-orange-500'
+                    // Süreç Durum: süresi geçmişte birleşik etiket (card #1646 / Birimdeki Görevler #1647).
                     const parentStatusContent = isCitizenParentJob
                       ? getCitizenRequestStatusLabel(t, parentJobDetail)
                       : parentJobDetail.status === 'Completed'
                         ? t('jobs.status.completed', 'Tamamlandı')
                         : parentJobDetail.status === 'Cancelled'
                           ? t('jobs.status.cancelled', 'İptal Edildi')
-                          : t('jobs.status.inProgress', 'Yapılmakta')
+                          : parentOverdue
+                            ? formatOverdueInProgressStatus(t)
+                            : t('jobs.status.inProgress', 'Yapılmakta')
                     const parentRequestNumberSuffix = parentForwardReasonDisplay ? (
                       <span className="text-xs font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                     ) : null
@@ -2897,6 +2913,9 @@ const pageKicker = isMyTasksView
                   const reporterTaskNumberClass = isReporterTask && hasConcreteNumberDisplay(taskDisplayNumber)
                     ? reporterGridValueClass(true)
                     : ''
+                  // Üst düzey (Reporter) talepten gelen atanmış görev: Başlık + Görevi Yapan turuncu (card #1648).
+                  const reporterTitleClass = isReporterTask ? 'text-[#f97316]' : ''
+                  const reporterAssigneeClass = isReporterTask ? 'text-orange-500 font-semibold' : 'text-slate-600'
 
                   return (
                   <tr key={task.taskId}>
@@ -2953,14 +2972,14 @@ const pageKicker = isMyTasksView
                         />
                       </div>
                     </td>
-                    <td><span className="cell-title">{task.title}</span></td>
+                    <td><span className={`cell-title ${reporterTitleClass}`}>{task.title}</span></td>
                     {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
                       <td>
                         <div className="mx-auto max-w-[11rem] text-center">
                           <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
                             {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                           </StatusPill>
-                          <div className="mt-1 truncate text-xs text-slate-600">
+                          <div className={`mt-1 truncate text-xs ${reporterAssigneeClass}`}>
                             {task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}
                           </div>
                         </div>

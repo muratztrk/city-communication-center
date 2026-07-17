@@ -1,3 +1,7 @@
+## Round — #1647/#1648 Birimdeki Görevler overdue etiket + Reporter turuncu
+- [x] `6a5a16ae` — İlgili Talep Süreç Durum: `Yapılmakta (Son Tarihi Geçmiş)`.
+- [x] `6a5a1625` — Reporter talepten gelen görev: Başlık + Görevi Yapan turuncu (grid+popup).
+
 ## Round — #1646 Yapılmakta (Son Tarihi Geçmiş)
 - [x] `6a59f0d4` (#1646) — Süresi geçmiş Durum: `Yapılmakta (Son Tarihi Geçmiş)` birleşik etiket.
 

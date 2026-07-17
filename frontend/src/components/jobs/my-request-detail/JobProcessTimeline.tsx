@@ -52,6 +52,12 @@ function getStepLabelClass(state: JobProcessStep['state']): string {
   return 'text-slate-400'
 }
 
+/** Tarihsiz "Onay Bekleyen" değerleri biraz daha küçük (card #1640). */
+function isPendingApprovalDisplayValue(displayValue: string): boolean {
+  const normalized = displayValue.trim().toLocaleLowerCase('tr')
+  return normalized === 'onay bekleyen' || normalized === 'pending approval'
+}
+
 interface JobProcessTimelineProps {
   steps: JobProcessStep[]
   locale: string
@@ -201,7 +207,7 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${isPendingApprovalDisplayValue(step.displayValue) ? ' job-process-timeline__step-value--pending-approval' : ''}`}>
                     {statusContent}
                   </div>
                 ) : showTerminalDateMeta ? (
@@ -219,7 +225,7 @@ export function JobProcessTimeline({
                     step={step}
                     locale={locale}
                     metaTone={displayMetaTone}
-                    className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}
+                    className={`job-process-timeline__step-value mt-0.5 font-semibold ${valueTone} ${isPendingApprovalDisplayValue(step.displayValue) ? 'job-process-timeline__step-value--pending-approval text-xs' : 'text-sm'}`}
                   />
                 )}
               </div>

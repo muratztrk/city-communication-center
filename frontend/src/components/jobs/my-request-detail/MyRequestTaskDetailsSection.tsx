@@ -1,7 +1,8 @@
-import { FileText, Image, Info, ListChecks } from 'lucide-react'
+import { FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
+import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
 import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
@@ -24,7 +25,7 @@ interface MyRequestTaskDetailsSectionProps {
 }
 
 function getInlineAttachmentIcon(fileName: string) {
-  return /\.(?:jpe?g|png)$/i.test(fileName) ? Image : FileText
+  return /\.(?:jpe?g|png)$/i.test(fileName) ? SimpleImageAttachmentIcon : FileText
 }
 
 function buildTaskProcessSteps(

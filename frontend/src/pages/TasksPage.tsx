@@ -1,4 +1,4 @@
-import { CheckCheck, FileText, History, Image, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
+import { CheckCheck, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -16,6 +16,7 @@ import { api } from '../api/client'
 import { invalidateTasks, invalidateNotifications } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
+import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
@@ -49,7 +50,7 @@ function completionAttachmentExtension(name: string): string {
 }
 
 function completionAttachmentIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(completionAttachmentExtension(name)) ? Image : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(completionAttachmentExtension(name)) ? SimpleImageAttachmentIcon : FileText
 }
 
 function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHistory[] {

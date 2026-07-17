@@ -714,10 +714,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hedef onaylanınca bu sentetik bekleyen adım gösterilmez (cards #1603 reopen/#1606).
 - **Görev Bilgileri İptal/Tamamlama Notu renkleri (card #1638):** `İptal Notu` etiket+değer
   kırmızı (`text-red-600`), `Tamamlama Notu` etiket+değer yeşil (`text-emerald-600`).
-- **Görsel ek ikonu (card #1637):** JPG/PNG eklerde Lucide `Image` kullanılır (`FileImage`
-  değil); ikon boyut sınıfları (`size-3` / `size-3.5`) değişmez.
+- **Görsel ek ikonu (cards #1637/#1637 reopen):** JPG/PNG eklerde `SimpleImageAttachmentIcon`
+  (sade çerçeve + dağ çizgisi; Lucide `Image`/`FileImage` değil); ikon boyut sınıfları
+  (`size-3` / `size-3.5`) değişmez.
 - **Düzenleme placeholder fontları (cards #1615/#1639):** Son Tarih DateTimePicker placeholder
   + seçili değer `0.6875rem`; adres Mahalle/Cadde/Açık Adres placeholder'ları aynı ölçüde.
+- **Süreç "Onay Bekleyen" değer fontu (card #1640):** timeline adım değerlerinde
+  `Onay Bekleyen` / `Pending Approval` metinleri `job-process-timeline__step-value--pending-approval`
+  ile `0.6875rem` (meta parantez biraz daha küçük).
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak. Görev

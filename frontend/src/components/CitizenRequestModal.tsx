@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { FileText, Image, Paperclip, Send, X } from 'lucide-react'
+import { FileText, Paperclip, Send, X } from 'lucide-react'
+import { SimpleImageAttachmentIcon } from './ui/SimpleImageAttachmentIcon'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -41,7 +42,7 @@ function fileExtension(name: string): string {
 }
 
 function pendingFileIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? Image : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? SimpleImageAttachmentIcon : FileText
 }
 
 function validateFile(file: File): string | null {

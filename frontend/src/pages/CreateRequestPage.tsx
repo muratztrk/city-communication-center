@@ -1,4 +1,5 @@
-import { Building2, FileText, Image, Paperclip, Phone, Send, Workflow } from 'lucide-react'
+import { Building2, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
+import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -140,7 +141,7 @@ function fileExtension(name: string): string {
 }
 
 function pendingFileIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? Image : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? SimpleImageAttachmentIcon : FileText
 }
 
 function validateFile(file: File): string | null {

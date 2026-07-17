@@ -1,3 +1,7 @@
+## Round — #1637 reopen sade ikon + #1640 Onay Bekleyen font
+- [x] `6a59cc10` (#1637 reopen) — Görsel eklerde sade `SimpleImageAttachmentIcon` (boyut aynı).
+- [x] `6a59d69f` (#1640) — Süreç timeline'ındaki tüm "Onay Bekleyen" değerleri küçültüldü.
+
 ## Round — #1629/#1615/#1639/#1638/#1636/#1637 UI polish
 - [x] `6a571b37` (#1629) — PendingOwnerApproval + sahip-onay adımı varken mükerrer Durum/Onay Bekleyen kaldırıldı.
 - [x] `6a564572` (#1615) — Düzenlemede Son Tarih DateTimePicker placeholder+değer 0.6875rem.

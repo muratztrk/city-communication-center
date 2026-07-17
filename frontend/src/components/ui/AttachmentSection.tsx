@@ -1,10 +1,11 @@
-import { Download, FileText, Image, Paperclip } from 'lucide-react'
+import { Download, FileText, Paperclip } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 import { ConfirmDialog } from './confirm-dialog'
+import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
@@ -21,8 +22,8 @@ function isImageFile(name: string): boolean {
 }
 
 function getAttachmentIcon(fileName: string) {
-  // Görsel ekler belge ikonundan ayrışsın; boyut sınıfları aynı kalır (card #1637).
-  return isImageFile(fileName) ? Image : FileText
+  // Görsel ekler belge ikonundan ayrışsın; sade çerçeve, boyut aynı (card #1637 reopen).
+  return isImageFile(fileName) ? SimpleImageAttachmentIcon : FileText
 }
 
 interface AttachmentSectionProps {

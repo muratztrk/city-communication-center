@@ -1,3 +1,6 @@
+## Round — #1654 görev popup İlgili Talep sahip onay
+- [x] `6a5a274b` (#1654) — Görevlerim/Birimdeki/Personel İlgili Talep Süreç'te sahip onay katmanı göster.
+
 ## Round — #1650 reopen koyu turkuaz geri
 - [x] `6a5a195b` (#1650) — Açık ton isteği geri alındı; tekrar `bg-teal-600 text-white`.
 

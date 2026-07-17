@@ -181,6 +181,8 @@ interface MyRequestDetailMainCardProps {
   separatePriorityProjectRows?: boolean
   priorityInInfoHeader?: boolean
   hideProjectRow?: boolean
+  /** Görevlerim/Birimdeki/Personel popup İlgili Talep: sahip onay katmanını her zaman göster (card #1654). */
+  forceShowOwnerApproval?: boolean
 }
 
 export function MyRequestDetailMainCard({
@@ -217,11 +219,15 @@ export function MyRequestDetailMainCard({
   separatePriorityProjectRows = false,
   priorityInInfoHeader = false,
   hideProjectRow = false,
+  forceShowOwnerApproval = false,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
-  const hideOwnerApproval = isManagerLike || user?.role === 'Reporter'
+  // Manager/Reporter Taleplerim'de sahip onayını gizler; görev popup İlgili Talep'te gösterilir (#1654).
+  const hideOwnerApproval = forceShowOwnerApproval
+    ? false
+    : (isManagerLike || user?.role === 'Reporter')
   // Talep detayında bekleyen ek süre isteği yönetici tarafından karara bağlanabilir (card #1404).
   const hasPendingExtraTime = detail.tasks.some(task => task.hasPendingExtraTimeRequest)
   const canReviewExtraTime = isManagerLike && hasPendingExtraTime && Boolean(onOpenExtraTimeReview)

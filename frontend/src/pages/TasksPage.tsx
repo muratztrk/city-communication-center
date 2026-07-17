@@ -2678,6 +2678,7 @@ const pageKicker = isMyTasksView
                           extraFields={parentExtraFields}
                           includeAssigneeField={false}
                           hideTitleText
+                          forceShowOwnerApproval
                           middleColumnOverride={parentAddressColumnContent}
                           leftColumnBelowHeading={parentInfoCardContent}
                           boxedColumns

@@ -1,3 +1,6 @@
+## Round — #1651 Süreç Durum Yapılmakta mavi
+- [x] `6a5a2423` (#1651) — Süreç Durum/Yapılmakta mavi; süresi geçmiş turuncu kalır.
+
 ## Round — #1650 reopen İşleme Alındı turkuaz
 - [x] `6a5a195b` (#1650 reopen) — Grid İşleme Alındı chip: turkuaz (`bg-teal-100`), sarı değil.
 

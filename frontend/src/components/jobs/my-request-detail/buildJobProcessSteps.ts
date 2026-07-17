@@ -182,14 +182,9 @@ function resolveStepStates(
     }
     if (step.id === 'status') {
       foundCurrent = true
-      // Son Tarihi Geçmiş → turuncu (#1644). Yapılmakta → turuncu (#1645; #1643 mavisini geri al).
-      // Onay Bekleyen Durum → mavi pending (#1643).
+      // Son Tarihi Geçmiş → turuncu (#1644). Yapılmakta + Onay Bekleyen → mavi pending
+      // (#1651; #1645 turuncusunu geri alır, #1643 ile hizalı).
       if (isActiveJobOverdue(detail)) {
-        return { ...step, state: 'current' as const }
-      }
-      const isInProgressStatus = !isPendingApprovalJobStatus(detail.status)
-        && !isUnassignedActivePending(detail, options)
-      if (isInProgressStatus) {
         return { ...step, state: 'current' as const }
       }
       return { ...step, state: 'pending' as const }

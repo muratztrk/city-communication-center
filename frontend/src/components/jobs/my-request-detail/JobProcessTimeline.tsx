@@ -166,7 +166,7 @@ export function JobProcessTimeline({
           const showTerminalDateMeta = (step.id === 'completionDate' || step.id === 'cancelDate')
             && statusContent
             && !(step.id === 'cancelDate' && recoveredFromCancellation)
-          // Durum: Onay Bekleyen mavi (#1643); Yapılmakta / Son Tarihi Geçmiş turuncu (#1644/#1645).
+          // Durum: Onay Bekleyen + Yapılmakta mavi (#1643/#1651); Son Tarihi Geçmiş turuncu (#1644).
           // Onay adımları Onay Bekleyen → mavi pending (card #1645).
           const isStatusStep = step.id === 'status'
           const statusUseBlue = isStatusStep && step.state === 'pending'

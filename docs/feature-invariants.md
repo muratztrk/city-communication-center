@@ -716,10 +716,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   + sentetik `Onay Bekleyen` birlikte gösterilmez (mükerrer yok). Sentetik / gerçek
   `Talebin|Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` değeri `Onay Bekleyen` ise
   başlık+değer+gösterge mavi (`pending`) — süresi geçmiş taleplerde mavi uygulanmaz (card #1645).
-- **Süreç Durum katmanı rengi (cards #1643/#1644/#1645):** `Durum / Onay Bekleyen` mavi
-  (`pending` / `text-sky-500`). `Durum / Yapılmakta` turuncu (`current` / `#f97316`) —
-  card #1645, #1643'ün Yapılmakta-mavi kuralını geri alır. `Durum / Son Tarihi Geçmiş`
-  turuncu (`current`) — card #1644.
+- **Süreç Durum katmanı rengi (cards #1643/#1644/#1645/#1651):** `Durum / Onay Bekleyen` ve
+  `Durum / Yapılmakta` mavi (`pending` / `text-sky-500`) — card #1651, #1645'in Yapılmakta-
+  turuncu kuralını geri alır. `Durum / Son Tarihi Geçmiş` (birleşik etiket dahil) turuncu
+  (`current`) — card #1644.
   **Güncelleme (card #1646/#1647/#1650 reopen):** süresi geçmiş aktif Durum metni yalnız
   `Yapılmakta` veya yalnız `Son Tarihi Geçmiş` olmaz; `Yapılmakta (Son Tarihi Geçmiş)`
   birleşik etiketi kullanılır. Vatandaş talebinde `İşleme Alındı` metni korunur (Onay Bekleyen'e

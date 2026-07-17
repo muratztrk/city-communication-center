@@ -61,6 +61,7 @@ export function getJobStatusTone(job: { status: string; dueDateUtc: string | nul
   if (job.status === 'Cancelled') return 'cancelled'
   if (job.status === 'Rejected') return 'rejected'
   if (job.status === 'RevisionRequested') return 'neutral'
+  if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') return 'pending'
   if (isOverdue(job.dueDateUtc)) return 'overdue'
   if (job.status === 'Active') return 'inProgress'
   return 'pending'
@@ -73,7 +74,8 @@ export function getTaskStatusTone(task: { currentStatus: string; dueDateUtc: str
     case 'Rejected': return 'rejected'
     case 'RevisionRequested': return 'neutral'
     case 'Assigned':
-    case 'InProgress': return 'inProgress'
+    case 'InProgress':
+      return isOverdue(task.dueDateUtc) ? 'overdue' : 'inProgress'
     default: break
   }
   if (isOverdue(task.dueDateUtc)) return 'overdue'
@@ -85,8 +87,8 @@ export function getStatusPillClass(tone: GridStatusTone): string {
     case 'completed': return 'bg-emerald-100 text-emerald-700 ring-emerald-200'
     case 'cancelled':
     case 'rejected': return 'bg-red-100 text-red-700 ring-red-200'
-    // "Yapılmakta" chip'i turuncu zemin + beyaz metin (card #1387).
-    case 'inProgress': return 'bg-orange-500 text-white ring-orange-400'
+    // "Yapılmakta" chip'i mavi (card #1649); turuncu yalnız süresi geçmiş birleşik etikette.
+    case 'inProgress': return 'bg-sky-100 text-sky-700 ring-sky-200'
     case 'overdue': return 'bg-orange-100 text-orange-700 ring-orange-200'
     default: return ''
   }

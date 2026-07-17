@@ -28,6 +28,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
+import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -131,6 +132,9 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
   if (row.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
+    return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+  }
   if (row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()) {
     return formatOverdueInProgressStatus(t)
   }
@@ -950,12 +954,14 @@ export function IncomingRequestsPage() {
                       return (
                         <td>
                           <StatusPill className={getIncomingStatusPillClass(row)}>
-                            {statusDate
-                              ? <span className="flex flex-col items-center leading-tight">
-                                  <span>{getIncomingStatusLabel(t, row)}</span>
-                                  <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
-                                </span>
-                              : getIncomingStatusLabel(t, row)}
+                            <GridStatusLabel
+                              t={t}
+                              label={getIncomingStatusLabel(t, row)}
+                              channel={row.isCitizenRequest ? row.sourceChannel : null}
+                              footer={statusDate
+                                ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
+                                : undefined}
+                            />
                           </StatusPill>
                           {isTerminalRow && rowExtraTimeMarkers}
                         </td>

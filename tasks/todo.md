@@ -1,3 +1,7 @@
+## Round — #1649/#1650 Grid Durum stacked overdue + İşleme Alındı ikon
+- [x] `6a5a17d7` (#1649) — Yapılmakta (Son Tarihi Geçmiş) iki satır + turuncu; yalnız Yapılmakta mavi.
+- [x] `6a5a195b` (#1650) — İşleme Alındı önünde vatandaş kanal ikonu.
+
 ## Round — #1647/#1648 Birimdeki Görevler overdue etiket + Reporter turuncu
 - [x] `6a5a16ae` — İlgili Talep Süreç Durum: `Yapılmakta (Son Tarihi Geçmiş)`.
 - [x] `6a5a1625` — Reporter talepten gelen görev: Başlık + Görevi Yapan turuncu (grid+popup).

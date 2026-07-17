@@ -28,6 +28,7 @@ import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { StatusPill } from '../components/ui/status-pill'
+import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
@@ -185,6 +186,9 @@ function getJobDisplayStatus(
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') {
+    return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+  }
   if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
     return formatOverdueInProgressStatus(t)
   }
@@ -2024,12 +2028,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       return (
                         <td>
                           <StatusPill className={getStatusPillClass(getJobStatusTone(job))}>
-                            {statusDate
-                              ? <span className="flex flex-col items-center leading-tight">
-                                  <span>{getJobDisplayStatus(t, job)}</span>
-                                  <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
-                                </span>
-                              : getJobDisplayStatus(t, job)}
+                            <GridStatusLabel
+                              t={t}
+                              label={getJobDisplayStatus(t, job)}
+                              footer={statusDate
+                                ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
+                                : undefined}
+                            />
                           </StatusPill>
                           {isTerminalJob && jobExtraTimeMarkers}
                         </td>

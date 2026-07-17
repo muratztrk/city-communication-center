@@ -30,6 +30,7 @@ import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
+import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus } from '../utils/localization'
@@ -3012,12 +3013,16 @@ const pageKicker = isMyTasksView
                       return (
                         <td>
                           <StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>
-                            {statusDate
-                              ? <span className="flex flex-col items-center leading-tight">
-                                  <span>{getTaskDisplayStatus(t, task)}</span>
-                                  <span className={`text-[0.68rem] font-bold ${task.currentStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
-                                </span>
-                              : getTaskDisplayStatus(t, task)}
+                            <GridStatusLabel
+                              t={t}
+                              label={getTaskDisplayStatus(t, task)}
+                              channel={isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })
+                                ? getCitizenTaskChannel(task, socialByJobId)
+                                : null}
+                              footer={statusDate
+                                ? <span className={`text-[0.68rem] font-bold ${task.currentStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
+                                : undefined}
+                            />
                           </StatusPill>
                           {showExtraTimeUnderStatus ? extraTimeMarkers : null}
                         </td>

@@ -133,6 +133,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   turkuaz `Talebi Yönlendiren Birim • sebep` formatında gösterilir.
 - **"Görev Detayları" özet kartı, TasksPage (Görevlerim) ile JobsPage (Birime Gelen) arasında
   BİREBİR AYNI tutulur** (card 649/705). Birine alan eklersen diğerine de ekle.
+  Taleplerim / Birime Gelen / Birimden Giden talep detay popup'larında bölüm başlığı
+  `İlgili Görev Detayları`dır (card #1663); Görevlerim popup'ında kendi görev başlığı
+  `Görev Detayları` kalır.
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`
   olduğunda `Görev Detayları` altındaki Öncelik etiketi ve değeri görünmez; rutin görevlerin
   öncelik satırı korunur (card #1118).
@@ -277,8 +280,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
   yapışmaz. Detaylar popup sol üst başlığının altında footer Lumespec şeridiyle aynı
-  `3px` / `--color-primary` boydan boya şerit kullanılır (card #1657 reopen; önceki
-  banner gradient kaldırıldı). Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
+  `--color-primary` boydan boya şerit kullanılır; kalınlık `2px` (card #1661; #1657 reopen
+  3px'den inceltti). Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
   en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.

@@ -723,6 +723,7 @@
     },
     "detail": {
       "title": "Görev Detayları",
+      "relatedTitle": "İlgili Görev Detayları",
       "description": "Açıklama",
       "noDescription": "Açıklama yok",
       "cancelNote": "İptal Notu",

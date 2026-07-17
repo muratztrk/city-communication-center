@@ -120,7 +120,7 @@ export function MyRequestTaskDetailsSection({
   return (
     <section className="my-request-task-details form-card page-stack mb-5">
       <MyRequestSectionHeading icon={ListChecks} tone="primary">
-        {t('tasks.detail.title', 'Görev Detayları')}
+        {t('tasks.detail.relatedTitle', 'İlgili Görev Detayları')}
       </MyRequestSectionHeading>
       <div className="space-y-3">
         {detail.tasks.map(task => {

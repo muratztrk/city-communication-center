@@ -337,7 +337,7 @@ function buildPrintJobStatusLabel(
 
 function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFunction): string {
   if (detail.tasks.length === 0) {
-    return '<div class="section"><div class="section-title">Görev Detayları</div><p style="color:#888;font-size:11px">Görev yok</p></div>'
+    return '<div class="section"><div class="section-title">İlgili Görev Detayları</div><p style="color:#888;font-size:11px">Görev yok</p></div>'
   }
 
   const taskBlocks = detail.tasks.map((task, index) => {
@@ -390,7 +390,7 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
   }).join('')
 
   return `<div class="section">
-    <div class="section-title">${escHtml(t('tasks.detail.title', 'Görev Detayları'))} (${detail.tasks.length})</div>
+    <div class="section-title">${escHtml(t('tasks.detail.relatedTitle', 'İlgili Görev Detayları'))} (${detail.tasks.length})</div>
     ${taskBlocks}
   </div>`
 }

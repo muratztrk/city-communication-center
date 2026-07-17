@@ -717,6 +717,7 @@
     },
     "detail": {
       "title": "Task Details",
+      "relatedTitle": "Related Task Details",
       "description": "Description",
       "noDescription": "No description",
       "cancelNote": "Cancellation Note",

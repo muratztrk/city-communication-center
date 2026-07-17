@@ -1,3 +1,7 @@
+## Round — #1661/#1663 şerit incelme + İlgili Görev Detayları
+- [x] `6a5a4b35` (#1661) — Detay popup başlık şeridi 3px → 2px.
+- [x] `6a5a4d23` (#1663) — Taleplerim/Birime Gelen/Giden: `İlgili Görev Detayları`.
+
 ## Round — #1657/#1660/#1659 detay şerit + border hiza + Yapılmakta mavi
 - [x] `6a5a42aa` (#1657 reopen) — Başlık şeridi 3px `--color-primary` (footer Lumespec ile aynı).
 - [x] `6a5a4668` (#1660) — Talep/Görev Bilgileri başlık border'ı komşu kartlarla hizalı.

@@ -172,8 +172,8 @@
     max-height: min(76.7dvh, 44.5rem);
   }
 
-  /* Detaylar popup başlık altı: footer Lumespec şeridiyle aynı renk/kalınlık
-     (`AppFooter` 3px `--color-primary`; card #1657 reopen). */
+  /* Detaylar popup başlık altı: footer Lumespec şeridiyle aynı renk (`--color-primary`),
+     biraz daha ince 2px (card #1661; #1657 reopen 3px'den inceltti). */
   .my-request-detail-header {
     position: relative;
     border-bottom: 0;
@@ -184,7 +184,7 @@
     position: absolute;
     inset-inline: 0;
     bottom: 0;
-    height: 3px;
+    height: 2px;
     background: var(--color-primary);
     pointer-events: none;
   }

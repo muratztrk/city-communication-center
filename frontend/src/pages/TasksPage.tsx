@@ -2202,7 +2202,7 @@ const pageKicker = isMyTasksView
                                       // Son Tarihi Geçmiş → turuncu; diğer aktif Durum → mavi (cards #1643/#1644).
                                       state: (taskDetail.dueDateUtc != null && new Date(taskDetail.dueDateUtc).getTime() < Date.now()
                                         ? 'current'
-                                        : 'pending') as const,
+                                        : 'pending') as 'current' | 'pending',
                                     },
                                     dueDateStep,
                                   ]),

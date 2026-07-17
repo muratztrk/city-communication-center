@@ -88,8 +88,8 @@ export function getStatusPillClass(tone: GridStatusTone): string {
     case 'rejected': return 'bg-red-100 text-red-700 ring-red-200'
     // "Yapılmakta" chip'i mavi (card #1649); turuncu yalnız süresi geçmiş birleşik etikette.
     case 'inProgress': return 'bg-sky-100 text-sky-700 ring-sky-200'
-    // "İşleme Alındı" sarı arka plan (card #1650 third).
-    case 'processingReceived': return 'bg-yellow-100 text-yellow-800 ring-yellow-200'
+    // "İşleme Alındı" turkuaz arka plan (card #1650 reopen → turkuaz).
+    case 'processingReceived': return 'bg-teal-100 text-teal-800 ring-teal-200'
     // Solid turuncu + beyaz yazı — kullanıcı örneğiyle aynı ton (card #1649 reopen).
     case 'overdue': return 'bg-orange-500 text-white ring-orange-600'
     default: return ''

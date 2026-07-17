@@ -166,31 +166,44 @@ export function JobProcessTimeline({
           const showTerminalDateMeta = (step.id === 'completionDate' || step.id === 'cancelDate')
             && statusContent
             && !(step.id === 'cancelDate' && recoveredFromCancellation)
-          // Durum katmanı varsa başlık + değer her zaman mavi (card #1643); görev timeline'ı
-          // da dahil (state current gelse bile).
+          // Durum: mavi (pending) varsayılan; Son Tarihi Geçmiş turuncu current (cards #1643/#1644).
           const isStatusStep = step.id === 'status'
-          const valueTone = isStatusStep
+          const statusUseBlue = isStatusStep && step.state === 'pending'
+          const statusUseOrange = isStatusStep && step.state === 'current'
+          const valueTone = statusUseBlue
             ? 'text-sky-500'
-            : step.id === 'completionDate'
-              ? 'text-emerald-600'
-              : step.id === 'cancelDate'
-                  ? 'text-red-600'
-                  : step.state === 'pending'
-                    ? 'text-sky-500'
-                    : step.state === 'current'
-                      ? 'text-[#f97316]'
-                      : step.state === 'upcoming'
-                        ? 'text-slate-400'
-                        : 'text-slate-900'
-          const displayMetaTone = isStatusStep
+            : statusUseOrange
+              ? 'text-[#f97316]'
+              : step.id === 'completionDate'
+                ? 'text-emerald-600'
+                : step.id === 'cancelDate'
+                    ? 'text-red-600'
+                    : step.state === 'pending'
+                      ? 'text-sky-500'
+                      : step.state === 'current'
+                        ? 'text-[#f97316]'
+                        : step.state === 'upcoming'
+                          ? 'text-slate-400'
+                          : 'text-slate-900'
+          const displayMetaTone = statusUseBlue
             ? 'text-sky-500'
-            : step.state === 'pending'
-              ? 'text-sky-500'
-              : step.state === 'current'
-                ? 'text-[#f97316]'
-                : 'text-emerald-600'
-          const labelClass = isStatusStep ? 'text-sky-500' : getStepLabelClass(step.state)
-          const indicatorState = isStatusStep ? 'pending' : step.state
+            : statusUseOrange
+              ? 'text-[#f97316]'
+              : step.state === 'pending'
+                ? 'text-sky-500'
+                : step.state === 'current'
+                  ? 'text-[#f97316]'
+                  : 'text-emerald-600'
+          const labelClass = statusUseBlue
+            ? 'text-sky-500'
+            : statusUseOrange
+              ? 'text-orange-500'
+              : getStepLabelClass(step.state)
+          const indicatorState = statusUseBlue
+            ? 'pending'
+            : statusUseOrange
+              ? 'current'
+              : step.state
 
           return (
             <li key={step.id} className="job-process-timeline__item">
@@ -210,7 +223,7 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone} [&_*]:!text-sky-500`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${statusUseBlue ? ' [&_*]:!text-sky-500' : statusUseOrange ? ' [&_*]:!text-[#f97316]' : ''}`}>
                     {statusContent}
                   </div>
                 ) : showTerminalDateMeta ? (

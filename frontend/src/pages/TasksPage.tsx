@@ -2199,7 +2199,10 @@ const pageKicker = isMyTasksView
                                       label: t('tasks.columns.status', 'Durum'),
                                       displayValue: getTaskDisplayStatus(t, taskDetail),
                                       dateTimeUtc: null,
-                                      state: 'current' as const,
+                                      // Son Tarihi Geçmiş → turuncu; diğer aktif Durum → mavi (cards #1643/#1644).
+                                      state: (taskDetail.dueDateUtc != null && new Date(taskDetail.dueDateUtc).getTime() < Date.now()
+                                        ? 'current'
+                                        : 'pending') as const,
                                     },
                                     dueDateStep,
                                   ]),

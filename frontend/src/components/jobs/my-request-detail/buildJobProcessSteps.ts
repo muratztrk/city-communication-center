@@ -64,6 +64,12 @@ function isTerminalStatus(status: string): boolean {
   return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
 }
 
+/** Aktif talepte son tarih geçmişse Durum turuncu kalır (card #1644). */
+function isActiveJobOverdue(detail: JobDetail): boolean {
+  if (isTerminalStatus(detail.status)) return false
+  return detail.dueDateUtc != null && new Date(detail.dueDateUtc).getTime() < Date.now()
+}
+
 /**
  * Tek hedefli birim dışı talepte sahip yöneticisinin onayı hedef kaydı da aynı anda otomatik
  * damgalar (ApproveRejectJobOwnerCommands "one-step approval") — bu damga hedef yöneticisinin
@@ -170,7 +176,10 @@ function resolveStepStates(
     }
     if (step.id === 'status') {
       foundCurrent = true
-      // Durum katmanı varsa başlık + değer + gösterge her zaman mavi (card #1643).
+      // Son Tarihi Geçmiş → turuncu current; aksi halde mavi pending (cards #1643/#1644).
+      if (isActiveJobOverdue(detail)) {
+        return { ...step, state: 'current' as const }
+      }
       return { ...step, state: 'pending' as const }
     }
     if (step.id === 'completionDate' || step.id === 'cancelDate') {
@@ -216,10 +225,13 @@ export function buildJobProcessSteps(
   // adımı Durum'dan önce kalmalı, o yüzden erken eklenmez.
   // Onay beklerken aynı erken katman mavi "Durum / Onay Bekleyen" olur (card #1535 reopen).
   const pendingStatusLayer = shouldShowPendingStatusLayer(detail, options)
-  const statusDisplayValue = pendingStatusLayer
-    || isPendingApprovalJobStatus(detail.status)
-    ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
-    : t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  const jobOverdue = isActiveJobOverdue(detail)
+  const statusDisplayValue = jobOverdue
+    ? t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+    : pendingStatusLayer
+      || isPendingApprovalJobStatus(detail.status)
+      ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+      : t('jobs.statusLabel.inProgress', 'Yapılmakta')
   const managerCreatedActive = detail.createdByRoleCode === 'Manager'
     && !isCitizenRequestJob(detail)
     && (detail.requestType === 'InternalUnit' || detail.requestType === 'ExternalUnit')

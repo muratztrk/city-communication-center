@@ -1,3 +1,6 @@
+## Round — #1644 Son Tarihi Geçmiş Durum turuncu
+- [x] `6a59e80c` (#1644) — Durum değeri Son Tarihi Geçmiş ise başlık+değer turuncu (eski davranış).
+
 ## Round — #1643 Durum katmanı mavi
 - [x] `6a59e412` (#1643) — Süreç Durum başlık+değer+gösterge her zaman mavi (Yapılmakta dahil).
 

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
-import { getPriorityLabel, getTaskDisplayStatus } from '../../../utils/localization'
+import { getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
@@ -96,10 +96,9 @@ function buildTaskProcessSteps(
       label: t('tasks.columns.status', 'Durum'),
       displayValue: getTaskDisplayStatus(t, task),
       dateTimeUtc: null,
-      // Son Tarihi Geçmiş / Yapılmakta → turuncu; Bekleyen → mavi (cards #1643/#1644/#1645).
+      // Son Tarihi Geçmiş → turuncu (#1644). Yapılmakta → mavi pending
+      // (#1659; talep Süreç #1651 ile aynı).
       state: (task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now())
-        || task.currentStatus === 'Assigned'
-        || task.currentStatus === 'InProgress'
         ? 'current'
         : 'pending',
     },
@@ -136,7 +135,7 @@ export function MyRequestTaskDetailsSection({
             : (task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected')
               ? 'text-red-600'
               : (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress')
-                ? 'text-[#f97316]'
+                ? (getTaskStatusTone(task) === 'overdue' ? 'text-[#f97316]' : 'text-sky-500')
                 : 'text-slate-900'
           const processSteps = buildTaskProcessSteps(t, task, locale)
           const dueDateContent = (

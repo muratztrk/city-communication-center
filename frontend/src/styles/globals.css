@@ -172,8 +172,8 @@
     max-height: min(76.7dvh, 44.5rem);
   }
 
-  /* Detaylar popup başlık altı: ince slate çizgi yerine banner ile aynı
-     geçişli renkli, boydan boya kalın şerit (card #1657). */
+  /* Detaylar popup başlık altı: footer Lumespec şeridiyle aynı renk/kalınlık
+     (`AppFooter` 3px `--color-primary`; card #1657 reopen). */
   .my-request-detail-header {
     position: relative;
     border-bottom: 0;
@@ -184,8 +184,8 @@
     position: absolute;
     inset-inline: 0;
     bottom: 0;
-    height: 0.25rem;
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    height: 3px;
+    background: var(--color-primary);
     pointer-events: none;
   }
 
@@ -324,6 +324,14 @@
     margin-bottom: 0.75rem;
     border-bottom: 1px solid rgb(226 232 240);
     padding-bottom: 0.5rem;
+  }
+
+  /* Talep Bilgileri / Görev Bilgileri başlık border'ı, yanındaki başlık+meta /
+     Süreç başlık border'ıyla aynı yatay hizada kalsın (card #1660). */
+  .detail-modal-shell .my-request-detail-main__grid > * > .job-detail-section-heading,
+  .detail-modal-shell .my-request-detail-main__grid .job-process-timeline > .job-detail-section-heading {
+    min-height: 3.25rem;
+    box-sizing: border-box;
   }
 
   .detail-modal-shell .job-detail-section-heading:has(> .job-detail-section-title:not(.job-detail-section-title--muted)) {

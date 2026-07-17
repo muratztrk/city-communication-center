@@ -276,9 +276,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geçişinde ara turuncu bant kullanılmaz; doğrudan yeşil→kırmızı akar.
   Ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
-  yapışmaz. Detaylar popup sol üst başlığının altında ince slate çizgi yerine
-  sayfa banner'ıyla aynı `header-from`→`header-to` geçişli, boydan boya kalın
-  renk şeridi kullanılır (card #1657). Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
+  yapışmaz. Detaylar popup sol üst başlığının altında footer Lumespec şeridiyle aynı
+  `3px` / `--color-primary` boydan boya şerit kullanılır (card #1657 reopen; önceki
+  banner gradient kaldırıldı). Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
   en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.
@@ -726,9 +726,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   + sentetik `Onay Bekleyen` birlikte gösterilmez (mükerrer yok). Sentetik / gerçek
   `Talebin|Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` değeri `Onay Bekleyen` ise
   başlık+değer+gösterge mavi (`pending`) — süresi geçmiş taleplerde mavi uygulanmaz (card #1645).
-- **Süreç Durum katmanı rengi (cards #1643/#1644/#1645/#1651):** `Durum / Onay Bekleyen` ve
-  `Durum / Yapılmakta` mavi (`pending` / `text-sky-500`) — card #1651, #1645'in Yapılmakta-
-  turuncu kuralını geri alır. `Durum / Son Tarihi Geçmiş` (birleşik etiket dahil) turuncu
+- **Süreç Durum katmanı rengi (cards #1643/#1644/#1645/#1651/#1659):** `Durum / Onay Bekleyen` ve
+  `Durum / Yapılmakta` mavi (`pending` / `text-sky-500`) — card #1651/#1659, #1645'in Yapılmakta-
+  turuncu kuralını geri alır. Görevlerim / Birimdeki / Personelimin Görevleri görev Süreç
+  timeline'ı da aynı kuralı kullanır (card #1659). `Durum / Son Tarihi Geçmiş` (birleşik etiket dahil) turuncu
   (`current`) — card #1644.
   **Güncelleme (card #1646/#1647/#1650 reopen):** süresi geçmiş aktif Durum metni yalnız
   `Yapılmakta` veya yalnız `Son Tarihi Geçmiş` olmaz; `Yapılmakta (Son Tarihi Geçmiş)`
@@ -755,6 +756,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
   detayında bağlı talebin `Öncelik` etiketi/değeri `job-detail-card-title--spread` ile Görev Bilgileri
   başlığının sağ border'ına yaslanır; `Normal` bu yüzeyde emerald yeşilidir.
+  Talep Bilgileri / Görev Bilgileri başlık altı border çizgisi, yanındaki başlık+meta / Süreç
+  başlık border'ıyla aynı yatay hizada kalır (`min-height` on section headings; card #1660).
   Alanlarda `Görevi Atayan Yönetici` üstte, `Görevi Yapan` hemen alttadır (cards #1611/#1613).
   Durum Değiştir geçmişi Süreç timeline'ı altında, son işlemin gerçek nedeni hemen altındadır
   (cards #1619 reopen/#1624).

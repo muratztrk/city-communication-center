@@ -1,3 +1,8 @@
+## Round — #1657/#1660/#1659 detay şerit + border hiza + Yapılmakta mavi
+- [x] `6a5a42aa` (#1657 reopen) — Başlık şeridi 3px `--color-primary` (footer Lumespec ile aynı).
+- [x] `6a5a4668` (#1660) — Talep/Görev Bilgileri başlık border'ı komşu kartlarla hizalı.
+- [x] `6a5a45d9` (#1659) — Görevlerim ailesi Süreç'te Durum Yapılmakta mavi.
+
 ## Round — #1657 detay popup başlık şeridi
 - [x] `6a5a42aa` (#1657) — Detaylar popup başlık altı: banner gradient boydan boya kalın şerit.
 

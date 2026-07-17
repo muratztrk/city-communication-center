@@ -8,6 +8,15 @@ export function getTaskStatusLabel(t: TFunction, taskStatus: string): string {
   return t(`enum.taskStatus.${taskStatus}`, { defaultValue: taskStatus })
 }
 
+/** Süreç Durum: aktif + süresi geçmiş → `Yapılmakta (Son Tarihi Geçmiş)` (card #1646). */
+export function formatOverdueInProgressStatus(t: TFunction): string {
+  return `${t('jobs.statusLabel.inProgress', 'Yapılmakta')} (${t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')})`
+}
+
+function isDueDateOverdue(dueDateUtc: string | null | undefined): boolean {
+  return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
+}
+
 // Görev durumunu, görev listesi sekmeleriyle (Bekleyen / Son Tarihi Geçmiş /
 // Tamamlanmış / İptal) tutarlı tek bir etiketle gösterir. Ham enum yerine
 // kullanıcının gördüğü "durum belirten butonlarla" aynı ifadeleri kullanır.
@@ -26,12 +35,14 @@ export function getTaskDisplayStatus(
       return t('tasks.statusLabel.revisionRequested', { defaultValue: 'Revize İstendi' })
     case 'Assigned':
     case 'InProgress':
-      return t('enum.taskStatus.InProgress', { defaultValue: 'Yapılmakta' })
+      return isDueDateOverdue(task.dueDateUtc)
+        ? formatOverdueInProgressStatus(t)
+        : t('enum.taskStatus.InProgress', { defaultValue: 'Yapılmakta' })
     default:
       break
   }
-  if (task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now()) {
-    return t('tasks.statusLabel.overdue', { defaultValue: 'Son Tarihi Geçmiş' })
+  if (isDueDateOverdue(task.dueDateUtc)) {
+    return formatOverdueInProgressStatus(t)
   }
   return t('tasks.statusLabel.pending', { defaultValue: 'Bekleyen' })
 }

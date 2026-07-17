@@ -43,7 +43,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
-import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone } from '../utils/localization'
+import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone, formatOverdueInProgressStatus } from '../utils/localization'
 import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
@@ -132,7 +132,7 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
   if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
   if (row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()) {
-    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+    return formatOverdueInProgressStatus(t)
   }
   if (row.isCitizenRequest) {
     const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status

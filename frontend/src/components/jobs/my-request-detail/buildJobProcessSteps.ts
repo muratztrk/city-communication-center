@@ -238,12 +238,13 @@ export function buildJobProcessSteps(
   // Onay beklerken aynı erken katman mavi "Durum / Onay Bekleyen" olur (card #1535 reopen).
   const pendingStatusLayer = shouldShowPendingStatusLayer(detail, options)
   const jobOverdue = isActiveJobOverdue(detail)
-  const statusDisplayValue = jobOverdue
-    ? t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
-    : pendingStatusLayer
-      || isPendingApprovalJobStatus(detail.status)
-      ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
-      : t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  const inProgressLabel = t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  const statusDisplayValue = pendingStatusLayer || isPendingApprovalJobStatus(detail.status)
+    ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+    : jobOverdue
+      // card #1646: yalnız Yapılmakta / yalnız Son Tarihi Geçmiş değil — birleşik etiket
+      ? `${inProgressLabel} (${t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')})`
+      : inProgressLabel
   const managerCreatedActive = detail.createdByRoleCode === 'Manager'
     && !isCitizenRequestJob(detail)
     && (detail.requestType === 'InternalUnit' || detail.requestType === 'ExternalUnit')

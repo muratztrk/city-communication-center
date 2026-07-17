@@ -34,7 +34,7 @@ import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJo
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { getRequestEditPath } from '../utils/requestEditPath'
 import {
@@ -186,7 +186,7 @@ function getJobDisplayStatus(
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
   if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
-    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+    return formatOverdueInProgressStatus(t)
   }
   const externalOwnerStatus = getExternalUnitOwnerDisplayStatus(t, job)
   if (externalOwnerStatus) return externalOwnerStatus
@@ -1768,7 +1768,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       ? getCitizenRequestStatusLabel(t, detail)
       : getExternalUnitOwnerDisplayStatus(t, detail)
         ?? (detail.status === 'Active'
-          ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+          ? (detail.dueDateUtc != null && new Date(detail.dueDateUtc).getTime() < Date.now()
+            ? formatOverdueInProgressStatus(t)
+            : t('jobs.statusLabel.inProgress', 'Yapılmakta'))
           : detail.status === 'Completed'
             ? t('jobs.statusLabel.completed', 'Tamamlanmış')
             : getJobStatusLabel(t, detail.status))
@@ -2448,6 +2450,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         // Birime Gelen: Active + görev yok da UI'da Onay Bekleyen (card #1535).
                         unassignedActiveAsPending: isIncomingRequestDetail,
                       })
+                      const detailOverdue = detail.dueDateUtc != null && new Date(detail.dueDateUtc).getTime() < Date.now()
+                      const activeStatusLabel = detailOverdue
+                        ? formatOverdueInProgressStatus(t)
+                        : t('jobs.statusLabel.inProgress', 'Yapılmakta')
                       const incomingOutgoingStatusLabel = isCitizenRequestDetail
                         ? getCitizenRequestStatusLabel(t, detail)
                         : isIncomingRequestDetail
@@ -2456,14 +2462,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             ?? (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
                               ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
                               : detail.status === 'Active'
-                                ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+                                ? activeStatusLabel
                                 : detail.status === 'Completed'
                                   ? t('jobs.statusLabel.completed', 'Tamamlanmış')
                                   : getJobStatusLabel(t, detail.status))
                           )
                           : getExternalUnitOwnerDisplayStatus(t, detail)
                             ?? (detail.status === 'Active'
-                              ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
+                              ? activeStatusLabel
                               : detail.status === 'Completed'
                                 ? t('jobs.statusLabel.completed', 'Tamamlanmış')
                                 : getJobStatusLabel(t, detail.status))

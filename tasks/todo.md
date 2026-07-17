@@ -1,3 +1,6 @@
+## Round — #1646 Yapılmakta (Son Tarihi Geçmiş)
+- [x] `6a59f0d4` (#1646) — Süresi geçmiş Durum: `Yapılmakta (Son Tarihi Geçmiş)` birleşik etiket.
+
 ## Round — #1645 Onay Bekleyen onay adımları mavi + Yapılmakta turuncu
 - [x] `6a59eaaa` (#1645) — Sahip/hedef onay "Onay Bekleyen" mavi; süresi geçmişte mavi yok; Durum Yapılmakta turuncu.
 

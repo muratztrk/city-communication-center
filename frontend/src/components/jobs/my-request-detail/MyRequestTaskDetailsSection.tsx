@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
-import { getPriorityLabel, getTaskStatusLabel } from '../../../utils/localization'
+import { getPriorityLabel, getTaskDisplayStatus } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
@@ -94,7 +94,7 @@ function buildTaskProcessSteps(
     {
       id: 'status',
       label: t('tasks.columns.status', 'Durum'),
-      displayValue: getTaskStatusLabel(t, task.currentStatus),
+      displayValue: getTaskDisplayStatus(t, task),
       dateTimeUtc: null,
       // Son Tarihi Geçmiş / Yapılmakta → turuncu; Bekleyen → mavi (cards #1643/#1644/#1645).
       state: (task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now())
@@ -290,7 +290,7 @@ export function MyRequestTaskDetailsSection({
                   locale={locale}
                   statusContent={(
                     <span className={`inline ${statusTone}`}>
-                      {getTaskStatusLabel(t, task.currentStatus)}
+                      {getTaskDisplayStatus(t, task)}
                     </span>
                   )}
                   dueDateContent={dueDateContent}

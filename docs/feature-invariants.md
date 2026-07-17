@@ -722,9 +722,6 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`size-3` / `size-3.5`) değişmez.
 - **Düzenleme placeholder fontları (cards #1615/#1639):** Son Tarih DateTimePicker placeholder
   + seçili değer `0.6875rem`; adres Mahalle/Cadde/Açık Adres placeholder'ları aynı ölçüde.
-- **Süreç "Onay Bekleyen" değer fontu (card #1640):** timeline adım değerlerinde
-  `Onay Bekleyen` / `Pending Approval` metinleri `job-process-timeline__step-value--pending-approval`
-  ile `0.6875rem` (meta parantez biraz daha küçük).
 - **Görev Detayları altındaki Süreç kolonu (card #1527 reopen):** `MyRequestTaskDetailsSection`
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak. Görev

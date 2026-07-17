@@ -1,3 +1,6 @@
+## Round — #1640 revert Onay Bekleyen font
+- [x] `6a59d69f` (#1640 reopen) — Süreç "Onay Bekleyen" font küçültmesi geri alındı.
+
 ## Round — #1641/#1642 hedef onay mükerrer + mavi yalnız Durum
 - [x] Gelen/Giden: otomatik hedef damgası + sentetik Onay Bekleyen mükerrer kaldırıldı; hedef Onay Bekleyen gri; mavi yalnız Durum.
 

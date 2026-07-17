@@ -90,7 +90,8 @@ export function getStatusPillClass(tone: GridStatusTone): string {
     case 'inProgress': return 'bg-sky-100 text-sky-700 ring-sky-200'
     // "İşleme Alındı" sarı arka plan (card #1650 third).
     case 'processingReceived': return 'bg-yellow-100 text-yellow-800 ring-yellow-200'
-    case 'overdue': return 'bg-orange-100 text-orange-700 ring-orange-200'
+    // Solid turuncu + beyaz yazı — kullanıcı örneğiyle aynı ton (card #1649 reopen).
+    case 'overdue': return 'bg-orange-500 text-white ring-orange-600'
     default: return ''
   }
 }

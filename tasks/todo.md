@@ -1,3 +1,6 @@
+## Round — #1649 reopen solid overdue turuncu
+- [x] `6a5a17d7` (#1649 reopen) — Grid overdue Durum chip: solid `bg-orange-500 text-white` (açık orange-100 değil).
+
 ## Round — #1650 third İşleme Alındı sarı
 - [x] `6a5a195b` (#1650) — Grid İşleme Alındı chip arka planı sarı.
 

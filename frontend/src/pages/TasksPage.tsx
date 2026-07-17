@@ -996,27 +996,47 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     if (completeFileInputRef.current) completeFileInputRef.current.value = ''
   }
 
+  /** Tamamla/İptal onay popup'ı kapandıktan sonra açık detay popup'ını son duruma çeker (card #1656). */
+  const refreshOpenTaskDetailAfterAction = async (taskId: string) => {
+    const detailIsOpen = selectedTask?.taskId === taskId || taskDetail?.taskId === taskId
+    if (!detailIsOpen) {
+      await reload()
+      return
+    }
+    const jobId = taskDetail?.jobId ?? selectedTask?.jobId ?? null
+    const [updatedDetail, updatedList, parentJob] = await Promise.all([
+      api.getTaskById(taskId),
+      api.getTasks(currentScope),
+      jobId ? api.getJobById(jobId).catch(() => null) : Promise.resolve(null),
+    ])
+    setTaskDetail(updatedDetail)
+    setSelectedTask(current => {
+      if (!current || current.taskId !== taskId) return current
+      return {
+        ...current,
+        ...updatedDetail,
+        ownerDepartmentName: current.ownerDepartmentName,
+        jobNumber: current.jobNumber,
+        jobNumberYear: current.jobNumberYear,
+      } as Task
+    })
+    if (parentJob) setParentJobDetail(parentJob)
+    setTasks(updatedList)
+  }
+
   const handleCompleteConfirm = async () => {
     if (!completeModal || !completionNote.trim()) return
+    const completedTaskId = completeModal.taskId
     setCompleteSaving(true)
     try {
-      await api.completeTask(completeModal.taskId, completionNote.trim())
+      await api.completeTask(completedTaskId, completionNote.trim())
       setPendingCompletionAttachments([])
-      invalidateTasks(queryClient, completeModal.taskId, selectedTask?.jobId)
+      invalidateTasks(queryClient, completedTaskId, selectedTask?.jobId ?? taskDetail?.jobId)
       setCompleteModal(null)
       setCompletionNote('')
       setCompletionAttachmentError(null)
-      if (selectedTask?.taskId === completeModal.taskId) {
-        const [updatedDetail, updatedList] = await Promise.all([
-          api.getTaskById(completeModal.taskId),
-          api.getTasks(currentScope),
-        ])
-        setTaskDetail(updatedDetail)
-        setSelectedTask(current => current ? { ...current, currentStatus: 'Completed', completedAtUtc: updatedDetail.completedAtUtc } : current)
-        setTasks(updatedList)
-      } else {
-        await reload()
-      }
+      // Arka plandaki detay popup açık kalsın ama son duruma çekilsin (card #1656).
+      await refreshOpenTaskDetailAfterAction(completedTaskId)
       showToast(t('tasks.actions.completeSuccess', 'Görev başarıyla tamamlandı!'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -1104,12 +1124,15 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
   const handleCancelTask = async () => {
     if (!returnModal || !cancelReason.trim()) return
+    const cancelledTaskId = returnModal.taskId
     setReturnSaving(true)
     try {
-      await api.cancelTask(returnModal.taskId, cancelReason.trim())
-      invalidateTasks(queryClient, returnModal.taskId)
+      await api.cancelTask(cancelledTaskId, cancelReason.trim())
+      invalidateTasks(queryClient, cancelledTaskId, selectedTask?.jobId ?? taskDetail?.jobId)
       closeReturnModal()
-      await reload()
+      // İptal onay popup'ı kapandıktan sonra detay popup alanlarını yenile (card #1656).
+      await refreshOpenTaskDetailAfterAction(cancelledTaskId)
+      showToast(t('tasks.actions.cancelSuccess', 'Görev iptal edildi.'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {

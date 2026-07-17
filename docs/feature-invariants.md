@@ -112,6 +112,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünür; "Yazışmaya Git" varsa solunda kalır ve pasif "Düzenle" placeholder'ı gösterilmez.
   Görevlerim "Tamamlanmış Görevlerim" ve "İptal Görevlerim" detay popup'ında ise
   "Durum Değiştir"in yanında "Düzenle" de aynı aktif/pasif edit mantığıyla görünür.
+- **Detay popup üzerinde Tamamla/İptal onay modal'ı (card #1656):** onay tamamlanınca üst
+  modal kapanır; arka plandaki görev detay popup açık kalır ve durum/butonlar/Süreç/notlar
+  sunucudaki son hale yenilenir (yalnızca liste `reload` yetmez).
 - **Personelimin Görevleri detay popup header'ı izleme odaklıdır:** sağ üstte "Görevi Yönlendir"
   ve "Görevi İptal Et" gösterilmez.
 - **Görevlerim/Birimdeki Görevler grid `İşlemler` sütununda yalnız "Detaylar" kalır;**

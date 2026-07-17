@@ -1,3 +1,6 @@
+## Round — #1656 Tamamla/İptal sonrası detay yenile
+- [x] `6a5a3491` (#1656) — Görevlerim detayda Tamamla/İptal onayından sonra arka popup güncellenir.
+
 ## Round — #1654 görev popup İlgili Talep sahip onay
 - [x] `6a5a274b` (#1654) — Görevlerim/Birimdeki/Personel İlgili Talep Süreç'te sahip onay katmanı göster.
 

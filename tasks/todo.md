@@ -1,3 +1,6 @@
+## Round — #1650 reopen koyu turkuaz geri
+- [x] `6a5a195b` (#1650) — Açık ton isteği geri alındı; tekrar `bg-teal-600 text-white`.
+
 ## Round — #1655/#1650 staff Durum gizle + turkuaz aç
 - [x] `6a5a2cab` (#1655) — Standart kullanıcı birim dışı + sahip onaylı/hedef beklerken Durum yok.
 - [x] `6a5a195b` (#1650 reopen) — İşleme Alındı `bg-teal-500` (biraz açık).

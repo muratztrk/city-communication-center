@@ -32,6 +32,18 @@ function shouldShowPendingStatusLayer(
   return isPendingApprovalJobStatus(detail.status) || isUnassignedActivePending(detail, options)
 }
 
+/** Yönetici-oluşturmuş birim dışı talepte sahip onaylı, hedef onay beklerken Durum mükerrer (cards #1652/#1653). */
+function shouldHideStatusWhileAwaitingTargetApproval(
+  detail: JobDetail,
+  targetDecided: boolean,
+): boolean {
+  if (isCitizenRequestJob(detail) || detail.requestType !== 'ExternalUnit') return false
+  if (detail.createdByRoleCode !== 'Manager' || targetDecided) return false
+  const ownerDecided = Boolean(detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc)
+  if (!ownerDecided) return false
+  return detail.status === 'PendingExternalApproval' || detail.status === 'Active'
+}
+
 export type BuildJobProcessStepsOptions = {
   hideOwnerApproval?: boolean
   /** Gelen/Giden detayında sahip-birim onayını Durum katmanından önce gösterir. */
@@ -232,6 +244,7 @@ export function buildJobProcessSteps(
   // adımı Durum'dan önce kalmalı, o yüzden erken eklenmez.
   // Onay beklerken aynı erken katman mavi "Durum / Onay Bekleyen" olur (card #1535 reopen).
   const pendingStatusLayer = shouldShowPendingStatusLayer(detail, options)
+  const hideStatusAwaitingTarget = shouldHideStatusWhileAwaitingTargetApproval(detail, targetDecided)
   const jobOverdue = isActiveJobOverdue(detail)
   const inProgressLabel = t('jobs.statusLabel.inProgress', 'Yapılmakta')
   const statusDisplayValue = pendingStatusLayer || isPendingApprovalJobStatus(detail.status)
@@ -247,6 +260,7 @@ export function buildJobProcessSteps(
     && !wasRecoveredFromCancellation(detail)
     && !(detail.requestType === 'ExternalUnit' && targetDecided)
     && !options?.ownerApprovalBeforeStatus
+    && !hideStatusAwaitingTarget
   if (statusStepEarly && !isTerminalStatus(detail.status)) {
     steps.push({
       id: 'status',
@@ -259,7 +273,8 @@ export function buildJobProcessSteps(
   // Sahip onayı gizlenen eski tüketicilerde onay bekleyen Durum katmanını Talep Tarihi'nin
   // hemen arkasına koy — yönetici-oluşturmadıysa statusStepEarly kaçırırdı (card #1535).
   // Gelen/Giden yeni düzeninde ownerApprovalBeforeStatus bu adımı sahip onayının arkasına erteler.
-  if (!statusStepEarly && pendingStatusLayer && !options?.ownerApprovalBeforeStatus && !isTerminalStatus(detail.status)) {
+  if (!statusStepEarly && pendingStatusLayer && !options?.ownerApprovalBeforeStatus
+    && !hideStatusAwaitingTarget && !isTerminalStatus(detail.status)) {
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
@@ -284,8 +299,10 @@ export function buildJobProcessSteps(
 
   // Sahip onayı henüz yokken Durum/Onay Bekleyen, hemen üstteki sahip-onay adımıyla
   // mükerrer kalır — o durumda Durum katmanını ekleme (card #1629). Unassigned Active
-  // ve PendingExternalApproval için mavi Durum katmanı korunur.
-  if (!statusStepEarly && pendingStatusLayer && options?.ownerApprovalBeforeStatus && !isTerminalStatus(detail.status)) {
+  // ve PendingExternalApproval için mavi Durum katmanı korunur — istisna: yönetici-oluşturmuş
+  // birim dışı + hedef onay beklerken de gizlenir (cards #1652/#1653).
+  if (!statusStepEarly && pendingStatusLayer && options?.ownerApprovalBeforeStatus
+    && !hideStatusAwaitingTarget && !isTerminalStatus(detail.status)) {
     const ownerStepShowsPendingApproval = !options?.hideOwnerApproval
       && !isCitizenRequestJob(detail)
       && detail.status === 'PendingOwnerApproval'
@@ -348,6 +365,7 @@ export function buildJobProcessSteps(
     && !isCitizenRequestJob(detail)
     && !pendingStatusLayer
   if (!isTerminalStatus(detail.status) && !statusStepEarly && !pendingStatusLayer
+    && !hideStatusAwaitingTarget
     && (managerCreatedActive || standardApprovedActive)) {
     steps.push({
       id: 'status',

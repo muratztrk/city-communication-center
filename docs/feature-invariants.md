@@ -702,7 +702,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `PendingExternalApproval`) taleplerde Talep Tarihi ile Son Tarih arasına mavi
   `Durum / Onay Bekleyen` katmanı eklenir (`pending` state, card #1535 reopen) — **istisna:**
   `ownerApprovalBeforeStatus` açıkken ve sahip-onay adımı görünürken `PendingOwnerApproval`
-  için Durum katmanı eklenmez (sahip-onay satırıyla mükerrer; card #1629). Birime Gelen'de
+  için Durum katmanı eklenmez (sahip-onay satırıyla mükerrer; card #1629). **İstisna (cards
+  #1652/#1653):** yönetici-oluşturmuş birim dışı talepte sahip onayı tamamlanmış ve hedef
+  birim yöneticisi onayı beklenirken (Gelen + Giden detay) Durum katmanı hiç eklenmez —
+  hedef `Onay Bekleyen` adımı yeterlidir. Birime Gelen'de
   `Active` + henüz görev yok kayıtları da aynı mavi Durum katmanını alır
   (`unassignedActiveAsPending`, card #1535).
   `MyRequestDetailMainCard` (Taleplerim / İlgili Talep) sahip onayı gösterirken
@@ -904,8 +907,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Grid durum/son tarih uyarı renkleri (cards #1387/#1649/#1650):** `Yapılmakta` status chip'i
   mavi (`bg-sky-100 text-sky-700`); `Yapılmakta (Son Tarihi Geçmiş)` iki satır (alt satır
   ortalı `(Son Tarihi Geçmiş)`) ve **solid** turuncu chip (`bg-orange-500 text-white`, açık
-  `orange-100` değil — card #1649 reopen); `İşleme Alındı` turkuaz arka plan
-  (`bg-teal-100 text-teal-800`, card #1650 reopen) + vatandaş kanal ikonu (VT no ile aynı
+  `orange-100` değil — card #1649 reopen); `İşleme Alındı` koyu turkuaz + beyaz yazı
+  (`bg-teal-600 text-white`, card #1650 reopen) + vatandaş kanal ikonu (VT no ile aynı
   `ChannelIcon`). Bugün dolan `Son Tarih` pill'i sarı arka plan, sarı takvim ikonu ve sarı
   çerçeve/yazı dilinde kalır.
 - **Banner arama input ağırlığı:** Banner/search input metni kompakt alanda iri okunur ama 700-bold

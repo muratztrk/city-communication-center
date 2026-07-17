@@ -1,3 +1,8 @@
+## Round — #1650/#1652/#1653 koyu turkuaz + Durum gizle
+- [x] `6a5a195b` (#1650 reopen) — İşleme Alındı: `bg-teal-600 text-white`.
+- [x] `6a5a253c` (#1652) — Giden: yönetici birim dışı + hedef onay beklerken Durum katmanı yok.
+- [x] `6a5a25ea` (#1653) — Gelen: aynı senaryoda Durum katmanı yok.
+
 ## Round — #1651 Süreç Durum Yapılmakta mavi
 - [x] `6a5a2423` (#1651) — Süreç Durum/Yapılmakta mavi; süresi geçmiş turuncu kalır.
 

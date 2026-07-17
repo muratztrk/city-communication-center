@@ -1,3 +1,6 @@
+## Round — #1645 Onay Bekleyen onay adımları mavi + Yapılmakta turuncu
+- [x] `6a59eaaa` (#1645) — Sahip/hedef onay "Onay Bekleyen" mavi; süresi geçmişte mavi yok; Durum Yapılmakta turuncu.
+
 ## Round — #1644 Son Tarihi Geçmiş Durum turuncu
 - [x] `6a59e80c` (#1644) — Durum değeri Son Tarihi Geçmiş ise başlık+değer turuncu (eski davranış).
 

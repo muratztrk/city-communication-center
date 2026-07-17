@@ -712,13 +712,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcı Taleplerim ve Birimden Giden timeline'ı turuncu `Durum`dan hemen sonra mavi
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi / Onay Bekleyen` adımını gösterir;
   hedef onaylanınca bu sentetik bekleyen adım gösterilmez (cards #1603 reopen/#1606).
-  **Güncelleme (cards #1641/#1642):** Birime Gelen / Birimden Giden'de otomatik hedef damgası
-  + sentetik `Onay Bekleyen` birlikte gösterilmez (mükerrer yok). Sentetik hedef `Onay Bekleyen`
-  gri/`upcoming` kalır; mavi `pending` ton yalnızca `Durum` katmanına aittir.
-- **Süreç Durum katmanı rengi (card #1643):** `Durum` adımı varsa başlık, değer ve gösterge
-  her zaman mavi (`text-sky-500` / `pending`); `Yapılmakta` dahil turuncu kullanılmaz.
-  **İstisna (card #1644):** değer `Son Tarihi Geçmiş` ise başlık + değer + gösterge turuncu
-  (`current` / `#f97316`) — eskisi gibi.
+  **Güncelleme (cards #1641/#1642/#1645):** Birime Gelen / Birimden Giden'de otomatik hedef damgası
+  + sentetik `Onay Bekleyen` birlikte gösterilmez (mükerrer yok). Sentetik / gerçek
+  `Talebin|Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` değeri `Onay Bekleyen` ise
+  başlık+değer+gösterge mavi (`pending`) — süresi geçmiş taleplerde mavi uygulanmaz (card #1645).
+- **Süreç Durum katmanı rengi (cards #1643/#1644/#1645):** `Durum / Onay Bekleyen` mavi
+  (`pending` / `text-sky-500`). `Durum / Yapılmakta` turuncu (`current` / `#f97316`) —
+  card #1645, #1643'ün Yapılmakta-mavi kuralını geri alır. `Durum / Son Tarihi Geçmiş`
+  turuncu (`current`) — card #1644.
 - **Görev Bilgileri İptal/Tamamlama Notu renkleri (card #1638):** `İptal Notu` etiket+değer
   kırmızı (`text-red-600`), `Tamamlama Notu` etiket+değer yeşil (`text-emerald-600`).
 - **Görsel ek ikonu (cards #1637/#1637 reopen):** JPG/PNG eklerde `SimpleImageAttachmentIcon`

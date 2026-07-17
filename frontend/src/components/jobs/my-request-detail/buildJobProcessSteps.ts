@@ -141,9 +141,13 @@ function resolveStepStates(
     if (step.id === 'targetApproval' && targetDecided) {
       return { ...step, state: 'completed' as const }
     }
-    // Sentetik hedef "Onay Bekleyen" mavi olmamalı — mavi yalnızca Durum katmanına (cards #1641/#1642).
+    // Sentetik hedef "Onay Bekleyen" → mavi pending; süresi geçmişte mavi yok (card #1645).
+    // foundCurrent'dan önce: Durum Yapılmakta (current) sonrası da mavi kalabilsin.
     if (step.id === 'targetApproval' && options?.showPendingTargetApprovalAfterStatus && !targetDecided) {
-      return { ...step, state: 'upcoming' as const }
+      if (isActiveJobOverdue(detail)) {
+        return { ...step, state: 'upcoming' as const }
+      }
+      return { ...step, state: 'pending' as const }
     }
     if (foundCurrent) {
       return { ...step, state: 'upcoming' as const }
@@ -156,28 +160,36 @@ function resolveStepStates(
       if (ownerDecided) return { ...step, state: 'completed' as const }
       if (detail.status === 'PendingOwnerApproval') {
         foundCurrent = true
-        return { ...step, state: 'current' as const }
+        // Onay Bekleyen → mavi; süresi geçmişte turuncu (card #1645).
+        return { ...step, state: isActiveJobOverdue(detail) ? 'current' as const : 'pending' as const }
       }
       return { ...step, state: 'completed' as const }
     }
     if (step.id === 'targetApproval') {
       if (detail.status === 'PendingExternalApproval') {
         foundCurrent = true
-        return { ...step, state: 'current' as const }
+        return { ...step, state: isActiveJobOverdue(detail) ? 'current' as const : 'pending' as const }
       }
       if (!ownerDecided && detail.status === 'PendingOwnerApproval') {
         return { ...step, state: 'upcoming' as const }
       }
       if (shouldShowCitizenTargetApprovalDate(detail)) {
         foundCurrent = true
-        return { ...step, state: 'current' as const }
+        // Vatandaş hedef onayı beklerken de Onay Bekleyen → mavi (card #1645).
+        return { ...step, state: isActiveJobOverdue(detail) ? 'current' as const : 'pending' as const }
       }
       return { ...step, state: ownerDecided ? 'completed' as const : 'upcoming' as const }
     }
     if (step.id === 'status') {
       foundCurrent = true
-      // Son Tarihi Geçmiş → turuncu current; aksi halde mavi pending (cards #1643/#1644).
+      // Son Tarihi Geçmiş → turuncu (#1644). Yapılmakta → turuncu (#1645; #1643 mavisini geri al).
+      // Onay Bekleyen Durum → mavi pending (#1643).
       if (isActiveJobOverdue(detail)) {
+        return { ...step, state: 'current' as const }
+      }
+      const isInProgressStatus = !isPendingApprovalJobStatus(detail.status)
+        && !isUnassignedActivePending(detail, options)
+      if (isInProgressStatus) {
         return { ...step, state: 'current' as const }
       }
       return { ...step, state: 'pending' as const }

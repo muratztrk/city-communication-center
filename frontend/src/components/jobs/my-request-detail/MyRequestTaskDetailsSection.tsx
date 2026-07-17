@@ -96,8 +96,10 @@ function buildTaskProcessSteps(
       label: t('tasks.columns.status', 'Durum'),
       displayValue: getTaskStatusLabel(t, task.currentStatus),
       dateTimeUtc: null,
-      // Son Tarihi Geçmiş → turuncu; diğer aktif Durum → mavi (cards #1643/#1644).
-      state: task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now()
+      // Son Tarihi Geçmiş / Yapılmakta → turuncu; Bekleyen → mavi (cards #1643/#1644/#1645).
+      state: (task.dueDateUtc != null && new Date(task.dueDateUtc).getTime() < Date.now())
+        || task.currentStatus === 'Assigned'
+        || task.currentStatus === 'InProgress'
         ? 'current'
         : 'pending',
     },

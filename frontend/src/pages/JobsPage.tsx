@@ -199,6 +199,20 @@ function getJobDisplayStatus(
 }
 
 
+function getJobGridStatusPillClass(
+  job: Pick<JobSummary, 'status' | 'dueDateUtc' | 'taskCount' | 'requestType' | 'sourceType'>,
+): string {
+  if (isCitizenRequestJob(job)) {
+    const normalizedStatus = job.status === 'PendingExternalApproval' ? 'Active' : job.status
+    const overdue = job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()
+    if (normalizedStatus === 'Active' && (job.taskCount ?? 0) === 0 && !overdue) {
+      return getStatusPillClass('processingReceived')
+    }
+    return getStatusPillClass(getJobStatusTone({ status: normalizedStatus, dueDateUtc: job.dueDateUtc }))
+  }
+  return getStatusPillClass(getJobStatusTone(job))
+}
+
 function getDepartmentRoleTone(role: string) {
   if (role === 'Owner') return 'info' as const
   if (role === 'Target') return 'success' as const
@@ -2027,7 +2041,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         : null
                       return (
                         <td>
-                          <StatusPill className={getStatusPillClass(getJobStatusTone(job))}>
+                          <StatusPill className={getJobGridStatusPillClass(job)}>
                             <GridStatusLabel
                               t={t}
                               label={getJobDisplayStatus(t, job)}

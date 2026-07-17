@@ -903,9 +903,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kalır ama çok koyu kahverengiye dönmez; `Son Tarihi Geçmiş` kırmızı kuralından bağımsızdır.
 - **Grid durum/son tarih uyarı renkleri (cards #1387/#1649/#1650):** `Yapılmakta` status chip'i
   mavi (`bg-sky-100 text-sky-700`); `Yapılmakta (Son Tarihi Geçmiş)` iki satır (alt satır
-  ortalı `(Son Tarihi Geçmiş)`) ve turuncu chip; `İşleme Alındı` önünde vatandaş kanal ikonu
-  (VT no ile aynı `ChannelIcon`). Bugün dolan `Son Tarih` pill'i sarı arka plan, sarı takvim
-  ikonu ve sarı çerçeve/yazı dilinde kalır.
+  ortalı `(Son Tarihi Geçmiş)`) ve turuncu chip; `İşleme Alındı` sarı arka plan
+  (`bg-yellow-100`) + vatandaş kanal ikonu (VT no ile aynı `ChannelIcon`). Bugün dolan
+  `Son Tarih` pill'i sarı arka plan, sarı takvim ikonu ve sarı çerçeve/yazı dilinde kalır.
 - **Banner arama input ağırlığı:** Banner/search input metni kompakt alanda iri okunur ama 700-bold
   görünmez; `scope-chip-search-input` yazı ağırlığı yarı-kalın seviyede kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).

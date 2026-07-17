@@ -48,9 +48,8 @@ export function getTaskDisplayStatus(
 }
 
 // Gridview "Durum" sütunu arka plan rengi: Tamamlanmış yeşil, İptal/Reddedildi kırmızı,
-// Yapılmakta sarı, Son Tarihi Geçmiş turuncu, Bekleyen/diğer nötr (card 663). Renk eşlemesi
-// getJobDisplayStatus / getTaskDisplayStatus etiket mantığıyla birebir paralel.
-export type GridStatusTone = 'completed' | 'cancelled' | 'rejected' | 'inProgress' | 'overdue' | 'pending' | 'neutral'
+// Yapılmakta mavi, İşleme Alındı sarı, Son Tarihi Geçmiş turuncu, Bekleyen/diğer nötr.
+export type GridStatusTone = 'completed' | 'cancelled' | 'rejected' | 'inProgress' | 'processingReceived' | 'overdue' | 'pending' | 'neutral'
 
 function isOverdue(dueDateUtc: string | null | undefined): boolean {
   return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
@@ -89,6 +88,8 @@ export function getStatusPillClass(tone: GridStatusTone): string {
     case 'rejected': return 'bg-red-100 text-red-700 ring-red-200'
     // "Yapılmakta" chip'i mavi (card #1649); turuncu yalnız süresi geçmiş birleşik etikette.
     case 'inProgress': return 'bg-sky-100 text-sky-700 ring-sky-200'
+    // "İşleme Alındı" sarı arka plan (card #1650 third).
+    case 'processingReceived': return 'bg-yellow-100 text-yellow-800 ring-yellow-200'
     case 'overdue': return 'bg-orange-100 text-orange-700 ring-orange-200'
     default: return ''
   }

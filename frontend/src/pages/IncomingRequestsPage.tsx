@@ -165,7 +165,7 @@ function getIncomingStatusPillClass(row: IncomingRequestRow): string {
     const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
     const overdue = row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()
     if (normalizedStatus === 'Active' && (row.taskCount ?? 0) === 0 && !overdue) {
-      return getStatusPillClass('inProgress')
+      return getStatusPillClass('processingReceived')
     }
     return getStatusPillClass(getJobStatusTone({ status: normalizedStatus, dueDateUtc: row.dueDateUtc }))
   }

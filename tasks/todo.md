@@ -1,3 +1,6 @@
+## Round — #1650 third İşleme Alındı sarı
+- [x] `6a5a195b` (#1650) — Grid İşleme Alındı chip arka planı sarı.
+
 ## Round — #1650 reopen İşleme Alındı geri al
 - [x] `6a5a195b` (#1650 reopen) — Vatandaş İşleme Alındı yanlışlıkla Onay Bekleyen olmuştu; geri alındı, kanal ikonu kaldı.
 

@@ -1825,7 +1825,7 @@ const pageKicker = isMyTasksView
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — Taleplerim detay popup'ı ile birebir aynı tasarım dili (my-request-detail-header). */}
-            <div className="my-request-detail-header detail-modal-header-mobile detail-modal-header-mobile--actions-grid flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-6 pb-3 pt-6">
+            <div className="my-request-detail-header detail-modal-header-mobile detail-modal-header-mobile--actions-grid flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-6">
               <div className="detail-modal-header-title min-w-0">
                 <div className="my-request-detail-header__title uppercase">
                   {detailScopeLabel}

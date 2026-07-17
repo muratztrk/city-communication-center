@@ -1,3 +1,6 @@
+## Round — #1657 detay popup başlık şeridi
+- [x] `6a5a42aa` (#1657) — Detaylar popup başlık altı: banner gradient boydan boya kalın şerit.
+
 ## Round — #1656 Tamamla/İptal sonrası detay yenile
 - [x] `6a5a3491` (#1656) — Görevlerim detayda Tamamla/İptal onayından sonra arka popup güncellenir.
 

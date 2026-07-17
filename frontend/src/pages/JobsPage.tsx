@@ -2198,7 +2198,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             onClick={e => e.stopPropagation()}
           >
             {/* Fixed header */}
-            <div className={`detail-modal-header-mobile detail-modal-header-mobile--actions-grid flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 ${isRequestDetailContext ? 'my-request-detail-header px-6 pb-3 pt-6' : 'px-4 py-2'}`}>
+            <div className={`detail-modal-header-mobile detail-modal-header-mobile--actions-grid flex shrink-0 items-center justify-between gap-3 ${isRequestDetailContext ? 'my-request-detail-header px-6 pb-3 pt-6' : 'border-b border-slate-100 px-4 py-2'}`}>
               <div className="detail-modal-header-title min-w-0">
                 <div className={isRequestDetailContext ? 'my-request-detail-header__title uppercase' : 'text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600'}>
                   {detailHeaderTitle}

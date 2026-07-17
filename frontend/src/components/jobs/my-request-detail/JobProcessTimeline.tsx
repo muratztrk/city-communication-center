@@ -166,31 +166,40 @@ export function JobProcessTimeline({
           const showTerminalDateMeta = (step.id === 'completionDate' || step.id === 'cancelDate')
             && statusContent
             && !(step.id === 'cancelDate' && recoveredFromCancellation)
-          const valueTone = step.id === 'completionDate'
-            ? 'text-emerald-600'
-            : step.id === 'cancelDate'
-                ? 'text-red-600'
-                : step.state === 'pending'
-                  ? 'text-sky-500'
-                  : step.state === 'current'
-                    ? 'text-[#f97316]'
-                    : step.state === 'upcoming'
-                      ? 'text-slate-400'
-                      : 'text-slate-900'
-          const displayMetaTone = step.state === 'pending'
+          // Durum katmanı varsa başlık + değer her zaman mavi (card #1643); görev timeline'ı
+          // da dahil (state current gelse bile).
+          const isStatusStep = step.id === 'status'
+          const valueTone = isStatusStep
             ? 'text-sky-500'
-            : step.state === 'current'
-              ? 'text-[#f97316]'
-              : 'text-emerald-600'
+            : step.id === 'completionDate'
+              ? 'text-emerald-600'
+              : step.id === 'cancelDate'
+                  ? 'text-red-600'
+                  : step.state === 'pending'
+                    ? 'text-sky-500'
+                    : step.state === 'current'
+                      ? 'text-[#f97316]'
+                      : step.state === 'upcoming'
+                        ? 'text-slate-400'
+                        : 'text-slate-900'
+          const displayMetaTone = isStatusStep
+            ? 'text-sky-500'
+            : step.state === 'pending'
+              ? 'text-sky-500'
+              : step.state === 'current'
+                ? 'text-[#f97316]'
+                : 'text-emerald-600'
+          const labelClass = isStatusStep ? 'text-sky-500' : getStepLabelClass(step.state)
+          const indicatorState = isStatusStep ? 'pending' : step.state
 
           return (
             <li key={step.id} className="job-process-timeline__item">
               <div className="job-process-timeline__track">
-                <StepIndicator state={step.state} shouldPulse={index === pulseIndex} />
+                <StepIndicator state={indicatorState} shouldPulse={index === pulseIndex} />
                 {!isLast && <span className={`job-process-timeline__line ${lineClass}`} aria-hidden="true" />}
               </div>
               <div className="job-process-timeline__content min-w-0 pb-4">
-                <div className={`text-xs font-semibold tracking-wide ${getStepLabelClass(step.state)}`}>
+                <div className={`text-xs font-semibold tracking-wide ${labelClass}`}>
                   {showTerminalDateMeta ? (
                     <span className="inline">
                       {step.label}
@@ -201,7 +210,7 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone} [&_*]:!text-sky-500`}>
                     {statusContent}
                   </div>
                 ) : showTerminalDateMeta ? (

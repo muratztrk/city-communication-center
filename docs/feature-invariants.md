@@ -715,6 +715,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Güncelleme (cards #1641/#1642):** Birime Gelen / Birimden Giden'de otomatik hedef damgası
   + sentetik `Onay Bekleyen` birlikte gösterilmez (mükerrer yok). Sentetik hedef `Onay Bekleyen`
   gri/`upcoming` kalır; mavi `pending` ton yalnızca `Durum` katmanına aittir.
+- **Süreç Durum katmanı rengi (card #1643):** `Durum` adımı varsa başlık, değer ve gösterge
+  her zaman mavi (`text-sky-500` / `pending`); `Yapılmakta` dahil turuncu kullanılmaz.
 - **Görev Bilgileri İptal/Tamamlama Notu renkleri (card #1638):** `İptal Notu` etiket+değer
   kırmızı (`text-red-600`), `Tamamlama Notu` etiket+değer yeşil (`text-emerald-600`).
 - **Görsel ek ikonu (cards #1637/#1637 reopen):** JPG/PNG eklerde `SimpleImageAttachmentIcon`

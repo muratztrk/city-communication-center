@@ -1,3 +1,6 @@
+## Round — #1643 Durum katmanı mavi
+- [x] `6a59e412` (#1643) — Süreç Durum başlık+değer+gösterge her zaman mavi (Yapılmakta dahil).
+
 ## Round — #1640 revert Onay Bekleyen font
 - [x] `6a59d69f` (#1640 reopen) — Süreç "Onay Bekleyen" font küçültmesi geri alındı.
 

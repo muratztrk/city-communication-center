@@ -170,11 +170,8 @@ function resolveStepStates(
     }
     if (step.id === 'status') {
       foundCurrent = true
-      // Onay bekleyen taleplerde Durum katmanı mavi "pending" tonunda (card #1535 reopen).
-      if (isPendingApprovalJobStatus(detail.status) || isUnassignedActivePending(detail, options)) {
-        return { ...step, state: 'pending' as const }
-      }
-      return { ...step, state: 'current' as const }
+      // Durum katmanı varsa başlık + değer + gösterge her zaman mavi (card #1643).
+      return { ...step, state: 'pending' as const }
     }
     if (step.id === 'completionDate' || step.id === 'cancelDate') {
       return { ...step, state: 'completed' as const }

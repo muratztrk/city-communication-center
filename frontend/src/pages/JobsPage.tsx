@@ -2443,7 +2443,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       const processSteps = buildJobProcessSteps(t, detail, locale, {
                         hideOwnerApproval: false,
                         ownerApprovalBeforeStatus: true,
-                        showPendingTargetApprovalAfterStatus: isDepartmentOutgoingView,
+                        // Gelen ve Giden birim dışı: hedef onayı beklerken tek sentetik adım (cards #1641/#1642).
+                        showPendingTargetApprovalAfterStatus: true,
                         // Birime Gelen: Active + görev yok da UI'da Onay Bekleyen (card #1535).
                         unassignedActiveAsPending: isIncomingRequestDetail,
                       })

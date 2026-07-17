@@ -135,8 +135,9 @@ function resolveStepStates(
     if (step.id === 'targetApproval' && targetDecided) {
       return { ...step, state: 'completed' as const }
     }
+    // Sentetik hedef "Onay Bekleyen" mavi olmamalı — mavi yalnızca Durum katmanına (cards #1641/#1642).
     if (step.id === 'targetApproval' && options?.showPendingTargetApprovalAfterStatus && !targetDecided) {
-      return { ...step, state: 'pending' as const }
+      return { ...step, state: 'upcoming' as const }
     }
     if (foundCurrent) {
       return { ...step, state: 'upcoming' as const }
@@ -281,7 +282,9 @@ export function buildJobProcessSteps(
     }
   }
 
-  if (shouldShowCitizenTargetApprovalDate(detail)) {
+  if (shouldShowCitizenTargetApprovalDate(detail) && !showPendingTargetApproval) {
+    // Gerçek hedef kararı yokken otomatik damgalı tarih + ayrıca "Onay Bekleyen" mükerrer
+    // kalıyordu; o durumda yalnız showPendingTargetApproval adımı kullanılır (cards #1641/#1642).
     steps.push({
       id: 'targetApproval',
       label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),

@@ -1,3 +1,6 @@
+## Round — #1641/#1642 hedef onay mükerrer + mavi yalnız Durum
+- [x] Gelen/Giden: otomatik hedef damgası + sentetik Onay Bekleyen mükerrer kaldırıldı; hedef Onay Bekleyen gri; mavi yalnız Durum.
+
 ## Round — #1637 reopen sade ikon + #1640 Onay Bekleyen font
 - [x] `6a59cc10` (#1637 reopen) — Görsel eklerde sade `SimpleImageAttachmentIcon` (boyut aynı).
 - [x] `6a59d69f` (#1640) — Süreç timeline'ındaki tüm "Onay Bekleyen" değerleri küçültüldü.

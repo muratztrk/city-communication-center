@@ -712,6 +712,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcı Taleplerim ve Birimden Giden timeline'ı turuncu `Durum`dan hemen sonra mavi
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi / Onay Bekleyen` adımını gösterir;
   hedef onaylanınca bu sentetik bekleyen adım gösterilmez (cards #1603 reopen/#1606).
+  **Güncelleme (cards #1641/#1642):** Birime Gelen / Birimden Giden'de otomatik hedef damgası
+  + sentetik `Onay Bekleyen` birlikte gösterilmez (mükerrer yok). Sentetik hedef `Onay Bekleyen`
+  gri/`upcoming` kalır; mavi `pending` ton yalnızca `Durum` katmanına aittir.
 - **Görev Bilgileri İptal/Tamamlama Notu renkleri (card #1638):** `İptal Notu` etiket+değer
   kırmızı (`text-red-600`), `Tamamlama Notu` etiket+değer yeşil (`text-emerald-600`).
 - **Görsel ek ikonu (cards #1637/#1637 reopen):** JPG/PNG eklerde `SimpleImageAttachmentIcon`

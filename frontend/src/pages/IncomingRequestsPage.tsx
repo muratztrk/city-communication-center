@@ -132,12 +132,7 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
   if (row.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
-  if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
-    return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
-  }
-  if (row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()) {
-    return formatOverdueInProgressStatus(t)
-  }
+  // Vatandaş talebi: PendingExternalApproval → İşleme Alındı (card #1650 reopen); Onay Bekleyen değil.
   if (row.isCitizenRequest) {
     const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
     return getCitizenRequestStatusLabel(t, {
@@ -145,6 +140,12 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
       taskCount: row.taskCount ?? 0,
       dueDateUtc: row.dueDateUtc,
     })
+  }
+  if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
+    return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+  }
+  if (row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()) {
+    return formatOverdueInProgressStatus(t)
   }
   if (row.kind === 'external') {
     const externalTargetStatus = getExternalUnitTargetDisplayStatus(t, {
@@ -159,6 +160,15 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
 }
 
 function getIncomingStatusPillClass(row: IncomingRequestRow): string {
+  // Vatandaş PendingExternalApproval satırları UI'da İşleme Alındı olabilir — pending tone kullanma (card #1650 reopen).
+  if (row.isCitizenRequest && row.statusDomain === 'job') {
+    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
+    const overdue = row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()
+    if (normalizedStatus === 'Active' && (row.taskCount ?? 0) === 0 && !overdue) {
+      return getStatusPillClass('inProgress')
+    }
+    return getStatusPillClass(getJobStatusTone({ status: normalizedStatus, dueDateUtc: row.dueDateUtc }))
+  }
   const tone = row.statusDomain === 'task'
     ? getTaskStatusTone({ currentStatus: row.status, dueDateUtc: row.dueDateUtc })
     : getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc })

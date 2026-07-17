@@ -1,3 +1,6 @@
+## Round — #1650 reopen İşleme Alındı geri al
+- [x] `6a5a195b` (#1650 reopen) — Vatandaş İşleme Alındı yanlışlıkla Onay Bekleyen olmuştu; geri alındı, kanal ikonu kaldı.
+
 ## Round — #1649/#1650 Grid Durum stacked overdue + İşleme Alındı ikon
 - [x] `6a5a17d7` (#1649) — Yapılmakta (Son Tarihi Geçmiş) iki satır + turuncu; yalnız Yapılmakta mavi.
 - [x] `6a5a195b` (#1650) — İşleme Alındı önünde vatandaş kanal ikonu.

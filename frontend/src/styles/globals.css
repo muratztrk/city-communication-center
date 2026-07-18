@@ -334,19 +334,8 @@
     box-sizing: border-box;
   }
 
-  /* İlgili Görev Detayları: Görev Bilgileri (görev no + tip rozeti) ↔ Süreç
-     başlık border hizası (card #1664). */
-  .detail-modal-shell .my-request-task-details .grid > * > .job-detail-section-heading,
-  .detail-modal-shell .my-request-task-details .job-process-timeline > .job-detail-section-heading {
-    min-height: 3.75rem;
-    box-sizing: border-box;
-  }
-
-  /* İlgili Görev Detayları > Görev Bilgileri: ikon, çok satırlı sağ meta yüzünden
-     dikey ortalanıp başlık metninin altında kalmasın (card #1665). */
-  .detail-modal-shell .my-request-task-details .job-detail-card-title {
-    align-items: flex-start;
-  }
+  /* İlgili Görev Detayları: Görev Bilgileri ↔ Süreç border tek satır başlık
+     yüksekliğinde hizalı; görev no/rozet absolute (card #1664 reopen). */
 
   .detail-modal-shell .job-detail-section-heading:has(> .job-detail-section-title:not(.job-detail-section-title--muted)) {
     border-bottom: none;

@@ -1,3 +1,7 @@
+## Round — #1664 reopen / #1669 border + bildirim bold
+- [x] `6a5b2064` (#1664 reopen) — Görev no/rozet absolute; border başlık altına yakın, Süreç ile hizalı.
+- [x] `6a5b2941` (#1669) — "Görev son tarihi güncellendi" tüm başlık her zaman bold.
+
 ## Round — #1664/#1665/#1667 görev detay hiza + bildirim tarih
 - [x] `6a5b2064` (#1664) — İlgili Görev Detayları Görev Bilgileri ↔ Süreç başlık border hizası.
 - [x] `6a5b20ca` (#1665) — Görev Bilgileri başlık metni ikonla dikey hiza.

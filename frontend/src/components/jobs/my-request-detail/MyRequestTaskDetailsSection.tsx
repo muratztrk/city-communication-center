@@ -164,16 +164,15 @@ export function MyRequestTaskDetailsSection({
 
           return (
             <div key={task.taskId} className={`grid items-stretch gap-4 ${gridColsClass}`}>
-              <div className="flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">
-                <MyRequestSectionHeading icon={Info} className="w-full">
-                  <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1">
-                    {/* min-h ≈ ikon kutusu (1.05rem + 0.8rem padding); metin ikonla aynı hizada (card #1665). */}
-                    <span className="flex min-h-[1.85rem] min-w-0 items-center leading-tight">{t('tasks.detail.taskInfo', 'Görev Bilgileri')}</span>
-                    <span className="ml-auto flex max-w-full flex-col items-end justify-start gap-1 text-right">
-                      <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{taskNoText}</span>
-                      <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{taskTypeBadge}</span>
-                    </span>
-                  </span>
+              {/* Görev no + tip rozeti absolute: başlık border'ı tek satır yüksekliğinde
+                  kalır, Süreç ile hizalı; border başlık metninin hemen altında (card #1664 reopen). */}
+              <div className="relative flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">
+                <div className="pointer-events-none absolute right-4 top-4 z-[1] flex max-w-[46%] flex-col items-end gap-1 text-right">
+                  <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{taskNoText}</span>
+                  <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{taskTypeBadge}</span>
+                </div>
+                <MyRequestSectionHeading icon={Info} className="w-full pr-[7.5rem]">
+                  {t('tasks.detail.taskInfo', 'Görev Bilgileri')}
                 </MyRequestSectionHeading>
                 <div className="my-request-detail-fields divide-y divide-slate-100">
                   {[

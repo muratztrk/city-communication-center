@@ -93,7 +93,9 @@ function notificationTitleTone(title: string): string | null {
 }
 
 function NotificationTitle({ title, isUnread }: { title: string; isUnread: boolean }) {
-  const mainWeight = isUnread ? 'font-bold text-slate-900' : 'font-medium text-slate-700'
+  // "Görev son tarihi güncellendi" okunmuş olsa da tüm başlık bold kalır (card #1669).
+  const alwaysBoldTitle = /son tarihi güncellendi/i.test(title)
+  const mainWeight = (isUnread || alwaysBoldTitle) ? 'font-bold text-slate-900' : 'font-medium text-slate-700'
   const tone = notificationTitleTone(title)
   const match = title.match(/^(.+?)\s(\([^)]+\))$/)
   const mainText = match ? match[1] : title
@@ -103,6 +105,8 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
       {tone ? (
         // Renkli (onaylandı/tamamlandı/reddedildi) başlıklar okunmuş olsa da bold kalır (cards #1344/#1401).
         <span className={`font-bold ${tone}`}>{mainText}</span>
+      ) : alwaysBoldTitle ? (
+        <span className="font-bold text-slate-900">{mainText}</span>
       ) : (
         <NotificationTitleStatusText value={mainText} plainClassName={mainWeight} />
       )}

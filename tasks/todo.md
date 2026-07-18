@@ -1,3 +1,6 @@
+## Round — #1677 talep son tarihi bildirimi
+- `UpdateJob` Son Tarih-only → `JobDueDateUpdated`; bildirim `Talep son tarihi güncellendi` + `T-… — başlık — tarih`.
+
 ## Round — #1673/#1666/#1672/#1675/#1674/#1676 paket
 - [x] `6a5b3269` (#1673) — Birime Gelen hedef yönetici Son Tarih Kaydet (UpdateJob target auth).
 - [x] `6a5b21c5` (#1666) — Birimden Giden sahip yönetici Süreç Son Tarih Değiştir.

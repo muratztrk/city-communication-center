@@ -109,6 +109,20 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         }
 
         var utcNow = DateTimeOffset.UtcNow;
+        var previousDueDateUtc = job.DueDateUtc;
+        var previousTitle = job.Title;
+        var previousDescription = job.Description;
+        var previousPriority = job.Priority;
+        var previousStartDateUtc = job.StartDateUtc;
+        var previousLatitude = job.Latitude;
+        var previousLongitude = job.Longitude;
+        var previousNeighborhood = job.Neighborhood;
+        var previousStreet = job.Street;
+        var previousOpenAddress = job.OpenAddress;
+        var previousCitizenName = job.CitizenName;
+        var previousCitizenPhone = job.CitizenPhone;
+        var previousIsProject = job.IsProject;
+        var previousIsProjectCreatorRequested = job.IsProjectCreatorRequested;
         job.Title = request.Title;
         job.Description = request.Description;
         job.Priority = request.Priority;
@@ -151,6 +165,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         // Vatandaş Talep Operatörü, sosyal kaynaklı birim dışı talebi hedef birim onaylamadan düzenleyebilir.
         var canOperatorEditTargetsBeforeTargetApproval = canOperatorEditCitizenRequest;
 
+        var targetsChanged = false;
         if (request.TargetDepartmentIds is not null && job.RequestType == JobRequestType.ExternalUnit
             && (job.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested
                 || canOperatorEditTargetsBeforeTargetApproval))
@@ -168,6 +183,8 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             var existingTargets = await _dbContext.JobDepartments
                 .Where(jd => jd.JobId == job.JobId && jd.TenantId == tenantId && jd.Role == JobDepartmentRole.Target)
                 .ToListAsync(cancellationToken);
+            var previousTargetIds = existingTargets.Select(jd => jd.DepartmentId).ToHashSet();
+            targetsChanged = !previousTargetIds.SetEquals(newTargetIds);
             _dbContext.JobDepartments.RemoveRange(existingTargets);
             foreach (var targetId in newTargetIds)
             {
@@ -200,21 +217,65 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             }
         }
 
-        _dbContext.AuditLogs.Add(new AuditLog
+        // Son tarih-only değişiklik: TaskDueDateUpdated ile aynı bildirim kalıbı (card #1677).
+        // FE datetime-local dakika hassasiyeti → UtcTicks yerine dakika karşılaştırması.
+        var dueDateChanged = DateChangedAtMinutePrecision(previousDueDateUtc, job.DueDateUtc);
+        var onlyDueDateChanged = dueDateChanged
+            && !targetsChanged
+            && string.Equals(previousTitle, job.Title, StringComparison.Ordinal)
+            && string.Equals(previousDescription, job.Description, StringComparison.Ordinal)
+            && string.Equals(previousPriority, job.Priority, StringComparison.Ordinal)
+            && !DateChangedAtMinutePrecision(previousStartDateUtc, job.StartDateUtc)
+            && previousLatitude == job.Latitude
+            && previousLongitude == job.Longitude
+            && previousNeighborhood == job.Neighborhood
+            && previousStreet == job.Street
+            && previousOpenAddress == job.OpenAddress
+            && previousCitizenName == job.CitizenName
+            && previousCitizenPhone == job.CitizenPhone
+            && previousIsProject == job.IsProject
+            && previousIsProjectCreatorRequested == job.IsProjectCreatorRequested;
+        if (onlyDueDateChanged)
         {
-            AuditLogId = Guid.NewGuid(),
-            TenantId = tenantId,
-            EntityType = nameof(Job),
-            EntityId = job.JobId.ToString(),
-            Action = "JobUpdated",
-            ActorUserId = actor.UserId,
-            ActorDisplayName = actor.DisplayName,
-            StatusAtEvent = job.Status.ToString(),
-            Notes = $"Title updated: {job.Title}",
-            Details = $"Title={job.Title}"
-        });
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(Job),
+                EntityId = job.JobId.ToString(),
+                Action = "JobDueDateUpdated",
+                ActorUserId = actor.UserId,
+                StatusAtEvent = job.Status.ToString(),
+                Notes = job.DueDateUtc?.ToString("O"),
+                Details = job.DueDateUtc?.ToString("O"),
+            });
+        }
+        else
+        {
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(Job),
+                EntityId = job.JobId.ToString(),
+                Action = "JobUpdated",
+                ActorUserId = actor.UserId,
+                ActorDisplayName = actor.DisplayName,
+                StatusAtEvent = job.Status.ToString(),
+                Notes = $"Title updated: {job.Title}",
+                Details = $"Title={job.Title}"
+            });
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    private static bool DateChangedAtMinutePrecision(DateTimeOffset? previous, DateTimeOffset? next)
+    {
+        if (previous is null && next is null) return false;
+        if (previous is null || next is null) return true;
+        return previous.Value.UtcDateTime.Ticks / TimeSpan.TicksPerMinute
+            != next.Value.UtcDateTime.Ticks / TimeSpan.TicksPerMinute;
     }
 }

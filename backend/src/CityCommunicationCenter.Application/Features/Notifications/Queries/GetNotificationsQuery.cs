@@ -241,7 +241,15 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         entityTitle = jobRec.Title;
                         originInfoByJobId.TryGetValue(jobRec.JobGuid, out jobOriginInfo);
                         var citizenRequestNumber = FormatCitizenRequestNumber(jobOriginInfo);
-                        if (!string.IsNullOrWhiteSpace(citizenRequestNumber))
+                        // Son tarih bildirimi görev kalıbıyla aynı: T-yyyy-n — başlık — tarih (card #1677).
+                        if (a.Action == "JobDueDateUpdated")
+                        {
+                            if (!string.IsNullOrWhiteSpace(citizenRequestNumber))
+                                entityNumber = citizenRequestNumber;
+                            else if (jobRec.JobNumber.HasValue)
+                                entityNumber = FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear);
+                        }
+                        else if (!string.IsNullOrWhiteSpace(citizenRequestNumber))
                             entityNumber = $"Vatandaş Talep No: {citizenRequestNumber}";
                         else if (jobRec.JobNumber.HasValue)
                             entityNumber = $"Talep No: {FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear)}";
@@ -259,6 +267,14 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                             if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
                             messageParts.Add($"{FormatTaskStatusLabel(transition[0])} -> {FormatTaskStatusLabel(transition[1])}");
                         }
+                    }
+                    else if (a.Action is "TaskDueDateUpdated" or "JobDueDateUpdated")
+                    {
+                        // Görev/talep son tarihi: numara — başlık — tarih (aktör yok; card #1677).
+                        if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
+                        if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
+                        var dueDateNote = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
+                        if (!string.IsNullOrWhiteSpace(dueDateNote)) messageParts.Add(dueDateNote);
                     }
                     else
                     {
@@ -379,6 +395,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
     {
         "JobCreated" => "Talep oluşturuldu",
         "JobUpdated" => "Talep güncellendi",
+        "JobDueDateUpdated" => "Talep son tarihi güncellendi",
         "JobCancelled" => "Talep iptal edildi",
         "JobDeleted" => "Talep silindi",
         "JobOwnerApproved" => "Talep onaylandı",
@@ -512,8 +529,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             trimmed.StartsWith("Task was created", StringComparison.OrdinalIgnoreCase))
             return null;
 
-        // "O" round-trip (+00:00) ve Zulu (Z) ISO zamanları — TaskDueDateUpdated Notes
-        // "O" yazar; yalnızca Z eşleşmesi ham ISO bırakıyordu (card #1667).
+        // "O" round-trip (+00:00) ve Zulu (Z) ISO zamanları — TaskDueDateUpdated /
+        // JobDueDateUpdated Notes "O" yazar; yalnızca Z eşleşmesi ham ISO bırakıyordu (card #1667).
         trimmed = System.Text.RegularExpressions.Regex.Replace(trimmed,
             @"\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})\b",
             match => DateTimeOffset.TryParse(match.Value, out var date)

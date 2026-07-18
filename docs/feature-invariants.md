@@ -783,9 +783,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   genişlikte (negatif margin yok).
 - **Mobil kurum içi mesajlar FAB (card #1674):** FAB `size-12`; panel yüksekliği `~78dvh`.
 - **Bildirim ISO tarih formatı (card #1667):** `FormatNote` hem `Z` hem `+00:00` (round-trip
-  `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`.
+  `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`
+  / `JobDueDateUpdated`.
+- **Talep son tarihi bildirimi (card #1677):** `UpdateJob` Son Tarih değişince `JobDueDateUpdated`
+  yazar; başlık `Talep son tarihi güncellendi`, gövde `T-… — başlık — dd.MM.yyyy HH:mm`
+  (`TaskDueDateUpdated` ile aynı kalıp; genel `JobUpdated` / "Title updated" değil).
 - **Bildirim "Görev son tarihi güncellendi" başlığı (card #1669):** okunmuş olsa da tüm
-  başlık metni `font-bold` kalır (yalnızca eylem kelimesi değil).
+  başlık metni `font-bold` kalır (yalnızca eylem kelimesi değil). `/son tarihi güncellendi/`
+  eşleşmesi talep başlığını da kapsar.
 - **Grid "Yeni" rozeti (cards #589/#607/#1668):** yanıp sönen yeşil `Yeni` tarih kolonunun
   altındadır — Taleplerim/Birime Giden → `Talep Tarihi` (`createdAtUtc` bugün);
   Görevlerim/Birimdeki/Personelim → `Görev Tarihi` (`assignedAtUtc` bugün);

@@ -14,7 +14,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { JobSummary, SocialMessage, Task } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridNumberPriority } from '../utils/localization'
 
 type WallboardSource = 'internal' | 'external' | 'citizen'
 
@@ -375,7 +375,7 @@ export function WallboardPage() {
                       <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
                       <td>
                         <div className={reporterNumberClass}>{item.taskNumber ?? '—'}</div>
-                        {item.priority ? (
+                        {item.priority && shouldShowGridNumberPriority(item.priority) ? (
                           <div className={`wallboard-priority-text ${getPriorityColorClass(item.priority)}`}>(Öncelik:{getPriorityLabel(t, item.priority)})</div>
                         ) : null}
                       </td>

@@ -1,3 +1,6 @@
+## Round — #1678 grid Normal öncelik gizle
+- Talep/Görev No altı `(Öncelik:Normal)` gizlenir; Yüksek/Çok Yüksek kalır.
+
 ## Round — #1677 talep son tarihi bildirimi
 - `UpdateJob` Son Tarih-only → `JobDueDateUpdated`; bildirim `Talep son tarihi güncellendi` + `T-… — başlık — tarih`.
 

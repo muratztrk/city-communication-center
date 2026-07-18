@@ -1,3 +1,7 @@
+## Round — #1662/#1658 dashboard dönem + Öncelik/Proje ayrımı
+- [x] `6a5a4cc0` (#1662) — Pie chart dönem filtresi: dönem dışı overdue OR kaldırıldı.
+- [x] `6a5a44d6` (#1658) — Görevlerim ailesi İlgili Talep: Öncelik / Proje mi ayrı satır.
+
 ## Round — #1661/#1663 şerit incelme + İlgili Görev Detayları
 - [x] `6a5a4b35` (#1661) — Detay popup başlık şeridi 3px → 2px.
 - [x] `6a5a4d23` (#1663) — Taleplerim/Birime Gelen/Giden: `İlgili Görev Detayları`.

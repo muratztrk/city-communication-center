@@ -2652,6 +2652,7 @@ const pageKicker = isMyTasksView
                           fields={parentInfoFields}
                           detail={parentJobDetail}
                           t={t}
+                          separatePriorityProjectRows
                           extraTrailingRows={isEditingThisParentJob ? undefined : [
                             {
                               label: t('attachments.requestSectionTitle', 'Talep Ekleri'),

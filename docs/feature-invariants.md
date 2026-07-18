@@ -754,8 +754,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   içinde de flat liste değil; görev düzeyinde `JobProcessTimeline` (Görev Tarihi → Durum/Son Tarih
   veya terminal tarih) kullanılır — Taleplerim / Birime Gelen / Birimden Giden ortak. Görev
   Tamamlama/İptal Notu (ya da aktif görev Açıklaması) Süreç kartının önünde yer alır.
-- **Görevlerim ailesi ilgili talep birleşik etiketi (card #1589):** Görevlerim, Birimdeki Görevler
-  ve Personelimin Görevleri popup'larında başlık `Öncelik / Proje mi` biçimindedir; sonunda `?` yoktur.
+- **Görevlerim ailesi ilgili talep öncelik/proje satırları (card #1658):** Görevlerim, Birimdeki
+  Görevler ve Personelimin Görevleri popup'larında `Öncelik` ile `Proje mi` ayrı satırlardır;
+  `Proje mi`, `Öncelik`in hemen altındadır (birleşik `Öncelik / Proje mi` kullanılmaz).
+- **Dashboard status pie chart dönem filtresi (card #1662):** pie chart sorguları üst kartlarla
+  aynı şekilde yalnız `CreatedAtUtc` dönem aralığını uygular; dönem dışı açık/gecikmiş kayıtları
+  OR ile eklemez.
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
   detayında bağlı talebin `Öncelik` etiketi/değeri `job-detail-card-title--spread` ile Görev Bilgileri
   başlığının sağ border'ına yaslanır; `Normal` bu yüzeyde emerald yeşilidir.

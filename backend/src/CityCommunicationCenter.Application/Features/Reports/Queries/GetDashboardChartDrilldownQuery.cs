@@ -224,13 +224,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         var candidates = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
                 && job.RequestType == JobRequestType.Citizen
-                && (((!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
-                    || (job.Status != JobStatus.Completed
-                        && job.Status != JobStatus.Cancelled
-                        && job.Status != JobStatus.Rejected
-                        && job.DueDateUtc.HasValue
-                        && job.DueDateUtc.Value < now)))
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
             .OrderByDescending(job => job.CreatedAtUtc)
             .Select(job => new
             {

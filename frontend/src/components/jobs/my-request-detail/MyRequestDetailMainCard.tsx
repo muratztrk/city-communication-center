@@ -98,16 +98,16 @@ export function MyRequestInfoFieldsList({
       ))}
       {!isEditing && (separatePriorityProjectRows || hidePriorityRow || hideProjectRow ? (
         <>
-          {!hideProjectRow ? (
-            <div className="job-detail-field-row job-detail-field-row--request-info">
-              <div className="job-detail-field-row__label">{t('jobs.columns.project', 'Proje mi')}</div>
-              <div className="job-detail-field-row__value"><JobProjectValue job={detail} t={t} /></div>
-            </div>
-          ) : null}
           {!hidePriorityRow ? (
             <div className="job-detail-field-row job-detail-field-row--request-info">
               <div className="job-detail-field-row__label">{t('jobs.columns.priority', 'Öncelik')}</div>
               <div className="job-detail-field-row__value">{getPriorityLabel(t, detail.priority)}</div>
+            </div>
+          ) : null}
+          {!hideProjectRow ? (
+            <div className="job-detail-field-row job-detail-field-row--request-info">
+              <div className="job-detail-field-row__label">{t('jobs.columns.project', 'Proje mi')}</div>
+              <div className="job-detail-field-row__value"><JobProjectValue job={detail} t={t} /></div>
             </div>
           ) : null}
         </>

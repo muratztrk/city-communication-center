@@ -31,6 +31,17 @@ export function formatDueDateTime(value: string | null, locale: string) {
   return formatDateTime(value, locale)
 }
 
+/** Süreç timeline "Onay Bekleyen" / "Pending Approval" değeri (card #1684 reopen). */
+export function isPendingApprovalText(value: string | null | undefined): boolean {
+  return /onay bekleyen|pending approval/i.test(value ?? '')
+}
+
+export function pendingApprovalValueClassName(value: string | null | undefined): string {
+  return isPendingApprovalText(value)
+    ? 'job-process-timeline__pending-approval-text text-slate-900'
+    : 'text-sm font-semibold text-slate-900'
+}
+
 export function getStatusChangeTextClass(status: string) {
   if (status === 'Cancelled' || status === 'Rejected') return 'text-red-600'
   if (status === 'Completed') return 'text-emerald-600'

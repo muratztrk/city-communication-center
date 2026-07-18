@@ -1,3 +1,6 @@
+## Round — #1684 reopen Onay Bekleyen eşit boy
+- #1684 reopen: Süreç onay adımı + Son Tarih `Onay Bekleyen` → aynı 0.75rem.
+
 ## Round — #1686/#1687 detay tipografi
 - #1686: Detay popup bold kart/bölüm başlıkları 0.875→0.8125rem.
 - #1687: Talep/Görev Bilgileri etiket/değer + yönetici notu/ek boş metinleri küçültüldü.

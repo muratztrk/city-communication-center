@@ -800,8 +800,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   logosu (`/tire-belediyesi-logo.png`); absolute ortalanır, aksiyonlar sıkışmaz.
 - **Detay popup header şeridi (card #1685):** `my-request-detail-header::after` rengi
   bölüm başlık çizgisiyle aynı (`color-mix(primary 40%, transparent)`).
-- **Süreç Onay Bekleyen metni (card #1684):** timeline `Onay Bekleyen` değerleri
-  `0.625rem` (`job-process-timeline__pending-approval-text`).
+- **Süreç Onay Bekleyen metni (card #1684 reopen):** onay adımı ve Son Tarih
+  `Onay Bekleyen` değerleri aynı boyutta (`0.75rem`,
+  `job-process-timeline__pending-approval-text`) — step-value ile hizalı.
 - **Detay popup header aksiyonları (card #1680 reopen):** masaüstünde aksiyonlar
   `flex-nowrap`; `DisabledActionButton` span'ında kalıcı `w-full` yok (mobilde CSS
   grid hücresi verir) — İptal/X bozulmaz.

@@ -62,6 +62,7 @@ import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detai
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
+import { pendingApprovalValueClassName } from '../components/jobs/my-request-detail/format'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -2517,6 +2518,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               : detail.status === 'Completed'
                                 ? t('jobs.statusLabel.completed', 'Tamamlanmış')
                                 : getJobStatusLabel(t, detail.status))
+                      const dueDateDisplayText = formatDueDateTime(detail.dueDateUtc, locale)
                       const dueDateContent = detailDueDateEdit?.jobId === detail.jobId ? (
                         <div className="mt-1 flex flex-col gap-1.5">
                           <DateTimePicker
@@ -2569,7 +2571,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         </div>
                       ) : (
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-900">{formatDueDateTime(detail.dueDateUtc, locale)}</span>
+                          <span className={pendingApprovalValueClassName(dueDateDisplayText)}>
+                            {dueDateDisplayText}
+                          </span>
                           {canChangeDetailDueDate && (
                             <button
                               type="button"

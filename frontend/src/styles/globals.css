@@ -473,9 +473,10 @@
     font-size: 0.6875rem;
   }
 
-  /* Süreç "Onay Bekleyen" metinleri biraz daha küçük (card #1684). */
+  /* Süreç "Onay Bekleyen" metinleri — onay adımı + Son Tarih aynı boy (card #1684 reopen).
+     Timeline step-value (0.75rem) ile hizalı; 0.625rem onay adımında çok küçüktü. */
   .detail-modal-shell .job-process-timeline__pending-approval-text {
-    font-size: 0.625rem;
+    font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.25;
   }

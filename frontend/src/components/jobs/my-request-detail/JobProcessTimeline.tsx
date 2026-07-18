@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
-import { splitDateTimeParts } from './format'
+import { isPendingApprovalText, splitDateTimeParts } from './format'
 
 function getLineClass(
   step: JobProcessStep,
@@ -78,7 +78,7 @@ function ProcessStepDateValue({
   const parts = step.dateTimeUtc ? splitDateTimeParts(step.dateTimeUtc, locale) : null
 
   if (!parts) {
-    const pendingApprovalText = /onay bekleyen|pending approval/i.test(step.displayValue ?? '')
+    const pendingApprovalText = isPendingApprovalText(step.displayValue)
     return (
       <div className={className}>
         <span className={pendingApprovalText ? 'job-process-timeline__pending-approval-text inline' : 'inline'}>
@@ -226,7 +226,7 @@ export function JobProcessTimeline({
                 </div>
                 {step.id === 'status' && statusContent ? (
                   <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${statusUseBlue ? ' [&_*]:!text-sky-500' : statusUseOrange ? ' [&_*]:!text-[#f97316]' : ''}`}>
-                    {typeof statusContent === 'string' && /onay bekleyen|pending approval/i.test(statusContent) ? (
+                    {typeof statusContent === 'string' && isPendingApprovalText(statusContent) ? (
                       <span className="job-process-timeline__pending-approval-text">{statusContent}</span>
                     ) : (
                       statusContent

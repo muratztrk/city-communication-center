@@ -17,7 +17,7 @@ import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
-import { formatDateTime } from './format'
+import { formatDateTime, pendingApprovalValueClassName } from './format'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
@@ -260,6 +260,7 @@ export function MyRequestDetailMainCard({
   const requestNumberText = isCitizenRequestJob(detail)
     ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
     : formatJobDisplayNumberText(detail, locale)
+  const dueDateDisplayValue = steps.find(step => step.id === 'dueDate')?.displayValue
 
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
     <div className="my-request-detail-edit-due-date">
@@ -323,8 +324,8 @@ export function MyRequestDetailMainCard({
     </div>
   ) : (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm font-semibold text-slate-900">
-        {steps.find(step => step.id === 'dueDate')?.displayValue}
+      <span className={pendingApprovalValueClassName(dueDateDisplayValue)}>
+        {dueDateDisplayValue}
       </span>
       {canChangeDueDate && (
         <button

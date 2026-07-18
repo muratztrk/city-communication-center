@@ -563,8 +563,8 @@
 
   .job-process-timeline__list {
     list-style: none;
-    /* Süreç başlığının altında timeline biraz aşağıdan başlar (card #1672). */
-    margin: 0.4rem 0 0;
+    /* Süreç başlığının altında timeline biraz aşağıdan başlar (card #1672 reopen). */
+    margin: 0.9rem 0 0;
     padding: 0;
   }
 
@@ -4480,8 +4480,16 @@
       line-height: 1.05 !important;
     }
 
+    /* DisabledActionButton span sarmalayıcı — pasif Yönlendir de İptal ile eşit hücre (card #1676). */
     .detail-modal-header-actions--mobile-grid > button,
-    .detail-modal-header-actions--mobile-grid > a {
+    .detail-modal-header-actions--mobile-grid > a,
+    .detail-modal-header-actions--mobile-grid > span {
+      width: 100%;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .detail-modal-header-actions--mobile-grid > span > button {
       width: 100%;
       justify-content: center;
     }
@@ -4602,10 +4610,10 @@
       font-size: 0.76rem;
     }
 
+    /* Login logo paneli Personel Girişi kartıyla aynı genişlikte (card #1675). */
     .login-logo-panel-mobile {
-      width: min(calc(100% + 2rem), 30rem);
-      margin-inline: -1rem;
-      padding-inline: 3.5rem;
+      width: 100%;
+      margin-inline: 0;
     }
 
     .table-container table,

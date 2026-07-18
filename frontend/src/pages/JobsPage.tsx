@@ -812,7 +812,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && !isDepartmentOutgoingView
     && detailContext !== 'incoming'
     && detailContext !== 'social'
-  const canChangeDetailDueDate = isIncomingRequestDetail
+  // Birime Gelen (hedef yönetici) + Birimden Giden (sahip yönetici) Son Tarih Değiştir
+  // (#1673/#1666). Terminal durumlar hariç.
+  const canChangeDetailDueDate = (isIncomingRequestDetail || isDepartmentOutgoingView)
     && isManagerLike
     && detail != null
     && (detail.status === 'Draft' || detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')

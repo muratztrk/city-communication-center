@@ -1,3 +1,11 @@
+## Round — #1673/#1666/#1672/#1675/#1674/#1676 paket
+- [x] `6a5b3269` (#1673) — Birime Gelen hedef yönetici Son Tarih Kaydet (UpdateJob target auth).
+- [x] `6a5b21c5` (#1666) — Birimden Giden sahip yönetici Süreç Son Tarih Değiştir.
+- [x] `6a5b310e` (#1672 reopen) — Süreç timeline margin-top 0.9rem.
+- [x] `6a5b3e32` (#1675) — Mobil login logo paneli form genişliğinde + kompakt.
+- [x] `6a5b3dde` (#1674) — Mobil IM FAB küçült, panel ~78dvh.
+- [x] `6a5b3ebf` (#1676) — Mobil pasif Yönlendir = İptal grid genişliği.
+
 ## Round — #1671/#1672 self-istek nokta + Süreç boşluk
 - [x] `6a5b2f5d` (#1671) — "(Görevi kendisi yapmak istiyor)" sonda nokta yok.
 - [x] `6a5b310e` (#1672) — Süreç timeline başlığın altında 0.4rem aşağıdan başlar.

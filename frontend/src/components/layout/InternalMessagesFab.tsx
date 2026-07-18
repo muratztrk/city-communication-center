@@ -354,9 +354,9 @@ export function InternalMessagesFab() {
   }
 
   return (
-    <div className="relative size-14 shrink-0">
+    <div className="internal-messages-fab relative size-12 shrink-0 sm:size-14">
       {isOpen ? (
-        <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(66dvh,42rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
+        <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(78dvh,48rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl sm:h-[min(66dvh,42rem)]">
           <div className={`flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pr-4 ${activeChat ? 'pl-3' : 'pl-4'}`}>
               <div className={`min-w-0 flex-1 ${activeChat ? 'flex flex-col gap-1' : 'flex items-start'}`}>
                 {activeChat ? (
@@ -605,7 +605,7 @@ export function InternalMessagesFab() {
         title={t('internalMessages.fabLabel', 'Kurum İçi Mesajlar')}
         aria-expanded={isOpen}
         onClick={() => setIsOpen(current => !current)}
-        className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
+        className={`group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg transition-shadow duration-300 hover:shadow-xl sm:size-14 ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
       >
         <span className="absolute inset-0 rounded-full bg-emerald-700/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
         <InternalMessagesIcon />

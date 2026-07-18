@@ -15,7 +15,7 @@ export function DisabledActionButton({
   return (
     <span
       title={hoverTitle}
-      className="inline-flex cursor-not-allowed"
+      className="inline-flex min-w-0 w-full cursor-not-allowed"
     >
       <Button
         {...props}

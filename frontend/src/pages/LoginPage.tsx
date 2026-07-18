@@ -335,21 +335,21 @@ export function LoginPage() {
           }}
         >
           <div className="w-full space-y-4">
-            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-3 overflow-hidden rounded-[var(--radius-xl)] border border-emerald-900/20 bg-[color:var(--color-header-from)] px-7 py-4 pt-16 sm:px-9 lg:hidden">
+            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-2 overflow-hidden rounded-[var(--radius-xl)] border border-emerald-900/20 bg-[color:var(--color-header-from)] px-5 py-3 pt-12 sm:px-9 lg:hidden">
               {/* Mobilde Atatürk silüeti logo kartının kendi border'ı içinde sol üstte kalır. */}
               <img
                 src="/header-ataturk.png"
                 alt="Atatürk"
-                className="pointer-events-none absolute left-0 top-0 z-10 h-[4.5rem] w-auto select-none opacity-80"
+                className="pointer-events-none absolute left-0 top-0 z-10 h-14 w-auto select-none opacity-80"
               />
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-20 w-56 border-0 sm:h-24 sm:w-64"
+                className="h-[4.25rem] w-48 border-0 sm:h-24 sm:w-64"
                 imageClassName="h-[92%] w-[92%]"
               />
               <div className="min-w-0 text-center">
-                <div className="text-base font-bold text-white">{t('shell.subtitle', { municipalityName })}</div>
+                <div className="text-sm font-bold text-white sm:text-base">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             </div>
 

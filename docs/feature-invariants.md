@@ -771,9 +771,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aynı düşey hizadadır (`job-detail-card-title__label`; card #1665 reopen).
   Detay kolon başlık altı border'ları metne biraz daha yakındır (`padding-bottom: 0.3rem`,
   grid `min-height: 3rem`; card #1665) — kolonlar arası hiza korunur.
-  Süreç timeline listesi başlığın altında `0.4rem` üst boşlukla başlar (card #1672).
+  Süreç timeline listesi başlığın altında `0.9rem` üst boşlukla başlar (card #1672 reopen).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
+- **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi
+  `UpdateJob` ile Son Tarih kaydedebilir (Owner-only yetki 403 vermez). Birimden Giden sahip
+  yöneticisi detay Süreç'te `Onay Bekleyen` yanında `Değiştir` görür.
+- **Mobil detay header eşit butonlar (card #1676):** `DisabledActionButton` span sarmalayıcı
+  da 2-kolon gridde `width: 100%` — pasif Yönlendir = İptal boyutu.
+- **Mobil login logo paneli (card #1675):** yeşil logo alanı Personel Girişi kartıyla aynı
+  genişlikte (negatif margin yok).
+- **Mobil kurum içi mesajlar FAB (card #1674):** FAB `size-12`; panel yüksekliği `~78dvh`.
 - **Bildirim ISO tarih formatı (card #1667):** `FormatNote` hem `Z` hem `+00:00` (round-trip
   `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`.
 - **Bildirim "Görev son tarihi güncellendi" başlığı (card #1669):** okunmuş olsa da tüm
